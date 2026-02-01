@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": {
+          "toolName": "edit|write",
+          "filePath": "\\.vue$|\\.ts$"
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "yarn lint --fix $CLAUDE_FILE_PATH"
+          }
+        ]
+      }
+    ]
+  }
+}

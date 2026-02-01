@@ -1,0 +1,250 @@
+/**
+ * DanxDialog Styles
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize dialog appearance.
+ *
+ * CSS Tokens:
+ * --dialog-bg              Background color
+ * --dialog-border-color    Border color
+ * --dialog-border-radius   Corner radius
+ * --dialog-shadow          Box shadow
+ * --dialog-padding         Content padding
+ * --dialog-gap             Gap between header/content/footer
+ * --dialog-max-width       Maximum width
+ * --dialog-max-height      Maximum height
+ * --dialog-title-color     Title text color
+ * --dialog-title-size      Title font size
+ * --dialog-title-weight    Title font weight
+ * --dialog-subtitle-color  Subtitle text color
+ * --dialog-subtitle-size   Subtitle font size
+ * --dialog-backdrop        Backdrop color
+ * --dialog-animation-duration  Animation duration
+ */
+
+@import "../../shared/tokens/index.css";
+
+/* ==========================================================================
+   Component Tokens
+   ========================================================================== */
+
+:root {
+  --dialog-bg: var(--color-surface);
+  --dialog-border-color: var(--color-border);
+  --dialog-border-radius: var(--radius-dialog);
+  --dialog-shadow: var(--shadow-dialog);
+  --dialog-padding: var(--space-lg);
+  --dialog-gap: var(--space-md);
+  --dialog-max-width: 90vw;
+  --dialog-max-height: 90vh;
+
+  --dialog-title-color: var(--color-text);
+  --dialog-title-size: var(--text-xl);
+  --dialog-title-weight: var(--font-semibold);
+  --dialog-subtitle-color: var(--color-text-muted);
+  --dialog-subtitle-size: var(--text-sm);
+
+  --dialog-backdrop: var(--color-backdrop);
+  --dialog-animation-duration: var(--duration-200);
+
+  /* Button tokens */
+  --dialog-button-padding-x: var(--space-md);
+  --dialog-button-padding-y: var(--space-sm);
+  --dialog-button-radius: var(--radius-button);
+  --dialog-button-font-size: var(--text-sm);
+  --dialog-button-font-weight: var(--font-medium);
+
+  --dialog-button-primary-bg: var(--color-interactive);
+  --dialog-button-primary-bg-hover: var(--color-interactive-hover);
+  --dialog-button-primary-text: var(--color-text-inverted);
+
+  --dialog-button-secondary-bg: transparent;
+  --dialog-button-secondary-bg-hover: var(--color-surface-sunken);
+  --dialog-button-secondary-text: var(--color-text);
+  --dialog-button-secondary-border: var(--color-border-strong);
+}
+
+/* ==========================================================================
+   Dialog Element
+   ========================================================================== */
+
+.danx-dialog {
+  position: fixed;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--dialog-border-color);
+  border-radius: var(--dialog-border-radius);
+  background: var(--dialog-bg);
+  box-shadow: var(--dialog-shadow);
+  max-width: var(--dialog-max-width);
+  max-height: var(--dialog-max-height);
+  overflow: hidden;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+
+  /* Animation */
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity var(--dialog-animation-duration) var(--ease-out),
+    transform var(--dialog-animation-duration) var(--ease-out),
+    overlay var(--dialog-animation-duration) var(--ease-out) allow-discrete,
+    display var(--dialog-animation-duration) var(--ease-out) allow-discrete;
+}
+
+/* Entry animation using @starting-style */
+@starting-style {
+  .danx-dialog[open] {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Backdrop */
+.danx-dialog::backdrop {
+  background: var(--dialog-backdrop);
+  opacity: 1;
+  transition:
+    opacity var(--dialog-animation-duration) var(--ease-out),
+    overlay var(--dialog-animation-duration) var(--ease-out) allow-discrete,
+    display var(--dialog-animation-duration) var(--ease-out) allow-discrete;
+}
+
+@starting-style {
+  .danx-dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Container (flex layout for header/content/footer)
+   ========================================================================== */
+
+.danx-dialog__container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dialog-gap);
+  height: 100%;
+  max-height: var(--dialog-max-height);
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.danx-dialog__header {
+  flex-shrink: 0;
+  padding: var(--dialog-padding);
+  padding-bottom: 0;
+}
+
+.danx-dialog__title {
+  color: var(--dialog-title-color);
+  font-size: var(--dialog-title-size);
+  font-weight: var(--dialog-title-weight);
+  line-height: var(--leading-tight);
+}
+
+.danx-dialog__subtitle {
+  margin-top: var(--space-xs);
+  color: var(--dialog-subtitle-color);
+  font-size: var(--dialog-subtitle-size);
+  line-height: var(--leading-normal);
+}
+
+/* ==========================================================================
+   Content
+   ========================================================================== */
+
+.danx-dialog__content {
+  flex: 1;
+  overflow: auto;
+  padding: var(--dialog-padding);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Add top padding when there's no header */
+.danx-dialog__container > .danx-dialog__content:first-child {
+  padding-top: var(--dialog-padding);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.danx-dialog__footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding: var(--dialog-padding);
+  padding-top: 0;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.danx-dialog__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--dialog-button-padding-y) var(--dialog-button-padding-x);
+  border-radius: var(--dialog-button-radius);
+  font-size: var(--dialog-button-font-size);
+  font-weight: var(--dialog-button-font-weight);
+  line-height: var(--leading-none);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.danx-dialog__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary button (Confirm) */
+.danx-dialog__button--primary {
+  background: var(--dialog-button-primary-bg);
+  color: var(--dialog-button-primary-text);
+  border: 1px solid transparent;
+}
+
+.danx-dialog__button--primary:hover:not(:disabled) {
+  background: var(--dialog-button-primary-bg-hover);
+}
+
+/* Secondary button (Close) */
+.danx-dialog__button--secondary {
+  background: var(--dialog-button-secondary-bg);
+  color: var(--dialog-button-secondary-text);
+  border: 1px solid var(--dialog-button-secondary-border);
+}
+
+.danx-dialog__button--secondary:hover:not(:disabled) {
+  background: var(--dialog-button-secondary-bg-hover);
+}
+
+/* ==========================================================================
+   Loading Spinner
+   ========================================================================== */
+
+.danx-dialog__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: danx-dialog-spin 0.6s linear infinite;
+}
+
+@keyframes danx-dialog-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

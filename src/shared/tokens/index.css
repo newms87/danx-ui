@@ -1,0 +1,15 @@
+/**
+ * Token System Entry Point
+ *
+ * Import this file to get the complete token system with light and dark themes.
+ * Tokens are organized in three tiers:
+ *
+ * 1. Primitives - Raw values (colors, spacing, radii, shadows)
+ * 2. Semantics - Contextual meaning referencing primitives
+ * 3. Component - Per-component tokens referencing semantics (in component CSS)
+ *
+ * Dark mode is activated by adding `.dark` class to `<html>` or `<body>`.
+ */
+
+@import "./semantic.css";
+@import "./semantic-dark.css";

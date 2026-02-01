@@ -1,0 +1,117 @@
+/**
+ * Semantic Tokens - Light Theme
+ *
+ * Contextual meaning that references primitives. These tokens provide
+ * semantic names for design decisions. Components reference these tokens,
+ * not primitives directly.
+ *
+ * Dark mode overrides ONLY this layer - primitives and component tokens
+ * remain unchanged.
+ */
+
+@import "./primitives.css";
+
+:root {
+  /* ==========================================================================
+     Surface Colors
+     Background colors for containers, cards, dialogs, etc.
+     ========================================================================== */
+
+  --color-surface: var(--color-white);
+  --color-surface-elevated: var(--color-white);
+  --color-surface-sunken: var(--color-slate-50);
+  --color-surface-overlay: var(--color-slate-900);
+
+  /* ==========================================================================
+     Text Colors
+     ========================================================================== */
+
+  --color-text: var(--color-slate-900);
+  --color-text-muted: var(--color-slate-600);
+  --color-text-subtle: var(--color-slate-400);
+  --color-text-inverted: var(--color-white);
+
+  /* ==========================================================================
+     Border Colors
+     ========================================================================== */
+
+  --color-border: var(--color-slate-200);
+  --color-border-strong: var(--color-slate-300);
+  --color-border-subtle: var(--color-slate-100);
+
+  /* ==========================================================================
+     Interactive Colors
+     Primary action color for buttons, links, focus rings
+     ========================================================================== */
+
+  --color-interactive: var(--color-blue-600);
+  --color-interactive-hover: var(--color-blue-700);
+  --color-interactive-active: var(--color-blue-800);
+  --color-interactive-subtle: var(--color-blue-50);
+
+  /* ==========================================================================
+     Status Colors
+     ========================================================================== */
+
+  --color-danger: var(--color-red-600);
+  --color-danger-hover: var(--color-red-700);
+  --color-danger-subtle: var(--color-red-50);
+
+  --color-success: var(--color-green-600);
+  --color-success-hover: var(--color-green-700);
+  --color-success-subtle: var(--color-green-50);
+
+  --color-warning: var(--color-amber-500);
+  --color-warning-hover: var(--color-amber-600);
+  --color-warning-subtle: var(--color-amber-50);
+
+  /* ==========================================================================
+     Focus & Selection
+     ========================================================================== */
+
+  --color-focus-ring: var(--color-blue-500);
+  --color-selection: var(--color-blue-100);
+
+  /* ==========================================================================
+     Backdrop
+     ========================================================================== */
+
+  --color-backdrop: rgb(0 0 0 / 0.5);
+
+  /* ==========================================================================
+     Semantic Spacing
+     Named spacing for common use cases
+     ========================================================================== */
+
+  --space-xs: var(--spacing-1);
+  --space-sm: var(--spacing-2);
+  --space-md: var(--spacing-4);
+  --space-lg: var(--spacing-6);
+  --space-xl: var(--spacing-8);
+
+  /* ==========================================================================
+     Semantic Radii
+     ========================================================================== */
+
+  --radius-component: var(--radius-lg);
+  --radius-button: var(--radius-md);
+  --radius-input: var(--radius-md);
+  --radius-card: var(--radius-xl);
+  --radius-dialog: var(--radius-xl);
+
+  /* ==========================================================================
+     Semantic Shadows
+     ========================================================================== */
+
+  --shadow-component: var(--shadow-default);
+  --shadow-elevated: var(--shadow-lg);
+  --shadow-dialog: var(--shadow-2xl);
+
+  /* ==========================================================================
+     Semantic Transitions
+     ========================================================================== */
+
+  --transition-fast: var(--duration-150) var(--ease-out);
+  --transition-normal: var(--duration-200) var(--ease-out);
+  --transition-slow: var(--duration-300) var(--ease-out);
+}
