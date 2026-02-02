@@ -2,14 +2,13 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": {
-          "toolName": "edit|write",
-          "filePath": "\\.vue$|\\.ts$"
-        },
+        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "yarn lint --fix $CLAUDE_FILE_PATH"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint.sh",
+            "async": true,
+            "timeout": 30
           }
         ]
       }

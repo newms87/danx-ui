@@ -1,3 +1,5 @@
+import type { SizeValue } from "../../shared/types";
+
 /**
  * DanxDialog Type Definitions
  */
@@ -27,14 +29,14 @@ export interface DanxDialogProps {
    * - Number: Converted to viewport width (80 → "80vw")
    * - String: Used as-is ("400px", "30rem")
    */
-  width?: number | string;
+  width?: SizeValue;
 
   /**
    * Dialog height.
    * - Number: Converted to viewport height (60 → "60vh")
    * - String: Used as-is ("400px", "30rem")
    */
-  height?: number | string;
+  height?: SizeValue;
 
   /**
    * When true, prevents closing via ESC key or backdrop click.

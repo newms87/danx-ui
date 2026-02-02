@@ -94,7 +94,6 @@ const props = withDefaults(defineProps<DanxDialogProps>(), {
 });
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
   (e: "close"): void;
   (e: "confirm"): void;
 }>();
@@ -119,9 +118,7 @@ const dialogStyle = computed(() => {
 });
 
 // Button text computed - only called when button is rendered (truthy prop)
-const closeButtonText = computed(() =>
-  props.closeButton === true ? "Close" : props.closeButton
-);
+const closeButtonText = computed(() => (props.closeButton === true ? "Close" : props.closeButton));
 
 const confirmButtonText = computed(() =>
   props.confirmButton === true ? "Confirm" : props.confirmButton
