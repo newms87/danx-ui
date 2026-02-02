@@ -45,6 +45,11 @@ export interface DanxDialogProps {
   persistent?: boolean;
 
   /**
+   * Shows an X close button in the top-right corner of the header.
+   */
+  closeX?: boolean;
+
+  /**
    * Shows a close button in the footer.
    * - true: Shows button with text "Close"
    * - string: Shows button with custom text

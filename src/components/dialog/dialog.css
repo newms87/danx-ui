@@ -9,10 +9,13 @@
  * --dialog-border-color    Border color
  * --dialog-border-radius   Corner radius
  * --dialog-shadow          Box shadow
+ * --dialog-glow            Glow effect (dark mode)
  * --dialog-padding         Content padding
- * --dialog-gap             Gap between header/content/footer
+ * --dialog-padding-mobile  Padding on mobile devices
  * --dialog-max-width       Maximum width
  * --dialog-max-height      Maximum height
+ * --dialog-header-bg       Header background color
+ * --dialog-header-border   Header bottom border color
  * --dialog-title-color     Title text color
  * --dialog-title-size      Title font size
  * --dialog-title-weight    Title font weight
@@ -29,34 +32,39 @@
    ========================================================================== */
 
 :root {
-  --dialog-bg: var(--color-surface);
+  --dialog-bg: var(--color-surface-elevated);
   --dialog-border-color: var(--color-border);
   --dialog-border-radius: var(--radius-dialog);
   --dialog-shadow: var(--shadow-dialog);
+  --dialog-glow: var(--shadow-glow);
   --dialog-padding: var(--space-lg);
+  --dialog-padding-mobile: var(--space-md);
   --dialog-gap: var(--space-md);
   --dialog-max-width: 90vw;
-  --dialog-max-height: 90vh;
+  --dialog-max-height: 85vh;
 
+  --dialog-header-bg: var(--color-surface-sunken);
+  --dialog-header-border: var(--color-border);
   --dialog-title-color: var(--color-text);
-  --dialog-title-size: var(--text-xl);
+  --dialog-title-size: var(--text-lg);
   --dialog-title-weight: var(--font-semibold);
   --dialog-subtitle-color: var(--color-text-muted);
   --dialog-subtitle-size: var(--text-sm);
 
   --dialog-backdrop: var(--color-backdrop);
-  --dialog-animation-duration: var(--duration-200);
+  --dialog-animation-duration: var(--duration-300);
 
   /* Button tokens */
   --dialog-button-padding-x: var(--space-md);
   --dialog-button-padding-y: var(--space-sm);
-  --dialog-button-radius: var(--radius-button);
+  --dialog-button-radius: var(--radius-lg);
   --dialog-button-font-size: var(--text-sm);
-  --dialog-button-font-weight: var(--font-medium);
+  --dialog-button-font-weight: var(--font-semibold);
 
-  --dialog-button-primary-bg: var(--color-interactive);
+  --dialog-button-primary-bg: var(--gradient-accent);
   --dialog-button-primary-bg-hover: var(--color-interactive-hover);
-  --dialog-button-primary-text: var(--color-text-inverted);
+  --dialog-button-primary-text: var(--color-white);
+  --dialog-button-primary-shadow: 0 2px 4px rgb(37 99 235 / 0.3);
 
   --dialog-button-secondary-bg: transparent;
   --dialog-button-secondary-bg-hover: var(--color-surface-sunken);
@@ -122,29 +130,77 @@
    ========================================================================== */
 
 .danx-dialog__box {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--dialog-gap);
   max-width: var(--dialog-max-width);
   max-height: var(--dialog-max-height);
   padding: 0;
   border: 1px solid var(--dialog-border-color);
   border-radius: var(--dialog-border-radius);
   background: var(--dialog-bg);
-  box-shadow: var(--dialog-shadow);
+  box-shadow: var(--dialog-shadow), var(--dialog-glow);
   overflow: hidden;
   font-family: var(--font-sans);
   color: var(--color-text);
 
   /* Animation */
-  transform: scale(1);
-  transition: transform var(--dialog-animation-duration) var(--ease-out);
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  transition:
+    transform var(--dialog-animation-duration) var(--ease-out),
+    opacity var(--dialog-animation-duration) var(--ease-out);
 }
 
 @starting-style {
   .danx-dialog[open] .danx-dialog__box {
-    transform: scale(0.95);
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
   }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .danx-dialog__box {
+    max-width: 95vw;
+    max-height: 90vh;
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* ==========================================================================
+   Close X Button
+   ========================================================================== */
+
+.danx-dialog__close-x {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.danx-dialog__close-x:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.danx-dialog__close-x:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -153,22 +209,36 @@
 
 .danx-dialog__header {
   flex-shrink: 0;
-  padding: var(--dialog-padding);
-  padding-bottom: 0;
+  padding: var(--spacing-3) var(--dialog-padding);
+  background: var(--dialog-header-bg);
+  border-bottom: 1px solid var(--dialog-header-border);
 }
 
 .danx-dialog__title {
+  margin: 0;
   color: var(--dialog-title-color);
   font-size: var(--dialog-title-size);
   font-weight: var(--dialog-title-weight);
   line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
 }
 
 .danx-dialog__subtitle {
-  margin-top: var(--space-xs);
+  margin: var(--space-xs) 0 0;
   color: var(--dialog-subtitle-color);
   font-size: var(--dialog-subtitle-size);
   line-height: var(--leading-normal);
+}
+
+/* Mobile header adjustments */
+@media (max-width: 640px) {
+  .danx-dialog__header {
+    padding: var(--space-sm) var(--dialog-padding-mobile);
+  }
+
+  .danx-dialog__title {
+    font-size: var(--text-base);
+  }
 }
 
 /* ==========================================================================
@@ -178,14 +248,27 @@
 .danx-dialog__content {
   flex: 1;
   overflow: auto;
-  padding: var(--dialog-padding);
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: var(--space-md) var(--dialog-padding);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
 }
 
 /* Add top padding when there's no header */
 .danx-dialog__box > .danx-dialog__content:first-child {
   padding-top: var(--dialog-padding);
+}
+
+/* Mobile content adjustments */
+@media (max-width: 640px) {
+  .danx-dialog__content {
+    padding: var(--space-sm) var(--dialog-padding-mobile);
+    font-size: var(--text-sm);
+  }
+
+  .danx-dialog__box > .danx-dialog__content:first-child {
+    padding-top: var(--dialog-padding-mobile);
+  }
 }
 
 /* ==========================================================================
@@ -197,8 +280,18 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--space-sm);
-  padding: var(--dialog-padding);
-  padding-top: 0;
+  padding: var(--space-sm) var(--dialog-padding);
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-sunken);
+}
+
+/* Mobile footer adjustments */
+@media (max-width: 640px) {
+  .danx-dialog__footer {
+    padding: var(--space-xs) var(--dialog-padding-mobile);
+    flex-direction: column-reverse;
+    gap: var(--space-sm);
+  }
 }
 
 /* ==========================================================================
@@ -211,15 +304,23 @@
   justify-content: center;
   gap: var(--space-sm);
   padding: var(--dialog-button-padding-y) var(--dialog-button-padding-x);
+  min-height: 2.5rem;
   border-radius: var(--dialog-button-radius);
   font-size: var(--dialog-button-font-size);
   font-weight: var(--dialog-button-font-weight);
   line-height: var(--leading-none);
   cursor: pointer;
   transition:
-    background-color var(--transition-fast),
+    background var(--transition-fast),
     border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast),
     opacity var(--transition-fast);
+}
+
+.danx-dialog__button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .danx-dialog__button:disabled {
@@ -232,10 +333,18 @@
   background: var(--dialog-button-primary-bg);
   color: var(--dialog-button-primary-text);
   border: 1px solid transparent;
+  box-shadow: var(--dialog-button-primary-shadow);
 }
 
 .danx-dialog__button--primary:hover:not(:disabled) {
   background: var(--dialog-button-primary-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgb(37 99 235 / 0.3);
+}
+
+.danx-dialog__button--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--dialog-button-primary-shadow);
 }
 
 /* Secondary button (Close) */
@@ -247,6 +356,21 @@
 
 .danx-dialog__button--secondary:hover:not(:disabled) {
   background: var(--dialog-button-secondary-bg-hover);
+  border-color: var(--color-border);
+}
+
+.danx-dialog__button--secondary:active:not(:disabled) {
+  background: var(--color-surface-sunken);
+}
+
+/* Mobile button adjustments */
+@media (max-width: 640px) {
+  .danx-dialog__button {
+    width: 100%;
+    justify-content: center;
+    min-height: 2.75rem;
+    font-size: var(--text-base);
+  }
 }
 
 /* ==========================================================================

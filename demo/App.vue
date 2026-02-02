@@ -1,17 +1,47 @@
 <script setup lang="ts">
-import { ref } from "vue";
+/**
+ * Demo App
+ *
+ * Root component for the danx-ui demo environment.
+ * Includes theme selector with localStorage persistence.
+ */
+import { ref, onMounted, watch } from "vue";
 import { RouterLink, RouterView } from "vue-router";
 
-const isDark = ref(false);
+type Theme = "light" | "dark";
 
-function toggleDarkMode() {
-  isDark.value = !isDark.value;
-  document.documentElement.classList.toggle("dark", isDark.value);
+const STORAGE_KEY = "danx-ui-theme";
+
+const theme = ref<Theme>("light");
+
+function applyTheme(newTheme: Theme) {
+  document.documentElement.classList.toggle("dark", newTheme === "dark");
+  document.body.style.colorScheme = newTheme;
 }
+
+function handleThemeChange(event: Event) {
+  const select = event.target as HTMLSelectElement;
+  theme.value = select.value as Theme;
+}
+
+onMounted(() => {
+  const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+  if (stored && ["light", "dark"].includes(stored)) {
+    theme.value = stored;
+  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    theme.value = "dark";
+  }
+  applyTheme(theme.value);
+});
+
+watch(theme, (newTheme) => {
+  localStorage.setItem(STORAGE_KEY, newTheme);
+  applyTheme(newTheme);
+});
 </script>
 
 <template>
-  <div class="demo-app" :class="{ dark: isDark }">
+  <div class="demo-app">
     <!-- Sidebar -->
     <nav class="demo-sidebar">
       <div class="demo-sidebar__header">
@@ -34,9 +64,13 @@ function toggleDarkMode() {
       </ul>
 
       <div class="demo-sidebar__footer">
-        <button class="demo-theme-toggle" @click="toggleDarkMode">
-          {{ isDark ? "☀️ Light" : "🌙 Dark" }}
-        </button>
+        <label class="demo-theme-selector">
+          <span class="demo-theme-selector__label">Theme</span>
+          <select class="demo-theme-selector__select" :value="theme" @change="handleThemeChange">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
       </div>
     </nav>
 
@@ -52,27 +86,33 @@ function toggleDarkMode() {
 .demo-app {
   display: flex;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, sans-serif;
-}
-
-.demo-app.dark {
-  background: #1a1a2e;
-  color: #e8e8e8;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Sidebar */
 .demo-sidebar {
-  width: 240px;
-  background: #f5f5f5;
-  border-right: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 260px;
+  background: var(--color-surface-sunken);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-}
-
-.dark .demo-sidebar {
-  background: #16213e;
-  border-color: #0f3460;
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .demo-sidebar__header {
@@ -83,11 +123,16 @@ function toggleDarkMode() {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
+  background: var(--gradient-accent);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .demo-sidebar__version {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--color-text-muted);
+  margin-left: 0.25rem;
 }
 
 .demo-sidebar__nav {
@@ -99,64 +144,93 @@ function toggleDarkMode() {
 
 .demo-sidebar__nav ul {
   list-style: none;
-  padding-left: 1rem;
-  margin: 0;
+  padding-left: 0.75rem;
+  margin: 0.25rem 0 0;
 }
 
 .demo-sidebar__section {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  color: #888;
-  margin-top: 1rem;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
   display: block;
+  font-weight: 600;
 }
 
 .demo-sidebar__link {
   display: block;
-  padding: 0.5rem;
-  color: inherit;
+  padding: 0.625rem 0.75rem;
+  color: var(--color-text-muted);
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .demo-sidebar__link:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.dark .demo-sidebar__link:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .demo-sidebar__link.router-link-active {
-  background: #0077cc;
+  background: var(--gradient-accent);
   color: white;
+  box-shadow: 0 2px 8px rgb(37 99 235 / 0.25);
 }
 
 .demo-sidebar__footer {
   padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--color-border);
 }
 
-.dark .demo-sidebar__footer {
-  border-color: #0f3460;
+/* Theme Selector */
+.demo-theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 }
 
-.demo-theme-toggle {
+.demo-theme-selector__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.demo-theme-selector__select {
   width: 100%;
-  padding: 0.5rem;
-  background: transparent;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.625rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
 }
 
-.demo-theme-toggle:hover {
-  background: rgba(0, 0, 0, 0.05);
+.demo-theme-selector__select:hover {
+  border-color: var(--color-border-strong);
 }
 
-.dark .demo-theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+.demo-theme-selector__select:focus {
+  outline: none;
+  border-color: var(--color-interactive);
+  box-shadow: 0 0 0 3px var(--color-interactive-subtle);
 }
 
 /* Main Content */
@@ -164,5 +238,53 @@ function toggleDarkMode() {
   flex: 1;
   padding: 2rem;
   overflow: auto;
+  background: var(--color-surface);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .demo-app {
+    flex-direction: column;
+  }
+
+  .demo-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem;
+  }
+
+  .demo-sidebar__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .demo-sidebar__nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .demo-sidebar__nav ul {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .demo-sidebar__section {
+    display: none;
+  }
+
+  .demo-sidebar__footer {
+    padding-top: 0.75rem;
+  }
+
+  .demo-main {
+    padding: 1rem;
+  }
 }
 </style>

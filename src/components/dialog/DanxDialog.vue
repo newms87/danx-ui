@@ -21,6 +21,7 @@
  * | width          | number \| string  | undefined | Width (number=vw, string=as-is)        |
  * | height         | number \| string  | undefined | Height (number=vh, string=as-is)       |
  * | persistent     | boolean           | false     | Prevent ESC/backdrop close             |
+ * | closeX         | boolean           | false     | Show X close button in top-right       |
  * | closeButton    | boolean \| string | false     | Show close button (true="Close")       |
  * | confirmButton  | boolean \| string | false     | Show confirm button (true="Confirm")   |
  * | isSaving       | boolean           | false     | Loading state for confirm button       |
@@ -89,6 +90,7 @@ import type { DanxDialogProps } from "./types";
 
 const props = withDefaults(defineProps<DanxDialogProps>(), {
   persistent: false,
+  closeX: false,
   isSaving: false,
   disabled: false,
 });
@@ -162,6 +164,16 @@ function handleCancel(event: Event) {
   handleClose();
 }
 
+// Handle native dialog close event
+// Re-open if closed unexpectedly while in persistent mode
+function handleNativeClose() {
+  if (props.persistent && modelValue.value) {
+    nextTick(() => {
+      dialogRef.value?.showModal();
+    });
+  }
+}
+
 // Handle confirm button click
 function handleConfirm() {
   emit("confirm");
@@ -175,9 +187,34 @@ function handleConfirm() {
     class="danx-dialog"
     @click.self="handleBackdropClick"
     @cancel="handleCancel"
+    @close="handleNativeClose"
   >
     <!-- Visible dialog box -->
     <div class="danx-dialog__box" :style="dialogStyle">
+      <!-- Close X Button -->
+      <button
+        v-if="closeX"
+        type="button"
+        class="danx-dialog__close-x"
+        aria-label="Close dialog"
+        @click="handleClose"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+
       <!-- Header -->
       <header
         v-if="title || subtitle || $slots.title || $slots.subtitle"

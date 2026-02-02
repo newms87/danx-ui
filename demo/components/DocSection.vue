@@ -21,21 +21,20 @@ defineProps<{
 .doc-section {
   margin: 2rem 0;
   padding: 1.5rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-}
-
-:global(.dark) .doc-section {
-  background: #1a1a2e;
-  border-color: #0f3460;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .doc-section__content {
   margin: 0;
   white-space: pre-wrap;
-  font-family: "Fira Code", "Consolas", monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.6;
+  color: var(--color-text);
 }
 </style>

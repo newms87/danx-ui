@@ -21,6 +21,7 @@
   --color-surface-elevated: var(--color-white);
   --color-surface-sunken: var(--color-slate-50);
   --color-surface-overlay: var(--color-slate-900);
+  --color-surface-accent: var(--color-blue-50);
 
   /* ==========================================================================
      Text Colors
@@ -30,6 +31,7 @@
   --color-text-muted: var(--color-slate-600);
   --color-text-subtle: var(--color-slate-400);
   --color-text-inverted: var(--color-white);
+  --color-text-accent: var(--color-blue-600);
 
   /* ==========================================================================
      Border Colors
@@ -38,6 +40,7 @@
   --color-border: var(--color-slate-200);
   --color-border-strong: var(--color-slate-300);
   --color-border-subtle: var(--color-slate-100);
+  --color-border-accent: var(--color-blue-200);
 
   /* ==========================================================================
      Interactive Colors
@@ -76,7 +79,7 @@
      Backdrop
      ========================================================================== */
 
-  --color-backdrop: rgb(0 0 0 / 0.5);
+  --color-backdrop: rgb(15 23 42 / 0.6);
 
   /* ==========================================================================
      Semantic Spacing
@@ -97,7 +100,7 @@
   --radius-button: var(--radius-md);
   --radius-input: var(--radius-md);
   --radius-card: var(--radius-xl);
-  --radius-dialog: var(--radius-xl);
+  --radius-dialog: var(--radius-2xl);
 
   /* ==========================================================================
      Semantic Shadows
@@ -105,7 +108,8 @@
 
   --shadow-component: var(--shadow-default);
   --shadow-elevated: var(--shadow-lg);
-  --shadow-dialog: var(--shadow-2xl);
+  --shadow-dialog: var(--shadow-layered);
+  --shadow-glow: none;
 
   /* ==========================================================================
      Semantic Transitions
@@ -114,4 +118,12 @@
   --transition-fast: var(--duration-150) var(--ease-out);
   --transition-normal: var(--duration-200) var(--ease-out);
   --transition-slow: var(--duration-300) var(--ease-out);
+
+  /* ==========================================================================
+     Gradients
+     ========================================================================== */
+
+  --gradient-surface: linear-gradient(180deg, var(--color-white) 0%, var(--color-slate-50) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-blue-500) 0%, var(--color-blue-600) 100%);
+  --gradient-subtle: linear-gradient(180deg, transparent 0%, var(--color-slate-50) 100%);
 }

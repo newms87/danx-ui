@@ -58,6 +58,18 @@ Every `.vue` file MUST have comprehensive comment block:
 - All CSS tokens for styling
 - Usage examples in prose
 
+## Feature Completion Checklist
+
+**Every new feature MUST have all three:**
+
+| Requirement | Description |
+|-------------|-------------|
+| **Tests** | 100% coverage - all props, events, edge cases |
+| **Documentation** | Component comment block + `docs/*.md` if user-facing |
+| **Demo** | Live example in `demo/pages/` showing the feature |
+
+A feature is NOT complete until all three are done.
+
 ## Testing Requirements
 
 **100% test coverage required.** All components and composables must be tested.

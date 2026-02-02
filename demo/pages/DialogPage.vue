@@ -53,10 +53,10 @@ const slotDialog = useDialog();
 
     <h2>Live Examples</h2>
 
-    <DemoSection title="Basic Dialog" description="Simple dialog with title only.">
+    <DemoSection title="Basic Dialog" description="Simple dialog with title and X close button.">
       <button class="demo-button" @click="basicDialog.open()">Open Basic Dialog</button>
-      <DanxDialog v-model="basicDialog.isOpen.value" title="Basic Dialog">
-        <p>This is a basic dialog with just a title.</p>
+      <DanxDialog v-model="basicDialog.isOpen.value" title="Basic Dialog" close-x>
+        <p>This is a basic dialog with an X close button in the top right.</p>
       </DanxDialog>
     </DemoSection>
 
@@ -170,48 +170,60 @@ const slotDialog = useDialog();
 
 .dialog-page h1 {
   font-size: 2rem;
+  font-weight: 700;
   margin: 0 0 0.5rem;
+  color: var(--color-text);
 }
 
 .dialog-page h2 {
   font-size: 1.5rem;
+  font-weight: 600;
   margin: 2rem 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-:global(.dark) .dialog-page h2 {
-  border-color: #0f3460;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
 }
 
 .dialog-page__description {
-  color: #666;
+  color: var(--color-text-muted);
   margin: 0 0 2rem;
-}
-
-:global(.dark) .dialog-page__description {
-  color: #aaa;
+  font-size: 1.125rem;
+  line-height: 1.6;
 }
 
 .demo-button {
-  padding: 0.5rem 1rem;
-  background: #0077cc;
+  padding: 0.625rem 1.25rem;
+  background: var(--gradient-accent);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgb(37 99 235 / 0.25);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .demo-button:hover {
-  background: #005fa3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgb(37 99 235 / 0.3);
+}
+
+.demo-button:active {
+  transform: translateY(0);
 }
 
 .demo-button--secondary {
-  background: #666;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: none;
 }
 
 .demo-button--secondary:hover {
-  background: #555;
+  background: var(--color-surface-sunken);
+  box-shadow: none;
 }
 </style>

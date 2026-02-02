@@ -182,6 +182,48 @@ describe("DanxDialog", () => {
     });
   });
 
+  describe("Close X Button", () => {
+    it("close X button hidden by default", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true },
+      });
+      await nextTick();
+
+      expect(wrapper.find(".danx-dialog__close-x").exists()).toBe(false);
+    });
+
+    it("close X button shows when closeX=true", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, closeX: true },
+      });
+      await nextTick();
+
+      expect(wrapper.find(".danx-dialog__close-x").exists()).toBe(true);
+    });
+
+    it("close X button emits update:modelValue(false) when clicked", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, closeX: true },
+      });
+      await nextTick();
+
+      await wrapper.find(".danx-dialog__close-x").trigger("click");
+
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+    });
+
+    it("close X button emits close event when clicked", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, closeX: true },
+      });
+      await nextTick();
+
+      await wrapper.find(".danx-dialog__close-x").trigger("click");
+
+      expect(wrapper.emitted("close")).toHaveLength(1);
+    });
+  });
+
   describe("Events", () => {
     it("emits update:modelValue(false) when close button clicked", async () => {
       const wrapper = mount(DanxDialog, {
@@ -252,6 +294,21 @@ describe("DanxDialog", () => {
       await wrapper.find(".danx-dialog__box").trigger("click");
 
       expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+    });
+
+    it("re-opens dialog on native close event when persistent=true", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, persistent: true },
+      });
+      await nextTick();
+
+      // Simulate native close event (as if ESC bypassed our handler)
+      const dialog = wrapper.find("dialog");
+      await dialog.trigger("close");
+      await nextTick();
+
+      // showModal should be called again to re-open
+      expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled();
     });
   });
 

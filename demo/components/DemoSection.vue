@@ -22,37 +22,36 @@ defineProps<{
 
 <style scoped>
 .demo-section {
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   padding: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-}
-
-:global(.dark) .demo-section {
-  background: #16213e;
-  border-color: #0f3460;
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .demo-section__title {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
+  color: var(--color-text);
 }
 
 .demo-section__description {
   margin: 0 0 1rem;
-  color: #666;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
-}
-
-:global(.dark) .demo-section__description {
-  color: #aaa;
+  line-height: 1.5;
 }
 
 .demo-section__content {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
+  align-items: center;
 }
 </style>

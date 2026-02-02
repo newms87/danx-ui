@@ -20,8 +20,10 @@
 
     <section class="home-page__section">
       <h2>Usage</h2>
-      <pre class="home-page__code">import { DanxDialog, useDialog } from 'danx-ui';
-import 'danx-ui/styles';</pre>
+      <pre class="home-page__code">
+import { DanxDialog, useDialog } from 'danx-ui';
+import 'danx-ui/styles';</pre
+      >
     </section>
 
     <section class="home-page__section">
@@ -54,17 +56,19 @@ import 'danx-ui/styles';</pre>
 
 .home-page h1 {
   font-size: 2.5rem;
+  font-weight: 700;
   margin: 0 0 0.5rem;
+  background: var(--gradient-accent);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .home-page__tagline {
   font-size: 1.125rem;
-  color: #666;
+  color: var(--color-text-muted);
   margin: 0 0 2rem;
-}
-
-:global(.dark) .home-page__tagline {
-  color: #aaa;
+  line-height: 1.6;
 }
 
 .home-page__section {
@@ -73,26 +77,25 @@ import 'danx-ui/styles';</pre>
 
 .home-page__section h2 {
   font-size: 1.5rem;
+  font-weight: 600;
   margin: 0 0 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-:global(.dark) .home-page__section h2 {
-  border-color: #0f3460;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
 }
 
 .home-page__code {
-  background: #f5f5f5;
+  background: var(--color-surface-sunken);
   padding: 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   overflow-x: auto;
-  font-family: "Fira Code", "Consolas", monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
-}
-
-:global(.dark) .home-page__code {
-  background: #1a1a2e;
+  color: var(--color-text);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .home-page__features,
@@ -104,15 +107,25 @@ import 'danx-ui/styles';</pre>
 
 .home-page__features li,
 .home-page__components li {
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text);
+}
+
+.home-page__features li:last-child,
+.home-page__components li:last-child {
+  border-bottom: none;
 }
 
 .home-page__components a {
-  color: #0077cc;
+  color: var(--color-interactive);
   font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 .home-page__components a:hover {
+  color: var(--color-interactive-hover);
   text-decoration: underline;
 }
 </style>

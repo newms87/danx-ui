@@ -16,6 +16,7 @@
   --color-surface-elevated: var(--color-slate-800);
   --color-surface-sunken: var(--color-slate-950);
   --color-surface-overlay: var(--color-slate-950);
+  --color-surface-accent: var(--color-blue-950);
 
   /* ==========================================================================
      Text Colors
@@ -25,6 +26,7 @@
   --color-text-muted: var(--color-slate-400);
   --color-text-subtle: var(--color-slate-500);
   --color-text-inverted: var(--color-slate-900);
+  --color-text-accent: var(--color-blue-400);
 
   /* ==========================================================================
      Border Colors
@@ -33,6 +35,7 @@
   --color-border: var(--color-slate-700);
   --color-border-strong: var(--color-slate-600);
   --color-border-subtle: var(--color-slate-800);
+  --color-border-accent: var(--color-blue-800);
 
   /* ==========================================================================
      Interactive Colors
@@ -70,5 +73,23 @@
      Backdrop
      ========================================================================== */
 
-  --color-backdrop: rgb(0 0 0 / 0.7);
+  --color-backdrop: rgb(0 0 0 / 0.8);
+
+  /* ==========================================================================
+     Semantic Shadows (dark mode overrides)
+     ========================================================================== */
+
+  --shadow-dialog: 0 0 0 1px var(--color-slate-700),
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 10px 15px -3px rgb(0 0 0 / 0.3),
+    0 20px 25px -5px rgb(0 0 0 / 0.4);
+  --shadow-glow: var(--shadow-glow-blue);
+
+  /* ==========================================================================
+     Gradients (dark mode overrides)
+     ========================================================================== */
+
+  --gradient-surface: linear-gradient(180deg, var(--color-slate-800) 0%, var(--color-slate-900) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-blue-600) 0%, var(--color-blue-700) 100%);
+  --gradient-subtle: linear-gradient(180deg, var(--color-slate-800) 0%, var(--color-slate-900) 100%);
 }
