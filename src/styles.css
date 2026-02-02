@@ -2,11 +2,13 @@
  * danx-ui Complete Styles
  *
  * Import this file to get all styles including:
+ * - Tailwind CSS base
  * - Token system (primitives, semantics, dark mode)
  * - All component styles
  *
  * For granular control, import individual component styles instead.
  */
 
+@import "tailwindcss";
 @import "./shared/tokens/index.css";
 @import "./components/dialog/dialog.css";

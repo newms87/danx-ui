@@ -4,22 +4,34 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
-    dts({
-      include: ["src/**/*.ts", "src/**/*.vue"],
-      outDir: "dist",
-      staticImport: true,
-      insertTypesEntry: true,
-    }),
+    // Only generate types during build, not dev server
+    ...(isDev
+      ? []
+      : [
+          dts({
+            include: ["src/**/*.ts", "src/**/*.vue"],
+            outDir: "dist",
+            staticImport: true,
+            insertTypesEntry: true,
+          }),
+        ]),
   ],
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
     },
   },
+  // Dev server serves the demo app from index.html
+  server: {
+    port: 5777,
+  },
+  // Build produces library output only
   build: {
     lib: {
       entry: {
@@ -30,7 +42,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["vue"],
+      external: ["vue", "vue-router"],
       output: {
         globals: {
           vue: "Vue",

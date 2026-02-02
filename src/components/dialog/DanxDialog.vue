@@ -118,18 +118,14 @@ const dialogStyle = computed(() => {
   return style;
 });
 
-// Button text computed
-const closeButtonText = computed(() => {
-  if (props.closeButton === true) return "Close";
-  if (typeof props.closeButton === "string") return props.closeButton;
-  return "";
-});
+// Button text computed - only called when button is rendered (truthy prop)
+const closeButtonText = computed(() =>
+  props.closeButton === true ? "Close" : props.closeButton
+);
 
-const confirmButtonText = computed(() => {
-  if (props.confirmButton === true) return "Confirm";
-  if (typeof props.confirmButton === "string") return props.confirmButton;
-  return "";
-});
+const confirmButtonText = computed(() =>
+  props.confirmButton === true ? "Confirm" : props.confirmButton
+);
 
 // Show footer if any button is enabled or actions slot is used
 const showFooter = computed(() => props.closeButton || props.confirmButton);
@@ -154,13 +150,10 @@ function handleClose() {
 }
 
 // Handle backdrop click
-function handleBackdropClick(event: MouseEvent) {
+// Using @click.self so only direct clicks on dialog (not children) trigger this
+function handleBackdropClick() {
   if (props.persistent) return;
-
-  // Only close if clicking the backdrop (dialog element itself), not content
-  if (event.target === dialogRef.value) {
-    handleClose();
-  }
+  handleClose();
 }
 
 // Handle ESC key via dialog's cancel event
@@ -183,11 +176,11 @@ function handleConfirm() {
     v-if="modelValue"
     ref="dialogRef"
     class="danx-dialog"
-    :style="dialogStyle"
-    @click="handleBackdropClick"
+    @click.self="handleBackdropClick"
     @cancel="handleCancel"
   >
-    <div class="danx-dialog__container">
+    <!-- Visible dialog box -->
+    <div class="danx-dialog__box" :style="dialogStyle">
       <!-- Header -->
       <header
         v-if="title || subtitle || $slots.title || $slots.subtitle"

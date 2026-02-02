@@ -1,4 +1,4 @@
-import { readonly, ref, type Ref } from "vue";
+import { ref, type Ref } from "vue";
 
 /**
  * useDialog Composable
@@ -26,8 +26,8 @@ import { readonly, ref, type Ref } from "vue";
  * @returns Object with isOpen ref and control methods
  */
 export interface UseDialogReturn {
-  /** Readonly ref indicating if dialog is open */
-  isOpen: Readonly<Ref<boolean>>;
+  /** Ref indicating if dialog is open - works with v-model */
+  isOpen: Ref<boolean>;
   /** Open the dialog */
   open: () => void;
   /** Close the dialog */
@@ -52,7 +52,7 @@ export function useDialog(initialOpen = false): UseDialogReturn {
   }
 
   return {
-    isOpen: readonly(isOpen),
+    isOpen,
     open,
     close,
     toggle,
