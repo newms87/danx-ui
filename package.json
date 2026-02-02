@@ -1,6 +1,6 @@
 {
   "name": "danx-ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Zero-dependency Vue 3 + Tailwind CSS v4 component library with three-tier theming",
   "type": "module",
   "license": "MIT",
@@ -58,7 +58,10 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "publish:patch": "./scripts/publish.sh patch",
+    "publish:minor": "./scripts/publish.sh minor",
+    "publish:major": "./scripts/publish.sh major"
   },
   "peerDependencies": {
     "vue": "^3.5.0"
