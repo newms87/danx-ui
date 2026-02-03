@@ -1,3 +1,9 @@
+---
+name: code-reviewer
+description: Analyze code for quality issues, SOLID/DRY violations, and create refactoring plans
+tools: Read, Grep, Glob
+---
+
 # Code Reviewer Agent
 
 ## Purpose

@@ -1,3 +1,9 @@
+---
+name: component-architect
+description: Plan new Vue components, investigate component bugs, and answer architecture questions
+tools: Read, Grep, Glob
+---
+
 # Component Architect Agent
 
 ## Purpose

@@ -1,3 +1,9 @@
+---
+name: test-reviewer
+description: Audit test coverage and review test quality for Vue components and composables
+tools: Read, Grep, Glob
+---
+
 # Test Reviewer Agent
 
 ## Purpose
