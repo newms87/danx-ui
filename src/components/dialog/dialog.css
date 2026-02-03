@@ -135,6 +135,7 @@
   flex-direction: column;
   max-width: var(--dialog-max-width);
   max-height: var(--dialog-max-height);
+  height: fit-content;
   padding: 0;
   border: 1px solid var(--dialog-border-color);
   border-radius: var(--dialog-border-radius);
@@ -144,12 +145,17 @@
   font-family: var(--font-sans);
   color: var(--color-text);
 
+  /* Enable animating to/from auto sizes (content-driven) */
+  interpolate-size: allow-keywords;
+
   /* Animation */
   transform: scale(1) translateY(0);
   opacity: 1;
   transition:
     transform var(--dialog-animation-duration) var(--ease-out),
-    opacity var(--dialog-animation-duration) var(--ease-out);
+    opacity var(--dialog-animation-duration) var(--ease-out),
+    width var(--dialog-animation-duration) var(--ease-out),
+    height var(--dialog-animation-duration) var(--ease-out);
 }
 
 @starting-style {

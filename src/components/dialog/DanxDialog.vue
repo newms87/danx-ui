@@ -193,7 +193,7 @@ function handleConfirm() {
     <div class="danx-dialog__box" :style="dialogStyle">
       <!-- Close X Button -->
       <button
-        v-if="closeX"
+        v-if="props.closeX"
         type="button"
         class="danx-dialog__close-x"
         aria-label="Close dialog"

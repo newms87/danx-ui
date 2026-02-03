@@ -7,6 +7,7 @@ A fully declarative dialog component built on the native `<dialog>` element.
 - **Native `<dialog>`** - Built-in focus trap, ESC handling, ARIA support
 - **100% Declarative** - Controlled via v-model, no imperative methods
 - **CSS-only Animation** - Smooth fade + scale using `@starting-style`
+- **Animated Size Changes** - Smooth transitions when content changes size
 - **Flexible Sizing** - Number (viewport units) or string (any CSS value)
 - **Optional Buttons** - Clean slate by default, opt-in close/confirm
 - **Full Customization** - Slots for every section, CSS tokens for styling

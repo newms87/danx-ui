@@ -42,6 +42,15 @@ const customSizeDialog = useDialog();
 
 // Slot customization
 const slotDialog = useDialog();
+
+// Animated size demo
+const animatedSizeDialog = useDialog();
+const dialogSize = ref<"small" | "medium" | "large">("small");
+const sizeMap = {
+  small: { width: 400, height: 200 },
+  medium: { width: 500, height: 300 },
+  large: { width: 700, height: 450 },
+};
 </script>
 
 <template>
@@ -140,6 +149,45 @@ const slotDialog = useDialog();
       </DanxDialog>
     </DemoSection>
 
+    <DemoSection
+      title="Animated Size Changes"
+      description="Dialog smoothly animates when width/height props change."
+    >
+      <button class="demo-button" @click="animatedSizeDialog.open()">Open Animated Dialog</button>
+      <DanxDialog
+        v-model="animatedSizeDialog.isOpen.value"
+        title="Animated Size"
+        :width="`${sizeMap[dialogSize].width}px`"
+        :height="`${sizeMap[dialogSize].height}px`"
+        close-x
+      >
+        <div class="size-controls">
+          <button
+            class="size-button"
+            :class="{ active: dialogSize === 'small' }"
+            @click="dialogSize = 'small'"
+          >
+            Small
+          </button>
+          <button
+            class="size-button"
+            :class="{ active: dialogSize === 'medium' }"
+            @click="dialogSize = 'medium'"
+          >
+            Medium
+          </button>
+          <button
+            class="size-button"
+            :class="{ active: dialogSize === 'large' }"
+            @click="dialogSize = 'large'"
+          >
+            Large
+          </button>
+        </div>
+        <p>Click the buttons to resize. Uses CSS <code>interpolate-size</code>.</p>
+      </DanxDialog>
+    </DemoSection>
+
     <DemoSection title="Slot Customization" description="Using slots for custom content.">
       <button class="demo-button" @click="slotDialog.open()">Open Custom Dialog</button>
       <DanxDialog v-model="slotDialog.isOpen.value">
@@ -225,5 +273,34 @@ const slotDialog = useDialog();
 .demo-button--secondary:hover {
   background: var(--color-surface-sunken);
   box-shadow: none;
+}
+
+/* Animated size demo styles */
+.size-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.size-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.size-button:hover {
+  background: var(--color-surface-sunken);
+}
+
+.size-button.active {
+  background: var(--color-interactive);
+  border-color: var(--color-interactive);
+  color: white;
 }
 </style>
