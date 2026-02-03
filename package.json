@@ -1,6 +1,6 @@
 {
   "name": "danx-ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Zero-dependency Vue 3 + Tailwind CSS v4 component library with three-tier theming",
   "type": "module",
   "license": "MIT",
