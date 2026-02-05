@@ -57,6 +57,9 @@ watch(theme, (newTheme) => {
           <span class="demo-sidebar__section">Components</span>
           <ul>
             <li>
+              <RouterLink to="/button" class="demo-sidebar__link">Button</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/dialog" class="demo-sidebar__link">Dialog</RouterLink>
             </li>
           </ul>
