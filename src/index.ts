@@ -5,12 +5,23 @@
  */
 
 // Components
+export { DanxButton } from "./components/button";
 export { DanxDialog } from "./components/dialog";
 
 // Composables
 export { useDialog } from "./components/dialog";
 
+// Utilities
+export { buttonIcons } from "./components/button";
+
 // Types
+export type {
+  ButtonSize,
+  ButtonType,
+  DanxButtonEmits,
+  DanxButtonProps,
+  DanxButtonSlots,
+} from "./components/button";
 export type {
   DanxDialogEmits,
   DanxDialogProps,

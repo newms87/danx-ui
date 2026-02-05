@@ -1,0 +1,391 @@
+/**
+ * DanxButton Styles
+ *
+ * Main entry point that imports tokens and defines button layout,
+ * size modifiers, type modifiers, states, and spinner.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./button-tokens.css";
+
+/* ==========================================================================
+   Base Button Layout
+   ========================================================================== */
+
+.danx-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--button-font-family);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-none);
+  border: none;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  transition:
+    background var(--button-transition),
+    color var(--button-transition),
+    transform var(--button-transition),
+    opacity var(--button-transition);
+}
+
+.danx-button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-button--xxs {
+  padding: var(--button-xxs-padding-y) var(--button-xxs-padding-x);
+  font-size: var(--button-xxs-font-size);
+  gap: var(--button-xxs-gap);
+}
+
+.danx-button--xxs .danx-button__icon {
+  width: var(--button-xxs-icon-size);
+  height: var(--button-xxs-icon-size);
+}
+
+.danx-button--xs {
+  padding: var(--button-xs-padding-y) var(--button-xs-padding-x);
+  font-size: var(--button-xs-font-size);
+  gap: var(--button-xs-gap);
+}
+
+.danx-button--xs .danx-button__icon {
+  width: var(--button-xs-icon-size);
+  height: var(--button-xs-icon-size);
+}
+
+.danx-button--sm {
+  padding: var(--button-sm-padding-y) var(--button-sm-padding-x);
+  font-size: var(--button-sm-font-size);
+  gap: var(--button-sm-gap);
+}
+
+.danx-button--sm .danx-button__icon {
+  width: var(--button-sm-icon-size);
+  height: var(--button-sm-icon-size);
+}
+
+.danx-button--md {
+  padding: var(--button-md-padding-y) var(--button-md-padding-x);
+  font-size: var(--button-md-font-size);
+  gap: var(--button-md-gap);
+}
+
+.danx-button--md .danx-button__icon {
+  width: var(--button-md-icon-size);
+  height: var(--button-md-icon-size);
+}
+
+.danx-button--lg {
+  padding: var(--button-lg-padding-y) var(--button-lg-padding-x);
+  font-size: var(--button-lg-font-size);
+  gap: var(--button-lg-gap);
+}
+
+.danx-button--lg .danx-button__icon {
+  width: var(--button-lg-icon-size);
+  height: var(--button-lg-icon-size);
+}
+
+/* ==========================================================================
+   Type Modifiers - Destructive (danger)
+   ========================================================================== */
+
+.danx-button--trash {
+  background: var(--button-trash-bg);
+  color: var(--button-trash-text);
+}
+
+.danx-button--trash:hover:not(:disabled) {
+  background: var(--button-trash-bg-hover);
+}
+
+.danx-button--stop {
+  background: var(--button-stop-bg);
+  color: var(--button-stop-text);
+}
+
+.danx-button--stop:hover:not(:disabled) {
+  background: var(--button-stop-bg-hover);
+}
+
+.danx-button--close {
+  background: var(--button-close-bg);
+  color: var(--button-close-text);
+}
+
+.danx-button--close:hover:not(:disabled) {
+  background: var(--button-close-bg-hover);
+}
+
+/* ==========================================================================
+   Type Modifiers - Constructive (success)
+   ========================================================================== */
+
+.danx-button--save {
+  background: var(--button-save-bg);
+  color: var(--button-save-text);
+}
+
+.danx-button--save:hover:not(:disabled) {
+  background: var(--button-save-bg-hover);
+}
+
+.danx-button--create {
+  background: var(--button-create-bg);
+  color: var(--button-create-text);
+}
+
+.danx-button--create:hover:not(:disabled) {
+  background: var(--button-create-bg-hover);
+}
+
+.danx-button--confirm {
+  background: var(--button-confirm-bg);
+  color: var(--button-confirm-text);
+}
+
+.danx-button--confirm:hover:not(:disabled) {
+  background: var(--button-confirm-bg-hover);
+}
+
+.danx-button--check {
+  background: var(--button-check-bg);
+  color: var(--button-check-text);
+}
+
+.danx-button--check:hover:not(:disabled) {
+  background: var(--button-check-bg-hover);
+}
+
+/* ==========================================================================
+   Type Modifiers - Warning
+   ========================================================================== */
+
+.danx-button--pause {
+  background: var(--button-pause-bg);
+  color: var(--button-pause-text);
+}
+
+.danx-button--pause:hover:not(:disabled) {
+  background: var(--button-pause-bg-hover);
+}
+
+.danx-button--clock {
+  background: var(--button-clock-bg);
+  color: var(--button-clock-text);
+}
+
+.danx-button--clock:hover:not(:disabled) {
+  background: var(--button-clock-bg-hover);
+}
+
+/* ==========================================================================
+   Type Modifiers - Informational (interactive)
+   ========================================================================== */
+
+.danx-button--view {
+  background: var(--button-view-bg);
+  color: var(--button-view-text);
+}
+
+.danx-button--view:hover:not(:disabled) {
+  background: var(--button-view-bg-hover);
+}
+
+.danx-button--document {
+  background: var(--button-document-bg);
+  color: var(--button-document-text);
+}
+
+.danx-button--document:hover:not(:disabled) {
+  background: var(--button-document-bg-hover);
+}
+
+.danx-button--users {
+  background: var(--button-users-bg);
+  color: var(--button-users-text);
+}
+
+.danx-button--users:hover:not(:disabled) {
+  background: var(--button-users-bg-hover);
+}
+
+.danx-button--database {
+  background: var(--button-database-bg);
+  color: var(--button-database-text);
+}
+
+.danx-button--database:hover:not(:disabled) {
+  background: var(--button-database-bg-hover);
+}
+
+.danx-button--folder {
+  background: var(--button-folder-bg);
+  color: var(--button-folder-text);
+}
+
+.danx-button--folder:hover:not(:disabled) {
+  background: var(--button-folder-bg-hover);
+}
+
+/* ==========================================================================
+   Type Modifiers - Neutral (muted)
+   ========================================================================== */
+
+.danx-button--cancel {
+  background: var(--button-cancel-bg);
+  color: var(--button-cancel-text);
+}
+
+.danx-button--cancel:hover:not(:disabled) {
+  background: var(--button-cancel-bg-hover);
+}
+
+.danx-button--back {
+  background: var(--button-back-bg);
+  color: var(--button-back-text);
+}
+
+.danx-button--back:hover:not(:disabled) {
+  background: var(--button-back-bg-hover);
+}
+
+.danx-button--edit {
+  background: var(--button-edit-bg);
+  color: var(--button-edit-text);
+}
+
+.danx-button--edit:hover:not(:disabled) {
+  background: var(--button-edit-bg-hover);
+}
+
+.danx-button--copy {
+  background: var(--button-copy-bg);
+  color: var(--button-copy-text);
+}
+
+.danx-button--copy:hover:not(:disabled) {
+  background: var(--button-copy-bg-hover);
+}
+
+.danx-button--refresh {
+  background: var(--button-refresh-bg);
+  color: var(--button-refresh-text);
+}
+
+.danx-button--refresh:hover:not(:disabled) {
+  background: var(--button-refresh-bg-hover);
+}
+
+.danx-button--export {
+  background: var(--button-export-bg);
+  color: var(--button-export-text);
+}
+
+.danx-button--export:hover:not(:disabled) {
+  background: var(--button-export-bg-hover);
+}
+
+.danx-button--import {
+  background: var(--button-import-bg);
+  color: var(--button-import-text);
+}
+
+.danx-button--import:hover:not(:disabled) {
+  background: var(--button-import-bg-hover);
+}
+
+.danx-button--minus {
+  background: var(--button-minus-bg);
+  color: var(--button-minus-text);
+}
+
+.danx-button--minus:hover:not(:disabled) {
+  background: var(--button-minus-bg-hover);
+}
+
+.danx-button--merge {
+  background: var(--button-merge-bg);
+  color: var(--button-merge-text);
+}
+
+.danx-button--merge:hover:not(:disabled) {
+  background: var(--button-merge-bg-hover);
+}
+
+.danx-button--restart {
+  background: var(--button-restart-bg);
+  color: var(--button-restart-text);
+}
+
+.danx-button--restart:hover:not(:disabled) {
+  background: var(--button-restart-bg-hover);
+}
+
+.danx-button--play {
+  background: var(--button-play-bg);
+  color: var(--button-play-text);
+}
+
+.danx-button--play:hover:not(:disabled) {
+  background: var(--button-play-bg-hover);
+}
+
+/* ==========================================================================
+   States
+   ========================================================================== */
+
+.danx-button:disabled {
+  opacity: var(--button-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.danx-button--loading {
+  cursor: wait;
+}
+
+.danx-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   Icon
+   ========================================================================== */
+
+.danx-button__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.danx-button__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   Loading Spinner
+   ========================================================================== */
+
+.danx-button__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: danx-button-spin 0.6s linear infinite;
+}
+
+@keyframes danx-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

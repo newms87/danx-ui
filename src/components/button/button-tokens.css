@@ -1,0 +1,205 @@
+/**
+ * DanxButton Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize button appearance.
+ *
+ * CSS Tokens:
+ * --button-font-family          Font family
+ * --button-border-radius        Corner radius
+ * --button-transition           Transition timing
+ * --button-disabled-opacity     Opacity when disabled
+ *
+ * Size tokens (for each size: xxs, xs, sm, md, lg):
+ * --button-{size}-padding-x     Horizontal padding
+ * --button-{size}-padding-y     Vertical padding
+ * --button-{size}-icon-size     Icon dimensions
+ * --button-{size}-font-size     Font size
+ * --button-{size}-gap           Gap between icon and text
+ *
+ * Type tokens (for each type):
+ * --button-{type}-bg            Background color
+ * --button-{type}-bg-hover      Background on hover
+ * --button-{type}-text          Text/icon color
+ */
+
+:root {
+  /* ==========================================================================
+     Global Button Tokens
+     ========================================================================== */
+
+  --button-font-family: var(--font-sans);
+  --button-border-radius: var(--radius-button);
+  --button-transition: var(--transition-fast);
+  --button-disabled-opacity: 0.5;
+
+  /* ==========================================================================
+     Size Tokens - XXS
+     ========================================================================== */
+
+  --button-xxs-padding-x: var(--spacing-1);
+  --button-xxs-padding-y: var(--spacing-0-5);
+  --button-xxs-icon-size: 0.75rem;
+  --button-xxs-font-size: var(--text-xs);
+  --button-xxs-gap: var(--spacing-1);
+
+  /* ==========================================================================
+     Size Tokens - XS
+     ========================================================================== */
+
+  --button-xs-padding-x: var(--spacing-1-5);
+  --button-xs-padding-y: var(--spacing-1);
+  --button-xs-icon-size: 0.875rem;
+  --button-xs-font-size: var(--text-xs);
+  --button-xs-gap: var(--spacing-1);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --button-sm-padding-x: var(--spacing-2);
+  --button-sm-padding-y: var(--spacing-1-5);
+  --button-sm-icon-size: 1rem;
+  --button-sm-font-size: var(--text-sm);
+  --button-sm-gap: var(--spacing-1-5);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --button-md-padding-x: var(--spacing-3);
+  --button-md-padding-y: var(--spacing-2);
+  --button-md-icon-size: 1.125rem;
+  --button-md-font-size: var(--text-sm);
+  --button-md-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --button-lg-padding-x: var(--spacing-4);
+  --button-lg-padding-y: var(--spacing-2-5);
+  --button-lg-icon-size: 1.25rem;
+  --button-lg-font-size: var(--text-base);
+  --button-lg-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Type Tokens - Destructive (danger)
+     ========================================================================== */
+
+  --button-trash-bg: transparent;
+  --button-trash-bg-hover: var(--color-danger-subtle);
+  --button-trash-text: var(--color-danger);
+
+  --button-stop-bg: transparent;
+  --button-stop-bg-hover: var(--color-danger-subtle);
+  --button-stop-text: var(--color-danger);
+
+  --button-close-bg: transparent;
+  --button-close-bg-hover: var(--color-danger-subtle);
+  --button-close-text: var(--color-danger);
+
+  /* ==========================================================================
+     Type Tokens - Constructive (success)
+     ========================================================================== */
+
+  --button-save-bg: transparent;
+  --button-save-bg-hover: var(--color-success-subtle);
+  --button-save-text: var(--color-success);
+
+  --button-create-bg: transparent;
+  --button-create-bg-hover: var(--color-success-subtle);
+  --button-create-text: var(--color-success);
+
+  --button-confirm-bg: transparent;
+  --button-confirm-bg-hover: var(--color-success-subtle);
+  --button-confirm-text: var(--color-success);
+
+  --button-check-bg: transparent;
+  --button-check-bg-hover: var(--color-success-subtle);
+  --button-check-text: var(--color-success);
+
+  /* ==========================================================================
+     Type Tokens - Warning
+     ========================================================================== */
+
+  --button-pause-bg: transparent;
+  --button-pause-bg-hover: var(--color-warning-subtle);
+  --button-pause-text: var(--color-warning);
+
+  --button-clock-bg: transparent;
+  --button-clock-bg-hover: var(--color-warning-subtle);
+  --button-clock-text: var(--color-warning);
+
+  /* ==========================================================================
+     Type Tokens - Informational (interactive)
+     ========================================================================== */
+
+  --button-view-bg: transparent;
+  --button-view-bg-hover: var(--color-interactive-subtle);
+  --button-view-text: var(--color-interactive);
+
+  --button-document-bg: transparent;
+  --button-document-bg-hover: var(--color-interactive-subtle);
+  --button-document-text: var(--color-interactive);
+
+  --button-users-bg: transparent;
+  --button-users-bg-hover: var(--color-interactive-subtle);
+  --button-users-text: var(--color-interactive);
+
+  --button-database-bg: transparent;
+  --button-database-bg-hover: var(--color-interactive-subtle);
+  --button-database-text: var(--color-interactive);
+
+  --button-folder-bg: transparent;
+  --button-folder-bg-hover: var(--color-interactive-subtle);
+  --button-folder-text: var(--color-interactive);
+
+  /* ==========================================================================
+     Type Tokens - Neutral (muted)
+     ========================================================================== */
+
+  --button-cancel-bg: transparent;
+  --button-cancel-bg-hover: var(--color-surface-sunken);
+  --button-cancel-text: var(--color-text-muted);
+
+  --button-back-bg: transparent;
+  --button-back-bg-hover: var(--color-surface-sunken);
+  --button-back-text: var(--color-text-muted);
+
+  --button-edit-bg: transparent;
+  --button-edit-bg-hover: var(--color-surface-sunken);
+  --button-edit-text: var(--color-text-muted);
+
+  --button-copy-bg: transparent;
+  --button-copy-bg-hover: var(--color-surface-sunken);
+  --button-copy-text: var(--color-text-muted);
+
+  --button-refresh-bg: transparent;
+  --button-refresh-bg-hover: var(--color-surface-sunken);
+  --button-refresh-text: var(--color-text-muted);
+
+  --button-export-bg: transparent;
+  --button-export-bg-hover: var(--color-surface-sunken);
+  --button-export-text: var(--color-text-muted);
+
+  --button-import-bg: transparent;
+  --button-import-bg-hover: var(--color-surface-sunken);
+  --button-import-text: var(--color-text-muted);
+
+  --button-minus-bg: transparent;
+  --button-minus-bg-hover: var(--color-surface-sunken);
+  --button-minus-text: var(--color-text-muted);
+
+  --button-merge-bg: transparent;
+  --button-merge-bg-hover: var(--color-surface-sunken);
+  --button-merge-text: var(--color-text-muted);
+
+  --button-restart-bg: transparent;
+  --button-restart-bg-hover: var(--color-surface-sunken);
+  --button-restart-text: var(--color-text-muted);
+
+  --button-play-bg: transparent;
+  --button-play-bg-hover: var(--color-surface-sunken);
+  --button-play-text: var(--color-text-muted);
+}
