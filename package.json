@@ -70,6 +70,9 @@
     "publish:minor": "./scripts/publish.sh minor",
     "publish:major": "./scripts/publish.sh major"
   },
+  "dependencies": {
+    "yaml": "^2.4.5"
+  },
   "peerDependencies": {
     "vue": "^3.5.0"
   },
