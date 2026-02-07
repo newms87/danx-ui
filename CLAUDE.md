@@ -102,6 +102,7 @@ A feature is NOT complete until all three are done.
 | **NEVER use defineExpose** | Use v-model instead |
 | **Relative paths only** | No `/home/...` paths in commands |
 | **NEVER run yarn lint manually** | Hooks run ESLint after every Write/Edit. Running it manually is redundant. |
+| **ALWAYS run yarn test:coverage** | Run as final verification for ANY task. Failing thresholds = blocking. |
 
 ## Project Structure
 
@@ -112,7 +113,7 @@ src/
 │       ├── Component.vue
 │       ├── useComponent.ts
 │       ├── component.css
-│       ├── types.ts
+│       ├── types.d.ts    # Type-only files MUST use .d.ts
 │       ├── index.ts
 │       └── __tests__/    # Component tests
 docs/                     # User documentation
@@ -157,3 +158,4 @@ docs/                     # User documentation
 | `any` type | Type safety | Proper types |
 | Options API | Outdated | Composition API |
 | Bash file editing | Bypasses linting | Write/Edit tools |
+| `types.ts` (type-only) | Coverage noise | Use `types.d.ts` |

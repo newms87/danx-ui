@@ -120,7 +120,9 @@ This agent can:
 
 ## Rules
 
+- **Always run `yarn test:coverage` first** — report actual numbers, not guesses
+- Failing coverage thresholds is a blocking finding (Priority 1)
 - Analyze code first, then tests
-- Include specific missing scenarios
+- Include specific missing scenarios with uncovered line numbers from the coverage report
 - Flag bad test patterns
 - Prioritize by importance

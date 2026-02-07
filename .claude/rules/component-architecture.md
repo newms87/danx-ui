@@ -9,12 +9,34 @@ src/components/{component}/
 ├── Component.vue      # Main component
 ├── useComponent.ts    # Composable logic
 ├── component.css      # Component-specific CSS tokens
-├── types.ts           # TypeScript interfaces
+├── types.d.ts         # TypeScript interfaces (declaration file)
 ├── index.ts           # Named exports
 └── __tests__/         # Component tests
     ├── Component.test.ts
     └── useComponent.test.ts
 ```
+
+## Type Declaration Rules
+
+**All type-only files MUST use the `.d.ts` extension. No exceptions.**
+
+| File contains | Extension | Example |
+|---------------|-----------|---------|
+| Only types/interfaces | `.d.ts` | `types.d.ts`, `action-types.d.ts` |
+| Runtime code + derived types | `.ts` | `icons.ts` (exports `IconName = keyof typeof obj`) |
+| Component logic | `.vue` | Import types from `.d.ts` files |
+
+### Where types live
+
+- **Standalone type declarations** (interfaces, type aliases, union types) go in `.d.ts` files
+- **Types derived from runtime values** (e.g. `keyof typeof`) stay in the `.ts` file alongside the values they derive from
+- **Vue components** import types from `.d.ts` files — never define prop/emit interfaces inline
+
+### Why `.d.ts`
+
+- Signals "no runtime code" to developers and tooling
+- Automatically excluded from test coverage (no `types.ts` exclusion rule needed)
+- TypeScript resolves `import from "./types"` to `types.d.ts` identically
 
 ## Documentation Requirements
 
@@ -148,3 +170,4 @@ Every slot must be documented in the component's comment block.
 | Styling props | Inflexible | CSS tokens |
 | `v-show` for dialogs | DOM pollution | Use `v-if` for mounting |
 | `any` type | Type safety | Proper TypeScript types |
+| `types.ts` for type-only files | Coverage noise | Use `types.d.ts` |

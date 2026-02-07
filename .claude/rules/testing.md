@@ -54,6 +54,19 @@ The project enforces 100% coverage:
 | **Side effects** | DOM manipulation, event listeners |
 | **Cleanup** | Resources released on unmount |
 
+## CRITICAL: Always Verify Coverage
+
+**Run `yarn test:coverage` as the final verification step after ANY code change. No exceptions.**
+
+A task is NOT complete if coverage thresholds fail — even if the failure predates your changes. If you inherit failing coverage, flag it immediately and fix it before moving on.
+
+| Step | Command | When |
+|------|---------|------|
+| Tests pass | `yarn test:run` | After every change |
+| Coverage passes | `yarn test:coverage` | Before considering any task complete |
+
+**Never skip this.** Running `yarn test:run` alone is insufficient — it does not check coverage thresholds.
+
 ## What NOT to Test
 
 | Skip Testing | Why |
