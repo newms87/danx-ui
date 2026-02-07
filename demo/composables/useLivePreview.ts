@@ -11,6 +11,10 @@
  * Imports are resolved from AVAILABLE_VALUES — a flat registry of everything
  * the demo environment provides (Vue APIs, components, assets).
  *
+ * NOTE: Script evaluation uses `new Function()`, which requires `unsafe-eval`
+ * in Content-Security-Policy. This is demo-only code and is NOT shipped in
+ * the library build.
+ *
  * @param code - Reactive ref containing a Vue SFC or template string
  * @returns { component, error } - shallowRef of the compiled component, and any compilation error
  */
@@ -56,7 +60,7 @@ const DEBOUNCE_MS = 250;
  * Extract the inner content of a <template> block from an SFC string.
  * Returns the original string unchanged if no <template> block is found.
  */
-function extractTemplate(source: string): string {
+export function extractTemplate(source: string): string {
   const match = source.match(/<template>([\s\S]*)<\/template>/);
   return match ? match[1]!.trim() : source;
 }
@@ -65,7 +69,7 @@ function extractTemplate(source: string): string {
  * Extract the inner content of a <script> block from an SFC string.
  * Returns null if no script block is found.
  */
-function extractScript(source: string): string | null {
+export function extractScript(source: string): string | null {
   const match = source.match(/<script[^>]*>([\s\S]*?)<\/script>/);
   return match ? match[1]!.trim() : null;
 }
@@ -75,7 +79,7 @@ function extractScript(source: string): string | null {
  * Resolves imported names from AVAILABLE_VALUES and returns
  * the resolved bindings plus the remaining script body.
  */
-function parseScript(script: string): {
+export function parseScript(script: string): {
   bindings: Record<string, unknown>;
   body: string;
 } {
@@ -119,7 +123,7 @@ function parseScript(script: string): {
  * Find all top-level const/let/var and function declarations in a script body.
  * Returns the list of declared names so we can return them from setup().
  */
-function findDeclaredNames(script: string): string[] {
+export function findDeclaredNames(script: string): string[] {
   const names: string[] = [];
   for (const match of script.matchAll(/(?:const|let|var)\s+(\w+)/g)) {
     names.push(match[1]!);
@@ -135,7 +139,7 @@ function findDeclaredNames(script: string): string[] {
  * Uses `new Function()` to evaluate the script body with resolved imports
  * as parameters, then returns all declared + imported names.
  */
-function buildSetup(script: string): (() => Record<string, unknown>) | null {
+export function buildSetup(script: string): (() => Record<string, unknown>) | null {
   const { bindings, body } = parseScript(script);
   const importNames = Object.keys(bindings);
   const importValues = Object.values(bindings);

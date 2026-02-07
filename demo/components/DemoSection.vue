@@ -15,7 +15,7 @@
  * @slots
  *   default - Fallback content when no code prop is provided
  */
-import { ref, watch } from "vue";
+import { type Component, type Ref, ref, shallowRef, watch } from "vue";
 import { DanxButton } from "../../src/components/button";
 import { useLivePreview } from "../composables/useLivePreview";
 
@@ -37,7 +37,17 @@ watch(
   }
 );
 
-const { component: liveComponent, error: liveError } = useLivePreview(editableCode);
+function useOptionalPreview(): {
+  component: Ref<Component | null>;
+  error: Ref<string | null>;
+} {
+  if (props.code !== undefined) {
+    return useLivePreview(editableCode);
+  }
+  return { component: shallowRef(null), error: shallowRef(null) };
+}
+
+const { component: liveComponent, error: liveError } = useOptionalPreview();
 
 function resetCode() {
   editableCode.value = props.code ?? "";

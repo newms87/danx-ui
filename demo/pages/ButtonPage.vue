@@ -10,143 +10,16 @@ import DocSection from "../components/DocSection.vue";
 // Load markdown documentation as raw string
 import buttonDocs from "../../docs/button.md?raw";
 
-// Code examples for live-editable demos
-const semanticTypesCode = `<template>
-  <DanxButton icon="edit">Default</DanxButton>
-  <DanxButton type="danger" icon="trash">Danger</DanxButton>
-  <DanxButton type="success" icon="save">Success</DanxButton>
-  <DanxButton type="warning" icon="pause">Warning</DanxButton>
-  <DanxButton type="info" icon="view">Info</DanxButton>
-  <DanxButton type="muted" icon="edit">Muted</DanxButton>
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const allIconsCode = `<template>
-  <DanxButton icon="trash" tooltip="trash" />
-  <DanxButton icon="stop" tooltip="stop" />
-  <DanxButton icon="close" tooltip="close" />
-  <DanxButton icon="save" tooltip="save" />
-  <DanxButton icon="create" tooltip="create" />
-  <DanxButton icon="confirm" tooltip="confirm" />
-  <DanxButton icon="check" tooltip="check" />
-  <DanxButton icon="pause" tooltip="pause" />
-  <DanxButton icon="clock" tooltip="clock" />
-  <DanxButton icon="view" tooltip="view" />
-  <DanxButton icon="document" tooltip="document" />
-  <DanxButton icon="users" tooltip="users" />
-  <DanxButton icon="database" tooltip="database" />
-  <DanxButton icon="folder" tooltip="folder" />
-  <DanxButton icon="cancel" tooltip="cancel" />
-  <DanxButton icon="back" tooltip="back" />
-  <DanxButton icon="edit" tooltip="edit" />
-  <DanxButton icon="copy" tooltip="copy" />
-  <DanxButton icon="refresh" tooltip="refresh" />
-  <DanxButton icon="export" tooltip="export" />
-  <DanxButton icon="import" tooltip="import" />
-  <DanxButton icon="minus" tooltip="minus" />
-  <DanxButton icon="merge" tooltip="merge" />
-  <DanxButton icon="restart" tooltip="restart" />
-  <DanxButton icon="play" tooltip="play" />
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const textOnlyCode = `<template>
-  <DanxButton>Default</DanxButton>
-  <DanxButton type="danger">Danger</DanxButton>
-  <DanxButton type="success">Success</DanxButton>
-  <DanxButton type="warning">Warning</DanxButton>
-  <DanxButton type="info">Info</DanxButton>
-  <DanxButton type="muted">Muted</DanxButton>
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const sizesCode = `<template>
-  <DanxButton type="success" icon="save" size="xxs">XXS</DanxButton>
-  <DanxButton type="success" icon="save" size="xs">XS</DanxButton>
-  <DanxButton type="success" icon="save" size="sm">SM</DanxButton>
-  <DanxButton type="success" icon="save" size="md">MD</DanxButton>
-  <DanxButton type="success" icon="save" size="lg">LG</DanxButton>
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const iconOnlyCode = `<template>
-  <DanxButton type="danger" icon="trash" tooltip="Delete" />
-  <DanxButton type="muted" icon="edit" tooltip="Edit" />
-  <DanxButton type="info" icon="view" tooltip="View" />
-  <DanxButton icon="copy" tooltip="Copy" />
-  <DanxButton icon="refresh" tooltip="Refresh" />
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const disabledCode = `<template>
-  <DanxButton type="success" icon="save" disabled>Disabled</DanxButton>
-  <DanxButton type="danger" icon="trash" disabled>Disabled</DanxButton>
-  <DanxButton icon="edit" disabled>Disabled</DanxButton>
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const loadingCode = `<template>
-  <DanxButton type="success" icon="save" :loading="isLoading" @click="handleLoadingClick">
-    {{ isLoading ? "Saving..." : "Save" }}
-  </DanxButton>
-</template>
-
-<script setup lang="ts">
-import { ref } from "vue";
-import { DanxButton } from "danx-ui";
-
-const isLoading = ref(false);
-
-async function handleLoadingClick() {
-  isLoading.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  isLoading.value = false;
-}
-\x3c/script>`;
-
-const customIconCode = `<template>
-  <DanxButton type="success">
-    <template #icon>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    </template>
-    Star
-  </DanxButton>
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-\x3c/script>`;
-
-const danxIconCode = `<template>
-  <DanxButton type="success" :icon="starIcon">Star</DanxButton>
-  <DanxButton type="info" :icon="starIcon">Info Star</DanxButton>
-  <DanxButton type="danger" :icon="starIcon">Danger Star</DanxButton>
-</template>
-
-<script setup lang="ts">
-import { DanxButton } from "danx-ui";
-import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
-\x3c/script>`;
+// Load SFC examples as raw strings for live-editable demos
+import allIconsCode from "./button-examples/AllIcons.vue?raw";
+import customIconCode from "./button-examples/CustomIcon.vue?raw";
+import danxIconCode from "./button-examples/DanxIcon.vue?raw";
+import disabledCode from "./button-examples/Disabled.vue?raw";
+import iconOnlyCode from "./button-examples/IconOnly.vue?raw";
+import loadingCode from "./button-examples/Loading.vue?raw";
+import semanticTypesCode from "./button-examples/SemanticTypes.vue?raw";
+import sizesCode from "./button-examples/Sizes.vue?raw";
+import textOnlyCode from "./button-examples/TextOnly.vue?raw";
 </script>
 
 <template>

@@ -1,4 +1,5 @@
 import type { Component } from "vue";
+import type { IconName } from "./icons";
 
 /**
  * DanxButton Type Definitions
@@ -44,7 +45,7 @@ export interface DanxButtonProps {
    * - A Vue component (renders via <component :is>)
    * When omitted and no icon slot is provided, no icon area is rendered.
    */
-  icon?: Component | string;
+  icon?: Component | IconName | string;
 
   /**
    * Disables the button, preventing clicks and styling as disabled.

@@ -75,9 +75,6 @@ export interface DanxDialogProps {
 }
 
 export interface DanxDialogEmits {
-  /** Emitted when dialog should close (v-model update) */
-  (e: "update:modelValue", value: boolean): void;
-
   /** Emitted when dialog is closed via internal trigger (ESC, backdrop, close button) */
   (e: "close"): void;
 

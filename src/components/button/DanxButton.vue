@@ -93,8 +93,9 @@
 
 <script setup lang="ts">
 import { computed, h } from "vue";
+import type { IconName } from "./icons";
 import { buttonIcons } from "./icons";
-import type { DanxButtonProps } from "./types";
+import type { DanxButtonEmits, DanxButtonProps } from "./types";
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
   type: "",
@@ -103,9 +104,7 @@ const props = withDefaults(defineProps<DanxButtonProps>(), {
   loading: false,
 });
 
-const emit = defineEmits<{
-  (e: "click", event: MouseEvent): void;
-}>();
+const emit = defineEmits<DanxButtonEmits>();
 
 const buttonClasses = computed(() => [
   "danx-button",
@@ -124,7 +123,7 @@ function handleClick(event: MouseEvent) {
 
 const iconSvg = computed(() => {
   if (!props.icon || typeof props.icon !== "string") return null;
-  return buttonIcons[props.icon] ?? props.icon;
+  return buttonIcons[props.icon as IconName] ?? props.icon;
 });
 
 const IconComponent = computed(() => {

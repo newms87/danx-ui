@@ -16,3 +16,4 @@ export type {
   DanxButtonProps,
   DanxButtonSlots,
 } from "./types";
+export type { IconName } from "./icons";
