@@ -5,46 +5,17 @@ import type { Component } from "vue";
  */
 
 /**
- * Semantic button types that determine both icon and color.
+ * Semantic button type that controls color only.
  *
- * Categories:
- * - Destructive (danger): trash, stop, close
- * - Constructive (success): save, create, confirm, check
- * - Warning: pause, clock
- * - Informational (interactive): view, document, users, database, folder
- * - Neutral (muted): cancel, back, edit, copy, refresh, export, import, minus, merge, restart, play
+ * Each type maps to a color category:
+ * - "" (blank): No background color, inherits text color (default)
+ * - danger: Destructive actions (red)
+ * - success: Constructive actions (green)
+ * - warning: Cautionary actions (amber)
+ * - info: Informational actions (blue)
+ * - muted: Neutral/secondary actions (gray)
  */
-export type ButtonType =
-  // Destructive (danger)
-  | "trash"
-  | "stop"
-  | "close"
-  // Constructive (success)
-  | "save"
-  | "create"
-  | "confirm"
-  | "check"
-  // Warning
-  | "pause"
-  | "clock"
-  // Informational (interactive)
-  | "view"
-  | "document"
-  | "users"
-  | "database"
-  | "folder"
-  // Neutral (muted)
-  | "cancel"
-  | "back"
-  | "edit"
-  | "copy"
-  | "refresh"
-  | "export"
-  | "import"
-  | "minus"
-  | "merge"
-  | "restart"
-  | "play";
+export type ButtonType = "" | "danger" | "success" | "warning" | "info" | "muted";
 
 /**
  * Button sizes.
@@ -54,10 +25,11 @@ export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg";
 
 export interface DanxButtonProps {
   /**
-   * Semantic button type that determines icon and color.
-   * Each type has a default icon and color based on its semantic category.
+   * Semantic color type. Controls background and text color only.
+   * Blank string or omitted means no background color.
+   * @default ""
    */
-  type: ButtonType;
+  type?: ButtonType;
 
   /**
    * Button size affecting padding, icon size, and font size.
@@ -66,10 +38,13 @@ export interface DanxButtonProps {
   size?: ButtonSize;
 
   /**
-   * Custom icon component to override the type's default icon.
-   * The component receives no props and should render an SVG.
+   * Icon to display. Accepts:
+   * - A built-in icon name (e.g. "trash", "save", "edit")
+   * - A raw SVG string (rendered via innerHTML, preserving currentColor)
+   * - A Vue component (renders via <component :is>)
+   * When omitted and no icon slot is provided, no icon area is rendered.
    */
-  icon?: Component;
+  icon?: Component | string;
 
   /**
    * Disables the button, preventing clicks and styling as disabled.

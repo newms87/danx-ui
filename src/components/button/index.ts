@@ -4,11 +4,11 @@
  * Exports:
  * - DanxButton: The button component
  * - Types: TypeScript interfaces
- * - Icons: SVG icon map for button types
+ * - Icons: Individual SVG icon constants
  */
 
 export { default as DanxButton } from "./DanxButton.vue";
-export { buttonIcons } from "./icons";
+export * from "./icons";
 export type {
   ButtonSize,
   ButtonType,

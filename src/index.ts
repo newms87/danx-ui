@@ -11,8 +11,8 @@ export { DanxDialog } from "./components/dialog";
 // Composables
 export { useDialog } from "./components/dialog";
 
-// Utilities
-export { buttonIcons } from "./components/button";
+// Icons
+export * from "./components/button/icons";
 
 // Types
 export type {

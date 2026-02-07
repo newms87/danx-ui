@@ -1,11 +1,13 @@
 # Button Component
 
-A semantic button component where the type determines both icon and color.
+A button component with semantic color types and decoupled icons.
 
 ## Features
 
-- **Semantic Types** - 24 button types with predefined icons and colors
+- **Semantic Types** - 6 color types: blank (default), danger, success, warning, info, muted
+- **Built-in Icons** - 24 icons available by name (e.g. `icon="trash"`), no imports needed
 - **Five Sizes** - xxs, xs, sm, md, lg
+- **Text-Only Buttons** - Omit icon for text-only buttons
 - **Loading State** - Spinner and disabled state during async operations
 - **CSS Tokens** - Full customization via component tokens
 - **Zero Dependencies** - Inline SVG icons, no external icon library
@@ -14,7 +16,7 @@ A semantic button component where the type determines both icon and color.
 
 ```vue
 <template>
-  <DanxButton type="save" @click="handleSave">Save</DanxButton>
+  <DanxButton type="success" icon="save" @click="handleSave">Save</DanxButton>
 </template>
 
 <script setup lang="ts">
@@ -30,9 +32,9 @@ function handleSave() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `ButtonType` | - | Semantic type (determines icon/color) |
+| `type` | `ButtonType` | `""` | Semantic color type (blank = no bg) |
 | `size` | `ButtonSize` | `"md"` | Button size |
-| `icon` | `Component` | - | Custom icon component |
+| `icon` | `Component \| string` | - | Icon name, raw SVG string, or component |
 | `disabled` | `boolean` | `false` | Disables the button |
 | `loading` | `boolean` | `false` | Shows spinner, prevents clicks |
 | `tooltip` | `string` | - | Native title attribute |
@@ -50,66 +52,56 @@ function handleSave() {
 | `default` | Button text content |
 | `icon` | Override icon rendering |
 
-## Button Types
+## Semantic Types
 
-### Destructive (Danger)
+| Type | Color | Use For |
+|------|-------|---------|
+| `""` (default) | Transparent | Unstyled buttons, inherit from context |
+| `danger` | Red | Destructive actions (delete, stop, close) |
+| `success` | Green | Constructive actions (save, create, confirm) |
+| `warning` | Amber | Cautionary actions (pause, schedule) |
+| `info` | Blue | Informational actions (view, details) |
+| `muted` | Gray | Neutral/secondary actions (cancel, back, edit) |
 
-| Type | Icon | Color |
-|------|------|-------|
-| `trash` | Trash can | Danger red |
-| `stop` | Stop circle | Danger red |
-| `close` | X | Danger red |
+## Icons
 
-### Constructive (Success)
+### By Name (recommended)
 
-| Type | Icon | Color |
-|------|------|-------|
-| `save` | Floppy disk | Success green |
-| `create` | Plus circle | Success green |
-| `confirm` | Checkmark | Success green |
-| `check` | Checkmark | Success green |
+Use a built-in icon by name — no imports needed:
 
-### Warning
+```vue
+<DanxButton type="danger" icon="trash">Delete</DanxButton>
+<DanxButton type="success" icon="save">Save</DanxButton>
+<DanxButton type="muted" icon="edit">Edit</DanxButton>
+```
 
-| Type | Icon | Color |
-|------|------|-------|
-| `pause` | Pause bars | Warning amber |
-| `clock` | Clock | Warning amber |
+Available names: `trash`, `stop`, `close`, `save`, `create`, `confirm`, `check`, `pause`, `clock`, `view`, `document`, `users`, `database`, `folder`, `cancel`, `back`, `edit`, `copy`, `refresh`, `export`, `import`, `minus`, `merge`, `restart`, `play`.
 
-### Informational (Interactive)
+### By Import
 
-| Type | Icon | Color |
-|------|------|-------|
-| `view` | Eye | Interactive blue |
-| `document` | Document | Interactive blue |
-| `users` | Users | Interactive blue |
-| `database` | Database | Interactive blue |
-| `folder` | Folder | Interactive blue |
+Icons are also exported as named constants for use outside the component:
 
-### Neutral (Muted)
+```typescript
+import { trashIcon, saveIcon, editIcon } from 'danx-ui';
+```
 
-| Type | Icon | Color |
-|------|------|-------|
-| `cancel` | X | Muted gray |
-| `back` | Arrow left | Muted gray |
-| `edit` | Pencil | Muted gray |
-| `copy` | Copy | Muted gray |
-| `refresh` | Refresh arrows | Muted gray |
-| `export` | Upload arrow | Muted gray |
-| `import` | Download arrow | Muted gray |
-| `minus` | Minus | Muted gray |
-| `merge` | Merge | Muted gray |
-| `restart` | Restart arrow | Muted gray |
-| `play` | Play triangle | Muted gray |
+## Text-Only Button
+
+Omit the `icon` prop for a text-only button:
+
+```vue
+<DanxButton type="success">Save</DanxButton>
+<DanxButton type="danger">Delete</DanxButton>
+```
 
 ## Sizes
 
 ```vue
-<DanxButton type="save" size="xxs">XXS</DanxButton>
-<DanxButton type="save" size="xs">XS</DanxButton>
-<DanxButton type="save" size="sm">SM</DanxButton>
-<DanxButton type="save" size="md">MD (default)</DanxButton>
-<DanxButton type="save" size="lg">LG</DanxButton>
+<DanxButton type="success" icon="save" size="xxs">XXS</DanxButton>
+<DanxButton type="success" icon="save" size="xs">XS</DanxButton>
+<DanxButton type="success" icon="save" size="sm">SM</DanxButton>
+<DanxButton type="success" icon="save" size="md">MD (default)</DanxButton>
+<DanxButton type="success" icon="save" size="lg">LG</DanxButton>
 ```
 
 ## Icon-Only Button
@@ -117,13 +109,13 @@ function handleSave() {
 Omit the default slot content for an icon-only button. Use `tooltip` for accessibility.
 
 ```vue
-<DanxButton type="trash" tooltip="Delete item" />
+<DanxButton type="danger" icon="trash" tooltip="Delete item" />
 ```
 
 ## Loading State
 
 ```vue
-<DanxButton type="save" :loading="isSaving" @click="save">
+<DanxButton type="success" icon="save" :loading="isSaving" @click="save">
   Save
 </DanxButton>
 ```
@@ -135,16 +127,23 @@ When loading:
 
 ## Custom Icon
 
-### Via Prop
+### Via Prop (SVG string)
 
 ```vue
-<DanxButton type="save" :icon="MyCustomIcon">Save</DanxButton>
+<script setup lang="ts">
+import { DanxButton } from 'danx-ui';
+import starIcon from 'danx-icon/src/fontawesome/solid/star.svg?raw';
+</script>
+
+<template>
+  <DanxButton type="success" :icon="starIcon">Star</DanxButton>
+</template>
 ```
 
 ### Via Slot
 
 ```vue
-<DanxButton type="save">
+<DanxButton type="success">
   <template #icon>
     <MyCustomIcon />
   </template>
@@ -162,11 +161,11 @@ When loading:
   --button-border-radius: 9999px;
 }
 
-/* Scoped override - change save button color */
+/* Scoped override - change success button color */
 .my-save-button {
-  --button-save-bg: #7c3aed;
-  --button-save-bg-hover: #6d28d9;
-  --button-save-text: white;
+  --button-success-bg: #7c3aed;
+  --button-success-bg-hover: #6d28d9;
+  --button-success-text: white;
 }
 ```
 
@@ -195,7 +194,7 @@ For each size (`xxs`, `xs`, `sm`, `md`, `lg`):
 
 #### Type Tokens
 
-For each button type:
+For each named type (`danger`, `success`, `warning`, `info`, `muted`; blank has no tokens):
 
 | Token Pattern | Description |
 |---------------|-------------|
@@ -208,8 +207,8 @@ For each button type:
 ```typescript
 import type { ButtonType, ButtonSize, DanxButtonProps } from 'danx-ui';
 
-// ButtonType includes all 24 semantic types
-const type: ButtonType = 'save';
+// ButtonType: "" | "danger" | "success" | "warning" | "info" | "muted"
+const type: ButtonType = 'success';
 
 // ButtonSize for sizing
 const size: ButtonSize = 'md';

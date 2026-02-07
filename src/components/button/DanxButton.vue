@@ -2,25 +2,27 @@
 /**
  * DanxButton Component
  *
- * A semantic button component where the type determines both icon and color.
- * No color prop - colors are controlled via CSS tokens.
+ * A button component with semantic color types and decoupled icons.
+ * The `type` prop controls color only. Icons are provided via `icon` prop or slot.
  *
  * ## Features
- * - Semantic button types (trash, save, edit, etc.) with predefined icons and colors
+ * - Six color types: blank (default), danger, success, warning, info, muted
  * - Five sizes (xxs, xs, sm, md, lg)
  * - Loading state with spinner
+ * - Icons via prop (name string, SVG string, or Component) or slot
+ * - Text-only buttons when no icon is provided
  * - CSS token system for complete styling control
  * - Zero external dependencies (inline SVG icons)
  *
  * ## Props
- * | Prop     | Type        | Default | Description                           |
- * |----------|-------------|---------|---------------------------------------|
- * | type     | ButtonType  | -       | Semantic type (determines icon/color) |
- * | size     | ButtonSize  | "md"    | Button size                           |
- * | icon     | Component   | -       | Custom icon component                 |
- * | disabled | boolean     | false   | Disables the button                   |
- * | loading  | boolean     | false   | Shows spinner, prevents clicks        |
- * | tooltip  | string      | -       | Native title attribute                |
+ * | Prop     | Type        | Default  | Description                           |
+ * |----------|-------------|----------|---------------------------------------|
+ * | type     | ButtonType  | ""       | Semantic color type (blank = no bg)   |
+ * | size     | ButtonSize  | "md"     | Button size                           |
+ * | icon     | Component | string | - | Icon (name, SVG string, or component) |
+ * | disabled | boolean     | false    | Disables the button                   |
+ * | loading  | boolean     | false    | Shows spinner, prevents clicks        |
+ * | tooltip  | string      | -        | Native title attribute                |
  *
  * ## Events
  * | Event | Payload    | Description                              |
@@ -30,7 +32,7 @@
  * ## Slots
  * | Slot    | Description                    |
  * |---------|--------------------------------|
- * | icon    | Override icon rendering        |
+ * | icon    | Override icon rendering         |
  * | default | Button text content            |
  *
  * ## CSS Tokens
@@ -53,7 +55,7 @@
  * | --button-{size}-font-size | Font size         |
  * | --button-{size}-gap       | Icon-text gap     |
  *
- * Type tokens (per type):
+ * Type tokens (danger, success, warning, info, muted; blank has no tokens):
  * | Token                   | Description        |
  * |-------------------------|--------------------|
  * | --button-{type}-bg      | Background color   |
@@ -62,24 +64,27 @@
  *
  * ## Usage Examples
  *
- * Basic button:
- *   <DanxButton type="save">Save</DanxButton>
+ * Blank button (default, no background):
+ *   <DanxButton icon="edit">Edit</DanxButton>
+ *
+ * Colored button with icon by name:
+ *   <DanxButton type="danger" icon="trash">Delete</DanxButton>
+ *
+ * Text-only button:
+ *   <DanxButton type="success">Save</DanxButton>
  *
  * Icon-only button:
- *   <DanxButton type="trash" tooltip="Delete item" />
+ *   <DanxButton type="danger" icon="trash" tooltip="Delete item" />
  *
  * Different sizes:
- *   <DanxButton type="edit" size="xs">Edit</DanxButton>
- *   <DanxButton type="edit" size="lg">Edit</DanxButton>
+ *   <DanxButton type="muted" icon="edit" size="xs">Edit</DanxButton>
+ *   <DanxButton type="muted" icon="edit" size="lg">Edit</DanxButton>
  *
  * Loading state:
- *   <DanxButton type="save" :loading="isSaving">Save</DanxButton>
- *
- * Custom icon:
- *   <DanxButton type="save" :icon="MyCustomIcon">Save</DanxButton>
+ *   <DanxButton type="success" icon="save" :loading="isSaving">Save</DanxButton>
  *
  * Custom icon via slot:
- *   <DanxButton type="save">
+ *   <DanxButton type="success">
  *     <template #icon><MyIcon /></template>
  *     Save
  *   </DanxButton>
@@ -92,6 +97,7 @@ import { buttonIcons } from "./icons";
 import type { DanxButtonProps } from "./types";
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
+  type: "",
   size: "md",
   disabled: false,
   loading: false,
@@ -104,7 +110,7 @@ const emit = defineEmits<{
 const buttonClasses = computed(() => [
   "danx-button",
   `danx-button--${props.size}`,
-  `danx-button--${props.type}`,
+  props.type ? `danx-button--${props.type}` : null,
   {
     "danx-button--loading": props.loading,
   },
@@ -112,19 +118,21 @@ const buttonClasses = computed(() => [
 
 const isDisabled = computed(() => props.disabled || props.loading);
 
-const iconSvg = computed(() => buttonIcons[props.type]);
-
 function handleClick(event: MouseEvent) {
   emit("click", event);
 }
 
+const iconSvg = computed(() => {
+  if (!props.icon || typeof props.icon !== "string") return null;
+  return buttonIcons[props.icon] ?? props.icon;
+});
+
 const IconComponent = computed(() => {
-  if (props.icon) {
-    return props.icon;
+  if (!props.icon) return null;
+  if (typeof props.icon === "string") {
+    return { render: () => h("span", { innerHTML: iconSvg.value }) };
   }
-  return {
-    render: () => h("span", { innerHTML: iconSvg.value }),
-  };
+  return props.icon;
 });
 </script>
 
@@ -139,8 +147,8 @@ const IconComponent = computed(() => {
     <!-- Loading spinner -->
     <span v-if="loading" class="danx-button__spinner" />
 
-    <!-- Icon -->
-    <span v-else class="danx-button__icon">
+    <!-- Icon (only rendered when icon prop or icon slot is provided) -->
+    <span v-if="!loading && ($slots.icon || icon)" class="danx-button__icon">
       <slot name="icon">
         <component :is="IconComponent" />
       </slot>
