@@ -29,13 +29,14 @@ import {
   watch,
   watchEffect,
 } from "vue";
-import { DanxButton } from "../../src/components/button";
+import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxDialog } from "../../src/components/dialog";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
 /** Components available in compiled templates via the `components` option */
 const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButton,
+  DanxActionButton,
   DanxDialog,
 };
 
@@ -50,6 +51,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   watch,
   watchEffect,
   DanxButton,
+  DanxActionButton,
   DanxDialog,
   starIcon,
 };

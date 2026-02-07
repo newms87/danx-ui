@@ -131,6 +131,31 @@ describe("DanxActionButton", () => {
       expect(action.trigger).not.toHaveBeenCalled();
     });
 
+    it("does not trigger action when saving is true", async () => {
+      const action = createMockAction();
+
+      const wrapper = mount(DanxActionButton, {
+        props: { action, saving: true },
+      });
+
+      await wrapper.find("button").trigger("click");
+
+      expect(action.trigger).not.toHaveBeenCalled();
+    });
+
+    it("calls action.trigger with null target when target is null", async () => {
+      const action = createMockAction();
+
+      const wrapper = mount(DanxActionButton, {
+        props: { action, target: null },
+      });
+
+      await wrapper.find("button").trigger("click");
+      await vi.waitFor(() => {
+        expect(action.trigger).toHaveBeenCalledWith(null, undefined);
+      });
+    });
+
     it("calls action.trigger with undefined target and input when not provided", async () => {
       const action = createMockAction();
 
@@ -334,6 +359,25 @@ describe("DanxActionButton", () => {
       await nextTick();
 
       expect(action.trigger).toHaveBeenCalled();
+    });
+
+    it("closes dialog after confirmation", async () => {
+      const action = createMockAction();
+
+      const wrapper = mount(DanxActionButton, {
+        props: { action, confirm: true },
+      });
+
+      // Open confirmation
+      await wrapper.find("button.danx-button").trigger("click");
+      await nextTick();
+      expect(wrapper.find("dialog").exists()).toBe(true);
+
+      // Confirm
+      await wrapper.find(".danx-dialog__button--primary").trigger("click");
+      await vi.waitFor(() => {
+        expect(wrapper.find("dialog").exists()).toBe(false);
+      });
     });
 
     it("does not trigger action when confirmation is cancelled", async () => {

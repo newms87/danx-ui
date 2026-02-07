@@ -58,7 +58,16 @@ The project enforces 100% coverage:
 
 **Run `yarn test:coverage` as the final verification step after ANY code change. No exceptions.**
 
-A task is NOT complete if coverage thresholds fail — even if the failure predates your changes. If you inherit failing coverage, flag it immediately and fix it before moving on.
+A task is NOT complete if YOUR code has failing coverage.
+
+### Pre-existing Coverage Failures
+
+| Situation | Action |
+|-----------|--------|
+| **Uncommitted/WIP code** failing coverage | **Flag it** to the user, then **ignore it**. Another agent likely owns it. NEVER modify vitest config, thresholds, or exclusions to work around it. |
+| **Committed code** failing coverage | **Flag it** and ask the user. Only address if the user confirms AND you believe your changes could not have caused it. |
+
+**NEVER "fix" someone else's coverage failures.** Do not touch `vitest.config.ts` exclusions, do not write tests for unrelated modules, do not adjust thresholds. Flag and move on.
 
 | Step | Command | When |
 |------|---------|------|
