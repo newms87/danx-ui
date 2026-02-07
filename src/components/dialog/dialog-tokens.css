@@ -21,8 +21,8 @@
  * --dialog-title-weight    Title font weight
  * --dialog-subtitle-color  Subtitle text color
  * --dialog-subtitle-size   Subtitle font size
- * --dialog-backdrop        Backdrop color
- * --dialog-animation-duration  Animation duration
+ * --dialog-backdrop             Backdrop color
+ * --dialog-animation-duration   Animation duration
  */
 
 :root {
@@ -47,21 +47,4 @@
 
   --dialog-backdrop: var(--color-backdrop);
   --dialog-animation-duration: var(--duration-300);
-
-  /* Button tokens */
-  --dialog-button-padding-x: var(--space-md);
-  --dialog-button-padding-y: var(--space-sm);
-  --dialog-button-radius: var(--radius-lg);
-  --dialog-button-font-size: var(--text-sm);
-  --dialog-button-font-weight: var(--font-semibold);
-
-  --dialog-button-primary-bg: var(--gradient-accent);
-  --dialog-button-primary-bg-hover: var(--color-interactive-hover);
-  --dialog-button-primary-text: var(--color-white);
-  --dialog-button-primary-shadow: 0 2px 4px rgb(37 99 235 / 0.3);
-
-  --dialog-button-secondary-bg: transparent;
-  --dialog-button-secondary-bg-hover: var(--color-surface-sunken);
-  --dialog-button-secondary-text: var(--color-text);
-  --dialog-button-secondary-border: var(--color-border-strong);
 }

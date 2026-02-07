@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
+import { DanxButton } from "../button";
 import type { DanxDialogProps } from "./types";
 
 const props = withDefaults(defineProps<DanxDialogProps>(), {
@@ -192,28 +193,14 @@ function handleConfirm() {
     <!-- Visible dialog box -->
     <div class="danx-dialog__box" :style="dialogStyle">
       <!-- Close X Button -->
-      <button
+      <DanxButton
         v-if="props.closeX"
-        type="button"
+        icon="close"
+        size="xs"
         class="danx-dialog__close-x"
         aria-label="Close dialog"
         @click="handleClose"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
+      />
 
       <!-- Header -->
       <header
@@ -238,26 +225,22 @@ function handleConfirm() {
         <slot name="actions">
           <!-- Close Button -->
           <slot v-if="closeButton" name="close-button">
-            <button
-              type="button"
-              class="danx-dialog__button danx-dialog__button--secondary"
-              @click="handleClose"
-            >
+            <DanxButton class="danx-dialog__button--secondary" @click="handleClose">
               {{ closeButtonText }}
-            </button>
+            </DanxButton>
           </slot>
 
           <!-- Confirm Button -->
           <slot v-if="confirmButton" name="confirm-button">
-            <button
-              type="button"
-              class="danx-dialog__button danx-dialog__button--primary"
-              :disabled="disabled || isSaving"
+            <DanxButton
+              type="info"
+              class="danx-dialog__button--primary"
+              :disabled="disabled"
+              :loading="isSaving"
               @click="handleConfirm"
             >
-              <span v-if="isSaving" class="danx-dialog__spinner" />
               {{ confirmButtonText }}
-            </button>
+            </DanxButton>
           </slot>
         </slot>
       </footer>

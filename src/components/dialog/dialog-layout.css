@@ -107,7 +107,7 @@
 }
 
 /* ==========================================================================
-   Close X Button
+   Close X Button (positioned over the dialog box; DanxButton handles styling)
    ========================================================================== */
 
 .danx-dialog__close-x {
@@ -115,30 +115,6 @@
   top: var(--space-sm);
   right: var(--space-sm);
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.danx-dialog__close-x:hover {
-  background: var(--color-surface);
-  color: var(--color-text);
-}
-
-.danx-dialog__close-x:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
 }
 
 /* ==========================================================================

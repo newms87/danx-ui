@@ -178,7 +178,7 @@ describe("DanxDialog", () => {
 
       const confirmBtn = wrapper.find(".danx-dialog__button--primary");
       expect(confirmBtn.attributes("disabled")).toBeDefined();
-      expect(wrapper.find(".danx-dialog__spinner").exists()).toBe(true);
+      expect(wrapper.find(".danx-button__spinner").exists()).toBe(true);
     });
   });
 
