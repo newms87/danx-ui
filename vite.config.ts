@@ -25,6 +25,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
+      // Use Vue full build (with runtime template compiler) in dev for live code editing
+      ...(isDev ? { vue: "vue/dist/vue.esm-bundler.js" } : {}),
     },
   },
   // Dev server serves the demo app from index.html

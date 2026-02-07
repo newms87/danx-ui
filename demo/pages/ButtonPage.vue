@@ -4,46 +4,115 @@
  *
  * Demo page for DanxButton component with live examples and documentation.
  */
-import { ref } from "vue";
 import DemoSection from "../components/DemoSection.vue";
 import DocSection from "../components/DocSection.vue";
-import { DanxButton } from "../../src/components/button";
-import type { ButtonType, ButtonSize } from "../../src/components/button";
 
 // Load markdown documentation as raw string
 import buttonDocs from "../../docs/button.md?raw";
 
-// Destructive types
-const destructiveTypes: ButtonType[] = ["trash", "stop", "close"];
+// Code examples for live-editable demos
+const semanticTypesCode = `<template>
+  <DanxButton icon="edit">Default</DanxButton>
+  <DanxButton type="danger" icon="trash">Danger</DanxButton>
+  <DanxButton type="success" icon="save">Success</DanxButton>
+  <DanxButton type="warning" icon="pause">Warning</DanxButton>
+  <DanxButton type="info" icon="view">Info</DanxButton>
+  <DanxButton type="muted" icon="edit">Muted</DanxButton>
+</template>
 
-// Constructive types
-const constructiveTypes: ButtonType[] = ["save", "create", "confirm", "check"];
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
 
-// Warning types
-const warningTypes: ButtonType[] = ["pause", "clock"];
+const allIconsCode = `<template>
+  <DanxButton icon="trash" tooltip="trash" />
+  <DanxButton icon="stop" tooltip="stop" />
+  <DanxButton icon="close" tooltip="close" />
+  <DanxButton icon="save" tooltip="save" />
+  <DanxButton icon="create" tooltip="create" />
+  <DanxButton icon="confirm" tooltip="confirm" />
+  <DanxButton icon="check" tooltip="check" />
+  <DanxButton icon="pause" tooltip="pause" />
+  <DanxButton icon="clock" tooltip="clock" />
+  <DanxButton icon="view" tooltip="view" />
+  <DanxButton icon="document" tooltip="document" />
+  <DanxButton icon="users" tooltip="users" />
+  <DanxButton icon="database" tooltip="database" />
+  <DanxButton icon="folder" tooltip="folder" />
+  <DanxButton icon="cancel" tooltip="cancel" />
+  <DanxButton icon="back" tooltip="back" />
+  <DanxButton icon="edit" tooltip="edit" />
+  <DanxButton icon="copy" tooltip="copy" />
+  <DanxButton icon="refresh" tooltip="refresh" />
+  <DanxButton icon="export" tooltip="export" />
+  <DanxButton icon="import" tooltip="import" />
+  <DanxButton icon="minus" tooltip="minus" />
+  <DanxButton icon="merge" tooltip="merge" />
+  <DanxButton icon="restart" tooltip="restart" />
+  <DanxButton icon="play" tooltip="play" />
+</template>
 
-// Informational types
-const informationalTypes: ButtonType[] = ["view", "document", "users", "database", "folder"];
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
 
-// Neutral types
-const neutralTypes: ButtonType[] = [
-  "cancel",
-  "back",
-  "edit",
-  "copy",
-  "refresh",
-  "export",
-  "import",
-  "minus",
-  "merge",
-  "restart",
-  "play",
-];
+const textOnlyCode = `<template>
+  <DanxButton>Default</DanxButton>
+  <DanxButton type="danger">Danger</DanxButton>
+  <DanxButton type="success">Success</DanxButton>
+  <DanxButton type="warning">Warning</DanxButton>
+  <DanxButton type="info">Info</DanxButton>
+  <DanxButton type="muted">Muted</DanxButton>
+</template>
 
-// All sizes
-const sizes: ButtonSize[] = ["xxs", "xs", "sm", "md", "lg"];
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
 
-// Loading state demo
+const sizesCode = `<template>
+  <DanxButton type="success" icon="save" size="xxs">XXS</DanxButton>
+  <DanxButton type="success" icon="save" size="xs">XS</DanxButton>
+  <DanxButton type="success" icon="save" size="sm">SM</DanxButton>
+  <DanxButton type="success" icon="save" size="md">MD</DanxButton>
+  <DanxButton type="success" icon="save" size="lg">LG</DanxButton>
+</template>
+
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
+
+const iconOnlyCode = `<template>
+  <DanxButton type="danger" icon="trash" tooltip="Delete" />
+  <DanxButton type="muted" icon="edit" tooltip="Edit" />
+  <DanxButton type="info" icon="view" tooltip="View" />
+  <DanxButton icon="copy" tooltip="Copy" />
+  <DanxButton icon="refresh" tooltip="Refresh" />
+</template>
+
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
+
+const disabledCode = `<template>
+  <DanxButton type="success" icon="save" disabled>Disabled</DanxButton>
+  <DanxButton type="danger" icon="trash" disabled>Disabled</DanxButton>
+  <DanxButton icon="edit" disabled>Disabled</DanxButton>
+</template>
+
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
+
+const loadingCode = `<template>
+  <DanxButton type="success" icon="save" :loading="isLoading" @click="handleLoadingClick">
+    {{ isLoading ? "Saving..." : "Save" }}
+  </DanxButton>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import { DanxButton } from "danx-ui";
+
 const isLoading = ref(false);
 
 async function handleLoadingClick() {
@@ -51,127 +120,93 @@ async function handleLoadingClick() {
   await new Promise((resolve) => setTimeout(resolve, 1500));
   isLoading.value = false;
 }
+\x3c/script>`;
+
+const customIconCode = `<template>
+  <DanxButton type="success">
+    <template #icon>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    </template>
+    Star
+  </DanxButton>
+</template>
+
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+\x3c/script>`;
+
+const danxIconCode = `<template>
+  <DanxButton type="success" :icon="starIcon">Star</DanxButton>
+  <DanxButton type="info" :icon="starIcon">Info Star</DanxButton>
+  <DanxButton type="danger" :icon="starIcon">Danger Star</DanxButton>
+</template>
+
+<script setup lang="ts">
+import { DanxButton } from "danx-ui";
+import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
+\x3c/script>`;
 </script>
 
 <template>
   <div class="button-page">
     <h1>Button</h1>
     <p class="button-page__description">
-      A semantic button component where the type determines both icon and color.
+      A button component with semantic color types and built-in icons.
     </p>
 
     <h2>Live Examples</h2>
 
     <DemoSection
-      title="Destructive Buttons"
-      description="Danger-colored buttons for destructive actions."
-    >
-      <div class="button-grid">
-        <DanxButton v-for="type in destructiveTypes" :key="type" :type="type">
-          {{ type }}
-        </DanxButton>
-      </div>
-    </DemoSection>
+      title="Semantic Types"
+      description="One button per type. Default (blank) has no background color."
+      :code="semanticTypesCode"
+    />
 
     <DemoSection
-      title="Constructive Buttons"
-      description="Success-colored buttons for constructive actions."
-    >
-      <div class="button-grid">
-        <DanxButton v-for="type in constructiveTypes" :key="type" :type="type">
-          {{ type }}
-        </DanxButton>
-      </div>
-    </DemoSection>
+      title="All Icons"
+      description='All 24 built-in icons by name. Just use icon="name" — no imports needed.'
+      :code="allIconsCode"
+    />
 
     <DemoSection
-      title="Warning Buttons"
-      description="Warning-colored buttons for cautionary actions."
-    >
-      <div class="button-grid">
-        <DanxButton v-for="type in warningTypes" :key="type" :type="type">
-          {{ type }}
-        </DanxButton>
-      </div>
-    </DemoSection>
+      title="Text-Only Buttons"
+      description="Buttons without icons for each semantic type."
+      :code="textOnlyCode"
+    />
+
+    <DemoSection title="Button Sizes" description="Buttons in all five sizes." :code="sizesCode" />
 
     <DemoSection
-      title="Informational Buttons"
-      description="Interactive-colored buttons for informational actions."
-    >
-      <div class="button-grid">
-        <DanxButton v-for="type in informationalTypes" :key="type" :type="type">
-          {{ type }}
-        </DanxButton>
-      </div>
-    </DemoSection>
+      title="Icon-Only Buttons"
+      description="Buttons without text, using tooltips."
+      :code="iconOnlyCode"
+    />
 
     <DemoSection
-      title="Neutral Buttons"
-      description="Muted buttons for neutral or secondary actions."
-    >
-      <div class="button-grid">
-        <DanxButton v-for="type in neutralTypes" :key="type" :type="type">
-          {{ type }}
-        </DanxButton>
-      </div>
-    </DemoSection>
+      title="Loading State"
+      description="Button shows spinner during async operations."
+      :code="loadingCode"
+    />
 
-    <DemoSection title="Button Sizes" description="Buttons in all five sizes.">
-      <div class="button-grid button-grid--sizes">
-        <DanxButton v-for="size in sizes" :key="size" type="save" :size="size">
-          {{ size.toUpperCase() }}
-        </DanxButton>
-      </div>
-    </DemoSection>
-
-    <DemoSection title="Icon-Only Buttons" description="Buttons without text, using tooltips.">
-      <div class="button-grid">
-        <DanxButton type="trash" tooltip="Delete" />
-        <DanxButton type="edit" tooltip="Edit" />
-        <DanxButton type="view" tooltip="View" />
-        <DanxButton type="copy" tooltip="Copy" />
-        <DanxButton type="refresh" tooltip="Refresh" />
-      </div>
-    </DemoSection>
-
-    <DemoSection title="Loading State" description="Button shows spinner during async operations.">
-      <DanxButton type="save" :loading="isLoading" @click="handleLoadingClick">
-        {{ isLoading ? "Saving..." : "Save" }}
-      </DanxButton>
-    </DemoSection>
-
-    <DemoSection title="Disabled State" description="Disabled buttons cannot be clicked.">
-      <div class="button-grid">
-        <DanxButton type="save" disabled>Disabled</DanxButton>
-        <DanxButton type="trash" disabled>Disabled</DanxButton>
-        <DanxButton type="edit" disabled>Disabled</DanxButton>
-      </div>
-    </DemoSection>
+    <DemoSection
+      title="Disabled State"
+      description="Disabled buttons cannot be clicked."
+      :code="disabledCode"
+    />
 
     <DemoSection
       title="Custom Icon via Slot"
-      description="Override the default icon using the icon slot."
-    >
-      <DanxButton type="save">
-        <template #icon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-            />
-          </svg>
-        </template>
-        Star
-      </DanxButton>
-    </DemoSection>
+      description="Override the icon using the icon slot."
+      :code="customIconCode"
+    />
+
+    <DemoSection
+      title="External SVG Icon"
+      description="Import an SVG as a raw string via ?raw and bind it to :icon. Icons inherit currentColor."
+      :code="danxIconCode"
+    />
 
     <h2>Documentation</h2>
     <DocSection :content="buttonDocs" />
@@ -204,16 +239,5 @@ async function handleLoadingClick() {
   margin: 0 0 2rem;
   font-size: 1.125rem;
   line-height: 1.6;
-}
-
-.button-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.button-grid--sizes {
-  align-items: flex-end;
 }
 </style>

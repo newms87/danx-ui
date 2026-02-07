@@ -7,6 +7,7 @@
 import { ref } from "vue";
 import DemoSection from "../components/DemoSection.vue";
 import DocSection from "../components/DocSection.vue";
+import { DanxButton } from "../../src/components/button";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 
 // Load markdown documentation as raw string
@@ -63,14 +64,14 @@ const sizeMap = {
     <h2>Live Examples</h2>
 
     <DemoSection title="Basic Dialog" description="Simple dialog with title and X close button.">
-      <button class="demo-button" @click="basicDialog.open()">Open Basic Dialog</button>
+      <DanxButton type="info" @click="basicDialog.open()">Open Basic Dialog</DanxButton>
       <DanxDialog v-model="basicDialog.isOpen.value" title="Basic Dialog" close-x>
         <p>This is a basic dialog with an X close button in the top right.</p>
       </DanxDialog>
     </DemoSection>
 
     <DemoSection title="Dialog with Subtitle" description="Dialog with both title and subtitle.">
-      <button class="demo-button" @click="subtitleDialog.open()">Open Dialog</button>
+      <DanxButton type="info" @click="subtitleDialog.open()">Open Dialog</DanxButton>
       <DanxDialog
         v-model="subtitleDialog.isOpen.value"
         title="Important Notice"
@@ -84,8 +85,8 @@ const sizeMap = {
       title="Close Button Variations"
       description="Close button with default and custom text."
     >
-      <button class="demo-button" @click="closeButtonBool.open()">Default Close</button>
-      <button class="demo-button" @click="closeButtonCustom.open()">Custom Close</button>
+      <DanxButton type="info" @click="closeButtonBool.open()">Default Close</DanxButton>
+      <DanxButton type="info" @click="closeButtonCustom.open()">Custom Close</DanxButton>
 
       <DanxDialog v-model="closeButtonBool.isOpen.value" title="Close Button" close-button>
         <p>This dialog has a close button with default "Close" text.</p>
@@ -104,7 +105,7 @@ const sizeMap = {
       title="Confirm Dialog with Loading"
       description="Dialog with confirm button that shows loading state."
     >
-      <button class="demo-button" @click="confirmDialog.open()">Open Confirm Dialog</button>
+      <DanxButton type="info" @click="confirmDialog.open()">Open Confirm Dialog</DanxButton>
       <DanxDialog
         v-model="confirmDialog.isOpen.value"
         title="Confirm Action"
@@ -121,7 +122,7 @@ const sizeMap = {
       title="Persistent Mode"
       description="Dialog that can't be closed by ESC or backdrop click."
     >
-      <button class="demo-button" @click="persistentDialog.open()">Open Persistent</button>
+      <DanxButton type="info" @click="persistentDialog.open()">Open Persistent</DanxButton>
       <DanxDialog
         v-model="persistentDialog.isOpen.value"
         title="Persistent Dialog"
@@ -135,7 +136,7 @@ const sizeMap = {
     </DemoSection>
 
     <DemoSection title="Custom Sizing" description="Dialog with explicit width and height.">
-      <button class="demo-button" @click="customSizeDialog.open()">Open Sized Dialog</button>
+      <DanxButton type="info" @click="customSizeDialog.open()">Open Sized Dialog</DanxButton>
       <DanxDialog
         v-model="customSizeDialog.isOpen.value"
         title="Custom Size"
@@ -153,7 +154,7 @@ const sizeMap = {
       title="Animated Size Changes"
       description="Dialog smoothly animates when width/height props change."
     >
-      <button class="demo-button" @click="animatedSizeDialog.open()">Open Animated Dialog</button>
+      <DanxButton type="info" @click="animatedSizeDialog.open()">Open Animated Dialog</DanxButton>
       <DanxDialog
         v-model="animatedSizeDialog.isOpen.value"
         title="Animated Size"
@@ -162,34 +163,34 @@ const sizeMap = {
         close-x
       >
         <div class="size-controls">
-          <button
-            class="size-button"
-            :class="{ active: dialogSize === 'small' }"
+          <DanxButton
+            :type="dialogSize === 'small' ? 'info' : 'muted'"
+            size="sm"
             @click="dialogSize = 'small'"
           >
             Small
-          </button>
-          <button
-            class="size-button"
-            :class="{ active: dialogSize === 'medium' }"
+          </DanxButton>
+          <DanxButton
+            :type="dialogSize === 'medium' ? 'info' : 'muted'"
+            size="sm"
             @click="dialogSize = 'medium'"
           >
             Medium
-          </button>
-          <button
-            class="size-button"
-            :class="{ active: dialogSize === 'large' }"
+          </DanxButton>
+          <DanxButton
+            :type="dialogSize === 'large' ? 'info' : 'muted'"
+            size="sm"
             @click="dialogSize = 'large'"
           >
             Large
-          </button>
+          </DanxButton>
         </div>
         <p>Click the buttons to resize. Uses CSS <code>interpolate-size</code>.</p>
       </DanxDialog>
     </DemoSection>
 
     <DemoSection title="Slot Customization" description="Using slots for custom content.">
-      <button class="demo-button" @click="slotDialog.open()">Open Custom Dialog</button>
+      <DanxButton type="info" @click="slotDialog.open()">Open Custom Dialog</DanxButton>
       <DanxDialog v-model="slotDialog.isOpen.value">
         <template #title>
           <span style="color: #0077cc">🎨 Custom Title</span>
@@ -199,9 +200,7 @@ const sizeMap = {
         </template>
         <p>The title and subtitle are customized using named slots.</p>
         <template #actions>
-          <button class="demo-button demo-button--secondary" @click="slotDialog.close()">
-            Custom Close Button
-          </button>
+          <DanxButton @click="slotDialog.close()"> Custom Close Button </DanxButton>
         </template>
       </DanxDialog>
     </DemoSection>
@@ -239,68 +238,10 @@ const sizeMap = {
   line-height: 1.6;
 }
 
-.demo-button {
-  padding: 0.625rem 1.25rem;
-  background: var(--gradient-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgb(37 99 235 / 0.25);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.demo-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgb(37 99 235 / 0.3);
-}
-
-.demo-button:active {
-  transform: translateY(0);
-}
-
-.demo-button--secondary {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border-strong);
-  box-shadow: none;
-}
-
-.demo-button--secondary:hover {
-  background: var(--color-surface-sunken);
-  box-shadow: none;
-}
-
 /* Animated size demo styles */
 .size-controls {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
-}
-
-.size-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    border-color 0.15s;
-}
-
-.size-button:hover {
-  background: var(--color-surface-sunken);
-}
-
-.size-button.active {
-  background: var(--color-interactive);
-  border-color: var(--color-interactive);
-  color: white;
 }
 </style>

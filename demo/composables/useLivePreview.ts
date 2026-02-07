@@ -1,0 +1,206 @@
+/**
+ * useLivePreview - Compiles editable SFC strings into live Vue components
+ *
+ * Uses Vue 3's runtime template compiler (requires vue/dist/vue.esm-bundler.js)
+ * to turn user-edited SFC strings into rendered components in real-time.
+ *
+ * Supports full SFC format with both <template> and <script setup> blocks.
+ * Template edits update the rendered output. Script edits re-evaluate bindings
+ * (reactive state, functions, imports) via dynamic evaluation.
+ *
+ * Imports are resolved from AVAILABLE_VALUES — a flat registry of everything
+ * the demo environment provides (Vue APIs, components, assets).
+ *
+ * @param code - Reactive ref containing a Vue SFC or template string
+ * @returns { component, error } - shallowRef of the compiled component, and any compilation error
+ */
+import {
+  type Component,
+  type Ref,
+  computed,
+  defineComponent,
+  reactive,
+  ref,
+  shallowRef,
+  watch,
+  watchEffect,
+} from "vue";
+import { DanxButton } from "../../src/components/button";
+import { DanxDialog } from "../../src/components/dialog";
+import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
+
+/** Components available in compiled templates via the `components` option */
+const REGISTERED_COMPONENTS: Record<string, Component> = {
+  DanxButton,
+  DanxDialog,
+};
+
+/**
+ * Flat registry of values available for import resolution in script blocks.
+ * When a script contains `import { ref } from "vue"`, we look up `ref` here.
+ */
+const AVAILABLE_VALUES: Record<string, unknown> = {
+  ref,
+  computed,
+  reactive,
+  watch,
+  watchEffect,
+  DanxButton,
+  DanxDialog,
+  starIcon,
+};
+
+const DEBOUNCE_MS = 250;
+
+/**
+ * Extract the inner content of a <template> block from an SFC string.
+ * Returns the original string unchanged if no <template> block is found.
+ */
+function extractTemplate(source: string): string {
+  const match = source.match(/<template>([\s\S]*)<\/template>/);
+  return match ? match[1]!.trim() : source;
+}
+
+/**
+ * Extract the inner content of a <script> block from an SFC string.
+ * Returns null if no script block is found.
+ */
+function extractScript(source: string): string | null {
+  const match = source.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+  return match ? match[1]!.trim() : null;
+}
+
+/**
+ * Parse import statements from a script block.
+ * Resolves imported names from AVAILABLE_VALUES and returns
+ * the resolved bindings plus the remaining script body.
+ */
+function parseScript(script: string): {
+  bindings: Record<string, unknown>;
+  body: string;
+} {
+  const bindings: Record<string, unknown> = {};
+  const bodyLines: string[] = [];
+
+  for (const line of script.split("\n")) {
+    const trimmed = line.trim();
+
+    // Skip type-only imports (TypeScript, no runtime effect)
+    if (trimmed.startsWith("import type")) continue;
+
+    // Named imports: import { ref, computed } from "vue"
+    const namedMatch = trimmed.match(/^import\s+\{([^}]+)\}\s+from\s+["'][^"']+["'];?\s*$/);
+    if (namedMatch) {
+      for (const name of namedMatch[1]!.split(",").map((n) => n.trim())) {
+        if (name in AVAILABLE_VALUES) {
+          bindings[name] = AVAILABLE_VALUES[name];
+        }
+      }
+      continue;
+    }
+
+    // Default imports: import starIcon from "..."
+    const defaultMatch = trimmed.match(/^import\s+(\w+)\s+from\s+["'][^"']+["'];?\s*$/);
+    if (defaultMatch) {
+      const name = defaultMatch[1]!;
+      if (name in AVAILABLE_VALUES) {
+        bindings[name] = AVAILABLE_VALUES[name];
+      }
+      continue;
+    }
+
+    bodyLines.push(line);
+  }
+
+  return { bindings, body: bodyLines.join("\n").trim() };
+}
+
+/**
+ * Find all top-level const/let/var and function declarations in a script body.
+ * Returns the list of declared names so we can return them from setup().
+ */
+function findDeclaredNames(script: string): string[] {
+  const names: string[] = [];
+  for (const match of script.matchAll(/(?:const|let|var)\s+(\w+)/g)) {
+    names.push(match[1]!);
+  }
+  for (const match of script.matchAll(/(?:async\s+)?function\s+(\w+)/g)) {
+    names.push(match[1]!);
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Build a setup() function from a parsed script block.
+ * Uses `new Function()` to evaluate the script body with resolved imports
+ * as parameters, then returns all declared + imported names.
+ */
+function buildSetup(script: string): (() => Record<string, unknown>) | null {
+  const { bindings, body } = parseScript(script);
+  const importNames = Object.keys(bindings);
+  const importValues = Object.values(bindings);
+  const declaredNames = findDeclaredNames(body);
+  const allNames = [...new Set([...importNames, ...declaredNames])];
+
+  if (allNames.length === 0) return null;
+
+  // No body code — just return resolved imports (e.g. starIcon)
+  if (!body) {
+    return () => ({ ...bindings });
+  }
+
+  // Build a function that receives imports as params, runs the body,
+  // and returns all names (imports + declarations)
+  const returnStmt = `return { ${allNames.join(", ")} }`;
+  const fnBody = `${body}\n${returnStmt}`;
+
+  try {
+    const fn = new Function(...importNames, fnBody);
+    return () => fn(...importValues);
+  } catch {
+    return null;
+  }
+}
+
+export function useLivePreview(code: Ref<string>): {
+  component: Ref<Component | null>;
+  error: Ref<string | null>;
+} {
+  const component = shallowRef<Component | null>(null);
+  const error = shallowRef<string | null>(null);
+
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function compile(source: string) {
+    try {
+      const template = extractTemplate(source);
+      const script = extractScript(source);
+
+      let setup: (() => Record<string, unknown>) | undefined;
+      if (script) {
+        setup = buildSetup(script) ?? undefined;
+      }
+
+      const compiled = defineComponent({
+        template,
+        components: REGISTERED_COMPONENTS,
+        setup: setup ?? (() => ({})),
+      });
+      component.value = compiled;
+      error.value = null;
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : String(e);
+    }
+  }
+
+  // Compile immediately on first call
+  compile(code.value);
+
+  // Debounced recompilation on changes
+  watch(code, (newCode) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => compile(newCode), DEBOUNCE_MS);
+  });
+
+  return { component, error };
+}
