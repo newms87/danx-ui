@@ -310,6 +310,25 @@ describe("DanxDialog", () => {
       // showModal should be called again to re-open
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled();
     });
+
+    it("does not re-open on native close event when not persistent", async () => {
+      const showModalSpy = vi.spyOn(HTMLDialogElement.prototype, "showModal");
+
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true },
+      });
+      await nextTick();
+
+      // Clear the spy count from initial mount
+      showModalSpy.mockClear();
+
+      const dialog = wrapper.find("dialog");
+      await dialog.trigger("close");
+      await nextTick();
+
+      // showModal should NOT be called again since not persistent
+      expect(showModalSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("Slots", () => {
@@ -467,6 +486,17 @@ describe("DanxDialog", () => {
       expect(wrapper.find(".danx-dialog__subtitle").exists()).toBe(true);
       expect(wrapper.find(".danx-dialog__title").exists()).toBe(false);
     });
+
+    it("renders both title and subtitle when both props are set", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, title: "Title", subtitle: "Subtitle" },
+      });
+      await nextTick();
+
+      expect(wrapper.find(".danx-dialog__header").exists()).toBe(true);
+      expect(wrapper.find(".danx-dialog__title").text()).toBe("Title");
+      expect(wrapper.find(".danx-dialog__subtitle").text()).toBe("Subtitle");
+    });
   });
 
   describe("Footer rendering", () => {
@@ -477,6 +507,17 @@ describe("DanxDialog", () => {
       await nextTick();
 
       expect(wrapper.find(".danx-dialog__footer").exists()).toBe(false);
+    });
+
+    it("renders both close and confirm buttons when both props are set", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, closeButton: true, confirmButton: true },
+      });
+      await nextTick();
+
+      expect(wrapper.find(".danx-dialog__footer").exists()).toBe(true);
+      expect(wrapper.find(".danx-dialog__button--secondary").exists()).toBe(true);
+      expect(wrapper.find(".danx-dialog__button--primary").exists()).toBe(true);
     });
 
     it("renders footer when actions slot is provided without button props", async () => {

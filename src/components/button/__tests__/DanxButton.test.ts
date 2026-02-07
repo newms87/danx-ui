@@ -221,6 +221,17 @@ describe("DanxButton", () => {
       expect(wrapper.find(".danx-button__icon").exists()).toBe(false);
     });
 
+    it("hides icon slot content when loading=true", () => {
+      const wrapper = mount(DanxButton, {
+        props: { type: "success", loading: true },
+        slots: { icon: '<span class="slot-icon">Icon</span>' },
+      });
+
+      expect(wrapper.find(".danx-button__icon").exists()).toBe(false);
+      expect(wrapper.find(".slot-icon").exists()).toBe(false);
+      expect(wrapper.find(".danx-button__spinner").exists()).toBe(true);
+    });
+
     it("adds loading class when loading=true", () => {
       const wrapper = mount(DanxButton, {
         props: { type: "success", loading: true },

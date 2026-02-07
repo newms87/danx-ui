@@ -121,15 +121,10 @@ function handleClick(event: MouseEvent) {
   emit("click", event);
 }
 
-const iconSvg = computed(() => {
-  if (!props.icon || typeof props.icon !== "string") return null;
-  return buttonIcons[props.icon as IconName] ?? props.icon;
-});
-
 const IconComponent = computed(() => {
-  if (!props.icon) return null;
   if (typeof props.icon === "string") {
-    return { render: () => h("span", { innerHTML: iconSvg.value }) };
+    const svg = buttonIcons[props.icon as IconName] ?? props.icon;
+    return { render: () => h("span", { innerHTML: svg }) };
   }
   return props.icon;
 });

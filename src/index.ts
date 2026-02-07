@@ -5,7 +5,7 @@
  */
 
 // Components
-export { DanxButton } from "./components/button";
+export { DanxActionButton, DanxButton } from "./components/button";
 export { DanxDialog } from "./components/dialog";
 
 // Composables
@@ -16,11 +16,16 @@ export * from "./components/button/icons";
 
 // Types
 export type {
+  ActionTarget,
+  ActionTargetItem,
   ButtonSize,
   ButtonType,
+  DanxActionButtonEmits,
+  DanxActionButtonProps,
   DanxButtonEmits,
   DanxButtonProps,
   DanxButtonSlots,
+  ResourceAction,
 } from "./components/button";
 export type {
   DanxDialogEmits,
