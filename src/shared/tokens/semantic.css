@@ -47,25 +47,25 @@
      Primary action color for buttons, links, focus rings
      ========================================================================== */
 
-  --color-interactive: var(--color-blue-600);
-  --color-interactive-hover: var(--color-blue-700);
-  --color-interactive-active: var(--color-blue-800);
+  --color-interactive: var(--color-blue-500);
+  --color-interactive-hover: var(--color-blue-600);
+  --color-interactive-active: var(--color-blue-700);
   --color-interactive-subtle: var(--color-blue-50);
 
   /* ==========================================================================
      Status Colors
      ========================================================================== */
 
-  --color-danger: var(--color-red-600);
-  --color-danger-hover: var(--color-red-700);
+  --color-danger: var(--color-red-500);
+  --color-danger-hover: var(--color-red-600);
   --color-danger-subtle: var(--color-red-50);
 
-  --color-success: var(--color-green-600);
-  --color-success-hover: var(--color-green-700);
+  --color-success: var(--color-green-500);
+  --color-success-hover: var(--color-green-600);
   --color-success-subtle: var(--color-green-50);
 
-  --color-warning: var(--color-amber-500);
-  --color-warning-hover: var(--color-amber-600);
+  --color-warning: var(--color-amber-400);
+  --color-warning-hover: var(--color-amber-500);
   --color-warning-subtle: var(--color-amber-50);
 
   /* ==========================================================================
