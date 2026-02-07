@@ -24,7 +24,11 @@
 
 1. **Read** the file first (required before Edit)
 2. **Edit** with precise old_string/new_string replacement
-3. **Linting runs automatically** via PostToolUse hook
+3. **Linting runs automatically** via PostToolUse hook -- NEVER run `yarn lint` manually
+
+### NEVER Run Lint Manually
+
+The PostToolUse hook runs `yarn lint --fix` on every file after Write/Edit. Running `yarn lint` as a separate Bash command is redundant. Trust the hooks.
 
 ### Forbidden Patterns
 

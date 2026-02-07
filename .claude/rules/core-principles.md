@@ -28,6 +28,12 @@
 
 ONE correct way to do everything. If something uses the wrong name, fix it at the source. Never add compatibility layers.
 
+## Observation ≠ Instruction
+
+When the user describes a behavior or limitation, DO NOT immediately start "fixing" it. Ask what they want to do about it. Present options. Wait for direction. Only act when explicitly asked.
+
+**Never modify user-authored content without explicit request.** Demo code, documentation, example strings, and similar authored content reflects deliberate choices. Do not delete, reformat, or restructure it based on your own judgment.
+
 ## Library-Grade Quality
 
 This is a public component library. Every file must be:

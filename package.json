@@ -55,6 +55,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173",
     "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css",
     "build:css": "mkdir -p dist/shared/tokens dist/components/button dist/components/dialog && cp src/shared/tokens/*.css dist/shared/tokens/ && cp src/components/button/*.css dist/components/button/ && cp src/components/dialog/*.css dist/components/dialog/ && cp src/styles.css dist/",
     "preview": "vite preview",
@@ -80,6 +81,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitest/coverage-v8": "^4.0.18",
     "@vue/test-utils": "^2.4.6",
+    "danx-icon": "^1.0.2",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

@@ -101,7 +101,7 @@ A feature is NOT complete until all three are done.
 | **NEVER use styling props** | CSS tokens only |
 | **NEVER use defineExpose** | Use v-model instead |
 | **Relative paths only** | No `/home/...` paths in commands |
-| **Linting is automatic** | Hooks run ESLint after every edit |
+| **NEVER run yarn lint manually** | Hooks run ESLint after every Write/Edit. Running it manually is redundant. |
 
 ## Project Structure
 
