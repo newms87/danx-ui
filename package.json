@@ -41,6 +41,11 @@
       "types": "./dist/components/dialog/useDialog.d.ts",
       "import": "./dist/components/dialog/useDialog.js"
     },
+    "./components/code-viewer": {
+      "types": "./dist/components/code-viewer/index.d.ts",
+      "import": "./dist/components/code-viewer/index.js"
+    },
+    "./components/code-viewer/styles": "./dist/components/code-viewer/code-viewer.css",
     "./components/dialog/styles": "./dist/components/dialog/dialog.css",
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css"
@@ -57,7 +62,7 @@
     "dev": "vite",
     "dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173",
     "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css",
-    "build:css": "mkdir -p dist/shared/tokens dist/components/button dist/components/dialog && cp src/shared/tokens/*.css dist/shared/tokens/ && cp src/components/button/*.css dist/components/button/ && cp src/components/dialog/*.css dist/components/dialog/ && cp src/styles.css dist/",
+    "build:css": "mkdir -p dist/shared/tokens dist/components/button dist/components/code-viewer dist/components/dialog && cp src/shared/tokens/*.css dist/shared/tokens/ && cp src/components/button/*.css dist/components/button/ && cp src/components/code-viewer/*.css dist/components/code-viewer/ && cp src/components/dialog/*.css dist/components/dialog/ && cp src/styles.css dist/",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint src --fix",

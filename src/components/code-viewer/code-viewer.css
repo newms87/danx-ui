@@ -1,0 +1,334 @@
+/**
+ * CodeViewer Styles
+ *
+ * Layout, structure, and syntax highlighting for the CodeViewer component family.
+ * All colors reference tokens from code-viewer-tokens.css.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./code-viewer-tokens.css";
+
+/* ==========================================
+   Root Container
+   ========================================== */
+.dx-code-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.dx-code-viewer.is-collapsed {
+  height: auto;
+}
+
+/* ==========================================
+   Collapsed View
+   ========================================== */
+.dx-code-viewer .code-collapsed {
+  background-color: var(--code-viewer-collapsed-bg);
+  border-radius: var(--code-viewer-border-radius);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--code-viewer-font-family);
+  font-size: var(--code-viewer-font-size);
+  transition: background-color 0.15s ease;
+}
+
+.dx-code-viewer .code-collapsed:hover {
+  background-color: var(--code-viewer-collapsed-bg-hover);
+}
+
+.dx-code-viewer .code-collapsed .code-collapsed-preview {
+  color: var(--code-viewer-collapsed-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dx-code-viewer .collapse-toggle {
+  transition: color 0.15s ease;
+}
+
+.dx-code-viewer .collapse-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5rem;
+  cursor: pointer;
+  z-index: 5;
+}
+
+/* ==========================================
+   Code Content Area
+   ========================================== */
+.dx-code-viewer .code-content {
+  background-color: var(--code-viewer-content-bg);
+  color: var(--code-viewer-content-text);
+  width: 100%;
+  min-height: 0;
+  font-family: var(--code-viewer-font-family);
+  font-size: var(--code-viewer-font-size);
+  line-height: var(--code-viewer-line-height);
+  border-radius: var(--code-viewer-border-radius) var(--code-viewer-border-radius) 0 0;
+  padding: var(--code-viewer-padding);
+  overflow: auto;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.dx-code-viewer .code-content.is-collapsible {
+  padding-top: 1rem;
+  padding-left: 1rem;
+}
+
+.dx-code-viewer .code-content code {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: transparent;
+  color: inherit;
+}
+
+/* Light theme content border */
+.dx-code-viewer.theme-light .code-content {
+  border: 1px solid var(--code-viewer-light-border);
+}
+
+/* ==========================================
+   Footer
+   ========================================== */
+.dx-code-viewer .code-footer {
+  background-color: var(--code-viewer-footer-bg);
+  border-radius: 0 0 var(--code-viewer-border-radius) var(--code-viewer-border-radius);
+  padding: 0.25rem 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.dx-code-viewer .code-footer.has-error {
+  background-color: var(--code-viewer-footer-error-bg);
+  border-top: 1px solid var(--code-viewer-footer-error-border);
+}
+
+/* Light theme footer border */
+.dx-code-viewer.theme-light .code-footer {
+  border-top: 1px solid var(--code-viewer-light-border);
+}
+
+/* ==========================================
+   Syntax Highlighting
+   ========================================== */
+.dx-code-viewer .syntax-key { color: var(--code-viewer-syntax-key); }
+.dx-code-viewer .syntax-string { color: var(--code-viewer-syntax-string); }
+.dx-code-viewer .syntax-number { color: var(--code-viewer-syntax-number); }
+.dx-code-viewer .syntax-boolean { color: var(--code-viewer-syntax-boolean); }
+.dx-code-viewer .syntax-null { color: var(--code-viewer-syntax-null); }
+.dx-code-viewer .syntax-punctuation { color: var(--code-viewer-syntax-punctuation); }
+.dx-code-viewer .syntax-comment { color: var(--code-viewer-syntax-comment); }
+.dx-code-viewer .syntax-selector { color: var(--code-viewer-syntax-selector); }
+.dx-code-viewer .syntax-property { color: var(--code-viewer-syntax-property); }
+.dx-code-viewer .syntax-value { color: var(--code-viewer-syntax-value); }
+.dx-code-viewer .syntax-at-rule { color: var(--code-viewer-syntax-at-rule); }
+.dx-code-viewer .syntax-keyword { color: var(--code-viewer-syntax-keyword); }
+.dx-code-viewer .syntax-operator { color: var(--code-viewer-syntax-operator); }
+.dx-code-viewer .syntax-regex { color: var(--code-viewer-syntax-regex); }
+.dx-code-viewer .syntax-template { color: var(--code-viewer-syntax-template); }
+.dx-code-viewer .syntax-tag { color: var(--code-viewer-syntax-tag); }
+.dx-code-viewer .syntax-attribute { color: var(--code-viewer-syntax-attribute); }
+.dx-code-viewer .syntax-doctype { color: var(--code-viewer-syntax-doctype); }
+
+/* ==========================================
+   Editable Mode
+   ========================================== */
+.dx-code-viewer .code-content.is-editable {
+  cursor: text;
+  outline: none;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+  caret-color: var(--code-viewer-editable-caret);
+}
+
+.dx-code-viewer .code-content.is-editable:focus {
+  border-color: var(--code-viewer-editable-focus-border);
+}
+
+.dx-code-viewer .code-content.is-editable:hover:not(:focus) {
+  border-color: var(--code-viewer-editable-hover-border);
+}
+
+/* ==========================================
+   Language Badge
+   ========================================== */
+.dx-language-badge-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.dx-language-badge-container.is-toggleable {
+  cursor: pointer;
+}
+
+.dx-language-options {
+  display: flex;
+  align-items: center;
+}
+
+.dx-language-option {
+  padding: 2px 8px;
+  font-size: var(--code-viewer-badge-font-size);
+  background: var(--code-viewer-option-bg);
+  color: var(--code-viewer-option-text);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-right: 1px solid var(--code-viewer-option-border);
+}
+
+.dx-language-option:hover {
+  background: var(--code-viewer-option-bg-hover);
+  color: var(--code-viewer-option-text-hover);
+}
+
+.dx-language-option:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.dx-language-search-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+}
+
+.dx-language-search-trigger svg {
+  width: 12px;
+  height: 12px;
+}
+
+.dx-language-badge {
+  padding: 2px 8px;
+  font-size: var(--code-viewer-badge-font-size);
+  border-radius: 0 6px 0 6px;
+  background: var(--code-viewer-badge-bg);
+  color: var(--code-viewer-badge-text);
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.dx-language-badge.is-active {
+  border-radius: var(--code-viewer-badge-active-radius);
+}
+
+/* ==========================================
+   Language Search Panel
+   ========================================== */
+.dx-language-search-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--code-viewer-search-bg);
+  border-radius: 6px;
+  border: 1px solid var(--code-viewer-search-border);
+  min-width: 160px;
+  overflow: hidden;
+  box-shadow: var(--code-viewer-search-shadow);
+}
+
+.dx-language-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.8em;
+  background: var(--code-viewer-search-input-bg);
+  border: none;
+  border-bottom: 1px solid var(--code-viewer-search-border);
+  color: var(--code-viewer-search-input-text);
+  outline: none;
+}
+
+.dx-language-search-input::placeholder {
+  color: var(--code-viewer-search-input-placeholder);
+}
+
+.dx-language-search-input:focus {
+  background: var(--code-viewer-search-input-bg-focus);
+}
+
+.dx-language-search-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dx-language-search-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dx-language-search-list::-webkit-scrollbar-track {
+  background: var(--code-viewer-search-scrollbar-track);
+}
+
+.dx-language-search-list::-webkit-scrollbar-thumb {
+  background: var(--code-viewer-search-scrollbar-thumb);
+  border-radius: 3px;
+}
+
+.dx-language-search-list::-webkit-scrollbar-thumb:hover {
+  background: var(--code-viewer-search-scrollbar-thumb-hover);
+}
+
+.dx-language-search-item {
+  padding: 6px 12px;
+  font-size: 0.75em;
+  color: var(--code-viewer-search-item-text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dx-language-search-item:hover,
+.dx-language-search-item.is-selected {
+  background: var(--code-viewer-search-item-bg-hover);
+  color: var(--code-viewer-search-item-text-hover);
+}
+
+.dx-language-search-empty {
+  padding: 12px;
+  font-size: 0.75em;
+  color: var(--code-viewer-search-empty-text);
+  text-align: center;
+}
+
+/* ==========================================
+   Animations
+   ========================================== */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all 0.2s ease;
+}
+
+.slide-left-enter-from,
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ==========================================
+   Markdown Content
+   ========================================== */
+.dx-markdown-content .markdown-code-block {
+  margin: 1em 0;
+}
+
+.dx-markdown-content .markdown-code-block.dx-code-viewer {
+  height: auto;
+}

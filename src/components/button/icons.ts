@@ -40,6 +40,11 @@ import minusSvg from "danx-icon/src/fontawesome/solid/minus.svg?raw";
 import mergeSvg from "danx-icon/src/fontawesome/solid/code-merge.svg?raw";
 import restartSvg from "danx-icon/src/fontawesome/solid/arrow-rotate-right.svg?raw";
 import playSvg from "danx-icon/src/fontawesome/solid/play.svg?raw";
+import downloadSvg from "danx-icon/src/fontawesome/solid/download.svg?raw";
+import chevronDownSvg from "danx-icon/src/fontawesome/solid/chevron-down.svg?raw";
+import chevronRightSvg from "danx-icon/src/fontawesome/solid/chevron-right.svg?raw";
+import chevronUpSvg from "danx-icon/src/fontawesome/solid/chevron-up.svg?raw";
+import chevronLeftSvg from "danx-icon/src/fontawesome/solid/chevron-left.svg?raw";
 
 // Destructive
 export const trashIcon = trashSvg;
@@ -75,6 +80,11 @@ export const minusIcon = minusSvg;
 export const mergeIcon = mergeSvg;
 export const restartIcon = restartSvg;
 export const playIcon = playSvg;
+export const downloadIcon = downloadSvg;
+export const chevronDownIcon = chevronDownSvg;
+export const chevronRightIcon = chevronRightSvg;
+export const chevronUpIcon = chevronUpSvg;
+export const chevronLeftIcon = chevronLeftSvg;
 
 /**
  * Lookup map from icon name to SVG string.
@@ -106,6 +116,11 @@ export const buttonIcons = {
   merge: mergeIcon,
   restart: restartIcon,
   play: playIcon,
+  download: downloadIcon,
+  "chevron-down": chevronDownIcon,
+  "chevron-right": chevronRightIcon,
+  "chevron-up": chevronUpIcon,
+  "chevron-left": chevronLeftIcon,
 } satisfies Record<string, string>;
 
 /** Union of all built-in icon names available in the buttonIcons lookup map */

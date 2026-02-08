@@ -38,6 +38,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, "src/index.ts"),
+        "components/code-viewer/index": resolve(__dirname, "src/components/code-viewer/index.ts"),
         "components/dialog/index": resolve(__dirname, "src/components/dialog/index.ts"),
         "components/dialog/useDialog": resolve(__dirname, "src/components/dialog/useDialog.ts"),
       },

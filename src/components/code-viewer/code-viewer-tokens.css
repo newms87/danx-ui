@@ -1,0 +1,166 @@
+/**
+ * CodeViewer Token System
+ *
+ * CSS custom properties for theming the CodeViewer component family.
+ * Dark theme is the default. Light theme is activated via `.theme-light` class
+ * on the `.dx-code-viewer` container.
+ *
+ * Three categories:
+ * 1. Layout tokens - fonts, sizes, spacing, radii
+ * 2. Color tokens - backgrounds, text, borders
+ * 3. Syntax tokens - syntax highlighting colors per token type
+ */
+
+/* ==========================================
+   Dark Theme (Default)
+   ========================================== */
+.dx-code-viewer {
+  /* Layout */
+  --code-viewer-font-family: "Consolas", "Monaco", "Menlo", "Ubuntu Mono", "source-code-pro", monospace;
+  --code-viewer-font-size: 0.875rem;
+  --code-viewer-line-height: 1.6;
+  --code-viewer-padding: 1rem;
+  --code-viewer-border-radius: 0.375rem;
+  --code-viewer-badge-font-size: 0.7em;
+
+  /* Collapsed */
+  --code-viewer-collapsed-bg: #1e1e1e;
+  --code-viewer-collapsed-bg-hover: #252526;
+  --code-viewer-collapsed-text: #d4d4d4;
+
+  /* Content */
+  --code-viewer-content-bg: #1e1e1e;
+  --code-viewer-content-text: #d4d4d4;
+
+  /* Footer */
+  --code-viewer-footer-bg: #252526;
+  --code-viewer-footer-error-bg: #5a1d1d;
+  --code-viewer-footer-error-border: #be1100;
+
+  /* Badge */
+  --code-viewer-badge-bg: rgba(255, 255, 255, 0.1);
+  --code-viewer-badge-text: rgba(255, 255, 255, 0.6);
+  --code-viewer-badge-active-radius: 0 6px 0 0;
+
+  /* Language options (dark) */
+  --code-viewer-option-bg: rgba(0, 0, 0, 0.5);
+  --code-viewer-option-text: rgba(255, 255, 255, 0.7);
+  --code-viewer-option-bg-hover: rgba(0, 0, 0, 0.7);
+  --code-viewer-option-text-hover: rgba(255, 255, 255, 0.95);
+  --code-viewer-option-border: rgba(255, 255, 255, 0.1);
+
+  /* Search panel (dark) */
+  --code-viewer-search-bg: rgba(0, 0, 0, 0.9);
+  --code-viewer-search-border: rgba(255, 255, 255, 0.1);
+  --code-viewer-search-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --code-viewer-search-input-bg: rgba(255, 255, 255, 0.05);
+  --code-viewer-search-input-bg-focus: rgba(255, 255, 255, 0.08);
+  --code-viewer-search-input-text: rgba(255, 255, 255, 0.9);
+  --code-viewer-search-input-placeholder: rgba(255, 255, 255, 0.4);
+  --code-viewer-search-item-text: rgba(255, 255, 255, 0.7);
+  --code-viewer-search-item-bg-hover: rgba(255, 255, 255, 0.15);
+  --code-viewer-search-item-text-hover: rgba(255, 255, 255, 0.95);
+  --code-viewer-search-empty-text: rgba(255, 255, 255, 0.4);
+  --code-viewer-search-scrollbar-track: rgba(0, 0, 0, 0.2);
+  --code-viewer-search-scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --code-viewer-search-scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+
+  /* Editable */
+  --code-viewer-editable-focus-border: rgba(86, 156, 214, 0.6);
+  --code-viewer-editable-hover-border: rgba(86, 156, 214, 0.3);
+  --code-viewer-editable-caret: #d4d4d4;
+
+  /* Syntax highlighting - Dark theme */
+  --code-viewer-syntax-key: #9cdcfe;
+  --code-viewer-syntax-string: #9ae6b4;
+  --code-viewer-syntax-number: #ce9178;
+  --code-viewer-syntax-boolean: #569cd6;
+  --code-viewer-syntax-null: #569cd6;
+  --code-viewer-syntax-punctuation: #808080;
+  --code-viewer-syntax-comment: #6a9955;
+  --code-viewer-syntax-selector: #d7ba7d;
+  --code-viewer-syntax-property: #9cdcfe;
+  --code-viewer-syntax-value: #ce9178;
+  --code-viewer-syntax-at-rule: #c586c0;
+  --code-viewer-syntax-keyword: #569cd6;
+  --code-viewer-syntax-operator: #d4d4d4;
+  --code-viewer-syntax-regex: #d16969;
+  --code-viewer-syntax-template: #ce9178;
+  --code-viewer-syntax-tag: #569cd6;
+  --code-viewer-syntax-attribute: #9cdcfe;
+  --code-viewer-syntax-doctype: #808080;
+}
+
+/* ==========================================
+   Light Theme
+   ========================================== */
+.dx-code-viewer.theme-light {
+  /* Borders */
+  --code-viewer-light-border: #e2e8f0;
+
+  /* Collapsed */
+  --code-viewer-collapsed-bg: #f5f5f5;
+  --code-viewer-collapsed-bg-hover: #ebebeb;
+  --code-viewer-collapsed-text: #333333;
+
+  /* Content */
+  --code-viewer-content-bg: #f8fafc;
+  --code-viewer-content-text: #1e293b;
+
+  /* Footer */
+  --code-viewer-footer-bg: #f1f5f9;
+  --code-viewer-footer-error-bg: #fee2e2;
+  --code-viewer-footer-error-border: #ef4444;
+
+  /* Badge */
+  --code-viewer-badge-bg: rgba(0, 0, 0, 0.08);
+  --code-viewer-badge-text: #64748b;
+
+  /* Language options (light) */
+  --code-viewer-option-bg: rgba(0, 0, 0, 0.06);
+  --code-viewer-option-text: #64748b;
+  --code-viewer-option-bg-hover: rgba(0, 0, 0, 0.12);
+  --code-viewer-option-text-hover: #1e293b;
+  --code-viewer-option-border: rgba(0, 0, 0, 0.1);
+
+  /* Search panel (light) */
+  --code-viewer-search-bg: #f8fafc;
+  --code-viewer-search-border: #e2e8f0;
+  --code-viewer-search-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --code-viewer-search-input-bg: #f1f5f9;
+  --code-viewer-search-input-bg-focus: #e2e8f0;
+  --code-viewer-search-input-text: #1e293b;
+  --code-viewer-search-input-placeholder: #94a3b8;
+  --code-viewer-search-item-text: #64748b;
+  --code-viewer-search-item-bg-hover: #e2e8f0;
+  --code-viewer-search-item-text-hover: #1e293b;
+  --code-viewer-search-empty-text: #94a3b8;
+  --code-viewer-search-scrollbar-track: #f1f5f9;
+  --code-viewer-search-scrollbar-thumb: #cbd5e1;
+  --code-viewer-search-scrollbar-thumb-hover: #94a3b8;
+
+  /* Editable */
+  --code-viewer-editable-focus-border: rgba(14, 165, 233, 0.6);
+  --code-viewer-editable-hover-border: rgba(14, 165, 233, 0.3);
+  --code-viewer-editable-caret: #1e293b;
+
+  /* Syntax highlighting - Light theme */
+  --code-viewer-syntax-key: #0369a1;
+  --code-viewer-syntax-string: #15803d;
+  --code-viewer-syntax-number: #c2410c;
+  --code-viewer-syntax-boolean: #7c3aed;
+  --code-viewer-syntax-null: #7c3aed;
+  --code-viewer-syntax-punctuation: #64748b;
+  --code-viewer-syntax-comment: #6a9955;
+  --code-viewer-syntax-selector: #b45309;
+  --code-viewer-syntax-property: #0369a1;
+  --code-viewer-syntax-value: #c2410c;
+  --code-viewer-syntax-at-rule: #7c3aed;
+  --code-viewer-syntax-keyword: #0369a1;
+  --code-viewer-syntax-operator: #64748b;
+  --code-viewer-syntax-regex: #be123c;
+  --code-viewer-syntax-template: #c2410c;
+  --code-viewer-syntax-tag: #0369a1;
+  --code-viewer-syntax-attribute: #0891b2;
+  --code-viewer-syntax-doctype: #64748b;
+}

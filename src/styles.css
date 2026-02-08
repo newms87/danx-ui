@@ -12,4 +12,5 @@
 @import "tailwindcss";
 @import "./shared/tokens/index.css";
 @import "./components/button/button.css";
+@import "./components/code-viewer/code-viewer.css";
 @import "./components/dialog/dialog.css";

@@ -6,9 +6,11 @@
 
 // Components
 export { DanxActionButton, DanxButton } from "./components/button";
+export { CodeViewer } from "./components/code-viewer";
 export { DanxDialog } from "./components/dialog";
 
 // Composables
+export { useCodeFormat, useCodeViewerCollapse, useCodeViewerEditor } from "./components/code-viewer";
 export { useDialog } from "./components/dialog";
 
 // Icons
@@ -27,6 +29,22 @@ export type {
   DanxButtonSlots,
   ResourceAction,
 } from "./components/button";
+export type {
+  CodeFormat,
+  CodeViewerCollapsedProps,
+  CodeViewerFooterProps,
+  DanxCodeViewerEmits,
+  DanxCodeViewerProps,
+  LanguageBadgeProps,
+  MarkdownContentProps,
+  UseCodeFormatOptions,
+  UseCodeFormatReturn,
+  UseCodeViewerCollapseOptions,
+  UseCodeViewerCollapseReturn,
+  UseCodeViewerEditorOptions,
+  UseCodeViewerEditorReturn,
+  ValidationError,
+} from "./components/code-viewer";
 export type {
   DanxDialogEmits,
   DanxDialogProps,
