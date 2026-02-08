@@ -460,4 +460,50 @@ describe("highlightJavaScript", () => {
 			expect(result).toContain('<span class="syntax-keyword">else</span>');
 		});
 	});
+
+	describe("additional edge cases", () => {
+		it("handles unterminated regex at newline", () => {
+			// Regex /pattern followed by newline without closing / (line 270-271)
+			const result = highlightJavaScript("x = /unterminated\nvar y");
+			expect(result).toContain('class="syntax-regex"');
+			expect(result).toContain('class="syntax-keyword"');
+		});
+
+		it("handles legacy number starting with 0 followed by non-hex/bin/oct", () => {
+			// Number like 09 - starts with 0 but next char is not x/b/o (line 304-305)
+			const result = highlightJavaScript("09");
+			expect(result).toContain('<span class="syntax-number">09</span>');
+		});
+
+		it("handles unknown/special characters like @", () => {
+			// Characters that are not identifiers, operators, punctuation, or whitespace (line 444-446)
+			const result = highlightJavaScript("@decorator");
+			expect(result).toContain("@");
+			expect(result).toContain("decorator");
+		});
+
+		it("handles unicode characters", () => {
+			const result = highlightJavaScript("const \u00e9 = 1");
+			expect(result).toContain('<span class="syntax-keyword">const</span>');
+			expect(result).toContain('<span class="syntax-number">1</span>');
+		});
+
+		it("handles regex at start of code (empty lastToken)", () => {
+			// canPrecedeRegex("") returns true immediately (line 96)
+			const result = highlightJavaScript("/pattern/gi");
+			expect(result).toContain('class="syntax-regex"');
+		});
+
+		it("handles / as division after identifier (not regex)", () => {
+			// canPrecedeRegex("identifier") returns false, so / is treated as operator
+			const result = highlightJavaScript("a / b");
+			expect(result).toContain('class="syntax-operator"');
+		});
+
+		it("handles integer without decimal or exponent", () => {
+			// Tests that number parsing skips decimal/exponent sub-expressions (lines 315, 321)
+			const result = highlightJavaScript("x = 42;");
+			expect(result).toContain('<span class="syntax-number">42</span>');
+		});
+	});
 });

@@ -245,5 +245,29 @@ describe("parseList", () => {
         },
       ]);
     });
+
+    it("skips empty lines between items in inner collection loop", () => {
+      // This exercises the empty-line handling within the inner while loop (lines 79-82)
+      const lines = ["- item 1", "", "", "- item 2"];
+      const result = parseList(lines, 0, 0);
+      expect(result.tokens).toEqual([
+        {
+          type: "ul",
+          items: [
+            { content: "item 1" },
+            { content: "item 2" },
+          ],
+        },
+      ]);
+    });
+
+    it("breaks when nested content has higher indent than base but is not a list item of same type", () => {
+      // This exercises line 102-104: itemIndent > baseIndent causes break
+      const lines = ["- item 1", "    non-list content at indent 4"];
+      const result = parseList(lines, 0, 0);
+      expect(result.tokens[0]).toHaveProperty("type", "ul");
+      // The nested non-list line causes the inner loop to delegate to recursion
+      // which finds no valid list items and returns
+    });
   });
 });

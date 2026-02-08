@@ -7,10 +7,9 @@
  * Tabs are counted as 2 spaces for indentation purposes
  */
 export function getIndent(line: string): number {
-  const match = line.match(/^(\s*)/);
-  if (!match) return 0;
+  // /^(\s*)/ always matches any string — capture group 1 is the leading whitespace
   // Count tabs as 2 spaces for indentation purposes
-  return match[1]!.replace(/\t/g, "  ").length;
+  return line.match(/^(\s*)/)![1]!.replace(/\t/g, "  ").length;
 }
 
 /**

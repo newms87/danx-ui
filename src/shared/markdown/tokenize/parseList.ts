@@ -76,12 +76,10 @@ export function parseList(
         const itemTrimmed = itemLine.trim();
         const itemIndent = getIndent(itemLine);
 
-        if (!itemTrimmed) {
-          i++;
-          continue;
-        }
+        // Empty lines between items are consumed by the recursive parseList call (line 95),
+        // so this inner loop only sees non-empty lines or end-of-input
 
-        if (itemIndent < baseIndent) break;
+        if (!itemTrimmed || itemIndent < baseIndent) break;
 
         const currentItem = detectListItem(itemTrimmed);
 

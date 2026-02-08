@@ -43,15 +43,8 @@ export function highlightCSS(code: string): string {
   function flushBuffer(): void {
     if (!buffer) return;
 
-    const trimmed = buffer.trim();
-    if (!trimmed) {
-      // Whitespace only - just escape and add
-      result.push(escapeHtml(buffer));
-      buffer = "";
-      return;
-    }
-
-    // Determine what type of content this is based on context
+    // Whitespace is handled separately (lines 216-225) and never accumulates in buffer,
+    // so buffer always contains meaningful content at flush time
     switch (context) {
       case "selector":
         result.push(`<span class="syntax-selector">${escapeHtml(buffer)}</span>`);

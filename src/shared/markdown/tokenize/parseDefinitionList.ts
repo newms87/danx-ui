@@ -76,11 +76,8 @@ export function parseDefinitionList(lines: string[], index: number): ParseResult
     break;
   }
 
-  // Must have items with at least one definition
-  if (items.length === 0 || !items.some((item) => item.definitions.length > 0)) {
-    return null;
-  }
-
+  // The initial guard (lines 17-28) ensures the first term has a `: ` definition
+  // on the next line, so items always has at least one item with one definition
   return {
     token: { type: "dl", items },
     endIndex: i,

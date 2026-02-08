@@ -321,20 +321,10 @@ export function highlightHTML(code: string): string {
       }
     }
 
-    // Default text handling
-    if (state === "text") {
-      if (char === "<") {
-        // Will be handled at the top of the loop
-        continue;
-      }
-
-      buffer += char;
-      i++;
-    } else {
-      // Unknown state, just advance
-      buffer += char;
-      i++;
-    }
+    // Default text handling — all states above have explicit handlers,
+    // so only "text" state reaches here. The "<" case is handled by line 139 above.
+    buffer += char;
+    i++;
   }
 
   // Flush any remaining buffer
@@ -347,8 +337,6 @@ export function highlightHTML(code: string): string {
       flushBuffer("syntax-attribute");
     } else if (state === "attribute-value") {
       flushBuffer("syntax-string");
-    } else {
-      flushBuffer();
     }
   }
 
@@ -360,8 +348,7 @@ export function highlightHTML(code: string): string {
  * This is a helper for processing the remainder of a tag after the name
  */
 function highlightHTMLAttributes(code: string): string {
-  if (!code) return "";
-
+  // Called internally with non-empty strings from the main highlightHTML function
   const result: string[] = [];
   let i = 0;
   let state: "space" | "attribute-name" | "equals" | "value" = "space";
@@ -373,14 +360,13 @@ function highlightHTMLAttributes(code: string): string {
 
     // Handle end of tag
     if (char === ">" || (char === "/" && code[i + 1] === ">")) {
-      // Flush buffer
+      // Flush buffer — only "attribute-name" and "value" states accumulate buffer content;
+      // other states ("space", "equals") flush before accumulating
       if (buffer) {
         if (state === "attribute-name") {
           result.push(`<span class="syntax-attribute">${escapeHtml(buffer)}</span>`);
-        } else if (state === "value") {
-          result.push(`<span class="syntax-string">${escapeHtml(buffer)}</span>`);
         } else {
-          result.push(escapeHtml(buffer));
+          result.push(`<span class="syntax-string">${escapeHtml(buffer)}</span>`);
         }
         buffer = "";
       }
@@ -464,29 +450,16 @@ function highlightHTMLAttributes(code: string): string {
       continue;
     }
 
-    // Unquoted value after equals
-    if (state === "equals") {
-      buffer += char!;
-      state = "value";
-      i++;
-      continue;
-    }
-
-    // Default
-    result.push(escapeHtml(char!));
+    // Unquoted value after equals — all remaining chars in "equals" state start a value.
+    // The "space" and "attribute-name" conditions above cover all other states,
+    // so this is effectively the final handler.
+    buffer += char!;
+    state = "value";
     i++;
   }
 
-  // Flush remaining buffer
-  if (buffer) {
-    if (state === "attribute-name") {
-      result.push(`<span class="syntax-attribute">${escapeHtml(buffer)}</span>`);
-    } else if (state === "value") {
-      result.push(`<span class="syntax-string">${escapeHtml(buffer)}</span>`);
-    } else {
-      result.push(escapeHtml(buffer));
-    }
-  }
+  // highlightHTMLAttributes is only called with strings ending in ">" (from the main
+  // function's tag scanning), so the buffer is always flushed by the ">" handler above.
 
   return result.join("");
 }

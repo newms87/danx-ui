@@ -280,6 +280,12 @@ describe("highlightSyntax", () => {
 			expect(result).toContain('<span class="syntax-punctuation">-</span>');
 		});
 
+		it("highlights block scalar indicator as array item value", () => {
+			const result = highlightSyntax("- |", { format: "yaml" });
+			expect(result).toContain('<span class="syntax-punctuation">-</span>');
+			expect(result).toContain('<span class="syntax-punctuation">|</span>');
+		});
+
 		it("handles false boolean value", () => {
 			const result = highlightSyntax("enabled: false", { format: "yaml" });
 			expect(result).toContain('<span class="syntax-boolean">false</span>');
@@ -302,6 +308,73 @@ describe("highlightSyntax", () => {
 			expect(result).toContain('<span class="syntax-number">30</span>');
 			expect(result).toContain('<span class="syntax-boolean">true</span>');
 			expect(result).toContain('<span class="syntax-null">null</span>');
+		});
+	});
+
+	describe("YAML edge cases", () => {
+		it("handles unquoted multiline string with empty line in the middle", () => {
+			const yaml = "description: first line\n  continuation\n\n  after empty\nother: val";
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			expect(result).toContain('<span class="syntax-key">description</span>');
+			// The continuation lines should be strings
+			expect(result).toContain('class="syntax-string"');
+			expect(result).toContain('<span class="syntax-key">other</span>');
+		});
+
+		it("handles bare text line that matches no YAML pattern", () => {
+			// A line that's not a comment, not key:value, not array item, and not in a multiline construct
+			const yaml = "key: value\njust some bare text without colon";
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			// The bare text line should be rendered (escaped) without any syntax class
+			expect(result).toContain("just some bare text without colon");
+		});
+
+		it("handles empty line within unquoted multiline value", () => {
+			const yaml = "msg: hello world\n  continued\n\n  still going\nnext: val";
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			expect(result).toContain('<span class="syntax-key">msg</span>');
+			expect(result).toContain('<span class="syntax-key">next</span>');
+		});
+
+		it("handles scientific notation in YAML values", () => {
+			const result = highlightSyntax("val: 1.5e10", { format: "yaml" });
+			expect(result).toContain('<span class="syntax-number">1.5e10</span>');
+		});
+
+		it("exits block scalar when a normal line follows at same indentation", () => {
+			// Block scalar followed by a key-value pair at the same indent (triggers line 187)
+			const yaml = "desc: |\n  scalar line 1\n  scalar line 2\nname: John";
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			expect(result).toContain('<span class="syntax-string">  scalar line 1</span>');
+			expect(result).toContain('<span class="syntax-key">name</span>');
+			expect(result).toContain('<span class="syntax-string">John</span>');
+		});
+
+		it("handles escaped quote within multi-line quoted string", () => {
+			// Continuation line with backslash-escaped quote (triggers lines 208-209)
+			const yaml = 'msg: "first line\n  escaped \\" still\n  end"';
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			expect(result).toContain('class="syntax-string"');
+		});
+
+		it("handles multi-line quoted string continuation without closing quote", () => {
+			// Middle continuation line with no quote at all (triggers line 225)
+			const yaml = 'msg: "first line\n  middle no quote\n  end"';
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			expect(result).toContain('class="syntax-string"');
+		});
+
+		it("handles single-quoted multi-line YAML string", () => {
+			// Exercises the single-quote path in quoteChar detection (line 199, 277)
+			const yaml = "msg: 'first line\n  continuation\n  end'";
+			const result = highlightSyntax(yaml, { format: "yaml" });
+			expect(result).toContain('class="syntax-string"');
+		});
+
+		it("handles JSON minus not followed by digit", () => {
+			// In JSON, a minus sign that doesn't form a valid number (line 78 false branch)
+			const result = highlightSyntax('{"key": -}', { format: "json" });
+			expect(result).toContain('class="syntax-key"');
 		});
 	});
 

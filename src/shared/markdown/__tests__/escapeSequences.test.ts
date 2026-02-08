@@ -37,17 +37,17 @@ describe("UNESCAPE_MAP", () => {
 
 	it("maps each placeholder back to the literal character (without backslash)", () => {
 		// \\* placeholder should map to *
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\*"]]).toBe("*");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\_"]]).toBe("_");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\~"]]).toBe("~");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\`"]]).toBe("`");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\["]]).toBe("[");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\]"]]).toBe("]");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\#"]]).toBe("#");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\-"]]).toBe("-");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\+"]]).toBe("+");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\."]]).toBe(".");
-		expect(UNESCAPE_MAP[ESCAPE_MAP["\\!"]]).toBe("!");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\*"]!]).toBe("*");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\_"]!]).toBe("_");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\~"]!]).toBe("~");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\`"]!]).toBe("`");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\["]!]).toBe("[");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\]"]!]).toBe("]");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\#"]!]).toBe("#");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\-"]!]).toBe("-");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\+"]!]).toBe("+");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\."]!]).toBe(".");
+		expect(UNESCAPE_MAP[ESCAPE_MAP["\\!"]!]).toBe("!");
 		expect(UNESCAPE_MAP[ESCAPE_MAP["\\="]!]).toBe("=");
 		expect(UNESCAPE_MAP[ESCAPE_MAP["\\^"]!]).toBe("^");
 	});

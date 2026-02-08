@@ -247,6 +247,10 @@ describe("parseInline", () => {
 			);
 		});
 
+		it("keeps collapsed reference [text][] unchanged when ref is not defined", () => {
+			expect(parseInline("[no-ref][]")).toBe("[no-ref][]");
+		});
+
 		it("resolves shortcut reference [ref] alone when link ref is set", () => {
 			setLinkRef("example", { url: "https://example.com" });
 			expect(parseInline("[example]")).toBe(

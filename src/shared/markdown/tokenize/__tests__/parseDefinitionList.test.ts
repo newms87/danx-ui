@@ -147,4 +147,43 @@ describe("parseDefinitionList", () => {
       { term: "Term", definitions: ["Definition with **bold** and `code`"] },
     ]);
   });
+
+  it("continues parsing when another term-definition pair follows an empty line", () => {
+    const lines = ["Term 1", ": Def 1", "", "Term 2", ": Def 2"];
+    const result = parseDefinitionList(lines, 0);
+    expect(result).not.toBeNull();
+    expect(result!.token).toHaveProperty("items", [
+      { term: "Term 1", definitions: ["Def 1"] },
+      { term: "Term 2", definitions: ["Def 2"] },
+    ]);
+  });
+
+  it("stops at empty line when no further term-definition pair follows", () => {
+    const lines = ["Term", ": Def", "", "Not a term"];
+    const result = parseDefinitionList(lines, 0);
+    expect(result).not.toBeNull();
+    expect(result!.token).toHaveProperty("items", [
+      { term: "Term", definitions: ["Def"] },
+    ]);
+    // endIndex should stop after the empty line
+    expect(result!.endIndex).toBeLessThanOrEqual(4);
+  });
+
+  it("stops at empty line when next content starts with colon", () => {
+    const lines = ["Term", ": Def", "", ": Orphan"];
+    const result = parseDefinitionList(lines, 0);
+    expect(result).not.toBeNull();
+    expect(result!.token).toHaveProperty("items", [
+      { term: "Term", definitions: ["Def"] },
+    ]);
+  });
+
+  it("stops at empty line at end of input", () => {
+    const lines = ["Term", ": Def", ""];
+    const result = parseDefinitionList(lines, 0);
+    expect(result).not.toBeNull();
+    expect(result!.token).toHaveProperty("items", [
+      { term: "Term", definitions: ["Def"] },
+    ]);
+  });
 });

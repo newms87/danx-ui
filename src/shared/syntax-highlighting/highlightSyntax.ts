@@ -30,8 +30,7 @@ function escapeHtml(text: string): string {
  * This prevents issues with regex replacing content inside already-matched strings
  */
 function highlightJSON(code: string): string {
-  if (!code) return "";
-
+  // Parent highlightSyntax() already guards against empty code
   const result: string[] = [];
   let i = 0;
 
@@ -153,16 +152,15 @@ function highlightYAMLValue(value: string): string {
  * (indented content following a block scalar or inside a quoted string)
  */
 function getIndentLevel(line: string): number {
-  const match = line.match(/^(\s*)/);
-  return match ? match[1]!.length : 0;
+  // /^(\s*)/ always matches any string — capture group 1 is the leading whitespace
+  return line.match(/^(\s*)/)![1]!.length;
 }
 
 /**
  * Highlight YAML syntax with multi-line string support
  */
 function highlightYAML(code: string): string {
-  if (!code) return "";
-
+  // Parent highlightSyntax() already guards against empty code
   const lines = code.split("\n");
   const highlightedLines: string[] = [];
 

@@ -282,5 +282,134 @@ describe("highlightHTML", () => {
 			expect(result).toContain('<span class="syntax-attribute">value</span>');
 			expect(result).toContain('<span class="syntax-attribute">required</span>');
 		});
+
+		it("handles self-closing tag with attribute and />", () => {
+			const result = highlightHTML('<input type="text"/>');
+			expect(result).toContain('<span class="syntax-attribute">type</span>');
+			expect(result).toContain("/&gt;");
+		});
+
+		it("handles unquoted attribute value in main function", () => {
+			const result = highlightHTML("<div class=foo>");
+			expect(result).toContain('class="syntax-string"');
+		});
+
+		it("handles unquoted attribute value followed by space then >", () => {
+			const result = highlightHTML("<div class=foo >");
+			expect(result).toContain('class="syntax-string"');
+			expect(result).toContain("&gt;");
+		});
+
+		it("handles = not followed by quote (no value, then >)", () => {
+			// Attribute equals followed by > (no value given)
+			const result = highlightHTML("<div data=>");
+			expect(result).toContain('<span class="syntax-attribute">data</span>');
+		});
+
+		it("handles incomplete tag at end of input (tag-name state)", () => {
+			const result = highlightHTML("<div");
+			expect(result).toContain('class="syntax-tag"');
+		});
+
+		it("handles incomplete attribute at end of input", () => {
+			const result = highlightHTML("<div class");
+			expect(result).toContain('class="syntax-attribute"');
+		});
+
+		it("handles incomplete attribute value at end of input", () => {
+			const result = highlightHTML('<div class="unclosed');
+			expect(result).toContain('class="syntax-string"');
+		});
+
+		it("handles text state at end of input", () => {
+			const result = highlightHTML("text after <div>tag");
+			expect(result).toContain("text after ");
+			expect(result).toContain("tag");
+		});
+
+		it("handles unknown state characters in attribute context", () => {
+			// Weird characters that aren't normal attribute name chars
+			const result = highlightHTML('<div %weird="val">');
+			expect(result).toContain('class="syntax-attribute"');
+		});
+
+		it("handles whitespace after equals before attribute value", () => {
+			const result = highlightHTML('<div class= "foo">');
+			expect(result).toContain('class="syntax-string"');
+		});
+
+		it("handles attribute with / then > self-close in attribute-name state", () => {
+			const result = highlightHTML("<div class/>");
+			expect(result).toContain('class="syntax-attribute"');
+			expect(result).toContain("/&gt;");
+		});
+
+		it("handles unclosed comment at end of input", () => {
+			const result = highlightHTML("<!-- unclosed");
+			expect(result).toContain('class="syntax-comment"');
+		});
+
+		it("handles unclosed CDATA at end of input", () => {
+			const result = highlightHTML("<![CDATA[unclosed");
+			expect(result).toContain('class="syntax-comment"');
+		});
+
+		it("handles tag name immediately followed by = without whitespace", () => {
+			// Triggers the else branch at line 217: tag-name complete, next char isn't space/>//>
+			const result = highlightHTML('<div="value">');
+			expect(result).toContain('class="syntax-tag"');
+		});
+	});
+
+	describe("highlightHTMLAttributes helper coverage", () => {
+		it("handles self-closing style tag with />", () => {
+			const result = highlightHTML('<style type="text/css"/>');
+			expect(result).toContain('<span class="syntax-attribute">type</span>');
+			expect(result).toContain("/&gt;");
+		});
+
+		it("handles script tag with unquoted attribute value", () => {
+			const result = highlightHTML("<script type=module>const x = 1;</script>");
+			expect(result).toContain('class="syntax-keyword"');
+		});
+
+		it("handles script tag with boolean attribute", () => {
+			const result = highlightHTML("<script defer>const x = 1;</script>");
+			expect(result).toContain('class="syntax-keyword"');
+		});
+
+		it("handles script tag with multiple boolean attributes separated by whitespace", () => {
+			// Triggers attribute-name buffer flush on whitespace (lines 400-402 in helper)
+			const result = highlightHTML("<script defer async>var x;</script>");
+			expect(result).toContain('class="syntax-keyword"');
+		});
+
+		it("handles script tag with unquoted value followed by whitespace and another attribute", () => {
+			// Triggers unquoted value + whitespace path (lines 447-452 in helper)
+			const result = highlightHTML("<script type=module defer>var x;</script>");
+			expect(result).toContain('class="syntax-keyword"');
+		});
+
+		it("handles style tag without closing tag (embedded content to end of input)", () => {
+			const result = highlightHTML("<style>.foo { color: red; }");
+			// Should still try to highlight the CSS content
+			expect(result).toContain('class="syntax-tag"');
+		});
+
+		it("handles script tag with equals and unquoted value", () => {
+			const result = highlightHTML("<script type=module>var x;</script>");
+			expect(result).toContain('class="syntax-keyword"');
+		});
+
+		it("handles whitespace-only in attribute section of style/script tag", () => {
+			const result = highlightHTML("<style >.foo { }</style>");
+			expect(result).toContain('class="syntax-selector"');
+		});
+
+		it("handles attribute with single quotes in style tag", () => {
+			const result = highlightHTML("<style type='text/css'>.foo { }</style>");
+			expect(result).toContain('class="syntax-string"');
+			expect(result).toContain('class="syntax-selector"');
+		});
 	});
 });
