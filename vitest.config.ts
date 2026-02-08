@@ -13,7 +13,9 @@ export default defineConfig({
       include: ["src/**/*.{ts,vue}"],
       exclude: [
         "src/**/__tests__/**",
-        "src/**/*.d.ts",
+        "src/**/types.ts",
+        "src/**/*-types.ts",
+        "src/vite-env.d.ts",
         "src/index.ts",
         "src/**/index.ts",
       ],

@@ -95,6 +95,7 @@ A feature is NOT complete until all three are done.
 | Rule | Description |
 |------|-------------|
 | **ALWAYS use Write/Edit tools** | NEVER use bash commands (sed, awk, echo) to edit files |
+| **Type files use `.ts`** | `.d.ts` is reserved for ambient declarations (e.g. `vite-env.d.ts`) |
 | **NEVER use Options API** | Composition API with `<script setup>` only |
 | **NEVER use default exports** | Named exports for tree-shaking |
 | **NEVER add runtime dependencies** | Vue is peer dep only |
@@ -113,7 +114,7 @@ src/
 │       ├── Component.vue
 │       ├── useComponent.ts
 │       ├── component.css
-│       ├── types.d.ts    # Type-only files MUST use .d.ts
+│       ├── types.ts      # Type-only files use .ts (excluded from coverage by name)
 │       ├── index.ts
 │       └── __tests__/    # Component tests
 docs/                     # User documentation
@@ -158,4 +159,4 @@ docs/                     # User documentation
 | `any` type | Type safety | Proper types |
 | Options API | Outdated | Composition API |
 | Bash file editing | Bypasses linting | Write/Edit tools |
-| `types.ts` (type-only) | Coverage noise | Use `types.d.ts` |
+| `types.d.ts` (project types) | Misleading — `.d.ts` is for ambient declarations | Use `types.ts` |
