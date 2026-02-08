@@ -8,9 +8,7 @@ describe("parseDefinitionList", () => {
     expect(result).toEqual({
       token: {
         type: "dl",
-        items: [
-          { term: "Term", definitions: ["Definition text"] },
-        ],
+        items: [{ term: "Term", definitions: ["Definition text"] }],
       },
       endIndex: 2,
     });
@@ -22,21 +20,14 @@ describe("parseDefinitionList", () => {
     expect(result).toEqual({
       token: {
         type: "dl",
-        items: [
-          { term: "Term", definitions: ["Definition 1", "Definition 2"] },
-        ],
+        items: [{ term: "Term", definitions: ["Definition 1", "Definition 2"] }],
       },
       endIndex: 3,
     });
   });
 
   it("handles multiple terms with definitions", () => {
-    const lines = [
-      "First Term",
-      ": First definition",
-      "Second Term",
-      ": Second definition",
-    ];
+    const lines = ["First Term", ": First definition", "Second Term", ": Second definition"];
     const result = parseDefinitionList(lines, 0);
     expect(result).toEqual({
       token: {
@@ -106,27 +97,19 @@ describe("parseDefinitionList", () => {
     expect(result).toEqual({
       token: {
         type: "dl",
-        items: [
-          { term: "Term", definitions: ["Definition"] },
-        ],
+        items: [{ term: "Term", definitions: ["Definition"] }],
       },
       endIndex: 3,
     });
   });
 
   it("stops at lines that are not term or definition", () => {
-    const lines = [
-      "Term",
-      ": Definition",
-      "# Heading after",
-    ];
+    const lines = ["Term", ": Definition", "# Heading after"];
     const result = parseDefinitionList(lines, 0);
     expect(result).toEqual({
       token: {
         type: "dl",
-        items: [
-          { term: "Term", definitions: ["Definition"] },
-        ],
+        items: [{ term: "Term", definitions: ["Definition"] }],
       },
       endIndex: 2,
     });
@@ -162,9 +145,7 @@ describe("parseDefinitionList", () => {
     const lines = ["Term", ": Def", "", "Not a term"];
     const result = parseDefinitionList(lines, 0);
     expect(result).not.toBeNull();
-    expect(result!.token).toHaveProperty("items", [
-      { term: "Term", definitions: ["Def"] },
-    ]);
+    expect(result!.token).toHaveProperty("items", [{ term: "Term", definitions: ["Def"] }]);
     // endIndex should stop after the empty line
     expect(result!.endIndex).toBeLessThanOrEqual(4);
   });
@@ -173,17 +154,13 @@ describe("parseDefinitionList", () => {
     const lines = ["Term", ": Def", "", ": Orphan"];
     const result = parseDefinitionList(lines, 0);
     expect(result).not.toBeNull();
-    expect(result!.token).toHaveProperty("items", [
-      { term: "Term", definitions: ["Def"] },
-    ]);
+    expect(result!.token).toHaveProperty("items", [{ term: "Term", definitions: ["Def"] }]);
   });
 
   it("stops at empty line at end of input", () => {
     const lines = ["Term", ": Def", ""];
     const result = parseDefinitionList(lines, 0);
     expect(result).not.toBeNull();
-    expect(result!.token).toHaveProperty("items", [
-      { term: "Term", definitions: ["Def"] },
-    ]);
+    expect(result!.token).toHaveProperty("items", [{ term: "Term", definitions: ["Def"] }]);
   });
 });

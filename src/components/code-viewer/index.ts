@@ -15,15 +15,18 @@ export { useCodeViewerEditor } from "./useCodeViewerEditor";
 export type { UseCodeViewerEditorOptions, UseCodeViewerEditorReturn } from "./useCodeViewerEditor";
 
 export { useCodeViewerCollapse } from "./useCodeViewerCollapse";
-export type { UseCodeViewerCollapseOptions, UseCodeViewerCollapseReturn } from "./useCodeViewerCollapse";
+export type {
+  UseCodeViewerCollapseOptions,
+  UseCodeViewerCollapseReturn,
+} from "./useCodeViewerCollapse";
 
 export type {
-	CodeFormat,
-	CodeViewerCollapsedProps,
-	CodeViewerFooterProps,
-	DanxCodeViewerEmits,
-	DanxCodeViewerProps,
-	LanguageBadgeProps,
-	MarkdownContentProps,
-	ValidationError,
+  CodeFormat,
+  CodeViewerCollapsedProps,
+  CodeViewerFooterProps,
+  DanxCodeViewerEmits,
+  DanxCodeViewerProps,
+  LanguageBadgeProps,
+  MarkdownContentProps,
+  ValidationError,
 } from "./types";

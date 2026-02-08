@@ -8,10 +8,16 @@
 export { DanxActionButton, DanxButton } from "./components/button";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxDialog } from "./components/dialog";
+export { MarkdownEditor } from "./components/markdown-editor";
 
 // Composables
-export { useCodeFormat, useCodeViewerCollapse, useCodeViewerEditor } from "./components/code-viewer";
+export {
+  useCodeFormat,
+  useCodeViewerCollapse,
+  useCodeViewerEditor,
+} from "./components/code-viewer";
 export { useDialog } from "./components/dialog";
+export { useMarkdownEditor } from "./components/markdown-editor";
 
 // Icons
 export * from "./components/button/icons";
@@ -51,5 +57,12 @@ export type {
   DanxDialogSlots,
   UseDialogReturn,
 } from "./components/dialog";
+export type {
+  TokenRenderer,
+  TokenState,
+  LineType,
+  UseMarkdownEditorOptions,
+  UseMarkdownEditorReturn,
+} from "./components/markdown-editor";
 
 export type * from "./shared";

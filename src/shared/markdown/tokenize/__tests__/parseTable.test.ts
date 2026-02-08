@@ -3,12 +3,7 @@ import { parseTable } from "../parseTable";
 
 describe("parseTable", () => {
   it("parses simple table with header, separator, and body rows", () => {
-    const lines = [
-      "| Name | Age |",
-      "| --- | --- |",
-      "| Alice | 30 |",
-      "| Bob | 25 |",
-    ];
+    const lines = ["| Name | Age |", "| --- | --- |", "| Alice | 30 |", "| Bob | 25 |"];
     const result = parseTable(lines, 0);
     expect(result).toEqual({
       token: {
@@ -25,31 +20,19 @@ describe("parseTable", () => {
   });
 
   it("detects left alignment from separator", () => {
-    const lines = [
-      "| Col | Other |",
-      "| :--- | --- |",
-      "| val | x |",
-    ];
+    const lines = ["| Col | Other |", "| :--- | --- |", "| val | x |"];
     const result = parseTable(lines, 0);
     expect(result!.token).toHaveProperty("alignments", ["left", null]);
   });
 
   it("detects right alignment from separator", () => {
-    const lines = [
-      "| Col | Other |",
-      "| ---: | --- |",
-      "| val | x |",
-    ];
+    const lines = ["| Col | Other |", "| ---: | --- |", "| val | x |"];
     const result = parseTable(lines, 0);
     expect(result!.token).toHaveProperty("alignments", ["right", null]);
   });
 
   it("detects center alignment from separator", () => {
-    const lines = [
-      "| Col | Other |",
-      "| :---: | --- |",
-      "| val | x |",
-    ];
+    const lines = ["| Col | Other |", "| :---: | --- |", "| val | x |"];
     const result = parseTable(lines, 0);
     expect(result!.token).toHaveProperty("alignments", ["center", null]);
   });
@@ -70,10 +53,7 @@ describe("parseTable", () => {
   });
 
   it("returns null when no separator line follows", () => {
-    const lines = [
-      "| Header |",
-      "| Not a separator |",
-    ];
+    const lines = ["| Header |", "| Not a separator |"];
     expect(parseTable(lines, 0)).toBeNull();
   });
 
@@ -83,13 +63,7 @@ describe("parseTable", () => {
   });
 
   it("handles multiple body rows", () => {
-    const lines = [
-      "| A | B |",
-      "| --- | --- |",
-      "| 1 | 2 |",
-      "| 3 | 4 |",
-      "| 5 | 6 |",
-    ];
+    const lines = ["| A | B |", "| --- | --- |", "| 1 | 2 |", "| 3 | 4 |", "| 5 | 6 |"];
     const result = parseTable(lines, 0);
     expect(result!.token).toHaveProperty("rows", [
       ["1", "2"],
@@ -100,47 +74,28 @@ describe("parseTable", () => {
   });
 
   it("handles cells with spaces", () => {
-    const lines = [
-      "| First Name | Last Name |",
-      "| --- | --- |",
-      "| John Doe | Jane Smith |",
-    ];
+    const lines = ["| First Name | Last Name |", "| --- | --- |", "| John Doe | Jane Smith |"];
     const result = parseTable(lines, 0);
     expect(result!.token).toHaveProperty("headers", ["First Name", "Last Name"]);
     expect(result!.token).toHaveProperty("rows", [["John Doe", "Jane Smith"]]);
   });
 
   it("stops at non-table lines after body", () => {
-    const lines = [
-      "| H1 | H2 |",
-      "| --- | --- |",
-      "| a | b |",
-      "",
-      "Some text after",
-    ];
+    const lines = ["| H1 | H2 |", "| --- | --- |", "| a | b |", "", "Some text after"];
     const result = parseTable(lines, 0);
     expect(result!.endIndex).toBe(3);
     expect(result!.token).toHaveProperty("rows", [["a", "b"]]);
   });
 
   it("handles table with no body rows", () => {
-    const lines = [
-      "| H1 | H2 |",
-      "| --- | --- |",
-      "",
-    ];
+    const lines = ["| H1 | H2 |", "| --- | --- |", ""];
     const result = parseTable(lines, 0);
     expect(result!.token).toHaveProperty("rows", []);
     expect(result!.endIndex).toBe(2);
   });
 
   it("starts parsing from given index", () => {
-    const lines = [
-      "text before",
-      "| Col1 | Col2 |",
-      "| --- | --- |",
-      "| val1 | val2 |",
-    ];
+    const lines = ["text before", "| Col1 | Col2 |", "| --- | --- |", "| val1 | val2 |"];
     const result = parseTable(lines, 1);
     expect(result).not.toBeNull();
     expect(result!.token).toHaveProperty("headers", ["Col1", "Col2"]);
@@ -148,11 +103,7 @@ describe("parseTable", () => {
   });
 
   it("handles table rows without leading/trailing pipes using space-pipe-space", () => {
-    const lines = [
-      "Col1 | Col2",
-      "--- | ---",
-      "a | b",
-    ];
+    const lines = ["Col1 | Col2", "--- | ---", "a | b"];
     const result = parseTable(lines, 0);
     expect(result).not.toBeNull();
     expect(result!.token).toHaveProperty("headers", ["Col1", "Col2"]);
@@ -160,11 +111,7 @@ describe("parseTable", () => {
   });
 
   it("handles separator without leading/trailing pipes", () => {
-    const lines = [
-      "| H1 | H2 |",
-      "--- | ---",
-      "| a | b |",
-    ];
+    const lines = ["| H1 | H2 |", "--- | ---", "| a | b |"];
     const result = parseTable(lines, 0);
     expect(result).not.toBeNull();
   });

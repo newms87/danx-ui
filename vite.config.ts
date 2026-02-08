@@ -41,6 +41,7 @@ export default defineConfig({
         "components/code-viewer/index": resolve(__dirname, "src/components/code-viewer/index.ts"),
         "components/dialog/index": resolve(__dirname, "src/components/dialog/index.ts"),
         "components/dialog/useDialog": resolve(__dirname, "src/components/dialog/useDialog.ts"),
+        "components/markdown-editor/index": resolve(__dirname, "src/components/markdown-editor/index.ts"),
       },
       formats: ["es"],
     },

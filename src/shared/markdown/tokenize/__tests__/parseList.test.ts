@@ -9,11 +9,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "item 1" },
-            { content: "item 2" },
-            { content: "item 3" },
-          ],
+          items: [{ content: "item 1" }, { content: "item 2" }, { content: "item 3" }],
         },
       ]);
       expect(result.endIndex).toBe(3);
@@ -25,10 +21,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "item 1" },
-            { content: "item 2" },
-          ],
+          items: [{ content: "item 1" }, { content: "item 2" }],
         },
       ]);
       expect(result.endIndex).toBe(2);
@@ -40,10 +33,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "item 1" },
-            { content: "item 2" },
-          ],
+          items: [{ content: "item 1" }, { content: "item 2" }],
         },
       ]);
       expect(result.endIndex).toBe(2);
@@ -57,11 +47,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ol",
-          items: [
-            { content: "first" },
-            { content: "second" },
-            { content: "third" },
-          ],
+          items: [{ content: "first" }, { content: "second" }, { content: "third" }],
           start: 1,
         },
       ]);
@@ -74,10 +60,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ol",
-          items: [
-            { content: "fifth" },
-            { content: "sixth" },
-          ],
+          items: [{ content: "fifth" }, { content: "sixth" }],
           start: 5,
         },
       ]);
@@ -92,12 +75,7 @@ describe("parseList", () => {
 
   describe("nested lists", () => {
     it("handles nested lists (items indented by 2)", () => {
-      const lines = [
-        "- parent 1",
-        "  - child 1",
-        "  - child 2",
-        "- parent 2",
-      ];
+      const lines = ["- parent 1", "  - child 1", "  - child 2", "- parent 2"];
       const result = parseList(lines, 0, 0);
       expect(result.tokens).toEqual([
         {
@@ -108,10 +86,7 @@ describe("parseList", () => {
               children: [
                 {
                   type: "ul",
-                  items: [
-                    { content: "child 1" },
-                    { content: "child 2" },
-                  ],
+                  items: [{ content: "child 1" }, { content: "child 2" }],
                 },
               ],
             },
@@ -122,11 +97,7 @@ describe("parseList", () => {
     });
 
     it("handles deeply nested lists", () => {
-      const lines = [
-        "- level 0",
-        "  - level 1",
-        "    - level 2",
-      ];
+      const lines = ["- level 0", "  - level 1", "    - level 2"];
       const result = parseList(lines, 0, 0);
       expect(result.tokens).toEqual([
         {
@@ -185,10 +156,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "item 1" },
-            { content: "item 2" },
-          ],
+          items: [{ content: "item 1" }, { content: "item 2" }],
         },
       ]);
     });
@@ -223,10 +191,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "item 1" },
-            { content: "item 2" },
-          ],
+          items: [{ content: "item 1" }, { content: "item 2" }],
         },
       ]);
       expect(result.endIndex).toBe(3);
@@ -238,10 +203,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "Hello! @world **bold**" },
-            { content: "`code` and more" },
-          ],
+          items: [{ content: "Hello! @world **bold**" }, { content: "`code` and more" }],
         },
       ]);
     });
@@ -253,10 +215,7 @@ describe("parseList", () => {
       expect(result.tokens).toEqual([
         {
           type: "ul",
-          items: [
-            { content: "item 1" },
-            { content: "item 2" },
-          ],
+          items: [{ content: "item 1" }, { content: "item 2" }],
         },
       ]);
     });

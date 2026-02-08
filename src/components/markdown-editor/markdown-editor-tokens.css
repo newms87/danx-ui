@@ -1,0 +1,118 @@
+/**
+ * MarkdownEditor CSS Custom Properties (Token System)
+ *
+ * Defines theming tokens for the markdown editor component.
+ * Uses CSS custom properties with dark theme as default,
+ * light theme via .theme-light modifier class.
+ */
+
+/* === Dark Theme (Default) === */
+:root {
+  /* Editor chrome */
+  --dx-mde-bg: #1e1e1e;
+  --dx-mde-color: #d4d4d4;
+  --dx-mde-caret: #d4d4d4;
+  --dx-mde-border: transparent;
+  --dx-mde-border-focus: rgba(86, 156, 214, 0.6);
+  --dx-mde-border-hover: rgba(86, 156, 214, 0.3);
+  --dx-mde-placeholder: #6b7280;
+
+  /* Footer */
+  --dx-mde-footer-bg: #252526;
+
+  /* Popover / overlay */
+  --dx-mde-popover-bg: #2d2d2d;
+  --dx-mde-popover-border: #404040;
+  --dx-mde-popover-shadow: rgba(0, 0, 0, 0.5);
+  --dx-mde-popover-text: #d4d4d4;
+  --dx-mde-popover-heading: #f3f4f6;
+  --dx-mde-popover-muted: #9ca3af;
+  --dx-mde-popover-dimmed: #6b7280;
+
+  /* Inputs */
+  --dx-mde-input-bg: #1e1e1e;
+  --dx-mde-input-border: #404040;
+  --dx-mde-input-border-focus: #60a5fa;
+  --dx-mde-input-text: #f3f4f6;
+  --dx-mde-input-placeholder: #6b7280;
+
+  /* Buttons */
+  --dx-mde-btn-primary-bg: #3b82f6;
+  --dx-mde-btn-primary-hover: #2563eb;
+  --dx-mde-btn-primary-text: #ffffff;
+  --dx-mde-btn-cancel-bg: transparent;
+  --dx-mde-btn-cancel-border: #404040;
+  --dx-mde-btn-cancel-text: #d4d4d4;
+
+  /* Hotkey kbd */
+  --dx-mde-kbd-bg: #1e1e1e;
+  --dx-mde-kbd-border: #404040;
+  --dx-mde-kbd-text: #9ca3af;
+
+  /* Menu */
+  --dx-mde-menu-trigger-bg: rgba(255, 255, 255, 0.05);
+  --dx-mde-menu-trigger-hover: rgba(255, 255, 255, 0.15);
+  --dx-mde-menu-trigger-color: #6b7280;
+  --dx-mde-menu-trigger-hover-color: #9ca3af;
+  --dx-mde-menu-item-hover: rgba(255, 255, 255, 0.1);
+  --dx-mde-menu-item-active-bg: rgba(56, 139, 253, 0.2);
+  --dx-mde-menu-item-active-color: #58a6ff;
+
+  /* Grid selector (table popover) */
+  --dx-mde-grid-bg: #3a3a3a;
+  --dx-mde-grid-border: #4a4a4a;
+  --dx-mde-grid-selected-bg: #3b82f6;
+  --dx-mde-grid-selected-border: #60a5fa;
+
+  /* Code block wrapper */
+  --dx-mde-codeblock-bg: #0d1117;
+  --dx-mde-codeblock-border: #30363d;
+  --dx-mde-codeblock-footer-bg: #161b22;
+
+  /* Link tooltip */
+  --dx-mde-link-tooltip-bg: #374151;
+  --dx-mde-link-tooltip-text: #d1d5db;
+
+  /* Rendered markdown content */
+  --dx-mde-content-code-bg: rgba(255, 255, 255, 0.1);
+  --dx-mde-content-pre-bg: rgba(0, 0, 0, 0.3);
+  --dx-mde-content-blockquote-border: rgba(255, 255, 255, 0.3);
+  --dx-mde-content-blockquote-text: rgba(255, 255, 255, 0.7);
+  --dx-mde-content-link: #60a5fa;
+  --dx-mde-content-hr: rgba(255, 255, 255, 0.2);
+  --dx-mde-content-mark-bg: rgba(250, 204, 21, 0.4);
+  --dx-mde-content-table-border: rgba(255, 255, 255, 0.2);
+  --dx-mde-content-table-th-bg: rgba(255, 255, 255, 0.1);
+  --dx-mde-content-table-stripe: rgba(255, 255, 255, 0.05);
+  --dx-mde-content-swatch-border: rgba(255, 255, 255, 0.3);
+}
+
+/* === Light Theme === */
+.dx-markdown-editor.theme-light {
+  --dx-mde-bg: #f8fafc;
+  --dx-mde-color: #1e293b;
+  --dx-mde-caret: #1e293b;
+  --dx-mde-border-focus: rgba(14, 165, 233, 0.6);
+  --dx-mde-border-hover: rgba(14, 165, 233, 0.3);
+  --dx-mde-placeholder: #94a3b8;
+
+  --dx-mde-link-tooltip-bg: #e2e8f0;
+  --dx-mde-link-tooltip-text: #1e293b;
+
+  --dx-mde-codeblock-bg: #f1f5f9;
+  --dx-mde-codeblock-border: #e2e8f0;
+  --dx-mde-codeblock-footer-bg: #e2e8f0;
+
+  /* Rendered markdown content - light */
+  --dx-mde-content-code-bg: #f1f5f9;
+  --dx-mde-content-pre-bg: #f8fafc;
+  --dx-mde-content-blockquote-border: #cbd5e1;
+  --dx-mde-content-blockquote-text: #475569;
+  --dx-mde-content-link: #0369a1;
+  --dx-mde-content-hr: #e2e8f0;
+  --dx-mde-content-mark-bg: rgba(250, 204, 21, 0.5);
+  --dx-mde-content-table-border: #e2e8f0;
+  --dx-mde-content-table-th-bg: #f1f5f9;
+  --dx-mde-content-table-stripe: #f8fafc;
+  --dx-mde-content-swatch-border: rgba(0, 0, 0, 0.2);
+}

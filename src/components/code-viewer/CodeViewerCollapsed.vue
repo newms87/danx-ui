@@ -8,11 +8,24 @@
  */
 -->
 
+<script setup lang="ts">
+import { chevronRightSvg } from "./icons";
+import LanguageBadge from "./LanguageBadge.vue";
+import type { CodeViewerCollapsedProps } from "./types";
+
+withDefaults(defineProps<CodeViewerCollapsedProps>(), {
+  availableFormats: () => [],
+  allowAnyLanguage: false,
+});
+
+defineEmits<{
+  expand: [];
+  "format-change": [format: string];
+}>();
+</script>
+
 <template>
-  <div
-    class="code-collapsed relative flex items-center cursor-pointer"
-    @click="$emit('expand')"
-  >
+  <div class="code-collapsed relative flex items-center cursor-pointer" @click="$emit('expand')">
     <span class="w-3 h-3 mr-2 flex-shrink-0 text-gray-500" v-html="chevronRightSvg" />
     <code class="code-collapsed-preview flex-1 min-w-0 truncate" v-html="preview" />
 
@@ -27,19 +40,3 @@
     />
   </div>
 </template>
-
-<script setup lang="ts">
-import { chevronRightSvg } from "./icons";
-import LanguageBadge from "./LanguageBadge.vue";
-import type { CodeViewerCollapsedProps } from "./types";
-
-withDefaults(defineProps<CodeViewerCollapsedProps>(), {
-  availableFormats: () => [],
-  allowAnyLanguage: false
-});
-
-defineEmits<{
-  expand: [];
-  "format-change": [format: string];
-}>();
-</script>

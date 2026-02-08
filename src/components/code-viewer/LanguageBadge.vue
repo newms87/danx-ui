@@ -14,106 +14,47 @@
  */
 -->
 
-<template>
-  <div
-    class="dx-language-badge-container"
-    :class="{ 'is-toggleable': toggleable && availableFormats.length > 1 }"
-    @mouseenter="showOptions = true"
-    @mouseleave="onMouseLeave"
-  >
-    <!-- Search icon (when allowAnyLanguage is true) -->
-    <transition name="slide-left">
-      <div
-        v-if="showOptions && allowAnyLanguage"
-        class="dx-language-option dx-language-search-trigger"
-        @click.stop="openSearchPanel"
-      >
-        <span v-html="searchSvg" />
-      </div>
-    </transition>
-
-    <!-- Other format options (slide out to the left) -->
-    <transition name="slide-left">
-      <div
-        v-if="showOptions && toggleable && otherFormats.length > 0"
-        class="dx-language-options"
-      >
-        <div
-          v-for="fmt in otherFormats"
-          :key="fmt"
-          class="dx-language-option"
-          @click.stop="$emit('change', fmt)"
-        >
-          {{ fmt.toUpperCase() }}
-        </div>
-      </div>
-    </transition>
-
-    <!-- Current format badge -->
-    <div class="dx-language-badge" :class="{ 'is-active': showOptions && (otherFormats.length > 0 || allowAnyLanguage) }">
-      {{ format.toUpperCase() }}
-    </div>
-
-    <!-- Search dropdown panel -->
-    <transition name="fade">
-      <div
-        v-if="showSearchPanel"
-        ref="searchPanelRef"
-        class="dx-language-search-panel"
-        @click.stop
-      >
-        <input
-          ref="searchInputRef"
-          v-model="searchQuery"
-          type="text"
-          class="dx-language-search-input"
-          placeholder="Search languages..."
-          @input="onSearchQueryChange"
-          @keydown.down.prevent="navigateDown"
-          @keydown.up.prevent="navigateUp"
-          @keydown.enter.prevent="selectCurrentItem"
-          @keydown.escape="closeSearchPanel"
-        />
-        <div ref="searchListRef" class="dx-language-search-list">
-          <div
-            v-for="(lang, index) in filteredLanguages"
-            :key="lang"
-            class="dx-language-search-item"
-            :class="{ 'is-selected': index === selectedIndex }"
-            @click="selectLanguage(lang)"
-            @mouseenter="selectedIndex = index"
-          >
-            {{ lang.toUpperCase() }}
-          </div>
-          <div v-if="filteredLanguages.length === 0" class="dx-language-search-empty">
-            No languages found
-          </div>
-        </div>
-      </div>
-    </transition>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { searchSvg } from "./icons";
 import type { LanguageBadgeProps } from "./types";
 
-const ALL_LANGUAGES = [
-  "bash", "c", "cpp", "css", "dockerfile", "go", "graphql", "html",
-  "java", "javascript", "json", "kotlin", "markdown", "php", "python",
-  "ruby", "rust", "scss", "sql", "swift", "text", "typescript", "xml", "yaml"
-];
-
 const props = withDefaults(defineProps<LanguageBadgeProps>(), {
   availableFormats: () => [],
   toggleable: true,
-  allowAnyLanguage: false
+  allowAnyLanguage: false,
 });
 
 const emit = defineEmits<{
   change: [format: string];
 }>();
+
+const ALL_LANGUAGES = [
+  "bash",
+  "c",
+  "cpp",
+  "css",
+  "dockerfile",
+  "go",
+  "graphql",
+  "html",
+  "java",
+  "javascript",
+  "json",
+  "kotlin",
+  "markdown",
+  "php",
+  "python",
+  "ruby",
+  "rust",
+  "scss",
+  "sql",
+  "swift",
+  "text",
+  "typescript",
+  "xml",
+  "yaml",
+];
 
 const showOptions = ref(false);
 const showSearchPanel = ref(false);
@@ -124,7 +65,7 @@ const searchPanelRef = ref<HTMLElement | null>(null);
 const selectedIndex = ref(0);
 
 const otherFormats = computed(() => {
-  return props.availableFormats.filter(f => f !== props.format);
+  return props.availableFormats.filter((f) => f !== props.format);
 });
 
 const filteredLanguages = computed(() => {
@@ -132,7 +73,7 @@ const filteredLanguages = computed(() => {
     return ALL_LANGUAGES;
   }
   const query = searchQuery.value.toLowerCase();
-  return ALL_LANGUAGES.filter(lang => lang.toLowerCase().includes(query));
+  return ALL_LANGUAGES.filter((lang) => lang.toLowerCase().includes(query));
 });
 
 function onSearchQueryChange() {
@@ -147,9 +88,8 @@ function navigateDown() {
 
 function navigateUp() {
   if (filteredLanguages.value.length === 0) return;
-  selectedIndex.value = selectedIndex.value === 0
-    ? filteredLanguages.value.length - 1
-    : selectedIndex.value - 1;
+  selectedIndex.value =
+    selectedIndex.value === 0 ? filteredLanguages.value.length - 1 : selectedIndex.value - 1;
   scrollSelectedIntoView();
 }
 
@@ -208,6 +148,81 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  openSearchPanel
+  openSearchPanel,
 });
 </script>
+
+<template>
+  <div
+    class="dx-language-badge-container"
+    :class="{ 'is-toggleable': toggleable && availableFormats.length > 1 }"
+    @mouseenter="showOptions = true"
+    @mouseleave="onMouseLeave"
+  >
+    <!-- Search icon (when allowAnyLanguage is true) -->
+    <transition name="slide-left">
+      <div
+        v-if="showOptions && allowAnyLanguage"
+        class="dx-language-option dx-language-search-trigger"
+        @click.stop="openSearchPanel"
+      >
+        <span v-html="searchSvg" />
+      </div>
+    </transition>
+
+    <!-- Other format options (slide out to the left) -->
+    <transition name="slide-left">
+      <div v-if="showOptions && toggleable && otherFormats.length > 0" class="dx-language-options">
+        <div
+          v-for="fmt in otherFormats"
+          :key="fmt"
+          class="dx-language-option"
+          @click.stop="$emit('change', fmt)"
+        >
+          {{ fmt.toUpperCase() }}
+        </div>
+      </div>
+    </transition>
+
+    <!-- Current format badge -->
+    <div
+      class="dx-language-badge"
+      :class="{ 'is-active': showOptions && (otherFormats.length > 0 || allowAnyLanguage) }"
+    >
+      {{ format.toUpperCase() }}
+    </div>
+
+    <!-- Search dropdown panel -->
+    <transition name="fade">
+      <div v-if="showSearchPanel" ref="searchPanelRef" class="dx-language-search-panel" @click.stop>
+        <input
+          ref="searchInputRef"
+          v-model="searchQuery"
+          type="text"
+          class="dx-language-search-input"
+          placeholder="Search languages..."
+          @input="onSearchQueryChange"
+          @keydown.down.prevent="navigateDown"
+          @keydown.up.prevent="navigateUp"
+          @keydown.enter.prevent="selectCurrentItem"
+          @keydown.escape="closeSearchPanel"
+        />
+        <div ref="searchListRef" class="dx-language-search-list">
+          <div
+            v-for="(lang, index) in filteredLanguages"
+            :key="lang"
+            class="dx-language-search-item"
+            :class="{ 'is-selected': index === selectedIndex }"
+            @click="selectLanguage(lang)"
+            @mouseenter="selectedIndex = index"
+          >
+            {{ lang.toUpperCase() }}
+          </div>
+          <div v-if="filteredLanguages.length === 0" class="dx-language-search-empty">
+            No languages found
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</template>

@@ -39,11 +39,7 @@ describe("parseTaskList", () => {
   });
 
   it("parses multiple consecutive task items", () => {
-    const lines = [
-      "- [ ] Task one",
-      "- [x] Task two",
-      "- [ ] Task three",
-    ];
+    const lines = ["- [ ] Task one", "- [x] Task two", "- [ ] Task three"];
     const result = parseTaskList(lines, 0);
     expect(result).toEqual({
       token: {
@@ -69,11 +65,7 @@ describe("parseTaskList", () => {
   });
 
   it("stops at non-task lines", () => {
-    const lines = [
-      "- [ ] Task item",
-      "Not a task item",
-      "- [ ] Another task",
-    ];
+    const lines = ["- [ ] Task item", "Not a task item", "- [ ] Another task"];
     const result = parseTaskList(lines, 0);
     expect(result).toEqual({
       token: {
@@ -137,11 +129,7 @@ describe("parseTaskList", () => {
   });
 
   it("skips empty lines and continues if next non-empty line is a task item", () => {
-    const lines = [
-      "- [ ] Task 1",
-      "",
-      "- [x] Task 2",
-    ];
+    const lines = ["- [ ] Task 1", "", "- [x] Task 2"];
     const result = parseTaskList(lines, 0);
     expect(result!.token).toHaveProperty("items", [
       { checked: false, content: "Task 1" },
@@ -150,14 +138,8 @@ describe("parseTaskList", () => {
   });
 
   it("stops at empty line when next non-empty line is not a task item", () => {
-    const lines = [
-      "- [ ] Task 1",
-      "",
-      "Regular text",
-    ];
+    const lines = ["- [ ] Task 1", "", "Regular text"];
     const result = parseTaskList(lines, 0);
-    expect(result!.token).toHaveProperty("items", [
-      { checked: false, content: "Task 1" },
-    ]);
+    expect(result!.token).toHaveProperty("items", [{ checked: false, content: "Task 1" }]);
   });
 });

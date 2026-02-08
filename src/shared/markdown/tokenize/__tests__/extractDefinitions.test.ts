@@ -51,11 +51,7 @@ describe("extractDefinitions", () => {
     });
 
     it("handles multiple link references", () => {
-      const lines = [
-        "[first]: https://first.com",
-        "[second]: https://second.com",
-        "Normal text",
-      ];
+      const lines = ["[first]: https://first.com", "[second]: https://second.com", "Normal text"];
       const result = extractDefinitions(lines);
       const refs = getLinkRefs();
       expect(refs).toHaveProperty("first");
@@ -64,11 +60,7 @@ describe("extractDefinitions", () => {
     });
 
     it("removes link reference lines from output", () => {
-      const lines = [
-        "Before",
-        "[ref]: https://example.com",
-        "After",
-      ];
+      const lines = ["Before", "[ref]: https://example.com", "After"];
       const result = extractDefinitions(lines);
       expect(result).toEqual(["Before", "After"]);
     });
@@ -92,10 +84,7 @@ describe("extractDefinitions", () => {
     });
 
     it("extracts multiple footnotes with incrementing indices", () => {
-      const lines = [
-        "[^first]: First footnote",
-        "[^second]: Second footnote",
-      ];
+      const lines = ["[^first]: First footnote", "[^second]: Second footnote"];
       extractDefinitions(lines);
       const footnotes = getFootnotes();
       expect(footnotes["first"]!.index).toBe(1);
@@ -103,11 +92,7 @@ describe("extractDefinitions", () => {
     });
 
     it("removes footnote definition lines from output", () => {
-      const lines = [
-        "Before",
-        "[^fn]: Footnote content",
-        "After",
-      ];
+      const lines = ["Before", "[^fn]: Footnote content", "After"];
       const result = extractDefinitions(lines);
       expect(result).toEqual(["Before", "After"]);
     });
@@ -142,11 +127,7 @@ describe("extractDefinitions", () => {
 
   describe("non-definition lines", () => {
     it("keeps non-definition lines in output", () => {
-      const lines = [
-        "Line 1",
-        "Line 2",
-        "Line 3",
-      ];
+      const lines = ["Line 1", "Line 2", "Line 3"];
       const result = extractDefinitions(lines);
       expect(result).toEqual(["Line 1", "Line 2", "Line 3"]);
     });

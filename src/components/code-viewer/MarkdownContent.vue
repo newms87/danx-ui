@@ -12,6 +12,70 @@
  */
 -->
 
+<script setup lang="ts">
+import { computed } from "vue";
+import {
+  tokenizeBlocks,
+  parseInline,
+  renderMarkdown,
+  getFootnotes,
+  resetParserState,
+} from "../../shared/markdown";
+import type { BlockToken, ListItem } from "../../shared/markdown";
+import CodeViewer from "./CodeViewer.vue";
+import { normalizeLanguage } from "./normalizeLanguage";
+import type { CodeFormat, MarkdownContentProps } from "./types";
+
+const props = withDefaults(defineProps<MarkdownContentProps>(), {
+  content: "",
+});
+
+const tokens = computed<BlockToken[]>(() => {
+  if (!props.content) return [];
+  resetParserState();
+  return tokenizeBlocks(props.content);
+});
+
+const footnotes = computed(() => {
+  // Force dependency on tokens to ensure tokenizeBlocks runs first
+  tokens.value;
+  return getFootnotes();
+});
+
+const hasFootnotes = computed(() => Object.keys(footnotes.value).length > 0);
+
+const sortedFootnotes = computed(() => {
+  return Object.entries(footnotes.value)
+    .sort((a, b) => a[1].index - b[1].index)
+    .map(([id, fn]) => ({ id, content: fn.content, index: fn.index }));
+});
+
+function parseInlineContent(text: string): string {
+  return parseInline(text, true);
+}
+
+function renderListItem(item: ListItem): string {
+  let html = parseInline(item.content, true);
+  if (item.children && item.children.length > 0) {
+    for (const child of item.children) {
+      if (child.type === "ul") {
+        const items = child.items.map((i) => `<li>${renderListItem(i)}</li>`).join("");
+        html += `<ul>${items}</ul>`;
+      } else if (child.type === "ol") {
+        const items = child.items.map((i) => `<li>${renderListItem(i)}</li>`).join("");
+        const startAttr = child.start !== 1 ? ` start="${child.start}"` : "";
+        html += `<ol${startAttr}>${items}</ol>`;
+      }
+    }
+  }
+  return html;
+}
+
+function renderBlockquote(content: string): string {
+  return renderMarkdown(content, { preserveState: true });
+}
+</script>
+
 <template>
   <div class="dx-markdown-content">
     <template v-for="(token, index) in tokens" :key="index">
@@ -43,10 +107,7 @@
 
       <!-- Unordered lists -->
       <ul v-else-if="token.type === 'ul'">
-        <li
-          v-for="(item, itemIndex) in token.items"
-          :key="itemIndex"
-        >
+        <li v-for="(item, itemIndex) in token.items" :key="itemIndex">
           <span v-html="parseInlineContent(item.content)" />
           <template v-if="item.children && item.children.length > 0">
             <template v-for="(child, childIndex) in item.children" :key="'child-' + childIndex">
@@ -70,14 +131,8 @@
       </ul>
 
       <!-- Ordered lists -->
-      <ol
-        v-else-if="token.type === 'ol'"
-        :start="token.start"
-      >
-        <li
-          v-for="(item, itemIndex) in token.items"
-          :key="itemIndex"
-        >
+      <ol v-else-if="token.type === 'ol'" :start="token.start">
+        <li v-for="(item, itemIndex) in token.items" :key="itemIndex">
           <span v-html="parseInlineContent(item.content)" />
           <template v-if="item.children && item.children.length > 0">
             <template v-for="(child, childIndex) in item.children" :key="'child-' + childIndex">
@@ -101,20 +156,9 @@
       </ol>
 
       <!-- Task lists -->
-      <ul
-        v-else-if="token.type === 'task_list'"
-        class="task-list"
-      >
-        <li
-          v-for="(item, itemIndex) in token.items"
-          :key="itemIndex"
-          class="task-list-item"
-        >
-          <input
-            type="checkbox"
-            :checked="item.checked"
-            disabled
-          />
+      <ul v-else-if="token.type === 'task_list'" class="task-list">
+        <li v-for="(item, itemIndex) in token.items" :key="itemIndex" class="task-list-item">
+          <input type="checkbox" :checked="item.checked" disabled />
           <span v-html="parseInlineContent(item.content)" />
         </li>
       </ul>
@@ -169,12 +213,7 @@
     <section v-if="hasFootnotes" class="footnotes">
       <hr />
       <ol class="footnote-list">
-        <li
-          v-for="fn in sortedFootnotes"
-          :key="fn.id"
-          :id="'fn-' + fn.id"
-          class="footnote-item"
-        >
+        <li v-for="fn in sortedFootnotes" :key="fn.id" :id="'fn-' + fn.id" class="footnote-item">
           <span v-html="parseInlineContent(fn.content)" />
           <a :href="'#fnref-' + fn.id" class="footnote-backref">&#8617;</a>
         </li>
@@ -182,67 +221,3 @@
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed } from "vue";
-import {
-  tokenizeBlocks,
-  parseInline,
-  renderMarkdown,
-  getFootnotes,
-  resetParserState
-} from "../../shared/markdown";
-import type { BlockToken, ListItem } from "../../shared/markdown";
-import CodeViewer from "./CodeViewer.vue";
-import { normalizeLanguage } from "./normalizeLanguage";
-import type { CodeFormat, MarkdownContentProps } from "./types";
-
-const props = withDefaults(defineProps<MarkdownContentProps>(), {
-  content: ""
-});
-
-const tokens = computed<BlockToken[]>(() => {
-  if (!props.content) return [];
-  resetParserState();
-  return tokenizeBlocks(props.content);
-});
-
-const footnotes = computed(() => {
-  // Force dependency on tokens to ensure tokenizeBlocks runs first
-  tokens.value;
-  return getFootnotes();
-});
-
-const hasFootnotes = computed(() => Object.keys(footnotes.value).length > 0);
-
-const sortedFootnotes = computed(() => {
-  return Object.entries(footnotes.value)
-    .sort((a, b) => a[1].index - b[1].index)
-    .map(([id, fn]) => ({ id, content: fn.content, index: fn.index }));
-});
-
-function parseInlineContent(text: string): string {
-  return parseInline(text, true);
-}
-
-function renderListItem(item: ListItem): string {
-  let html = parseInline(item.content, true);
-  if (item.children && item.children.length > 0) {
-    for (const child of item.children) {
-      if (child.type === "ul") {
-        const items = child.items.map((i) => `<li>${renderListItem(i)}</li>`).join("");
-        html += `<ul>${items}</ul>`;
-      } else if (child.type === "ol") {
-        const items = child.items.map((i) => `<li>${renderListItem(i)}</li>`).join("");
-        const startAttr = child.start !== 1 ? ` start="${child.start}"` : "";
-        html += `<ol${startAttr}>${items}</ol>`;
-      }
-    }
-  }
-  return html;
-}
-
-function renderBlockquote(content: string): string {
-  return renderMarkdown(content, { preserveState: true });
-}
-</script>

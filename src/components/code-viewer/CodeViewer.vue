@@ -60,6 +60,130 @@
  */
 -->
 
+<script setup lang="ts">
+import { computed, ref, toRef, watch } from "vue";
+import CodeViewerCollapsed from "./CodeViewerCollapsed.vue";
+import CodeViewerFooter from "./CodeViewerFooter.vue";
+import { getAvailableFormats } from "./cursorUtils";
+import { chevronDownSvg } from "./icons";
+import LanguageBadge from "./LanguageBadge.vue";
+import MarkdownContent from "./MarkdownContent.vue";
+import type { CodeFormat, DanxCodeViewerProps } from "./types";
+import { useCodeFormat } from "./useCodeFormat";
+import { useCodeViewerCollapse } from "./useCodeViewerCollapse";
+import { useCodeViewerEditor } from "./useCodeViewerEditor";
+
+const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
+  modelValue: null,
+  format: "yaml",
+  label: "",
+  editorClass: "",
+  canEdit: false,
+  editable: false,
+  collapsible: false,
+  defaultCollapsed: true,
+  theme: "dark",
+  hideFooter: false,
+});
+
+const emit = defineEmits<{
+  "update:modelValue": [value: object | string | null];
+  "update:format": [format: CodeFormat];
+  "update:editable": [editable: boolean];
+  exit: [];
+  delete: [];
+}>();
+
+const codeFormat = useCodeFormat({
+  initialFormat: props.format,
+  initialValue: props.modelValue,
+});
+
+const currentFormat = ref<CodeFormat>(props.format);
+const codeRef = ref<HTMLPreElement | null>(null);
+const languageBadgeRef = ref<InstanceType<typeof LanguageBadge> | null>(null);
+const availableFormats = computed(() => getAvailableFormats(currentFormat.value));
+
+const isCollapsed = ref(props.collapsible && props.defaultCollapsed);
+
+watch(
+  () => props.defaultCollapsed,
+  (newValue) => {
+    if (props.collapsible) {
+      isCollapsed.value = newValue;
+    }
+  }
+);
+
+function toggleCollapse() {
+  isCollapsed.value = !isCollapsed.value;
+}
+
+const editor = useCodeViewerEditor({
+  codeRef,
+  codeFormat,
+  currentFormat,
+  canEdit: toRef(props, "canEdit"),
+  editable: toRef(props, "editable"),
+  onEmitModelValue: (value) => emit("update:modelValue", value),
+  onEmitEditable: (editable) => emit("update:editable", editable),
+  onEmitFormat: (format) => onFormatChange(format),
+  onExit: () => emit("exit"),
+  onDelete: () => emit("delete"),
+  onOpenLanguageSearch: () => languageBadgeRef.value?.openSearchPanel(),
+});
+
+watch(currentFormat, (newFormat) => {
+  codeFormat.setFormat(newFormat);
+  editor.updateEditingContentOnFormatChange();
+});
+
+watch(
+  () => props.format,
+  (newFormat) => {
+    currentFormat.value = newFormat;
+  }
+);
+
+watch(
+  () => props.modelValue,
+  () => {
+    codeFormat.setValue(props.modelValue);
+    editor.syncEditingContentFromValue();
+  }
+);
+
+watch(
+  () => props.editable,
+  (newValue) => {
+    editor.syncEditableFromProp(newValue);
+  }
+);
+
+const { collapsedPreview } = useCodeViewerCollapse({
+  modelValue: toRef(props, "modelValue"),
+  format: currentFormat,
+  displayContent: editor.displayContent,
+  codeFormat,
+});
+
+function onFormatChange(newFormat: CodeFormat) {
+  currentFormat.value = newFormat;
+  emit("update:format", newFormat);
+}
+
+const markdownSource = computed(() => {
+  if (typeof props.modelValue === "string") {
+    return props.modelValue;
+  }
+  return editor.displayContent.value;
+});
+
+const isValid = computed(() => editor.isValid.value);
+
+defineExpose({ isValid });
+</script>
+
 <template>
   <div
     class="dx-code-viewer group flex flex-col"
@@ -109,11 +233,7 @@
         </div>
 
         <!-- Clickable header to collapse when expanded -->
-        <div
-          v-if="collapsible"
-          class="collapse-header"
-          @click="toggleCollapse"
-        />
+        <div v-if="collapsible" class="collapse-header" @click="toggleCollapse" />
 
         <!-- Code display - readonly with syntax highlighting (non-markdown formats) -->
         <pre
@@ -156,115 +276,3 @@
     </template>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue";
-import CodeViewerCollapsed from "./CodeViewerCollapsed.vue";
-import CodeViewerFooter from "./CodeViewerFooter.vue";
-import { getAvailableFormats } from "./cursorUtils";
-import { chevronDownSvg } from "./icons";
-import LanguageBadge from "./LanguageBadge.vue";
-import MarkdownContent from "./MarkdownContent.vue";
-import type { CodeFormat, DanxCodeViewerProps } from "./types";
-import { useCodeFormat } from "./useCodeFormat";
-import { useCodeViewerCollapse } from "./useCodeViewerCollapse";
-import { useCodeViewerEditor } from "./useCodeViewerEditor";
-
-const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
-  modelValue: null,
-  format: "yaml",
-  label: "",
-  editorClass: "",
-  canEdit: false,
-  editable: false,
-  collapsible: false,
-  defaultCollapsed: true,
-  theme: "dark",
-  hideFooter: false
-});
-
-const emit = defineEmits<{
-  "update:modelValue": [value: object | string | null];
-  "update:format": [format: CodeFormat];
-  "update:editable": [editable: boolean];
-  "exit": [];
-  "delete": [];
-}>();
-
-const codeFormat = useCodeFormat({
-  initialFormat: props.format,
-  initialValue: props.modelValue
-});
-
-const currentFormat = ref<CodeFormat>(props.format);
-const codeRef = ref<HTMLPreElement | null>(null);
-const languageBadgeRef = ref<InstanceType<typeof LanguageBadge> | null>(null);
-const availableFormats = computed(() => getAvailableFormats(currentFormat.value));
-
-const isCollapsed = ref(props.collapsible && props.defaultCollapsed);
-
-watch(() => props.defaultCollapsed, (newValue) => {
-  if (props.collapsible) {
-    isCollapsed.value = newValue;
-  }
-});
-
-function toggleCollapse() {
-  isCollapsed.value = !isCollapsed.value;
-}
-
-const editor = useCodeViewerEditor({
-  codeRef,
-  codeFormat,
-  currentFormat,
-  canEdit: toRef(props, "canEdit"),
-  editable: toRef(props, "editable"),
-  onEmitModelValue: (value) => emit("update:modelValue", value),
-  onEmitEditable: (editable) => emit("update:editable", editable),
-  onEmitFormat: (format) => onFormatChange(format),
-  onExit: () => emit("exit"),
-  onDelete: () => emit("delete"),
-  onOpenLanguageSearch: () => languageBadgeRef.value?.openSearchPanel()
-});
-
-watch(currentFormat, (newFormat) => {
-  codeFormat.setFormat(newFormat);
-  editor.updateEditingContentOnFormatChange();
-});
-
-watch(() => props.format, (newFormat) => {
-  currentFormat.value = newFormat;
-});
-
-watch(() => props.modelValue, () => {
-  codeFormat.setValue(props.modelValue);
-  editor.syncEditingContentFromValue();
-});
-
-watch(() => props.editable, (newValue) => {
-  editor.syncEditableFromProp(newValue);
-});
-
-const { collapsedPreview } = useCodeViewerCollapse({
-  modelValue: toRef(props, "modelValue"),
-  format: currentFormat,
-  displayContent: editor.displayContent,
-  codeFormat
-});
-
-function onFormatChange(newFormat: CodeFormat) {
-  currentFormat.value = newFormat;
-  emit("update:format", newFormat);
-}
-
-const markdownSource = computed(() => {
-  if (typeof props.modelValue === "string") {
-    return props.modelValue;
-  }
-  return editor.displayContent.value;
-});
-
-const isValid = computed(() => editor.isValid.value);
-
-defineExpose({ isValid });
-</script>
