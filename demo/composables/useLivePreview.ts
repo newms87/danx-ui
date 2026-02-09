@@ -31,7 +31,7 @@ import {
 } from "vue";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { CodeViewer } from "../../src/components/code-viewer";
-import { DanxDialog } from "../../src/components/dialog";
+import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
@@ -58,6 +58,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxActionButton,
   CodeViewer,
   DanxDialog,
+  useDialog,
   MarkdownEditor,
   starIcon,
 };
