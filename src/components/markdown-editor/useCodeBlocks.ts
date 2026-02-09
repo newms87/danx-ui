@@ -1,7 +1,7 @@
 import { reactive, Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 import { detectCodeFenceStart } from "../../shared/markdown";
-import { positionCursorAtEnd } from "./cursorUtils";
+import { positionCursorAtEnd } from "./cursorPosition";
 import { isConvertibleBlock, getTargetBlock as getTargetBlockShared } from "./blockUtils";
 
 /**

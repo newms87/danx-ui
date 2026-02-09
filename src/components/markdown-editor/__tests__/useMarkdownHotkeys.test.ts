@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref, type Ref } from "vue";
-import {
-  parseKeyCombo,
-  matchesKeyCombo,
-  useMarkdownHotkeys,
-  HotkeyDefinition,
-} from "../useMarkdownHotkeys";
+import { useMarkdownHotkeys, HotkeyDefinition } from "../useMarkdownHotkeys";
+import { parseKeyCombo, matchesKeyCombo } from "../hotkeyMatching";
 
 /**
  * Helper to create a mock KeyboardEvent with specified properties

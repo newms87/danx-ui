@@ -23,6 +23,7 @@
  *
  * @slots
  *   badge - Overlay content positioned at top-right of editor (e.g., share button)
+ *   footer - Extra content in the footer bar between char count and hotkey button
  *
  * @tokens
  *   --dx-mde-min-height - Override minimum height via CSS
@@ -148,7 +149,9 @@ watch(modelValue, (newValue) => {
       v-if="!hideFooter"
       :char-count="editor.charCount.value"
       @show-hotkeys="editor.showHotkeyHelp"
-    />
+    >
+      <slot name="footer" />
+    </MarkdownEditorFooter>
 
     <HotkeyHelpPopover
       v-if="editor.isShowingHotkeyHelp.value"
@@ -209,11 +212,11 @@ watch(modelValue, (newValue) => {
   max-height: var(--dx-mde-max-height, none);
 }
 
-/* Badge slot positioned at top-right of editor body */
+/* Badge slot positioned at top-right corner of editor body (matches LanguageBadge style) */
 .dx-markdown-editor .dx-editor-badge {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0;
+  right: 0;
   z-index: 10;
 }
 </style>

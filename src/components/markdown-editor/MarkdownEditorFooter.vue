@@ -11,6 +11,9 @@
  * @emits
  *   show-hotkeys - Fired when the keyboard shortcuts button is clicked
  *
+ * @slots
+ *   default - Extra content between char count and hotkey button (e.g., save indicator)
+ *
  * @tokens
  *   --dx-mde-footer-bg - Background color (default: #252526)
  *
@@ -31,8 +34,10 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="dx-markdown-editor-footer flex items-center justify-between px-2 py-1">
+  <div class="dx-markdown-editor-footer flex items-center px-2 py-1">
     <span class="char-count text-xs text-gray-500"> {{ charCount.toLocaleString() }} chars </span>
+    <slot />
+    <div class="flex-1" />
     <button
       class="hotkey-help-btn text-gray-500 hover:text-gray-300 transition-colors p-1 rounded"
       title="Keyboard shortcuts (Ctrl+?)"

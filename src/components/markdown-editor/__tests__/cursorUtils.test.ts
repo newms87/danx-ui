@@ -3,12 +3,11 @@ import {
   CURSOR_ANCHOR,
   positionCursorAtEnd,
   positionCursorAtStart,
-  getCursorOffset,
-  setCursorOffset,
   getCursorViewportPosition,
   dispatchInputEvent,
   createSelectionManager,
-} from "../cursorUtils";
+} from "../cursorPosition";
+import { getCursorOffset, setCursorOffset } from "../cursorOffset";
 
 describe("cursorUtils", () => {
   let container: HTMLElement;

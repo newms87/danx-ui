@@ -18,13 +18,16 @@ export type { UseMarkdownSyncOptions, UseMarkdownSyncReturn } from "./useMarkdow
 export { useMarkdownSelection } from "./useMarkdownSelection";
 export type { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 
-export { useMarkdownHotkeys, parseKeyCombo, matchesKeyCombo } from "./useMarkdownHotkeys";
+export { useMarkdownHotkeys } from "./useMarkdownHotkeys";
 export type {
   HotkeyDefinition,
   HotkeyGroup,
   UseMarkdownHotkeysOptions,
   UseMarkdownHotkeysReturn,
 } from "./useMarkdownHotkeys";
+
+export { parseKeyCombo, matchesKeyCombo } from "./hotkeyMatching";
+export type { ParsedKey } from "./hotkeyMatching";
 
 export { useHeadings } from "./useHeadings";
 export type { UseHeadingsOptions, UseHeadingsReturn } from "./useHeadings";

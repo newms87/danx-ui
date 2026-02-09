@@ -1,5 +1,5 @@
 import { Ref } from "vue";
-import { getCursorOffset, setCursorOffset } from "./cursorUtils";
+import { getCursorOffset, setCursorOffset } from "./cursorOffset";
 
 /**
  * Cursor position tracking for markdown editor

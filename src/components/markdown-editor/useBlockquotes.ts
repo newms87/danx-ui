@@ -1,5 +1,5 @@
 import { Ref } from "vue";
-import { getCursorOffset, setCursorOffset } from "./cursorUtils";
+import { getCursorOffset, setCursorOffset } from "./cursorOffset";
 import { CONVERTIBLE_BLOCK_TAGS } from "./blockUtils";
 
 /**
