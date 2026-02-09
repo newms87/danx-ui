@@ -4,20 +4,9 @@
  * Supports embedded CSS (<style>) and JavaScript (<script>) highlighting
  */
 
+import { escapeHtml } from "../escapeHtml";
 import { highlightCSS } from "./highlightCSS";
 import { highlightJavaScript } from "./highlightJavaScript";
-
-/**
- * Escape HTML entities to prevent XSS
- */
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
 
 /**
  * HTML parsing states

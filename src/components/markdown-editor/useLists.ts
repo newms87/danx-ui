@@ -1,15 +1,8 @@
 import { Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 import { detectListPattern } from "../../shared/markdown";
-
-/**
- * Check if an element is a block type that can be converted to/from lists
- * Includes paragraphs, divs, and headings (H1-H6)
- */
-function isConvertibleBlock(element: Element): boolean {
-	const tag = element.tagName;
-	return tag === "P" || tag === "DIV" || /^H[1-6]$/.test(tag);
-}
+import { positionCursorAtEnd, positionCursorAtStart } from "./cursorUtils";
+import { isConvertibleBlock, getTargetBlock as getTargetBlockShared } from "./blockUtils";
 
 /**
  * Options for useLists composable
@@ -43,39 +36,11 @@ export interface UseListsReturn {
 }
 
 /**
- * Get the block-level parent element containing the cursor
+ * Get the block-level parent element for list operations.
+ * Delegates to the shared getTargetBlock with list recognition enabled.
  */
 function getTargetBlock(contentRef: Ref<HTMLElement | null>, selection: UseMarkdownSelectionReturn): Element | null {
-	const currentBlock = selection.getCurrentBlock();
-	if (!currentBlock) return null;
-
-	// For paragraphs, divs, and headings, return directly
-	if (isConvertibleBlock(currentBlock)) {
-		return currentBlock;
-	}
-
-	// For list items, return the LI
-	if (currentBlock.tagName === "LI") {
-		return currentBlock;
-	}
-
-	// Walk up to find a convertible block or LI
-	if (!contentRef.value) return null;
-
-	let current: Element | null = currentBlock;
-	while (current && current.parentElement !== contentRef.value) {
-		if (isConvertibleBlock(current) || current.tagName === "LI") {
-			return current;
-		}
-		current = current.parentElement;
-	}
-
-	// Check if this direct child is a convertible block
-	if (current && isConvertibleBlock(current)) {
-		return current;
-	}
-
-	return null;
+	return getTargetBlockShared(contentRef, selection, { includeLists: true });
 }
 
 /**
@@ -203,59 +168,6 @@ function convertListItemToParagraph(li: HTMLLIElement, _contentRef: HTMLElement)
 	return p;
 }
 
-/**
- * Position cursor at end of element
- */
-function positionCursorAtEnd(element: Element): void {
-	const sel = window.getSelection();
-	if (!sel) return;
-
-	const range = document.createRange();
-
-	// Find last text node
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	let lastTextNode: Text | null = null;
-	let node: Text | null;
-	while ((node = walker.nextNode() as Text | null)) {
-		lastTextNode = node;
-	}
-
-	if (lastTextNode) {
-		range.setStart(lastTextNode, lastTextNode.length);
-		range.collapse(true);
-	} else {
-		range.selectNodeContents(element);
-		range.collapse(false);
-	}
-
-	sel.removeAllRanges();
-	sel.addRange(range);
-}
-
-/**
- * Position cursor at start of element
- */
-function positionCursorAtStart(element: Element): void {
-	const sel = window.getSelection();
-	if (!sel) return;
-
-	const range = document.createRange();
-
-	// Find first text node
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	const firstTextNode = walker.nextNode() as Text | null;
-
-	if (firstTextNode) {
-		range.setStart(firstTextNode, 0);
-		range.collapse(true);
-	} else {
-		range.selectNodeContents(element);
-		range.collapse(true);
-	}
-
-	sel.removeAllRanges();
-	sel.addRange(range);
-}
 
 /**
  * Get cursor offset within an element's text content (excluding nested lists)

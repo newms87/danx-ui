@@ -3,6 +3,7 @@
  * Returns HTML string with syntax highlighting spans
  */
 
+import { escapeHtml } from "../escapeHtml";
 import { highlightCSS } from "./highlightCSS";
 import { highlightJavaScript } from "./highlightJavaScript";
 import { highlightHTML } from "./highlightHTML";
@@ -11,18 +12,6 @@ export type HighlightFormat = "json" | "yaml" | "text" | "markdown" | "html" | "
 
 export interface HighlightOptions {
   format: HighlightFormat;
-}
-
-/**
- * Escape HTML entities to prevent XSS
- */
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }
 
 /**

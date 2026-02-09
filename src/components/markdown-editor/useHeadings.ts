@@ -1,6 +1,7 @@
 import { Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 import { detectHeadingPattern } from "../../shared/markdown";
+import { getTargetBlock as getTargetBlockShared } from "./blockUtils";
 
 /**
  * Options for useHeadings composable
@@ -87,34 +88,15 @@ function convertElement(element: Element, newTagName: string): Element {
 }
 
 /**
- * Get the heading/paragraph element containing the cursor
+ * Get the heading/paragraph element containing the cursor.
+ * Returns null if the cursor is in a list item, code block, or other non-heading block.
  */
 function getTargetBlock(contentRef: Ref<HTMLElement | null>, selection: UseMarkdownSelectionReturn): Element | null {
-	const currentBlock = selection.getCurrentBlock();
-	if (!currentBlock) return null;
+	const block = getTargetBlockShared(contentRef, selection);
+	if (!block) return null;
 
-	// Only operate on headings and paragraphs
-	const tagName = currentBlock.tagName;
-	if (tagName in TAG_TO_LEVEL) {
-		return currentBlock;
-	}
-
-	// If in a list item or other block, find if there's a parent heading/paragraph
-	// or try to get the direct child of contentRef
-	if (!contentRef.value) return null;
-
-	// Walk up to find a heading/paragraph or the direct child of contentRef
-	let current: Element | null = currentBlock;
-	while (current && current.parentElement !== contentRef.value) {
-		current = current.parentElement;
-	}
-
-	// Check if this direct child is a heading/paragraph
-	if (current && current.tagName in TAG_TO_LEVEL) {
-		return current;
-	}
-
-	return null;
+	// Only operate on elements that map to heading levels (P, DIV, H1-H6)
+	return block.tagName in TAG_TO_LEVEL ? block : null;
 }
 
 /**

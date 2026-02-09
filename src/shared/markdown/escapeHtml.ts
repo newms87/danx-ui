@@ -1,15 +1,5 @@
 /**
- * HTML entity escaping for XSS prevention
+ * Re-export from the canonical shared location.
+ * Kept for backwards compatibility with existing markdown imports.
  */
-
-/**
- * Escape HTML entities to prevent XSS
- */
-export function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+export { escapeHtml } from "../escapeHtml";

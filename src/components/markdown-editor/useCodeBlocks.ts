@@ -1,6 +1,8 @@
 import { reactive, Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 import { detectCodeFenceStart } from "../../shared/markdown";
+import { positionCursorAtEnd } from "./cursorUtils";
+import { isConvertibleBlock, getTargetBlock as getTargetBlockShared } from "./blockUtils";
 
 /**
  * Represents a code block's state
@@ -64,161 +66,34 @@ function generateCodeBlockId(): string {
 }
 
 /**
- * Check if an element is a block type that can be converted to a code block
- * Includes paragraphs, divs, and headings (H1-H6)
- */
-function isConvertibleBlock(element: Element): boolean {
-	const tag = element.tagName;
-	return tag === "P" || tag === "DIV" || /^H[1-6]$/.test(tag);
-}
-
-/**
- * Get the block-level parent element containing the cursor
+ * Get the block-level parent element for code block operations.
+ * Delegates to the shared getTargetBlock with code block recognition enabled.
  */
 function getTargetBlock(contentRef: Ref<HTMLElement | null>, selection: UseMarkdownSelectionReturn): Element | null {
-	const currentBlock = selection.getCurrentBlock();
-	if (!currentBlock) return null;
-
-	// For paragraphs, divs, headings, and code block wrappers, return directly
-	if (isConvertibleBlock(currentBlock) || currentBlock.tagName === "PRE" || currentBlock.hasAttribute("data-code-block-id")) {
-		return currentBlock;
-	}
-
-	// For list items, return the LI
-	if (currentBlock.tagName === "LI") {
-		return currentBlock;
-	}
-
-	// Walk up to find a convertible block, code block wrapper, or PRE
-	if (!contentRef.value) return null;
-
-	let current: Element | null = currentBlock;
-	while (current && current.parentElement !== contentRef.value) {
-		if (isConvertibleBlock(current) || current.tagName === "PRE" || current.tagName === "LI" || current.hasAttribute("data-code-block-id")) {
-			return current;
-		}
-		current = current.parentElement;
-	}
-
-	// Check if this direct child is a convertible block, PRE, or code block wrapper
-	if (current && (isConvertibleBlock(current) || current.tagName === "PRE" || current.hasAttribute("data-code-block-id"))) {
-		return current;
-	}
-
-	return null;
+	return getTargetBlockShared(contentRef, selection, { includeCodeBlocks: true, includeLists: true });
 }
 
 /**
- * Get the code block wrapper element containing the cursor (if in a code block)
+ * Get the code block wrapper element containing the cursor (if in a code block).
+ * Walks up the DOM to find an element with data-code-block-id attribute.
  */
 function getCodeBlockWrapper(selection: UseMarkdownSelectionReturn): HTMLElement | null {
 	const currentBlock = selection.getCurrentBlock();
 	if (!currentBlock) return null;
 
-	// Walk up to find code block wrapper
 	let current: Element | null = currentBlock;
 	while (current) {
 		if (current.hasAttribute("data-code-block-id")) {
 			return current as HTMLElement;
 		}
-		// Legacy support: check for PRE without wrapper
-		if (current.tagName === "PRE" && !current.closest("[data-code-block-id]")) {
-			return null; // Legacy PRE, not wrapped
-		}
 		current = current.parentElement;
 	}
 
 	return null;
 }
 
-/**
- * Get the PRE element containing the cursor (if in a code block)
- * Supports both legacy PRE and new wrapper structure
- */
-function getCodeBlockElement(selection: UseMarkdownSelectionReturn): HTMLPreElement | null {
-	const currentBlock = selection.getCurrentBlock();
-	if (!currentBlock) return null;
-
-	// Walk up to find PRE
-	let current: Element | null = currentBlock;
-	while (current) {
-		if (current.tagName === "PRE") {
-			return current as HTMLPreElement;
-		}
-		current = current.parentElement;
-	}
-
-	return null;
-}
-
-/**
- * Position cursor at end of element
- */
-function positionCursorAtEnd(element: Element): void {
-	const sel = window.getSelection();
-	if (!sel) return;
-
-	const range = document.createRange();
-
-	// Find last text node
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	let lastTextNode: Text | null = null;
-	let node: Text | null;
-	while ((node = walker.nextNode() as Text | null)) {
-		lastTextNode = node;
-	}
-
-	if (lastTextNode) {
-		range.setStart(lastTextNode, lastTextNode.length);
-		range.collapse(true);
-	} else {
-		range.selectNodeContents(element);
-		range.collapse(false);
-	}
-
-	sel.removeAllRanges();
-	sel.addRange(range);
-}
-
-/**
- * Zero-width space character used as cursor anchor in empty elements.
- * This is necessary because contenteditable doesn't position the cursor
- * correctly in empty elements - subsequent typing ends up as sibling nodes.
- */
-export const CURSOR_ANCHOR = "\u200B";
-
-/**
- * Position cursor at start of element.
- * If the element contains a zero-width space cursor anchor, positions after it
- * so typing replaces/follows the anchor rather than creating sibling nodes.
- */
-function positionCursorAtStart(element: Element): void {
-	const sel = window.getSelection();
-	if (!sel) return;
-
-	const range = document.createRange();
-
-	// Find first text node
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	const firstTextNode = walker.nextNode() as Text | null;
-
-	if (firstTextNode) {
-		// If there's a cursor anchor (zero-width space), position after it
-		// so typing goes into the element rather than creating siblings
-		if (firstTextNode.textContent === CURSOR_ANCHOR) {
-			range.setStart(firstTextNode, firstTextNode.length);
-		} else {
-			range.setStart(firstTextNode, 0);
-		}
-		range.collapse(true);
-	} else {
-		range.selectNodeContents(element);
-		range.collapse(true);
-	}
-
-	sel.removeAllRanges();
-	sel.addRange(range);
-}
+// CURSOR_ANCHOR is re-exported for consumers that imported it from here
+export { CURSOR_ANCHOR } from "./cursorUtils";
 
 /**
  * Create a code block wrapper with non-editable island structure.
@@ -263,22 +138,6 @@ function convertCodeBlockToParagraph(wrapper: HTMLElement, codeBlocks: Map<strin
 
 	// Replace wrapper with paragraph
 	wrapper.parentNode?.replaceChild(p, wrapper);
-
-	return p;
-}
-
-/**
- * Convert legacy PRE/CODE to paragraph (backwards compatibility)
- */
-function convertLegacyCodeBlockToParagraph(pre: HTMLPreElement): HTMLParagraphElement {
-	const p = document.createElement("p");
-
-	// Get text content from code element or directly from pre
-	const codeElement = pre.querySelector("code");
-	p.textContent = codeElement?.textContent || pre.textContent || "";
-
-	// Replace pre with paragraph
-	pre.parentNode?.replaceChild(p, pre);
 
 	return p;
 }
@@ -402,248 +261,44 @@ export function useCodeBlocks(options: UseCodeBlocksOptions): UseCodeBlocksRetur
 	 * Check if cursor is inside a code block
 	 */
 	function isInCodeBlock(): boolean {
-		// Check for new wrapper structure first
-		if (getCodeBlockWrapper(selection)) {
-			return true;
-		}
-		// Fall back to legacy PRE detection
-		return getCodeBlockElement(selection) !== null;
+		return getCodeBlockWrapper(selection) !== null;
 	}
 
 	/**
 	 * Get current code block's language
 	 */
 	function getCurrentCodeBlockLanguage(): string | null {
-		// Check new wrapper structure first
 		const wrapper = getCodeBlockWrapper(selection);
-		if (wrapper) {
-			const id = wrapper.getAttribute("data-code-block-id");
-			if (id) {
-				const state = codeBlocks.get(id);
-				return state?.language ?? "";
-			}
-		}
+		if (!wrapper) return null;
 
-		// Fall back to legacy PRE/CODE detection
-		const pre = getCodeBlockElement(selection);
-		if (!pre) return null;
+		const id = wrapper.getAttribute("data-code-block-id");
+		if (!id) return null;
 
-		const codeElement = pre.querySelector("code");
-		if (!codeElement) return null;
-
-		const match = codeElement.className.match(/language-(\w+)/);
-		return match ? match[1]! : "";
+		const state = codeBlocks.get(id);
+		return state?.language ?? "";
 	}
 
 	/**
 	 * Set language for current code block
 	 */
 	function setCodeBlockLanguage(language: string): void {
-		// Check new wrapper structure first
 		const wrapper = getCodeBlockWrapper(selection);
-		if (wrapper) {
-			const id = wrapper.getAttribute("data-code-block-id");
-			if (id) {
-				updateCodeBlockLanguage(id, language);
-			}
-			return;
+		if (!wrapper) return;
+
+		const id = wrapper.getAttribute("data-code-block-id");
+		if (id) {
+			updateCodeBlockLanguage(id, language);
 		}
-
-		// Fall back to legacy PRE/CODE handling
-		const pre = getCodeBlockElement(selection);
-		if (!pre) return;
-
-		const codeElement = pre.querySelector("code");
-		if (!codeElement) return;
-
-		// Remove existing language classes
-		let newClassName = codeElement.className.replace(/language-\w+/g, "").trim();
-
-		if (language) {
-			newClassName = (newClassName + ` language-${language}`).trim();
-		}
-
-		// Only set className if it has content, otherwise remove the attribute entirely
-		if (newClassName) {
-			codeElement.className = newClassName;
-		} else {
-			codeElement.removeAttribute("class");
-		}
-
-		onContentChange();
 	}
 
 	/**
-	 * Handle Enter key press when in a code block
-	 * For the new wrapper structure, this is handled by CodeViewer internally.
-	 * This function handles legacy PRE/CODE structures.
+	 * Handle Enter key press when in a code block.
+	 * Code blocks use the wrapper structure where Enter is handled by CodeViewer internally.
 	 * @returns true if the Enter was handled, false to let browser handle it
 	 */
 	function handleCodeBlockEnter(): boolean {
-		if (!contentRef.value) return false;
-
-		// New wrapper structure handles Enter internally via CodeViewer
-		const wrapper = getCodeBlockWrapper(selection);
-		if (wrapper) {
-			// Let CodeViewer handle it
-			return false;
-		}
-
-		// Check if we're in a legacy code block
-		const pre = getCodeBlockElement(selection);
-		if (!pre) return false;
-
-		const codeElement = pre.querySelector("code");
-		if (!codeElement) return false;
-
-		// Get cursor position information
-		const sel = window.getSelection();
-		if (!sel || sel.rangeCount === 0) return false;
-
-		const range = sel.getRangeAt(0);
-
-		// Get the current text content (strip cursor anchor zero-width spaces)
-		const content = (codeElement.textContent || "").replace(/\u200B/g, "");
-
-		// Check if cursor is at the end of the code content
-		const cursorAtEnd = isCursorAtEndOfCode(codeElement, range);
-
-		// Check if content ends with two newlines (user pressed Enter twice already at the end)
-		if (cursorAtEnd && content.endsWith("\n\n")) {
-			// Exit code block: remove the trailing newlines, create paragraph after
-			// Update the code content by removing the trailing newlines
-			const newContent = content.slice(0, -2);
-			codeElement.textContent = newContent || CURSOR_ANCHOR;
-
-			// Create new paragraph after the code block
-			const p = document.createElement("p");
-			// Use a <br> to make the empty paragraph editable
-			p.appendChild(document.createElement("br"));
-			pre.parentNode?.insertBefore(p, pre.nextSibling);
-
-			// Position cursor in the new paragraph
-			positionCursorAtStart(p);
-
-			onContentChange();
-			return true;
-		}
-
-		// Insert a newline at cursor position
-		// When inserting at the end, we need to add a cursor anchor (zero-width space)
-		// after the newline to make the trailing newline visible in contenteditable.
-		// Browsers collapse trailing whitespace, so the anchor gives the cursor something
-		// to position on. The anchor is stripped during HTML-to-markdown conversion.
-		if (cursorAtEnd) {
-			insertTextAtCursorWithAnchor("\n", codeElement);
-		} else {
-			insertTextAtCursor("\n");
-		}
-
-		onContentChange();
-		return true;
-	}
-
-	/**
-	 * Insert text at the current cursor position
-	 */
-	function insertTextAtCursor(text: string): void {
-		const sel = window.getSelection();
-		if (!sel || sel.rangeCount === 0) return;
-
-		const range = sel.getRangeAt(0);
-		range.deleteContents();
-
-		const textNode = document.createTextNode(text);
-		range.insertNode(textNode);
-
-		// Position cursor after the inserted text
-		range.setStartAfter(textNode);
-		range.setEndAfter(textNode);
-		sel.removeAllRanges();
-		sel.addRange(range);
-	}
-
-	/**
-	 * Insert text at cursor position with a cursor anchor at the end.
-	 * This is used when inserting newlines at the end of code blocks to ensure
-	 * the trailing newline is visible (browsers collapse trailing whitespace).
-	 *
-	 * First removes any existing cursor anchors from the code element to avoid
-	 * accumulating multiple anchors, then inserts the text followed by a new anchor.
-	 */
-	function insertTextAtCursorWithAnchor(text: string, codeElement: Element): void {
-		const sel = window.getSelection();
-		if (!sel || sel.rangeCount === 0) return;
-
-		// First, remove any existing cursor anchors from the code element
-		// to avoid accumulating multiple anchors
-		const currentContent = codeElement.textContent || "";
-		const cleanContent = currentContent.replace(/\u200B/g, "");
-
-		// Get cursor position relative to clean content
-		const range = sel.getRangeAt(0);
-
-		// Calculate the offset in the clean content
-		// We need to count how many characters come before the cursor, excluding cursor anchors
-		let cursorOffset = 0;
-		const walker = document.createTreeWalker(codeElement, NodeFilter.SHOW_TEXT);
-		let node: Text | null;
-		while ((node = walker.nextNode() as Text | null)) {
-			if (node === range.startContainer) {
-				// Count characters up to cursor position, excluding cursor anchors
-				const textBeforeCursor = node.textContent?.slice(0, range.startOffset) || "";
-				cursorOffset += textBeforeCursor.replace(/\u200B/g, "").length;
-				break;
-			} else {
-				cursorOffset += (node.textContent || "").replace(/\u200B/g, "").length;
-			}
-		}
-
-		// Build new content: content before cursor + new text + cursor anchor
-		const newContent = cleanContent.slice(0, cursorOffset) + text + CURSOR_ANCHOR + cleanContent.slice(cursorOffset);
-
-		// Set the new content
-		codeElement.textContent = newContent;
-
-		// Position cursor after the inserted text (before the cursor anchor)
-		const newCursorOffset = cursorOffset + text.length;
-		const newTextNode = codeElement.firstChild as Text;
-		if (newTextNode) {
-			const newRange = document.createRange();
-			newRange.setStart(newTextNode, newCursorOffset);
-			newRange.collapse(true);
-			sel.removeAllRanges();
-			sel.addRange(newRange);
-		}
-	}
-
-	/**
-	 * Check if cursor is at the end of a code element's content.
-	 * Considers cursor anchors (zero-width spaces) as "not content" - if the only
-	 * thing after the cursor is a cursor anchor, it's still considered at the end.
-	 */
-	function isCursorAtEndOfCode(codeElement: Element, range: Range): boolean {
-		// Create a range from cursor to end of code element
-		const testRange = document.createRange();
-		testRange.setStart(range.endContainer, range.endOffset);
-
-		// Find the last text node or the element itself if empty
-		const lastChild = codeElement.lastChild;
-		if (lastChild) {
-			if (lastChild.nodeType === Node.TEXT_NODE) {
-				testRange.setEnd(lastChild, (lastChild as Text).length);
-			} else {
-				testRange.setEndAfter(lastChild);
-			}
-		} else {
-			testRange.setEndAfter(codeElement);
-		}
-
-		// Get the text after the cursor, stripping cursor anchors
-		const textAfterCursor = testRange.toString().replace(/\u200B/g, "");
-
-		// If no real content after cursor (ignoring cursor anchors), cursor is at end
-		return textAfterCursor === "";
+		// Wrapper-based code blocks handle Enter internally via CodeViewer
+		return false;
 	}
 
 	/**
@@ -655,20 +310,10 @@ export function useCodeBlocks(options: UseCodeBlocksOptions): UseCodeBlocksRetur
 	function toggleCodeBlock(): void {
 		if (!contentRef.value) return;
 
-		// Check if already in new-style code block wrapper
+		// Check if already in a code block wrapper
 		const wrapper = getCodeBlockWrapper(selection);
 		if (wrapper) {
 			const p = convertCodeBlockToParagraph(wrapper, codeBlocks);
-			positionCursorAtEnd(p);
-			onContentChange();
-			return;
-		}
-
-		// Check if in legacy code block
-		const pre = getCodeBlockElement(selection);
-		if (pre) {
-			// Convert legacy code block to paragraph
-			const p = convertLegacyCodeBlockToParagraph(pre);
 			positionCursorAtEnd(p);
 			onContentChange();
 			return;

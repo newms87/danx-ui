@@ -1,19 +1,12 @@
 import { Ref } from "vue";
-
-/**
- * Position for table popover
- */
-export interface TablePopoverPosition {
-	x: number;
-	y: number;
-}
+import { CursorViewportPosition, createSelectionManager, dispatchInputEvent, getCursorViewportPosition } from "./cursorUtils";
 
 /**
  * Options passed to the onShowTablePopover callback
  */
 export interface ShowTablePopoverOptions {
 	/** Position in viewport where popover should appear */
-	position: TablePopoverPosition;
+	position: CursorViewportPosition;
 	/** Callback to complete the table insertion with specified dimensions */
 	onSubmit: (rows: number, cols: number) => void;
 	/** Callback to cancel the operation */
@@ -93,33 +86,6 @@ export interface UseTablesReturn {
 	handleTableTab: (shift: boolean) => boolean;
 	/** Handle Enter key in table - returns true if handled */
 	handleTableEnter: () => boolean;
-}
-
-/**
- * Get the cursor position in viewport coordinates
- */
-function getCursorPosition(): TablePopoverPosition {
-	const selection = window.getSelection();
-	if (!selection || !selection.rangeCount) {
-		return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-	}
-
-	const range = selection.getRangeAt(0);
-	const rect = range.getBoundingClientRect();
-
-	// If rect has no dimensions (collapsed cursor), use the start position
-	if (rect.width === 0 && rect.height === 0) {
-		return {
-			x: rect.left || window.innerWidth / 2,
-			y: rect.bottom || window.innerHeight / 2
-		};
-	}
-
-	// Center horizontally on the selection, position below
-	return {
-		x: rect.left + (rect.width / 2),
-		y: rect.bottom
-	};
 }
 
 /**
@@ -336,13 +302,6 @@ function selectCellContent(cell: HTMLTableCellElement): void {
 }
 
 /**
- * Dispatch an input event to trigger content sync
- */
-function dispatchInputEvent(element: HTMLElement): void {
-	element.dispatchEvent(new InputEvent("input", { bubbles: true }));
-}
-
-/**
  * Get the current selection range if valid
  */
 function getCurrentSelectionRange(): Range | null {
@@ -395,29 +354,7 @@ function setColumnAlignment(table: HTMLTableElement, colIndex: number, alignment
 export function useTables(options: UseTablesOptions): UseTablesReturn {
 	const { contentRef, onContentChange, onShowTablePopover } = options;
 
-	// Store the selection range so we can restore it after popover interaction
-	let savedRange: Range | null = null;
-
-	/**
-	 * Save the current selection for later restoration
-	 */
-	function saveSelection(): void {
-		const selection = window.getSelection();
-		if (selection && selection.rangeCount > 0) {
-			savedRange = selection.getRangeAt(0).cloneRange();
-		}
-	}
-
-	/**
-	 * Restore the previously saved selection
-	 */
-	function restoreSelection(): void {
-		if (savedRange) {
-			const selection = window.getSelection();
-			selection?.removeAllRanges();
-			selection?.addRange(savedRange);
-		}
-	}
+	const { save: saveSelection, restore: restoreSelection } = createSelectionManager();
 
 	/**
 	 * Check if cursor is inside a table
@@ -480,7 +417,7 @@ export function useTables(options: UseTablesOptions): UseTablesReturn {
 		if (!contentRef.value) return;
 
 		saveSelection();
-		const position = getCursorPosition();
+		const position = getCursorViewportPosition();
 
 		if (onShowTablePopover) {
 			onShowTablePopover({

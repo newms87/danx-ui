@@ -4,17 +4,7 @@
  * Uses character-by-character tokenization for accurate parsing
  */
 
-/**
- * Escape HTML entities to prevent XSS
- */
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+import { escapeHtml } from "../escapeHtml";
 
 /**
  * CSS parsing context states

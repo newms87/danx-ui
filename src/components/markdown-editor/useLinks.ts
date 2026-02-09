@@ -1,19 +1,13 @@
 import { Ref } from "vue";
-
-/**
- * Position for link popover
- */
-export interface LinkPopoverPosition {
-	x: number;
-	y: number;
-}
+import { CursorViewportPosition, createSelectionManager, dispatchInputEvent, getCursorViewportPosition } from "./cursorUtils";
+import { findLinkAncestor } from "./blockUtils";
 
 /**
  * Options passed to the onShowLinkPopover callback
  */
 export interface ShowLinkPopoverOptions {
 	/** Position in viewport where popover should appear */
-	position: LinkPopoverPosition;
+	position: CursorViewportPosition;
 	/** If editing an existing link, the current URL */
 	existingUrl?: string;
 	/** If text is selected, the selected text (for label preview) */
@@ -45,85 +39,12 @@ export interface UseLinksReturn {
 }
 
 /**
- * Find the anchor element ancestor if one exists
- */
-function findLinkAncestor(node: Node | null, contentRef: HTMLElement): HTMLAnchorElement | null {
-	if (!node) return null;
-
-	let current: Node | null = node;
-	while (current && current !== contentRef) {
-		if (current.nodeType === Node.ELEMENT_NODE && (current as Element).tagName === "A") {
-			return current as HTMLAnchorElement;
-		}
-		current = current.parentNode;
-	}
-
-	return null;
-}
-
-/**
- * Dispatch an input event to trigger content sync
- */
-function dispatchInputEvent(element: HTMLElement): void {
-	element.dispatchEvent(new InputEvent("input", { bubbles: true }));
-}
-
-/**
- * Get the cursor position in viewport coordinates
- */
-function getCursorPosition(): LinkPopoverPosition {
-	const selection = window.getSelection();
-	if (!selection || !selection.rangeCount) {
-		return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-	}
-
-	const range = selection.getRangeAt(0);
-	const rect = range.getBoundingClientRect();
-
-	// If rect has no dimensions (collapsed cursor), use the start position
-	if (rect.width === 0 && rect.height === 0) {
-		return {
-			x: rect.left || window.innerWidth / 2,
-			y: rect.bottom || window.innerHeight / 2
-		};
-	}
-
-	// Center horizontally on the selection, position below
-	return {
-		x: rect.left + (rect.width / 2),
-		y: rect.bottom
-	};
-}
-
-/**
  * Composable for link operations in markdown editor
  */
 export function useLinks(options: UseLinksOptions): UseLinksReturn {
 	const { contentRef, onContentChange, onShowLinkPopover } = options;
 
-	// Store the selection range so we can restore it after popover interaction
-	let savedRange: Range | null = null;
-
-	/**
-	 * Save the current selection for later restoration
-	 */
-	function saveSelection(): void {
-		const selection = window.getSelection();
-		if (selection && selection.rangeCount > 0) {
-			savedRange = selection.getRangeAt(0).cloneRange();
-		}
-	}
-
-	/**
-	 * Restore the previously saved selection
-	 */
-	function restoreSelection(): void {
-		if (savedRange) {
-			const selection = window.getSelection();
-			selection?.removeAllRanges();
-			selection?.addRange(savedRange);
-		}
-	}
+	const { save: saveSelection, restore: restoreSelection } = createSelectionManager();
 
 	/**
 	 * Check if the cursor is currently inside a link
@@ -178,7 +99,7 @@ export function useLinks(options: UseLinksOptions): UseLinksReturn {
 	 */
 	function showEditLinkPopover(link: HTMLAnchorElement): void {
 		const currentHref = link.getAttribute("href") || "";
-		const position = getCursorPosition();
+		const position = getCursorViewportPosition();
 
 		if (onShowLinkPopover) {
 			onShowLinkPopover({
@@ -238,7 +159,7 @@ export function useLinks(options: UseLinksOptions): UseLinksReturn {
 	 */
 	function showWrapSelectionPopover(range: Range): void {
 		const selectedText = range.toString();
-		const position = getCursorPosition();
+		const position = getCursorViewportPosition();
 
 		if (onShowLinkPopover) {
 			onShowLinkPopover({
@@ -304,7 +225,7 @@ export function useLinks(options: UseLinksOptions): UseLinksReturn {
 	 * Show popover to insert a new link (URL and label)
 	 */
 	function showNewLinkPopover(_range: Range): void {
-		const position = getCursorPosition();
+		const position = getCursorViewportPosition();
 
 		if (onShowLinkPopover) {
 			onShowLinkPopover({

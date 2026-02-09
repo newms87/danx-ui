@@ -413,17 +413,4 @@ describe("useBlockquotes", () => {
 		});
 	});
 
-	describe("return type", () => {
-		beforeEach(() => {
-			onContentChange = vi.fn();
-			editor = createTestEditor("<p>test</p>");
-		});
-
-		it("returns both functions", () => {
-			const blockquotes = createBlockquotes();
-
-			expect(typeof blockquotes.toggleBlockquote).toBe("function");
-			expect(typeof blockquotes.isInBlockquote).toBe("function");
-		});
-	});
 });

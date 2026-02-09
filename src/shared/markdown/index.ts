@@ -32,6 +32,7 @@
 
 // Re-export HTML to Markdown converter
 export { htmlToMarkdown, escapeMarkdownChars } from "./htmlToMarkdown";
+export type { CustomElementProcessor, HtmlToMarkdownOptions } from "./htmlToMarkdown";
 export {
   convertHeading,
   isHeadingElement,

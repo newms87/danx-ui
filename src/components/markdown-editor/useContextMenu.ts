@@ -44,6 +44,24 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
 	}
 
 	/**
+	 * Build the Format submenu items (bold, italic, strikethrough, inline code, link).
+	 * Shared across table, list, and text contexts since inline formatting is always available.
+	 */
+	function buildFormatSubmenu(): ContextMenuItem {
+		return {
+			id: "format",
+			label: "Format",
+			children: [
+				{ id: "bold", label: "Bold", shortcut: "Ctrl+B", action: () => editor.inlineFormatting.toggleBold() },
+				{ id: "italic", label: "Italic", shortcut: "Ctrl+I", action: () => editor.inlineFormatting.toggleItalic() },
+				{ id: "strikethrough", label: "Strikethrough", shortcut: "Ctrl+Shift+S", action: () => editor.inlineFormatting.toggleStrikethrough() },
+				{ id: "inline-code", label: "Inline Code", shortcut: "Ctrl+E", action: () => editor.inlineFormatting.toggleInlineCode() },
+				{ id: "link", label: "Link", shortcut: "Ctrl+K", action: () => editor.links.insertLink() }
+			]
+		};
+	}
+
+	/**
 	 * Build context menu items with nested submenus based on the current context.
 	 *
 	 * Menu items are filtered based on markdown spec constraints:
@@ -72,43 +90,7 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
 		// Tables cannot contain block-level elements (headings, code blocks, blockquotes, lists, nested tables)
 		// Table operations are unnested since this context is already limited to tables
 		if (context === "table") {
-			// Format submenu (inline only - keep nested)
-			menuItems.push({
-				id: "format",
-				label: "Format",
-				children: [
-					{
-						id: "bold",
-						label: "Bold",
-						shortcut: "Ctrl+B",
-						action: () => editor.inlineFormatting.toggleBold()
-					},
-					{
-						id: "italic",
-						label: "Italic",
-						shortcut: "Ctrl+I",
-						action: () => editor.inlineFormatting.toggleItalic()
-					},
-					{
-						id: "strikethrough",
-						label: "Strikethrough",
-						shortcut: "Ctrl+Shift+S",
-						action: () => editor.inlineFormatting.toggleStrikethrough()
-					},
-					{
-						id: "inline-code",
-						label: "Inline Code",
-						shortcut: "Ctrl+E",
-						action: () => editor.inlineFormatting.toggleInlineCode()
-					},
-					{
-						id: "link",
-						label: "Link",
-						shortcut: "Ctrl+K",
-						action: () => editor.links.insertLink()
-					}
-				]
-			});
+			menuItems.push(buildFormatSubmenu());
 
 			// Table operations - unnested as top-level items with dividers between groups
 			// Divider after Format submenu
@@ -197,43 +179,7 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
 		// In lists, show inline formatting, list operations, and blockquote
 		// Lists cannot contain headings, tables, or code blocks inside list items
 		if (context === "list") {
-			// Format submenu (inline formatting)
-			menuItems.push({
-				id: "format",
-				label: "Format",
-				children: [
-					{
-						id: "bold",
-						label: "Bold",
-						shortcut: "Ctrl+B",
-						action: () => editor.inlineFormatting.toggleBold()
-					},
-					{
-						id: "italic",
-						label: "Italic",
-						shortcut: "Ctrl+I",
-						action: () => editor.inlineFormatting.toggleItalic()
-					},
-					{
-						id: "strikethrough",
-						label: "Strikethrough",
-						shortcut: "Ctrl+Shift+S",
-						action: () => editor.inlineFormatting.toggleStrikethrough()
-					},
-					{
-						id: "inline-code",
-						label: "Inline Code",
-						shortcut: "Ctrl+E",
-						action: () => editor.inlineFormatting.toggleInlineCode()
-					},
-					{
-						id: "link",
-						label: "Link",
-						shortcut: "Ctrl+K",
-						action: () => editor.links.insertLink()
-					}
-				]
-			});
+			menuItems.push(buildFormatSubmenu());
 
 			// Lists submenu (toggle between bullet/numbered)
 			menuItems.push({
@@ -323,43 +269,7 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
 			]
 		});
 
-		// Format submenu
-		menuItems.push({
-			id: "format",
-			label: "Format",
-			children: [
-				{
-					id: "bold",
-					label: "Bold",
-					shortcut: "Ctrl+B",
-					action: () => editor.inlineFormatting.toggleBold()
-				},
-				{
-					id: "italic",
-					label: "Italic",
-					shortcut: "Ctrl+I",
-					action: () => editor.inlineFormatting.toggleItalic()
-				},
-				{
-					id: "strikethrough",
-					label: "Strikethrough",
-					shortcut: "Ctrl+Shift+S",
-					action: () => editor.inlineFormatting.toggleStrikethrough()
-				},
-				{
-					id: "inline-code",
-					label: "Inline Code",
-					shortcut: "Ctrl+E",
-					action: () => editor.inlineFormatting.toggleInlineCode()
-				},
-				{
-					id: "link",
-					label: "Link",
-					shortcut: "Ctrl+K",
-					action: () => editor.links.insertLink()
-				}
-			]
-		});
+		menuItems.push(buildFormatSubmenu());
 
 		// Lists submenu
 		menuItems.push({

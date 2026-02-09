@@ -6,6 +6,21 @@
 import { convertHeading, isHeadingElement } from "./convertHeadings";
 
 /**
+ * Custom element processor for extending htmlToMarkdown.
+ * If the processor returns a string, that string is used as the markdown for the element.
+ * If it returns null, the default processing is used.
+ */
+export type CustomElementProcessor = (element: Element) => string | null;
+
+/**
+ * Options for htmlToMarkdown
+ */
+export interface HtmlToMarkdownOptions {
+  /** Optional processor for custom element types (e.g., code block wrappers, token wrappers) */
+  customElementProcessor?: CustomElementProcessor;
+}
+
+/**
  * Characters that have special meaning in markdown and may need escaping
  */
 const MARKDOWN_SPECIAL_CHARS = /([\\`*_{}[\]()#+\-.!])/g;
@@ -232,7 +247,7 @@ function processTable(table: Element): string {
 /**
  * Convert a single node to markdown
  */
-function processNode(node: Node): string {
+function processNode(node: Node, customProcessor?: CustomElementProcessor): string {
   const parts: string[] = [];
 
   for (const child of Array.from(node.childNodes)) {
@@ -242,6 +257,15 @@ function processNode(node: Node): string {
     } else if (child.nodeType === Node.ELEMENT_NODE) {
       const element = child as Element;
       const tagName = element.tagName.toLowerCase();
+
+      // Try custom processor first — allows callers to handle special elements
+      if (customProcessor) {
+        const result = customProcessor(element);
+        if (result !== null) {
+          parts.push(result);
+          continue;
+        }
+      }
 
       // Handle headings
       if (isHeadingElement(element)) {
@@ -301,7 +325,7 @@ function processNode(node: Node): string {
 
         // Blockquotes
         case "blockquote": {
-          const content = processNode(element).trim();
+          const content = processNode(element, customProcessor).trim();
           const quotedLines = content
             .split("\n")
             .map((line) => `> ${line}`)
@@ -392,7 +416,7 @@ function processNode(node: Node): string {
             const language = mountPoint?.getAttribute("data-language") || "";
             parts.push(`\`\`\`${language}\n${content}\n\`\`\`\n\n`);
           } else {
-            parts.push(processNode(element));
+            parts.push(processNode(element, customProcessor));
           }
           break;
         }
@@ -409,7 +433,7 @@ function processNode(node: Node): string {
           }
           // Default: process children
           else {
-            parts.push(processNode(element));
+            parts.push(processNode(element, customProcessor));
           }
           break;
         }
@@ -421,7 +445,7 @@ function processNode(node: Node): string {
 
         default:
           // Unknown elements - just get text content
-          parts.push(processNode(element));
+          parts.push(processNode(element, customProcessor));
       }
     }
   }
@@ -430,11 +454,15 @@ function processNode(node: Node): string {
 }
 
 /**
- * Convert HTML content to markdown
+ * Convert HTML content to markdown.
+ * Supports custom element processing via options.customElementProcessor for
+ * handling application-specific elements (e.g., code block wrappers with reactive state,
+ * custom token wrappers).
  * @param html - HTML string or HTMLElement
+ * @param options - Optional configuration
  * @returns Markdown string
  */
-export function htmlToMarkdown(html: string | HTMLElement): string {
+export function htmlToMarkdown(html: string | HTMLElement, options?: HtmlToMarkdownOptions): string {
   let container: HTMLElement;
 
   if (typeof html === "string") {
@@ -445,7 +473,7 @@ export function htmlToMarkdown(html: string | HTMLElement): string {
     container = html;
   }
 
-  const markdown = processNode(container);
+  const markdown = processNode(container, options?.customElementProcessor);
 
   // Clean up extra whitespace - normalize multiple newlines to max 2
   // Also strip any remaining zero-width spaces as a safety net

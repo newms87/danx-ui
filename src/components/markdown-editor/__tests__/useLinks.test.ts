@@ -378,17 +378,4 @@ describe("useLinks", () => {
 		});
 	});
 
-	describe("return type", () => {
-		beforeEach(() => {
-			onContentChange = vi.fn();
-			editor = createTestEditor("<p>test</p>");
-		});
-
-		it("returns insertLink and isInLink functions", () => {
-			const links = createLinks();
-
-			expect(typeof links.insertLink).toBe("function");
-			expect(typeof links.isInLink).toBe("function");
-		});
-	});
 });

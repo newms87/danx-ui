@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
+import { findLinkAncestor } from "./blockUtils";
 
 export interface MarkdownEditorContentProps {
   html: string;
@@ -61,23 +62,6 @@ watch(() => props.html, () => {
 }, { immediate: true });
 
 /**
- * Find the anchor element if the click target is inside one
- */
-function findLinkAncestor(node: Node | null): HTMLAnchorElement | null {
-  if (!node || !containerRef.value) return null;
-
-  let current: Node | null = node;
-  while (current && current !== containerRef.value) {
-    if (current.nodeType === Node.ELEMENT_NODE && (current as Element).tagName === "A") {
-      return current as HTMLAnchorElement;
-    }
-    current = current.parentNode;
-  }
-
-  return null;
-}
-
-/**
  * Handle clicks in the editor content.
  * Ctrl+Click (or Cmd+Click on Mac) opens links in a new tab.
  */
@@ -87,7 +71,8 @@ function handleClick(event: MouseEvent): void {
   if (!isModifierHeld) return;
 
   // Find if the click was on or inside a link
-  const link = findLinkAncestor(event.target as Node);
+  if (!containerRef.value) return;
+  const link = findLinkAncestor(event.target as Node, containerRef.value);
   if (!link) return;
 
   const href = link.getAttribute("href");

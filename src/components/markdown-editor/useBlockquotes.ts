@@ -1,4 +1,5 @@
 import { Ref } from "vue";
+import { getCursorOffset, setCursorOffset } from "./cursorUtils";
 
 /**
  * Options for useBlockquotes composable
@@ -58,54 +59,6 @@ function findBlockquoteAncestor(node: Node | null, contentRef: HTMLElement): HTM
 	}
 
 	return null;
-}
-
-/**
- * Get the cursor offset within a block element's text content
- */
-function getCursorOffset(element: HTMLElement): number {
-	const selection = window.getSelection();
-	if (!selection || !selection.rangeCount) return 0;
-
-	const range = selection.getRangeAt(0);
-	const preCaretRange = document.createRange();
-	preCaretRange.selectNodeContents(element);
-	preCaretRange.setEnd(range.startContainer, range.startOffset);
-
-	return preCaretRange.toString().length;
-}
-
-/**
- * Set cursor to a specific offset within an element's text content
- */
-function setCursorOffset(element: HTMLElement, targetOffset: number): void {
-	const selection = window.getSelection();
-	if (!selection) return;
-
-	let currentOffset = 0;
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	let node = walker.nextNode();
-
-	while (node) {
-		const nodeLength = node.textContent?.length || 0;
-		if (currentOffset + nodeLength >= targetOffset) {
-			const range = document.createRange();
-			range.setStart(node, targetOffset - currentOffset);
-			range.collapse(true);
-			selection.removeAllRanges();
-			selection.addRange(range);
-			return;
-		}
-		currentOffset += nodeLength;
-		node = walker.nextNode();
-	}
-
-	// If offset not found, place cursor at end
-	const range = document.createRange();
-	range.selectNodeContents(element);
-	range.collapse(false);
-	selection.removeAllRanges();
-	selection.addRange(range);
 }
 
 /**

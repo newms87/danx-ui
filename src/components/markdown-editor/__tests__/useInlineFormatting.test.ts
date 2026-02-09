@@ -688,19 +688,4 @@ describe("useInlineFormatting", () => {
 		});
 	});
 
-	describe("return type", () => {
-		beforeEach(() => {
-			onContentChange = vi.fn();
-			editor = createTestEditor("<p>test</p>");
-		});
-
-		it("returns all four toggle functions", () => {
-			const formatting = createFormatting();
-
-			expect(typeof formatting.toggleBold).toBe("function");
-			expect(typeof formatting.toggleItalic).toBe("function");
-			expect(typeof formatting.toggleStrikethrough).toBe("function");
-			expect(typeof formatting.toggleInlineCode).toBe("function");
-		});
-	});
 });

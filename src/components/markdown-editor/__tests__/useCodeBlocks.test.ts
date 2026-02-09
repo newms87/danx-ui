@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { useCodeBlocks, CURSOR_ANCHOR } from "../useCodeBlocks";
+import { useCodeBlocks } from "../useCodeBlocks";
 import { useMarkdownSelection } from "../useMarkdownSelection";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 import { htmlToMarkdown } from "../../../shared/markdown/htmlToMarkdown";
@@ -28,7 +28,6 @@ describe("useCodeBlocks", () => {
 
 	/**
 	 * Helper to verify code block wrapper structure
-	 * The new implementation creates wrapper divs with mount points instead of <pre><code>
 	 */
 	function expectCodeBlockWrapper(content: string, language = "") {
 		const wrapper = editor.container.querySelector(".code-block-wrapper");
@@ -40,6 +39,30 @@ describe("useCodeBlocks", () => {
 		expect(mountPoint).not.toBeNull();
 		expect(mountPoint?.getAttribute("data-content")).toBe(content);
 		expect(mountPoint?.getAttribute("data-language")).toBe(language);
+	}
+
+	/**
+	 * Create a code block wrapper in the editor DOM and register it in state.
+	 * Returns the code block ID.
+	 */
+	function createWrapperCodeBlock(codeBlocks: ReturnType<typeof createCodeBlocks>, content: string, language = ""): string {
+		const id = `cb-test-${Math.random().toString(36).slice(2)}`;
+		const wrapper = document.createElement("div");
+		wrapper.className = "code-block-wrapper";
+		wrapper.setAttribute("contenteditable", "false");
+		wrapper.setAttribute("data-code-block-id", id);
+
+		const mountPoint = document.createElement("div");
+		mountPoint.className = "code-viewer-mount-point";
+		mountPoint.setAttribute("data-content", content);
+		mountPoint.setAttribute("data-language", language);
+		wrapper.appendChild(mountPoint);
+
+		editor.container.innerHTML = "";
+		editor.container.appendChild(wrapper);
+
+		codeBlocks.registerCodeBlock(id, content, language);
+		return id;
 	}
 
 	describe("toggleCodeBlock", () => {
@@ -92,12 +115,19 @@ describe("useCodeBlocks", () => {
 		});
 
 		it("converts code block back to paragraph", () => {
-			editor = createTestEditor("<pre><code>Hello world</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			// Set cursor inside the code element
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5);
+			const id = createWrapperCodeBlock(codeBlocks, "Hello world");
+
+			// Set cursor inside the wrapper
+			const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			codeBlocks.toggleCodeBlock();
@@ -117,11 +147,19 @@ describe("useCodeBlocks", () => {
 		});
 
 		it("preserves content when toggling from code block", () => {
-			editor = createTestEditor("<pre><code>const x = 1;</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
+			const id = createWrapperCodeBlock(codeBlocks, "const x = 1;");
+
+			// Set cursor inside the wrapper
+			const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			codeBlocks.toggleCodeBlock();
@@ -327,12 +365,20 @@ describe("useCodeBlocks", () => {
 			onContentChange = vi.fn();
 		});
 
-		it("returns true when cursor is in code block", () => {
-			editor = createTestEditor("<pre><code>Hello world</code></pre>");
+		it("returns true when cursor is in code block wrapper", () => {
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5);
+			createWrapperCodeBlock(codeBlocks, "Hello world");
+
+			// Set cursor inside the wrapper
+			const wrapper = editor.container.querySelector(".code-block-wrapper");
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			expect(codeBlocks.isInCodeBlock()).toBe(true);
@@ -380,22 +426,36 @@ describe("useCodeBlocks", () => {
 		});
 
 		it("returns language when in code block with language", () => {
-			editor = createTestEditor("<pre><code class=\"language-javascript\">const x = 1;</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
+			createWrapperCodeBlock(codeBlocks, "const x = 1;", "javascript");
+
+			const wrapper = editor.container.querySelector(".code-block-wrapper");
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			expect(codeBlocks.getCurrentCodeBlockLanguage()).toBe("javascript");
 		});
 
 		it("returns empty string when in code block without language", () => {
-			editor = createTestEditor("<pre><code>const x = 1;</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
+			createWrapperCodeBlock(codeBlocks, "const x = 1;", "");
+
+			const wrapper = editor.container.querySelector(".code-block-wrapper");
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			expect(codeBlocks.getCurrentCodeBlockLanguage()).toBe("");
@@ -413,11 +473,18 @@ describe("useCodeBlocks", () => {
 			const languages = ["python", "typescript", "rust", "go", "java", "css", "html"];
 
 			for (const lang of languages) {
-				editor = createTestEditor(`<pre><code class="language-${lang}">code</code></pre>`);
+				editor = createTestEditor("<p>placeholder</p>");
 				const codeBlocks = createCodeBlocks();
-				const code = editor.container.querySelector("code");
-				if (code?.firstChild) {
-					editor.setCursor(code.firstChild, 0);
+				createWrapperCodeBlock(codeBlocks, "code", lang);
+
+				const wrapper = editor.container.querySelector(".code-block-wrapper");
+				if (wrapper) {
+					const range = document.createRange();
+					range.selectNodeContents(wrapper);
+					range.collapse(true);
+					const sel = window.getSelection();
+					sel?.removeAllRanges();
+					sel?.addRange(range);
 				}
 
 				expect(codeBlocks.getCurrentCodeBlockLanguage()).toBe(lang);
@@ -432,44 +499,68 @@ describe("useCodeBlocks", () => {
 		});
 
 		it("sets language on code block without existing language", () => {
-			editor = createTestEditor("<pre><code>const x = 1;</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
+			const id = createWrapperCodeBlock(codeBlocks, "const x = 1;", "");
+
+			const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			codeBlocks.setCodeBlockLanguage("javascript");
 
-			expect(editor.getHtml()).toBe("<pre><code class=\"language-javascript\">const x = 1;</code></pre>");
+			const state = codeBlocks.getCodeBlockById(id);
+			expect(state?.language).toBe("javascript");
 			expect(onContentChange).toHaveBeenCalled();
 		});
 
 		it("replaces existing language", () => {
-			editor = createTestEditor("<pre><code class=\"language-javascript\">const x = 1;</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
+			const id = createWrapperCodeBlock(codeBlocks, "const x = 1;", "javascript");
+
+			const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			codeBlocks.setCodeBlockLanguage("typescript");
 
-			expect(editor.getHtml()).toBe("<pre><code class=\"language-typescript\">const x = 1;</code></pre>");
+			const state = codeBlocks.getCodeBlockById(id);
+			expect(state?.language).toBe("typescript");
 			expect(onContentChange).toHaveBeenCalled();
 		});
 
 		it("removes language when set to empty string", () => {
-			editor = createTestEditor("<pre><code class=\"language-javascript\">const x = 1;</code></pre>");
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
+			const id = createWrapperCodeBlock(codeBlocks, "const x = 1;", "javascript");
+
+			const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			codeBlocks.setCodeBlockLanguage("");
 
-			expect(editor.getHtml()).toBe("<pre><code>const x = 1;</code></pre>");
+			const state = codeBlocks.getCodeBlockById(id);
+			expect(state?.language).toBe("");
 			expect(onContentChange).toHaveBeenCalled();
 		});
 
@@ -482,22 +573,6 @@ describe("useCodeBlocks", () => {
 
 			expect(editor.getHtml()).toBe("<p>Hello world</p>");
 			expect(onContentChange).not.toHaveBeenCalled();
-		});
-
-		it("preserves other classes when setting language", () => {
-			editor = createTestEditor("<pre><code class=\"highlight other-class\">code</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 0);
-			}
-
-			codeBlocks.setCodeBlockLanguage("python");
-
-			const resultCode = editor.container.querySelector("code");
-			expect(resultCode?.className).toContain("highlight");
-			expect(resultCode?.className).toContain("other-class");
-			expect(resultCode?.className).toContain("language-python");
 		});
 	});
 
@@ -517,216 +592,25 @@ describe("useCodeBlocks", () => {
 			expect(onContentChange).not.toHaveBeenCalled();
 		});
 
-		it("inserts newline when Enter is pressed inside code block", () => {
-			editor = createTestEditor("<pre><code>line1</code></pre>");
+		it("returns false for wrapper-based code blocks (CodeViewer handles Enter internally)", () => {
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5); // At end of "line1"
+			createWrapperCodeBlock(codeBlocks, "some code");
+
+			const wrapper = editor.container.querySelector(".code-block-wrapper");
+			if (wrapper) {
+				const range = document.createRange();
+				range.selectNodeContents(wrapper);
+				range.collapse(true);
+				const sel = window.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
 			}
 
 			const handled = codeBlocks.handleCodeBlockEnter();
 
-			expect(handled).toBe(true);
-			// The code block should still exist with a newline inserted
-			const codeElement = editor.container.querySelector("code");
-			expect(codeElement).not.toBeNull();
-			expect(codeElement?.textContent).toContain("\n");
-			expect(onContentChange).toHaveBeenCalled();
-		});
-
-		it("inserts newline in middle of code content", () => {
-			editor = createTestEditor("<pre><code>HelloWorld</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5); // After "Hello"
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			const codeElement = editor.container.querySelector("code");
-			expect(codeElement?.textContent).toContain("\n");
-			expect(onContentChange).toHaveBeenCalled();
-		});
-
-		it("exits code block and creates paragraph after three consecutive Enters at end", () => {
-			// Simulate content that already has two newlines at the end (user pressed Enter twice)
-			editor = createTestEditor("<pre><code>some code\n\n</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				// Position cursor at the very end
-				editor.setCursor(code.firstChild, code.firstChild.textContent?.length || 0);
-			}
-
-			const handled = codeBlocks.handleCodeBlockEnter();
-
-			expect(handled).toBe(true);
-			// Should have created a paragraph after the code block
-			const paragraph = editor.container.querySelector("p");
-			expect(paragraph).not.toBeNull();
-			// The code block should have the trailing newlines removed
-			const codeElement = editor.container.querySelector("code");
-			expect(codeElement?.textContent?.endsWith("\n\n")).toBe(false);
-			expect(onContentChange).toHaveBeenCalled();
-		});
-
-		it("does not exit code block when double newline is not at cursor position", () => {
-			// Content has double newline at end, but cursor is in the middle
-			editor = createTestEditor("<pre><code>line1\n\nline2</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5); // After "line1", before first newline
-			}
-
-			const handled = codeBlocks.handleCodeBlockEnter();
-
-			expect(handled).toBe(true);
-			// Should NOT create a paragraph - just insert a newline
-			const paragraph = editor.container.querySelector("p");
-			expect(paragraph).toBeNull();
-			expect(onContentChange).toHaveBeenCalled();
-		});
-
-		it("handles empty code block correctly", () => {
-			editor = createTestEditor(`<pre><code>${CURSOR_ANCHOR}</code></pre>`);
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 1); // After cursor anchor
-			}
-
-			const handled = codeBlocks.handleCodeBlockEnter();
-
-			expect(handled).toBe(true);
-			expect(onContentChange).toHaveBeenCalled();
-		});
-
-		it("preserves code block content when exiting", () => {
-			editor = createTestEditor("<pre><code>const x = 1;\nconst y = 2;\n\n</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, code.firstChild.textContent?.length || 0);
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			const codeElement = editor.container.querySelector("code");
-			// Content should have trailing newlines removed but rest preserved
-			expect(codeElement?.textContent).toBe("const x = 1;\nconst y = 2;");
-		});
-
-		it("positions cursor in new paragraph after exiting code block", () => {
-			editor = createTestEditor("<pre><code>code\n\n</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, code.firstChild.textContent?.length || 0);
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			// Verify cursor is in the new paragraph
-			const sel = window.getSelection();
-			expect(sel).not.toBeNull();
-			expect(sel?.rangeCount).toBe(1);
-
-			const paragraph = editor.container.querySelector("p");
-			expect(paragraph).not.toBeNull();
-		});
-
-		it("handles code block with language class when exiting", () => {
-			editor = createTestEditor("<pre><code class=\"language-javascript\">const x = 1;\n\n</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, code.firstChild.textContent?.length || 0);
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			// Code block should still have its language class
-			const codeElement = editor.container.querySelector("code");
-			expect(codeElement?.className).toContain("language-javascript");
-			// And paragraph should be created after
-			const paragraph = editor.container.querySelector("p");
-			expect(paragraph).not.toBeNull();
-		});
-
-		it("adds cursor anchor when inserting newline at end to make trailing newline visible", () => {
-			editor = createTestEditor("<pre><code>line1</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5); // At end of "line1"
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			// The code block should contain a cursor anchor (zero-width space) after the newline
-			const codeElement = editor.container.querySelector("code");
-			expect(codeElement?.textContent).toBe("line1\n" + CURSOR_ANCHOR);
-		});
-
-		it("removes old cursor anchor and adds new one when pressing Enter at end multiple times", () => {
-			// Start with content that already has a cursor anchor from previous Enter
-			editor = createTestEditor(`<pre><code>line1\n${CURSOR_ANCHOR}</code></pre>`);
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				// Position cursor after the newline, before the cursor anchor
-				editor.setCursor(code.firstChild, 6);
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			// Should have only one cursor anchor, not accumulate them
-			const codeElement = editor.container.querySelector("code");
-			const content = codeElement?.textContent || "";
-			const anchorCount = (content.match(/\u200B/g) || []).length;
-			expect(anchorCount).toBe(1);
-			// Content should be line1 + two newlines + cursor anchor
-			expect(content).toBe("line1\n\n" + CURSOR_ANCHOR);
-		});
-
-		it("does not add cursor anchor when inserting newline in the middle of code", () => {
-			editor = createTestEditor("<pre><code>HelloWorld</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5); // After "Hello"
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			// Should not have a cursor anchor since we inserted in the middle
-			const codeElement = editor.container.querySelector("code");
-			const content = codeElement?.textContent || "";
-			expect(content).not.toContain(CURSOR_ANCHOR);
-			expect(content).toBe("Hello\nWorld");
-		});
-
-		it("positions cursor correctly after inserting newline at end", () => {
-			editor = createTestEditor("<pre><code>line1</code></pre>");
-			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code?.firstChild) {
-				editor.setCursor(code.firstChild, 5); // At end of "line1"
-			}
-
-			codeBlocks.handleCodeBlockEnter();
-
-			// Cursor should be positioned after the newline, before the cursor anchor
-			const sel = window.getSelection();
-			expect(sel).not.toBeNull();
-			expect(sel?.rangeCount).toBe(1);
-
-			const range = sel?.getRangeAt(0);
-			// Cursor should be at offset 6 (after "line1\n", before cursor anchor)
-			expect(range?.startOffset).toBe(6);
+			expect(handled).toBe(false);
+			expect(onContentChange).not.toHaveBeenCalled();
 		});
 	});
 
@@ -735,13 +619,15 @@ describe("useCodeBlocks", () => {
 			onContentChange = vi.fn();
 		});
 
-		it("handles code block with empty code element", () => {
-			editor = createTestEditor("<pre><code></code></pre>");
+		it("handles empty code block wrapper", () => {
+			editor = createTestEditor("<p>placeholder</p>");
 			const codeBlocks = createCodeBlocks();
-			const code = editor.container.querySelector("code");
-			if (code) {
+			const id = createWrapperCodeBlock(codeBlocks, "");
+
+			const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+			if (wrapper) {
 				const range = document.createRange();
-				range.selectNodeContents(code);
+				range.selectNodeContents(wrapper);
 				range.collapse(true);
 				const sel = window.getSelection();
 				sel?.removeAllRanges();
@@ -751,18 +637,6 @@ describe("useCodeBlocks", () => {
 			codeBlocks.toggleCodeBlock();
 
 			expect(editor.getHtml()).toBe("<p></p>");
-		});
-
-		it("handles pre without code element", () => {
-			editor = createTestEditor("<pre>Hello world</pre>");
-			const codeBlocks = createCodeBlocks();
-			const pre = editor.container.querySelector("pre");
-			if (pre?.firstChild) {
-				editor.setCursor(pre.firstChild, 0);
-			}
-
-			// Should still detect as code block
-			expect(codeBlocks.isInCodeBlock()).toBe(true);
 		});
 
 		it("handles multiple blocks - only affects current block", () => {
