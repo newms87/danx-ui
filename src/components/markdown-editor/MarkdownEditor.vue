@@ -1,21 +1,55 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+/**
+ * MarkdownEditor - Rich markdown editing component with live preview
+ *
+ * A full-featured contenteditable markdown editor that renders markdown as styled HTML
+ * in real-time. Supports headings, lists, inline formatting, code blocks (with syntax
+ * highlighting via CodeViewer), tables, links, blockquotes, horizontal rules, and custom
+ * token renderers. Includes a context menu, hotkey help popover, and link/table insert
+ * popovers.
+ *
+ * @props
+ *   modelValue: string - The markdown content (use v-model, default: "")
+ *   placeholder?: string - Placeholder text when empty (default: "Start typing...")
+ *   readonly?: boolean - Disables editing (default: false)
+ *   minHeight?: string - Minimum height of editor content area (default: "100px")
+ *   maxHeight?: string - Maximum height of editor content area (default: "none")
+ *   theme?: "dark" | "light" - Visual theme (default: "dark")
+ *   hideFooter?: boolean - Hides the character count footer (default: false)
+ *   tokenRenderers?: TokenRenderer[] - Custom inline token renderers (default: [])
+ *
+ * @emits
+ *   update:modelValue - Emitted when editor content changes (via defineModel)
+ *
+ * @slots
+ *   badge - Overlay content positioned at top-right of editor (e.g., share button)
+ *
+ * @tokens
+ *   --dx-mde-min-height - Override minimum height via CSS
+ *   --dx-mde-max-height - Override maximum height via CSS
+ *
+ * @example
+ *   <MarkdownEditor v-model="markdown" placeholder="Write something..." />
+ *
+ * @example
+ *   <MarkdownEditor v-model="content" theme="light" :hide-footer="true">
+ *     <template #badge><ShareButton /></template>
+ *   </MarkdownEditor>
+ */
+import { computed, ref, watch } from "vue";
 import { useContextMenu } from "./useContextMenu";
 import { useFocusTracking } from "./useFocusTracking";
-import { useLineTypeMenu } from "./useLineTypeMenu";
 import { useLinkPopover, useTablePopover } from "./usePopoverManager";
 import { useMarkdownEditor } from "./useMarkdownEditor";
 import { TokenRenderer } from "./types";
 import ContextMenu from "./ContextMenu.vue";
 import HotkeyHelpPopover from "./HotkeyHelpPopover.vue";
-import LineTypeMenu from "./LineTypeMenu.vue";
 import LinkPopover from "./LinkPopover.vue";
 import MarkdownEditorContent from "./MarkdownEditorContent.vue";
 import MarkdownEditorFooter from "./MarkdownEditorFooter.vue";
 import TablePopover from "./TablePopover.vue";
 
 export interface MarkdownEditorProps {
-  modelValue?: string;
   placeholder?: string;
   readonly?: boolean;
   minHeight?: string;
@@ -24,11 +58,9 @@ export interface MarkdownEditorProps {
   hideFooter?: boolean;
   /** Custom token renderers for inline tokens like {{123}} */
   tokenRenderers?: TokenRenderer[];
-  configureApp?: (app: import("vue").App) => void;
 }
 
 const props = withDefaults(defineProps<MarkdownEditorProps>(), {
-  modelValue: "",
   placeholder: "Start typing...",
   readonly: false,
   minHeight: "100px",
@@ -38,18 +70,10 @@ const props = withDefaults(defineProps<MarkdownEditorProps>(), {
   tokenRenderers: () => [],
 });
 
-const emit = defineEmits<{
-  "update:modelValue": [value: string];
-}>();
+const modelValue = defineModel<string>({ default: "" });
 
-// Reference to the content component
-const contentRef = ref<InstanceType<typeof MarkdownEditorContent> | null>(null);
-
-// Reference to the menu container for focus handling
-const menuContainerRef = ref<HTMLElement | null>(null);
-
-// Get the actual HTMLElement from the content component
-const contentElementRef = computed(() => contentRef.value?.containerRef || null);
+// Reference to the contenteditable DOM element (received via container-mounted emit)
+const contentElementRef = ref<HTMLElement | null>(null);
 
 // Initialize popover managers
 const linkPopover = useLinkPopover();
@@ -58,9 +82,9 @@ const tablePopover = useTablePopover();
 // Initialize the markdown editor composable
 const editor = useMarkdownEditor({
   contentRef: contentElementRef,
-  initialValue: props.modelValue,
+  initialValue: modelValue.value,
   onEmitValue: (markdown: string) => {
-    emit("update:modelValue", markdown);
+    modelValue.value = markdown;
   },
   onShowLinkPopover: linkPopover.show,
   onShowTablePopover: tablePopover.show,
@@ -68,18 +92,7 @@ const editor = useMarkdownEditor({
 });
 
 // Initialize focus tracking
-const focusTracking = useFocusTracking({
-  contentRef: contentElementRef,
-  menuContainerRef,
-  onSelectionChange: () => lineTypeMenu.updatePositionAndState(),
-});
-
-// Initialize line type menu
-const lineTypeMenu = useLineTypeMenu({
-  contentRef: contentElementRef,
-  editor,
-  isEditorFocused: focusTracking.isEditorFocused,
-});
+useFocusTracking({ contentRef: contentElementRef });
 
 // Initialize context menu
 const contextMenu = useContextMenu({
@@ -87,44 +100,25 @@ const contextMenu = useContextMenu({
   readonly: computed(() => props.readonly),
 });
 
-// Setup line type menu listeners on mount
-onMounted(() => {
-  lineTypeMenu.setupListeners();
-});
-
-// Cleanup line type menu listeners on unmount
-onUnmounted(() => {
-  lineTypeMenu.cleanupListeners();
-});
-
 // Watch for external value changes
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    // Skip if this change originated from the editor itself (internal update)
-    // This prevents cursor jumping when the watch triggers after typing
-    if (editor.isInternalUpdate.value) {
-      editor.isInternalUpdate.value = false;
-      return;
-    }
-
-    // Only update if the value is different from current
-    if (newValue !== undefined) {
-      editor.setMarkdown(newValue);
-    }
+watch(modelValue, (newValue) => {
+  // Skip if this change originated from the editor itself (internal update)
+  // This prevents cursor jumping when the watch triggers after typing
+  if (editor.isInternalUpdate.value) {
+    editor.isInternalUpdate.value = false;
+    return;
   }
-);
+
+  // Only update if the value is different from current
+  if (newValue !== undefined) {
+    editor.setMarkdown(newValue);
+  }
+});
 
 // NOTE: Content is already initialized in useMarkdownEditor with initialValue.
 // The v-html binding renders it, and the MutationObserver mounts CodeViewers.
 // Calling setMarkdown again here would replace the DOM and cause race conditions
 // with CodeViewer mounting. Only call setMarkdown for external value changes.
-
-// Expose the editor for parent components that may need access
-defineExpose({
-  editor,
-  setMarkdown: editor.setMarkdown,
-});
 </script>
 
 <template>
@@ -133,26 +127,14 @@ defineExpose({
     :class="[{ 'is-readonly': readonly }, props.theme === 'light' ? 'theme-light' : '']"
   >
     <div class="dx-markdown-editor-body" @contextmenu="contextMenu.show">
-      <!-- Floating line type menu positioned next to current block -->
-      <div
-        ref="menuContainerRef"
-        class="dx-line-type-menu-container"
-        :style="lineTypeMenu.menuStyle.value"
-      >
-        <LineTypeMenu
-          :current-type="lineTypeMenu.currentLineType.value"
-          @change="lineTypeMenu.onLineTypeChange"
-        />
-      </div>
-
       <MarkdownEditorContent
-        ref="contentRef"
         :html="editor.renderedHtml.value"
         :readonly="readonly"
         :placeholder="placeholder"
         @input="editor.onInput"
         @keydown="editor.onKeyDown"
         @blur="editor.onBlur"
+        @container-mounted="(el: HTMLElement) => (contentElementRef = el)"
       />
 
       <!-- Badge slot for overlaying content (share button, etc.) -->
@@ -211,11 +193,7 @@ defineExpose({
   cursor: default;
 }
 
-.dx-markdown-editor.is-readonly .dx-line-type-menu-container {
-  display: none;
-}
-
-/* Body container with floating menu and content side by side */
+/* Body container for content */
 .dx-markdown-editor .dx-markdown-editor-body {
   display: flex;
   position: relative;
@@ -223,22 +201,7 @@ defineExpose({
   overflow: visible;
 }
 
-/* Floating line type menu container - positioned outside editor bounds */
-.dx-markdown-editor .dx-line-type-menu-container {
-  position: absolute;
-  left: -1.75rem;
-  z-index: 10;
-  width: 1.75rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 0.25rem;
-  transition:
-    top 0.1s ease-out,
-    opacity 0.15s ease;
-}
-
-/* Apply min/max height to content area (no left margin needed - menu is outside) */
+/* Apply min/max height to content area */
 .dx-markdown-editor .dx-markdown-editor-content {
   flex: 1;
   min-height: v-bind(minHeight);

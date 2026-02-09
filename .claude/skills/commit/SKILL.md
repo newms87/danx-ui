@@ -10,20 +10,22 @@ Stage and commit changes to git with a well-formatted commit message.
 
 ### Mode 1: `/commit now`
 
-Instant commit without showing a summary first. Use when you already know what changed.
+Single combined `git add <files> && git commit` operation.
 
 ### Mode 2: `/commit`
 
-Show a summary of changes, then commit. Use when you want to review before committing.
+`git add <files>` and `git commit` as two separate operations.
+
+That is the ONLY difference between modes. Both modes show the summary table. Both modes proceed immediately without asking questions. NEVER ask "Ready to commit?" or any confirmation — `/commit` IS the confirmation.
 
 ## Workflow
 
-1. Run `git status` to see all changes
-2. Run `git diff` to see the actual changes
-3. Run `git log --oneline -5` to see recent commit style
-4. (Mode 2 only) Show summary table and wait for confirmation
-5. Stage specific files with `git add <files>`
-6. Commit with HEREDOC format
+1. Run `git status`, `git diff`, and `git log --oneline -5` in parallel
+2. Show summary table
+3. Stage and commit:
+   - **Mode 1 (`/commit now`):** Single `git add <files> && git commit` call
+   - **Mode 2 (`/commit`):** `git add <files>` then `git commit` as separate calls
+4. Run `git status` to verify success
 
 ## Summary Table Format
 

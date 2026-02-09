@@ -166,13 +166,12 @@ describe("MarkdownEditorContent", () => {
     });
   });
 
-  describe("defineExpose", () => {
-    it("exposes containerRef", () => {
+  describe("container-mounted emit", () => {
+    it("emits container-mounted with HTMLElement on mount", () => {
       mountContent();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const vm = wrapper.vm as any;
-      expect(vm.containerRef).toBeDefined();
-      expect(vm.containerRef instanceof HTMLElement).toBe(true);
+      const emitted = wrapper.emitted("container-mounted");
+      expect(emitted).toHaveLength(1);
+      expect(emitted![0]![0]).toBeInstanceOf(HTMLElement);
     });
   });
 });

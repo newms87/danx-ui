@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
-import { nextTick, defineComponent, ref } from "vue";
+import { nextTick } from "vue";
 import MarkdownEditor from "../MarkdownEditor.vue";
 
 describe("MarkdownEditor", () => {
@@ -46,16 +46,6 @@ describe("MarkdownEditor", () => {
       mountEditor({ hideFooter: true });
       expect(wrapper.find(".dx-markdown-editor-footer").exists()).toBe(false);
     });
-
-    it("renders line type menu container", () => {
-      mountEditor();
-      expect(wrapper.find(".dx-line-type-menu-container").exists()).toBe(true);
-    });
-
-    it("renders LineTypeMenu component", () => {
-      mountEditor();
-      expect(wrapper.find(".dx-line-type-menu").exists()).toBe(true);
-    });
   });
 
   describe("props", () => {
@@ -76,12 +66,6 @@ describe("MarkdownEditor", () => {
     it("adds is-readonly class when readonly", () => {
       mountEditor({ readonly: true });
       expect(wrapper.find(".dx-markdown-editor.is-readonly").exists()).toBe(true);
-    });
-
-    it("hides line type menu when readonly", () => {
-      mountEditor({ readonly: true });
-      // The menu container should have display:none via CSS
-      expect(wrapper.find(".dx-line-type-menu-container").exists()).toBe(true);
     });
 
     it("applies theme-light class when theme is light", () => {
@@ -174,17 +158,6 @@ describe("MarkdownEditor", () => {
     it("does not show table popover initially", () => {
       mountEditor();
       expect(wrapper.find(".dx-table-popover-overlay").exists()).toBe(false);
-    });
-  });
-
-  describe("defineExpose", () => {
-    it("exposes editor through defineExpose", () => {
-      mountEditor();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const vm = wrapper.vm as any;
-      expect(vm.editor).toBeDefined();
-      expect(vm.setMarkdown).toBeDefined();
-      expect(typeof vm.setMarkdown).toBe("function");
     });
   });
 

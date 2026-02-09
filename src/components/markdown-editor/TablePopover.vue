@@ -1,4 +1,32 @@
 <script setup lang="ts">
+/**
+ * TablePopover - Modal for inserting tables with visual grid selector
+ *
+ * Provides a 5x5 visual grid for quick table size selection plus manual row/column
+ * inputs for larger tables (up to 20 rows, 10 columns). Positions itself near the
+ * cursor with viewport boundary detection.
+ *
+ * @props
+ *   position: PopoverPosition - x/y coordinates for positioning
+ *
+ * @emits
+ *   submit - Fired with (rows: number, cols: number) when the user confirms
+ *   cancel - Fired when the user cancels (overlay click, close button, Escape)
+ *
+ * @tokens
+ *   --dx-mde-popover-bg - Popover background (default: #2d2d2d)
+ *   --dx-mde-popover-border - Popover border color (default: #404040)
+ *   --dx-mde-grid-cell-bg - Grid cell background (default: #3a3a3a)
+ *   --dx-mde-grid-cell-selected - Selected grid cell color (default: #3b82f6)
+ *
+ * @example
+ *   <TablePopover
+ *     v-if="showTablePopover"
+ *     :position="{ x: 200, y: 300 }"
+ *     @submit="insertTable"
+ *     @cancel="closeTablePopover"
+ *   />
+ */
 import { XmarkIcon } from "./icons";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { PopoverPosition } from "./usePopoverManager";

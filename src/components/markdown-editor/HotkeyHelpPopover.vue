@@ -1,4 +1,28 @@
 <script setup lang="ts">
+/**
+ * HotkeyHelpPopover - Modal overlay displaying keyboard shortcut reference
+ *
+ * Shows all registered hotkeys grouped by category (headings, formatting, lists,
+ * blocks, tables, other) in a responsive grid. Closes on overlay click, close
+ * button click, or Escape key.
+ *
+ * @props
+ *   hotkeys: HotkeyDefinition[] - Array of hotkey definitions to display
+ *
+ * @emits
+ *   close - Fired when the popover should close (overlay click, close button, Escape)
+ *
+ * @tokens
+ *   --dx-mde-popover-bg - Popover background (default: #2d2d2d)
+ *   --dx-mde-popover-border - Popover border color (default: #404040)
+ *
+ * @example
+ *   <HotkeyHelpPopover
+ *     v-if="showHelp"
+ *     :hotkeys="hotkeyDefinitions"
+ *     @close="showHelp = false"
+ *   />
+ */
 import { computed, onMounted, ref } from "vue";
 import { XmarkIcon } from "./icons";
 import { HotkeyDefinition, HotkeyGroup } from "./useMarkdownHotkeys";

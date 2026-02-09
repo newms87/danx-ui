@@ -1,4 +1,32 @@
 <script setup lang="ts">
+/**
+ * ContextMenu - Right-click context menu with nested submenu support
+ *
+ * Displays a context-aware menu at the right-click position. Supports single-level
+ * nested submenus, disabled items, keyboard shortcuts display, and visual dividers.
+ * Submenus open to the right by default, or to the left when near the viewport edge.
+ *
+ * @props
+ *   position: PopoverPosition - x/y coordinates for menu placement
+ *   items: ContextMenuItem[] - Menu items to display (supports children for submenus)
+ *
+ * @emits
+ *   close - Fired when the menu should close (item click, overlay click, Escape)
+ *   action - Fired with the clicked ContextMenuItem before executing its action
+ *
+ * @tokens
+ *   --dx-mde-menu-bg - Menu background (default: #2d2d2d)
+ *   --dx-mde-menu-border - Menu border color (default: #404040)
+ *   --dx-mde-menu-item-hover - Item hover background (default: rgba(255,255,255,0.1))
+ *
+ * @example
+ *   <ContextMenu
+ *     v-if="contextMenu.isVisible"
+ *     :position="contextMenu.position"
+ *     :items="contextMenu.items"
+ *     @close="contextMenu.hide"
+ *   />
+ */
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { ContextMenuItem } from "./types";
 import type { PopoverPosition } from "./usePopoverManager";

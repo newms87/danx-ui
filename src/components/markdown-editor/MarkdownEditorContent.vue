@@ -1,5 +1,42 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+/**
+ * MarkdownEditorContent - Contenteditable container for the markdown editor
+ *
+ * Wraps a contenteditable div that displays rendered HTML from the markdown editor.
+ * Handles empty state detection for placeholder display, Ctrl+Click link opening,
+ * and forwards input/keydown/blur events to the parent editor.
+ *
+ * @props
+ *   html: string - The rendered HTML content to display
+ *   readonly?: boolean - Disables editing (default: false)
+ *   placeholder?: string - Placeholder text when content is empty (default: "Start typing...")
+ *
+ * @emits
+ *   input - Fired when content changes via user input
+ *   keydown - Fired on keydown with the KeyboardEvent
+ *   blur - Fired when the editor loses focus
+ *   container-mounted - Fired on mount with the contenteditable HTMLElement reference
+ *
+ * @tokens
+ *   --dx-mde-content-bg - Background color (default: #1e1e1e)
+ *   --dx-mde-content-color - Text color (default: #d4d4d4)
+ *   --dx-mde-content-border-focus - Border color on focus (default: rgba(86,156,214,0.6))
+ *   --dx-mde-content-border-hover - Border color on hover (default: rgba(86,156,214,0.3))
+ *   --dx-mde-content-caret - Caret color (default: #d4d4d4)
+ *   --dx-mde-placeholder-color - Placeholder text color (default: #6b7280)
+ *
+ * @example
+ *   <MarkdownEditorContent
+ *     :html="renderedHtml"
+ *     :readonly="false"
+ *     placeholder="Type here..."
+ *     @input="onInput"
+ *     @keydown="onKeyDown"
+ *     @blur="onBlur"
+ *     @container-mounted="(el) => (contentEl = el)"
+ *   />
+ */
+import { nextTick, onMounted, ref, watch } from "vue";
 import { findLinkAncestor } from "./blockUtils";
 
 export interface MarkdownEditorContentProps {
@@ -17,6 +54,7 @@ const emit = defineEmits<{
   input: [];
   keydown: [event: KeyboardEvent];
   blur: [];
+  "container-mounted": [element: HTMLElement];
 }>();
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -73,8 +111,12 @@ function handleClick(event: MouseEvent): void {
   window.open(href, "_blank", "noopener,noreferrer");
 }
 
-// Expose containerRef for parent component
-defineExpose({ containerRef });
+// Emit the container element on mount so the parent can pass it to composables
+onMounted(() => {
+  if (containerRef.value) {
+    emit("container-mounted", containerRef.value);
+  }
+});
 </script>
 
 <template>

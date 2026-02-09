@@ -7,34 +7,20 @@ import { useFocusTracking } from "../useFocusTracking";
  * Helper component that wraps useFocusTracking for testing.
  */
 const TestComponent = defineComponent({
-  props: {
-    onSelectionChange: {
-      type: Function,
-      default: undefined,
-    },
-    hasMenuContainer: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  setup(props) {
+  setup() {
     const contentRef = ref<HTMLElement | null>(null);
-    const menuContainerRef = ref<HTMLElement | null>(null);
 
     const { isEditorFocused } = useFocusTracking({
       contentRef,
-      menuContainerRef: props.hasMenuContainer ? menuContainerRef : undefined,
-      onSelectionChange: props.onSelectionChange as (() => void) | undefined,
     });
 
-    return { contentRef, menuContainerRef, isEditorFocused };
+    return { contentRef, isEditorFocused };
   },
   template: `
     <div>
       <div ref="contentRef" contenteditable="true" class="content">
         <p>Test content</p>
       </div>
-      <div v-if="hasMenuContainer" ref="menuContainerRef" class="menu">Menu</div>
       <div class="outside" tabindex="0">Outside</div>
     </div>
   `,
@@ -109,26 +95,6 @@ describe("useFocusTracking", () => {
     expect(wrapper.vm.isEditorFocused).toBe(false);
   });
 
-  it("keeps isEditorFocused true when focus moves to menu container", async () => {
-    wrapper = mount(TestComponent, {
-      props: { hasMenuContainer: true },
-      attachTo: document.body,
-    });
-    await nextTick();
-
-    const content = wrapper.find(".content").element;
-    const p = content.querySelector("p")!;
-    dispatchFocusIn(content, p);
-    await nextTick();
-    expect(wrapper.vm.isEditorFocused).toBe(true);
-
-    const menu = wrapper.find(".menu").element;
-    dispatchFocusOut(content, menu);
-    await nextTick();
-
-    expect(wrapper.vm.isEditorFocused).toBe(true);
-  });
-
   it("keeps isEditorFocused true when focus moves within content", async () => {
     wrapper = mount(TestComponent, {
       attachTo: document.body,
@@ -146,63 +112,6 @@ describe("useFocusTracking", () => {
     await nextTick();
 
     expect(wrapper.vm.isEditorFocused).toBe(true);
-  });
-
-  it("registers selectionchange listener on mount", () => {
-    const addSpy = vi.spyOn(document, "addEventListener");
-    const onSelectionChange = vi.fn();
-
-    wrapper = mount(TestComponent, {
-      props: { onSelectionChange },
-      attachTo: document.body,
-    });
-
-    expect(addSpy).toHaveBeenCalledWith("selectionchange", onSelectionChange);
-    addSpy.mockRestore();
-  });
-
-  it("removes selectionchange listener on unmount", () => {
-    const removeSpy = vi.spyOn(document, "removeEventListener");
-    const onSelectionChange = vi.fn();
-
-    wrapper = mount(TestComponent, {
-      props: { onSelectionChange },
-      attachTo: document.body,
-    });
-
-    wrapper.unmount();
-
-    expect(removeSpy).toHaveBeenCalledWith("selectionchange", onSelectionChange);
-    removeSpy.mockRestore();
-  });
-
-  it("does not register selectionchange listener when callback not provided", () => {
-    const addSpy = vi.spyOn(document, "addEventListener");
-
-    wrapper = mount(TestComponent, {
-      attachTo: document.body,
-    });
-
-    const selectionCalls = addSpy.mock.calls.filter((c) => c[0] === "selectionchange");
-    expect(selectionCalls).toHaveLength(0);
-    addSpy.mockRestore();
-  });
-
-  it("calls onSelectionChange on focusin", async () => {
-    const onSelectionChange = vi.fn();
-
-    wrapper = mount(TestComponent, {
-      props: { onSelectionChange },
-      attachTo: document.body,
-    });
-    await nextTick();
-
-    const content = wrapper.find(".content").element;
-    const p = content.querySelector("p")!;
-    dispatchFocusIn(content, p);
-    await nextTick();
-
-    expect(onSelectionChange).toHaveBeenCalled();
   });
 
   it("cleans up content listeners on unmount", async () => {

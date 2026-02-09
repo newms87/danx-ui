@@ -1,4 +1,22 @@
 <script setup lang="ts">
+/**
+ * MarkdownEditorFooter - Status bar displayed below the editor content
+ *
+ * Shows the character count and a keyboard shortcuts help button.
+ * Hidden when the parent MarkdownEditor has hideFooter set to true.
+ *
+ * @props
+ *   charCount: number - Current character count to display
+ *
+ * @emits
+ *   show-hotkeys - Fired when the keyboard shortcuts button is clicked
+ *
+ * @tokens
+ *   --dx-mde-footer-bg - Background color (default: #252526)
+ *
+ * @example
+ *   <MarkdownEditorFooter :char-count="42" @show-hotkeys="openHelp" />
+ */
 import { KeyboardIcon } from "./icons";
 
 export interface MarkdownEditorFooterProps {

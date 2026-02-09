@@ -1,4 +1,34 @@
 <script setup lang="ts">
+/**
+ * LinkPopover - Modal for inserting or editing hyperlinks
+ *
+ * Provides URL and optional label input fields. When editing an existing link,
+ * shows the current URL pre-filled and hides the label field. Positions itself
+ * near the cursor with viewport boundary detection. Auto-focuses the URL input
+ * on mount.
+ *
+ * @props
+ *   position: PopoverPosition - x/y coordinates for positioning
+ *   existingUrl?: string - Pre-filled URL when editing an existing link (default: "")
+ *   selectedText?: string - Currently selected text to use as label hint (default: "")
+ *
+ * @emits
+ *   submit - Fired with (url: string, label?: string) when the user confirms
+ *   cancel - Fired when the user cancels (overlay click, close button, Escape)
+ *
+ * @tokens
+ *   --dx-mde-popover-bg - Popover background (default: #2d2d2d)
+ *   --dx-mde-popover-border - Popover border color (default: #404040)
+ *
+ * @example
+ *   <LinkPopover
+ *     v-if="showLinkPopover"
+ *     :position="{ x: 200, y: 300 }"
+ *     existing-url="https://example.com"
+ *     @submit="insertLink"
+ *     @cancel="closeLinkPopover"
+ *   />
+ */
 import { XmarkIcon } from "./icons";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import type { PopoverPosition } from "./usePopoverManager";

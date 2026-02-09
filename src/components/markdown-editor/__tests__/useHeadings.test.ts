@@ -779,7 +779,6 @@ describe("useHeadings", () => {
     /**
      * These tests verify the workflow where a list item is first
      * converted to a paragraph, then setHeadingLevel is called.
-     * This simulates the LineTypeMenu behavior in MarkdownEditor.vue.
      */
     beforeEach(() => {
       onContentChange = vi.fn();
