@@ -5,7 +5,7 @@
  * Demo page for DanxButton component with live examples and documentation.
  */
 import DemoSection from "../components/DemoSection.vue";
-import DocSection from "../components/DocSection.vue";
+import DemoPage from "../components/DemoPage.vue";
 
 // Load markdown documentation as raw string
 import buttonDocs from "../../docs/button.md?raw";
@@ -23,14 +23,11 @@ import textOnlyCode from "./button-examples/TextOnly.vue?raw";
 </script>
 
 <template>
-  <div class="demo-page">
-    <h1>Button</h1>
-    <p class="demo-page__description">
-      A button component with semantic color types and built-in icons.
-    </p>
-
-    <h2>Live Examples</h2>
-
+  <DemoPage
+    title="Button"
+    description="A button component with semantic color types and built-in icons."
+    :docs="buttonDocs"
+  >
     <DemoSection
       title="Semantic Types"
       description="One button per type. Default (blank) has no background color."
@@ -80,8 +77,5 @@ import textOnlyCode from "./button-examples/TextOnly.vue?raw";
       description="Import an SVG as a raw string via ?raw and bind it to :icon. Icons inherit currentColor."
       :code="danxIconCode"
     />
-
-    <h2>Documentation</h2>
-    <DocSection :content="buttonDocs" />
-  </div>
+  </DemoPage>
 </template>

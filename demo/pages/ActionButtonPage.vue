@@ -5,7 +5,7 @@
  * Demo page for DanxActionButton component with live examples and documentation.
  */
 import DemoSection from "../components/DemoSection.vue";
-import DocSection from "../components/DocSection.vue";
+import DemoPage from "../components/DemoPage.vue";
 
 // Load markdown documentation as raw string
 import actionButtonDocs from "../../docs/action-button.md?raw";
@@ -18,15 +18,11 @@ import eventCallbacksCode from "./action-button-examples/EventCallbacks.vue?raw"
 </script>
 
 <template>
-  <div class="demo-page">
-    <h1>Action Button</h1>
-    <p class="demo-page__description">
-      A wrapper around DanxButton that integrates with the action system. Handles action triggering,
-      loading states, confirmation dialogs, and event callbacks.
-    </p>
-
-    <h2>Live Examples</h2>
-
+  <DemoPage
+    title="Action Button"
+    description="A wrapper around DanxButton that integrates with the action system. Handles action triggering, loading states, confirmation dialogs, and event callbacks."
+    :docs="actionButtonDocs"
+  >
     <DemoSection
       title="Basic Action Trigger"
       description="Click to trigger an async action. The button shows a loading spinner while the action runs."
@@ -50,8 +46,5 @@ import eventCallbacksCode from "./action-button-examples/EventCallbacks.vue?raw"
       description="Listen to success, error, and always events. Click each button and watch the log."
       :code="eventCallbacksCode"
     />
-
-    <h2>Documentation</h2>
-    <DocSection :content="actionButtonDocs" />
-  </div>
+  </DemoPage>
 </template>

@@ -5,7 +5,7 @@
  * Demo page for DanxDialog component with live examples and documentation.
  */
 import DemoSection from "../components/DemoSection.vue";
-import DocSection from "../components/DocSection.vue";
+import DemoPage from "../components/DemoPage.vue";
 
 // Load markdown documentation as raw string
 import dialogDocs from "../../docs/dialog.md?raw";
@@ -22,14 +22,11 @@ import subtitleDialogCode from "./dialog-examples/SubtitleDialog.vue?raw";
 </script>
 
 <template>
-  <div class="demo-page">
-    <h1>Dialog</h1>
-    <p class="demo-page__description">
-      A fully declarative dialog component built on the native &lt;dialog&gt; element.
-    </p>
-
-    <h2>Live Examples</h2>
-
+  <DemoPage
+    title="Dialog"
+    description="A fully declarative dialog component built on the native <dialog> element."
+    :docs="dialogDocs"
+  >
     <DemoSection
       title="Basic Dialog"
       description="Simple dialog with title and X close button."
@@ -77,8 +74,5 @@ import subtitleDialogCode from "./dialog-examples/SubtitleDialog.vue?raw";
       description="Using slots for custom content."
       :code="slotCustomizationCode"
     />
-
-    <h2>Documentation</h2>
-    <DocSection :content="dialogDocs" />
-  </div>
+  </DemoPage>
 </template>

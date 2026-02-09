@@ -5,6 +5,7 @@
  * Demo page for CodeViewer component with live examples.
  */
 import DemoSection from "../components/DemoSection.vue";
+import DemoPage from "../components/DemoPage.vue";
 
 // Load SFC examples as raw strings for live-editable demos
 import basicJsonCode from "./code-viewer-examples/BasicJson.vue?raw";
@@ -16,14 +17,10 @@ import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
 </script>
 
 <template>
-  <div class="demo-page">
-    <h1>Code Viewer</h1>
-    <p class="demo-page__description">
-      A syntax-highlighted code display with inline editing, format switching, and collapsible preview.
-    </p>
-
-    <h2>Live Examples</h2>
-
+  <DemoPage
+    title="Code Viewer"
+    description="A syntax-highlighted code display with inline editing, format switching, and collapsible preview."
+  >
     <DemoSection
       title="Basic JSON/YAML Display"
       description="Pass an object and it renders as YAML by default. Click the language badge to switch formats."
@@ -59,5 +56,5 @@ import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
       description="CodeViewer supports JSON, YAML, HTML, CSS, JavaScript, and plain text formats."
       :code="allLanguagesCode"
     />
-  </div>
+  </DemoPage>
 </template>

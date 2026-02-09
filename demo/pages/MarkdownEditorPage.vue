@@ -5,6 +5,7 @@
  * Demo page for MarkdownEditor component with live examples.
  */
 import DemoSection from "../components/DemoSection.vue";
+import DemoPage from "../components/DemoPage.vue";
 
 // Load SFC examples as raw strings for live-editable demos
 import basicUsageCode from "./markdown-editor-examples/BasicUsage.vue?raw";
@@ -16,14 +17,10 @@ import heightConstraintsCode from "./markdown-editor-examples/HeightConstraints.
 </script>
 
 <template>
-  <div class="demo-page">
-    <h1>Markdown Editor</h1>
-    <p class="demo-page__description">
-      A rich contenteditable markdown editor with live preview, code blocks, tables, lists, and keyboard shortcuts.
-    </p>
-
-    <h2>Live Examples</h2>
-
+  <DemoPage
+    title="Markdown Editor"
+    description="A rich contenteditable markdown editor with live preview, code blocks, tables, lists, and keyboard shortcuts."
+  >
     <DemoSection
       title="Basic Usage"
       description="A simple editor with v-model binding. Expand the raw markdown section to see the source."
@@ -59,5 +56,5 @@ import heightConstraintsCode from "./markdown-editor-examples/HeightConstraints.
       description="Use minHeight and maxHeight props to control editor size."
       :code="heightConstraintsCode"
     />
-  </div>
+  </DemoPage>
 </template>
