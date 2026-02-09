@@ -13,6 +13,7 @@ import { useLists } from "./useLists";
 import { ShowTablePopoverOptions, useTables } from "./useTables";
 import { useTokenManager } from "./useTokenManager";
 import { TokenRenderer, TokenState } from "./types";
+import { isConvertibleBlock } from "./blockUtils";
 
 /**
  * Options for useMarkdownEditor composable
@@ -469,7 +470,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
       const tagName = element.tagName?.toUpperCase();
 
       // Check if this is a block element
-      if (tagName === "P" || /^H[1-6]$/.test(tagName)) {
+      if (isConvertibleBlock(element)) {
         // Verify cursor is truly at the start by checking the range position
         const blockRange = document.createRange();
         blockRange.selectNodeContents(element);

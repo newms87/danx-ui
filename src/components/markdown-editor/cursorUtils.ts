@@ -85,34 +85,113 @@ export function positionCursorAtStart(element: Element): void {
 }
 
 /**
+ * Options for cursor offset functions
+ */
+export interface CursorOffsetOptions {
+  /** Tag names whose descendant text nodes should be excluded from offset counting */
+  skipAncestorTags?: string[];
+}
+
+/**
+ * Check if a node is inside an ancestor with one of the given tag names,
+ * stopping the search at the container boundary.
+ */
+function isInsideSkippedAncestor(node: Node, container: Node, tags: string[]): boolean {
+  let parent: Node | null = node.parentNode;
+  while (parent && parent !== container) {
+    if (parent.nodeType === Node.ELEMENT_NODE && tags.includes((parent as Element).tagName)) {
+      return true;
+    }
+    parent = parent.parentNode;
+  }
+  return false;
+}
+
+/**
  * Get the cursor offset within an element's text content.
  * Walks text nodes and counts characters up to the cursor position.
+ *
+ * When `skipAncestorTags` is provided, text nodes inside elements with
+ * those tag names are excluded from the count. This is used by list
+ * operations to ignore nested list content.
  */
-export function getCursorOffset(element: HTMLElement): number {
+export function getCursorOffset(element: HTMLElement, options?: CursorOffsetOptions): number {
   const selection = window.getSelection();
   if (!selection || !selection.rangeCount) return 0;
 
-  const range = selection.getRangeAt(0);
-  const preCaretRange = document.createRange();
-  preCaretRange.selectNodeContents(element);
-  preCaretRange.setEnd(range.startContainer, range.startOffset);
+  const skipTags = options?.skipAncestorTags;
 
-  return preCaretRange.toString().length;
+  // Fast path: no ancestor filtering needed
+  if (!skipTags || skipTags.length === 0) {
+    const range = selection.getRangeAt(0);
+    const preCaretRange = document.createRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+    return preCaretRange.toString().length;
+  }
+
+  // Slow path: walk text nodes, skipping those inside specified ancestors.
+  // Count characters in non-skipped text nodes up to the cursor position.
+  const range = selection.getRangeAt(0);
+
+  let offset = 0;
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let node: Text | null;
+
+  while ((node = walker.nextNode() as Text | null)) {
+    if (isInsideSkippedAncestor(node, element, skipTags)) continue;
+
+    if (node === range.startContainer) {
+      offset += range.startOffset;
+      break;
+    }
+
+    // Check if cursor container is not a text node (e.g., element node)
+    // and this text node comes before the cursor
+    if (element.contains(range.startContainer)) {
+      const position = node.compareDocumentPosition(range.startContainer);
+      if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
+        // This text node is before the cursor container
+        offset += node.textContent?.length || 0;
+      } else {
+        // This text node is at or after cursor - stop
+        break;
+      }
+    } else {
+      offset += node.textContent?.length || 0;
+    }
+  }
+
+  return offset;
 }
 
 /**
  * Set cursor to a specific offset within an element's text content.
  * Walks text nodes to find the correct position.
+ *
+ * When `skipAncestorTags` is provided, text nodes inside elements with
+ * those tag names are excluded from offset traversal.
  */
-export function setCursorOffset(element: HTMLElement, targetOffset: number): void {
+export function setCursorOffset(
+  element: HTMLElement,
+  targetOffset: number,
+  options?: CursorOffsetOptions
+): void {
   const selection = window.getSelection();
   if (!selection) return;
+
+  const skipTags = options?.skipAncestorTags;
 
   let currentOffset = 0;
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
   let node = walker.nextNode();
 
   while (node) {
+    if (skipTags && skipTags.length > 0 && isInsideSkippedAncestor(node, element, skipTags)) {
+      node = walker.nextNode();
+      continue;
+    }
+
     const nodeLength = node.textContent?.length || 0;
     if (currentOffset + nodeLength >= targetOffset) {
       const range = document.createRange();
@@ -127,11 +206,7 @@ export function setCursorOffset(element: HTMLElement, targetOffset: number): voi
   }
 
   // If offset not found, place cursor at end
-  const range = document.createRange();
-  range.selectNodeContents(element);
-  range.collapse(false);
-  selection.removeAllRanges();
-  selection.addRange(range);
+  positionCursorAtEnd(element);
 }
 
 /**

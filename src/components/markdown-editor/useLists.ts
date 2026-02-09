@@ -1,8 +1,17 @@
 import { Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 import { detectListPattern } from "../../shared/markdown";
-import { positionCursorAtEnd, positionCursorAtStart } from "./cursorUtils";
-import { isConvertibleBlock, getTargetBlock as getTargetBlockShared } from "./blockUtils";
+import {
+  getCursorOffset,
+  setCursorOffset,
+  positionCursorAtEnd,
+  positionCursorAtStart,
+} from "./cursorUtils";
+import {
+  isConvertibleBlock,
+  isListTag,
+  getTargetBlock as getTargetBlockShared,
+} from "./blockUtils";
 
 /**
  * Options for useLists composable
@@ -70,7 +79,7 @@ function getListItem(selection: UseMarkdownSelectionReturn): HTMLLIElement | nul
  */
 function getParentList(li: HTMLLIElement): HTMLUListElement | HTMLOListElement | null {
   const parent = li.parentElement;
-  if (parent && (parent.tagName === "UL" || parent.tagName === "OL")) {
+  if (parent && isListTag(parent.tagName)) {
     return parent as HTMLUListElement | HTMLOListElement;
   }
   return null;
@@ -123,7 +132,7 @@ function convertListItemToParagraph(
     // Skip nested lists
     if (li.firstChild.nodeType === Node.ELEMENT_NODE) {
       const el = li.firstChild as Element;
-      if (el.tagName === "UL" || el.tagName === "OL") {
+      if (isListTag(el.tagName)) {
         li.removeChild(li.firstChild);
         continue;
       }
@@ -176,101 +185,8 @@ function convertListItemToParagraph(
   return p;
 }
 
-/**
- * Get cursor offset within an element's text content (excluding nested lists)
- */
-function getCursorOffsetInElement(element: Element): number {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0) return 0;
-
-  const range = sel.getRangeAt(0);
-
-  // Create a range from start of element to cursor position
-  const preCaretRange = document.createRange();
-  preCaretRange.selectNodeContents(element);
-  preCaretRange.setEnd(range.startContainer, range.startOffset);
-
-  // Count characters by walking text nodes, excluding nested lists
-  let offset = 0;
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-  let node: Text | null;
-
-  while ((node = walker.nextNode() as Text | null)) {
-    // Skip text nodes inside nested lists
-    let parent: Node | null = node.parentNode;
-    let inNestedList = false;
-    while (parent && parent !== element) {
-      if (parent.nodeName === "UL" || parent.nodeName === "OL") {
-        inNestedList = true;
-        break;
-      }
-      parent = parent.parentNode;
-    }
-    if (inNestedList) continue;
-
-    // Check if this text node is before or at the cursor
-    const nodeRange = document.createRange();
-    nodeRange.selectNodeContents(node);
-
-    if (preCaretRange.compareBoundaryPoints(Range.END_TO_START, nodeRange) >= 0) {
-      // Entire node is before cursor
-      offset += node.textContent?.length || 0;
-    } else if (preCaretRange.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0) {
-      // Cursor is inside this node - calculate partial offset
-      if (range.startContainer === node) {
-        offset += range.startOffset;
-      } else {
-        offset += node.textContent?.length || 0;
-      }
-      break;
-    } else {
-      // Node is after cursor, stop
-      break;
-    }
-  }
-
-  return offset;
-}
-
-/**
- * Restore cursor to a specific text offset within an element (excluding nested lists)
- */
-function restoreCursorToOffset(element: Element, targetOffset: number): void {
-  const sel = window.getSelection();
-  if (!sel) return;
-
-  let currentOffset = 0;
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-  let node: Text | null;
-
-  while ((node = walker.nextNode() as Text | null)) {
-    // Skip text nodes inside nested lists
-    let parent: Node | null = node.parentNode;
-    let inNestedList = false;
-    while (parent && parent !== element) {
-      if (parent.nodeName === "UL" || parent.nodeName === "OL") {
-        inNestedList = true;
-        break;
-      }
-      parent = parent.parentNode;
-    }
-    if (inNestedList) continue;
-
-    const nodeLength = node.textContent?.length || 0;
-    if (currentOffset + nodeLength >= targetOffset) {
-      const range = document.createRange();
-      range.setStart(node, targetOffset - currentOffset);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-      return;
-    }
-    currentOffset += nodeLength;
-  }
-
-  // If offset not found (e.g., text is shorter), place cursor at end
-  positionCursorAtEnd(element);
-}
+/** Tag names to skip when calculating cursor offset in list items */
+const LIST_ANCESTOR_TAGS = ["UL", "OL"];
 
 /**
  * Composable for list operations in markdown editor
@@ -279,44 +195,44 @@ export function useLists(options: UseListsOptions): UseListsReturn {
   const { contentRef, selection, onContentChange } = options;
 
   /**
-   * Toggle unordered list on the current block
-   * - If paragraph/div: convert to <ul><li>
-   * - If already in ul: convert back to paragraph
-   * - If in ol: convert to ul
+   * Toggle a list type on the current block.
+   * - If already in the target type: convert back to paragraph
+   * - If in the opposite list type: convert to target type
+   * - If not in a list: convert block to target type
    */
-  function toggleUnorderedList(): void {
+  function toggleList(type: "ul" | "ol"): void {
     if (!contentRef.value) return;
 
+    const otherType = type === "ul" ? "ol" : "ul";
     const currentListType = getListType(selection);
 
-    if (currentListType === "ul") {
-      // Already in ul - convert to paragraph
+    if (currentListType === type) {
+      // Already in target type - convert to paragraph
       const li = getListItem(selection);
       if (li) {
         const p = convertListItemToParagraph(li, contentRef.value);
         positionCursorAtEnd(p);
       }
-    } else if (currentListType === "ol") {
-      // In ol - convert to ul
+    } else if (currentListType === otherType) {
+      // In opposite type - convert to target
       const li = getListItem(selection);
       if (li) {
         const parentList = getParentList(li);
         if (parentList) {
-          const ul = document.createElement("ul");
+          const newList = document.createElement(type);
           while (parentList.firstChild) {
-            ul.appendChild(parentList.firstChild);
+            newList.appendChild(parentList.firstChild);
           }
-          parentList.parentNode?.replaceChild(ul, parentList);
-          // Find the li again (it moved) and position cursor
-          const newLi = ul.querySelector("li");
+          parentList.parentNode?.replaceChild(newList, parentList);
+          const newLi = newList.querySelector("li");
           if (newLi) positionCursorAtEnd(newLi);
         }
       }
     } else {
-      // Not in list - convert block to ul
+      // Not in list - convert block to target type
       const block = getTargetBlock(contentRef, selection);
       if (block && isConvertibleBlock(block)) {
-        const li = convertToListItem(block, "ul");
+        const li = convertToListItem(block, type);
         positionCursorAtEnd(li);
       }
     }
@@ -324,50 +240,12 @@ export function useLists(options: UseListsOptions): UseListsReturn {
     onContentChange();
   }
 
-  /**
-   * Toggle ordered list on the current block
-   * - If paragraph/div: convert to <ol><li>
-   * - If already in ol: convert back to paragraph
-   * - If in ul: convert to ol
-   */
+  function toggleUnorderedList(): void {
+    toggleList("ul");
+  }
+
   function toggleOrderedList(): void {
-    if (!contentRef.value) return;
-
-    const currentListType = getListType(selection);
-
-    if (currentListType === "ol") {
-      // Already in ol - convert to paragraph
-      const li = getListItem(selection);
-      if (li) {
-        const p = convertListItemToParagraph(li, contentRef.value);
-        positionCursorAtEnd(p);
-      }
-    } else if (currentListType === "ul") {
-      // In ul - convert to ol
-      const li = getListItem(selection);
-      if (li) {
-        const parentList = getParentList(li);
-        if (parentList) {
-          const ol = document.createElement("ol");
-          while (parentList.firstChild) {
-            ol.appendChild(parentList.firstChild);
-          }
-          parentList.parentNode?.replaceChild(ol, parentList);
-          // Find the li again (it moved) and position cursor
-          const newLi = ol.querySelector("li");
-          if (newLi) positionCursorAtEnd(newLi);
-        }
-      }
-    } else {
-      // Not in list - convert block to ol
-      const block = getTargetBlock(contentRef, selection);
-      if (block && isConvertibleBlock(block)) {
-        const li = convertToListItem(block, "ol");
-        positionCursorAtEnd(li);
-      }
-    }
-
-    onContentChange();
+    toggleList("ol");
   }
 
   /**
@@ -500,7 +378,7 @@ export function useLists(options: UseListsOptions): UseListsReturn {
       } else if (child.nodeType === Node.ELEMENT_NODE) {
         const el = child as Element;
         // Skip nested lists
-        if (el.tagName !== "UL" && el.tagName !== "OL") {
+        if (!isListTag(el.tagName)) {
           text += getDirectTextContent(el);
         }
       }
@@ -540,7 +418,9 @@ export function useLists(options: UseListsOptions): UseListsReturn {
     if (!prevLi || prevLi.tagName !== "LI") return false; // Can't indent first item
 
     // Save cursor offset within this specific list item before DOM manipulation
-    const cursorOffset = getCursorOffsetInElement(li);
+    const cursorOffset = getCursorOffset(li as HTMLElement, {
+      skipAncestorTags: LIST_ANCESTOR_TAGS,
+    });
 
     // Check if prev li already has a nested list
     let nestedList = prevLi.querySelector(":scope > ul, :scope > ol") as
@@ -560,7 +440,7 @@ export function useLists(options: UseListsOptions): UseListsReturn {
     nestedList.appendChild(li);
 
     // Restore cursor to same offset within the moved list item
-    restoreCursorToOffset(li, cursorOffset);
+    setCursorOffset(li as HTMLElement, cursorOffset, { skipAncestorTags: LIST_ANCESTOR_TAGS });
 
     onContentChange();
     return true;
@@ -584,15 +464,19 @@ export function useLists(options: UseListsOptions): UseListsReturn {
     const parentLi = parentList.parentElement;
     if (!parentLi || parentLi.tagName !== "LI") {
       // Already at top level - convert to paragraph
-      const cursorOffset = getCursorOffsetInElement(li);
+      const cursorOffset = getCursorOffset(li as HTMLElement, {
+        skipAncestorTags: LIST_ANCESTOR_TAGS,
+      });
       const p = convertListItemToParagraph(li, contentRef.value);
-      restoreCursorToOffset(p, cursorOffset);
+      setCursorOffset(p as HTMLElement, cursorOffset, { skipAncestorTags: LIST_ANCESTOR_TAGS });
       onContentChange();
       return true;
     }
 
     // Save cursor offset within this specific list item before DOM manipulation
-    const cursorOffset = getCursorOffsetInElement(li);
+    const cursorOffset = getCursorOffset(li as HTMLElement, {
+      skipAncestorTags: LIST_ANCESTOR_TAGS,
+    });
 
     // Find the grandparent list
     const grandparentList = getParentList(parentLi as HTMLLIElement);
@@ -633,7 +517,7 @@ export function useLists(options: UseListsOptions): UseListsReturn {
     }
 
     // Restore cursor to same offset within the moved list item
-    restoreCursorToOffset(li, cursorOffset);
+    setCursorOffset(li as HTMLElement, cursorOffset, { skipAncestorTags: LIST_ANCESTOR_TAGS });
 
     onContentChange();
     return true;

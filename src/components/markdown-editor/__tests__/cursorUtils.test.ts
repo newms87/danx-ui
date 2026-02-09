@@ -172,6 +172,135 @@ describe("cursorUtils", () => {
 
       window.getSelection = original;
     });
+
+    it("skips text inside ancestors matching skipAncestorTags", () => {
+      // Simulate a list item with nested list: <li>Hello<ul><li>nested</li></ul></li>
+      container.innerHTML = "Hello";
+      const nestedUl = document.createElement("ul");
+      const nestedLi = document.createElement("li");
+      nestedLi.textContent = "nested";
+      nestedUl.appendChild(nestedLi);
+      container.appendChild(nestedUl);
+      container.appendChild(document.createTextNode(" world"));
+
+      // Place cursor at end of " world" (5 + 6 = 11 without skip, 5 + 6 = 11 total)
+      const worldNode = container.lastChild!;
+      const range = document.createRange();
+      range.setStart(worldNode, 6);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      // Without skip: includes "nested" (6 chars)
+      const offsetWithAll = getCursorOffset(container);
+      expect(offsetWithAll).toBe(17); // "Hello" + "nested" + " world"
+
+      // With skip: excludes "nested"
+      const offsetSkipped = getCursorOffset(container, { skipAncestorTags: ["UL"] });
+      expect(offsetSkipped).toBe(11); // "Hello" + " world"
+    });
+
+    it("returns 0 with skipAncestorTags when no selection exists", () => {
+      window.getSelection()?.removeAllRanges();
+      expect(getCursorOffset(container, { skipAncestorTags: ["UL"] })).toBe(0);
+    });
+
+    it("handles cursor inside text before skipped ancestor", () => {
+      container.innerHTML = "Hello";
+      const nestedOl = document.createElement("ol");
+      const nestedLi = document.createElement("li");
+      nestedLi.textContent = "nested";
+      nestedOl.appendChild(nestedLi);
+      container.appendChild(nestedOl);
+
+      // Place cursor at offset 3 in "Hello"
+      const textNode = container.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 3);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      const offset = getCursorOffset(container, { skipAncestorTags: ["OL"] });
+      expect(offset).toBe(3);
+    });
+
+    it("treats empty skipAncestorTags as fast path", () => {
+      container.textContent = "Hello";
+      const textNode = container.firstChild!;
+
+      const range = document.createRange();
+      range.setStart(textNode, 3);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      expect(getCursorOffset(container, { skipAncestorTags: [] })).toBe(3);
+    });
+
+    it("stops counting when text node is after cursor position with skipAncestorTags", () => {
+      // Create: "Hello<span>World</span>" with cursor at offset 3 in "Hello"
+      // The span text "World" comes AFTER the cursor, so the slow path
+      // should stop and not count it (DOCUMENT_POSITION_FOLLOWING fails)
+      const span = document.createElement("span");
+      span.textContent = "World";
+      container.textContent = "";
+      container.appendChild(document.createTextNode("Hello"));
+      container.appendChild(span);
+
+      // Place cursor at offset 3 in "Hello"
+      const textNode = container.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 3);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      // Use a skipAncestorTags that doesn't match anything to force slow path
+      const offset = getCursorOffset(container, { skipAncestorTags: ["BLOCKQUOTE"] });
+      expect(offset).toBe(3);
+    });
+
+    it("counts offset when cursor is in an element node with skipAncestorTags", () => {
+      // When cursor startContainer is an element (not text node), the slow path
+      // must handle comparing text nodes to the element-level cursor
+      container.innerHTML = "<b>Bold</b><i>Italic</i>";
+
+      // Place cursor in the <i> element node (not in its text)
+      const italic = container.querySelector("i")!;
+      const range = document.createRange();
+      range.setStart(italic, 0);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      const offset = getCursorOffset(container, { skipAncestorTags: ["BLOCKQUOTE"] });
+      // "Bold" is 4 chars, all before the cursor in <i>
+      expect(offset).toBe(4);
+    });
+
+    it("counts all text when cursor is outside the element with skipAncestorTags", () => {
+      // When cursor startContainer is outside the element, all text nodes
+      // inside the element are counted (fallback branch)
+      const inner = document.createElement("span");
+      inner.textContent = "Inside";
+      container.textContent = "";
+      container.appendChild(inner);
+      container.appendChild(document.createTextNode("Outside"));
+
+      // Place cursor in the "Outside" text node which is a sibling, not inside <span>
+      const outsideText = container.lastChild!;
+      const range = document.createRange();
+      range.setStart(outsideText, 3);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      // Measure offset inside <span> only - cursor is outside <span>
+      const offset = getCursorOffset(inner as HTMLElement, { skipAncestorTags: ["BLOCKQUOTE"] });
+      // "Inside" is 6 chars, all counted because cursor is outside span
+      expect(offset).toBe(6);
+    });
   });
 
   describe("setCursorOffset", () => {
@@ -215,6 +344,50 @@ describe("cursorUtils", () => {
       setCursorOffset(container, 3);
 
       window.getSelection = original;
+    });
+
+    it("skips text inside ancestors matching skipAncestorTags", () => {
+      // <div>Hello<ul><li>nested</li></ul> world</div>
+      container.innerHTML = "Hello";
+      const nestedUl = document.createElement("ul");
+      const nestedLi = document.createElement("li");
+      nestedLi.textContent = "nested";
+      nestedUl.appendChild(nestedLi);
+      container.appendChild(nestedUl);
+      container.appendChild(document.createTextNode(" world"));
+
+      // Set cursor at offset 8 (skipping "nested"): should land in " world" at position 3
+      setCursorOffset(container, 8, { skipAncestorTags: ["UL"] });
+
+      const sel = window.getSelection()!;
+      const range = sel.getRangeAt(0);
+      expect(range.startContainer.textContent).toBe(" world");
+      expect(range.startOffset).toBe(3);
+    });
+
+    it("places cursor at end when offset exceeds content with skipAncestorTags", () => {
+      container.innerHTML = "Hi";
+      const nestedUl = document.createElement("ul");
+      const nestedLi = document.createElement("li");
+      nestedLi.textContent = "nested";
+      nestedUl.appendChild(nestedLi);
+      container.appendChild(nestedUl);
+
+      setCursorOffset(container, 100, { skipAncestorTags: ["UL"] });
+
+      const sel = window.getSelection()!;
+      const range = sel.getRangeAt(0);
+      expect(range.collapsed).toBe(true);
+    });
+
+    it("handles empty skipAncestorTags normally", () => {
+      container.textContent = "Hello";
+
+      setCursorOffset(container, 3, { skipAncestorTags: [] });
+
+      const sel = window.getSelection()!;
+      const range = sel.getRangeAt(0);
+      expect(range.startOffset).toBe(3);
     });
   });
 

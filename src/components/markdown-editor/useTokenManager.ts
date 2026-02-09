@@ -1,5 +1,6 @@
-import { App, createApp, h, nextTick, onUnmounted, Ref, watch } from "vue";
+import { App, createApp, h, Ref } from "vue";
 import { TokenRenderer, TokenState } from "./types";
+import { useDomObserver } from "./useDomObserver";
 
 /**
  * Options for useTokenManager composable
@@ -49,9 +50,6 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
 
   // Track mounted instances by token ID
   const mountedInstances = new Map<string, MountedTokenInstance>();
-
-  // MutationObserver to watch for token wrappers
-  let observer: MutationObserver | null = null;
 
   /**
    * Find the token renderer by ID
@@ -156,104 +154,20 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
     return mountedInstances.size;
   }
 
-  /**
-   * Handle mutations to the content element
-   */
-  function handleMutations(mutations: MutationRecord[]): void {
-    for (const mutation of mutations) {
-      // Check for added nodes that are token wrappers
-      for (const node of Array.from(mutation.addedNodes)) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = node as HTMLElement;
-
-          // Check if the added node is a token wrapper
-          if (element.hasAttribute && element.hasAttribute("data-token-id")) {
-            nextTick(() => mountToken(element));
-          }
-
-          // Check children for token wrappers
-          const childWrappers = element.querySelectorAll?.("[data-token-id]");
-          if (childWrappers && childWrappers.length > 0) {
-            childWrappers.forEach((wrapper) => {
-              nextTick(() => mountToken(wrapper as HTMLElement));
-            });
-          }
-        }
-      }
-
-      // Check for removed nodes that were token wrappers
-      for (const node of Array.from(mutation.removedNodes)) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = node as HTMLElement;
-
-          // Check if the removed node is a token wrapper
-          const id = element.getAttribute?.("data-token-id");
-          if (id) {
-            unmountToken(id);
-            tokens.delete(id);
-          }
-
-          // Check children for token wrappers
-          const childWrappers = element.querySelectorAll?.("[data-token-id]");
-          if (childWrappers) {
-            childWrappers.forEach((wrapper) => {
-              const childId = wrapper.getAttribute("data-token-id");
-              if (childId) {
-                unmountToken(childId);
-                tokens.delete(childId);
-              }
-            });
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Start observing for DOM changes
-   */
-  function startObserver(): void {
-    if (!contentRef.value || observer) return;
-
-    observer = new MutationObserver(handleMutations);
-    observer.observe(contentRef.value, {
-      childList: true,
-      subtree: true,
-    });
-  }
-
-  /**
-   * Stop observing DOM changes
-   */
-  function stopObserver(): void {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-  }
-
-  // Watch for contentRef changes to set up/tear down observer
-  watch(
+  // Set up DOM observer for token wrappers
+  useDomObserver({
     contentRef,
-    (newRef, oldRef) => {
-      if (oldRef && !newRef) {
-        // Content ref was removed - clean up
-        stopObserver();
-        unmountAllTokens();
-      } else if (newRef && !oldRef) {
-        // Content ref was added - set up
-        startObserver();
-        // Mount any existing tokens
-        nextTick(() => mountAllTokens());
+    dataAttribute: "data-token-id",
+    onNodeAdded: (el) => mountToken(el),
+    onNodeRemoved: (el) => {
+      const id = el.getAttribute("data-token-id");
+      if (id) {
+        unmountToken(id);
+        tokens.delete(id);
       }
     },
-    { immediate: true }
-  );
-
-  // Clean up on unmount
-  onUnmounted(() => {
-    stopObserver();
-    unmountAllTokens();
+    onCleanup: () => unmountAllTokens(),
+    onInitialMount: () => mountAllTokens(),
   });
 
   return {

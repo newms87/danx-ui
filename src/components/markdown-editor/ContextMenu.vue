@@ -27,9 +27,11 @@
  *     @close="contextMenu.hide"
  *   />
  */
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 import type { ContextMenuItem } from "./types";
 import type { PopoverPosition } from "./usePopoverManager";
+import { calculatePopoverPosition } from "./popoverUtils";
+import { useEscapeKey } from "./useEscapeKey";
 
 export interface ContextMenuProps {
   position: PopoverPosition;
@@ -48,39 +50,15 @@ const activeSubmenuId = ref<string | null>(null);
 const submenuOpenLeft = ref(false);
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
 
-// Calculate menu position with viewport boundary detection
 const menuStyle = computed(() => {
-  const menuHeight = 400; // Approximate max height for nested menus
-  const menuWidth = 320; // Match CSS max-width
-  const padding = 10;
-
-  let top = props.position.y;
-  let left = props.position.x;
-
-  // Check if menu would extend below viewport
-  if (top + menuHeight > window.innerHeight - padding) {
-    // Position above the cursor
-    top = Math.max(padding, props.position.y - menuHeight);
-  }
-
-  // Ensure menu doesn't go off left edge
-  if (left < padding) {
-    left = padding;
-  }
-
-  // Ensure menu doesn't go off right edge
-  if (left + menuWidth > window.innerWidth - padding) {
-    left = window.innerWidth - menuWidth - padding;
-  }
-
-  // Determine if submenus should open to the left
-  // (if menu is positioned near right edge, submenus should open left)
-  submenuOpenLeft.value = left + menuWidth + menuWidth > window.innerWidth - padding;
-
-  return {
-    top: `${top}px`,
-    left: `${left}px`,
-  };
+  const result = calculatePopoverPosition({
+    anchorX: props.position.x,
+    anchorY: props.position.y,
+    popoverWidth: 320,
+    popoverHeight: 400,
+  });
+  submenuOpenLeft.value = result.nearRightEdge;
+  return { top: result.top, left: result.left };
 });
 
 function handleItemHover(item: ContextMenuItem, _index: number): void {
@@ -150,19 +128,9 @@ function onClose(): void {
   emit("close");
 }
 
-// Handle Escape key at document level
-function handleDocumentKeydown(event: KeyboardEvent): void {
-  if (event.key === "Escape") {
-    onClose();
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("keydown", handleDocumentKeydown);
-});
+useEscapeKey(onClose);
 
 onUnmounted(() => {
-  document.removeEventListener("keydown", handleDocumentKeydown);
   if (hoverTimeout) {
     clearTimeout(hoverTimeout);
   }
@@ -170,7 +138,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="dx-context-menu-overlay" @click.self="onClose" @keydown.escape="onClose">
+  <div class="dx-context-menu-overlay" @click.self="onClose">
     <div ref="menuRef" class="dx-context-menu" :style="menuStyle">
       <template v-for="(item, itemIndex) in items" :key="item.id">
         <!-- Divider -->

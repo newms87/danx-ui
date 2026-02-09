@@ -30,8 +30,10 @@
  *   />
  */
 import { XmarkIcon } from "./icons";
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import type { PopoverPosition } from "./usePopoverManager";
+import { calculatePopoverPosition } from "./popoverUtils";
+import { useEscapeKey } from "./useEscapeKey";
 
 export interface LinkPopoverProps {
   position: PopoverPosition;
@@ -67,35 +69,15 @@ const labelPlaceholder = computed(() => {
   return "Link text (optional)";
 });
 
-// Calculate popover position (below cursor by default, above if at bottom of viewport)
 const popoverStyle = computed(() => {
-  const popoverHeight = 200; // Approximate height
-  const popoverWidth = 320;
-  const padding = 10;
-
-  let top = props.position.y + padding;
-  let left = props.position.x - popoverWidth / 2;
-
-  // Check if popover would extend below viewport
-  if (top + popoverHeight > window.innerHeight - padding) {
-    // Position above the cursor
-    top = props.position.y - popoverHeight - padding;
-  }
-
-  // Ensure popover doesn't go off left edge
-  if (left < padding) {
-    left = padding;
-  }
-
-  // Ensure popover doesn't go off right edge
-  if (left + popoverWidth > window.innerWidth - padding) {
-    left = window.innerWidth - popoverWidth - padding;
-  }
-
-  return {
-    top: `${top}px`,
-    left: `${left}px`,
-  };
+  const result = calculatePopoverPosition({
+    anchorX: props.position.x,
+    anchorY: props.position.y,
+    popoverWidth: 320,
+    popoverHeight: 200,
+    centerOnAnchor: true,
+  });
+  return { top: result.top, left: result.left };
 });
 
 // Methods
@@ -109,12 +91,7 @@ function onCancel(): void {
   emit("cancel");
 }
 
-// Handle Escape key at document level
-function handleDocumentKeydown(event: KeyboardEvent): void {
-  if (event.key === "Escape") {
-    onCancel();
-  }
-}
+useEscapeKey(onCancel);
 
 // Auto-focus URL input on mount
 onMounted(() => {
@@ -122,12 +99,6 @@ onMounted(() => {
     urlInputRef.value?.focus();
     urlInputRef.value?.select();
   });
-
-  document.addEventListener("keydown", handleDocumentKeydown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleDocumentKeydown);
 });
 
 // Watch for existingUrl changes to update the input
@@ -140,7 +111,7 @@ watch(
 </script>
 
 <template>
-  <div class="dx-link-popover-overlay" @click.self="onCancel" @keydown.escape="onCancel">
+  <div class="dx-link-popover-overlay" @click.self="onCancel">
     <div ref="popoverRef" class="dx-link-popover" :style="popoverStyle">
       <div class="popover-header">
         <h3>{{ isEditing ? "Edit Link" : "Insert Link" }}</h3>

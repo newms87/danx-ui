@@ -1,5 +1,6 @@
 import { Ref } from "vue";
 import { getCursorOffset, setCursorOffset } from "./cursorUtils";
+import { CONVERTIBLE_BLOCK_TAGS } from "./blockUtils";
 
 /**
  * Options for useBlockquotes composable
@@ -20,11 +21,6 @@ export interface UseBlockquotesReturn {
 }
 
 /**
- * Block-level tags that can be wrapped in or unwrapped from blockquotes
- */
-const BLOCK_TAGS = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "DIV"];
-
-/**
  * Find the nearest block-level element containing the cursor
  */
 function findCurrentBlock(node: Node | null, contentRef: HTMLElement): Element | null {
@@ -34,7 +30,7 @@ function findCurrentBlock(node: Node | null, contentRef: HTMLElement): Element |
   while (current && current !== contentRef) {
     if (current.nodeType === Node.ELEMENT_NODE) {
       const element = current as Element;
-      if (BLOCK_TAGS.includes(element.tagName) || element.tagName === "BLOCKQUOTE") {
+      if (CONVERTIBLE_BLOCK_TAGS.has(element.tagName) || element.tagName === "BLOCKQUOTE") {
         return element;
       }
     }

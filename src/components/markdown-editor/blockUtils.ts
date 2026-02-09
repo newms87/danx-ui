@@ -10,13 +10,39 @@ import { Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 
 /**
+ * Set of tag names that can be converted between paragraphs, headings,
+ * lists, and code blocks.
+ */
+export const CONVERTIBLE_BLOCK_TAGS = new Set(["P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6"]);
+
+/**
+ * Check if a tag name is a heading (H1-H6)
+ */
+export function isHeadingTag(tag: string): boolean {
+  return /^H[1-6]$/.test(tag);
+}
+
+/**
+ * Check if a tag name is a list container (UL or OL)
+ */
+export function isListTag(tag: string): boolean {
+  return tag === "UL" || tag === "OL";
+}
+
+/**
+ * Check if a tag name is a list item (LI)
+ */
+export function isListItemTag(tag: string): boolean {
+  return tag === "LI";
+}
+
+/**
  * Check if an element is a block type that can be converted between
  * paragraphs, headings, lists, and code blocks.
  * Includes paragraphs, divs, and headings (H1-H6).
  */
 export function isConvertibleBlock(element: Element): boolean {
-  const tag = element.tagName;
-  return tag === "P" || tag === "DIV" || /^H[1-6]$/.test(tag);
+  return CONVERTIBLE_BLOCK_TAGS.has(element.tagName);
 }
 
 /**

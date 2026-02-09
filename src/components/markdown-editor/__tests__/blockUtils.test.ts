@@ -1,6 +1,14 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { ref } from "vue";
-import { isConvertibleBlock, getTargetBlock, findLinkAncestor } from "../blockUtils";
+import {
+  CONVERTIBLE_BLOCK_TAGS,
+  isHeadingTag,
+  isListTag,
+  isListItemTag,
+  isConvertibleBlock,
+  getTargetBlock,
+  findLinkAncestor,
+} from "../blockUtils";
 import { useMarkdownSelection } from "../useMarkdownSelection";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
@@ -29,6 +37,62 @@ describe("blockUtils", () => {
         const el = document.createElement(tag);
         expect(isConvertibleBlock(el)).toBe(false);
       }
+    });
+  });
+
+  describe("CONVERTIBLE_BLOCK_TAGS", () => {
+    it("contains all paragraph, div, and heading tags", () => {
+      expect(CONVERTIBLE_BLOCK_TAGS.has("P")).toBe(true);
+      expect(CONVERTIBLE_BLOCK_TAGS.has("DIV")).toBe(true);
+      for (let i = 1; i <= 6; i++) {
+        expect(CONVERTIBLE_BLOCK_TAGS.has(`H${i}`)).toBe(true);
+      }
+    });
+
+    it("does not contain non-convertible tags", () => {
+      expect(CONVERTIBLE_BLOCK_TAGS.has("UL")).toBe(false);
+      expect(CONVERTIBLE_BLOCK_TAGS.has("LI")).toBe(false);
+      expect(CONVERTIBLE_BLOCK_TAGS.has("BLOCKQUOTE")).toBe(false);
+    });
+  });
+
+  describe("isHeadingTag", () => {
+    it("returns true for H1-H6", () => {
+      for (let i = 1; i <= 6; i++) {
+        expect(isHeadingTag(`H${i}`)).toBe(true);
+      }
+    });
+
+    it("returns false for non-heading tags", () => {
+      expect(isHeadingTag("P")).toBe(false);
+      expect(isHeadingTag("DIV")).toBe(false);
+      expect(isHeadingTag("H0")).toBe(false);
+      expect(isHeadingTag("H7")).toBe(false);
+    });
+  });
+
+  describe("isListTag", () => {
+    it("returns true for UL and OL", () => {
+      expect(isListTag("UL")).toBe(true);
+      expect(isListTag("OL")).toBe(true);
+    });
+
+    it("returns false for non-list tags", () => {
+      expect(isListTag("LI")).toBe(false);
+      expect(isListTag("P")).toBe(false);
+      expect(isListTag("DIV")).toBe(false);
+    });
+  });
+
+  describe("isListItemTag", () => {
+    it("returns true for LI", () => {
+      expect(isListItemTag("LI")).toBe(true);
+    });
+
+    it("returns false for non-LI tags", () => {
+      expect(isListItemTag("UL")).toBe(false);
+      expect(isListItemTag("OL")).toBe(false);
+      expect(isListItemTag("P")).toBe(false);
     });
   });
 

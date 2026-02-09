@@ -1,6 +1,7 @@
-import { App, computed, createApp, h, nextTick, onUnmounted, ref, Ref, watch } from "vue";
+import { App, computed, createApp, h, nextTick, ref, Ref, watch } from "vue";
 import CodeViewer from "../code-viewer/CodeViewer.vue";
 import { CodeBlockState } from "./useCodeBlocks";
+import { useDomObserver } from "./useDomObserver";
 
 /**
  * Options for useCodeBlockManager composable
@@ -84,9 +85,6 @@ export function useCodeBlockManager(
 
   // Track watchers for cleanup
   const mountedWatchers = new Map<string, () => void>();
-
-  // MutationObserver to watch for new code block wrappers
-  let observer: MutationObserver | null = null;
 
   /**
    * Create and mount a CodeViewer instance for a code block
@@ -275,102 +273,19 @@ export function useCodeBlockManager(
     return mountedInstances.size;
   }
 
-  /**
-   * Handle mutations to the content element
-   */
-  function handleMutations(mutations: MutationRecord[]): void {
-    for (const mutation of mutations) {
-      // Check for added nodes that are code block wrappers
-      for (const node of Array.from(mutation.addedNodes)) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = node as HTMLElement;
-
-          // Check if the added node is a code block wrapper
-          if (element.hasAttribute && element.hasAttribute("data-code-block-id")) {
-            nextTick(() => mountCodeViewer(element));
-          }
-
-          // Check children for code block wrappers
-          const childWrappers = element.querySelectorAll?.("[data-code-block-id]");
-          if (childWrappers && childWrappers.length > 0) {
-            childWrappers.forEach((wrapper) => {
-              nextTick(() => mountCodeViewer(wrapper as HTMLElement));
-            });
-          }
-        }
-      }
-
-      // Check for removed nodes that were code block wrappers
-      for (const node of Array.from(mutation.removedNodes)) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = node as HTMLElement;
-
-          // Check if the removed node is a code block wrapper
-          const id = element.getAttribute?.("data-code-block-id");
-          if (id) {
-            unmountCodeViewer(id);
-          }
-
-          // Check children for code block wrappers
-          const childWrappers = element.querySelectorAll?.("[data-code-block-id]");
-          if (childWrappers) {
-            childWrappers.forEach((wrapper) => {
-              const childId = wrapper.getAttribute("data-code-block-id");
-              if (childId) {
-                unmountCodeViewer(childId);
-              }
-            });
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Start observing for DOM changes
-   */
-  function startObserver(): void {
-    if (!contentRef.value || observer) return;
-
-    observer = new MutationObserver(handleMutations);
-    observer.observe(contentRef.value, {
-      childList: true,
-      subtree: true,
-    });
-  }
-
-  /**
-   * Stop observing DOM changes
-   */
-  function stopObserver(): void {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-  }
-
-  // Watch for contentRef changes to set up/tear down observer
-  watch(
+  // Set up DOM observer for code block wrappers
+  useDomObserver({
     contentRef,
-    (newRef, oldRef) => {
-      if (oldRef && !newRef) {
-        // Content ref was removed - clean up
-        stopObserver();
-        unmountAllCodeViewers();
-      } else if (newRef && !oldRef) {
-        // Content ref was added - set up
-        startObserver();
-        // Mount any existing code blocks
-        nextTick(() => mountCodeViewers());
+    dataAttribute: "data-code-block-id",
+    onNodeAdded: (el) => mountCodeViewer(el),
+    onNodeRemoved: (el) => {
+      const id = el.getAttribute("data-code-block-id");
+      if (id) {
+        unmountCodeViewer(id);
       }
     },
-    { immediate: true }
-  );
-
-  // Clean up on unmount
-  onUnmounted(() => {
-    stopObserver();
-    unmountAllCodeViewers();
+    onCleanup: () => unmountAllCodeViewers(),
+    onInitialMount: () => mountCodeViewers(),
   });
 
   return {
