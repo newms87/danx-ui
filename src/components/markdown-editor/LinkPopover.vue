@@ -1,83 +1,3 @@
-<template>
-  <div
-    class="dx-link-popover-overlay"
-    @click.self="onCancel"
-    @keydown.escape="onCancel"
-  >
-    <div
-      ref="popoverRef"
-      class="dx-link-popover"
-      :style="popoverStyle"
-    >
-      <div class="popover-header">
-        <h3>{{ isEditing ? 'Edit Link' : 'Insert Link' }}</h3>
-        <button
-          class="close-btn"
-          type="button"
-          aria-label="Close"
-          @click="onCancel"
-        >
-          <span class="w-4 h-4" v-html="XmarkIcon" />
-        </button>
-      </div>
-
-      <div class="popover-content">
-        <div class="input-group">
-          <label for="link-url">URL</label>
-          <input
-            id="link-url"
-            ref="urlInputRef"
-            v-model="urlValue"
-            type="text"
-            placeholder="https://example.com"
-            @keydown.enter.prevent="onSubmit"
-            @keydown.escape="onCancel"
-          >
-        </div>
-
-        <div
-          v-if="!isEditing"
-          class="input-group"
-        >
-          <label for="link-label">Label</label>
-          <input
-            id="link-label"
-            v-model="labelValue"
-            type="text"
-            :placeholder="labelPlaceholder"
-            @keydown.enter.prevent="onSubmit"
-            @keydown.escape="onCancel"
-          >
-        </div>
-
-        <div
-          v-if="isEditing"
-          class="edit-hint"
-        >
-          Enter an empty URL to remove the link.
-        </div>
-      </div>
-
-      <div class="popover-footer">
-        <button
-          type="button"
-          class="btn-cancel"
-          @click="onCancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn-insert"
-          @click="onSubmit"
-        >
-          {{ isEditing ? 'Update' : 'Insert' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { XmarkIcon } from "./icons";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
@@ -91,7 +11,7 @@ export interface LinkPopoverProps {
 
 const props = withDefaults(defineProps<LinkPopoverProps>(), {
   existingUrl: "",
-  selectedText: ""
+  selectedText: "",
 });
 
 const emit = defineEmits<{
@@ -124,7 +44,7 @@ const popoverStyle = computed(() => {
   const padding = 10;
 
   let top = props.position.y + padding;
-  let left = props.position.x - (popoverWidth / 2);
+  let left = props.position.x - popoverWidth / 2;
 
   // Check if popover would extend below viewport
   if (top + popoverHeight > window.innerHeight - padding) {
@@ -144,7 +64,7 @@ const popoverStyle = computed(() => {
 
   return {
     top: `${top}px`,
-    left: `${left}px`
+    left: `${left}px`,
   };
 });
 
@@ -181,10 +101,62 @@ onUnmounted(() => {
 });
 
 // Watch for existingUrl changes to update the input
-watch(() => props.existingUrl, (newUrl) => {
-  urlValue.value = newUrl || "";
-});
+watch(
+  () => props.existingUrl,
+  (newUrl) => {
+    urlValue.value = newUrl || "";
+  }
+);
 </script>
+
+<template>
+  <div class="dx-link-popover-overlay" @click.self="onCancel" @keydown.escape="onCancel">
+    <div ref="popoverRef" class="dx-link-popover" :style="popoverStyle">
+      <div class="popover-header">
+        <h3>{{ isEditing ? "Edit Link" : "Insert Link" }}</h3>
+        <button class="close-btn" type="button" aria-label="Close" @click="onCancel">
+          <span class="w-4 h-4" v-html="XmarkIcon" />
+        </button>
+      </div>
+
+      <div class="popover-content">
+        <div class="input-group">
+          <label for="link-url">URL</label>
+          <input
+            id="link-url"
+            ref="urlInputRef"
+            v-model="urlValue"
+            type="text"
+            placeholder="https://example.com"
+            @keydown.enter.prevent="onSubmit"
+            @keydown.escape="onCancel"
+          />
+        </div>
+
+        <div v-if="!isEditing" class="input-group">
+          <label for="link-label">Label</label>
+          <input
+            id="link-label"
+            v-model="labelValue"
+            type="text"
+            :placeholder="labelPlaceholder"
+            @keydown.enter.prevent="onSubmit"
+            @keydown.escape="onCancel"
+          />
+        </div>
+
+        <div v-if="isEditing" class="edit-hint">Enter an empty URL to remove the link.</div>
+      </div>
+
+      <div class="popover-footer">
+        <button type="button" class="btn-cancel" @click="onCancel">Cancel</button>
+        <button type="button" class="btn-insert" @click="onSubmit">
+          {{ isEditing ? "Update" : "Insert" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style>
 .dx-link-popover-overlay {

@@ -1,104 +1,3 @@
-<template>
-  <div
-    class="dx-table-popover-overlay"
-    @click.self="onCancel"
-    @keydown.escape="onCancel"
-  >
-    <div
-      ref="popoverRef"
-      class="dx-table-popover"
-      :style="popoverStyle"
-    >
-      <div class="popover-header">
-        <h3>Insert Table</h3>
-        <button
-          class="close-btn"
-          type="button"
-          aria-label="Close"
-          @click="onCancel"
-        >
-          <span class="w-4 h-4" v-html="XmarkIcon" />
-        </button>
-      </div>
-
-      <div class="popover-content">
-        <!-- Visual Grid Selector -->
-        <div class="grid-selector">
-          <div
-            v-for="row in GRID_SIZE"
-            :key="row"
-            class="grid-row"
-          >
-            <div
-              v-for="col in GRID_SIZE"
-              :key="col"
-              class="grid-cell"
-              :class="{ selected: row <= hoverRows && col <= hoverCols }"
-              @mouseenter="onCellHover(row, col)"
-              @click="onCellClick(row, col)"
-            />
-          </div>
-        </div>
-
-        <!-- Dimension Label -->
-        <div class="dimension-label">
-          {{ hoverRows }} x {{ hoverCols }}
-        </div>
-
-        <!-- Manual Input Divider -->
-        <div class="divider">
-          <span>or enter manually</span>
-        </div>
-
-        <!-- Manual Input Fields -->
-        <div class="manual-inputs">
-          <div class="input-group">
-            <label for="table-rows">Rows</label>
-            <input
-              id="table-rows"
-              v-model.number="manualRows"
-              type="number"
-              min="1"
-              :max="MAX_ROWS"
-              @keydown.enter.prevent="onSubmit"
-              @keydown.escape="onCancel"
-            >
-          </div>
-          <div class="input-group">
-            <label for="table-cols">Cols</label>
-            <input
-              id="table-cols"
-              v-model.number="manualCols"
-              type="number"
-              min="1"
-              :max="MAX_COLS"
-              @keydown.enter.prevent="onSubmit"
-              @keydown.escape="onCancel"
-            >
-          </div>
-        </div>
-      </div>
-
-      <div class="popover-footer">
-        <button
-          type="button"
-          class="btn-cancel"
-          @click="onCancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn-insert"
-          @click="onSubmit"
-        >
-          Insert
-        </button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { XmarkIcon } from "./icons";
 import { computed, onMounted, onUnmounted, ref } from "vue";
@@ -108,17 +7,15 @@ export interface TablePopoverProps {
   position: PopoverPosition;
 }
 
-const GRID_SIZE = 5;
-const MAX_ROWS = 20;
-const MAX_COLS = 10;
-const DEFAULT_SIZE = 3;
-
 const props = defineProps<TablePopoverProps>();
-
 const emit = defineEmits<{
   submit: [rows: number, cols: number];
   cancel: [];
 }>();
+const GRID_SIZE = 5;
+const MAX_ROWS = 20;
+const MAX_COLS = 10;
+const DEFAULT_SIZE = 3;
 
 // Refs
 const popoverRef = ref<HTMLElement | null>(null);
@@ -136,7 +33,7 @@ const popoverStyle = computed(() => {
   const padding = 10;
 
   let top = props.position.y + padding;
-  let left = props.position.x - (popoverWidth / 2);
+  let left = props.position.x - popoverWidth / 2;
 
   // Check if popover would extend below viewport
   if (top + popoverHeight > window.innerHeight - padding) {
@@ -156,7 +53,7 @@ const popoverStyle = computed(() => {
 
   return {
     top: `${top}px`,
-    left: `${left}px`
+    left: `${left}px`,
   };
 });
 
@@ -197,6 +94,76 @@ onUnmounted(() => {
   document.removeEventListener("keydown", handleDocumentKeydown);
 });
 </script>
+
+<template>
+  <div class="dx-table-popover-overlay" @click.self="onCancel" @keydown.escape="onCancel">
+    <div ref="popoverRef" class="dx-table-popover" :style="popoverStyle">
+      <div class="popover-header">
+        <h3>Insert Table</h3>
+        <button class="close-btn" type="button" aria-label="Close" @click="onCancel">
+          <span class="w-4 h-4" v-html="XmarkIcon" />
+        </button>
+      </div>
+
+      <div class="popover-content">
+        <!-- Visual Grid Selector -->
+        <div class="grid-selector">
+          <div v-for="row in GRID_SIZE" :key="row" class="grid-row">
+            <div
+              v-for="col in GRID_SIZE"
+              :key="col"
+              class="grid-cell"
+              :class="{ selected: row <= hoverRows && col <= hoverCols }"
+              @mouseenter="onCellHover(row, col)"
+              @click="onCellClick(row, col)"
+            />
+          </div>
+        </div>
+
+        <!-- Dimension Label -->
+        <div class="dimension-label">{{ hoverRows }} x {{ hoverCols }}</div>
+
+        <!-- Manual Input Divider -->
+        <div class="divider">
+          <span>or enter manually</span>
+        </div>
+
+        <!-- Manual Input Fields -->
+        <div class="manual-inputs">
+          <div class="input-group">
+            <label for="table-rows">Rows</label>
+            <input
+              id="table-rows"
+              v-model.number="manualRows"
+              type="number"
+              min="1"
+              :max="MAX_ROWS"
+              @keydown.enter.prevent="onSubmit"
+              @keydown.escape="onCancel"
+            />
+          </div>
+          <div class="input-group">
+            <label for="table-cols">Cols</label>
+            <input
+              id="table-cols"
+              v-model.number="manualCols"
+              type="number"
+              min="1"
+              :max="MAX_COLS"
+              @keydown.enter.prevent="onSubmit"
+              @keydown.escape="onCancel"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="popover-footer">
+        <button type="button" class="btn-cancel" @click="onCancel">Cancel</button>
+        <button type="button" class="btn-insert" @click="onSubmit">Insert</button>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style>
 .dx-table-popover-overlay {
@@ -311,7 +278,7 @@ onUnmounted(() => {
 
 .dx-table-popover .divider::before,
 .dx-table-popover .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: #404040;
@@ -372,7 +339,7 @@ onUnmounted(() => {
   margin: 0;
 }
 
-.dx-table-popover .input-group input[type=number] {
+.dx-table-popover .input-group input[type="number"] {
   -moz-appearance: textfield;
 }
 

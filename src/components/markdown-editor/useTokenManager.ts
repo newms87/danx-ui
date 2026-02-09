@@ -59,7 +59,7 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
    * Find the token renderer by ID
    */
   function getRenderer(rendererId: string): TokenRenderer | undefined {
-    return tokenRenderers.find(r => r.id === rendererId);
+    return tokenRenderers.find((r) => r.id === rendererId);
   }
 
   /**
@@ -105,7 +105,7 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
     const app = createApp({
       setup() {
         return () => h(renderer.component, props);
-      }
+      },
     });
 
     // Configure the app if a callback is provided
@@ -223,7 +223,7 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
     observer = new MutationObserver(handleMutations);
     observer.observe(contentRef.value, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
   }
 
@@ -238,18 +238,22 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
   }
 
   // Watch for contentRef changes to set up/tear down observer
-  watch(contentRef, (newRef, oldRef) => {
-    if (oldRef && !newRef) {
-      // Content ref was removed - clean up
-      stopObserver();
-      unmountAllTokens();
-    } else if (newRef && !oldRef) {
-      // Content ref was added - set up
-      startObserver();
-      // Mount any existing tokens
-      nextTick(() => mountAllTokens());
-    }
-  }, { immediate: true });
+  watch(
+    contentRef,
+    (newRef, oldRef) => {
+      if (oldRef && !newRef) {
+        // Content ref was removed - clean up
+        stopObserver();
+        unmountAllTokens();
+      } else if (newRef && !oldRef) {
+        // Content ref was added - set up
+        startObserver();
+        // Mount any existing tokens
+        nextTick(() => mountAllTokens());
+      }
+    },
+    { immediate: true }
+  );
 
   // Clean up on unmount
   onUnmounted(() => {
@@ -261,6 +265,6 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
     mountAllTokens,
     unmountToken,
     unmountAllTokens,
-    getMountedCount
+    getMountedCount,
   };
 }

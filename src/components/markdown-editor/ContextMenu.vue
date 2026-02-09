@@ -1,72 +1,3 @@
-<template>
-  <div
-    class="dx-context-menu-overlay"
-    @click.self="onClose"
-    @keydown.escape="onClose"
-  >
-    <div
-      ref="menuRef"
-      class="dx-context-menu"
-      :style="menuStyle"
-    >
-      <template v-for="(item, itemIndex) in items" :key="item.id">
-        <!-- Divider -->
-        <div v-if="item.divider" class="context-menu-divider" />
-
-        <!-- Regular menu item or submenu trigger -->
-        <template v-else>
-          <div
-            class="context-menu-item-wrapper"
-            @mouseenter="handleItemHover(item, itemIndex)"
-            @mouseleave="handleItemLeave"
-          >
-            <button
-              class="context-menu-item"
-              :class="{ disabled: item.disabled, 'has-children': item.children?.length }"
-              type="button"
-              :disabled="item.disabled"
-              @click="onItemClick(item)"
-            >
-              <span class="item-label">{{ item.label }}</span>
-              <span v-if="item.shortcut && !item.children" class="item-shortcut">{{ item.shortcut }}</span>
-              <span v-if="item.children?.length" class="item-chevron">&#9656;</span>
-            </button>
-
-            <!-- Nested submenu -->
-            <div
-              v-if="item.children?.length && activeSubmenuId === item.id"
-              ref="submenuRefs"
-              class="dx-context-submenu"
-              :class="{ 'open-left': submenuOpenLeft }"
-              :data-item-id="item.id"
-              @mouseenter="handleSubmenuEnter"
-              @mouseleave="handleSubmenuLeave"
-            >
-              <template v-for="child in item.children" :key="child.id">
-                <!-- Child divider -->
-                <div v-if="child.divider" class="context-menu-divider" />
-
-                <!-- Child item -->
-                <button
-                  v-else
-                  class="context-menu-item"
-                  :class="{ disabled: child.disabled }"
-                  type="button"
-                  :disabled="child.disabled"
-                  @click="onItemClick(child)"
-                >
-                  <span class="item-label">{{ child.label }}</span>
-                  <span v-if="child.shortcut" class="item-shortcut">{{ child.shortcut }}</span>
-                </button>
-              </template>
-            </div>
-          </div>
-        </template>
-      </template>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { ContextMenuItem } from "./types";
@@ -120,7 +51,7 @@ const menuStyle = computed(() => {
 
   return {
     top: `${top}px`,
-    left: `${left}px`
+    left: `${left}px`,
   };
 });
 
@@ -210,6 +141,69 @@ onUnmounted(() => {
 });
 </script>
 
+<template>
+  <div class="dx-context-menu-overlay" @click.self="onClose" @keydown.escape="onClose">
+    <div ref="menuRef" class="dx-context-menu" :style="menuStyle">
+      <template v-for="(item, itemIndex) in items" :key="item.id">
+        <!-- Divider -->
+        <div v-if="item.divider" class="context-menu-divider" />
+
+        <!-- Regular menu item or submenu trigger -->
+        <template v-else>
+          <div
+            class="context-menu-item-wrapper"
+            @mouseenter="handleItemHover(item, itemIndex)"
+            @mouseleave="handleItemLeave"
+          >
+            <button
+              class="context-menu-item"
+              :class="{ disabled: item.disabled, 'has-children': item.children?.length }"
+              type="button"
+              :disabled="item.disabled"
+              @click="onItemClick(item)"
+            >
+              <span class="item-label">{{ item.label }}</span>
+              <span v-if="item.shortcut && !item.children" class="item-shortcut">{{
+                item.shortcut
+              }}</span>
+              <span v-if="item.children?.length" class="item-chevron">&#9656;</span>
+            </button>
+
+            <!-- Nested submenu -->
+            <div
+              v-if="item.children?.length && activeSubmenuId === item.id"
+              ref="submenuRefs"
+              class="dx-context-submenu"
+              :class="{ 'open-left': submenuOpenLeft }"
+              :data-item-id="item.id"
+              @mouseenter="handleSubmenuEnter"
+              @mouseleave="handleSubmenuLeave"
+            >
+              <template v-for="child in item.children" :key="child.id">
+                <!-- Child divider -->
+                <div v-if="child.divider" class="context-menu-divider" />
+
+                <!-- Child item -->
+                <button
+                  v-else
+                  class="context-menu-item"
+                  :class="{ disabled: child.disabled }"
+                  type="button"
+                  :disabled="child.disabled"
+                  @click="onItemClick(child)"
+                >
+                  <span class="item-label">{{ child.label }}</span>
+                  <span v-if="child.shortcut" class="item-shortcut">{{ child.shortcut }}</span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </template>
+      </template>
+    </div>
+  </div>
+</template>
+
 <style>
 .dx-context-menu-overlay {
   position: fixed;
@@ -276,7 +270,7 @@ onUnmounted(() => {
 .dx-context-menu .context-menu-item .item-shortcut {
   font-size: 0.75rem;
   color: #6b7280;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: "Consolas", "Monaco", monospace;
   margin-left: 1rem;
   white-space: nowrap;
 }

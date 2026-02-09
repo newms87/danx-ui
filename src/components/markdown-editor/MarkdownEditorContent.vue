@@ -1,18 +1,3 @@
-<template>
-  <div
-    ref="containerRef"
-    class="dx-markdown-editor-content dx-markdown-content"
-    :class="{ 'is-readonly': readonly, 'is-empty': isContentEmpty }"
-    :contenteditable="!readonly"
-    :data-placeholder="placeholder"
-    @input="onInput"
-    @keydown="$emit('keydown', $event)"
-    @blur="$emit('blur')"
-    @click="handleClick"
-    v-html="html"
-  />
-</template>
-
 <script setup lang="ts">
 import { nextTick, ref, watch } from "vue";
 import { findLinkAncestor } from "./blockUtils";
@@ -25,7 +10,7 @@ export interface MarkdownEditorContentProps {
 
 const props = withDefaults(defineProps<MarkdownEditorContentProps>(), {
   readonly: false,
-  placeholder: "Start typing..."
+  placeholder: "Start typing...",
 });
 
 const emit = defineEmits<{
@@ -57,9 +42,13 @@ function onInput(): void {
 }
 
 // Watch for external HTML changes (e.g., from parent component)
-watch(() => props.html, () => {
-  nextTick(() => checkIfEmpty());
-}, { immediate: true });
+watch(
+  () => props.html,
+  () => {
+    nextTick(() => checkIfEmpty());
+  },
+  { immediate: true }
+);
 
 /**
  * Handle clicks in the editor content.
@@ -87,6 +76,21 @@ function handleClick(event: MouseEvent): void {
 // Expose containerRef for parent component
 defineExpose({ containerRef });
 </script>
+
+<template>
+  <div
+    ref="containerRef"
+    class="dx-markdown-editor-content dx-markdown-content"
+    :class="{ 'is-readonly': readonly, 'is-empty': isContentEmpty }"
+    :contenteditable="!readonly"
+    :data-placeholder="placeholder"
+    @input="onInput"
+    @keydown="$emit('keydown', $event)"
+    @blur="$emit('blur')"
+    @click="handleClick"
+    v-html="html"
+  />
+</template>
 
 <style>
 .dx-markdown-editor-content {
@@ -269,7 +273,11 @@ defineExpose({ containerRef });
   border-color: #e2e8f0;
 }
 
-.dx-markdown-editor.theme-light .dx-markdown-editor-content .code-block-wrapper .dx-code-viewer .code-footer {
+.dx-markdown-editor.theme-light
+  .dx-markdown-editor-content
+  .code-block-wrapper
+  .dx-code-viewer
+  .code-footer {
   background: #e2e8f0;
 }
 </style>

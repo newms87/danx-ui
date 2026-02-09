@@ -63,7 +63,11 @@ export { useFocusTracking } from "./useFocusTracking";
 export type { UseFocusTrackingOptions, UseFocusTrackingReturn } from "./useFocusTracking";
 
 export { useLinkPopover, useTablePopover } from "./usePopoverManager";
-export type { PopoverPosition, UseLinkPopoverReturn, UseTablePopoverReturn } from "./usePopoverManager";
+export type {
+  PopoverPosition,
+  UseLinkPopoverReturn,
+  UseTablePopoverReturn,
+} from "./usePopoverManager";
 
 export type {
   ContextMenuContext,

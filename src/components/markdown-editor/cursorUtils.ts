@@ -18,37 +18,37 @@ export const CURSOR_ANCHOR = "\u200B";
  * Position for popover display (viewport coordinates)
  */
 export interface CursorViewportPosition {
-	x: number;
-	y: number;
+  x: number;
+  y: number;
 }
 
 /**
  * Position cursor at end of element by finding the last text node.
  */
 export function positionCursorAtEnd(element: Element): void {
-	const sel = window.getSelection();
-	if (!sel) return;
+  const sel = window.getSelection();
+  if (!sel) return;
 
-	const range = document.createRange();
+  const range = document.createRange();
 
-	// Find last text node
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	let lastTextNode: Text | null = null;
-	let node: Text | null;
-	while ((node = walker.nextNode() as Text | null)) {
-		lastTextNode = node;
-	}
+  // Find last text node
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let lastTextNode: Text | null = null;
+  let node: Text | null;
+  while ((node = walker.nextNode() as Text | null)) {
+    lastTextNode = node;
+  }
 
-	if (lastTextNode) {
-		range.setStart(lastTextNode, lastTextNode.length);
-		range.collapse(true);
-	} else {
-		range.selectNodeContents(element);
-		range.collapse(false);
-	}
+  if (lastTextNode) {
+    range.setStart(lastTextNode, lastTextNode.length);
+    range.collapse(true);
+  } else {
+    range.selectNodeContents(element);
+    range.collapse(false);
+  }
 
-	sel.removeAllRanges();
-	sel.addRange(range);
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 
 /**
@@ -57,31 +57,31 @@ export function positionCursorAtEnd(element: Element): void {
  * so typing replaces/follows the anchor rather than creating sibling nodes.
  */
 export function positionCursorAtStart(element: Element): void {
-	const sel = window.getSelection();
-	if (!sel) return;
+  const sel = window.getSelection();
+  if (!sel) return;
 
-	const range = document.createRange();
+  const range = document.createRange();
 
-	// Find first text node
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	const firstTextNode = walker.nextNode() as Text | null;
+  // Find first text node
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const firstTextNode = walker.nextNode() as Text | null;
 
-	if (firstTextNode) {
-		// If there's a cursor anchor (zero-width space), position after it
-		// so typing goes into the element rather than creating siblings
-		if (firstTextNode.textContent === CURSOR_ANCHOR) {
-			range.setStart(firstTextNode, firstTextNode.length);
-		} else {
-			range.setStart(firstTextNode, 0);
-		}
-		range.collapse(true);
-	} else {
-		range.selectNodeContents(element);
-		range.collapse(true);
-	}
+  if (firstTextNode) {
+    // If there's a cursor anchor (zero-width space), position after it
+    // so typing goes into the element rather than creating siblings
+    if (firstTextNode.textContent === CURSOR_ANCHOR) {
+      range.setStart(firstTextNode, firstTextNode.length);
+    } else {
+      range.setStart(firstTextNode, 0);
+    }
+    range.collapse(true);
+  } else {
+    range.selectNodeContents(element);
+    range.collapse(true);
+  }
 
-	sel.removeAllRanges();
-	sel.addRange(range);
+  sel.removeAllRanges();
+  sel.addRange(range);
 }
 
 /**
@@ -89,15 +89,15 @@ export function positionCursorAtStart(element: Element): void {
  * Walks text nodes and counts characters up to the cursor position.
  */
 export function getCursorOffset(element: HTMLElement): number {
-	const selection = window.getSelection();
-	if (!selection || !selection.rangeCount) return 0;
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount) return 0;
 
-	const range = selection.getRangeAt(0);
-	const preCaretRange = document.createRange();
-	preCaretRange.selectNodeContents(element);
-	preCaretRange.setEnd(range.startContainer, range.startOffset);
+  const range = selection.getRangeAt(0);
+  const preCaretRange = document.createRange();
+  preCaretRange.selectNodeContents(element);
+  preCaretRange.setEnd(range.startContainer, range.startOffset);
 
-	return preCaretRange.toString().length;
+  return preCaretRange.toString().length;
 }
 
 /**
@@ -105,33 +105,33 @@ export function getCursorOffset(element: HTMLElement): number {
  * Walks text nodes to find the correct position.
  */
 export function setCursorOffset(element: HTMLElement, targetOffset: number): void {
-	const selection = window.getSelection();
-	if (!selection) return;
+  const selection = window.getSelection();
+  if (!selection) return;
 
-	let currentOffset = 0;
-	const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-	let node = walker.nextNode();
+  let currentOffset = 0;
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
 
-	while (node) {
-		const nodeLength = node.textContent?.length || 0;
-		if (currentOffset + nodeLength >= targetOffset) {
-			const range = document.createRange();
-			range.setStart(node, targetOffset - currentOffset);
-			range.collapse(true);
-			selection.removeAllRanges();
-			selection.addRange(range);
-			return;
-		}
-		currentOffset += nodeLength;
-		node = walker.nextNode();
-	}
+  while (node) {
+    const nodeLength = node.textContent?.length || 0;
+    if (currentOffset + nodeLength >= targetOffset) {
+      const range = document.createRange();
+      range.setStart(node, targetOffset - currentOffset);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return;
+    }
+    currentOffset += nodeLength;
+    node = walker.nextNode();
+  }
 
-	// If offset not found, place cursor at end
-	const range = document.createRange();
-	range.selectNodeContents(element);
-	range.collapse(false);
-	selection.removeAllRanges();
-	selection.addRange(range);
+  // If offset not found, place cursor at end
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
 /**
@@ -139,27 +139,27 @@ export function setCursorOffset(element: HTMLElement, targetOffset: number): voi
  * Used to position popovers near the cursor.
  */
 export function getCursorViewportPosition(): CursorViewportPosition {
-	const selection = window.getSelection();
-	if (!selection || !selection.rangeCount) {
-		return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-	}
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount) {
+    return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  }
 
-	const range = selection.getRangeAt(0);
-	const rect = range.getBoundingClientRect();
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
 
-	// If rect has no dimensions (collapsed cursor), use the start position
-	if (rect.width === 0 && rect.height === 0) {
-		return {
-			x: rect.left || window.innerWidth / 2,
-			y: rect.bottom || window.innerHeight / 2
-		};
-	}
+  // If rect has no dimensions (collapsed cursor), use the start position
+  if (rect.width === 0 && rect.height === 0) {
+    return {
+      x: rect.left || window.innerWidth / 2,
+      y: rect.bottom || window.innerHeight / 2,
+    };
+  }
 
-	// Center horizontally on the selection, position below
-	return {
-		x: rect.left + (rect.width / 2),
-		y: rect.bottom
-	};
+  // Center horizontally on the selection, position below
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.bottom,
+  };
 }
 
 /**
@@ -167,7 +167,7 @@ export function getCursorViewportPosition(): CursorViewportPosition {
  * Used after programmatic DOM changes to notify the editor.
  */
 export function dispatchInputEvent(element: HTMLElement): void {
-	element.dispatchEvent(new InputEvent("input", { bubbles: true }));
+  element.dispatchEvent(new InputEvent("input", { bubbles: true }));
 }
 
 /**
@@ -175,25 +175,25 @@ export function dispatchInputEvent(element: HTMLElement): void {
  * (e.g., popover interactions).
  */
 export function createSelectionManager(): {
-	save: () => void;
-	restore: () => void;
+  save: () => void;
+  restore: () => void;
 } {
-	let savedRange: Range | null = null;
+  let savedRange: Range | null = null;
 
-	function save(): void {
-		const selection = window.getSelection();
-		if (selection && selection.rangeCount > 0) {
-			savedRange = selection.getRangeAt(0).cloneRange();
-		}
-	}
+  function save(): void {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedRange = selection.getRangeAt(0).cloneRange();
+    }
+  }
 
-	function restore(): void {
-		if (savedRange) {
-			const selection = window.getSelection();
-			selection?.removeAllRanges();
-			selection?.addRange(savedRange);
-		}
-	}
+  function restore(): void {
+    if (savedRange) {
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(savedRange);
+    }
+  }
 
-	return { save, restore };
+  return { save, restore };
 }

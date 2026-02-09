@@ -1,31 +1,3 @@
-<template>
-  <div ref="menuRef" class="dx-line-type-menu" :class="{ 'is-open': isOpen }">
-    <button
-      class="line-type-trigger"
-      :title="currentTypeLabel"
-      type="button"
-      @mousedown.prevent="toggleMenu"
-    >
-      <span class="type-icon">{{ typeIcon }}</span>
-    </button>
-
-    <div v-if="isOpen" ref="dropdownRef" class="line-type-dropdown" :class="{ 'open-upward': openUpward }">
-      <button
-        v-for="option in LINE_TYPE_OPTIONS"
-        :key="option.value"
-        class="line-type-option"
-        :class="{ active: option.value === currentType }"
-        type="button"
-        @mousedown.prevent="selectType(option.value)"
-      >
-        <span class="option-icon">{{ option.icon }}</span>
-        <span class="option-label">{{ option.label }}</span>
-        <span class="option-shortcut">{{ option.shortcut }}</span>
-      </button>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import type { LineType, LineTypeOption } from "./types";
@@ -33,6 +5,12 @@ import type { LineType, LineTypeOption } from "./types";
 export interface LineTypeMenuProps {
   currentType: LineType;
 }
+
+const props = defineProps<LineTypeMenuProps>();
+
+const emit = defineEmits<{
+  change: [type: LineType];
+}>();
 
 const LINE_TYPE_OPTIONS: LineTypeOption[] = [
   { value: "paragraph", label: "Paragraph", icon: "\u00B6", shortcut: "Ctrl+0" },
@@ -45,14 +23,8 @@ const LINE_TYPE_OPTIONS: LineTypeOption[] = [
   { value: "ul", label: "Bullet List", icon: "\u2022", shortcut: "Ctrl+Shift+[" },
   { value: "ol", label: "Numbered List", icon: "1.", shortcut: "Ctrl+Shift+]" },
   { value: "code", label: "Code Block", icon: "</>", shortcut: "Ctrl+Shift+K" },
-  { value: "blockquote", label: "Blockquote", icon: ">", shortcut: "Ctrl+Shift+Q" }
+  { value: "blockquote", label: "Blockquote", icon: ">", shortcut: "Ctrl+Shift+Q" },
 ];
-
-const props = defineProps<LineTypeMenuProps>();
-
-const emit = defineEmits<{
-  change: [type: LineType];
-}>();
 
 const isOpen = ref(false);
 const menuRef = ref<HTMLElement | null>(null);
@@ -60,7 +32,7 @@ const dropdownRef = ref<HTMLElement | null>(null);
 const openUpward = ref(false);
 
 const currentOption = computed((): LineTypeOption => {
-  return LINE_TYPE_OPTIONS.find(o => o.value === props.currentType) ?? LINE_TYPE_OPTIONS[0]!;
+  return LINE_TYPE_OPTIONS.find((o) => o.value === props.currentType) ?? LINE_TYPE_OPTIONS[0]!;
 });
 
 const currentTypeLabel = computed(() => currentOption.value.label);
@@ -82,7 +54,8 @@ function checkDropdownPosition() {
   if (!dropdownRef.value || !menuRef.value) return;
 
   // Find the editor container (walk up to find .dx-markdown-editor or similar scrollable container)
-  const editor = menuRef.value.closest(".dx-markdown-editor") || menuRef.value.closest("[class*='editor']");
+  const editor =
+    menuRef.value.closest(".dx-markdown-editor") || menuRef.value.closest("[class*='editor']");
   if (!editor) {
     openUpward.value = false;
     return;
@@ -136,6 +109,39 @@ onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
 });
 </script>
+
+<template>
+  <div ref="menuRef" class="dx-line-type-menu" :class="{ 'is-open': isOpen }">
+    <button
+      class="line-type-trigger"
+      :title="currentTypeLabel"
+      type="button"
+      @mousedown.prevent="toggleMenu"
+    >
+      <span class="type-icon">{{ typeIcon }}</span>
+    </button>
+
+    <div
+      v-if="isOpen"
+      ref="dropdownRef"
+      class="line-type-dropdown"
+      :class="{ 'open-upward': openUpward }"
+    >
+      <button
+        v-for="option in LINE_TYPE_OPTIONS"
+        :key="option.value"
+        class="line-type-option"
+        :class="{ active: option.value === currentType }"
+        type="button"
+        @mousedown.prevent="selectType(option.value)"
+      >
+        <span class="option-icon">{{ option.icon }}</span>
+        <span class="option-label">{{ option.label }}</span>
+        <span class="option-shortcut">{{ option.shortcut }}</span>
+      </button>
+    </div>
+  </div>
+</template>
 
 <style>
 .dx-line-type-menu {
@@ -221,6 +227,6 @@ onUnmounted(() => {
 .dx-line-type-menu .line-type-option .option-shortcut {
   font-size: 0.75rem;
   color: #6b7280;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: "Consolas", "Monaco", monospace;
 }
 </style>

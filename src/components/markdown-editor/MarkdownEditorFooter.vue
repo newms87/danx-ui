@@ -1,19 +1,3 @@
-<template>
-  <div class="dx-markdown-editor-footer flex items-center justify-between px-2 py-1">
-    <span class="char-count text-xs text-gray-500">
-      {{ charCount.toLocaleString() }} chars
-    </span>
-    <button
-      class="hotkey-help-btn text-gray-500 hover:text-gray-300 transition-colors p-1 rounded"
-      title="Keyboard shortcuts (Ctrl+?)"
-      type="button"
-      @click="$emit('show-hotkeys')"
-    >
-      <span class="w-4 h-4" v-html="KeyboardIcon" />
-    </button>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { KeyboardIcon } from "./icons";
 
@@ -27,6 +11,20 @@ defineEmits<{
   "show-hotkeys": [];
 }>();
 </script>
+
+<template>
+  <div class="dx-markdown-editor-footer flex items-center justify-between px-2 py-1">
+    <span class="char-count text-xs text-gray-500"> {{ charCount.toLocaleString() }} chars </span>
+    <button
+      class="hotkey-help-btn text-gray-500 hover:text-gray-300 transition-colors p-1 rounded"
+      title="Keyboard shortcuts (Ctrl+?)"
+      type="button"
+      @click="$emit('show-hotkeys')"
+    >
+      <span class="w-4 h-4" v-html="KeyboardIcon" />
+    </button>
+  </div>
+</template>
 
 <style>
 .dx-markdown-editor-footer {

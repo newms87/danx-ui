@@ -2,7 +2,18 @@ import { Component } from "vue";
 
 // === Component Types ===
 
-export type LineType = "paragraph" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "ul" | "ol" | "code" | "blockquote";
+export type LineType =
+  | "paragraph"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "ul"
+  | "ol"
+  | "code"
+  | "blockquote";
 
 export interface LineTypeOption {
   value: LineType;
@@ -18,10 +29,10 @@ export interface ContextMenuItem {
   label: string;
   icon?: string;
   shortcut?: string;
-  action?: () => void;  // Optional - not needed if has children
+  action?: () => void; // Optional - not needed if has children
   disabled?: boolean;
-  children?: ContextMenuItem[];  // For nested submenus
-  divider?: boolean;  // For visual dividers between items
+  children?: ContextMenuItem[]; // For nested submenus
+  divider?: boolean; // For visual dividers between items
 }
 
 export interface ContextMenuGroup {

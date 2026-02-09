@@ -1,53 +1,13 @@
-<template>
-  <div
-    ref="overlayRef"
-    class="dx-hotkey-help-overlay"
-    tabindex="-1"
-    @click.self="$emit('close')"
-    @keydown.escape="$emit('close')"
-  >
-    <div class="dx-hotkey-help-popover">
-      <div class="popover-header">
-        <h3>Keyboard Shortcuts</h3>
-        <button
-          class="close-btn"
-          type="button"
-          aria-label="Close"
-          @click="$emit('close')"
-        >
-          <span class="w-4 h-4" v-html="XmarkIcon" />
-        </button>
-      </div>
-
-      <div class="popover-content">
-        <div class="hotkey-groups-grid">
-          <div
-            v-for="group in groupedHotkeys"
-            :key="group.name"
-            class="hotkey-group"
-          >
-            <h4>{{ group.label }}</h4>
-            <div class="hotkey-list">
-              <div
-                v-for="hotkey in group.hotkeys"
-                :key="hotkey.key"
-                class="hotkey-item"
-              >
-                <span class="hotkey-description">{{ hotkey.description }}</span>
-                <kbd class="hotkey-key">{{ formatKey(hotkey.key) }}</kbd>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { XmarkIcon } from "./icons";
 import { HotkeyDefinition, HotkeyGroup } from "./useMarkdownHotkeys";
+
+const props = defineProps<HotkeyHelpPopoverProps>();
+
+defineEmits<{
+  close: [];
+}>();
 
 const overlayRef = ref<HTMLDivElement | null>(null);
 
@@ -72,16 +32,10 @@ const GROUP_LABELS: Record<HotkeyGroup, string> = {
   lists: "Lists",
   blocks: "Blocks",
   tables: "Tables",
-  other: "Other"
+  other: "Other",
 };
 
 const GROUP_ORDER: HotkeyGroup[] = ["headings", "formatting", "lists", "blocks", "tables", "other"];
-
-const props = defineProps<HotkeyHelpPopoverProps>();
-
-defineEmits<{
-  close: [];
-}>();
 
 const groupedHotkeys = computed<HotkeyGroupDisplay[]>(() => {
   const groups = new Map<HotkeyGroup, HotkeyDefinition[]>();
@@ -100,13 +54,11 @@ const groupedHotkeys = computed<HotkeyGroupDisplay[]>(() => {
   }
 
   // Convert to display format, filtering empty groups
-  return GROUP_ORDER
-    .filter(name => (groups.get(name)?.length || 0) > 0)
-    .map(name => ({
-      name,
-      label: GROUP_LABELS[name],
-      hotkeys: groups.get(name) || []
-    }));
+  return GROUP_ORDER.filter((name) => (groups.get(name)?.length || 0) > 0).map((name) => ({
+    name,
+    label: GROUP_LABELS[name],
+    hotkeys: groups.get(name) || [],
+  }));
 });
 
 /**
@@ -116,7 +68,7 @@ const groupedHotkeys = computed<HotkeyGroupDisplay[]>(() => {
 function formatKey(key: string): string {
   return key
     .split("+")
-    .map(part => {
+    .map((part) => {
       const lower = part.toLowerCase();
       switch (lower) {
         case "ctrl":
@@ -138,6 +90,39 @@ function formatKey(key: string): string {
     .join(" + ");
 }
 </script>
+
+<template>
+  <div
+    ref="overlayRef"
+    class="dx-hotkey-help-overlay"
+    tabindex="-1"
+    @click.self="$emit('close')"
+    @keydown.escape="$emit('close')"
+  >
+    <div class="dx-hotkey-help-popover">
+      <div class="popover-header">
+        <h3>Keyboard Shortcuts</h3>
+        <button class="close-btn" type="button" aria-label="Close" @click="$emit('close')">
+          <span class="w-4 h-4" v-html="XmarkIcon" />
+        </button>
+      </div>
+
+      <div class="popover-content">
+        <div class="hotkey-groups-grid">
+          <div v-for="group in groupedHotkeys" :key="group.name" class="hotkey-group">
+            <h4>{{ group.label }}</h4>
+            <div class="hotkey-list">
+              <div v-for="hotkey in group.hotkeys" :key="hotkey.key" class="hotkey-item">
+                <span class="hotkey-description">{{ hotkey.description }}</span>
+                <kbd class="hotkey-key">{{ formatKey(hotkey.key) }}</kbd>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style>
 .dx-hotkey-help-overlay {
@@ -251,7 +236,7 @@ function formatKey(key: string): string {
   background: #1e1e1e;
   border: 1px solid #404040;
   border-radius: 0.25rem;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: "Consolas", "Monaco", monospace;
   font-size: 0.75rem;
   color: #9ca3af;
   white-space: nowrap;

@@ -462,7 +462,10 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
  * @param options - Optional configuration
  * @returns Markdown string
  */
-export function htmlToMarkdown(html: string | HTMLElement, options?: HtmlToMarkdownOptions): string {
+export function htmlToMarkdown(
+  html: string | HTMLElement,
+  options?: HtmlToMarkdownOptions
+): string {
   let container: HTMLElement;
 
   if (typeof html === "string") {

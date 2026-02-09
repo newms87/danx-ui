@@ -5,146 +5,163 @@ import { getCursorOffset, setCursorOffset } from "./cursorUtils";
  * Cursor position tracking for markdown editor
  */
 export interface CursorPosition {
-	/** Index of the block element containing the cursor */
-	blockIndex: number;
-	/** Character offset within the block */
-	charOffset: number;
+  /** Index of the block element containing the cursor */
+  blockIndex: number;
+  /** Character offset within the block */
+  charOffset: number;
 }
 
 /**
  * Return type for useMarkdownSelection composable
  */
 export interface UseMarkdownSelectionReturn {
-	saveCursorPosition: () => CursorPosition | null;
-	restoreCursorPosition: (position: CursorPosition) => void;
-	getCurrentBlock: () => Element | null;
-	getBlockIndex: () => number;
+  saveCursorPosition: () => CursorPosition | null;
+  restoreCursorPosition: (position: CursorPosition) => void;
+  getCurrentBlock: () => Element | null;
+  getBlockIndex: () => number;
 }
 
 /**
  * Get the block-level parent element (p, h1-h6, li, blockquote, etc.) containing the cursor
  */
 function findBlockParent(node: Node | null, contentRef: HTMLElement): Element | null {
-	if (!node) return null;
+  if (!node) return null;
 
-	const blockTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "BLOCKQUOTE", "PRE", "DIV"];
+  const blockTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "BLOCKQUOTE", "PRE", "DIV"];
 
-	let current: Node | null = node;
-	while (current && current !== contentRef) {
-		if (current.nodeType === Node.ELEMENT_NODE) {
-			const element = current as Element;
-			if (blockTags.includes(element.tagName)) {
-				return element;
-			}
-		}
-		current = current.parentNode;
-	}
+  let current: Node | null = node;
+  while (current && current !== contentRef) {
+    if (current.nodeType === Node.ELEMENT_NODE) {
+      const element = current as Element;
+      if (blockTags.includes(element.tagName)) {
+        return element;
+      }
+    }
+    current = current.parentNode;
+  }
 
-	return null;
+  return null;
 }
 
 /**
  * Get all direct block children of the content element
  */
 function getBlockElements(contentRef: HTMLElement): Element[] {
-	const blocks: Element[] = [];
-	const blockTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "BLOCKQUOTE", "PRE", "DIV", "TABLE", "HR"];
+  const blocks: Element[] = [];
+  const blockTags = [
+    "P",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "UL",
+    "OL",
+    "BLOCKQUOTE",
+    "PRE",
+    "DIV",
+    "TABLE",
+    "HR",
+  ];
 
-	for (const child of Array.from(contentRef.children)) {
-		if (blockTags.includes(child.tagName)) {
-			blocks.push(child);
-		}
-	}
+  for (const child of Array.from(contentRef.children)) {
+    if (blockTags.includes(child.tagName)) {
+      blocks.push(child);
+    }
+  }
 
-	return blocks;
+  return blocks;
 }
 
 /**
  * Composable for cursor and selection management in markdown editor
  */
-export function useMarkdownSelection(contentRef: Ref<HTMLElement | null>): UseMarkdownSelectionReturn {
-	/**
-	 * Get the current block element containing the cursor
-	 */
-	function getCurrentBlock(): Element | null {
-		if (!contentRef.value) return null;
+export function useMarkdownSelection(
+  contentRef: Ref<HTMLElement | null>
+): UseMarkdownSelectionReturn {
+  /**
+   * Get the current block element containing the cursor
+   */
+  function getCurrentBlock(): Element | null {
+    if (!contentRef.value) return null;
 
-		const selection = window.getSelection();
-		if (!selection || !selection.rangeCount) return null;
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return null;
 
-		const range = selection.getRangeAt(0);
-		return findBlockParent(range.startContainer, contentRef.value);
-	}
+    const range = selection.getRangeAt(0);
+    return findBlockParent(range.startContainer, contentRef.value);
+  }
 
-	/**
-	 * Get the index of the current block within the content element
-	 */
-	function getBlockIndex(): number {
-		if (!contentRef.value) return -1;
+  /**
+   * Get the index of the current block within the content element
+   */
+  function getBlockIndex(): number {
+    if (!contentRef.value) return -1;
 
-		const currentBlock = getCurrentBlock();
-		if (!currentBlock) return -1;
+    const currentBlock = getCurrentBlock();
+    if (!currentBlock) return -1;
 
-		const blocks = getBlockElements(contentRef.value);
-		return blocks.indexOf(currentBlock);
-	}
+    const blocks = getBlockElements(contentRef.value);
+    return blocks.indexOf(currentBlock);
+  }
 
-	/**
-	 * Save current cursor position as block index + character offset
-	 */
-	function saveCursorPosition(): CursorPosition | null {
-		if (!contentRef.value) return null;
+  /**
+   * Save current cursor position as block index + character offset
+   */
+  function saveCursorPosition(): CursorPosition | null {
+    if (!contentRef.value) return null;
 
-		const selection = window.getSelection();
-		if (!selection || !selection.rangeCount) return null;
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return null;
 
-		const currentBlock = getCurrentBlock();
-		if (!currentBlock) {
-			// Cursor is not in a block, save position relative to content root
-			return {
-				blockIndex: -1,
-				charOffset: getCursorOffset(contentRef.value)
-			};
-		}
+    const currentBlock = getCurrentBlock();
+    if (!currentBlock) {
+      // Cursor is not in a block, save position relative to content root
+      return {
+        blockIndex: -1,
+        charOffset: getCursorOffset(contentRef.value),
+      };
+    }
 
-		const blocks = getBlockElements(contentRef.value);
-		const blockIndex = blocks.indexOf(currentBlock);
-		const charOffset = getCursorOffset(currentBlock as HTMLElement);
+    const blocks = getBlockElements(contentRef.value);
+    const blockIndex = blocks.indexOf(currentBlock);
+    const charOffset = getCursorOffset(currentBlock as HTMLElement);
 
-		return { blockIndex, charOffset };
-	}
+    return { blockIndex, charOffset };
+  }
 
-	/**
-	 * Restore cursor position from saved state
-	 */
-	function restoreCursorPosition(position: CursorPosition): void {
-		if (!contentRef.value) return;
+  /**
+   * Restore cursor position from saved state
+   */
+  function restoreCursorPosition(position: CursorPosition): void {
+    if (!contentRef.value) return;
 
-		if (position.blockIndex === -1) {
-			// Restore to content root level
-			setCursorOffset(contentRef.value, position.charOffset);
-			return;
-		}
+    if (position.blockIndex === -1) {
+      // Restore to content root level
+      setCursorOffset(contentRef.value, position.charOffset);
+      return;
+    }
 
-		const blocks = getBlockElements(contentRef.value);
-		if (position.blockIndex >= 0 && position.blockIndex < blocks.length) {
-			const block = blocks[position.blockIndex] as HTMLElement;
-			setCursorOffset(block, position.charOffset);
-		} else {
-			// Block no longer exists, place cursor at end
-			const range = document.createRange();
-			range.selectNodeContents(contentRef.value);
-			range.collapse(false);
-			const selection = window.getSelection();
-			selection?.removeAllRanges();
-			selection?.addRange(range);
-		}
-	}
+    const blocks = getBlockElements(contentRef.value);
+    if (position.blockIndex >= 0 && position.blockIndex < blocks.length) {
+      const block = blocks[position.blockIndex] as HTMLElement;
+      setCursorOffset(block, position.charOffset);
+    } else {
+      // Block no longer exists, place cursor at end
+      const range = document.createRange();
+      range.selectNodeContents(contentRef.value);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+  }
 
-	return {
-		saveCursorPosition,
-		restoreCursorPosition,
-		getCurrentBlock,
-		getBlockIndex
-	};
+  return {
+    saveCursorPosition,
+    restoreCursorPosition,
+    getCurrentBlock,
+    getBlockIndex,
+  };
 }
