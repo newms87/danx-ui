@@ -193,16 +193,16 @@ watch(
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--dx-mde-overlay-bg);
   backdrop-filter: blur(1px);
 }
 
 .dx-link-popover {
   position: fixed;
-  background: #2d2d2d;
-  border: 1px solid #404040;
+  background: var(--dx-mde-popover-bg);
+  border: 1px solid var(--dx-mde-popover-border);
   border-radius: 0.5rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px var(--dx-mde-popover-shadow);
   width: 320px;
   overflow: hidden;
   display: flex;
@@ -214,14 +214,14 @@ watch(
   align-items: center;
   justify-content: space-between;
   padding: 0.875rem 1rem;
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--dx-mde-popover-border);
 }
 
 .dx-link-popover .popover-header h3 {
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #f3f4f6;
+  color: var(--dx-mde-popover-heading);
 }
 
 .dx-link-popover .popover-header .close-btn {
@@ -234,14 +234,14 @@ watch(
   background: transparent;
   border: none;
   border-radius: 0.25rem;
-  color: #9ca3af;
+  color: var(--dx-mde-popover-muted);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .dx-link-popover .popover-header .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f3f4f6;
+  background: var(--dx-mde-menu-item-hover);
+  color: var(--dx-mde-popover-heading);
 }
 
 .dx-link-popover .popover-content {
@@ -262,32 +262,32 @@ watch(
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: var(--dx-mde-popover-muted);
 }
 
 .dx-link-popover .input-group input {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  background: #1e1e1e;
-  border: 1px solid #404040;
+  background: var(--dx-mde-input-bg);
+  border: 1px solid var(--dx-mde-input-border);
   border-radius: 0.375rem;
   font-size: 0.875rem;
-  color: #f3f4f6;
+  color: var(--dx-mde-input-text);
   outline: none;
   transition: border-color 0.15s ease;
 }
 
 .dx-link-popover .input-group input::placeholder {
-  color: #6b7280;
+  color: var(--dx-mde-input-placeholder);
 }
 
 .dx-link-popover .input-group input:focus {
-  border-color: #60a5fa;
+  border-color: var(--dx-mde-input-border-focus);
 }
 
 .dx-link-popover .edit-hint {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--dx-mde-popover-dimmed);
   font-style: italic;
 }
 
@@ -296,7 +296,7 @@ watch(
   justify-content: flex-end;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-top: 1px solid #404040;
+  border-top: 1px solid var(--dx-mde-popover-border);
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -311,23 +311,23 @@ watch(
 
 .dx-link-popover .popover-footer .btn-cancel {
   background: transparent;
-  border: 1px solid #404040;
-  color: #d4d4d4;
+  border: 1px solid var(--dx-mde-btn-cancel-border);
+  color: var(--dx-mde-btn-cancel-text);
 }
 
 .dx-link-popover .popover-footer .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: #525252;
+  background: var(--dx-mde-menu-trigger-bg);
+  border-color: var(--dx-mde-btn-cancel-hover-border);
 }
 
 .dx-link-popover .popover-footer .btn-insert {
-  background: #3b82f6;
-  border: 1px solid #3b82f6;
-  color: #ffffff;
+  background: var(--dx-mde-btn-primary-bg);
+  border: 1px solid var(--dx-mde-btn-primary-bg);
+  color: var(--dx-mde-btn-primary-text);
 }
 
 .dx-link-popover .popover-footer .btn-insert:hover {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--dx-mde-btn-primary-hover);
+  border-color: var(--dx-mde-btn-primary-hover);
 }
 </style>

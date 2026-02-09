@@ -125,6 +125,7 @@ watch(modelValue, (newValue) => {
   <div
     class="dx-markdown-editor"
     :class="[{ 'is-readonly': readonly }, props.theme === 'light' ? 'theme-light' : '']"
+    :style="{ '--dx-mde-min-height': minHeight, '--dx-mde-max-height': maxHeight }"
   >
     <div class="dx-markdown-editor-body" @contextmenu="contextMenu.show">
       <MarkdownEditorContent
@@ -204,8 +205,8 @@ watch(modelValue, (newValue) => {
 /* Apply min/max height to content area */
 .dx-markdown-editor .dx-markdown-editor-content {
   flex: 1;
-  min-height: v-bind(minHeight);
-  max-height: v-bind(maxHeight);
+  min-height: var(--dx-mde-min-height, 100px);
+  max-height: var(--dx-mde-max-height, none);
 }
 
 /* Badge slot positioned at top-right of editor body */

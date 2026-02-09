@@ -21,6 +21,7 @@
   --dx-mde-footer-bg: #252526;
 
   /* Popover / overlay */
+  --dx-mde-overlay-bg: rgba(0, 0, 0, 0.3);
   --dx-mde-popover-bg: #2d2d2d;
   --dx-mde-popover-border: #404040;
   --dx-mde-popover-shadow: rgba(0, 0, 0, 0.5);
@@ -43,6 +44,7 @@
   --dx-mde-btn-cancel-bg: transparent;
   --dx-mde-btn-cancel-border: #404040;
   --dx-mde-btn-cancel-text: #d4d4d4;
+  --dx-mde-btn-cancel-hover-border: #525252;
 
   /* Hotkey kbd */
   --dx-mde-kbd-bg: #1e1e1e;

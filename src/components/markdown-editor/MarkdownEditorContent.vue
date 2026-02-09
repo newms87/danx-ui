@@ -142,19 +142,19 @@ onMounted(() => {
   border: 2px solid transparent;
   border-radius: 0.375rem 0.375rem 0 0;
   padding: 1rem;
-  background-color: #1e1e1e;
-  color: #d4d4d4;
+  background-color: var(--dx-mde-bg);
+  color: var(--dx-mde-color);
   transition: border-color 0.2s ease;
   overflow: auto;
-  caret-color: #d4d4d4;
+  caret-color: var(--dx-mde-caret);
 }
 
 .dx-markdown-editor-content:focus {
-  border-color: rgba(86, 156, 214, 0.6);
+  border-color: var(--dx-mde-border-focus);
 }
 
 .dx-markdown-editor-content:hover:not(:focus):not(.is-readonly) {
-  border-color: rgba(86, 156, 214, 0.3);
+  border-color: var(--dx-mde-border-hover);
 }
 
 .dx-markdown-editor-content.is-readonly {
@@ -165,7 +165,7 @@ onMounted(() => {
 /* Placeholder styling when empty */
 .dx-markdown-editor-content.is-empty::before {
   content: attr(data-placeholder);
-  color: #6b7280;
+  color: var(--dx-mde-placeholder);
   pointer-events: none;
   position: absolute;
 }
@@ -186,8 +186,8 @@ onMounted(() => {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: #374151;
-  color: #d1d5db;
+  background: var(--dx-mde-link-tooltip-bg);
+  color: var(--dx-mde-link-tooltip-text);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -264,10 +264,10 @@ onMounted(() => {
 
 /* Code block wrapper styling - distinct background to separate from editor content */
 .dx-markdown-editor-content .code-block-wrapper {
-  background: #0d1117;
+  background: var(--dx-mde-codeblock-bg);
   border-radius: 0.375rem;
   margin: 0.5rem 0;
-  border: 1px solid #30363d;
+  border: 1px solid var(--dx-mde-codeblock-border);
 }
 
 /* Override CodeViewer backgrounds to be transparent so wrapper controls it */
@@ -277,49 +277,7 @@ onMounted(() => {
 }
 
 .dx-markdown-editor-content .code-block-wrapper .dx-code-viewer .code-footer {
-  background: #161b22;
+  background: var(--dx-mde-codeblock-footer-bg);
   border-radius: 0 0 0.375rem 0.375rem;
-}
-
-/* ==========================================
-   LIGHT THEME VARIANT
-   ========================================== */
-.dx-markdown-editor.theme-light .dx-markdown-editor-content {
-  background-color: #f8fafc;
-  color: #1e293b;
-  caret-color: #1e293b;
-}
-
-.dx-markdown-editor.theme-light .dx-markdown-editor-content:focus {
-  border-color: rgba(14, 165, 233, 0.6);
-}
-
-.dx-markdown-editor.theme-light .dx-markdown-editor-content:hover:not(:focus):not(.is-readonly) {
-  border-color: rgba(14, 165, 233, 0.3);
-}
-
-/* Placeholder styling - light theme */
-.dx-markdown-editor.theme-light .dx-markdown-editor-content.is-empty::before {
-  color: #94a3b8;
-}
-
-/* Link tooltip - light theme */
-.dx-markdown-editor.theme-light .dx-markdown-editor-content a:hover::after {
-  background: #e2e8f0;
-  color: #1e293b;
-}
-
-/* Code block wrapper - light theme */
-.dx-markdown-editor.theme-light .dx-markdown-editor-content .code-block-wrapper {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-}
-
-.dx-markdown-editor.theme-light
-  .dx-markdown-editor-content
-  .code-block-wrapper
-  .dx-code-viewer
-  .code-footer {
-  background: #e2e8f0;
 }
 </style>

@@ -156,15 +156,15 @@ function formatKey(key: string): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--dx-mde-popover-shadow);
   backdrop-filter: blur(2px);
 }
 
 .dx-hotkey-help-popover {
-  background: #2d2d2d;
-  border: 1px solid #404040;
+  background: var(--dx-mde-popover-bg);
+  border: 1px solid var(--dx-mde-popover-border);
   border-radius: 0.5rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px var(--dx-mde-popover-shadow);
   min-width: 320px;
   max-width: 90vw;
   max-height: 80vh;
@@ -178,14 +178,14 @@ function formatKey(key: string): string {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--dx-mde-popover-border);
 }
 
 .dx-hotkey-help-popover .popover-header h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #f3f4f6;
+  color: var(--dx-mde-popover-heading);
 }
 
 .dx-hotkey-help-popover .popover-header .close-btn {
@@ -198,14 +198,14 @@ function formatKey(key: string): string {
   background: transparent;
   border: none;
   border-radius: 0.25rem;
-  color: #9ca3af;
+  color: var(--dx-mde-popover-muted);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .dx-hotkey-help-popover .popover-header .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #f3f4f6;
+  background: var(--dx-mde-menu-item-hover);
+  color: var(--dx-mde-popover-heading);
 }
 
 .dx-hotkey-help-popover .popover-content {
@@ -232,7 +232,7 @@ function formatKey(key: string): string {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: var(--dx-mde-popover-muted);
 }
 
 .dx-hotkey-help-popover .hotkey-list {
@@ -250,19 +250,19 @@ function formatKey(key: string): string {
 
 .dx-hotkey-help-popover .hotkey-item .hotkey-description {
   flex: 1;
-  color: #d4d4d4;
+  color: var(--dx-mde-popover-text);
   font-size: 0.875rem;
 }
 
 .dx-hotkey-help-popover .hotkey-item .hotkey-key {
   flex-shrink: 0;
   padding: 0.25rem 0.5rem;
-  background: #1e1e1e;
-  border: 1px solid #404040;
+  background: var(--dx-mde-kbd-bg);
+  border: 1px solid var(--dx-mde-kbd-border);
   border-radius: 0.25rem;
   font-family: "Consolas", "Monaco", monospace;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--dx-mde-kbd-text);
   white-space: nowrap;
 }
 </style>

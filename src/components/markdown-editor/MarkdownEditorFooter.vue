@@ -46,7 +46,7 @@ defineEmits<{
 
 <style>
 .dx-markdown-editor-footer {
-  background-color: #252526;
+  background-color: var(--dx-mde-footer-bg);
   border-radius: 0 0 0.375rem 0.375rem;
   flex-shrink: 0;
 }
@@ -61,6 +61,6 @@ defineEmits<{
 }
 
 .dx-markdown-editor-footer .hotkey-help-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--dx-mde-menu-item-hover);
 }
 </style>

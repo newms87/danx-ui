@@ -242,10 +242,10 @@ onUnmounted(() => {
 
 .dx-context-menu {
   position: fixed;
-  background: #2d2d2d;
-  border: 1px solid #404040;
+  background: var(--dx-mde-popover-bg);
+  border: 1px solid var(--dx-mde-popover-border);
   border-radius: 0.375rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 25px var(--dx-mde-popover-shadow);
   min-width: 200px;
   max-width: 320px;
   overflow: visible;
@@ -254,7 +254,7 @@ onUnmounted(() => {
 
 .dx-context-menu .context-menu-divider {
   height: 1px;
-  background: #404040;
+  background: var(--dx-mde-popover-border);
   margin: 0.25rem 0;
 }
 
@@ -270,7 +270,7 @@ onUnmounted(() => {
   padding: 0.5rem 0.75rem;
   background: transparent;
   border: none;
-  color: #d4d4d4;
+  color: var(--dx-mde-popover-text);
   font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
@@ -278,11 +278,11 @@ onUnmounted(() => {
 }
 
 .dx-context-menu .context-menu-item:hover:not(.disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--dx-mde-menu-item-hover);
 }
 
 .dx-context-menu .context-menu-item.disabled {
-  color: #6b7280;
+  color: var(--dx-mde-popover-dimmed);
   cursor: not-allowed;
 }
 
@@ -297,7 +297,7 @@ onUnmounted(() => {
 
 .dx-context-menu .context-menu-item .item-shortcut {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--dx-mde-popover-dimmed);
   font-family: "Consolas", "Monaco", monospace;
   margin-left: 1rem;
   white-space: nowrap;
@@ -305,7 +305,7 @@ onUnmounted(() => {
 
 .dx-context-menu .context-menu-item .item-chevron {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--dx-mde-popover-dimmed);
   margin-left: 0.5rem;
 }
 
@@ -315,10 +315,10 @@ onUnmounted(() => {
   top: 0;
   left: 100%;
   margin-left: 2px;
-  background: #2d2d2d;
-  border: 1px solid #404040;
+  background: var(--dx-mde-popover-bg);
+  border: 1px solid var(--dx-mde-popover-border);
   border-radius: 0.375rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 25px var(--dx-mde-popover-shadow);
   min-width: 280px;
   max-width: 360px;
   overflow: hidden;
