@@ -23,9 +23,9 @@ import textOnlyCode from "./button-examples/TextOnly.vue?raw";
 </script>
 
 <template>
-  <div class="button-page">
+  <div class="demo-page">
     <h1>Button</h1>
-    <p class="button-page__description">
+    <p class="demo-page__description">
       A button component with semantic color types and built-in icons.
     </p>
 
@@ -85,32 +85,3 @@ import textOnlyCode from "./button-examples/TextOnly.vue?raw";
     <DocSection :content="buttonDocs" />
   </div>
 </template>
-
-<style scoped>
-.button-page {
-  max-width: 900px;
-}
-
-.button-page h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  color: var(--color-text);
-}
-
-.button-page h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 2rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-
-.button-page__description {
-  color: var(--color-text-muted);
-  margin: 0 0 2rem;
-  font-size: 1.125rem;
-  line-height: 1.6;
-}
-</style>

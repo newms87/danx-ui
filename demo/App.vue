@@ -63,7 +63,13 @@ watch(theme, (newTheme) => {
               <RouterLink to="/action-button" class="demo-sidebar__link">Action Button</RouterLink>
             </li>
             <li>
+              <RouterLink to="/code-viewer" class="demo-sidebar__link">Code Viewer</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/dialog" class="demo-sidebar__link">Dialog</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/markdown-editor" class="demo-sidebar__link">Markdown Editor</RouterLink>
             </li>
           </ul>
         </li>
@@ -245,6 +251,34 @@ watch(theme, (newTheme) => {
   padding: 2rem;
   overflow: auto;
   background: var(--color-surface);
+}
+
+/* Shared Demo Page Styles */
+.demo-page {
+  max-width: 900px;
+}
+
+.demo-page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--color-text);
+}
+
+.demo-page h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.demo-page__description {
+  color: var(--color-text-muted);
+  margin: 0 0 2rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
 }
 
 /* Mobile responsive */

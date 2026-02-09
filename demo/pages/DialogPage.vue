@@ -55,9 +55,9 @@ const sizeMap = {
 </script>
 
 <template>
-  <div class="dialog-page">
+  <div class="demo-page">
     <h1>Dialog</h1>
-    <p class="dialog-page__description">
+    <p class="demo-page__description">
       A fully declarative dialog component built on the native &lt;dialog&gt; element.
     </p>
 
@@ -211,34 +211,6 @@ const sizeMap = {
 </template>
 
 <style scoped>
-.dialog-page {
-  max-width: 900px;
-}
-
-.dialog-page h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-  color: var(--color-text);
-}
-
-.dialog-page h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 2rem 0 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-
-.dialog-page__description {
-  color: var(--color-text-muted);
-  margin: 0 0 2rem;
-  font-size: 1.125rem;
-  line-height: 1.6;
-}
-
-/* Animated size demo styles */
 .size-controls {
   display: flex;
   gap: 0.5rem;

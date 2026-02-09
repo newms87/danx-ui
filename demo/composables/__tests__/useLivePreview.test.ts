@@ -110,6 +110,18 @@ const label = "hello";`;
     expect(body).toContain("const count = ref(0);");
     expect(body).toContain('const label = "hello";');
   });
+
+  it("resolves CodeViewer from danx-ui imports", () => {
+    const script = `import { CodeViewer } from "danx-ui";`;
+    const { bindings } = parseScript(script);
+    expect(bindings).toHaveProperty("CodeViewer");
+  });
+
+  it("resolves MarkdownEditor from danx-ui imports", () => {
+    const script = `import { MarkdownEditor } from "danx-ui";`;
+    const { bindings } = parseScript(script);
+    expect(bindings).toHaveProperty("MarkdownEditor");
+  });
 });
 
 describe("findDeclaredNames", () => {
