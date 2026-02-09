@@ -9,7 +9,7 @@ import type { ButtonType, ButtonSize } from "../types";
 const colorTypes: ButtonType[] = ["danger", "success", "warning", "info", "muted"];
 
 // All button sizes
-const allSizes: ButtonSize[] = ["xxs", "xs", "sm", "md", "lg"];
+const allSizes: ButtonSize[] = ["xxs", "xs", "sm", "md", "lg", "xl"];
 
 describe("DanxButton", () => {
   describe("Rendering", () => {

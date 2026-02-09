@@ -7,7 +7,7 @@
  *
  * ## Features
  * - Six color types: blank (default), danger, success, warning, info, muted
- * - Five sizes (xxs, xs, sm, md, lg)
+ * - Six sizes (xxs, xs, sm, md, lg, xl)
  * - Loading state with spinner
  * - Icons via prop (name string, SVG string, or Component) or slot
  * - Text-only buttons when no icon is provided
@@ -46,7 +46,7 @@
  * | --button-transition       | --transition-fast | Transition timing    |
  * | --button-disabled-opacity | 0.5               | Disabled opacity     |
  *
- * Size tokens (per size: xxs, xs, sm, md, lg):
+ * Size tokens (per size: xxs, xs, sm, md, lg, xl):
  * | Token                     | Description       |
  * |---------------------------|-------------------|
  * | --button-{size}-padding-x | Horizontal padding|
@@ -54,6 +54,11 @@
  * | --button-{size}-icon-size | Icon dimensions   |
  * | --button-{size}-font-size | Font size         |
  * | --button-{size}-gap       | Icon-text gap     |
+ *
+ * Note: Each size modifier sets `line-height` to match `--button-{size}-icon-size`.
+ * This ensures consistent button height regardless of content. The loading spinner
+ * uses `1lh` for its dimensions, so it automatically matches the icon size.
+ * Overriding `--button-{size}-icon-size` also changes text line-height and spinner size.
  *
  * Type tokens (danger, success, warning, info, muted; blank has no tokens):
  * | Token                   | Description        |

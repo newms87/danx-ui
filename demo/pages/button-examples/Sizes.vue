@@ -3,9 +3,15 @@ import { DanxButton } from "danx-ui";
 </script>
 
 <template>
-  <DanxButton type="success" icon="save" size="xxs">XXS</DanxButton>
-  <DanxButton type="success" icon="save" size="xs">XS</DanxButton>
-  <DanxButton type="success" icon="save" size="sm">SM</DanxButton>
-  <DanxButton type="success" icon="save" size="md">MD</DanxButton>
-  <DanxButton type="success" icon="save" size="lg">LG</DanxButton>
+  <div class="grid grid-cols-2 gap-x-12 gap-y-4">
+    <div
+      v-for="size in ['xxs', 'xs', 'sm', 'md', 'lg', 'xl']"
+      :key="size"
+      class="flex items-center gap-2"
+    >
+      <DanxButton type="success" :size="size">{{ size.toUpperCase() }}</DanxButton>
+      <DanxButton type="success" icon="save" :size="size">{{ size.toUpperCase() }}</DanxButton>
+      <DanxButton type="success" :loading="true" :size="size">{{ size.toUpperCase() }}</DanxButton>
+    </div>
+  </div>
 </template>

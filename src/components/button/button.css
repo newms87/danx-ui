@@ -47,6 +47,7 @@
 .danx-button--xxs {
   padding: var(--button-xxs-padding-y) var(--button-xxs-padding-x);
   font-size: var(--button-xxs-font-size);
+  line-height: var(--button-xxs-icon-size);
   gap: var(--button-xxs-gap);
 }
 
@@ -58,6 +59,7 @@
 .danx-button--xs {
   padding: var(--button-xs-padding-y) var(--button-xs-padding-x);
   font-size: var(--button-xs-font-size);
+  line-height: var(--button-xs-icon-size);
   gap: var(--button-xs-gap);
 }
 
@@ -69,6 +71,7 @@
 .danx-button--sm {
   padding: var(--button-sm-padding-y) var(--button-sm-padding-x);
   font-size: var(--button-sm-font-size);
+  line-height: var(--button-sm-icon-size);
   gap: var(--button-sm-gap);
 }
 
@@ -80,6 +83,7 @@
 .danx-button--md {
   padding: var(--button-md-padding-y) var(--button-md-padding-x);
   font-size: var(--button-md-font-size);
+  line-height: var(--button-md-icon-size);
   gap: var(--button-md-gap);
 }
 
@@ -91,12 +95,25 @@
 .danx-button--lg {
   padding: var(--button-lg-padding-y) var(--button-lg-padding-x);
   font-size: var(--button-lg-font-size);
+  line-height: var(--button-lg-icon-size);
   gap: var(--button-lg-gap);
 }
 
 .danx-button--lg .danx-button__icon {
   width: var(--button-lg-icon-size);
   height: var(--button-lg-icon-size);
+}
+
+.danx-button--xl {
+  padding: var(--button-xl-padding-y) var(--button-xl-padding-x);
+  font-size: var(--button-xl-font-size);
+  line-height: var(--button-xl-icon-size);
+  gap: var(--button-xl-gap);
+}
+
+.danx-button--xl .danx-button__icon {
+  width: var(--button-xl-icon-size);
+  height: var(--button-xl-icon-size);
 }
 
 /* ==========================================================================
@@ -186,8 +203,8 @@
    ========================================================================== */
 
 .danx-button__spinner {
-  width: 1em;
-  height: 1em;
+  width: 1lh;
+  height: 1lh;
   border: 2px solid transparent;
   border-top-color: currentColor;
   border-radius: 50%;

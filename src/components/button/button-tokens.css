@@ -11,7 +11,7 @@
  * --button-disabled-opacity     Opacity when disabled
  * --button-hover-bg             Hover background for default (blank) type
  *
- * Size tokens (for each size: xxs, xs, sm, md, lg):
+ * Size tokens (for each size: xxs, xs, sm, md, lg, xl):
  * --button-{size}-padding-x     Horizontal padding
  * --button-{size}-padding-y     Vertical padding
  * --button-{size}-icon-size     Icon dimensions
@@ -84,6 +84,16 @@
   --button-lg-icon-size: 1.25rem;
   --button-lg-font-size: var(--text-base);
   --button-lg-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - XL
+     ========================================================================== */
+
+  --button-xl-padding-x: var(--spacing-5);
+  --button-xl-padding-y: var(--spacing-3);
+  --button-xl-icon-size: 1.5rem;
+  --button-xl-font-size: var(--text-lg);
+  --button-xl-gap: var(--spacing-2-5);
 
   /* ==========================================================================
      Type Tokens - Danger

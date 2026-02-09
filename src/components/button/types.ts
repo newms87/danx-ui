@@ -22,7 +22,7 @@ export type ButtonType = "" | "danger" | "success" | "warning" | "info" | "muted
  * Button sizes.
  * Affects padding, icon size, font size, and gap.
  */
-export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg";
+export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface DanxButtonProps {
   /**
