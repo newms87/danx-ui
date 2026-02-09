@@ -635,13 +635,6 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
         return;
       }
 
-      // Check existing code block - Enter inserts newline, or exits after double-Enter at end
-      const handledByCodeBlock = codeBlocks.handleCodeBlockEnter();
-      if (handledByCodeBlock) {
-        event.preventDefault();
-        return;
-      }
-
       // Check if in a table - Enter moves to cell below or creates new row
       if (tables.isInTable()) {
         event.preventDefault();

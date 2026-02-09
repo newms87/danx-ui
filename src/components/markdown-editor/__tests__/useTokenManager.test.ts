@@ -377,41 +377,4 @@ describe("useTokenManager", () => {
       newContainer.remove();
     });
   });
-
-  describe("configureApp", () => {
-    it("calls configureApp callback when provided", async () => {
-      const configureApp = vi.fn();
-
-      const contentRef = ref<HTMLElement | null>(null);
-      const tokens = new Map<string, TokenState>();
-
-      let manager: ReturnType<typeof useTokenManager>;
-
-      const TestComponent = defineComponent({
-        setup() {
-          manager = useTokenManager({
-            contentRef,
-            tokenRenderers: [createMockRenderer()],
-            tokens,
-            configureApp,
-          });
-          return { contentRef };
-        },
-        template: '<div ref="contentRef"></div>',
-      });
-
-      const wrapper = mount(TestComponent, { attachTo: document.body });
-      await nextTick();
-
-      const container = contentRef.value!;
-      container.appendChild(createTokenElement("cfg-1", "test-renderer"));
-
-      manager!.mountAllTokens();
-      await nextTick();
-
-      expect(configureApp).toHaveBeenCalled();
-
-      wrapper.unmount();
-    });
-  });
 });

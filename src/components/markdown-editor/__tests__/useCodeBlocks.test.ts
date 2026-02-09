@@ -580,44 +580,6 @@ describe("useCodeBlocks", () => {
     });
   });
 
-  describe("handleCodeBlockEnter", () => {
-    beforeEach(() => {
-      onContentChange = vi.fn();
-    });
-
-    it("returns false when not in a code block", () => {
-      editor = createTestEditor("<p>Hello world</p>");
-      const codeBlocks = createCodeBlocks();
-      editor.setCursorInBlock(0, 5);
-
-      const handled = codeBlocks.handleCodeBlockEnter();
-
-      expect(handled).toBe(false);
-      expect(onContentChange).not.toHaveBeenCalled();
-    });
-
-    it("returns false for wrapper-based code blocks (CodeViewer handles Enter internally)", () => {
-      editor = createTestEditor("<p>placeholder</p>");
-      const codeBlocks = createCodeBlocks();
-      createWrapperCodeBlock(codeBlocks, "some code");
-
-      const wrapper = editor.container.querySelector(".code-block-wrapper");
-      if (wrapper) {
-        const range = document.createRange();
-        range.selectNodeContents(wrapper);
-        range.collapse(true);
-        const sel = window.getSelection();
-        sel?.removeAllRanges();
-        sel?.addRange(range);
-      }
-
-      const handled = codeBlocks.handleCodeBlockEnter();
-
-      expect(handled).toBe(false);
-      expect(onContentChange).not.toHaveBeenCalled();
-    });
-  });
-
   describe("edge cases", () => {
     beforeEach(() => {
       onContentChange = vi.fn();

@@ -38,8 +38,6 @@ export interface UseCodeBlocksReturn {
   getCurrentCodeBlockLanguage: () => string | null;
   /** Set language for current code block */
   setCodeBlockLanguage: (language: string) => void;
-  /** Handle Enter key in code block - returns true if handled */
-  handleCodeBlockEnter: () => boolean;
   /** Get all code blocks */
   getCodeBlocks: () => Map<string, CodeBlockState>;
   /** Update content for a specific code block */
@@ -97,9 +95,6 @@ function getCodeBlockWrapper(selection: UseMarkdownSelectionReturn): HTMLElement
 
   return null;
 }
-
-// CURSOR_ANCHOR is re-exported for consumers that imported it from here
-export { CURSOR_ANCHOR } from "./cursorUtils";
 
 /**
  * Create a code block wrapper with non-editable island structure.
@@ -306,16 +301,6 @@ export function useCodeBlocks(options: UseCodeBlocksOptions): UseCodeBlocksRetur
   }
 
   /**
-   * Handle Enter key press when in a code block.
-   * Code blocks use the wrapper structure where Enter is handled by CodeViewer internally.
-   * @returns true if the Enter was handled, false to let browser handle it
-   */
-  function handleCodeBlockEnter(): boolean {
-    // Wrapper-based code blocks handle Enter internally via CodeViewer
-    return false;
-  }
-
-  /**
    * Toggle code block on the current block
    * - If paragraph/div/heading: convert to code block wrapper
    * - If already in code block: convert back to paragraph
@@ -420,7 +405,6 @@ export function useCodeBlocks(options: UseCodeBlocksOptions): UseCodeBlocksRetur
     isInCodeBlock,
     getCurrentCodeBlockLanguage,
     setCodeBlockLanguage,
-    handleCodeBlockEnter,
     getCodeBlocks,
     updateCodeBlockContent,
     updateCodeBlockLanguage,

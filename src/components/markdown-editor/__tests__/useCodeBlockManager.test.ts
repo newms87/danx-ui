@@ -11,7 +11,6 @@ function createTestWrapper(options?: {
   onCodeBlockExit?: (id: string) => void;
   onCodeBlockDelete?: (id: string) => void;
   onCodeBlockMounted?: (id: string, wrapper: HTMLElement) => void;
-  configureApp?: (app: import("vue").App) => void;
 }) {
   const contentRef = ref<HTMLElement | null>(null);
   const codeBlocks = new Map<string, CodeBlockState>();
@@ -30,7 +29,6 @@ function createTestWrapper(options?: {
         onCodeBlockExit: options?.onCodeBlockExit,
         onCodeBlockDelete: options?.onCodeBlockDelete,
         onCodeBlockMounted: options?.onCodeBlockMounted,
-        configureApp: options?.configureApp,
       });
       return { contentRef };
     },
@@ -206,21 +204,6 @@ describe("useCodeBlockManager", () => {
       await nextTick(); // Second tick for the nextTick in onCodeBlockMounted
 
       expect(onMounted).toHaveBeenCalledWith("test-1", codeBlock);
-    });
-
-    it("calls configureApp callback", async () => {
-      const configureApp = vi.fn();
-      testData = createTestWrapper({ configureApp });
-      await nextTick();
-
-      const container = testData.contentRef.value!;
-      const codeBlock = createCodeBlockElement("test-1");
-      container.appendChild(codeBlock);
-
-      testData.getManager().mountCodeViewers();
-      await nextTick();
-
-      expect(configureApp).toHaveBeenCalled();
     });
   });
 

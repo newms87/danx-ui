@@ -11,8 +11,6 @@ export interface UseTokenManagerOptions {
   tokenRenderers: TokenRenderer[];
   /** Reactive map of token states */
   tokens: Map<string, TokenState>;
-  /** Optional callback to configure the dynamically created app */
-  configureApp?: (app: App) => void;
 }
 
 /**
@@ -47,7 +45,7 @@ interface MountedTokenInstance {
  * - data-token-groups: JSON-encoded captured regex groups
  */
 export function useTokenManager(options: UseTokenManagerOptions): UseTokenManagerReturn {
-  const { contentRef, tokenRenderers, tokens, configureApp } = options;
+  const { contentRef, tokenRenderers, tokens } = options;
 
   // Track mounted instances by token ID
   const mountedInstances = new Map<string, MountedTokenInstance>();
@@ -107,9 +105,6 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
         return () => h(renderer.component, props);
       },
     });
-
-    // Configure the app if a callback is provided
-    configureApp?.(app);
 
     // Clear mount point content
     mountPoint.innerHTML = "";

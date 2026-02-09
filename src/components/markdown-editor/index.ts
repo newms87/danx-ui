@@ -35,7 +35,7 @@ export type { UseInlineFormattingOptions, UseInlineFormattingReturn } from "./us
 export { useLists } from "./useLists";
 export type { UseListsOptions, UseListsReturn } from "./useLists";
 
-export { useCodeBlocks, CURSOR_ANCHOR } from "./useCodeBlocks";
+export { useCodeBlocks } from "./useCodeBlocks";
 export type { CodeBlockState, UseCodeBlocksOptions, UseCodeBlocksReturn } from "./useCodeBlocks";
 
 export { useCodeBlockManager } from "./useCodeBlockManager";
@@ -56,9 +56,6 @@ export type { UseTokenManagerOptions, UseTokenManagerReturn } from "./useTokenMa
 export { useContextMenu } from "./useContextMenu";
 export type { UseContextMenuOptions, UseContextMenuReturn } from "./useContextMenu";
 
-export { useLineTypeMenu } from "./useLineTypeMenu";
-export type { UseLineTypeMenuOptions, UseLineTypeMenuReturn } from "./useLineTypeMenu";
-
 export { useFocusTracking } from "./useFocusTracking";
 export type { UseFocusTrackingOptions, UseFocusTrackingReturn } from "./useFocusTracking";
 
@@ -69,12 +66,4 @@ export type {
   UseTablePopoverReturn,
 } from "./usePopoverManager";
 
-export type {
-  ContextMenuContext,
-  ContextMenuGroup,
-  ContextMenuItem,
-  LineType,
-  LineTypeOption,
-  TokenRenderer,
-  TokenState,
-} from "./types";
+export type { ContextMenuContext, ContextMenuItem, TokenRenderer, TokenState } from "./types";

@@ -20,8 +20,6 @@ export interface UseCodeBlockManagerOptions {
   onCodeBlockDelete?: (id: string) => void;
   /** Callback when a code block is mounted */
   onCodeBlockMounted?: (id: string, wrapper: HTMLElement) => void;
-  /** Optional callback to configure the dynamically created app */
-  configureApp?: (app: App) => void;
 }
 
 /**
@@ -79,7 +77,6 @@ export function useCodeBlockManager(
     onCodeBlockExit,
     onCodeBlockDelete,
     onCodeBlockMounted,
-    configureApp,
   } = options;
 
   // Track mounted instances by code block ID
@@ -205,9 +202,6 @@ export function useCodeBlockManager(
           });
       },
     });
-
-    // Configure the app if a callback is provided
-    configureApp?.(app);
 
     // Clear mount point content (remove data attributes div structure)
     mountPoint.innerHTML = "";
