@@ -182,7 +182,6 @@ describe("useTokenManager", () => {
     });
 
     it("skips tokens with unknown renderer", async () => {
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       testData = createTestWrapper();
       await nextTick();
 
@@ -194,12 +193,9 @@ describe("useTokenManager", () => {
       await nextTick();
 
       expect(testData.getManager().getMountedCount()).toBe(0);
-      expect(warnSpy).toHaveBeenCalled();
-      warnSpy.mockRestore();
     });
 
     it("skips tokens without mount point", async () => {
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       testData = createTestWrapper();
       await nextTick();
 
@@ -213,8 +209,6 @@ describe("useTokenManager", () => {
       await nextTick();
 
       expect(testData.getManager().getMountedCount()).toBe(0);
-      expect(warnSpy).toHaveBeenCalled();
-      warnSpy.mockRestore();
     });
 
     it("uses existing state from tokens map", async () => {

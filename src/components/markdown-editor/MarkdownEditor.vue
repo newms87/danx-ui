@@ -191,32 +191,32 @@ watch(modelValue, (newValue) => {
   width: 100%;
   border-radius: 0.375rem;
   overflow: hidden;
-}
 
-.dx-markdown-editor.is-readonly .dx-markdown-editor-content {
-  cursor: default;
-}
+  &.is-readonly .dx-markdown-editor-content {
+    cursor: default;
+  }
 
-/* Body container for content */
-.dx-markdown-editor .dx-markdown-editor-body {
-  display: flex;
-  position: relative;
-  flex: 1;
-  overflow: visible;
-}
+  /* Body container for content */
+  .dx-markdown-editor-body {
+    display: flex;
+    position: relative;
+    flex: 1;
+    overflow: visible;
+  }
 
-/* Apply min/max height to content area */
-.dx-markdown-editor .dx-markdown-editor-content {
-  flex: 1;
-  min-height: var(--dx-mde-min-height, 100px);
-  max-height: var(--dx-mde-max-height, none);
-}
+  /* Apply min/max height to content area */
+  .dx-markdown-editor-content {
+    flex: 1;
+    min-height: var(--dx-mde-min-height, 100px);
+    max-height: var(--dx-mde-max-height, none);
+  }
 
-/* Badge slot positioned at top-right corner of editor body (matches LanguageBadge style) */
-.dx-markdown-editor .dx-editor-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 10;
+  /* Badge slot positioned at top-right corner of editor body (matches LanguageBadge style) */
+  .dx-editor-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+  }
 }
 </style>

@@ -120,7 +120,7 @@ describe("usePopoverManager", () => {
       expect(popover.isVisible.value).toBe(false);
     });
 
-    it("submit passes label as undefined when not provided", () => {
+    it("submit passes only url when label not provided", () => {
       const popover = useLinkPopover();
       const onSubmit = vi.fn();
 
@@ -131,7 +131,7 @@ describe("usePopoverManager", () => {
       });
 
       popover.submit("https://test.com");
-      expect(onSubmit).toHaveBeenCalledWith("https://test.com", undefined);
+      expect(onSubmit).toHaveBeenCalledWith("https://test.com");
     });
   });
 

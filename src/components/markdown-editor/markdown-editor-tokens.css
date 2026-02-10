@@ -91,6 +91,7 @@
 
 /* === Light Theme === */
 .dx-markdown-editor.theme-light {
+  /* Editor chrome */
   --dx-mde-bg: #f8fafc;
   --dx-mde-color: #1e293b;
   --dx-mde-caret: #1e293b;
@@ -98,14 +99,65 @@
   --dx-mde-border-hover: rgba(14, 165, 233, 0.3);
   --dx-mde-placeholder: #94a3b8;
 
+  /* Footer */
+  --dx-mde-footer-bg: #f1f5f9;
+
+  /* Popover / overlay */
+  --dx-mde-overlay-bg: rgba(0, 0, 0, 0.15);
+  --dx-mde-popover-bg: #ffffff;
+  --dx-mde-popover-border: #e2e8f0;
+  --dx-mde-popover-shadow: rgba(0, 0, 0, 0.1);
+  --dx-mde-popover-text: #1e293b;
+  --dx-mde-popover-heading: #0f172a;
+  --dx-mde-popover-muted: #64748b;
+  --dx-mde-popover-dimmed: #94a3b8;
+
+  /* Inputs */
+  --dx-mde-input-bg: #ffffff;
+  --dx-mde-input-border: #cbd5e1;
+  --dx-mde-input-border-focus: #0ea5e9;
+  --dx-mde-input-text: #0f172a;
+  --dx-mde-input-placeholder: #94a3b8;
+
+  /* Buttons */
+  --dx-mde-btn-primary-bg: #0ea5e9;
+  --dx-mde-btn-primary-hover: #0284c7;
+  --dx-mde-btn-primary-text: #ffffff;
+  --dx-mde-btn-cancel-bg: transparent;
+  --dx-mde-btn-cancel-border: #cbd5e1;
+  --dx-mde-btn-cancel-text: #475569;
+  --dx-mde-btn-cancel-hover-border: #94a3b8;
+
+  /* Hotkey kbd */
+  --dx-mde-kbd-bg: #f1f5f9;
+  --dx-mde-kbd-border: #cbd5e1;
+  --dx-mde-kbd-text: #64748b;
+
+  /* Menu */
+  --dx-mde-menu-trigger-bg: rgba(0, 0, 0, 0.04);
+  --dx-mde-menu-trigger-hover: rgba(0, 0, 0, 0.08);
+  --dx-mde-menu-trigger-color: #94a3b8;
+  --dx-mde-menu-trigger-hover-color: #64748b;
+  --dx-mde-menu-item-hover: rgba(0, 0, 0, 0.06);
+  --dx-mde-menu-item-active-bg: rgba(14, 165, 233, 0.1);
+  --dx-mde-menu-item-active-color: #0284c7;
+
+  /* Grid selector (table popover) */
+  --dx-mde-grid-bg: #f1f5f9;
+  --dx-mde-grid-border: #cbd5e1;
+  --dx-mde-grid-selected-bg: #0ea5e9;
+  --dx-mde-grid-selected-border: #0284c7;
+
+  /* Link tooltip */
   --dx-mde-link-tooltip-bg: #e2e8f0;
   --dx-mde-link-tooltip-text: #1e293b;
 
+  /* Code block wrapper */
   --dx-mde-codeblock-bg: #f1f5f9;
   --dx-mde-codeblock-border: #e2e8f0;
   --dx-mde-codeblock-footer-bg: #e2e8f0;
 
-  /* Rendered markdown content - light */
+  /* Rendered markdown content */
   --dx-mde-content-code-bg: #f1f5f9;
   --dx-mde-content-pre-bg: #f8fafc;
   --dx-mde-content-blockquote-border: #cbd5e1;

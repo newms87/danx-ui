@@ -179,42 +179,28 @@ export function createTableColumnOps(ctx: TableContext): TableColumnOpsReturn {
   }
 
   /**
-   * Set column alignment to left
+   * Apply an alignment to the current cell's column
    */
+  function applyColumnAlignment(alignment: "left" | "center" | "right"): void {
+    const context = getCurrentCellAndTable();
+    if (!context) return;
+
+    const { cell, table } = context;
+    const { col } = getCellCoordinates(cell);
+    setColumnAlignment(table, col, alignment);
+    notifyContentChange();
+  }
+
   function setColumnAlignmentLeft(): void {
-    const context = getCurrentCellAndTable();
-    if (!context) return;
-
-    const { cell, table } = context;
-    const { col } = getCellCoordinates(cell);
-    setColumnAlignment(table, col, "left");
-    notifyContentChange();
+    applyColumnAlignment("left");
   }
 
-  /**
-   * Set column alignment to center
-   */
   function setColumnAlignmentCenter(): void {
-    const context = getCurrentCellAndTable();
-    if (!context) return;
-
-    const { cell, table } = context;
-    const { col } = getCellCoordinates(cell);
-    setColumnAlignment(table, col, "center");
-    notifyContentChange();
+    applyColumnAlignment("center");
   }
 
-  /**
-   * Set column alignment to right
-   */
   function setColumnAlignmentRight(): void {
-    const context = getCurrentCellAndTable();
-    if (!context) return;
-
-    const { cell, table } = context;
-    const { col } = getCellCoordinates(cell);
-    setColumnAlignment(table, col, "right");
-    notifyContentChange();
+    applyColumnAlignment("right");
   }
 
   return {

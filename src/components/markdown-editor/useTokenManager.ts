@@ -72,10 +72,7 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
     if (!rendererId) return;
 
     const renderer = getRenderer(rendererId);
-    if (!renderer) {
-      console.warn(`[useTokenManager] No renderer found for ID: ${rendererId}`);
-      return;
-    }
+    if (!renderer) return;
 
     // Get or create token state
     let state = tokens.get(id);
@@ -89,10 +86,7 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
 
     // Find mount point
     const mountPoint = wrapper.querySelector(".token-mount-point") as HTMLElement;
-    if (!mountPoint) {
-      console.warn(`[useTokenManager] No mount point found for token: ${id}`);
-      return;
-    }
+    if (!mountPoint) return;
 
     // Get props from renderer
     const props = renderer.getProps(state.groups);

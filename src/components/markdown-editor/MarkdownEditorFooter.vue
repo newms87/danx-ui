@@ -54,18 +54,18 @@ defineEmits<{
   background-color: var(--dx-mde-footer-bg);
   border-radius: 0 0 0.375rem 0.375rem;
   flex-shrink: 0;
-}
 
-.dx-markdown-editor-footer .hotkey-help-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
+  .hotkey-help-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 
-.dx-markdown-editor-footer .hotkey-help-btn:hover {
-  background-color: var(--dx-mde-menu-item-hover);
+    &:hover {
+      background-color: var(--dx-mde-menu-item-hover);
+    }
+  }
 }
 </style>
