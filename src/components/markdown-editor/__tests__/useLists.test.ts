@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useLists } from "../useLists";
 import { useMarkdownSelection } from "../useMarkdownSelection";
+import { convertListItemToParagraph } from "../listConversions";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
 describe("useLists", () => {
@@ -434,6 +435,17 @@ describe("useLists", () => {
 
       expect(handled).toBe(false);
     });
+
+    it("returns false when li has no parent list (orphaned li)", () => {
+      // Create an li inside a div (not a UL/OL)
+      editor = createTestEditor("<div><li>Orphan</li></div>");
+      const lists = createLists();
+      const li = editor.container.querySelector("li")!;
+      setCursorInListItem(li, 0);
+
+      const handled = lists.indentListItem();
+      expect(handled).toBe(false);
+    });
   });
 
   describe("outdentListItem", () => {
@@ -517,6 +529,50 @@ describe("useLists", () => {
       const handled = lists.outdentListItem();
 
       expect(handled).toBe(false);
+    });
+
+    it("returns false when li has no parent list (orphaned li)", () => {
+      editor = createTestEditor("<div><li>Orphan</li></div>");
+      const lists = createLists();
+      const li = editor.container.querySelector("li")!;
+      setCursorInListItem(li, 0);
+
+      const handled = lists.outdentListItem();
+      expect(handled).toBe(false);
+    });
+
+    it("returns false when nested list parent li has no grandparent list", () => {
+      // Create a structure where parentLi.tagName is LI but there's no grandparent list
+      // This means: <div><li>Parent<ul><li>Nested</li></ul></li></div>
+      // parentLi = the outer li, but getParentList(parentLi) returns null since it's inside a div
+      editor = createTestEditor("<div><li>Parent<ul><li>Nested</li></ul></li></div>");
+      const lists = createLists();
+      const nestedLi = editor.container.querySelector("ul li")!;
+      setCursorInListItem(nestedLi as HTMLLIElement, 0);
+
+      const handled = lists.outdentListItem();
+      expect(handled).toBe(false);
+    });
+
+    it("creates new nested list when outdenting with following siblings", () => {
+      // Explicitly test the path where li has no existing nested list
+      // and itemsAfter.length > 0, so a new nested list is created
+      editor = createTestEditor("<ul><li>Parent<ul><li>A</li><li>B</li><li>C</li></ul></li></ul>");
+      const lists = createLists();
+      // Outdent "B" - "C" should become nested under "B"
+      const bLi = editor.container.querySelectorAll("ul ul li")[1];
+      setCursorInListItem(bLi as HTMLLIElement, 0);
+
+      const handled = lists.outdentListItem();
+
+      expect(handled).toBe(true);
+      // "B" should now be at the parent level
+      const topItems = editor.container.querySelectorAll(":scope > ul > li");
+      expect(topItems.length).toBe(2);
+      // "C" should be nested under "B"
+      const bNowTop = topItems[1];
+      expect(bNowTop?.textContent).toContain("B");
+      expect(bNowTop?.textContent).toContain("C");
     });
   });
 
@@ -794,6 +850,85 @@ describe("useLists", () => {
       expect(lists.getCurrentListType()).toBeNull();
     });
 
+    it("handleListEnter returns false when getSelection returns no ranges (line 165)", () => {
+      editor = createTestEditor("<ul><li>Item with content</li></ul>");
+      const lists = createLists();
+      const li = editor.container.querySelector("li")!;
+      setCursorInListItem(li, 4);
+
+      // getListItem -> getCurrentBlock -> getSelection (call 1, needs valid)
+      // getParentList -> no getSelection call
+      // getDirectTextContent -> no getSelection call
+      // line 164: window.getSelection() (call 2, needs rangeCount=0)
+      const realSel = window.getSelection()!;
+      const realRange = realSel.getRangeAt(0).cloneRange();
+      let callCount = 0;
+      const spy = vi.spyOn(window, "getSelection").mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          // First call from getCurrentBlock - return valid selection
+          return {
+            rangeCount: 1,
+            getRangeAt: () => realRange,
+            removeAllRanges: vi.fn(),
+            addRange: vi.fn(),
+          } as unknown as Selection;
+        }
+        // Second call (line 164) - return selection with rangeCount=0
+        return {
+          rangeCount: 0,
+          getRangeAt: () => {
+            throw new Error("no range");
+          },
+          removeAllRanges: vi.fn(),
+          addRange: vi.fn(),
+        } as unknown as Selection;
+      });
+
+      const handled = lists.handleListEnter();
+      spy.mockRestore();
+      expect(handled).toBe(false);
+    });
+
+    it("handleListEnter uses li fallback when lastChild is null (line 176)", () => {
+      editor = createTestEditor("<ul><li>Some text</li></ul>");
+      const lists = createLists();
+      const li = editor.container.querySelector("li")!;
+      setCursorInListItem(li, 4); // cursor in middle
+
+      // Mock lastChild to null to exercise the || li fallback on line 176
+      Object.defineProperty(li, "lastChild", {
+        get: () => null,
+        configurable: true,
+      });
+
+      const handled = lists.handleListEnter();
+      expect(handled).toBe(true);
+
+      // Restore
+      delete (li as Record<string, unknown>)["lastChild"];
+    });
+
+    it("checkAndConvertListPattern uses fallback when textContent is null (line 121)", () => {
+      editor = createTestEditor("<p>- item</p>");
+      const lists = createLists();
+      editor.setCursorInBlock(0, 6);
+
+      // Mock textContent to return null on the block to exercise || "" fallback
+      const block = editor.getBlock(0)!;
+      Object.defineProperty(block, "textContent", {
+        get: () => null,
+        configurable: true,
+      });
+
+      const converted = lists.checkAndConvertListPattern();
+      // With null textContent, detectListPattern("") returns null, so returns false
+      expect(converted).toBe(false);
+
+      // Restore
+      delete (block as Record<string, unknown>)["textContent"];
+    });
+
     it("handles list item with only whitespace as empty", () => {
       editor = createTestEditor("<ul><li>   </li></ul>");
       const lists = createLists();
@@ -832,5 +967,95 @@ describe("useLists", () => {
       // Parent should become paragraph, nested list is removed (per implementation)
       expect(editor.container.querySelector("p")?.textContent).toBe("Parent");
     });
+
+    it("toggleUnorderedList does nothing when cursor is in bare text (no block)", () => {
+      editor = createTestEditor("");
+      editor.container.innerHTML = "";
+      const textNode = document.createTextNode("bare text");
+      editor.container.appendChild(textNode);
+      const lists = createLists();
+      editor.setCursor(textNode, 3);
+
+      lists.toggleUnorderedList();
+
+      // No list should be created since there is no convertible block
+      expect(editor.container.querySelector("ul")).toBeNull();
+      expect(editor.container.textContent).toBe("bare text");
+      expect(onContentChange).toHaveBeenCalled();
+    });
+
+    it("checkAndConvertListPattern returns false when no block found", () => {
+      editor = createTestEditor("");
+      editor.container.innerHTML = "";
+      const textNode = document.createTextNode("- bare text");
+      editor.container.appendChild(textNode);
+      const lists = createLists();
+      editor.setCursor(textNode, 3);
+
+      const converted = lists.checkAndConvertListPattern();
+
+      expect(converted).toBe(false);
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("convertCurrentListItemToParagraph returns null when contentRef is null", () => {
+      const lists = createLists();
+      editor.contentRef.value = null;
+
+      const result = lists.convertCurrentListItemToParagraph();
+      expect(result).toBeNull();
+    });
+
+    it("handleListEnter returns false when contentRef is null", () => {
+      const lists = createLists();
+      editor.contentRef.value = null;
+      const handled = lists.handleListEnter();
+      expect(handled).toBe(false);
+    });
+
+    it("handleListEnter returns false when li has no parent list", () => {
+      // Create a li inside a div (not a UL/OL)
+      editor = createTestEditor("<div><li>Orphan item</li></div>");
+      const lists = createLists();
+      const li = editor.container.querySelector("li")!;
+      setCursorInListItem(li, 0);
+
+      const handled = lists.handleListEnter();
+      expect(handled).toBe(false);
+    });
+  });
+});
+
+describe("convertListItemToParagraph - no parent list", () => {
+  it("replaces li directly when getParentList returns null", () => {
+    // Create a li inside a div (not a UL/OL) so getParentList returns null
+    const div = document.createElement("div");
+    const li = document.createElement("li") as HTMLLIElement;
+    li.textContent = "orphan item";
+    div.appendChild(li);
+    document.body.appendChild(div);
+
+    const contentRef = document.createElement("div");
+    const p = convertListItemToParagraph(li, contentRef);
+
+    expect(p.tagName).toBe("P");
+    expect(p.textContent).toBe("orphan item");
+    // li should be replaced by p in the div
+    expect(div.contains(p)).toBe(true);
+    expect(div.contains(li)).toBe(false);
+
+    div.remove();
+  });
+
+  it("replaces detached li (no parent at all) - parentNode?.replaceChild", () => {
+    // A completely detached li has no parentNode, so replaceChild won't run
+    const li = document.createElement("li") as HTMLLIElement;
+    li.textContent = "detached";
+
+    const contentRef = document.createElement("div");
+    const p = convertListItemToParagraph(li, contentRef);
+
+    expect(p.tagName).toBe("P");
+    expect(p.textContent).toBe("detached");
   });
 });

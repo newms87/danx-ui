@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Ref, ref } from "vue";
-import { useMarkdownSync } from "../useMarkdownSync";
+import { defineComponent, nextTick, Ref, ref } from "vue";
+import { mount } from "@vue/test-utils";
+import { useMarkdownSync, UseMarkdownSyncReturn } from "../useMarkdownSync";
 import type { TokenRenderer } from "../types";
 import type { CodeBlockState } from "../useCodeBlocks";
 
@@ -563,6 +564,50 @@ describe("useMarkdownSync", () => {
 
       vi.advanceTimersByTime(1);
       expect(onEmitValue).toHaveBeenCalledTimes(1);
+    });
+
+    it("clears pending timeout on unmount (onUnmounted cleanup)", async () => {
+      vi.useFakeTimers();
+
+      const onEmitValueLocal = vi.fn();
+      let syncReturn: UseMarkdownSyncReturn;
+      const localContentRef = ref<HTMLElement | null>(null);
+
+      const TestComponent = defineComponent({
+        setup() {
+          const el = document.createElement("div");
+          document.body.appendChild(el);
+          localContentRef.value = el;
+
+          syncReturn = useMarkdownSync({
+            contentRef: localContentRef,
+            onEmitValue: onEmitValueLocal,
+            debounceMs: 300,
+          });
+
+          return { localContentRef };
+        },
+        template: "<div></div>",
+      });
+
+      const wrapper = mount(TestComponent, { attachTo: document.body });
+      await nextTick();
+
+      // Set content and trigger debounced sync
+      localContentRef.value!.innerHTML = "<p>Test unmount</p>";
+      syncReturn!.debouncedSyncFromHtml();
+
+      // Unmount before debounce fires - this should clear the timeout
+      wrapper.unmount();
+
+      // Advance past the debounce period
+      vi.advanceTimersByTime(400);
+
+      // onEmitValue should NOT have been called because the timeout was cleared
+      expect(onEmitValueLocal).not.toHaveBeenCalled();
+
+      localContentRef.value?.remove();
+      vi.useRealTimers();
     });
   });
 

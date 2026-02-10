@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ref, type Ref } from "vue";
 import { useMarkdownHotkeys, HotkeyDefinition } from "../useMarkdownHotkeys";
-import { parseKeyCombo, matchesKeyCombo } from "../hotkeyMatching";
+import { parseKeyCombo, matchesKeyCombo, matchesModifiers } from "../hotkeyMatching";
 
 /**
  * Helper to create a mock KeyboardEvent with specified properties
@@ -554,6 +554,59 @@ describe("useMarkdownHotkeys", () => {
         const event = createKeyboardEvent({ key: "c", ctrlKey: false, metaKey: false });
         const parsed = parseKeyCombo("ctrl+c");
         expect(matchesKeyCombo(event, parsed)).toBe(false);
+      });
+
+      describe("Mac platform (navigator.platform includes 'mac')", () => {
+        let originalPlatform: PropertyDescriptor | undefined;
+
+        beforeEach(() => {
+          originalPlatform = Object.getOwnPropertyDescriptor(navigator, "platform");
+          Object.defineProperty(navigator, "platform", {
+            value: "MacIntel",
+            configurable: true,
+          });
+        });
+
+        afterEach(() => {
+          if (originalPlatform) {
+            Object.defineProperty(navigator, "platform", originalPlatform);
+          } else {
+            Object.defineProperty(navigator, "platform", {
+              value: "",
+              configurable: true,
+            });
+          }
+        });
+
+        it("matches ctrl+key with metaKey on Mac (line 89)", () => {
+          const event = createKeyboardEvent({ key: "b", ctrlKey: false, metaKey: true });
+          const parsed = parseKeyCombo("ctrl+b");
+          expect(matchesKeyCombo(event, parsed)).toBe(true);
+        });
+
+        it("matches ctrl+key with ctrlKey on Mac (line 89)", () => {
+          const event = createKeyboardEvent({ key: "b", ctrlKey: true, metaKey: false });
+          const parsed = parseKeyCombo("ctrl+b");
+          expect(matchesKeyCombo(event, parsed)).toBe(true);
+        });
+
+        it("does not match ctrl+key when neither ctrlKey nor metaKey on Mac", () => {
+          const event = createKeyboardEvent({ key: "b", ctrlKey: false, metaKey: false });
+          const parsed = parseKeyCombo("ctrl+b");
+          expect(matchesKeyCombo(event, parsed)).toBe(false);
+        });
+
+        it("matchesModifiers with parsed.ctrl and metaKey on Mac", () => {
+          const event = createKeyboardEvent({ key: "b", ctrlKey: false, metaKey: true });
+          const parsed: {
+            key: string;
+            ctrl: boolean;
+            shift: boolean;
+            alt: boolean;
+            meta: boolean;
+          } = { key: "b", ctrl: true, shift: false, alt: false, meta: false };
+          expect(matchesModifiers(event, parsed)).toBe(true);
+        });
       });
     });
   });

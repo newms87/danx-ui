@@ -84,9 +84,8 @@ export function getTargetBlock(
     return currentBlock;
   }
 
-  // Walk up to find a recognized block element
-  if (!contentRef.value) return null;
-
+  // Walk up to find a recognized block element (contentRef.value is guaranteed
+  // non-null here because getCurrentBlock already checked it)
   let current: Element | null = currentBlock;
   while (current && current.parentElement !== contentRef.value) {
     if (isConvertibleBlock(current)) return current;

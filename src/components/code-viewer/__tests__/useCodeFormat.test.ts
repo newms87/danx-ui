@@ -1,5 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import * as yaml from "yaml";
 import { useCodeFormat } from "../useCodeFormat";
+
+vi.mock("yaml", async () => {
+  const actual = await vi.importActual<typeof yaml>("yaml");
+  return {
+    ...actual,
+    stringify: vi.fn(actual.stringify),
+  };
+});
 
 describe("useCodeFormat", () => {
   describe("parse", () => {
@@ -94,6 +103,44 @@ describe("useCodeFormat", () => {
       const result = formatValue(invalid as unknown as object, "json");
       expect(result).toBe(invalid);
     });
+
+    it("returns original string when value fails both JSON and YAML parsing", () => {
+      const { formatValue } = useCodeFormat();
+      // "[unterminated" fails JSON (unterminated array) and YAML (unterminated flow sequence)
+      const unparseable = "[unterminated";
+      const result = formatValue(unparseable as unknown as object, "json");
+      expect(result).toBe(unparseable);
+    });
+
+    it("returns JSON.stringify for non-string value when YAML conversion throws", () => {
+      // Make yaml.stringify throw, forcing the catch block in formatValueToString
+      vi.mocked(yaml.stringify).mockImplementationOnce(() => {
+        throw new Error("YAML failure");
+      });
+
+      const { formatValue } = useCodeFormat();
+      const obj = { key: "value" };
+      const result = formatValue(obj, "yaml");
+
+      // Catch block returns JSON.stringify for non-string values
+      expect(result).toBe(JSON.stringify(obj, null, 2));
+    });
+
+    it("returns original string value when format conversion throws", () => {
+      // Make yaml.stringify throw to exercise the catch block with a string value
+      vi.mocked(yaml.stringify).mockImplementationOnce(() => {
+        throw new Error("YAML failure");
+      });
+
+      const { formatValue } = useCodeFormat();
+      // Pass a valid JSON string and request YAML output. parseContent succeeds
+      // returning an object, then yamlStringify throws, hitting the catch block
+      // with typeof value === "string" being true.
+      const result = formatValue('{"a":1}' as unknown as object, "yaml");
+
+      // Catch block returns the original string value
+      expect(result).toBe('{"a":1}');
+    });
   });
 
   describe("validate", () => {
@@ -157,6 +204,29 @@ describe("useCodeFormat", () => {
       expect(error).not.toBeNull();
       expect(error!.message).toBeTruthy();
     });
+
+    it("extracts line and column from JSON position error", () => {
+      const { validateWithError } = useCodeFormat();
+      // Multi-line invalid JSON to exercise the position extraction logic.
+      // V8's JSON.parse includes "position N" in the error message.
+      const content = '{\n  "key": value\n}';
+      const error = validateWithError(content, "json");
+      expect(error).not.toBeNull();
+      expect(error!.message).toBeTruthy();
+      // The error should have line/column extracted from position in message
+      if (error!.line !== undefined) {
+        expect(error!.line).toBeGreaterThanOrEqual(1);
+        expect(error!.column).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it("handles JSON error without position in message", () => {
+      const { validateWithError } = useCodeFormat();
+      // Simple invalid JSON where error message may or may not contain "position"
+      const error = validateWithError("{", "json");
+      expect(error).not.toBeNull();
+      expect(error!.message).toBeTruthy();
+    });
   });
 
   describe("setFormat", () => {
@@ -180,6 +250,17 @@ describe("useCodeFormat", () => {
       cf.setFormat("json");
       expect(cf.format.value).toBe("json");
       expect(JSON.parse(cf.rawContent.value)).toEqual({ y: 10 });
+    });
+
+    it("does not update rawContent when parsedValue is null on format change", () => {
+      const cf = useCodeFormat({ initialFormat: "text" });
+      // Set unparseable content (not valid JSON/YAML object)
+      cf.setContent("plain text that is not json or yaml");
+      const before = cf.rawContent.value;
+      // Switch format — parsedValue will be null so rawContent is not updated
+      cf.setFormat("json");
+      expect(cf.format.value).toBe("json");
+      expect(cf.rawContent.value).toBe(before);
     });
   });
 

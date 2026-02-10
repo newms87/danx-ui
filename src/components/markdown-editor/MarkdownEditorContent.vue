@@ -65,10 +65,9 @@ const isContentEmpty = ref(true);
  * This is needed because contenteditable changes the DOM directly without updating props.
  */
 function checkIfEmpty(): void {
-  if (containerRef.value) {
-    const textContent = containerRef.value.textContent?.trim() || "";
-    isContentEmpty.value = textContent.length === 0;
-  }
+  // containerRef is always set when called (mounted component, event handlers, nextTick after watch)
+  const textContent = containerRef.value!.textContent?.trim() || "";
+  isContentEmpty.value = textContent.length === 0;
 }
 
 /**
@@ -97,9 +96,8 @@ function handleClick(event: MouseEvent): void {
   const isModifierHeld = event.ctrlKey || event.metaKey;
   if (!isModifierHeld) return;
 
-  // Find if the click was on or inside a link
-  if (!containerRef.value) return;
-  const link = findLinkAncestor(event.target as Node, containerRef.value);
+  // containerRef is always set in template event handlers
+  const link = findLinkAncestor(event.target as Node, containerRef.value!);
   if (!link) return;
 
   const href = link.getAttribute("href");
@@ -113,9 +111,8 @@ function handleClick(event: MouseEvent): void {
 
 // Emit the container element on mount so the parent can pass it to composables
 onMounted(() => {
-  if (containerRef.value) {
-    emit("container-mounted", containerRef.value);
-  }
+  // containerRef is guaranteed set in onMounted
+  emit("container-mounted", containerRef.value!);
 });
 </script>
 

@@ -388,6 +388,56 @@ describe("htmlToMarkdown", () => {
       expect(htmlToMarkdown(container)).toBe("Hello **World**");
     });
   });
+
+  describe("custom element processor for inline tokens", () => {
+    it("uses custom processor for token wrapper spans inside paragraphs", () => {
+      const html = `<p>Before <span class="custom-token-wrapper" contenteditable="false" data-token-id="tok-1" data-token-renderer="test" data-token-groups='["42"]'><span class="token-mount-point"></span></span> after</p>`;
+
+      const customProcessor = (element: Element): string | null => {
+        const tokenId = element.getAttribute("data-token-id");
+        if (tokenId) {
+          const groups = JSON.parse(element.getAttribute("data-token-groups") || "[]");
+          return `{{${groups[0]}}}`;
+        }
+        return null;
+      };
+
+      const result = htmlToMarkdown(html, { customElementProcessor: customProcessor });
+      expect(result).toBe("Before {{42}} after");
+    });
+
+    it("uses custom processor for token wrappers inside list items", () => {
+      const html = `<ul><li>Item with <span class="custom-token-wrapper" contenteditable="false" data-token-id="tok-2" data-token-renderer="test" data-token-groups='["7"]'><span class="token-mount-point"></span></span> token</li></ul>`;
+
+      const customProcessor = (element: Element): string | null => {
+        const tokenId = element.getAttribute("data-token-id");
+        if (tokenId) {
+          const groups = JSON.parse(element.getAttribute("data-token-groups") || "[]");
+          return `{{${groups[0]}}}`;
+        }
+        return null;
+      };
+
+      const result = htmlToMarkdown(html, { customElementProcessor: customProcessor });
+      expect(result).toBe("- Item with {{7}} token");
+    });
+
+    it("uses custom processor for token wrappers inside table cells", () => {
+      const html = `<table><thead><tr><th>Header</th></tr></thead><tbody><tr><td>Cell <span class="custom-token-wrapper" contenteditable="false" data-token-id="tok-3" data-token-renderer="test" data-token-groups='["99"]'><span class="token-mount-point"></span></span></td></tr></tbody></table>`;
+
+      const customProcessor = (element: Element): string | null => {
+        const tokenId = element.getAttribute("data-token-id");
+        if (tokenId) {
+          const groups = JSON.parse(element.getAttribute("data-token-groups") || "[]");
+          return `{{${groups[0]}}}`;
+        }
+        return null;
+      };
+
+      const result = htmlToMarkdown(html, { customElementProcessor: customProcessor });
+      expect(result).toContain("Cell {{99}}");
+    });
+  });
 });
 
 describe("escapeMarkdownChars", () => {

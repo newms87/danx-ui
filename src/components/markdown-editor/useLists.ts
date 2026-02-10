@@ -73,25 +73,22 @@ export function useLists(options: UseListsOptions): UseListsReturn {
     const currentListType = getListType(selection);
 
     if (currentListType === type) {
-      const li = getListItem(selection);
-      if (li) {
-        const p = convertListItemToParagraph(li, contentRef.value);
-        positionCursorAtEnd(p);
-      }
+      // getListItem is guaranteed non-null here because getListType already found the LI
+      const li = getListItem(selection)!;
+      const p = convertListItemToParagraph(li, contentRef.value);
+      positionCursorAtEnd(p);
     } else if (currentListType === otherType) {
-      const li = getListItem(selection);
-      if (li) {
-        const parentList = getParentList(li);
-        if (parentList) {
-          const newList = document.createElement(type);
-          while (parentList.firstChild) {
-            newList.appendChild(parentList.firstChild);
-          }
-          parentList.parentNode?.replaceChild(newList, parentList);
-          const newLi = newList.querySelector("li");
-          if (newLi) positionCursorAtEnd(newLi);
-        }
+      // getListItem and getParentList are guaranteed non-null here because
+      // getListType already found the LI and validated its parent list
+      const li = getListItem(selection)!;
+      const parentList = getParentList(li)!;
+      const newList = document.createElement(type);
+      while (parentList.firstChild) {
+        newList.appendChild(parentList.firstChild);
       }
+      parentList.parentNode!.replaceChild(newList, parentList);
+      const newLi = newList.querySelector("li")!;
+      positionCursorAtEnd(newLi);
     } else {
       const block = getTargetBlock(contentRef, selection);
       if (block && isConvertibleBlock(block)) {

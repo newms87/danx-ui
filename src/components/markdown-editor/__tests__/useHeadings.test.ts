@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useHeadings } from "../useHeadings";
+import { convertHeadingPattern } from "../headingUtils";
 import { useMarkdownSelection } from "../useMarkdownSelection";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
@@ -828,6 +829,163 @@ describe("useHeadings", () => {
 
         expect(editor.getHtml()).toBe(`<${tag}>Test content</${tag}>`);
       }
+    });
+  });
+
+  describe("increaseHeadingLevel - invalid block", () => {
+    beforeEach(() => {
+      onContentChange = vi.fn();
+    });
+
+    it("returns early when cursor is in a non-heading/paragraph block (currentLevel is -1)", () => {
+      editor = createTestEditor("<ul><li>List item</li></ul>");
+      const headings = createHeadings();
+      const li = editor.container.querySelector("li");
+      if (li?.firstChild) {
+        editor.setCursor(li.firstChild, 0);
+      }
+
+      headings.increaseHeadingLevel();
+
+      // Should not change anything
+      expect(editor.getHtml()).toBe("<ul><li>List item</li></ul>");
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("decreaseHeadingLevel - invalid block", () => {
+    beforeEach(() => {
+      onContentChange = vi.fn();
+    });
+
+    it("returns early when cursor is in a non-heading/paragraph block (currentLevel is -1)", () => {
+      editor = createTestEditor("<ul><li>List item</li></ul>");
+      const headings = createHeadings();
+      const li = editor.container.querySelector("li");
+      if (li?.firstChild) {
+        editor.setCursor(li.firstChild, 0);
+      }
+
+      headings.decreaseHeadingLevel();
+
+      // Should not change anything
+      expect(editor.getHtml()).toBe("<ul><li>List item</li></ul>");
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("checkAndConvertHeadingPattern - no block", () => {
+    beforeEach(() => {
+      onContentChange = vi.fn();
+    });
+
+    it("returns false when contentRef is null", () => {
+      editor = createTestEditor("<p># Hello</p>");
+      const headings = createHeadings();
+      editor.contentRef.value = null;
+
+      const result = headings.checkAndConvertHeadingPattern();
+      expect(result).toBe(false);
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("returns false when cursor is in a list item (not a heading target block)", () => {
+      editor = createTestEditor("<ul><li># Hello</li></ul>");
+      const headings = createHeadings();
+      const li = editor.container.querySelector("li");
+      if (li?.firstChild) {
+        editor.setCursor(li.firstChild, 7);
+      }
+
+      const result = headings.checkAndConvertHeadingPattern();
+      expect(result).toBe(false);
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getCurrentHeadingLevel - unknown tag", () => {
+    beforeEach(() => {
+      onContentChange = vi.fn();
+    });
+
+    it("returns -1 when block tag is not in TAG_TO_LEVEL (nullish coalescing)", () => {
+      // BLOCKQUOTE is a recognized block but not in TAG_TO_LEVEL
+      editor = createTestEditor("<blockquote>Quote text</blockquote>");
+      const headings = createHeadings();
+      editor.setCursorInBlock(0, 0);
+
+      // getHeadingTargetBlock checks TAG_TO_LEVEL, so blockquote returns null
+      // This makes getCurrentHeadingLevel return -1
+      expect(headings.getCurrentHeadingLevel()).toBe(-1);
+    });
+  });
+
+  describe("setHeadingLevel - no block", () => {
+    beforeEach(() => {
+      onContentChange = vi.fn();
+    });
+
+    it("does nothing when contentRef is null", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const headings = createHeadings();
+      editor.contentRef.value = null;
+
+      headings.setHeadingLevel(1);
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("convertHeadingPattern - non-text firstChild (headingUtils lines 121-122)", () => {
+    it("positions cursor at end of element when firstChild is not a text node", () => {
+      // Create a paragraph with heading pattern text content
+      const p = document.createElement("p");
+      p.textContent = "# Hello";
+      document.body.appendChild(p);
+
+      // Place cursor in the paragraph so getSelection works
+      const range = document.createRange();
+      range.selectNodeContents(p);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+
+      // Spy on document.createElement to intercept the heading element creation.
+      // When the heading tag (H1) is created, we override its textContent setter
+      // so that it adds a <span> child instead of a text node, triggering the else branch.
+      const origCreate = document.createElement.bind(document);
+      const createSpy = vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
+        const el = origCreate(tag);
+        if (/^H[1-6]$/i.test(tag)) {
+          // Override textContent setter to produce an element node instead of text
+          Object.defineProperty(el, "textContent", {
+            set(value: string) {
+              // Create a span child instead of a text node
+              const span = origCreate("span");
+              span.appendChild(document.createTextNode(value));
+              el.appendChild(span);
+            },
+            get() {
+              return el.innerText || "";
+            },
+            configurable: true,
+          });
+        }
+        return el;
+      });
+
+      const result = convertHeadingPattern(p);
+
+      // The conversion should succeed
+      expect(result).not.toBeNull();
+      expect(result?.tagName).toBe("H1");
+
+      // The else branch (lines 121-122) places cursor at end via selectNodeContents + collapse(false)
+      const currentSel = window.getSelection();
+      expect(currentSel?.rangeCount).toBeGreaterThan(0);
+
+      createSpy.mockRestore();
+      result?.remove();
     });
   });
 });

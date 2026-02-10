@@ -162,6 +162,23 @@ describe("useMarkdownSelection", () => {
       const pos = selection.saveCursorPosition();
       expect(pos).toEqual({ blockIndex: 0, charOffset: 0 });
     });
+
+    it("saves position with blockIndex -1 when cursor is in bare text node", () => {
+      editor = createTestEditor("");
+      // Replace content with a bare text node (no block wrapper)
+      editor.container.innerHTML = "";
+      const textNode = document.createTextNode("bare text");
+      editor.container.appendChild(textNode);
+      const selection = useMarkdownSelection(editor.contentRef);
+
+      // Place cursor in the bare text node under contentRef
+      editor.setCursor(textNode, 4);
+
+      const pos = selection.saveCursorPosition();
+      expect(pos).not.toBeNull();
+      expect(pos!.blockIndex).toBe(-1);
+      expect(pos!.charOffset).toBe(4);
+    });
   });
 
   describe("restoreCursorPosition", () => {
@@ -206,6 +223,47 @@ describe("useMarkdownSelection", () => {
       expect(sel.rangeCount).toBe(1);
       const range = sel.getRangeAt(0);
       expect(range.collapsed).toBe(true);
+    });
+  });
+
+  describe("findBlockParent null-node guard (line 28)", () => {
+    it("returns null when range.startContainer leads to no block parent", () => {
+      // Create a content area with no block-level children
+      editor = createTestEditor("");
+      editor.container.innerHTML = "";
+      const textNode = document.createTextNode("bare text");
+      editor.container.appendChild(textNode);
+      const selection = useMarkdownSelection(editor.contentRef);
+
+      // Place cursor in the bare text node (not inside any block element)
+      editor.setCursor(textNode, 2);
+
+      // findBlockParent walks up from text node but finds no block tag before contentRef
+      expect(selection.getCurrentBlock()).toBeNull();
+    });
+  });
+
+  describe("getBlockElements filtering", () => {
+    it("skips non-block children (e.g., span, a) in getBlockElements", () => {
+      // Children that are not block-level should be skipped.
+      // This tests line 69: blockTags.includes(child.tagName) being false
+      editor = createTestEditor("<p>Block</p><span>Inline</span><p>Block2</p>");
+      const selection = useMarkdownSelection(editor.contentRef);
+
+      // Set cursor in first paragraph
+      editor.setCursorInBlock(0, 0);
+      const pos = selection.saveCursorPosition();
+      expect(pos).not.toBeNull();
+      expect(pos!.blockIndex).toBe(0);
+
+      // Set cursor in second paragraph (child index 2, but block index 1)
+      // Need to use setCursor directly on the P element
+      const secondP = editor.container.querySelectorAll("p")[1]!;
+      editor.setCursor(secondP.firstChild!, 0);
+      const pos2 = selection.saveCursorPosition();
+      expect(pos2).not.toBeNull();
+      // Block index 1 because span is skipped
+      expect(pos2!.blockIndex).toBe(1);
     });
   });
 

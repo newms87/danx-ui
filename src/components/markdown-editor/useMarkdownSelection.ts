@@ -24,9 +24,7 @@ export interface UseMarkdownSelectionReturn {
 /**
  * Get the block-level parent element (p, h1-h6, li, blockquote, etc.) containing the cursor
  */
-function findBlockParent(node: Node | null, contentRef: HTMLElement): Element | null {
-  if (!node) return null;
-
+function findBlockParent(node: Node, contentRef: HTMLElement): Element | null {
   const blockTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "BLOCKQUOTE", "PRE", "DIV"];
 
   let current: Node | null = node;

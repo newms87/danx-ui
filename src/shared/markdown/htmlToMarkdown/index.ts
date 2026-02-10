@@ -46,7 +46,7 @@ function stripZeroWidthSpaces(text: string): string {
  * Process inline content (text with inline formatting)
  * Handles nested inline elements like bold, italic, code, links
  */
-function processInlineContent(element: Element): string {
+function processInlineContent(element: Element, customProcessor?: CustomElementProcessor): string {
   const parts: string[] = [];
 
   for (const child of Array.from(element.childNodes)) {
@@ -56,6 +56,15 @@ function processInlineContent(element: Element): string {
     } else if (child.nodeType === Node.ELEMENT_NODE) {
       const el = child as Element;
       const tagName = el.tagName.toLowerCase();
+
+      // Try custom processor first for token wrappers and other custom elements
+      if (customProcessor) {
+        const result = customProcessor(el);
+        if (result !== null) {
+          parts.push(result);
+          continue;
+        }
+      }
 
       // Handle color-preview spans - skip the swatch, return only the hex code text
       if (tagName === "span" && el.classList.contains("color-preview")) {
@@ -69,7 +78,7 @@ function processInlineContent(element: Element): string {
         continue;
       }
 
-      const content = processInlineContent(el);
+      const content = processInlineContent(el, customProcessor);
 
       // Skip empty formatting elements
       if (
@@ -130,14 +139,18 @@ function processInlineContent(element: Element): string {
 /**
  * Process list items with proper markers
  */
-function processListItems(listElement: Element, marker: string): string {
+function processListItems(
+  listElement: Element,
+  marker: string,
+  customProcessor?: CustomElementProcessor
+): string {
   const items: string[] = [];
   let index = 1;
 
   for (const child of Array.from(listElement.children)) {
     if (child.tagName.toLowerCase() === "li") {
       const prefix = marker === "1." ? `${index}. ` : `${marker} `;
-      const content = processInlineContent(child);
+      const content = processInlineContent(child, customProcessor);
 
       // Check for nested lists
       const nestedUl = child.querySelector("ul");
@@ -152,7 +165,7 @@ function processListItems(listElement: Element, marker: string): string {
           } else if (node.nodeType === Node.ELEMENT_NODE) {
             const el = node as Element;
             if (el.tagName.toLowerCase() !== "ul" && el.tagName.toLowerCase() !== "ol") {
-              textParts.push(processInlineContent(el));
+              textParts.push(processInlineContent(el, customProcessor));
             }
           }
         }
@@ -160,11 +173,15 @@ function processListItems(listElement: Element, marker: string): string {
 
         // Process nested list with indentation
         if (nestedUl) {
-          const nestedItems = processListItems(nestedUl, "-").split("\n").filter(Boolean);
+          const nestedItems = processListItems(nestedUl, "-", customProcessor)
+            .split("\n")
+            .filter(Boolean);
           items.push(...nestedItems.map((item) => `  ${item}`));
         }
         if (nestedOl) {
-          const nestedItems = processListItems(nestedOl, "1.").split("\n").filter(Boolean);
+          const nestedItems = processListItems(nestedOl, "1.", customProcessor)
+            .split("\n")
+            .filter(Boolean);
           items.push(...nestedItems.map((item) => `  ${item}`));
         }
       } else {
@@ -181,7 +198,7 @@ function processListItems(listElement: Element, marker: string): string {
 /**
  * Process table element to markdown
  */
-function processTable(table: Element): string {
+function processTable(table: Element, customProcessor?: CustomElementProcessor): string {
   const rows: string[][] = [];
   const alignments: string[] = [];
 
@@ -192,7 +209,7 @@ function processTable(table: Element): string {
     if (headerRow) {
       const cells: string[] = [];
       for (const th of Array.from(headerRow.querySelectorAll("th"))) {
-        cells.push(processInlineContent(th).trim());
+        cells.push(processInlineContent(th, customProcessor).trim());
         // Detect alignment from style or class
         const style = th.getAttribute("style") || "";
         if (style.includes("text-align: center")) {
@@ -213,7 +230,7 @@ function processTable(table: Element): string {
     if (thead && tr.parentElement === thead) continue;
     const cells: string[] = [];
     for (const td of Array.from(tr.querySelectorAll("td, th"))) {
-      cells.push(processInlineContent(td).trim());
+      cells.push(processInlineContent(td, customProcessor).trim());
     }
     if (cells.length > 0) {
       rows.push(cells);
@@ -276,7 +293,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
       switch (tagName) {
         // Paragraphs
         case "p":
-          parts.push(`${processInlineContent(element)}\n\n`);
+          parts.push(`${processInlineContent(element, customProcessor)}\n\n`);
           break;
 
         // Line breaks
@@ -287,7 +304,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
         // Bold
         case "strong":
         case "b": {
-          const content = processInlineContent(element);
+          const content = processInlineContent(element, customProcessor);
           if (content) {
             parts.push(`**${content}**`);
           }
@@ -297,7 +314,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
         // Italic
         case "em":
         case "i": {
-          const content = processInlineContent(element);
+          const content = processInlineContent(element, customProcessor);
           if (content) {
             parts.push(`*${content}*`);
           }
@@ -336,23 +353,23 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
 
         // Unordered lists
         case "ul":
-          parts.push(processListItems(element, "-"));
+          parts.push(processListItems(element, "-", customProcessor));
           break;
 
         // Ordered lists
         case "ol":
-          parts.push(processListItems(element, "1."));
+          parts.push(processListItems(element, "1.", customProcessor));
           break;
 
         // List items (handled by processListItems)
         case "li":
-          parts.push(processInlineContent(element));
+          parts.push(processInlineContent(element, customProcessor));
           break;
 
         // Links
         case "a": {
           const href = element.getAttribute("href") || "";
-          const text = processInlineContent(element);
+          const text = processInlineContent(element, customProcessor);
           parts.push(`[${text}](${href})`);
           break;
         }
@@ -373,7 +390,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
         // Strikethrough
         case "del":
         case "s": {
-          const content = processInlineContent(element);
+          const content = processInlineContent(element, customProcessor);
           if (content) {
             parts.push(`~~${content}~~`);
           }
@@ -382,7 +399,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
 
         // Highlight
         case "mark": {
-          const content = processInlineContent(element);
+          const content = processInlineContent(element, customProcessor);
           if (content) {
             parts.push(`==${content}==`);
           }
@@ -391,7 +408,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
 
         // Superscript
         case "sup": {
-          const content = processInlineContent(element);
+          const content = processInlineContent(element, customProcessor);
           if (content) {
             parts.push(`^${content}^`);
           }
@@ -400,7 +417,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
 
         // Subscript
         case "sub": {
-          const content = processInlineContent(element);
+          const content = processInlineContent(element, customProcessor);
           if (content) {
             parts.push(`~${content}~`);
           }
@@ -440,7 +457,7 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
 
         // Tables
         case "table":
-          parts.push(processTable(element));
+          parts.push(processTable(element, customProcessor));
           break;
 
         default:

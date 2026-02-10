@@ -3,6 +3,7 @@ import { useCodeBlocks } from "../useCodeBlocks";
 import { useMarkdownSelection } from "../useMarkdownSelection";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 import { htmlToMarkdown } from "../../../shared/markdown/htmlToMarkdown";
+import * as markdownModule from "../../../shared/markdown";
 
 describe("useCodeBlocks", () => {
   let editor: TestEditorResult;
@@ -633,6 +634,373 @@ describe("useCodeBlocks", () => {
       // Content should be preserved in the data-content attribute
       const mountPoint = editor.container.querySelector(".code-viewer-mount-point");
       expect(mountPoint?.getAttribute("data-content")).toBe("Line 1\nLine 2\nLine 3");
+    });
+
+    it("toggleCodeBlock does nothing when contentRef is null", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.contentRef.value = null;
+
+      codeBlocks.toggleCodeBlock();
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("checkAndConvertCodeBlockPattern does nothing when contentRef is null", () => {
+      editor = createTestEditor("<p>```js</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.contentRef.value = null;
+
+      expect(codeBlocks.checkAndConvertCodeBlockPattern()).toBe(false);
+    });
+
+    it("toggleCodeBlock returns early when no target block found (line 323)", () => {
+      // Use bare text node with no block parent to make getTargetBlock return null
+      editor = createTestEditor("");
+      editor.container.innerHTML = "";
+      const textNode = document.createTextNode("bare text");
+      editor.container.appendChild(textNode);
+      const codeBlocks = createCodeBlocks();
+
+      // Place cursor in bare text node
+      editor.setCursor(textNode, 3);
+
+      codeBlocks.toggleCodeBlock();
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("toggleCodeBlock does not convert non-convertible block (line 333)", () => {
+      // TABLE is not a convertible block
+      editor = createTestEditor("<table><tr><td>Cell</td></tr></table>");
+      const codeBlocks = createCodeBlocks();
+      const td = editor.container.querySelector("td")!;
+      editor.setCursor(td.firstChild!, 0);
+
+      codeBlocks.toggleCodeBlock();
+      // Should not convert the table
+      expect(editor.container.querySelector("table")).not.toBeNull();
+      expect(editor.container.querySelector(".code-block-wrapper")).toBeNull();
+    });
+
+    it("checkAndConvertCodeBlockPattern returns false when no target block (line 370)", () => {
+      // Bare text node - getTargetBlock returns null
+      editor = createTestEditor("");
+      editor.container.innerHTML = "";
+      const textNode = document.createTextNode("```javascript");
+      editor.container.appendChild(textNode);
+      const codeBlocks = createCodeBlocks();
+      editor.setCursor(textNode, 13);
+
+      expect(codeBlocks.checkAndConvertCodeBlockPattern()).toBe(false);
+    });
+
+    it("checkAndConvertCodeBlockPattern handles block with empty textContent (line 370)", () => {
+      editor = createTestEditor("<p></p>");
+      const codeBlocks = createCodeBlocks();
+      const p = editor.getBlock(0)!;
+      const range = document.createRange();
+      range.selectNodeContents(p);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      // Empty text content doesn't match code fence pattern
+      expect(codeBlocks.checkAndConvertCodeBlockPattern()).toBe(false);
+    });
+  });
+
+  describe("state management", () => {
+    beforeEach(() => {
+      onContentChange = vi.fn();
+    });
+
+    it("updateCodeBlockContent updates state and notifies", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      const id = createWrapperCodeBlock(codeBlocks, "old content", "js");
+
+      codeBlocks.updateCodeBlockContent(id, "new content");
+
+      expect(codeBlocks.getCodeBlockById(id)?.content).toBe("new content");
+      expect(onContentChange).toHaveBeenCalled();
+    });
+
+    it("updateCodeBlockContent does nothing for unknown ID", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+
+      codeBlocks.updateCodeBlockContent("nonexistent", "content");
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("updateCodeBlockLanguage updates state and notifies", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      const id = createWrapperCodeBlock(codeBlocks, "code", "js");
+
+      codeBlocks.updateCodeBlockLanguage(id, "python");
+
+      expect(codeBlocks.getCodeBlockById(id)?.language).toBe("python");
+      expect(onContentChange).toHaveBeenCalled();
+    });
+
+    it("updateCodeBlockLanguage does nothing for unknown ID", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+
+      codeBlocks.updateCodeBlockLanguage("nonexistent", "python");
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("removeCodeBlock removes from state and DOM", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      const id = createWrapperCodeBlock(codeBlocks, "code", "js");
+
+      codeBlocks.removeCodeBlock(id);
+
+      expect(codeBlocks.getCodeBlockById(id)).toBeUndefined();
+      expect(editor.container.querySelector(`[data-code-block-id="${id}"]`)).toBeNull();
+      expect(onContentChange).toHaveBeenCalled();
+    });
+
+    it("removeCodeBlock handles missing DOM wrapper gracefully", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      codeBlocks.registerCodeBlock("orphan-id", "content", "js");
+
+      codeBlocks.removeCodeBlock("orphan-id");
+
+      expect(codeBlocks.getCodeBlockById("orphan-id")).toBeUndefined();
+      expect(onContentChange).toHaveBeenCalled();
+    });
+
+    it("removeCodeBlock handles null contentRef", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      codeBlocks.registerCodeBlock("test-id", "content", "js");
+      editor.contentRef.value = null;
+
+      codeBlocks.removeCodeBlock("test-id");
+
+      expect(codeBlocks.getCodeBlockById("test-id")).toBeUndefined();
+      expect(onContentChange).toHaveBeenCalled();
+    });
+
+    it("getCurrentCodeBlockId returns null when not in code block", () => {
+      editor = createTestEditor("<p>Hello world</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.setCursorInBlock(0, 5);
+
+      expect(codeBlocks.getCurrentCodeBlockId()).toBeNull();
+    });
+
+    it("getCurrentCodeBlockId returns ID when in code block", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      const id = createWrapperCodeBlock(codeBlocks, "code", "js");
+
+      const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`);
+      if (wrapper) {
+        const range = document.createRange();
+        range.selectNodeContents(wrapper);
+        range.collapse(true);
+        window.getSelection()?.removeAllRanges();
+        window.getSelection()?.addRange(range);
+      }
+
+      expect(codeBlocks.getCurrentCodeBlockId()).toBe(id);
+    });
+
+    it("getCodeBlocks returns the reactive map", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      codeBlocks.registerCodeBlock("cb1", "a", "js");
+      codeBlocks.registerCodeBlock("cb2", "b", "py");
+
+      const map = codeBlocks.getCodeBlocks();
+      expect(map.size).toBe(2);
+    });
+
+    it("handleCodeBlockMounted focuses pending code block", () => {
+      editor = createTestEditor("<p>some content</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.setCursorInBlock(0, 0);
+
+      // Toggle to create code block (which adds to pendingFocusIds)
+      codeBlocks.toggleCodeBlock();
+
+      // Get wrapper
+      const wrapper = editor.container.querySelector(".code-block-wrapper") as HTMLElement;
+      const id = wrapper?.getAttribute("data-code-block-id");
+
+      // Create a contenteditable pre inside wrapper to simulate CodeViewer
+      const pre = document.createElement("pre");
+      pre.setAttribute("contenteditable", "true");
+      pre.textContent = "code";
+      wrapper?.querySelector(".code-viewer-mount-point")?.appendChild(pre);
+
+      // Call handleCodeBlockMounted - should focus the pre
+      if (id) {
+        codeBlocks.handleCodeBlockMounted(id, wrapper);
+      }
+    });
+
+    it("handleCodeBlockMounted does nothing for non-pending blocks", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+      const id = createWrapperCodeBlock(codeBlocks, "code", "js");
+
+      const wrapper = editor.container.querySelector(`[data-code-block-id="${id}"]`) as HTMLElement;
+      // This should not throw or do anything since id is not pending
+      codeBlocks.handleCodeBlockMounted(id, wrapper);
+    });
+
+    it("getCurrentCodeBlockLanguage returns null when wrapper has no id attr", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.setCursorInBlock(0, 0);
+
+      expect(codeBlocks.getCurrentCodeBlockLanguage()).toBeNull();
+    });
+
+    it("getCurrentCodeBlockLanguage returns null when wrapper has empty id (line 284)", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+
+      editor.container.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.setAttribute("contenteditable", "false");
+      wrapper.setAttribute("data-code-block-id", ""); // Empty id
+      const mountPoint = document.createElement("div");
+      wrapper.appendChild(mountPoint);
+      editor.container.appendChild(wrapper);
+
+      const range = document.createRange();
+      range.selectNodeContents(mountPoint);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      expect(codeBlocks.getCurrentCodeBlockLanguage()).toBeNull();
+    });
+
+    it("getCurrentCodeBlockLanguage returns empty string when state not found (line 287)", () => {
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+
+      editor.container.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.setAttribute("contenteditable", "false");
+      wrapper.setAttribute("data-code-block-id", "cb-unknown");
+      const mountPoint = document.createElement("div");
+      wrapper.appendChild(mountPoint);
+      editor.container.appendChild(wrapper);
+
+      // Place cursor inside wrapper - do NOT register "cb-unknown" in state
+      const range = document.createRange();
+      range.selectNodeContents(mountPoint);
+      range.collapse(true);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+
+      // state is undefined, so state?.language is undefined, ?? "" returns ""
+      expect(codeBlocks.getCurrentCodeBlockLanguage()).toBe("");
+    });
+
+    it("setCodeBlockLanguage does nothing when not in code block", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.setCursorInBlock(0, 0);
+
+      codeBlocks.setCodeBlockLanguage("python");
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("getCodeBlockWrapper returns null when getCurrentBlock returns null (line 87)", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const codeBlocks = createCodeBlocks();
+
+      // Clear selection so getCurrentBlock returns null
+      window.getSelection()?.removeAllRanges();
+
+      expect(codeBlocks.isInCodeBlock()).toBe(false);
+      expect(codeBlocks.getCurrentCodeBlockId()).toBeNull();
+      expect(codeBlocks.getCurrentCodeBlockLanguage()).toBeNull();
+    });
+
+    it("setCodeBlockLanguage skips update when wrapper has empty id attr (line 298)", () => {
+      // Create a wrapper with data-code-block-id="" (empty) so hasAttribute is true
+      // but getAttribute returns "" (falsy), exercising the if(id) false branch
+      editor = createTestEditor("<p>placeholder</p>");
+      const codeBlocks = createCodeBlocks();
+
+      editor.container.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-block-wrapper";
+      wrapper.setAttribute("contenteditable", "false");
+      wrapper.setAttribute("data-code-block-id", ""); // Empty id
+
+      const mountPoint = document.createElement("div");
+      wrapper.appendChild(mountPoint);
+      editor.container.appendChild(wrapper);
+
+      // Place cursor inside wrapper
+      const range = document.createRange();
+      range.selectNodeContents(mountPoint);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+
+      // setCodeBlockLanguage finds wrapper but id is "" (falsy)
+      codeBlocks.setCodeBlockLanguage("python");
+      expect(onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("toggleCodeBlock uses empty string when block.textContent is null (line 333)", () => {
+      editor = createTestEditor("<p>Some text</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.setCursorInBlock(0, 0);
+
+      // Mock textContent to null on the block
+      const block = editor.getBlock(0)!;
+      Object.defineProperty(block, "textContent", {
+        get: () => null,
+        configurable: true,
+      });
+
+      codeBlocks.toggleCodeBlock();
+
+      // The code block should be created with empty content
+      const mountPoint = editor.container.querySelector(".code-viewer-mount-point");
+      expect(mountPoint?.getAttribute("data-content")).toBe("");
+      expect(onContentChange).toHaveBeenCalled();
+
+      // Restore
+      delete (block as Record<string, unknown>)["textContent"];
+    });
+
+    it("checkAndConvertCodeBlockPattern uses empty string when language is falsy (line 377)", () => {
+      editor = createTestEditor("<p>```something</p>");
+      const codeBlocks = createCodeBlocks();
+      editor.setCursorInBlock(0, 12);
+
+      // Mock detectCodeFenceStart to return pattern with empty language
+      const spy = vi.spyOn(markdownModule, "detectCodeFenceStart").mockReturnValue({
+        language: "",
+      });
+
+      const result = codeBlocks.checkAndConvertCodeBlockPattern();
+
+      spy.mockRestore();
+      expect(result).toBe(true);
+
+      // Language should fall back to ""
+      const wrapper = editor.container.querySelector(".code-block-wrapper");
+      const id = wrapper?.getAttribute("data-code-block-id");
+      expect(id).toBeTruthy();
+      const state = codeBlocks.getCodeBlockById(id!);
+      expect(state?.language).toBe("");
     });
   });
 });

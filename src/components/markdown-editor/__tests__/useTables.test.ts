@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { ref } from "vue";
 import { useTables } from "../useTables";
+import { createTableRowOps } from "../useTableRowOps";
+import type { TableContext } from "../table-types";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
 describe("useTables", () => {
@@ -186,6 +188,14 @@ describe("useTables", () => {
 
       expect(isInTableCell()).toBe(false);
     });
+
+    it("returns false when no selection exists", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const tables = createTables();
+      window.getSelection()?.removeAllRanges();
+
+      expect(tables.isInTableCell()).toBe(false);
+    });
   });
 
   describe("getCurrentTable", () => {
@@ -258,6 +268,14 @@ describe("useTables", () => {
       });
 
       expect(getCurrentCell()).toBeNull();
+    });
+
+    it("returns null when no selection exists", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const tables = createTables();
+      window.getSelection()?.removeAllRanges();
+
+      expect(tables.getCurrentCell()).toBeNull();
     });
   });
 
@@ -1491,6 +1509,185 @@ describe("useTables", () => {
     });
   });
 
+  describe("insertTable - onCancel callback", () => {
+    let originalGetBoundingClientRect: typeof Range.prototype.getBoundingClientRect;
+
+    beforeEach(() => {
+      originalGetBoundingClientRect = Range.prototype.getBoundingClientRect;
+      Range.prototype.getBoundingClientRect = vi.fn(() => ({
+        x: 100,
+        y: 100,
+        width: 0,
+        height: 0,
+        top: 100,
+        right: 100,
+        bottom: 100,
+        left: 100,
+        toJSON: () => ({}),
+      })) as unknown as typeof Range.prototype.getBoundingClientRect;
+    });
+
+    afterEach(() => {
+      Range.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    });
+
+    it("restores selection and focuses content when onCancel is called", () => {
+      editor = createTestEditor("<p>Insert here</p>");
+      let capturedOptions: {
+        position: unknown;
+        onSubmit: (rows: number, cols: number) => void;
+        onCancel: () => void;
+      } | null = null;
+      const onShowTablePopover = vi.fn((opts) => {
+        capturedOptions = opts;
+      });
+      useTables({
+        contentRef: editor.contentRef,
+        onContentChange: onContentChange as unknown as () => void,
+        onShowTablePopover,
+      }).insertTable();
+
+      expect(capturedOptions).not.toBeNull();
+
+      // Call onCancel - should restore selection and focus the content
+      capturedOptions!.onCancel();
+
+      // The function should not throw and should have restored focus
+      expect(onShowTablePopover).toHaveBeenCalled();
+    });
+  });
+
+  describe("createTable - cursor at contentRef root level", () => {
+    let originalGetBoundingClientRect: typeof Range.prototype.getBoundingClientRect;
+
+    beforeEach(() => {
+      originalGetBoundingClientRect = Range.prototype.getBoundingClientRect;
+      Range.prototype.getBoundingClientRect = vi.fn(() => ({
+        x: 100,
+        y: 100,
+        width: 0,
+        height: 0,
+        top: 100,
+        right: 100,
+        bottom: 100,
+        left: 100,
+        toJSON: () => ({}),
+      })) as unknown as typeof Range.prototype.getBoundingClientRect;
+    });
+
+    afterEach(() => {
+      Range.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    });
+
+    it("appends table to contentRef when cursor is at root level (not inside a block element)", () => {
+      // Create an editor with only a text node (no block wrapper)
+      editor = createTestEditor("");
+      const tables = createTables();
+
+      // Add a bare text node directly to contentRef
+      const textNode = document.createTextNode("bare text");
+      editor.container.appendChild(textNode);
+
+      // Set cursor in the bare text node (which is a direct child of contentRef)
+      editor.setCursor(textNode, 4);
+
+      tables.createTable(2, 2);
+
+      // Table should be appended to contentRef
+      const table = editor.container.querySelector("table");
+      expect(table).not.toBeNull();
+      expect(onContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("insertRowBelow - header row without tbody", () => {
+    it("creates a new tbody when inserting row below header and no tbody exists", () => {
+      // Table with only a header row (no tbody)
+      editor = createTestEditor(
+        "<table><thead><tr><th>Header 1</th><th>Header 2</th></tr></thead></table>"
+      );
+      const tables = createTables();
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const headerCell = getCell(table, 0, 0)!;
+      setCursorInCell(headerCell);
+
+      // Before: no tbody
+      expect(table.querySelector("tbody")).toBeNull();
+
+      tables.insertRowBelow();
+
+      // After: tbody should exist with one row
+      const tbody = table.querySelector("tbody");
+      expect(tbody).not.toBeNull();
+      expect(tbody?.querySelectorAll("tr").length).toBe(1);
+      expect(tbody?.querySelectorAll("td").length).toBe(2);
+      expect(onContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("insertColumnLeft - row with fewer cells than expected", () => {
+    it("appends cell when reference cell does not exist in a row", () => {
+      // Create a malformed table where body rows have fewer cells than the header
+      editor = createTestEditor(
+        "<table><thead><tr><th>H1</th><th>H2</th><th>H3</th></tr></thead><tbody><tr><td>C1</td></tr></tbody></table>"
+      );
+      const tables = createTables();
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+
+      // Place cursor on header cell at col 2 (third column)
+      const headerCell = getCell(table, 0, 2)!;
+      setCursorInCell(headerCell);
+
+      tables.insertColumnLeft();
+
+      // The header row should have 4 cells (3 + 1 inserted)
+      const headerRow = table.querySelector("thead tr") as HTMLTableRowElement;
+      expect(headerRow.cells.length).toBe(4);
+
+      // The body row (which had only 1 cell) should have 2 cells -
+      // since col=2 doesn't exist in body row, it should appendChild
+      const bodyRow = table.querySelector("tbody tr") as HTMLTableRowElement;
+      expect(bodyRow.cells.length).toBe(2);
+      expect(onContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("insertColumnRight - row with fewer cells than expected", () => {
+    it("appends cell when reference cell at col+1 does not exist", () => {
+      // Cursor at last column, so col+1 won't exist - should appendChild
+      editor = createTestEditor(createTableHtml(2, 2));
+      const tables = createTables();
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+
+      // Place cursor on last column (col=1)
+      const cell = getCell(table, 0, 1)!;
+      setCursorInCell(cell);
+
+      tables.insertColumnRight();
+
+      // Should have 3 columns now - the new cell was appended (not insertBefore)
+      const headerRow = table.querySelector("thead tr") as HTMLTableRowElement;
+      expect(headerRow.cells.length).toBe(3);
+      expect(onContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteTable - focus previous sibling", () => {
+    it("focuses previous sibling when no next sibling exists", () => {
+      editor = createTestEditor(`<p>Before table</p>${createTableHtml(2, 2)}`);
+      const tables = createTables();
+      const cell = editor.container.querySelector("th") as HTMLTableCellElement;
+      setCursorInCell(cell);
+
+      tables.deleteTable();
+
+      expect(editor.container.querySelector("table")).toBeNull();
+      // The paragraph before should still exist
+      expect(editor.container.querySelector("p")?.textContent).toBe("Before table");
+      expect(onContentChange).toHaveBeenCalled();
+    });
+  });
+
   describe("edge cases", () => {
     it("handles table without tbody", () => {
       editor = createTestEditor("<table><thead><tr><th>Header</th></tr></thead></table>");
@@ -1555,6 +1752,247 @@ describe("useTables", () => {
       setCursorInCell(cell);
 
       expect(tables.getCurrentTable()).toBe(secondTable);
+    });
+  });
+
+  describe("useTableRowOps - null parentElement guards (via createTableRowOps)", () => {
+    it("insertRowAbove returns early when cell has no parentElement (row is null)", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const notifyContentChange = vi.fn();
+
+      // Create a detached cell with no parent (parentElement is null)
+      const detachedCell = document.createElement("td");
+      detachedCell.textContent = "detached";
+
+      const ctx: TableContext = {
+        contentRef: editor.contentRef,
+        isInTableCell: () => true,
+        getCurrentTable: () => table,
+        getCurrentCellAndTable: () => ({ cell: detachedCell as HTMLTableCellElement, table }),
+        notifyContentChange,
+        insertRowBelow: vi.fn(),
+        deleteTable: vi.fn(),
+      };
+
+      const { insertRowAbove } = createTableRowOps(ctx);
+      insertRowAbove();
+
+      // Should return early; notifyContentChange should NOT be called
+      expect(notifyContentChange).not.toHaveBeenCalled();
+      expect(table.querySelectorAll("tr").length).toBe(2);
+    });
+
+    it("insertRowBelow returns early when cell has no parentElement (row is null)", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const notifyContentChange = vi.fn();
+
+      const detachedCell = document.createElement("td");
+
+      const ctx: TableContext = {
+        contentRef: editor.contentRef,
+        isInTableCell: () => true,
+        getCurrentTable: () => table,
+        getCurrentCellAndTable: () => ({ cell: detachedCell as HTMLTableCellElement, table }),
+        notifyContentChange,
+        insertRowBelow: vi.fn(),
+        deleteTable: vi.fn(),
+      };
+
+      const { insertRowBelow } = createTableRowOps(ctx);
+      insertRowBelow();
+
+      expect(notifyContentChange).not.toHaveBeenCalled();
+      expect(table.querySelectorAll("tr").length).toBe(2);
+    });
+
+    it("deleteCurrentRow returns early when cell has no parentElement (row is null)", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const notifyContentChange = vi.fn();
+
+      const detachedCell = document.createElement("td");
+
+      const ctx: TableContext = {
+        contentRef: editor.contentRef,
+        isInTableCell: () => true,
+        getCurrentTable: () => table,
+        getCurrentCellAndTable: () => ({ cell: detachedCell as HTMLTableCellElement, table }),
+        notifyContentChange,
+        insertRowBelow: vi.fn(),
+        deleteTable: vi.fn(),
+      };
+
+      const { deleteCurrentRow } = createTableRowOps(ctx);
+      deleteCurrentRow();
+
+      expect(notifyContentChange).not.toHaveBeenCalled();
+      expect(table.querySelectorAll("tr").length).toBe(2);
+    });
+  });
+
+  describe("useTableRowOps - zero-column edge case (via createTableRowOps)", () => {
+    it("insertRowAbove skips focusCell when newRow has no cells (firstNewCell is null)", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const notifyContentChange = vi.fn();
+
+      // Create a row that reports 0 cells via a custom HTMLCollection-like object
+      const fakeRow = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.textContent = "test";
+      fakeRow.appendChild(cell);
+
+      // Put fakeRow inside the table tbody so parentNode is valid
+      const tbody = table.querySelector("tbody")!;
+      tbody.appendChild(fakeRow);
+
+      // Override cells to report length 0 so createRow(0, false) produces a row with no cells
+      Object.defineProperty(fakeRow, "cells", {
+        get: () => ({ length: 0, item: () => null, 0: cell }),
+        configurable: true,
+      });
+
+      const ctx: TableContext = {
+        contentRef: editor.contentRef,
+        isInTableCell: () => true,
+        getCurrentTable: () => table,
+        getCurrentCellAndTable: () => ({ cell: cell as HTMLTableCellElement, table }),
+        notifyContentChange,
+        insertRowBelow: vi.fn(),
+        deleteTable: vi.fn(),
+      };
+
+      const { insertRowAbove } = createTableRowOps(ctx);
+      insertRowAbove();
+
+      // Should still call notifyContentChange even though no cell was focused
+      expect(notifyContentChange).toHaveBeenCalled();
+    });
+
+    it("insertRowBelow skips focusCell when newRow has no cells (firstNewCell is null)", () => {
+      editor = createTestEditor(createTableHtml(2, 2));
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const notifyContentChange = vi.fn();
+
+      const fakeRow = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.textContent = "test";
+      fakeRow.appendChild(cell);
+
+      const tbody = table.querySelector("tbody")!;
+      tbody.appendChild(fakeRow);
+
+      Object.defineProperty(fakeRow, "cells", {
+        get: () => ({ length: 0, item: () => null, 0: cell }),
+        configurable: true,
+      });
+
+      const ctx: TableContext = {
+        contentRef: editor.contentRef,
+        isInTableCell: () => true,
+        getCurrentTable: () => table,
+        getCurrentCellAndTable: () => ({ cell: cell as HTMLTableCellElement, table }),
+        notifyContentChange,
+        insertRowBelow: vi.fn(),
+        deleteTable: vi.fn(),
+      };
+
+      const { insertRowBelow } = createTableRowOps(ctx);
+      insertRowBelow();
+
+      expect(notifyContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("useTableRowOps - deleteCurrentRow targetCell null case (via createTableRowOps)", () => {
+    it("skips focusCell when getCellAt returns null after row deletion", () => {
+      // Create a table where after deleting a row, the target cell column doesn't exist
+      // This happens when the deleted row had more columns than remaining rows
+      editor = createTestEditor(
+        "<table><thead><tr><th>H1</th></tr></thead><tbody><tr><td>C1</td><td>C2</td><td>C3</td></tr></tbody></table>"
+      );
+      const table = editor.container.querySelector("table") as HTMLTableElement;
+      const notifyContentChange = vi.fn();
+
+      // The body row (index 1) has 3 cells. Place cursor in col 2 (C3).
+      const bodyRow = table.querySelector("tbody tr")!;
+      const cell = bodyRow.querySelectorAll("td")[2]! as HTMLTableCellElement;
+
+      const ctx: TableContext = {
+        contentRef: editor.contentRef,
+        isInTableCell: () => true,
+        getCurrentTable: () => table,
+        getCurrentCellAndTable: () => ({ cell, table }),
+        notifyContentChange,
+        insertRowBelow: vi.fn(),
+        deleteTable: vi.fn(),
+      };
+
+      const { deleteCurrentRow } = createTableRowOps(ctx);
+      deleteCurrentRow();
+
+      // After deleting body row, only header remains (1 row with 1 cell).
+      // getCellAt(table, 0, 2) returns null because header row only has 1 cell.
+      // The targetCell guard should skip focusCell.
+      expect(table.querySelectorAll("tr").length).toBe(1);
+      expect(notifyContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("useTables - createTable cursor at non-block element", () => {
+    it("walks through non-block elements and appends table when insertion point reaches contentRef", () => {
+      // Create content with a SPAN (not a block element) so the while loop
+      // traverses up without matching any block tags, ending at contentRef
+      editor = createTestEditor("<span>Inline text</span>");
+      const tables = createTables();
+
+      // Place cursor inside the SPAN text
+      const span = editor.container.querySelector("span")!;
+      editor.setCursor(span.firstChild!, 3);
+
+      tables.createTable(2, 2);
+
+      // Table should be appended to contentRef since no block parent was found
+      const table = editor.container.querySelector("table");
+      expect(table).not.toBeNull();
+      // Table should be the last child of contentRef
+      expect(editor.container.lastElementChild?.tagName).toBe("TABLE");
+      expect(onContentChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("useTables - createTable when range is outside contentRef", () => {
+    it("does nothing when selection range is outside contentRef", () => {
+      editor = createTestEditor("<p>Inside</p>");
+      const tables = createTables();
+
+      // Create a node outside contentRef and set selection there
+      const outsideNode = document.createElement("p");
+      outsideNode.textContent = "Outside";
+      document.body.appendChild(outsideNode);
+      editor.setCursor(outsideNode.firstChild!, 0);
+
+      tables.createTable(2, 2);
+
+      // No table should be created
+      expect(editor.container.querySelector("table")).toBeNull();
+      outsideNode.remove();
+    });
+  });
+
+  describe("useTables - createTable with no selection", () => {
+    it("does nothing when there is no selection range", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const tables = createTables();
+
+      // Clear all selections
+      window.getSelection()?.removeAllRanges();
+
+      tables.createTable(2, 2);
+
+      expect(editor.container.querySelector("table")).toBeNull();
     });
   });
 });

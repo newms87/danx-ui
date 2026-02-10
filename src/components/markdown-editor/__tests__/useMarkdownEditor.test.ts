@@ -632,6 +632,41 @@ describe("useMarkdownEditor", () => {
       await nextTick();
       expect(editor.container.querySelector("p")).toBeTruthy();
     });
+
+    it("triggers debouncedSyncFromHtml lambda (line 167) via handleCodeBlockExit", async () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor(
+        '<p>Before</p><div data-code-block-id="cb-exit" contenteditable="false"><div class="code-viewer-mount-point" data-content="code" data-language="javascript"></div></div>'
+      );
+
+      // Register code block in state
+      markdownEditor.codeBlocks.registerCodeBlock("cb-exit", "code", "javascript");
+
+      // The codeBlockManager has onCodeBlockExit which calls handleCodeBlockExit.
+      // handleCodeBlockExit calls the debouncedSyncFromHtml lambda (line 167).
+      // We can trigger this by directly using the mounted CodeViewer's onExit.
+
+      // Mount code viewers to set up the CodeViewer app
+      markdownEditor.codeBlockManager.mountCodeViewers();
+      await nextTick();
+
+      // Get the CodeViewer's props to invoke the onExit handler
+      const wrapper = editor.container.querySelector('[data-code-block-id="cb-exit"]');
+      const mountPoint = wrapper?.querySelector(".code-viewer-mount-point") as HTMLElement | null;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const app = (mountPoint as any)?.__vue_app__;
+      const vnode = app?._instance?.subTree;
+      if (vnode?.props?.onExit) {
+        (vnode.props.onExit as () => void)();
+      }
+
+      // Advance past debounce
+      vi.advanceTimersByTime(400);
+
+      // The sync should have been triggered via the lambda at line 167
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
   });
 
   describe("handleCodeBlockDelete", () => {
@@ -740,6 +775,23 @@ describe("useMarkdownEditor", () => {
       const markdownEditor = createEditor("<p>Hello</p>");
       editor.selectInBlock(0, 1, 3);
 
+      const event = keyEvent("Backspace");
+      const preventSpy = vi.spyOn(event, "preventDefault");
+      markdownEditor.onKeyDown(event);
+
+      expect(preventSpy).not.toHaveBeenCalled();
+    });
+
+    it("getCursorBlockAtStart returns null when cursor is in inline element not inside a block (editorKeyHandlers lines 76-79)", () => {
+      // Create a <span> as direct child of the contenteditable (no block wrapper)
+      // getCursorBlockAtStart walks up from span, finds it's not convertible,
+      // does node = element.parentElement (line 76), reaches contentRef, exits loop,
+      // returns null (line 79)
+      const markdownEditor = createEditor("<span>inline text</span>");
+      const span = editor.container.querySelector("span")!;
+      editor.setCursor(span.firstChild!, 0);
+
+      // Backspace should not be prevented because getCursorBlockAtStart returns null
       const event = keyEvent("Backspace");
       const preventSpy = vi.spyOn(event, "preventDefault");
       markdownEditor.onKeyDown(event);
@@ -906,6 +958,23 @@ describe("useMarkdownEditor", () => {
 
       expect(editor.getHtml()).toContain("<hr>");
     });
+
+    it("inserts hr after code block wrapper when cursor is in non-block child (editorActions lines 63-64)", async () => {
+      // Use a <span> inside the code block wrapper so the walk-up loop
+      // passes through span (not P/H/LI/BLOCKQUOTE) and hits the data-code-block-id check
+      const markdownEditor = createEditor(
+        '<div data-code-block-id="cb-2" contenteditable="false"><span>code text</span></div>'
+      );
+      const span = editor.container.querySelector("span")!;
+      if (span.firstChild) {
+        editor.setCursor(span.firstChild, 2);
+      }
+
+      markdownEditor.insertHorizontalRule();
+      await nextTick();
+
+      expect(editor.getHtml()).toContain("<hr>");
+    });
   });
 
   describe("arrow key table navigation", () => {
@@ -1025,6 +1094,266 @@ describe("useMarkdownEditor", () => {
       const markdownEditor = createEditor("<p>Hello</p>");
       expect(markdownEditor.isInternalUpdate).toBeDefined();
       expect(markdownEditor.isInternalUpdate.value).toBeDefined();
+    });
+  });
+
+  describe("onContentChange callbacks", () => {
+    it("inlineFormatting.toggleBold triggers debouncedSyncFromHtml (line 137)", async () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor("<p>Hello world</p>");
+      editor.selectInBlock(0, 0, 5); // Select "Hello"
+
+      markdownEditor.inlineFormatting.toggleBold();
+
+      // Advance past debounce timer (300ms)
+      vi.advanceTimersByTime(400);
+
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("blockquotes.toggleBlockquote triggers debouncedSyncFromHtml (line 148)", async () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor("<p>Quote me</p>");
+      editor.setCursorInBlock(0, 3);
+
+      markdownEditor.blockquotes.toggleBlockquote();
+
+      // Should have wrapped in blockquote
+      expect(editor.getHtml()).toContain("<blockquote>");
+
+      // Advance past debounce timer
+      vi.advanceTimersByTime(400);
+
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("links.insertLink triggers debouncedSyncFromHtml via onShowLinkPopover (line 153)", async () => {
+      vi.useFakeTimers();
+      let capturedOptions: { onSubmit: (url: string, label?: string) => void } | null = null;
+      const onShowLinkPopover = vi.fn((opts: unknown) => {
+        capturedOptions = opts as { onSubmit: (url: string, label?: string) => void };
+      });
+
+      const markdownEditor = createEditor("<p>Some text</p>", "", { onShowLinkPopover });
+      editor.setCursorInBlock(0, 4); // Cursor in "Some text" (collapsed)
+
+      markdownEditor.links.insertLink();
+
+      // onShowLinkPopover should have been called
+      expect(onShowLinkPopover).toHaveBeenCalled();
+      expect(capturedOptions).not.toBeNull();
+
+      // Simulate submitting the link
+      capturedOptions!.onSubmit("https://example.com", "Example");
+
+      // Advance past debounce timer
+      vi.advanceTimersByTime(400);
+
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("codeBlocks.updateCodeBlockContent triggers syncCallback (line 103)", async () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor(
+        '<div data-code-block-id="cb-test" contenteditable="false"><div class="code-viewer-mount-point" data-content="original" data-language="javascript"></div></div>'
+      );
+
+      // Register the code block in state
+      markdownEditor.codeBlocks.registerCodeBlock("cb-test", "original", "javascript");
+
+      // Update code block content - this calls onContentChange() inside useCodeBlocks,
+      // which calls the callback in useMarkdownEditor (line 103): if (syncCallback) syncCallback()
+      markdownEditor.codeBlocks.updateCodeBlockContent("cb-test", "updated content");
+
+      // Advance past debounce timer
+      vi.advanceTimersByTime(400);
+
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("codeBlocks.toggleCodeBlock triggers onContentChange when converting paragraph to code block (line 103)", () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor("<p>some code</p>");
+      editor.setCursorInBlock(0, 0);
+
+      markdownEditor.codeBlocks.toggleCodeBlock();
+
+      // Advance past debounce timer
+      vi.advanceTimersByTime(400);
+
+      // The code block was created and onContentChange fired
+      expect(markdownEditor.codeBlocks.codeBlocks.size).toBe(1);
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
+    it("codeBlocks.removeCodeBlock triggers onContentChange and sync (line 103)", () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor(
+        '<div data-code-block-id="cb-rm" contenteditable="false"><div class="code-viewer-mount-point" data-content="code" data-language="text"></div></div>'
+      );
+
+      // Register the code block
+      markdownEditor.codeBlocks.registerCodeBlock("cb-rm", "code", "text");
+
+      // removeCodeBlock calls onContentChange inside useCodeBlocks,
+      // which triggers the syncCallback in useMarkdownEditor (line 103)
+      markdownEditor.codeBlocks.removeCodeBlock("cb-rm");
+
+      vi.advanceTimersByTime(400);
+      expect(onEmitValue).toHaveBeenCalled();
+      expect(markdownEditor.codeBlocks.codeBlocks.has("cb-rm")).toBe(false);
+      vi.useRealTimers();
+    });
+
+    it("codeBlocks.updateCodeBlockLanguage triggers onContentChange (line 103)", () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor(
+        '<div data-code-block-id="cb-lang" contenteditable="false"><div class="code-viewer-mount-point" data-content="code" data-language="javascript"></div></div>'
+      );
+
+      markdownEditor.codeBlocks.registerCodeBlock("cb-lang", "code", "javascript");
+      markdownEditor.codeBlocks.updateCodeBlockLanguage("cb-lang", "typescript");
+
+      vi.advanceTimersByTime(400);
+      expect(onEmitValue).toHaveBeenCalled();
+      expect(markdownEditor.codeBlocks.codeBlocks.get("cb-lang")?.language).toBe("typescript");
+      vi.useRealTimers();
+    });
+  });
+
+  describe("setMarkdown with null contentRef", () => {
+    it("does not update DOM when contentRef becomes null", async () => {
+      const markdownEditor = createEditor("<p>Initial</p>");
+      // Null out the contentRef before calling setMarkdown
+      editor.contentRef.value = null;
+
+      markdownEditor.setMarkdown("## New Content");
+
+      // renderedHtml is still updated (sync.syncFromMarkdown runs)
+      expect(markdownEditor.renderedHtml.value).toContain("New Content");
+
+      await nextTick();
+      // But DOM was not updated because contentRef was null
+      // The original container should be unchanged (it's still in the document)
+      expect(editor.container.innerHTML).toBe("<p>Initial</p>");
+    });
+  });
+
+  describe("token callbacks (getTokenById and registerToken)", () => {
+    it("registers tokens when initializing with markdown containing token patterns", () => {
+      const tokenRenderer = {
+        id: "test-renderer",
+        pattern: /\{\{(\d+)\}\}/g,
+        toHtml: (_match: string, groups: string[]) =>
+          `<span data-token-id="x" data-token-renderer="test-renderer" data-token-groups='${JSON.stringify(groups)}'></span>`,
+        component: {} as never,
+        getProps: (groups: string[]) => ({ id: groups[0] }),
+        toMarkdown: (el: HTMLElement) => `{{${el.getAttribute("data-token-groups")}}}`,
+      };
+
+      editor = createTestEditor("");
+      onEmitValue = vi.fn();
+      const markdownEditor = useMarkdownEditor({
+        contentRef: editor.contentRef,
+        initialValue: "Hello {{123}} world",
+        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+        tokenRenderers: [tokenRenderer],
+      });
+
+      // The registerToken callback (line 115-116) should have been called during syncFromMarkdown
+      // which calls convertTokensToWrappers, which calls the registerToken callback
+      expect(markdownEditor.tokens.size).toBeGreaterThan(0);
+
+      // Verify the stored token state has correct rendererId and groups
+      const tokenEntry = Array.from(markdownEditor.tokens.values())[0];
+      expect(tokenEntry?.rendererId).toBe("test-renderer");
+      expect(tokenEntry?.groups).toContain("123");
+    });
+
+    it("getTokenById retrieves a previously registered token", () => {
+      vi.useFakeTimers();
+      const tokenRenderer = {
+        id: "test-renderer",
+        pattern: /\{\{(\d+)\}\}/g,
+        toHtml: (_match: string, groups: string[]) => `<span data-token-id="x">${groups[0]}</span>`,
+        component: {} as never,
+        getProps: (groups: string[]) => ({ id: groups[0] }),
+        toMarkdown: (el: HTMLElement) => {
+          const groups = el.getAttribute("data-token-groups");
+          return `{{${groups}}}`;
+        },
+      };
+
+      editor = createTestEditor("");
+      onEmitValue = vi.fn();
+      const markdownEditor = useMarkdownEditor({
+        contentRef: editor.contentRef,
+        initialValue: "Test {{456}} here",
+        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+        tokenRenderers: [tokenRenderer],
+      });
+
+      // Tokens are registered during syncFromMarkdown via registerToken callback
+      const tokenId = Array.from(markdownEditor.tokens.keys())[0]!;
+      const token = markdownEditor.tokens.get(tokenId);
+      expect(token).toBeDefined();
+      expect(token?.rendererId).toBe("test-renderer");
+
+      // Now trigger syncFromHtml which uses getTokenById (line 114) via buildEditorElementProcessor
+      // Set the rendered HTML back into the editor and trigger sync
+      editor.container.innerHTML = markdownEditor.renderedHtml.value;
+      markdownEditor.onBlur();
+
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+  });
+
+  describe("onShowHotkeyHelp callback (line 125)", () => {
+    it("Ctrl+? triggers onShowHotkeyHelp which sets isShowingHotkeyHelp to true", () => {
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 0);
+
+      expect(markdownEditor.isShowingHotkeyHelp.value).toBe(false);
+
+      // Ctrl+? is the hotkey help shortcut, handled by useMarkdownHotkeys.handleKeyDown
+      const event = keyEvent("?", { ctrl: true });
+      markdownEditor.onKeyDown(event);
+
+      expect(markdownEditor.isShowingHotkeyHelp.value).toBe(true);
+    });
+
+    it("Ctrl+/ also triggers onShowHotkeyHelp", () => {
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 0);
+
+      const event = keyEvent("/", { ctrl: true });
+      markdownEditor.onKeyDown(event);
+
+      expect(markdownEditor.isShowingHotkeyHelp.value).toBe(true);
+    });
+  });
+
+  describe("onShowTablePopover callback wiring (line 167)", () => {
+    it("tables.insertTable calls onShowTablePopover when provided", () => {
+      const onShowTablePopover = vi.fn();
+      const markdownEditor = createEditor("<p>Hello</p>", "", { onShowTablePopover });
+      editor.setCursorInBlock(0, 3);
+
+      markdownEditor.tables.insertTable();
+
+      expect(onShowTablePopover).toHaveBeenCalledTimes(1);
+      expect(onShowTablePopover).toHaveBeenCalledWith(
+        expect.objectContaining({
+          onSubmit: expect.any(Function),
+          onCancel: expect.any(Function),
+        })
+      );
     });
   });
 

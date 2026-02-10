@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { ref } from "vue";
 import { useInlineFormatting } from "../useInlineFormatting";
+import {
+  hasFormatting,
+  moveCursorAfterElement,
+  unwrapSelectionFromFormat,
+  removeFormatting,
+} from "../inlineFormattingUtils";
+import { getPlaceholderText } from "../inlineFormattingWrap";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
 describe("useInlineFormatting", () => {
@@ -575,6 +582,66 @@ describe("useInlineFormatting", () => {
     });
   });
 
+  describe("toggleHighlight", () => {
+    describe("without selection (cursor only)", () => {
+      beforeEach(() => {
+        onContentChange = vi.fn();
+      });
+
+      it("inserts highlight placeholder when cursor is in plain text", () => {
+        editor = createTestEditor("<p>Hello world</p>");
+        const formatting = createFormatting();
+        editor.setCursorInBlock(0, 6);
+
+        formatting.toggleHighlight();
+
+        expect(editor.getHtml()).toContain("<mark>highlighted text</mark>");
+        expect(onContentChange).toHaveBeenCalled();
+      });
+
+      it("placeholder text is selected after insertion", () => {
+        editor = createTestEditor("<p>Hello world</p>");
+        const formatting = createFormatting();
+        editor.setCursorInBlock(0, 6);
+
+        formatting.toggleHighlight();
+
+        const selection = window.getSelection();
+        expect(selection?.toString()).toBe("highlighted text");
+      });
+    });
+  });
+
+  describe("toggleUnderline", () => {
+    describe("without selection (cursor only)", () => {
+      beforeEach(() => {
+        onContentChange = vi.fn();
+      });
+
+      it("inserts underline placeholder when cursor is in plain text", () => {
+        editor = createTestEditor("<p>Hello world</p>");
+        const formatting = createFormatting();
+        editor.setCursorInBlock(0, 6);
+
+        formatting.toggleUnderline();
+
+        expect(editor.getHtml()).toContain("<u>underlined text</u>");
+        expect(onContentChange).toHaveBeenCalled();
+      });
+
+      it("placeholder text is selected after insertion", () => {
+        editor = createTestEditor("<p>Hello world</p>");
+        const formatting = createFormatting();
+        editor.setCursorInBlock(0, 6);
+
+        formatting.toggleUnderline();
+
+        const selection = window.getSelection();
+        expect(selection?.toString()).toBe("underlined text");
+      });
+    });
+  });
+
   describe("format merging (prevents nested same-type tags)", () => {
     beforeEach(() => {
       onContentChange = vi.fn();
@@ -685,6 +752,265 @@ describe("useInlineFormatting", () => {
       // Should have one strong tag wrapping everything, with em preserved inside
       expect(html.match(/<strong>/g)?.length).toBe(1);
       expect(html).toContain("<em>italic</em>");
+    });
+  });
+});
+
+describe("getPlaceholderText", () => {
+  it('returns "highlighted text" for highlight format', () => {
+    expect(getPlaceholderText("highlight")).toBe("highlighted text");
+  });
+
+  it('returns "underlined text" for underline format', () => {
+    expect(getPlaceholderText("underline")).toBe("underlined text");
+  });
+
+  it('returns "text" for unknown format type', () => {
+    expect(getPlaceholderText("unknown" as never)).toBe("text");
+  });
+});
+
+describe("inlineFormattingUtils direct tests", () => {
+  describe("hasFormatting", () => {
+    it("returns null when no formatting found up to document node", () => {
+      const div = document.createElement("div");
+      const text = document.createTextNode("hello");
+      div.appendChild(text);
+      document.body.appendChild(div);
+
+      const result = hasFormatting(text, "bold");
+      expect(result).toBeNull();
+
+      div.remove();
+    });
+
+    it("returns null for null node", () => {
+      const result = hasFormatting(null, "bold");
+      expect(result).toBeNull();
+    });
+
+    it("detects formatting with fallback tag (B for bold)", () => {
+      const b = document.createElement("b");
+      const text = document.createTextNode("hello");
+      b.appendChild(text);
+      document.body.appendChild(b);
+
+      const result = hasFormatting(text, "bold");
+      expect(result).toBe(b);
+
+      b.remove();
+    });
+
+    it("returns null when format type has no fallback and tag does not match", () => {
+      const span = document.createElement("span");
+      const text = document.createTextNode("hello");
+      span.appendChild(text);
+      document.body.appendChild(span);
+
+      const result = hasFormatting(text, "code");
+      expect(result).toBeNull();
+
+      span.remove();
+    });
+  });
+
+  describe("unwrapSelectionFromFormat", () => {
+    it("returns early when formatElement has no parent", () => {
+      const strong = document.createElement("strong");
+      strong.textContent = "bold text";
+      // No parent attached
+
+      const range = document.createRange();
+      range.selectNodeContents(strong);
+
+      // Should not throw
+      unwrapSelectionFromFormat(range, strong, "bold");
+      // Element unchanged since no parent
+      expect(strong.textContent).toBe("bold text");
+    });
+
+    it("splits formatting when selecting middle text (with before and after)", () => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = "Hello World End";
+      p.appendChild(strong);
+      document.body.appendChild(p);
+
+      // Select "World" from the middle
+      const textNode = strong.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 6);
+      range.setEnd(textNode, 11);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      unwrapSelectionFromFormat(range, strong, "bold");
+
+      // Should split into: <strong>Hello </strong>World<strong> End</strong>
+      const strongs = p.querySelectorAll("strong");
+      expect(strongs.length).toBe(2);
+      expect(strongs[0]!.textContent).toBe("Hello ");
+      expect(strongs[1]!.textContent).toBe(" End");
+      // The unformatted text should be between them
+      expect(p.textContent).toBe("Hello World End");
+
+      p.remove();
+    });
+
+    it("handles selection with no before text (beginning of element)", () => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = "Hello World";
+      p.appendChild(strong);
+      document.body.appendChild(p);
+
+      const textNode = strong.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 0);
+      range.setEnd(textNode, 5);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      unwrapSelectionFromFormat(range, strong, "bold");
+
+      // Should result in: Hello<strong> World</strong>
+      const strongs = p.querySelectorAll("strong");
+      expect(strongs.length).toBe(1);
+      expect(strongs[0]!.textContent).toBe(" World");
+      expect(p.textContent).toBe("Hello World");
+
+      p.remove();
+    });
+
+    it("handles selection with no after text (end of element)", () => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = "Hello World";
+      p.appendChild(strong);
+      document.body.appendChild(p);
+
+      const textNode = strong.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 6);
+      range.setEnd(textNode, 11);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      unwrapSelectionFromFormat(range, strong, "bold");
+
+      // Should result in: <strong>Hello </strong>World
+      const strongs = p.querySelectorAll("strong");
+      expect(strongs.length).toBe(1);
+      expect(strongs[0]!.textContent).toBe("Hello ");
+      expect(p.textContent).toBe("Hello World");
+
+      p.remove();
+    });
+  });
+
+  describe("removeFormatting", () => {
+    it("returns early when element has no parent", () => {
+      const strong = document.createElement("strong");
+      strong.textContent = "bold";
+      // No parent - should not throw
+      removeFormatting(strong);
+      expect(strong.textContent).toBe("bold");
+    });
+
+    it("unwraps element and normalizes parent", () => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = "bold";
+      p.appendChild(document.createTextNode("before "));
+      p.appendChild(strong);
+      p.appendChild(document.createTextNode(" after"));
+      document.body.appendChild(p);
+
+      removeFormatting(strong);
+
+      expect(p.querySelector("strong")).toBeNull();
+      expect(p.textContent).toBe("before bold after");
+
+      p.remove();
+    });
+  });
+
+  describe("moveCursorAfterElement", () => {
+    it("returns early when window.getSelection returns null (line 59)", () => {
+      const strong = document.createElement("strong");
+      strong.textContent = "bold";
+      document.body.appendChild(strong);
+
+      const spy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+
+      // Should not throw
+      moveCursorAfterElement(strong);
+
+      spy.mockRestore();
+      strong.remove();
+    });
+  });
+
+  describe("unwrapSelectionFromFormat - edge cases", () => {
+    it("handles null textContent on formatElement (line 84)", () => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = "bold text";
+      p.appendChild(strong);
+      document.body.appendChild(p);
+
+      const textNode = strong.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 0);
+      range.setEnd(textNode, 4);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(range);
+
+      // Mock textContent to return null
+      Object.defineProperty(strong, "textContent", {
+        get: () => null,
+        configurable: true,
+      });
+
+      // Should not throw - uses "" fallback
+      unwrapSelectionFromFormat(range, strong, "bold");
+
+      p.remove();
+    });
+
+    it("skips selection update when getSelection returns null (line 114)", () => {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = "Hello World";
+      p.appendChild(strong);
+      document.body.appendChild(p);
+
+      const textNode = strong.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 0);
+      range.setEnd(textNode, 5);
+
+      // Set up a real selection first
+      const realSel = window.getSelection()!;
+      realSel.removeAllRanges();
+      realSel.addRange(range);
+
+      // Mock getSelection to return null for the final call (line 113)
+      // The function calls getSelection once at the end (line 113)
+      const spy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+
+      unwrapSelectionFromFormat(range, strong, "bold");
+
+      spy.mockRestore();
+
+      // The unwrap should still have happened (DOM was modified)
+      expect(p.textContent).toBe("Hello World");
+
+      p.remove();
     });
   });
 });

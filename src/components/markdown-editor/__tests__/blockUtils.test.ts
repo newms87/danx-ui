@@ -250,6 +250,137 @@ describe("blockUtils", () => {
       const result = getTargetBlock(contentRef, selection, { includeLists: true });
       expect(result?.tagName).toBe("LI");
     });
+
+    it("walks up to find PRE in ancestor chain when includeCodeBlocks (line 100)", () => {
+      // DOM: contentRef > div > pre > blockquote > text
+      // getCurrentBlock returns BLOCKQUOTE; walk-up finds PRE before reaching contentRef
+      editor = createTestEditor("<div><pre><blockquote>nested code</blockquote></pre></div>");
+      const contentRef = editor.contentRef;
+      const selection = useMarkdownSelection(contentRef);
+
+      const bq = editor.container.querySelector("blockquote")!;
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection, { includeCodeBlocks: true });
+      expect(result?.tagName).toBe("PRE");
+    });
+
+    it("recognizes PRE as direct child of contentRef when includeCodeBlocks (line 112)", () => {
+      // DOM: contentRef > pre > blockquote > text
+      // getCurrentBlock returns BLOCKQUOTE; walk-up exits loop at PRE (direct child),
+      // then the final check at lines 108-112 recognizes PRE
+      editor = createTestEditor("<pre><blockquote>code in blockquote</blockquote></pre>");
+      const contentRef = editor.contentRef;
+      const selection = useMarkdownSelection(contentRef);
+
+      const bq = editor.container.querySelector("blockquote")!;
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection, { includeCodeBlocks: true });
+      expect(result?.tagName).toBe("PRE");
+    });
+
+    it("walks up to find LI in ancestor chain when includeLists (line 93)", () => {
+      // DOM: contentRef > ul > li > blockquote > text
+      // getCurrentBlock returns BLOCKQUOTE (non-convertible, not LI).
+      // Walk-up loop: BLOCKQUOTE -> checks fail -> move to LI -> includeLists && LI -> return LI
+      editor = createTestEditor("<ul><li><blockquote>quoted item</blockquote></li></ul>");
+      const contentRef = editor.contentRef;
+      const selection = useMarkdownSelection(contentRef);
+
+      const bq = editor.container.querySelector("blockquote")!;
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection, { includeLists: true });
+      expect(result?.tagName).toBe("LI");
+    });
+
+    it("finds convertible block mid-chain via walk-up loop", () => {
+      // DOM: contentRef > section > div > blockquote > text
+      // Walk-up finds DIV (convertible) before reaching contentRef's direct child
+      editor = createTestEditor("");
+      const contentRef = editor.contentRef;
+      editor.container.innerHTML = "";
+      const section = document.createElement("section");
+      const div = document.createElement("div");
+      const bq = document.createElement("blockquote");
+      bq.textContent = "deep content";
+      div.appendChild(bq);
+      section.appendChild(div);
+      editor.container.appendChild(section);
+
+      const selection = useMarkdownSelection(contentRef);
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection);
+      expect(result?.tagName).toBe("DIV");
+    });
+
+    it("finds convertible block as direct child of contentRef after walk-up (line 106-107)", () => {
+      // DOM: contentRef > div > blockquote > text
+      // getCurrentBlock returns BLOCKQUOTE. Walk-up exits at DIV (direct child of contentRef).
+      // Post-loop check: isConvertibleBlock(DIV) -> true, returns DIV.
+      editor = createTestEditor("<div><blockquote>nested quote</blockquote></div>");
+      const contentRef = editor.contentRef;
+      const selection = useMarkdownSelection(contentRef);
+
+      const bq = editor.container.querySelector("blockquote")!;
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection);
+      expect(result?.tagName).toBe("DIV");
+    });
+
+    it("recognizes data-code-block-id direct child of contentRef when includeCodeBlocks (line 109)", () => {
+      // DOM: contentRef > div[data-code-block-id] > blockquote > text
+      // getCurrentBlock returns BLOCKQUOTE. Walk-up exits at the wrapper div.
+      // Post-loop: isConvertibleBlock(div) -> true, so it returns div via line 107.
+      // We need a non-convertible tag with data-code-block-id as direct child.
+      // Use a <section> which is not in CONVERTIBLE_BLOCK_TAGS.
+      editor = createTestEditor("");
+      const contentRef = editor.contentRef;
+      // Manually build: contentRef > section[data-code-block-id] > blockquote > text
+      editor.container.innerHTML = "";
+      const section = document.createElement("section");
+      section.setAttribute("data-code-block-id", "abc");
+      const bq = document.createElement("blockquote");
+      bq.textContent = "code content";
+      section.appendChild(bq);
+      editor.container.appendChild(section);
+
+      const selection = useMarkdownSelection(contentRef);
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection, { includeCodeBlocks: true });
+      expect(result?.hasAttribute("data-code-block-id")).toBe(true);
+    });
+
+    it("returns null when direct child of contentRef is not recognized (line 116)", () => {
+      // DOM: contentRef > section > blockquote > text
+      // getCurrentBlock returns BLOCKQUOTE. Walk-up exits at section.
+      // Post-loop: section is not convertible, not code block -> returns null
+      editor = createTestEditor("");
+      const contentRef = editor.contentRef;
+      editor.container.innerHTML = "";
+      const section = document.createElement("section");
+      const bq = document.createElement("blockquote");
+      bq.textContent = "orphan content";
+      section.appendChild(bq);
+      editor.container.appendChild(section);
+
+      const selection = useMarkdownSelection(contentRef);
+      const textNode = bq.firstChild!;
+      editor.setCursor(textNode, 3);
+
+      const result = getTargetBlock(contentRef, selection);
+      expect(result).toBeNull();
+    });
   });
 
   describe("findLinkAncestor", () => {

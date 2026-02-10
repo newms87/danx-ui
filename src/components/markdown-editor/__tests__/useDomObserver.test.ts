@@ -182,6 +182,117 @@ describe("useDomObserver", () => {
     expect(onNodeAdded).not.toHaveBeenCalled();
   });
 
+  it("calls onNodeRemoved for parent element with attribute AND matching children", async () => {
+    setup();
+    contentRef.value = contentEl;
+    await nextTick();
+
+    // Create parent that has the attribute AND contains a child with the attribute
+    const parent = document.createElement("div");
+    parent.setAttribute("data-test-id", "parent-id");
+    const child = document.createElement("span");
+    child.setAttribute("data-test-id", "child-id");
+    parent.appendChild(child);
+    contentEl.appendChild(parent);
+
+    await nextTick();
+    await nextTick();
+
+    // Clear add calls
+    onNodeRemoved.mockClear();
+    onNodeAdded.mockClear();
+
+    // Remove parent - should call onNodeRemoved for both parent AND child
+    contentEl.removeChild(parent);
+
+    await nextTick();
+    await nextTick();
+
+    // onNodeRemoved should be called for both the parent and the child
+    expect(onNodeRemoved).toHaveBeenCalledWith(parent);
+    expect(onNodeRemoved).toHaveBeenCalledWith(child);
+  });
+
+  it("handles removed element with no matching children (empty querySelectorAll)", async () => {
+    setup();
+    contentRef.value = contentEl;
+    await nextTick();
+
+    // Add element that HAS the data attribute but no children with it
+    const el = document.createElement("div");
+    el.setAttribute("data-test-id", "solo");
+    el.innerHTML = "<span>no matching children</span>";
+    contentEl.appendChild(el);
+
+    await nextTick();
+    await nextTick();
+    onNodeRemoved.mockClear();
+
+    contentEl.removeChild(el);
+
+    await nextTick();
+    await nextTick();
+
+    expect(onNodeRemoved).toHaveBeenCalledWith(el);
+    // Only called once (for the element itself, not for non-matching children)
+    expect(onNodeRemoved).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls onNodeRemoved for matching children when parent has no attribute", async () => {
+    // Parent element does NOT have data-test-id, but its child does.
+    // When the parent is removed, the handler should still find and report
+    // the matching child via querySelectorAll (exercises lines 72-75).
+    setup();
+    contentRef.value = contentEl;
+    await nextTick();
+
+    const parent = document.createElement("div");
+    // Parent does NOT have data-test-id
+    const child = document.createElement("span");
+    child.setAttribute("data-test-id", "orphan-child");
+    parent.appendChild(child);
+    contentEl.appendChild(parent);
+
+    await nextTick();
+    await nextTick();
+    await nextTick();
+
+    onNodeRemoved.mockClear();
+    onNodeAdded.mockClear();
+
+    contentEl.removeChild(parent);
+
+    await nextTick();
+    await nextTick();
+    await nextTick();
+
+    // onNodeRemoved should be called for the child (found via querySelectorAll)
+    expect(onNodeRemoved).toHaveBeenCalledWith(child);
+  });
+
+  it("handles added element with no matching children (empty querySelectorAll)", async () => {
+    // Added element has the attribute but no matching children.
+    // The querySelectorAll returns empty, so forEach is not called for children.
+    setup();
+    contentRef.value = contentEl;
+    await nextTick();
+
+    onNodeAdded.mockClear();
+
+    const el = document.createElement("div");
+    el.setAttribute("data-test-id", "solo-add");
+    el.innerHTML = "<span>no matching children</span>";
+    contentEl.appendChild(el);
+
+    await nextTick();
+    await nextTick();
+    await nextTick();
+
+    // Only the parent element itself should trigger onNodeAdded, not non-matching children
+    expect(onNodeAdded).toHaveBeenCalledWith(el);
+    expect(onNodeAdded).toHaveBeenCalledTimes(1);
+  });
+
   it("does not start duplicate observers", async () => {
     setup();
     contentRef.value = contentEl;

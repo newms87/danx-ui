@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   getCursorOffsetInCell,
   setCursorOffsetInCell,
@@ -253,6 +253,78 @@ describe("tableCellUtils", () => {
       const sel = window.getSelection();
       expect(sel?.toString()).toBe("Bold");
       destroyContainer(container);
+    });
+  });
+
+  describe("setCursorOffsetInCell - null selection", () => {
+    it("returns early when window.getSelection returns null", () => {
+      const container = createContainer("<table><tbody><tr><td>Hello</td></tr></tbody></table>");
+      const td = container.querySelector("td") as HTMLTableCellElement;
+
+      const spy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+
+      // Should return without throwing
+      setCursorOffsetInCell(td, 3);
+
+      spy.mockRestore();
+      destroyContainer(container);
+    });
+  });
+
+  describe("focusCell - null selection", () => {
+    it("returns early when window.getSelection returns null", () => {
+      const container = createContainer("<table><tbody><tr><td>Hello</td></tr></tbody></table>");
+      const td = container.querySelector("td") as HTMLTableCellElement;
+
+      const spy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+
+      // Should return without throwing
+      focusCell(td);
+
+      spy.mockRestore();
+      destroyContainer(container);
+    });
+  });
+
+  describe("selectCellContent - null selection", () => {
+    it("returns early when window.getSelection returns null", () => {
+      const container = createContainer("<table><tbody><tr><td>Hello</td></tr></tbody></table>");
+      const td = container.querySelector("td") as HTMLTableCellElement;
+
+      const spy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+
+      // Should return without throwing
+      selectCellContent(td);
+
+      spy.mockRestore();
+      destroyContainer(container);
+    });
+  });
+
+  describe("getFirstTextNode - element with no children", () => {
+    it("returns null for an empty element with no child nodes", () => {
+      const div = document.createElement("div");
+
+      expect(getFirstTextNode(div)).toBeNull();
+    });
+
+    it("returns null when all children are non-text, non-BR elements with no text nodes", () => {
+      const div = document.createElement("div");
+      const span = document.createElement("span");
+      div.appendChild(span);
+
+      expect(getFirstTextNode(div)).toBeNull();
+    });
+
+    it("skips BR then recurses into nested element to find text", () => {
+      const div = document.createElement("div");
+      div.appendChild(document.createElement("br"));
+      const span = document.createElement("span");
+      const text = document.createTextNode("nested");
+      span.appendChild(text);
+      div.appendChild(span);
+
+      expect(getFirstTextNode(div)).toBe(text);
     });
   });
 

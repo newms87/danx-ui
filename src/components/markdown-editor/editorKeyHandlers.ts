@@ -53,7 +53,6 @@ function getCursorBlockAtStart(contentRef: Ref<HTMLElement | null>): HTMLElement
   let node: Node | null = range.startContainer;
 
   if (node.nodeType === Node.TEXT_NODE) {
-    if (range.startOffset !== 0) return null;
     const parent = node.parentElement;
     if (!parent) return null;
     node = parent;

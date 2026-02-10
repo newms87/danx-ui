@@ -164,6 +164,23 @@ describe("useTokenManager", () => {
       expect(testData.getManager().getMountedCount()).toBe(0);
     });
 
+    it("skips tokens without data-token-renderer attribute (line 72)", async () => {
+      testData = createTestWrapper();
+      await nextTick();
+
+      const container = testData.contentRef.value!;
+      // Create element with token ID but no renderer attribute
+      const el = document.createElement("span");
+      el.setAttribute("data-token-id", "tok-no-renderer");
+      el.innerHTML = '<span class="token-mount-point"></span>';
+      container.appendChild(el);
+
+      testData.getManager().mountAllTokens();
+      await nextTick();
+
+      expect(testData.getManager().getMountedCount()).toBe(0);
+    });
+
     it("skips tokens with unknown renderer", async () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       testData = createTestWrapper();
@@ -318,6 +335,30 @@ describe("useTokenManager", () => {
       await nextTick();
       await nextTick();
 
+      expect(testData.getManager().getMountedCount()).toBe(1);
+    });
+
+    it("onNodeRemoved does not unmount when removed element has no data-token-id", async () => {
+      testData = createTestWrapper();
+      await nextTick();
+
+      const container = testData.contentRef.value!;
+      const token = createTokenElement("tok-keep", "test-renderer");
+      container.appendChild(token);
+      testData.getManager().mountAllTokens();
+      await nextTick();
+      expect(testData.getManager().getMountedCount()).toBe(1);
+
+      // Add then remove an element without data-token-id
+      const nonToken = document.createElement("span");
+      nonToken.setAttribute("data-token-id", "");
+      container.appendChild(nonToken);
+      await nextTick();
+      container.removeChild(nonToken);
+      await nextTick();
+      await nextTick();
+
+      // The real token should still be mounted
       expect(testData.getManager().getMountedCount()).toBe(1);
     });
 

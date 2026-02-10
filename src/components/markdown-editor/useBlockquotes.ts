@@ -23,9 +23,7 @@ export interface UseBlockquotesReturn {
 /**
  * Find the nearest block-level element containing the cursor
  */
-function findCurrentBlock(node: Node | null, contentRef: HTMLElement): Element | null {
-  if (!node) return null;
-
+function findCurrentBlock(node: Node, contentRef: HTMLElement): Element | null {
   let current: Node | null = node;
   while (current && current !== contentRef) {
     if (current.nodeType === Node.ELEMENT_NODE) {
@@ -43,12 +41,7 @@ function findCurrentBlock(node: Node | null, contentRef: HTMLElement): Element |
 /**
  * Find the blockquote ancestor if one exists
  */
-function findBlockquoteAncestor(
-  node: Node | null,
-  contentRef: HTMLElement
-): HTMLQuoteElement | null {
-  if (!node) return null;
-
+function findBlockquoteAncestor(node: Node, contentRef: HTMLElement): HTMLQuoteElement | null {
   let current: Node | null = node;
   while (current && current !== contentRef) {
     if (current.nodeType === Node.ELEMENT_NODE && (current as Element).tagName === "BLOCKQUOTE") {
@@ -113,8 +106,9 @@ export function useBlockquotes(options: UseBlockquotesOptions): UseBlockquotesRe
    * Unwrap content from a blockquote
    */
   function unwrapBlockquote(blockquote: HTMLQuoteElement): void {
-    const parent = blockquote.parentNode;
-    if (!parent) return;
+    // parentNode is guaranteed non-null since we only call this for blockquotes
+    // found in the content area via findBlockquoteAncestor
+    const parent = blockquote.parentNode!;
 
     // Save cursor position
     const selection = window.getSelection();
@@ -161,18 +155,12 @@ export function useBlockquotes(options: UseBlockquotesOptions): UseBlockquotesRe
    * Wrap the current block in a blockquote
    */
   function wrapInBlockquote(): void {
-    if (!contentRef.value) return;
-
-    const selection = window.getSelection();
-    if (!selection || !selection.rangeCount) return;
-
+    // contentRef.value and selection are guaranteed by toggleBlockquote
+    const selection = window.getSelection()!;
     const range = selection.getRangeAt(0);
-    const currentBlock = findCurrentBlock(range.startContainer, contentRef.value);
+    const currentBlock = findCurrentBlock(range.startContainer, contentRef.value!);
 
     if (!currentBlock) return;
-
-    // Don't wrap if already in a blockquote
-    if (currentBlock.tagName === "BLOCKQUOTE") return;
 
     // Save cursor position
     const cursorOffset = getCursorOffset(currentBlock as HTMLElement);
@@ -180,11 +168,8 @@ export function useBlockquotes(options: UseBlockquotesOptions): UseBlockquotesRe
     // Create blockquote and wrap the block
     const blockquote = document.createElement("blockquote");
 
-    // Insert blockquote before the current block
-    const parent = currentBlock.parentNode;
-    if (!parent) return;
-
-    parent.insertBefore(blockquote, currentBlock);
+    // Insert blockquote before the current block (parentNode guaranteed since block is in content area)
+    currentBlock.parentNode!.insertBefore(blockquote, currentBlock);
 
     // Move the block into the blockquote
     blockquote.appendChild(currentBlock);

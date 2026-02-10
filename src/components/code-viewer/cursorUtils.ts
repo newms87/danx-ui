@@ -36,7 +36,7 @@ export function getCursorOffset(codeRef: HTMLPreElement | null): number {
       const nodeRange = document.createRange();
       nodeRange.selectNodeContents(node);
       if (preCaretRange.compareBoundaryPoints(Range.END_TO_END, nodeRange) >= 0) {
-        offset += node.textContent?.length || 0;
+        offset += node.textContent!.length;
       } else {
         offset += range.startOffset;
         break;
@@ -59,7 +59,7 @@ export function setCursorOffset(codeRef: HTMLPreElement | null, targetOffset: nu
   let node = walker.nextNode();
 
   while (node) {
-    const nodeLength = node.textContent?.length || 0;
+    const nodeLength = node.textContent!.length;
     if (currentOffset + nodeLength >= targetOffset) {
       const range = document.createRange();
       range.setStart(node, targetOffset - currentOffset);
@@ -84,7 +84,7 @@ export function setCursorOffset(codeRef: HTMLPreElement | null, targetOffset: nu
 export function getCurrentLineInfo(
   editingContent: string,
   codeRef: HTMLPreElement | null
-): LineInfo | null {
+): LineInfo {
   const text = editingContent;
   if (!text) return { indent: "", lineContent: "" };
 
@@ -94,8 +94,8 @@ export function getCurrentLineInfo(
   const lineStart = lastNewlineIndex + 1;
   const lineContent = textBeforeCursor.substring(lineStart);
 
-  const indentMatch = lineContent.match(/^[\t ]*/);
-  const indent = indentMatch ? indentMatch[0] : "";
+  // Regex with * always matches — indentMatch is guaranteed non-null
+  const indent = lineContent.match(/^[\t ]*/)![0];
 
   return { indent, lineContent };
 }

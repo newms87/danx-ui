@@ -35,16 +35,9 @@ export interface UseCodeFormatReturn {
 /** Formats that are always valid (no structural validation). */
 const STRING_FORMATS: CodeFormat[] = ["text", "markdown", "css", "javascript", "html", "vue"];
 
-/** Pretty-print a JSON value with 2-space indentation. Returns empty string on failure. */
-function fJSON(value: string | object): string {
-  if (!value) return "";
-  try {
-    return typeof value === "object"
-      ? JSON.stringify(value, null, 2)
-      : JSON.stringify(JSON.parse(value), null, 2);
-  } catch {
-    return typeof value === "string" ? value : "";
-  }
+/** Pretty-print a JSON value with 2-space indentation. Only called with non-null objects from formatValueToString. */
+function fJSON(value: object): string {
+  return JSON.stringify(value, null, 2);
 }
 
 /** Strip optional markdown code fence wrappers from a string. */
@@ -53,9 +46,7 @@ function stripMarkdownCodeFence(str: string): string {
 }
 
 /** Try to parse a string as JSON (stripping markdown fences first). Returns false on failure. */
-function parseMarkdownJSON(str: string | object): object | null | false {
-  if (!str) return null;
-  if (typeof str === "object") return str;
+function parseMarkdownJSON(str: string): object | false {
   try {
     return JSON.parse(stripMarkdownCodeFence(str));
   } catch {
@@ -64,10 +55,9 @@ function parseMarkdownJSON(str: string | object): object | null | false {
 }
 
 /** Try to parse a string as YAML (stripping markdown fences first). Returns false on failure. */
-function parseMarkdownYAML(str: string): object | null | false {
-  if (!str) return null;
+function parseMarkdownYAML(str: string): object | undefined | false {
   try {
-    return parseYAML(stripMarkdownCodeFence(str)) || (str ? undefined : null);
+    return parseYAML(stripMarkdownCodeFence(str)) || undefined;
   } catch {
     return false;
   }
@@ -86,10 +76,14 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
     if (!content) return null;
 
     const jsonResult = parseMarkdownJSON(content);
-    if (jsonResult !== false && jsonResult !== null) return jsonResult;
+    if (jsonResult !== false && typeof jsonResult === "object" && jsonResult !== null) {
+      return jsonResult;
+    }
 
     const yamlResult = parseMarkdownYAML(content);
-    if (yamlResult !== false && yamlResult !== null) return yamlResult;
+    if (typeof yamlResult === "object" && yamlResult !== null && yamlResult !== undefined) {
+      return yamlResult;
+    }
 
     return null;
   }
@@ -107,7 +101,8 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
 
     try {
       const obj = typeof value === "string" ? parseContent(value) : value;
-      if (!obj) return typeof value === "string" ? value : "";
+      // When !obj, value is always a string (objects pass through as obj=value which is truthy)
+      if (!obj) return value as string;
 
       if (targetFormat === "json") {
         return fJSON(obj);

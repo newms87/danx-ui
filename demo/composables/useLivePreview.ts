@@ -29,7 +29,7 @@ import {
   watch,
   watchEffect,
 } from "vue";
-import { DanxButton, DanxActionButton } from "../../src/components/button";
+import { DanxButton, DanxActionButton, buttonIcons } from "../../src/components/button";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
@@ -61,6 +61,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useDialog,
   MarkdownEditor,
   starIcon,
+  buttonIcons,
 };
 
 const DEBOUNCE_MS = 250;

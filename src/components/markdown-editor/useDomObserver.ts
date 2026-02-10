@@ -51,12 +51,9 @@ export function useDomObserver(options: UseDomObserverOptions): void {
             nextTick(() => onNodeAdded(element));
           }
 
-          const children = element.querySelectorAll?.(selector);
-          if (children && children.length > 0) {
-            children.forEach((child) => {
-              nextTick(() => onNodeAdded(child as HTMLElement));
-            });
-          }
+          element.querySelectorAll(selector).forEach((child) => {
+            nextTick(() => onNodeAdded(child as HTMLElement));
+          });
         }
       }
 
@@ -68,22 +65,18 @@ export function useDomObserver(options: UseDomObserverOptions): void {
             onNodeRemoved(element);
           }
 
-          const children = element.querySelectorAll?.(selector);
-          if (children) {
-            children.forEach((child) => {
-              onNodeRemoved(child as HTMLElement);
-            });
-          }
+          element.querySelectorAll(selector).forEach((child) => {
+            onNodeRemoved(child as HTMLElement);
+          });
         }
       }
     }
   }
 
   function startObserver(): void {
-    if (!contentRef.value || observer) return;
-
+    // startObserver is only called when contentRef transitions to truthy (watch handler)
     observer = new MutationObserver(handleMutations);
-    observer.observe(contentRef.value, {
+    observer.observe(contentRef.value!, {
       childList: true,
       subtree: true,
     });

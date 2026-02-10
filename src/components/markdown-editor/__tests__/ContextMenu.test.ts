@@ -118,6 +118,20 @@ describe("ContextMenu", () => {
       expect(action).not.toHaveBeenCalled();
     });
 
+    it("returns early from onItemClick when item is disabled", async () => {
+      mountMenu([createItem({ id: "disabled-no-action", label: "Disabled", disabled: true })]);
+
+      // Remove the disabled attribute so the click event actually fires through to onItemClick,
+      // allowing the `if (item.disabled) return` guard on line 111 to execute
+      const btn = wrapper.find(".context-menu-item");
+      btn.element.removeAttribute("disabled");
+      await btn.trigger("click");
+
+      // The disabled guard returns early, so no close or action events are emitted
+      expect(wrapper.emitted("close")).toBeUndefined();
+      expect(wrapper.emitted("action")).toBeUndefined();
+    });
+
     it("toggles submenu on parent item click instead of closing", async () => {
       mountMenu([
         createItem({
@@ -130,6 +144,14 @@ describe("ContextMenu", () => {
       expect(wrapper.emitted("close")).toBeUndefined();
       // Submenu should be visible
       expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+    });
+
+    it("emits close without calling action when item has no action", async () => {
+      mountMenu([createItem({ id: "no-action", label: "No Action" })]);
+
+      await wrapper.find(".context-menu-item").trigger("click");
+      expect(wrapper.emitted("close")).toHaveLength(1);
+      expect(wrapper.emitted("action")).toBeUndefined();
     });
 
     it("clicking parent item again closes submenu", async () => {
@@ -243,6 +265,82 @@ describe("ContextMenu", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+    });
+
+    it("handleItemLeave skips clearing when no hover timeout is pending", async () => {
+      mountMenu([
+        createItem({
+          children: [createItem({ id: "child-1" })],
+        }),
+      ]);
+
+      // Open submenu via click (not hover), so hoverTimeout is null
+      await wrapper.find(".context-menu-item").trigger("click");
+      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+
+      // mouseleave with no pending hoverTimeout
+      const itemWrapper = wrapper.find(".context-menu-item-wrapper");
+      await itemWrapper.trigger("mouseleave");
+      vi.advanceTimersByTime(150);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+    });
+
+    it("handleSubmenuEnter is a no-op when no close timeout is pending", async () => {
+      mountMenu([
+        createItem({
+          children: [createItem({ id: "child-1" })],
+        }),
+      ]);
+
+      // Open submenu via click (no hoverTimeout)
+      await wrapper.find(".context-menu-item").trigger("click");
+      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+
+      // Enter submenu directly without prior mouseleave
+      const submenu = wrapper.find(".dx-context-submenu");
+      await submenu.trigger("mouseenter");
+      vi.advanceTimersByTime(200);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+    });
+
+    it("handleSubmenuLeave closes submenu when opened via click", async () => {
+      mountMenu([
+        createItem({
+          children: [createItem({ id: "child-1" })],
+        }),
+      ]);
+
+      await wrapper.find(".context-menu-item").trigger("click");
+      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+
+      const submenu = wrapper.find(".dx-context-submenu");
+      await submenu.trigger("mouseleave");
+      vi.advanceTimersByTime(150);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+    });
+
+    it("only shows submenu for active parent, not other parents", async () => {
+      mountMenu([
+        createItem({
+          id: "parent-1",
+          children: [createItem({ id: "child-1" })],
+        }),
+        createItem({
+          id: "parent-2",
+          children: [createItem({ id: "child-2" })],
+        }),
+      ]);
+
+      // Open submenu for parent-1 only
+      const buttons = wrapper.findAll(".context-menu-item");
+      await buttons[0]!.trigger("click");
+
+      // Only one submenu visible
+      const submenus = wrapper.findAll(".dx-context-submenu");
+      expect(submenus.length).toBe(1);
     });
   });
 

@@ -297,19 +297,17 @@ export function useCodeViewerEditor(
   function handleEnter(event: KeyboardEvent): boolean {
     if (event.key !== "Enter") return false;
 
-    const selection = window.getSelection();
+    // getSelection() is always non-null in browsers and jsdom
+    const selection = window.getSelection()!;
 
-    if (!selection || selection.rangeCount === 0) {
-      if (codeRef.value) {
-        const range = document.createRange();
-        range.selectNodeContents(codeRef.value);
-        range.collapse(false);
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-      }
+    if (selection.rangeCount === 0) {
+      // codeRef is guaranteed non-null when isEditing is true (handleEnter only runs in edit mode)
+      const range = document.createRange();
+      range.selectNodeContents(codeRef.value!);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
     }
-
-    if (!selection || selection.rangeCount === 0) return false;
 
     event.preventDefault();
 
@@ -324,9 +322,9 @@ export function useCodeViewerEditor(
       selection.addRange(range);
     }
 
-    const domTextContent = codeRef.value?.innerText || "";
+    const domTextContent = codeRef.value!.innerText;
     const lineInfo = getCurrentLineInfo(domTextContent, codeRef.value);
-    const smartIndent = lineInfo ? getSmartIndent(lineInfo, currentFormat.value) : "";
+    const smartIndent = getSmartIndent(lineInfo, currentFormat.value);
 
     range.deleteContents();
     const textNode = document.createTextNode("\n" + smartIndent);
@@ -345,8 +343,9 @@ export function useCodeViewerEditor(
     if (event.key !== "Tab") return false;
 
     event.preventDefault();
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0 && codeRef.value) {
+    // getSelection() is always non-null in browsers and jsdom
+    const selection = window.getSelection()!;
+    if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       range.deleteContents();
       const textNode = document.createTextNode("  ");
@@ -355,7 +354,8 @@ export function useCodeViewerEditor(
       range.setEndAfter(textNode);
       selection.removeAllRanges();
       selection.addRange(range);
-      codeRef.value.dispatchEvent(new Event("input", { bubbles: true }));
+      // codeRef is guaranteed non-null when isEditing is true (handleTab only runs in edit mode)
+      codeRef.value!.dispatchEvent(new Event("input", { bubbles: true }));
     }
     return true;
   }
@@ -386,13 +386,13 @@ export function useCodeViewerEditor(
     event.preventDefault();
     event.stopPropagation();
 
-    const selection = window.getSelection();
-    if (selection && codeRef.value) {
-      const range = document.createRange();
-      range.selectNodeContents(codeRef.value);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
+    // getSelection() is always non-null in browsers and jsdom
+    const selection = window.getSelection()!;
+    const range = document.createRange();
+    // codeRef is guaranteed non-null when isEditing is true (handleCtrlA only runs in edit mode)
+    range.selectNodeContents(codeRef.value!);
+    selection.removeAllRanges();
+    selection.addRange(range);
     return true;
   }
 

@@ -7,7 +7,7 @@
  * @see syncConverters.ts for conversion functions
  */
 
-import { onUnmounted, Ref, ref } from "vue";
+import { nextTick, onUnmounted, Ref, ref } from "vue";
 import { htmlToMarkdown, renderMarkdown } from "../../shared/markdown";
 import { CodeBlockState } from "./useCodeBlocks";
 import { TokenRenderer, TokenState } from "./types";
@@ -87,6 +87,13 @@ export function useMarkdownSync(options: UseMarkdownSyncOptions): UseMarkdownSyn
 
     isInternalUpdate.value = true;
     onEmitValue(markdown);
+
+    // Safety: if the emitted value is the same as the current modelValue,
+    // the watcher won't fire to reset isInternalUpdate. Schedule a cleanup
+    // so the flag doesn't block the next external value change.
+    nextTick(() => {
+      isInternalUpdate.value = false;
+    });
   }
 
   function debouncedSyncFromHtml(): void {

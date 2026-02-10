@@ -1,4 +1,4 @@
-import { describe, expect, it, afterEach } from "vitest";
+import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   getAvailableFormats,
   getSmartIndent,
@@ -162,6 +162,16 @@ describe("cursorUtils", () => {
     it("does nothing when codeRef is null", () => {
       setCursorOffset(null, 5);
       // No error thrown
+    });
+
+    it("returns early when window.getSelection() is null", () => {
+      pre = document.createElement("pre");
+      pre.textContent = "hello";
+      document.body.appendChild(pre);
+
+      const spy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+      setCursorOffset(pre, 3);
+      spy.mockRestore();
     });
 
     it("sets cursor at specified offset", () => {

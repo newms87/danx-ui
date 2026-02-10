@@ -10,7 +10,8 @@
 
 // Destructive
 import trashSvg from "danx-icon/src/fontawesome/solid/trash.svg?raw";
-import stopSvg from "danx-icon/src/fontawesome/solid/circle-xmark.svg?raw";
+import stopSvg from "danx-icon/src/fontawesome/solid/stop.svg?raw";
+import circleXmarkSvg from "danx-icon/src/fontawesome/solid/circle-xmark.svg?raw";
 import closeSvg from "danx-icon/src/fontawesome/solid/xmark.svg?raw";
 
 // Constructive
@@ -69,7 +70,7 @@ export const databaseIcon = databaseSvg;
 export const folderIcon = folderSvg;
 
 // Neutral
-export const cancelIcon = closeIcon;
+export const cancelIcon = circleXmarkSvg;
 export const backIcon = backSvg;
 export const editIcon = editSvg;
 export const copyIcon = copySvg;
