@@ -116,36 +116,36 @@ describe("MarkdownEditor", () => {
   describe("hotkey help popover", () => {
     it("does not show hotkey help initially", () => {
       mountEditor();
-      expect(wrapper.find(".dx-hotkey-help-overlay").exists()).toBe(false);
+      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(false);
     });
 
     it("shows hotkey help when footer button is clicked", async () => {
       mountEditor();
       await wrapper.find(".hotkey-help-btn").trigger("click");
-      expect(wrapper.find(".dx-hotkey-help-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(true);
     });
 
     it("hides hotkey help when close is emitted", async () => {
       mountEditor();
       await wrapper.find(".hotkey-help-btn").trigger("click");
-      expect(wrapper.find(".dx-hotkey-help-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(true);
 
       await wrapper.find(".close-btn").trigger("click");
-      expect(wrapper.find(".dx-hotkey-help-overlay").exists()).toBe(false);
+      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(false);
     });
   });
 
   describe("context menu", () => {
     it("does not show context menu initially", () => {
       mountEditor();
-      expect(wrapper.find(".dx-context-menu-overlay").exists()).toBe(false);
+      expect(wrapper.find(".dx-context-menu").exists()).toBe(false);
     });
 
     it("shows context menu on right-click", async () => {
       mountEditor();
       const body = wrapper.find(".dx-markdown-editor-body");
       await body.trigger("contextmenu");
-      expect(wrapper.find(".dx-context-menu-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-context-menu").exists()).toBe(true);
     });
   });
 

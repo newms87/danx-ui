@@ -29,11 +29,10 @@
  *     @cancel="closeLinkPopover"
  *   />
  */
-import { XmarkIcon } from "./icons";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
+import DanxPopover from "./DanxPopover.vue";
 import type { PopoverPosition } from "./usePopoverManager";
 import { calculatePopoverPosition } from "./popoverUtils";
-import { useEscapeKey } from "./useEscapeKey";
 
 export interface LinkPopoverProps {
   position: PopoverPosition;
@@ -52,7 +51,6 @@ const emit = defineEmits<{
 }>();
 
 // Refs
-const popoverRef = ref<HTMLElement | null>(null);
 const urlInputRef = ref<HTMLInputElement | null>(null);
 
 // State
@@ -91,8 +89,6 @@ function onCancel(): void {
   emit("cancel");
 }
 
-useEscapeKey(onCancel);
-
 // Auto-focus URL input on mount
 onMounted(() => {
   nextTick(() => {
@@ -111,194 +107,61 @@ watch(
 </script>
 
 <template>
-  <div class="dx-link-popover-overlay" @click.self="onCancel">
-    <div ref="popoverRef" class="dx-link-popover" :style="popoverStyle">
-      <div class="popover-header">
-        <h3>{{ isEditing ? "Edit Link" : "Insert Link" }}</h3>
-        <button class="close-btn" type="button" aria-label="Close" @click="onCancel">
-          <span class="w-4 h-4" v-html="XmarkIcon" />
-        </button>
-      </div>
-
-      <div class="popover-content">
-        <div class="input-group">
-          <label for="link-url">URL</label>
-          <input
-            id="link-url"
-            ref="urlInputRef"
-            v-model="urlValue"
-            type="text"
-            placeholder="https://example.com"
-            @keydown.enter.prevent="onSubmit"
-            @keydown.escape="onCancel"
-          />
-        </div>
-
-        <div v-if="!isEditing" class="input-group">
-          <label for="link-label">Label</label>
-          <input
-            id="link-label"
-            v-model="labelValue"
-            type="text"
-            :placeholder="labelPlaceholder"
-            @keydown.enter.prevent="onSubmit"
-            @keydown.escape="onCancel"
-          />
-        </div>
-
-        <div v-if="isEditing" class="edit-hint">Enter an empty URL to remove the link.</div>
-      </div>
-
-      <div class="popover-footer">
-        <button type="button" class="btn-cancel" @click="onCancel">Cancel</button>
-        <button type="button" class="btn-insert" @click="onSubmit">
-          {{ isEditing ? "Update" : "Insert" }}
-        </button>
-      </div>
+  <DanxPopover
+    :title="isEditing ? 'Edit Link' : 'Insert Link'"
+    :confirm-label="isEditing ? 'Update' : 'Insert'"
+    class="dx-link-popover"
+    :style="popoverStyle"
+    @cancel="onCancel"
+    @confirm="onSubmit"
+  >
+    <div class="input-group">
+      <label for="link-url">URL</label>
+      <input
+        id="link-url"
+        ref="urlInputRef"
+        v-model="urlValue"
+        type="text"
+        placeholder="https://example.com"
+        @keydown.enter.prevent="onSubmit"
+      />
     </div>
-  </div>
+
+    <div v-if="!isEditing" class="input-group">
+      <label for="link-label">Label</label>
+      <input
+        id="link-label"
+        v-model="labelValue"
+        type="text"
+        :placeholder="labelPlaceholder"
+        @keydown.enter.prevent="onSubmit"
+      />
+    </div>
+
+    <div v-if="isEditing" class="edit-hint">Enter an empty URL to remove the link.</div>
+  </DanxPopover>
 </template>
 
 <style>
-.dx-link-popover-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: var(--dx-mde-overlay-bg);
-  backdrop-filter: blur(1px);
-}
-
 .dx-link-popover {
-  position: fixed;
-  background: var(--dx-mde-popover-bg);
-  border: 1px solid var(--dx-mde-popover-border);
-  border-radius: 0.5rem;
-  box-shadow: 0 25px 50px var(--dx-mde-popover-shadow);
   width: 320px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
 
-.dx-link-popover .popover-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--dx-mde-popover-border);
-}
+  .popover-content {
+    gap: 0.875rem;
+  }
 
-.dx-link-popover .popover-header h3 {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--dx-mde-popover-heading);
-}
+  .input-group {
+    gap: 0.375rem;
 
-.dx-link-popover .popover-header .close-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0.25rem;
-  color: var(--dx-mde-popover-muted);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
+    input {
+      width: 100%;
+    }
+  }
 
-.dx-link-popover .popover-header .close-btn:hover {
-  background: var(--dx-mde-menu-item-hover);
-  color: var(--dx-mde-popover-heading);
-}
-
-.dx-link-popover .popover-content {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-.dx-link-popover .input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.dx-link-popover .input-group label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--dx-mde-popover-muted);
-}
-
-.dx-link-popover .input-group input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: var(--dx-mde-input-bg);
-  border: 1px solid var(--dx-mde-input-border);
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  color: var(--dx-mde-input-text);
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.dx-link-popover .input-group input::placeholder {
-  color: var(--dx-mde-input-placeholder);
-}
-
-.dx-link-popover .input-group input:focus {
-  border-color: var(--dx-mde-input-border-focus);
-}
-
-.dx-link-popover .edit-hint {
-  font-size: 0.75rem;
-  color: var(--dx-mde-popover-dimmed);
-  font-style: italic;
-}
-
-.dx-link-popover .popover-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--dx-mde-popover-border);
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.dx-link-popover .popover-footer button {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.dx-link-popover .popover-footer .btn-cancel {
-  background: transparent;
-  border: 1px solid var(--dx-mde-btn-cancel-border);
-  color: var(--dx-mde-btn-cancel-text);
-}
-
-.dx-link-popover .popover-footer .btn-cancel:hover {
-  background: var(--dx-mde-menu-trigger-bg);
-  border-color: var(--dx-mde-btn-cancel-hover-border);
-}
-
-.dx-link-popover .popover-footer .btn-insert {
-  background: var(--dx-mde-btn-primary-bg);
-  border: 1px solid var(--dx-mde-btn-primary-bg);
-  color: var(--dx-mde-btn-primary-text);
-}
-
-.dx-link-popover .popover-footer .btn-insert:hover {
-  background: var(--dx-mde-btn-primary-hover);
-  border-color: var(--dx-mde-btn-primary-hover);
+  .edit-hint {
+    font-size: 0.75rem;
+    color: var(--dx-mde-popover-dimmed);
+    font-style: italic;
+  }
 }
 </style>

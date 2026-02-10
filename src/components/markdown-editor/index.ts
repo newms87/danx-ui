@@ -8,6 +8,8 @@
  */
 
 export { default as MarkdownEditor } from "./MarkdownEditor.vue";
+export { default as DanxPopover } from "./DanxPopover.vue";
+export type { DanxPopoverProps, PopoverOverlay } from "./DanxPopover.vue";
 
 export { useMarkdownEditor } from "./useMarkdownEditor";
 export type { UseMarkdownEditorOptions, UseMarkdownEditorReturn } from "./useMarkdownEditor";

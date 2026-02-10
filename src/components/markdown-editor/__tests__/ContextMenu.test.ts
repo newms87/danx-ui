@@ -34,7 +34,7 @@ describe("ContextMenu", () => {
   describe("rendering", () => {
     it("renders overlay", () => {
       mountMenu();
-      expect(wrapper.find(".dx-context-menu-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
     });
 
     it("renders menu items", () => {
@@ -416,7 +416,7 @@ describe("ContextMenu", () => {
   describe("close events", () => {
     it("emits close on overlay click", async () => {
       mountMenu();
-      await wrapper.find(".dx-context-menu-overlay").trigger("click");
+      await wrapper.find(".dx-popover-overlay").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
     });
 

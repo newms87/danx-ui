@@ -23,7 +23,7 @@ describe("TablePopover", () => {
   describe("rendering", () => {
     it("renders overlay", () => {
       mountPopover();
-      expect(wrapper.find(".dx-table-popover-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
     });
 
     it("shows Insert Table heading", () => {
@@ -186,7 +186,7 @@ describe("TablePopover", () => {
 
     it("emits cancel on overlay click", async () => {
       mountPopover();
-      await wrapper.find(".dx-table-popover-overlay").trigger("click");
+      await wrapper.find(".dx-popover-overlay").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
 

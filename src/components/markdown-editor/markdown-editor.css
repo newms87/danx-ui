@@ -11,6 +11,7 @@
  */
 
 @import "./markdown-editor-tokens.css";
+@import "./popover-base.css";
 
 /* ====================================================
  * Rendered Markdown Content Theme (.dx-markdown-content)

@@ -20,7 +20,7 @@ describe("HotkeyHelpPopover", () => {
         props: { hotkeys: [] },
         attachTo: document.body,
       });
-      expect(wrapper.find(".dx-hotkey-help-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
       wrapper.unmount();
     });
 
@@ -202,7 +202,7 @@ describe("HotkeyHelpPopover", () => {
         attachTo: document.body,
       });
 
-      await wrapper.find(".dx-hotkey-help-overlay").trigger("click");
+      await wrapper.find(".dx-popover-overlay").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
       wrapper.unmount();
     });
@@ -224,7 +224,7 @@ describe("HotkeyHelpPopover", () => {
         attachTo: document.body,
       });
 
-      await wrapper.find(".dx-hotkey-help-overlay").trigger("keydown", { key: "Escape" });
+      await wrapper.find(".dx-popover-overlay").trigger("keydown", { key: "Escape" });
       expect(wrapper.emitted("close")).toHaveLength(1);
       wrapper.unmount();
     });

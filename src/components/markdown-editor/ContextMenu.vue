@@ -28,10 +28,10 @@
  *   />
  */
 import { computed, onUnmounted, ref } from "vue";
+import DanxPopover from "./DanxPopover.vue";
 import type { ContextMenuItem } from "./types";
 import type { PopoverPosition } from "./usePopoverManager";
 import { calculatePopoverPosition } from "./popoverUtils";
-import { useEscapeKey } from "./useEscapeKey";
 
 export interface ContextMenuProps {
   position: PopoverPosition;
@@ -45,7 +45,6 @@ const emit = defineEmits<{
   action: [item: ContextMenuItem];
 }>();
 
-const menuRef = ref<HTMLElement | null>(null);
 const activeSubmenuId = ref<string | null>(null);
 const submenuOpenLeft = ref(false);
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -128,8 +127,6 @@ function onClose(): void {
   emit("close");
 }
 
-useEscapeKey(onClose);
-
 onUnmounted(() => {
   if (hoverTimeout) {
     clearTimeout(hoverTimeout);
@@ -138,167 +135,157 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="dx-context-menu-overlay" @click.self="onClose">
-    <div ref="menuRef" class="dx-context-menu" :style="menuStyle">
-      <template v-for="(item, itemIndex) in items" :key="item.id">
-        <!-- Divider -->
-        <div v-if="item.divider" class="context-menu-divider" />
+  <DanxPopover overlay="transparent" class="dx-context-menu" :style="menuStyle" @cancel="onClose">
+    <template v-for="(item, itemIndex) in items" :key="item.id">
+      <!-- Divider -->
+      <div v-if="item.divider" class="context-menu-divider" />
 
-        <!-- Regular menu item or submenu trigger -->
-        <template v-else>
-          <div
-            class="context-menu-item-wrapper"
-            @mouseenter="handleItemHover(item, itemIndex)"
-            @mouseleave="handleItemLeave"
+      <!-- Regular menu item or submenu trigger -->
+      <template v-else>
+        <div
+          class="context-menu-item-wrapper"
+          @mouseenter="handleItemHover(item, itemIndex)"
+          @mouseleave="handleItemLeave"
+        >
+          <button
+            class="context-menu-item"
+            :class="{ disabled: item.disabled, 'has-children': item.children?.length }"
+            type="button"
+            :disabled="item.disabled"
+            @click="onItemClick(item)"
           >
-            <button
-              class="context-menu-item"
-              :class="{ disabled: item.disabled, 'has-children': item.children?.length }"
-              type="button"
-              :disabled="item.disabled"
-              @click="onItemClick(item)"
-            >
-              <span class="item-label">{{ item.label }}</span>
-              <span v-if="item.shortcut && !item.children" class="item-shortcut">{{
-                item.shortcut
-              }}</span>
-              <span v-if="item.children?.length" class="item-chevron">&#9656;</span>
-            </button>
+            <span class="item-label">{{ item.label }}</span>
+            <span v-if="item.shortcut && !item.children" class="item-shortcut">{{
+              item.shortcut
+            }}</span>
+            <span v-if="item.children?.length" class="item-chevron">&#9656;</span>
+          </button>
 
-            <!-- Nested submenu -->
-            <div
-              v-if="item.children?.length && activeSubmenuId === item.id"
-              ref="submenuRefs"
-              class="dx-context-submenu"
-              :class="{ 'open-left': submenuOpenLeft }"
-              :data-item-id="item.id"
-              @mouseenter="handleSubmenuEnter"
-              @mouseleave="handleSubmenuLeave"
-            >
-              <template v-for="child in item.children" :key="child.id">
-                <!-- Child divider -->
-                <div v-if="child.divider" class="context-menu-divider" />
+          <!-- Nested submenu -->
+          <div
+            v-if="item.children?.length && activeSubmenuId === item.id"
+            ref="submenuRefs"
+            class="dx-context-submenu"
+            :class="{ 'open-left': submenuOpenLeft }"
+            :data-item-id="item.id"
+            @mouseenter="handleSubmenuEnter"
+            @mouseleave="handleSubmenuLeave"
+          >
+            <template v-for="child in item.children" :key="child.id">
+              <!-- Child divider -->
+              <div v-if="child.divider" class="context-menu-divider" />
 
-                <!-- Child item -->
-                <button
-                  v-else
-                  class="context-menu-item"
-                  :class="{ disabled: child.disabled }"
-                  type="button"
-                  :disabled="child.disabled"
-                  @click="onItemClick(child)"
-                >
-                  <span class="item-label">{{ child.label }}</span>
-                  <span v-if="child.shortcut" class="item-shortcut">{{ child.shortcut }}</span>
-                </button>
-              </template>
-            </div>
+              <!-- Child item -->
+              <button
+                v-else
+                class="context-menu-item"
+                :class="{ disabled: child.disabled }"
+                type="button"
+                :disabled="child.disabled"
+                @click="onItemClick(child)"
+              >
+                <span class="item-label">{{ child.label }}</span>
+                <span v-if="child.shortcut" class="item-shortcut">{{ child.shortcut }}</span>
+              </button>
+            </template>
           </div>
-        </template>
+        </div>
       </template>
-    </div>
-  </div>
+    </template>
+  </DanxPopover>
 </template>
 
 <style>
-.dx-context-menu-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  /* Transparent overlay - no visual background */
-}
-
 .dx-context-menu {
-  position: fixed;
-  background: var(--dx-mde-popover-bg);
-  border: 1px solid var(--dx-mde-popover-border);
   border-radius: 0.375rem;
   box-shadow: 0 10px 25px var(--dx-mde-popover-shadow);
-  min-width: 200px;
-  max-width: 320px;
   overflow: visible;
   padding: 0.25rem 0;
-}
+  min-width: 200px;
+  max-width: 320px;
 
-.dx-context-menu .context-menu-divider {
-  height: 1px;
-  background: var(--dx-mde-popover-border);
-  margin: 0.25rem 0;
-}
+  .popover-content {
+    padding: 0.25rem 0;
+  }
 
-.dx-context-menu .context-menu-item-wrapper {
-  position: relative;
-}
+  .context-menu-divider {
+    height: 1px;
+    background: var(--dx-mde-popover-border);
+    margin: 0.25rem 0;
+  }
 
-.dx-context-menu .context-menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: transparent;
-  border: none;
-  color: var(--dx-mde-popover-text);
-  font-size: 0.875rem;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
+  .context-menu-item-wrapper {
+    position: relative;
+  }
 
-.dx-context-menu .context-menu-item:hover:not(.disabled) {
-  background: var(--dx-mde-menu-item-hover);
-}
+  .context-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--dx-mde-popover-text);
+    font-size: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
 
-.dx-context-menu .context-menu-item.disabled {
-  color: var(--dx-mde-popover-dimmed);
-  cursor: not-allowed;
-}
+    &:hover:not(.disabled) {
+      background: var(--dx-mde-menu-item-hover);
+    }
 
-.dx-context-menu .context-menu-item.has-children {
-  padding-right: 0.5rem;
-}
+    &.disabled {
+      color: var(--dx-mde-popover-dimmed);
+      cursor: not-allowed;
+    }
 
-.dx-context-menu .context-menu-item .item-label {
-  flex: 1;
-  white-space: nowrap;
-}
+    &.has-children {
+      padding-right: 0.5rem;
+    }
 
-.dx-context-menu .context-menu-item .item-shortcut {
-  font-size: 0.75rem;
-  color: var(--dx-mde-popover-dimmed);
-  font-family: "Consolas", "Monaco", monospace;
-  margin-left: 1rem;
-  white-space: nowrap;
-}
+    .item-label {
+      flex: 1;
+      white-space: nowrap;
+    }
 
-.dx-context-menu .context-menu-item .item-chevron {
-  font-size: 0.75rem;
-  color: var(--dx-mde-popover-dimmed);
-  margin-left: 0.5rem;
-}
+    .item-shortcut {
+      font-size: 0.75rem;
+      color: var(--dx-mde-popover-dimmed);
+      font-family: "Consolas", "Monaco", monospace;
+      margin-left: 1rem;
+      white-space: nowrap;
+    }
 
-/* Submenu styling */
-.dx-context-menu .dx-context-submenu {
-  position: absolute;
-  top: 0;
-  left: 100%;
-  margin-left: 2px;
-  background: var(--dx-mde-popover-bg);
-  border: 1px solid var(--dx-mde-popover-border);
-  border-radius: 0.375rem;
-  box-shadow: 0 10px 25px var(--dx-mde-popover-shadow);
-  min-width: 280px;
-  max-width: 360px;
-  overflow: hidden;
-  padding: 0.25rem 0;
-  z-index: 1001;
-}
+    .item-chevron {
+      font-size: 0.75rem;
+      color: var(--dx-mde-popover-dimmed);
+      margin-left: 0.5rem;
+    }
+  }
 
-/* Open to the left when near right viewport edge */
-.dx-context-menu .dx-context-submenu.open-left {
-  left: auto;
-  right: 100%;
-  margin-left: 0;
-  margin-right: 2px;
+  .dx-context-submenu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 2px;
+    background: var(--dx-mde-popover-bg);
+    border: 1px solid var(--dx-mde-popover-border);
+    border-radius: 0.375rem;
+    box-shadow: 0 10px 25px var(--dx-mde-popover-shadow);
+    min-width: 280px;
+    max-width: 360px;
+    overflow: hidden;
+    padding: 0.25rem 0;
+    z-index: 1001;
+
+    &.open-left {
+      left: auto;
+      right: 100%;
+      margin-left: 0;
+      margin-right: 2px;
+    }
+  }
 }
 </style>

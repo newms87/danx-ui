@@ -24,7 +24,7 @@ describe("LinkPopover", () => {
   describe("rendering", () => {
     it("renders overlay", () => {
       mountPopover();
-      expect(wrapper.find(".dx-link-popover-overlay").exists()).toBe(true);
+      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
     });
 
     it("shows Insert Link title when no existingUrl", () => {
@@ -144,7 +144,7 @@ describe("LinkPopover", () => {
 
     it("emits cancel when overlay clicked", async () => {
       mountPopover();
-      await wrapper.find(".dx-link-popover-overlay").trigger("click");
+      await wrapper.find(".dx-popover-overlay").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
 
