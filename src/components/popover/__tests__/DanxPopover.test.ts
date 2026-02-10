@@ -133,6 +133,29 @@ describe("DanxPopover", () => {
     });
   });
 
+  describe("position prop", () => {
+    it("positions panel at explicit coordinates when position is set", async () => {
+      mountPopover({ position: { x: 300, y: 200 } });
+      await wrapper.vm.$nextTick();
+      const panel = document.body.querySelector(".danx-popover") as HTMLElement;
+      expect(panel.style.top).toBe("200px");
+      expect(panel.style.left).toBe("300px");
+    });
+
+    it("still closes on click outside when position is set", () => {
+      mountPopover({ position: { x: 100, y: 100 } });
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: outside });
+      document.dispatchEvent(event);
+
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+      outside.remove();
+    });
+  });
+
   describe("cleanup", () => {
     it("removes document keydown listener on unmount", () => {
       const removeSpy = vi.spyOn(document, "removeEventListener");

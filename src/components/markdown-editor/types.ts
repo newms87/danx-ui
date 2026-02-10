@@ -4,16 +4,8 @@ import { Component } from "vue";
 
 export type ContextMenuContext = "table" | "list" | "code" | "text";
 
-export interface ContextMenuItem {
-  id: string;
-  label: string;
-  icon?: string;
-  shortcut?: string;
-  action?: () => void; // Optional - not needed if has children
-  disabled?: boolean;
-  children?: ContextMenuItem[]; // For nested submenus
-  divider?: boolean; // For visual dividers between items
-}
+/** Re-export from canonical context-menu module for internal consumers */
+export type { ContextMenuItem } from "../context-menu/types";
 
 // === Composable Types ===
 

@@ -15,6 +15,7 @@ import basicPopoverCode from "./popover-examples/BasicPopover.vue?raw";
 import confirmPopoverCode from "./popover-examples/ConfirmPopover.vue?raw";
 import placementsCode from "./popover-examples/OverlayVariants.vue?raw";
 import customStyleCode from "./popover-examples/CustomSlots.vue?raw";
+import positionPropCode from "./popover-examples/PositionProp.vue?raw";
 </script>
 
 <template>
@@ -39,6 +40,12 @@ import customStyleCode from "./popover-examples/CustomSlots.vue?raw";
       title="Placement Variants"
       description="Bottom, top, left, and right placement options."
       :code="placementsCode"
+    />
+
+    <DemoSection
+      title="Explicit Position"
+      description="Position the panel at arbitrary coordinates, such as a right-click context menu."
+      :code="positionPropCode"
     />
 
     <DemoSection

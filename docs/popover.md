@@ -5,6 +5,7 @@ A trigger-anchored floating panel that positions itself relative to a trigger el
 ## Features
 
 - **Trigger Slot** - Wraps an inline anchor element for automatic positioning
+- **Explicit Position** - Optional `{ x, y }` coordinates for cursor-positioned panels (e.g. context menus)
 - **v-model Control** - Controlled visibility, removed from DOM when hidden
 - **Placement** - Bottom, top, left, or right positioning relative to trigger
 - **Auto-flip** - Automatically flips placement when panel would overflow the viewport
@@ -42,10 +43,15 @@ const show = ref(false);
 |------|------|---------|-------------|
 | `modelValue` | `boolean` | `false` | Controls visibility via v-model |
 | `placement` | `PopoverPlacement` | `"bottom"` | Panel placement relative to trigger |
+| `position` | `PopoverPosition` | - | Explicit `{ x, y }` viewport coordinates |
 
 ### PopoverPlacement
 
 `"top" | "bottom" | "left" | "right"`
+
+### PopoverPosition
+
+`{ x: number; y: number }` - Viewport pixel coordinates for the panel's top-left corner.
 
 ## Events
 
@@ -74,6 +80,35 @@ The `placement` prop controls where the panel appears relative to the trigger el
 ### Auto-flip
 
 When the panel would overflow the viewport in the preferred direction, it automatically flips to the opposite side. For example, a `placement="bottom"` popover near the bottom of the viewport will flip to appear above the trigger.
+
+## Explicit Position
+
+The `position` prop places the panel at arbitrary viewport coordinates instead of anchoring to the trigger element. This is useful for context menus or cursor-follow patterns. The trigger slot still controls click-outside detection.
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { DanxPopover } from 'danx-ui';
+
+const show = ref(false);
+const position = ref({ x: 0, y: 0 });
+
+function onContextMenu(event: MouseEvent) {
+  event.preventDefault();
+  position.value = { x: event.clientX, y: event.clientY };
+  show.value = true;
+}
+</script>
+
+<template>
+  <DanxPopover v-model="show" :position="position">
+    <template #trigger>
+      <div @contextmenu="onContextMenu">Right-click me</div>
+    </template>
+    <div style="padding: 0.5rem">Context menu content</div>
+  </DanxPopover>
+</template>
+```
 
 ## Click-Outside Behavior
 

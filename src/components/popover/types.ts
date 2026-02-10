@@ -7,6 +7,12 @@
 /** Placement direction for the popover panel relative to the trigger */
 export type PopoverPlacement = "top" | "bottom" | "left" | "right";
 
+/** Explicit viewport coordinates for the popover panel */
+export interface PopoverPosition {
+  x: number;
+  y: number;
+}
+
 export interface DanxPopoverProps {
   /**
    * Controls popover visibility via v-model.
@@ -20,6 +26,14 @@ export interface DanxPopoverProps {
    * Auto-flips to the opposite side if the panel would overflow the viewport.
    */
   placement?: PopoverPlacement;
+
+  /**
+   * Explicit viewport coordinates for the panel.
+   * When set, the panel positions at these coordinates instead of
+   * anchoring to the trigger element. The trigger slot still controls
+   * click-outside detection and show/hide toggling.
+   */
+  position?: PopoverPosition;
 }
 
 export interface DanxPopoverEmits {

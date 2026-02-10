@@ -1,0 +1,20 @@
+/**
+ * DanxContextMenu CSS Tokens
+ *
+ * Component-tier tokens for the context menu.
+ * Dark mode handled at the semantic layer only.
+ */
+
+:root {
+  --context-menu-bg: var(--color-surface-elevated, #2d2d2d);
+  --context-menu-border: var(--color-border, #404040);
+  --context-menu-shadow: rgb(0 0 0 / 0.4);
+  --context-menu-text: var(--color-text, #d4d4d4);
+  --context-menu-text-muted: var(--color-text-muted, #6b7280);
+  --context-menu-item-hover: var(--color-surface-hover, rgba(255, 255, 255, 0.1));
+  --context-menu-divider: var(--color-border, #404040);
+  --context-menu-min-width: 200px;
+  --context-menu-max-width: 320px;
+  --context-menu-icon-size: 1rem;
+  --context-menu-border-radius: 0.375rem;
+}

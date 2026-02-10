@@ -20,6 +20,7 @@
  * @example
  *   <MarkdownEditorFooter :char-count="42" @show-hotkeys="openHelp" />
  */
+import DanxButton from "../button/DanxButton.vue";
 import { KeyboardIcon } from "./icons";
 
 export interface MarkdownEditorFooterProps {
@@ -38,14 +39,13 @@ defineEmits<{
     <span class="char-count text-xs text-gray-500"> {{ charCount.toLocaleString() }} chars </span>
     <slot />
     <div class="flex-1" />
-    <button
-      class="hotkey-help-btn text-gray-500 hover:text-gray-300 transition-colors p-1 rounded"
-      title="Keyboard shortcuts (Ctrl+?)"
-      type="button"
+    <DanxButton
+      class="hotkey-help-btn"
+      :icon="KeyboardIcon"
+      size="xxs"
+      tooltip="Keyboard shortcuts (Ctrl+?)"
       @click="$emit('show-hotkeys')"
-    >
-      <span class="w-4 h-4" v-html="KeyboardIcon" />
-    </button>
+    />
   </div>
 </template>
 
@@ -56,16 +56,8 @@ defineEmits<{
   flex-shrink: 0;
 
   .hotkey-help-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-
-    &:hover {
-      background-color: var(--dx-mde-menu-item-hover);
-    }
+    color: var(--dx-mde-popover-dimmed);
+    --button-hover-bg: var(--dx-mde-menu-item-hover);
   }
 }
 </style>

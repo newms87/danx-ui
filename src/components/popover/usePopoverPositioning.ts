@@ -6,14 +6,18 @@
  * and auto-flips when the panel would overflow the viewport. Listens for scroll (capture)
  * and resize events while open to keep the panel correctly positioned.
  *
+ * When an explicit position is provided, the panel is placed at those viewport coordinates
+ * instead of anchoring to the trigger element.
+ *
  * @param trigger - Ref to the trigger element
  * @param panel - Ref to the panel element
  * @param placement - Ref to the desired placement direction
  * @param isOpen - Ref controlling when positioning is active
+ * @param position - Optional ref to explicit {x, y} viewport coordinates
  * @returns Reactive style object with top/left as pixel strings
  */
 import { type CSSProperties, nextTick, onScopeDispose, reactive, type Ref, watch } from "vue";
-import type { PopoverPlacement } from "./types";
+import type { PopoverPlacement, PopoverPosition } from "./types";
 
 /** Default gap between trigger and panel in pixels */
 const DEFAULT_OFFSET = 8;
@@ -26,14 +30,37 @@ export function usePopoverPositioning(
   trigger: Ref<HTMLElement | null>,
   panel: Ref<HTMLElement | null>,
   placement: Ref<PopoverPlacement>,
-  isOpen: Ref<boolean>
+  isOpen: Ref<boolean>,
+  position?: Ref<PopoverPosition | undefined>
 ): UsePopoverPositioningReturn {
   const style = reactive<CSSProperties>({});
 
-  function updatePosition(): void {
-    if (!trigger.value || !panel.value) return;
+  function getTriggerElement(): HTMLElement | null {
+    const el = trigger.value;
+    if (!el) return null;
+    // If the trigger wrapper uses display:contents it has no box of its own,
+    // so measure the first child element instead.
+    const computed = getComputedStyle(el);
+    if (computed.display === "contents" && el.firstElementChild instanceof HTMLElement) {
+      return el.firstElementChild;
+    }
+    return el;
+  }
 
-    const triggerRect = trigger.value.getBoundingClientRect();
+  function updatePosition(): void {
+    if (!panel.value) return;
+
+    // Explicit position bypasses trigger measurement
+    if (position?.value) {
+      style.top = `${position.value.y}px`;
+      style.left = `${position.value.x}px`;
+      return;
+    }
+
+    const triggerEl = getTriggerElement();
+    if (!triggerEl) return;
+
+    const triggerRect = triggerEl.getBoundingClientRect();
     const panelRect = panel.value.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;

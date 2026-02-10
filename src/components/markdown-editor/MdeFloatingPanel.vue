@@ -36,7 +36,7 @@
  *   </MdeFloatingPanel>
  */
 import { onMounted, onUnmounted } from "vue";
-import { XmarkIcon } from "./mde-icons";
+import DanxButton from "../button/DanxButton.vue";
 
 export interface MdeFloatingPanelProps {
   overlay?: "transparent" | "standard";
@@ -91,14 +91,13 @@ onUnmounted(() => {
     <div class="mde-floating-panel" v-bind="$attrs">
       <div v-if="title" class="mde-floating-panel__header">
         <h3>{{ title }}</h3>
-        <button
+        <DanxButton
           class="mde-floating-panel__close-btn"
-          type="button"
+          icon="close"
+          size="xs"
           aria-label="Close"
           @click="onCancel"
-        >
-          <span class="w-4 h-4" v-html="XmarkIcon" />
-        </button>
+        />
       </div>
 
       <div class="mde-floating-panel__content">
@@ -106,12 +105,17 @@ onUnmounted(() => {
       </div>
 
       <div v-if="confirmLabel" class="mde-floating-panel__footer">
-        <button type="button" class="mde-floating-panel__btn-cancel" @click="onCancel">
+        <DanxButton class="mde-floating-panel__btn-cancel" size="xs" @click="onCancel">
           {{ cancelLabel }}
-        </button>
-        <button type="button" class="mde-floating-panel__btn-confirm" @click="onConfirm">
+        </DanxButton>
+        <DanxButton
+          class="mde-floating-panel__btn-confirm"
+          type="info"
+          size="xs"
+          @click="onConfirm"
+        >
           {{ confirmLabel }}
-        </button>
+        </DanxButton>
       </div>
     </div>
   </div>

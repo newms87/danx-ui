@@ -21,7 +21,6 @@ export default defineConfig({
         "src/shared/markdown/escapeHtml.ts",
         "src/components/code-viewer/icons.ts",
         "src/components/button/icons.ts",
-        "src/components/markdown-editor/mde-icons.ts",
       ],
       thresholds: {
         lines: 100,

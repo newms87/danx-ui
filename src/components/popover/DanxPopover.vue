@@ -23,6 +23,7 @@
  * |------------|-------------------|----------|-----------------------------------|
  * | modelValue | boolean           | false    | Controls visibility via v-model   |
  * | placement  | PopoverPlacement  | "bottom" | Panel placement relative to trigger |
+ * | position   | PopoverPosition   | -        | Explicit {x, y} viewport coordinates |
  *
  * ## Events
  * | Event             | Payload | Description                              |
@@ -61,6 +62,12 @@
  *     <template #trigger><button>Open above</button></template>
  *     Content above trigger
  *   </DanxPopover>
+ *
+ * Explicit position (e.g. context menu at cursor):
+ *   <DanxPopover v-model="show" :position="{ x: 300, y: 200 }">
+ *     <template #trigger><div @contextmenu.prevent="show = true">Right-click me</div></template>
+ *     Context menu content
+ *   </DanxPopover>
  */
 -->
 
@@ -88,7 +95,8 @@ const { style: panelStyle } = usePopoverPositioning(
   triggerRef,
   panelRef,
   toRef(() => props.placement),
-  modelValue
+  modelValue,
+  toRef(() => props.position)
 );
 
 useClickOutside(triggerRef, panelRef, close, modelValue);

@@ -1,0 +1,156 @@
+/**
+ * DanxContextMenu Styles
+ *
+ * Component styles for the context menu. Consumes tokens from
+ * context-menu-tokens.css. Uses native CSS nesting.
+ */
+
+@import "./context-menu-tokens.css";
+
+/* ==========================================================================
+   Overlay (full-viewport transparent click-catcher)
+   ========================================================================== */
+
+.danx-context-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+/* ==========================================================================
+   Menu container
+   ========================================================================== */
+
+.danx-context-menu {
+  position: fixed;
+  z-index: 1001;
+  background: var(--context-menu-bg);
+  border: 1px solid var(--context-menu-border);
+  border-radius: var(--context-menu-border-radius);
+  box-shadow: 0 10px 25px var(--context-menu-shadow);
+  min-width: var(--context-menu-min-width);
+  max-width: var(--context-menu-max-width);
+  padding: 0.25rem 0;
+  overflow: visible;
+
+  /* Animation */
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+
+/* Entry animation */
+@starting-style {
+  .danx-context-menu {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* ==========================================================================
+   Menu items
+   ========================================================================== */
+
+.danx-context-menu__item-wrapper {
+  position: relative;
+}
+
+.danx-context-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--context-menu-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  gap: 0.5rem;
+
+  &:hover:not(.is-disabled) {
+    background: var(--context-menu-item-hover);
+  }
+
+  &.is-disabled {
+    color: var(--context-menu-text-muted);
+    cursor: not-allowed;
+  }
+
+  &.has-children {
+    padding-right: 0.5rem;
+  }
+}
+
+.danx-context-menu__icon {
+  flex-shrink: 0;
+  width: var(--context-menu-icon-size);
+  height: var(--context-menu-icon-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.danx-context-menu__label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.danx-context-menu__shortcut {
+  font-size: 0.75rem;
+  color: var(--context-menu-text-muted);
+  font-family: "Consolas", "Monaco", monospace;
+  margin-left: 1rem;
+  white-space: nowrap;
+}
+
+.danx-context-menu__chevron {
+  font-size: 0.75rem;
+  color: var(--context-menu-text-muted);
+  margin-left: 0.5rem;
+}
+
+/* ==========================================================================
+   Divider
+   ========================================================================== */
+
+.danx-context-menu__divider {
+  height: 1px;
+  background: var(--context-menu-divider);
+  margin: 0.25rem 0;
+}
+
+/* ==========================================================================
+   Submenu
+   ========================================================================== */
+
+.danx-context-menu__submenu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 2px;
+  background: var(--context-menu-bg);
+  border: 1px solid var(--context-menu-border);
+  border-radius: var(--context-menu-border-radius);
+  box-shadow: 0 10px 25px var(--context-menu-shadow);
+  min-width: var(--context-menu-min-width);
+  max-width: var(--context-menu-max-width);
+  overflow: hidden;
+  padding: 0.25rem 0;
+  z-index: 1002;
+
+  &.open-left {
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 2px;
+  }
+}

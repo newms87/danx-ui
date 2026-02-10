@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { ref, effectScope, nextTick } from "vue";
 import { usePopoverPositioning } from "../usePopoverPositioning";
-import type { PopoverPlacement } from "../types";
+import type { PopoverPlacement, PopoverPosition } from "../types";
 
 /** Create a mock element with a controllable getBoundingClientRect */
 function mockElement(rect: Partial<DOMRect>): HTMLElement {
@@ -347,6 +347,126 @@ describe("usePopoverPositioning", () => {
     const scrollCalls = removeSpy.mock.calls.filter((c) => c[0] === "scroll");
     expect(scrollCalls.length).toBeGreaterThan(0);
     removeSpy.mockRestore();
+  });
+
+  it("measures first child when trigger has display:contents", async () => {
+    const wrapper = document.createElement("div");
+    const child = mockElement({
+      top: 100,
+      left: 200,
+      bottom: 130,
+      right: 260,
+      width: 60,
+      height: 30,
+    });
+    wrapper.appendChild(child);
+
+    // jsdom doesn't compute inline styles via getComputedStyle, so mock it
+    const origGetComputedStyle = window.getComputedStyle;
+    vi.spyOn(window, "getComputedStyle").mockImplementation((el) => {
+      if (el === wrapper) {
+        return { display: "contents" } as CSSStyleDeclaration;
+      }
+      return origGetComputedStyle(el);
+    });
+
+    const panel = mockElement({ width: 100, height: 50 });
+    const triggerRef = ref<HTMLElement | null>(wrapper);
+    const panelRef = ref<HTMLElement | null>(panel);
+    const placement = ref<PopoverPlacement>("bottom");
+    const isOpen = ref(true);
+
+    scope = effectScope();
+    let result: ReturnType<typeof usePopoverPositioning>;
+    scope.run(() => {
+      result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+    });
+
+    await nextTick();
+
+    // Should use child's rect, not the wrapper's (which has no box)
+    expect(result!.style.top).toBe("138px");
+    expect(result!.style.left).toBe("180px");
+
+    vi.mocked(window.getComputedStyle).mockRestore();
+  });
+
+  it("uses explicit position when provided", async () => {
+    const trigger = mockElement({
+      top: 100,
+      left: 200,
+      bottom: 130,
+      right: 260,
+      width: 60,
+      height: 30,
+    });
+    const panel = mockElement({ width: 100, height: 50 });
+    const triggerRef = ref<HTMLElement | null>(trigger);
+    const panelRef = ref<HTMLElement | null>(panel);
+    const placement = ref<PopoverPlacement>("bottom");
+    const isOpen = ref(true);
+    const position = ref<PopoverPosition | undefined>({ x: 300, y: 400 });
+
+    scope = effectScope();
+    let result: ReturnType<typeof usePopoverPositioning>;
+    scope.run(() => {
+      result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen, position);
+    });
+
+    await nextTick();
+
+    // Should use explicit coordinates, ignoring trigger rect
+    expect(result!.style.top).toBe("400px");
+    expect(result!.style.left).toBe("300px");
+  });
+
+  it("falls back to trigger positioning when position is undefined", async () => {
+    const trigger = mockElement({
+      top: 100,
+      left: 200,
+      bottom: 130,
+      right: 260,
+      width: 60,
+      height: 30,
+    });
+    const panel = mockElement({ width: 100, height: 50 });
+    const triggerRef = ref<HTMLElement | null>(trigger);
+    const panelRef = ref<HTMLElement | null>(panel);
+    const placement = ref<PopoverPlacement>("bottom");
+    const isOpen = ref(true);
+    const position = ref<PopoverPosition | undefined>(undefined);
+
+    scope = effectScope();
+    let result: ReturnType<typeof usePopoverPositioning>;
+    scope.run(() => {
+      result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen, position);
+    });
+
+    await nextTick();
+
+    // Should use trigger-based positioning (same as bottom placement test)
+    expect(result!.style.top).toBe("138px");
+    expect(result!.style.left).toBe("180px");
+  });
+
+  it("positions at explicit coordinates even when trigger is null", async () => {
+    const panel = mockElement({ width: 100, height: 50 });
+    const triggerRef = ref<HTMLElement | null>(null);
+    const panelRef = ref<HTMLElement | null>(panel);
+    const placement = ref<PopoverPlacement>("bottom");
+    const isOpen = ref(true);
+    const position = ref<PopoverPosition | undefined>({ x: 150, y: 250 });
+
+    scope = effectScope();
+    let result: ReturnType<typeof usePopoverPositioning>;
+    scope.run(() => {
+      result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen, position);
+    });
+
+    await nextTick();
+
+    expect(result!.style.top).toBe("250px");
+    expect(result!.style.left).toBe("150px");
   });
 
   it("does not update position when trigger is null", async () => {

@@ -43,7 +43,7 @@ import { useFocusTracking } from "./useFocusTracking";
 import { useLinkPopover, useTablePopover } from "./usePopoverManager";
 import { useMarkdownEditor } from "./useMarkdownEditor";
 import { TokenRenderer } from "./types";
-import ContextMenu from "./ContextMenu.vue";
+import DanxContextMenu from "../context-menu/DanxContextMenu.vue";
 import HotkeyHelpPopover from "./HotkeyHelpPopover.vue";
 import LinkPopover from "./LinkPopover.vue";
 import MarkdownEditorContent from "./MarkdownEditorContent.vue";
@@ -175,7 +175,7 @@ watch(modelValue, (newValue) => {
       @cancel="tablePopover.cancel"
     />
 
-    <ContextMenu
+    <DanxContextMenu
       v-if="contextMenu.isVisible.value"
       :position="contextMenu.position.value"
       :items="contextMenu.items.value"

@@ -85,22 +85,11 @@
   }
 }
 
-.mde-floating-panel__close-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0.25rem;
+.mde-floating-panel__header .mde-floating-panel__close-btn {
   color: var(--dx-mde-popover-muted);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  --button-hover-bg: var(--dx-mde-menu-item-hover);
 
-  &:hover {
-    background: var(--dx-mde-menu-item-hover);
+  &:hover:not(:disabled) {
     color: var(--dx-mde-popover-heading);
   }
 }
@@ -127,34 +116,8 @@
   border-top: 1px solid var(--dx-mde-popover-border);
   background: rgba(0, 0, 0, 0.2);
 
-  button {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-}
-
-.mde-floating-panel__btn-cancel {
-  background: transparent;
-  border: 1px solid var(--dx-mde-btn-cancel-border);
-  color: var(--dx-mde-btn-cancel-text);
-
-  &:hover {
-    background: var(--dx-mde-menu-trigger-bg);
-    border-color: var(--dx-mde-btn-cancel-hover-border);
-  }
-}
-
-.mde-floating-panel__btn-confirm {
-  background: var(--dx-mde-btn-primary-bg);
-  border: 1px solid var(--dx-mde-btn-primary-bg);
-  color: var(--dx-mde-btn-primary-text);
-
-  &:hover {
-    background: var(--dx-mde-btn-primary-hover);
-    border-color: var(--dx-mde-btn-primary-hover);
+  .mde-floating-panel__btn-cancel {
+    color: var(--dx-mde-popover-text);
+    --button-hover-bg: var(--dx-mde-menu-trigger-bg);
   }
 }

@@ -13,6 +13,7 @@
 @import "./shared/tokens/index.css";
 @import "./components/button/button.css" layer(components);
 @import "./components/code-viewer/code-viewer.css" layer(components);
+@import "./components/context-menu/context-menu.css" layer(components);
 @import "./components/dialog/dialog.css" layer(components);
 @import "./components/popover/popover.css" layer(components);
 @import "./components/markdown-editor/markdown-editor.css" layer(components);

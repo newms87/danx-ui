@@ -37,15 +37,6 @@
   --dx-mde-input-text: #f3f4f6;
   --dx-mde-input-placeholder: #6b7280;
 
-  /* Buttons */
-  --dx-mde-btn-primary-bg: #3b82f6;
-  --dx-mde-btn-primary-hover: #2563eb;
-  --dx-mde-btn-primary-text: #ffffff;
-  --dx-mde-btn-cancel-bg: transparent;
-  --dx-mde-btn-cancel-border: #404040;
-  --dx-mde-btn-cancel-text: #d4d4d4;
-  --dx-mde-btn-cancel-hover-border: #525252;
-
   /* Hotkey kbd */
   --dx-mde-kbd-bg: #1e1e1e;
   --dx-mde-kbd-border: #404040;
@@ -118,15 +109,6 @@
   --dx-mde-input-border-focus: #0ea5e9;
   --dx-mde-input-text: #0f172a;
   --dx-mde-input-placeholder: #94a3b8;
-
-  /* Buttons */
-  --dx-mde-btn-primary-bg: #0ea5e9;
-  --dx-mde-btn-primary-hover: #0284c7;
-  --dx-mde-btn-primary-text: #ffffff;
-  --dx-mde-btn-cancel-bg: transparent;
-  --dx-mde-btn-cancel-border: #cbd5e1;
-  --dx-mde-btn-cancel-text: #475569;
-  --dx-mde-btn-cancel-hover-border: #94a3b8;
 
   /* Hotkey kbd */
   --dx-mde-kbd-bg: #f1f5f9;

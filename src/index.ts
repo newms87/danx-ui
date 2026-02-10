@@ -7,6 +7,7 @@
 // Components
 export { DanxActionButton, DanxButton } from "./components/button";
 export { CodeViewer } from "./components/code-viewer";
+export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog } from "./components/dialog";
 export { DanxPopover } from "./components/popover";
 export { MarkdownEditor } from "./components/markdown-editor";
@@ -53,6 +54,12 @@ export type {
   ValidationError,
 } from "./components/code-viewer";
 export type {
+  ContextMenuItem,
+  ContextMenuPosition,
+  DanxContextMenuEmits,
+  DanxContextMenuProps,
+} from "./components/context-menu";
+export type {
   DanxDialogEmits,
   DanxDialogProps,
   DanxDialogSlots,
@@ -63,6 +70,7 @@ export type {
   DanxPopoverProps,
   DanxPopoverSlots,
   PopoverPlacement,
+  PopoverPosition,
 } from "./components/popover";
 export type {
   TokenRenderer,

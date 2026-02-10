@@ -16,4 +16,5 @@ export type {
   DanxPopoverProps,
   DanxPopoverSlots,
   PopoverPlacement,
+  PopoverPosition,
 } from "./types";

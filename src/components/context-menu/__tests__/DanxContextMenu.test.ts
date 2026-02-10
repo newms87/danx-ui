@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
-import ContextMenu from "../ContextMenu.vue";
-import { ContextMenuItem } from "../types";
+import DanxContextMenu from "../DanxContextMenu.vue";
+import type { ContextMenuItem } from "../types";
 
 function createItem(overrides: Partial<ContextMenuItem> = {}): ContextMenuItem {
   return {
@@ -11,7 +11,7 @@ function createItem(overrides: Partial<ContextMenuItem> = {}): ContextMenuItem {
   };
 }
 
-describe("ContextMenu", () => {
+describe("DanxContextMenu", () => {
   let wrapper: VueWrapper;
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("ContextMenu", () => {
   });
 
   function mountMenu(items: ContextMenuItem[] = [], position = { x: 100, y: 200 }) {
-    wrapper = mount(ContextMenu, {
+    wrapper = mount(DanxContextMenu, {
       props: { items, position },
       attachTo: document.body,
     });
@@ -34,15 +34,20 @@ describe("ContextMenu", () => {
   describe("rendering", () => {
     it("renders overlay", () => {
       mountMenu();
-      expect(wrapper.find(".mde-floating-overlay").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu-overlay").exists()).toBe(true);
+    });
+
+    it("renders menu container", () => {
+      mountMenu();
+      expect(wrapper.find(".danx-context-menu").exists()).toBe(true);
     });
 
     it("renders menu items", () => {
       mountMenu([createItem({ label: "Cut" }), createItem({ id: "item-2", label: "Copy" })]);
-      const items = wrapper.findAll(".context-menu-item");
+      const items = wrapper.findAll(".danx-context-menu__item");
       expect(items.length).toBe(2);
-      expect(items[0]!.find(".item-label").text()).toBe("Cut");
-      expect(items[1]!.find(".item-label").text()).toBe("Copy");
+      expect(items[0]!.find(".danx-context-menu__label").text()).toBe("Cut");
+      expect(items[1]!.find(".danx-context-menu__label").text()).toBe("Copy");
     });
 
     it("renders dividers", () => {
@@ -51,17 +56,17 @@ describe("ContextMenu", () => {
         createItem({ id: "div", divider: true }),
         createItem({ id: "item-2" }),
       ]);
-      expect(wrapper.findAll(".context-menu-divider").length).toBe(1);
+      expect(wrapper.findAll(".danx-context-menu__divider").length).toBe(1);
     });
 
     it("shows shortcut text", () => {
       mountMenu([createItem({ shortcut: "Ctrl+C" })]);
-      expect(wrapper.find(".item-shortcut").text()).toBe("Ctrl+C");
+      expect(wrapper.find(".danx-context-menu__shortcut").text()).toBe("Ctrl+C");
     });
 
     it("shows disabled state", () => {
       mountMenu([createItem({ disabled: true })]);
-      expect(wrapper.find(".context-menu-item.disabled").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__item.is-disabled").exists()).toBe(true);
     });
 
     it("shows chevron for items with children", () => {
@@ -70,7 +75,7 @@ describe("ContextMenu", () => {
           children: [createItem({ id: "child-1", label: "Child" })],
         }),
       ]);
-      expect(wrapper.find(".item-chevron").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__chevron").exists()).toBe(true);
     });
 
     it("does not show shortcut for items with children", () => {
@@ -80,21 +85,36 @@ describe("ContextMenu", () => {
           children: [createItem({ id: "child-1" })],
         }),
       ]);
-      expect(wrapper.find(".item-shortcut").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__shortcut").exists()).toBe(false);
+    });
+
+    it("renders icon when provided", () => {
+      mountMenu([
+        createItem({
+          icon: '<svg class="test-icon"><path d="M0 0"/></svg>',
+        }),
+      ]);
+      expect(wrapper.find(".danx-context-menu__icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__icon .test-icon").exists()).toBe(true);
+    });
+
+    it("does not render icon when not provided", () => {
+      mountMenu([createItem()]);
+      expect(wrapper.find(".danx-context-menu__icon").exists()).toBe(false);
     });
   });
 
   describe("menu positioning", () => {
     it("positions at given coordinates", () => {
       mountMenu([], { x: 150, y: 250 });
-      const style = wrapper.find(".dx-context-menu").attributes("style");
+      const style = wrapper.find(".danx-context-menu").attributes("style");
       expect(style).toContain("top: 250px");
       expect(style).toContain("left: 150px");
     });
 
     it("constrains to left edge", () => {
       mountMenu([], { x: -50, y: 200 });
-      const style = wrapper.find(".dx-context-menu").attributes("style");
+      const style = wrapper.find(".danx-context-menu").attributes("style");
       expect(style).toContain("left: 10px");
     });
   });
@@ -104,7 +124,7 @@ describe("ContextMenu", () => {
       const action = vi.fn();
       mountMenu([createItem({ action })]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
+      await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(action).toHaveBeenCalled();
       expect(wrapper.emitted("close")).toHaveLength(1);
       expect(wrapper.emitted("action")).toHaveLength(1);
@@ -114,20 +134,23 @@ describe("ContextMenu", () => {
       const action = vi.fn();
       mountMenu([createItem({ action, disabled: true })]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
+      await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(action).not.toHaveBeenCalled();
     });
 
     it("returns early from onItemClick when item is disabled", async () => {
-      mountMenu([createItem({ id: "disabled-no-action", label: "Disabled", disabled: true })]);
+      mountMenu([
+        createItem({
+          id: "disabled-no-action",
+          label: "Disabled",
+          disabled: true,
+        }),
+      ]);
 
-      // Remove the disabled attribute so the click event actually fires through to onItemClick,
-      // allowing the `if (item.disabled) return` guard on line 111 to execute
-      const btn = wrapper.find(".context-menu-item");
+      const btn = wrapper.find(".danx-context-menu__item");
       btn.element.removeAttribute("disabled");
       await btn.trigger("click");
 
-      // The disabled guard returns early, so no close or action events are emitted
       expect(wrapper.emitted("close")).toBeUndefined();
       expect(wrapper.emitted("action")).toBeUndefined();
     });
@@ -139,17 +162,15 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      // Should not close, but toggle submenu
+      await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(wrapper.emitted("close")).toBeUndefined();
-      // Submenu should be visible
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
     });
 
     it("emits close without calling action when item has no action", async () => {
       mountMenu([createItem({ id: "no-action", label: "No Action" })]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
+      await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
       expect(wrapper.emitted("action")).toBeUndefined();
     });
@@ -161,11 +182,11 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      const btn = wrapper.find(".context-menu-item");
+      const btn = wrapper.find(".danx-context-menu__item");
       await btn.trigger("click");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
       await btn.trigger("click");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
   });
 
@@ -177,13 +198,13 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      const itemWrapper = wrapper.find(".context-menu-item-wrapper");
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
       await itemWrapper.trigger("mouseenter");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
 
       vi.advanceTimersByTime(100);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
     });
 
     it("hides submenu on item without children hover", async () => {
@@ -194,16 +215,14 @@ describe("ContextMenu", () => {
         createItem({ id: "item-2", label: "Regular" }),
       ]);
 
-      // First show submenu
-      const itemWrappers = wrapper.findAll(".context-menu-item-wrapper");
+      const itemWrappers = wrapper.findAll(".danx-context-menu__item-wrapper");
       await itemWrappers[0]!.trigger("mouseenter");
       vi.advanceTimersByTime(100);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
 
-      // Hover non-parent item
       await itemWrappers[1]!.trigger("mouseenter");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
     it("hides submenu after leave delay", async () => {
@@ -213,7 +232,7 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      const itemWrapper = wrapper.find(".context-menu-item-wrapper");
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
       await itemWrapper.trigger("mouseenter");
       vi.advanceTimersByTime(100);
       await wrapper.vm.$nextTick();
@@ -221,7 +240,7 @@ describe("ContextMenu", () => {
       await itemWrapper.trigger("mouseleave");
       vi.advanceTimersByTime(150);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
     it("cancels close when entering submenu", async () => {
@@ -231,20 +250,18 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      const itemWrapper = wrapper.find(".context-menu-item-wrapper");
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
       await itemWrapper.trigger("mouseenter");
       vi.advanceTimersByTime(100);
       await wrapper.vm.$nextTick();
 
       await itemWrapper.trigger("mouseleave");
-      // Enter submenu before timeout
-      const submenu = wrapper.find(".dx-context-submenu");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
       await submenu.trigger("mouseenter");
       vi.advanceTimersByTime(200);
       await wrapper.vm.$nextTick();
 
-      // Submenu should still be visible
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
     });
 
     it("closes submenu on submenu leave", async () => {
@@ -254,17 +271,17 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      const itemWrapper = wrapper.find(".context-menu-item-wrapper");
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
       await itemWrapper.trigger("mouseenter");
       vi.advanceTimersByTime(100);
       await wrapper.vm.$nextTick();
 
-      const submenu = wrapper.find(".dx-context-submenu");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
       await submenu.trigger("mouseleave");
       vi.advanceTimersByTime(150);
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
     it("handleItemLeave skips clearing when no hover timeout is pending", async () => {
@@ -274,16 +291,14 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      // Open submenu via click (not hover), so hoverTimeout is null
-      await wrapper.find(".context-menu-item").trigger("click");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
 
-      // mouseleave with no pending hoverTimeout
-      const itemWrapper = wrapper.find(".context-menu-item-wrapper");
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
       await itemWrapper.trigger("mouseleave");
       vi.advanceTimersByTime(150);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
     it("handleSubmenuEnter is a no-op when no close timeout is pending", async () => {
@@ -293,16 +308,14 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      // Open submenu via click (no hoverTimeout)
-      await wrapper.find(".context-menu-item").trigger("click");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
 
-      // Enter submenu directly without prior mouseleave
-      const submenu = wrapper.find(".dx-context-submenu");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
       await submenu.trigger("mouseenter");
       vi.advanceTimersByTime(200);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
     });
 
     it("handleSubmenuLeave closes submenu when opened via click", async () => {
@@ -312,14 +325,14 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(true);
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
 
-      const submenu = wrapper.find(".dx-context-submenu");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
       await submenu.trigger("mouseleave");
       vi.advanceTimersByTime(150);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find(".dx-context-submenu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
     it("only shows submenu for active parent, not other parents", async () => {
@@ -334,12 +347,10 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      // Open submenu for parent-1 only
-      const buttons = wrapper.findAll(".context-menu-item");
+      const buttons = wrapper.findAll(".danx-context-menu__item");
       await buttons[0]!.trigger("click");
 
-      // Only one submenu visible
-      const submenus = wrapper.findAll(".dx-context-submenu");
+      const submenus = wrapper.findAll(".danx-context-menu__submenu");
       expect(submenus.length).toBe(1);
     });
   });
@@ -355,10 +366,12 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      const submenuItems = wrapper.find(".dx-context-submenu").findAll(".context-menu-item");
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      const submenuItems = wrapper
+        .find(".danx-context-menu__submenu")
+        .findAll(".danx-context-menu__item");
       expect(submenuItems.length).toBe(2);
-      expect(submenuItems[0]!.find(".item-label").text()).toBe("Child 1");
+      expect(submenuItems[0]!.find(".danx-context-menu__label").text()).toBe("Child 1");
     });
 
     it("renders child dividers", async () => {
@@ -372,8 +385,10 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      expect(wrapper.find(".dx-context-submenu .context-menu-divider").exists()).toBe(true);
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.find(".danx-context-menu__submenu .danx-context-menu__divider").exists()).toBe(
+        true
+      );
     });
 
     it("renders child shortcuts", async () => {
@@ -383,8 +398,10 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      expect(wrapper.find(".dx-context-submenu .item-shortcut").text()).toBe("Ctrl+C");
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.find(".danx-context-menu__submenu .danx-context-menu__shortcut").text()).toBe(
+        "Ctrl+C"
+      );
     });
 
     it("handles child disabled state", async () => {
@@ -394,8 +411,28 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      expect(wrapper.find(".dx-context-submenu .context-menu-item.disabled").exists()).toBe(true);
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(
+        wrapper.find(".danx-context-menu__submenu .danx-context-menu__item.is-disabled").exists()
+      ).toBe(true);
+    });
+
+    it("renders child icon when provided", async () => {
+      mountMenu([
+        createItem({
+          children: [
+            createItem({
+              id: "child-1",
+              icon: '<svg class="child-icon"></svg>',
+            }),
+          ],
+        }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.find(".danx-context-menu__submenu .danx-context-menu__icon").exists()).toBe(
+        true
+      );
     });
 
     it("calls child action and emits close on child click", async () => {
@@ -406,8 +443,8 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      await wrapper.find(".context-menu-item").trigger("click");
-      await wrapper.find(".dx-context-submenu .context-menu-item").trigger("click");
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      await wrapper.find(".danx-context-menu__submenu .danx-context-menu__item").trigger("click");
       expect(childAction).toHaveBeenCalled();
       expect(wrapper.emitted("close")).toHaveLength(1);
     });
@@ -416,7 +453,7 @@ describe("ContextMenu", () => {
   describe("close events", () => {
     it("emits close on overlay click", async () => {
       mountMenu();
-      await wrapper.find(".mde-floating-overlay").trigger("click");
+      await wrapper.find(".danx-context-menu-overlay").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
     });
 
@@ -437,8 +474,7 @@ describe("ContextMenu", () => {
         }),
       ]);
 
-      // Trigger a timeout to ensure one is pending
-      wrapper.find(".context-menu-item-wrapper").trigger("mouseenter");
+      wrapper.find(".danx-context-menu__item-wrapper").trigger("mouseenter");
 
       wrapper.unmount();
 
