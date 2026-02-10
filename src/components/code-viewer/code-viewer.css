@@ -139,18 +139,18 @@
    ========================================== */
 .dx-code-viewer .code-content.is-editable {
   cursor: text;
-  outline: none;
-  border: 2px solid transparent;
-  transition: border-color 0.2s ease;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.2s ease;
   caret-color: var(--code-viewer-editable-caret);
 }
 
 .dx-code-viewer .code-content.is-editable:focus {
-  border-color: var(--code-viewer-editable-focus-border);
+  outline-color: var(--code-viewer-editable-focus-border);
 }
 
 .dx-code-viewer .code-content.is-editable:hover:not(:focus) {
-  border-color: var(--code-viewer-editable-hover-border);
+  outline-color: var(--code-viewer-editable-hover-border);
 }
 
 /* ==========================================

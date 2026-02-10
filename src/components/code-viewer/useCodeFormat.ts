@@ -33,18 +33,17 @@ export interface UseCodeFormatReturn {
 }
 
 /** Formats that are always valid (no structural validation). */
-const STRING_FORMATS: CodeFormat[] = ["text", "markdown", "css", "javascript", "html"];
+const STRING_FORMATS: CodeFormat[] = ["text", "markdown", "css", "javascript", "html", "vue"];
 
-/** Pretty-print a JSON value with 2-space indentation. Returns the original value on failure. */
-function fJSON(value: string | object): string | object {
-  if (!value) return value;
+/** Pretty-print a JSON value with 2-space indentation. Returns empty string on failure. */
+function fJSON(value: string | object): string {
+  if (!value) return "";
   try {
-    if (typeof value === "object") {
-      return JSON.stringify(value, null, 2);
-    }
-    return JSON.stringify(JSON.parse(value), null, 2);
+    return typeof value === "object"
+      ? JSON.stringify(value, null, 2)
+      : JSON.stringify(JSON.parse(value), null, 2);
   } catch {
-    return value;
+    return typeof value === "string" ? value : "";
   }
 }
 
@@ -111,8 +110,7 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
       if (!obj) return typeof value === "string" ? value : "";
 
       if (targetFormat === "json") {
-        const formatted = fJSON(obj);
-        return typeof formatted === "string" ? formatted : JSON.stringify(obj, null, 2);
+        return fJSON(obj);
       } else {
         return yamlStringify(obj as object);
       }
@@ -172,12 +170,12 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
           const lines = content.substring(0, pos).split("\n");
           line = lines.length;
           const lastLine = lines[lines.length - 1];
-          column = (lastLine?.length ?? 0) + 1;
+          column = lastLine.length + 1;
         }
       }
 
       return {
-        message: error.message || "Invalid syntax",
+        message: error.message,
         line,
         column,
       };

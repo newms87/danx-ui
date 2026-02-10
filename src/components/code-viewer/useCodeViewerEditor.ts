@@ -399,13 +399,37 @@ export function useCodeViewerEditor(
   function onKeyDown(event: KeyboardEvent): void {
     if (handleFormatShortcut(event)) return;
     if (!isEditing.value) return;
-    if (handleDeleteOnEmpty(event)) return;
-    if (handleCtrlEnter(event)) return;
-    if (handleEnter(event)) return;
-    if (handleTab(event)) return;
-    if (handleEscape(event)) return;
-    if (handleCtrlS(event)) return;
-    handleCtrlA(event);
+
+    // Stop propagation for all editing handlers to prevent double-firing
+    // (onKeyDown is bound on both the wrapper div and the contenteditable pre)
+    if (handleDeleteOnEmpty(event)) {
+      event.stopPropagation();
+      return;
+    }
+    if (handleCtrlEnter(event)) {
+      event.stopPropagation();
+      return;
+    }
+    if (handleEnter(event)) {
+      event.stopPropagation();
+      return;
+    }
+    if (handleTab(event)) {
+      event.stopPropagation();
+      return;
+    }
+    if (handleEscape(event)) {
+      event.stopPropagation();
+      return;
+    }
+    if (handleCtrlS(event)) {
+      event.stopPropagation();
+      return;
+    }
+    if (handleCtrlA(event)) {
+      event.stopPropagation();
+      return;
+    }
   }
 
   // Initialize editing content when starting in edit mode

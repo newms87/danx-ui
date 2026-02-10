@@ -15,6 +15,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   md: "markdown",
   sh: "bash",
   shell: "bash",
+  vue: "html",
 };
 
 /** Normalize a language alias to its canonical name, falling back to "text" */

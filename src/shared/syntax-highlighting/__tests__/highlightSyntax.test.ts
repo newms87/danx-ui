@@ -36,6 +36,11 @@ describe("highlightSyntax", () => {
       expect(result).toContain('class="syntax-tag"');
     });
 
+    it("routes vue format to HTML highlighter", () => {
+      const result = highlightSyntax("<div>hello</div>", { format: "vue" });
+      expect(result).toContain('class="syntax-tag"');
+    });
+
     it("routes css format to CSS highlighter", () => {
       const result = highlightSyntax(".foo { color: red; }", { format: "css" });
       expect(result).toContain('class="syntax-selector"');
@@ -389,8 +394,9 @@ describe("highlightSyntax", () => {
         "html",
         "css",
         "javascript",
+        "vue",
       ];
-      expect(formats).toHaveLength(7);
+      expect(formats).toHaveLength(8);
     });
   });
 });

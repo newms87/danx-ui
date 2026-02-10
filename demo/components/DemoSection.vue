@@ -90,7 +90,7 @@ function onCodeInput(event: Event) {
         <CodeViewer
           :key="codeVersion"
           :model-value="editableCode"
-          format="html"
+          format="vue"
           :can-edit="true"
           :editable="true"
           @input="onCodeInput"

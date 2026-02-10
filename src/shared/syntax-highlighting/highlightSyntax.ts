@@ -8,7 +8,15 @@ import { highlightCSS } from "./highlightCSS";
 import { highlightJavaScript } from "./highlightJavaScript";
 import { highlightHTML } from "./highlightHTML";
 
-export type HighlightFormat = "json" | "yaml" | "text" | "markdown" | "html" | "css" | "javascript";
+export type HighlightFormat =
+  | "json"
+  | "yaml"
+  | "text"
+  | "markdown"
+  | "html"
+  | "css"
+  | "javascript"
+  | "vue";
 
 export interface HighlightOptions {
   format: HighlightFormat;
@@ -326,6 +334,7 @@ export function highlightSyntax(code: string, options: HighlightOptions): string
       return highlightJSON(code);
     case "yaml":
       return highlightYAML(code);
+    case "vue":
     case "html":
       return highlightHTML(code);
     case "css":

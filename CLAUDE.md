@@ -131,6 +131,7 @@ docs/                     # User documentation
 | `component-architect` | Plan new components, investigate bugs | No |
 | `code-reviewer` | Analyze code quality, SOLID/DRY violations | No |
 | `test-reviewer` | Audit test coverage, review test quality | No |
+| `batch-editor` | Write tests and edit source files to close coverage gaps | Yes |
 
 ## Key Documentation
 

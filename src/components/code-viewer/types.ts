@@ -12,7 +12,15 @@
  * - "text" and "markdown": Freeform text formats (markdown renders to HTML)
  * - "html", "css", "javascript": Code formats with syntax highlighting but no validation
  */
-export type CodeFormat = "json" | "yaml" | "text" | "markdown" | "html" | "css" | "javascript";
+export type CodeFormat =
+  | "json"
+  | "yaml"
+  | "text"
+  | "markdown"
+  | "html"
+  | "css"
+  | "javascript"
+  | "vue";
 
 /**
  * Validation error returned when content fails format-specific validation.

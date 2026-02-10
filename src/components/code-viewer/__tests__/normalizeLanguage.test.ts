@@ -32,6 +32,21 @@ describe("normalizeLanguage", () => {
     expect(normalizeLanguage("Shell")).toBe("bash");
   });
 
+  it("maps vue to html", () => {
+    expect(normalizeLanguage("vue")).toBe("html");
+    expect(normalizeLanguage("Vue")).toBe("html");
+  });
+
+  it("maps rb to ruby", () => {
+    expect(normalizeLanguage("rb")).toBe("ruby");
+    expect(normalizeLanguage("RB")).toBe("ruby");
+  });
+
+  it("maps md to markdown", () => {
+    expect(normalizeLanguage("md")).toBe("markdown");
+    expect(normalizeLanguage("MD")).toBe("markdown");
+  });
+
   it("returns text for empty or undefined input", () => {
     expect(normalizeLanguage()).toBe("text");
     expect(normalizeLanguage("")).toBe("text");
