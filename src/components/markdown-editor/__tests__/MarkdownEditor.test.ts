@@ -138,14 +138,14 @@ describe("MarkdownEditor", () => {
   describe("context menu", () => {
     it("does not show context menu initially", () => {
       mountEditor();
-      expect(wrapper.find(".dx-context-menu").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu").exists()).toBe(false);
     });
 
     it("shows context menu on right-click", async () => {
       mountEditor();
       const body = wrapper.find(".dx-markdown-editor-body");
       await body.trigger("contextmenu");
-      expect(wrapper.find(".dx-context-menu").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu").exists()).toBe(true);
     });
   });
 

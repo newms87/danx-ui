@@ -9,6 +9,7 @@
 
 import { nextTick, onUnmounted, Ref, ref } from "vue";
 import { htmlToMarkdown, renderMarkdown } from "../../shared/markdown";
+import { decorateHexColors } from "./hexColorDecorator";
 import { CodeBlockState } from "./useCodeBlocks";
 import { TokenRenderer, TokenState } from "./types";
 import {
@@ -87,6 +88,9 @@ export function useMarkdownSync(options: UseMarkdownSyncOptions): UseMarkdownSyn
 
     isInternalUpdate.value = true;
     onEmitValue(markdown);
+
+    // Decorate bare hex color codes with visual swatches in the live DOM
+    decorateHexColors(contentRef.value);
 
     // Safety: if the emitted value is the same as the current modelValue,
     // the watcher won't fire to reset isInternalUpdate. Schedule a cleanup

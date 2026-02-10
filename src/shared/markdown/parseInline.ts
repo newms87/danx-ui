@@ -34,11 +34,11 @@ export function parseInline(text: string, sanitize: boolean = true): string {
   // The pattern must NOT match 4, 5, 7+ digit hex codes
   result = result.replace(
     /(?<![&\w])#([0-9a-fA-F]{6})(?![0-9a-fA-F])/g,
-    '<span class="color-preview"><span class="color-swatch" style="background-color: #$1"></span>#$1</span>'
+    '<span class="color-preview" style="--swatch-color: #$1">#$1</span>'
   );
   result = result.replace(
     /(?<![&\w])#([0-9a-fA-F]{3})(?![0-9a-fA-F])/g,
-    '<span class="color-preview"><span class="color-swatch" style="background-color: #$1"></span>#$1</span>'
+    '<span class="color-preview" style="--swatch-color: #$1">#$1</span>'
   );
 
   // 4. AUTOLINKS - Must be before regular link parsing

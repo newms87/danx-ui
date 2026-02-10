@@ -204,15 +204,14 @@ describe("parseInline", () => {
     it("adds color-preview span for 6-digit hex color", () => {
       const result = parseInline("#ff0000");
       expect(result).toContain('class="color-preview"');
-      expect(result).toContain('class="color-swatch"');
-      expect(result).toContain('style="background-color: #ff0000"');
+      expect(result).toContain("--swatch-color: #ff0000");
       expect(result).toContain("#ff0000");
     });
 
     it("adds color-preview span for 3-digit hex color", () => {
       const result = parseInline("#f00");
       expect(result).toContain('class="color-preview"');
-      expect(result).toContain('style="background-color: #f00"');
+      expect(result).toContain("--swatch-color: #f00");
     });
 
     it("does not add color-preview for non-hex strings after #", () => {

@@ -40,13 +40,17 @@ server:
 > The best way to predict the future is to invent it.
 > — Alan Kay
 
+## Color Swatches
+
+Hex colors get an automatic swatch preview: #ff6b6b #4ecdc4 #333 #f0f
+
 ## Link
 
 Visit [danx-ui docs](https://example.com) for more information.`);
 </script>
 
 <template>
-  <div style="width: 100%;">
+  <div style="width: 100%">
     <MarkdownEditor v-model="content" />
   </div>
 </template>

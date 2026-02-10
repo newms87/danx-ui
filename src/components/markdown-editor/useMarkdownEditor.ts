@@ -19,6 +19,7 @@ import { registerDefaultHotkeys } from "./defaultHotkeys";
 import { createCodeBlockHandlers } from "./editorCodeBlockHandlers";
 import { createEditorActions } from "./editorActions";
 import { createKeyHandler } from "./editorKeyHandlers";
+import { cleanupInvalidSwatches } from "./hexColorDecorator";
 import { HotkeyDefinition, useMarkdownHotkeys } from "./useMarkdownHotkeys";
 import { useMarkdownSelection } from "./useMarkdownSelection";
 import { useMarkdownSync } from "./useMarkdownSync";
@@ -208,6 +209,10 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
 
   function onInput(): void {
     updateCharCount();
+
+    // Immediately remove invalid color-preview spans (e.g., empty copies
+    // created when Enter splits a line inside a swatch span).
+    if (contentRef.value) cleanupInvalidSwatches(contentRef.value);
 
     let converted = headings.checkAndConvertHeadingPattern();
     if (!converted) {

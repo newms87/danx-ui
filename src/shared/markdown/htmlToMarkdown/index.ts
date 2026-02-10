@@ -66,15 +66,9 @@ function processInlineContent(element: Element, customProcessor?: CustomElementP
         }
       }
 
-      // Handle color-preview spans - skip the swatch, return only the hex code text
+      // Handle color-preview spans — return only the hex code text
       if (tagName === "span" && el.classList.contains("color-preview")) {
-        // Get text content directly, skipping the color-swatch span
         parts.push(el.textContent || "");
-        continue;
-      }
-
-      // Skip color-swatch spans entirely (they're purely decorative)
-      if (tagName === "span" && el.classList.contains("color-swatch")) {
         continue;
       }
 
@@ -443,10 +437,6 @@ function processNode(node: Node, customProcessor?: CustomElementProcessor): stri
           // Color preview: return only the hex color text
           if (element.classList.contains("color-preview")) {
             parts.push(element.textContent || "");
-          }
-          // Color swatch: skip entirely (purely decorative)
-          else if (element.classList.contains("color-swatch")) {
-            // Skip - don't output anything
           }
           // Default: process children
           else {
