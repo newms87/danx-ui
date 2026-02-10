@@ -55,3 +55,7 @@ For each task, include:
 4. **Commit the phase** when approved
 5. **Mark phase complete** with brief summary of what was accomplished
 6. **Move to next phase**
+
+## Trust Agent Results
+
+**Do not re-verify agent findings during planning.** Agent results are trustworthy. Write the plan directly from their output. Verification happens during implementation — if a finding turns out to be wrong, adjust then. Spending plan-mode turns running grep, coverage checks, or file reads to double-check agents is wasted time and delays the plan.
