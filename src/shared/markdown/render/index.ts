@@ -5,7 +5,7 @@
 
 import type { BlockToken } from "../types";
 import { parseInline } from "../parseInline";
-import { escapeHtml } from "../escapeHtml";
+import { escapeHtml } from "../../escapeHtml";
 import { tokenizeBlocks } from "../tokenize";
 import { renderUnorderedList, renderOrderedList, renderTaskList } from "./renderList";
 import { renderTable } from "./renderTable";

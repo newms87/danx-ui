@@ -503,11 +503,16 @@ describe("CodeViewer", () => {
     });
   });
 
-  describe("exposes", () => {
-    it("exposes isValid property", () => {
+  describe("valid model", () => {
+    it("defaults valid to true for valid content", () => {
       const wrapper = mountCodeViewer();
-      const vm = wrapper.vm as unknown as { isValid: boolean };
-      expect(typeof vm.isValid).toBe("boolean");
+      // defineModel default is true, matching valid content state
+      expect(wrapper.emitted("update:valid")).toBeFalsy();
+    });
+
+    it("accepts valid prop as v-model:valid binding", () => {
+      const wrapper = mountCodeViewer({ valid: true });
+      expect(wrapper.props("valid")).toBe(true);
     });
   });
 
@@ -516,6 +521,14 @@ describe("CodeViewer", () => {
       const wrapper = mountCodeViewer({ allowAnyLanguage: true });
       const badge = wrapper.findComponent({ name: "LanguageBadge" });
       expect(badge.props("allowAnyLanguage")).toBe(true);
+    });
+
+    it("syncs languageSearchOpen via v-model:searchOpen on LanguageBadge", async () => {
+      const wrapper = mountCodeViewer({ allowAnyLanguage: true });
+      const badge = wrapper.findComponent({ name: "LanguageBadge" });
+      badge.vm.$emit("update:searchOpen", true);
+      await nextTick();
+      expect(badge.props("searchOpen")).toBe(true);
     });
 
     it("passes allowAnyLanguage to collapsed view", () => {

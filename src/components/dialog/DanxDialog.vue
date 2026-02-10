@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
 import { DanxButton } from "../button";
-import type { DanxDialogEmits, DanxDialogProps } from "./types";
+import type { DanxDialogEmits, DanxDialogProps, DanxDialogSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxDialogProps>(), {
   persistent: false,
@@ -97,8 +97,9 @@ const props = withDefaults(defineProps<DanxDialogProps>(), {
 });
 
 const emit = defineEmits<DanxDialogEmits>();
-
 const modelValue = defineModel<boolean>({ default: false });
+
+defineSlots<DanxDialogSlots>();
 
 const dialogRef = ref<HTMLDialogElement>();
 

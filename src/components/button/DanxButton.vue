@@ -100,7 +100,7 @@
 import { computed, h } from "vue";
 import type { IconName } from "./icons";
 import { buttonIcons } from "./icons";
-import type { DanxButtonEmits, DanxButtonProps } from "./types";
+import type { DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
   type: "",
@@ -110,6 +110,7 @@ const props = withDefaults(defineProps<DanxButtonProps>(), {
 });
 
 const emit = defineEmits<DanxButtonEmits>();
+defineSlots<DanxButtonSlots>();
 
 const buttonClasses = computed(() => [
   "danx-button",

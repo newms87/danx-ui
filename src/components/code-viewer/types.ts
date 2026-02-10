@@ -63,6 +63,8 @@ export interface DanxCodeViewerProps {
   theme?: "dark" | "light";
   /** Whether to hide the footer entirely. */
   hideFooter?: boolean;
+  /** Current validation state via v-model:valid. True when content is valid for the current format. */
+  valid?: boolean;
 }
 
 /**
@@ -75,6 +77,8 @@ export interface DanxCodeViewerEmits {
   (e: "update:format", format: CodeFormat): void;
   /** Emitted when edit mode is toggled. */
   (e: "update:editable", editable: boolean): void;
+  /** Emitted when validation state changes (use v-model:valid). */
+  (e: "update:valid", valid: boolean): void;
   /** Emitted when the user exits the code block (Ctrl+Enter). */
   (e: "exit"): void;
   /** Emitted when the user deletes the code block (Backspace/Delete on empty). */
@@ -107,6 +111,8 @@ export interface LanguageBadgeProps {
   toggleable?: boolean;
   /** Whether to show a search panel for selecting any language. */
   allowAnyLanguage?: boolean;
+  /** Controls search panel visibility via v-model:searchOpen. */
+  searchOpen?: boolean;
 }
 
 /**

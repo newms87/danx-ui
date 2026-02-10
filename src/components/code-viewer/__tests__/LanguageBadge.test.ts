@@ -291,9 +291,8 @@ describe("LanguageBadge", () => {
       expect(newInput.element.value).toBe("");
     });
 
-    it("exposes openSearchPanel", async () => {
-      const vm = wrapper.vm as unknown as { openSearchPanel: () => void };
-      vm.openSearchPanel();
+    it("opens search panel via v-model:searchOpen", async () => {
+      await wrapper.setProps({ searchOpen: true });
       await nextTick();
       expect(wrapper.find(".dx-language-search-panel").exists()).toBe(true);
     });

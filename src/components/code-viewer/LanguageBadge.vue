@@ -15,7 +15,7 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { searchSvg } from "./icons";
 import type { LanguageBadgeProps } from "./types";
 
@@ -28,6 +28,8 @@ const props = withDefaults(defineProps<LanguageBadgeProps>(), {
 const emit = defineEmits<{
   change: [format: string];
 }>();
+
+const showSearchPanel = defineModel<boolean>("searchOpen", { default: false });
 
 const ALL_LANGUAGES = [
   "bash",
@@ -57,7 +59,6 @@ const ALL_LANGUAGES = [
 ];
 
 const showOptions = ref(false);
-const showSearchPanel = ref(false);
 const searchQuery = ref("");
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const searchListRef = ref<HTMLElement | null>(null);
@@ -107,13 +108,18 @@ function scrollSelectedIntoView() {
   });
 }
 
+watch(showSearchPanel, (isOpen) => {
+  if (isOpen) {
+    searchQuery.value = "";
+    selectedIndex.value = 0;
+    nextTick(() => {
+      searchInputRef.value?.focus();
+    });
+  }
+});
+
 function openSearchPanel() {
   showSearchPanel.value = true;
-  searchQuery.value = "";
-  selectedIndex.value = 0;
-  nextTick(() => {
-    searchInputRef.value?.focus();
-  });
 }
 
 function closeSearchPanel() {
@@ -145,10 +151,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", handleClickOutside);
-});
-
-defineExpose({
-  openSearchPanel,
 });
 </script>
 

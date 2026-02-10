@@ -68,7 +68,7 @@ import { getAvailableFormats } from "./cursorUtils";
 import { chevronDownSvg } from "./icons";
 import LanguageBadge from "./LanguageBadge.vue";
 import MarkdownContent from "./MarkdownContent.vue";
-import type { CodeFormat, DanxCodeViewerProps } from "./types";
+import type { CodeFormat, DanxCodeViewerEmits, DanxCodeViewerProps } from "./types";
 import { useCodeFormat } from "./useCodeFormat";
 import { useCodeViewerCollapse } from "./useCodeViewerCollapse";
 import { useCodeViewerEditor } from "./useCodeViewerEditor";
@@ -86,13 +86,9 @@ const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
   hideFooter: false,
 });
 
-const emit = defineEmits<{
-  "update:modelValue": [value: object | string | null];
-  "update:format": [format: CodeFormat];
-  "update:editable": [editable: boolean];
-  exit: [];
-  delete: [];
-}>();
+const emit = defineEmits<DanxCodeViewerEmits>();
+
+const valid = defineModel<boolean>("valid", { default: true });
 
 const codeFormat = useCodeFormat({
   initialFormat: props.format,
@@ -101,7 +97,7 @@ const codeFormat = useCodeFormat({
 
 const currentFormat = ref<CodeFormat>(props.format);
 const codeRef = ref<HTMLPreElement | null>(null);
-const languageBadgeRef = ref<InstanceType<typeof LanguageBadge> | null>(null);
+const languageSearchOpen = ref(false);
 const availableFormats = computed(() => getAvailableFormats(currentFormat.value));
 
 const isCollapsed = ref(props.collapsible && props.defaultCollapsed);
@@ -130,7 +126,7 @@ const editor = useCodeViewerEditor({
   onEmitFormat: (format) => onFormatChange(format),
   onExit: () => emit("exit"),
   onDelete: () => emit("delete"),
-  onOpenLanguageSearch: () => languageBadgeRef.value?.openSearchPanel(),
+  onOpenLanguageSearch: () => (languageSearchOpen.value = true),
 });
 
 watch(currentFormat, (newFormat) => {
@@ -179,9 +175,13 @@ const markdownSource = computed(() => {
   return editor.displayContent.value;
 });
 
-const isValid = computed(() => editor.isValid.value);
-
-defineExpose({ isValid });
+watch(
+  () => editor.isValid.value,
+  (newValid) => {
+    valid.value = newValid;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -214,7 +214,7 @@ defineExpose({ isValid });
       >
         <!-- Language badge -->
         <LanguageBadge
-          ref="languageBadgeRef"
+          v-model:search-open="languageSearchOpen"
           :format="currentFormat"
           :available-formats="availableFormats"
           :toggleable="true"

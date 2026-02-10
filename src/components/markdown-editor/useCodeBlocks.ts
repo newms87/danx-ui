@@ -3,6 +3,7 @@ import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
 import { detectCodeFenceStart } from "../../shared/markdown";
 import { positionCursorAtEnd } from "./cursorPosition";
 import { isConvertibleBlock, getTargetBlock as getTargetBlockShared } from "./blockUtils";
+import { generateCodeBlockId } from "./syncConverters";
 
 /**
  * Represents a code block's state
@@ -54,13 +55,6 @@ export interface UseCodeBlocksReturn {
   handleCodeBlockMounted: (id: string, wrapper: HTMLElement) => void;
   /** Register a code block in state (for initial markdown parsing) */
   registerCodeBlock: (id: string, content: string, language: string) => void;
-}
-
-/**
- * Generate a unique ID for code blocks
- */
-function generateCodeBlockId(): string {
-  return `cb-${crypto.randomUUID()}`;
 }
 
 /**

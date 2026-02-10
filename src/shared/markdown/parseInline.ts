@@ -4,7 +4,7 @@
  * links, images, reference-style links, footnotes, autolinks, code
  */
 
-import { escapeHtml } from "./escapeHtml";
+import { escapeHtml } from "../escapeHtml";
 import { applyEscapes, revertEscapes } from "./escapeSequences";
 import { getLinkRefs, getFootnotes } from "./state";
 
