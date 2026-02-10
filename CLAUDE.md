@@ -161,3 +161,5 @@ docs/                     # User documentation
 | Options API | Outdated | Composition API |
 | Bash file editing | Bypasses linting | Write/Edit tools |
 | `types.d.ts` (project types) | Misleading — `.d.ts` is for ambient declarations | Use `types.ts` |
+| Flat repeated-parent selectors | Repetitive, hard to scan | Use native CSS nesting |
+| `&--suffix` BEM concatenation | Lightning CSS produces invalid selectors | Top-level BEM modifier blocks |

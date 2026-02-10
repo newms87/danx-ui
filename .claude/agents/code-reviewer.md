@@ -61,6 +61,7 @@ This agent can:
 | Styling props | CSS tokens |
 | `v-show` for dialogs | `v-if` |
 | `any` type | Proper TypeScript types |
+| Flat repeated-parent selectors | Native CSS nesting |
 
 ### Documentation Requirements
 

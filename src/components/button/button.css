@@ -3,6 +3,10 @@
  *
  * Main entry point that imports tokens and defines button layout,
  * size modifiers, type modifiers, states, and spinner.
+ *
+ * Note: BEM modifiers (.danx-button--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ * Pseudo-classes and descendant selectors are still nested.
  */
 
 @import "../../shared/tokens/index.css";
@@ -29,15 +33,24 @@
     color var(--button-transition),
     transform var(--button-transition),
     opacity var(--button-transition);
-}
 
-.danx-button:hover:not(:disabled) {
-  background: var(--button-hover-bg);
-}
+  &:hover:not(:disabled) {
+    background: var(--button-hover-bg);
+  }
 
-.danx-button:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: var(--button-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.93);
+  }
 }
 
 /* ==========================================================================
@@ -49,11 +62,11 @@
   font-size: var(--button-xxs-font-size);
   line-height: var(--button-xxs-icon-size);
   gap: var(--button-xxs-gap);
-}
 
-.danx-button--xxs .danx-button__icon {
-  width: var(--button-xxs-icon-size);
-  height: var(--button-xxs-icon-size);
+  .danx-button__icon {
+    width: var(--button-xxs-icon-size);
+    height: var(--button-xxs-icon-size);
+  }
 }
 
 .danx-button--xs {
@@ -61,11 +74,11 @@
   font-size: var(--button-xs-font-size);
   line-height: var(--button-xs-icon-size);
   gap: var(--button-xs-gap);
-}
 
-.danx-button--xs .danx-button__icon {
-  width: var(--button-xs-icon-size);
-  height: var(--button-xs-icon-size);
+  .danx-button__icon {
+    width: var(--button-xs-icon-size);
+    height: var(--button-xs-icon-size);
+  }
 }
 
 .danx-button--sm {
@@ -73,11 +86,11 @@
   font-size: var(--button-sm-font-size);
   line-height: var(--button-sm-icon-size);
   gap: var(--button-sm-gap);
-}
 
-.danx-button--sm .danx-button__icon {
-  width: var(--button-sm-icon-size);
-  height: var(--button-sm-icon-size);
+  .danx-button__icon {
+    width: var(--button-sm-icon-size);
+    height: var(--button-sm-icon-size);
+  }
 }
 
 .danx-button--md {
@@ -85,11 +98,11 @@
   font-size: var(--button-md-font-size);
   line-height: var(--button-md-icon-size);
   gap: var(--button-md-gap);
-}
 
-.danx-button--md .danx-button__icon {
-  width: var(--button-md-icon-size);
-  height: var(--button-md-icon-size);
+  .danx-button__icon {
+    width: var(--button-md-icon-size);
+    height: var(--button-md-icon-size);
+  }
 }
 
 .danx-button--lg {
@@ -97,11 +110,11 @@
   font-size: var(--button-lg-font-size);
   line-height: var(--button-lg-icon-size);
   gap: var(--button-lg-gap);
-}
 
-.danx-button--lg .danx-button__icon {
-  width: var(--button-lg-icon-size);
-  height: var(--button-lg-icon-size);
+  .danx-button__icon {
+    width: var(--button-lg-icon-size);
+    height: var(--button-lg-icon-size);
+  }
 }
 
 .danx-button--xl {
@@ -109,11 +122,11 @@
   font-size: var(--button-xl-font-size);
   line-height: var(--button-xl-icon-size);
   gap: var(--button-xl-gap);
-}
 
-.danx-button--xl .danx-button__icon {
-  width: var(--button-xl-icon-size);
-  height: var(--button-xl-icon-size);
+  .danx-button__icon {
+    width: var(--button-xl-icon-size);
+    height: var(--button-xl-icon-size);
+  }
 }
 
 /* ==========================================================================
@@ -123,63 +136,54 @@
 .danx-button--danger {
   background: var(--button-danger-bg);
   color: var(--button-danger-text);
-}
 
-.danx-button--danger:hover:not(:disabled) {
-  background: var(--button-danger-bg-hover);
+  &:hover:not(:disabled) {
+    background: var(--button-danger-bg-hover);
+  }
 }
 
 .danx-button--success {
   background: var(--button-success-bg);
   color: var(--button-success-text);
-}
 
-.danx-button--success:hover:not(:disabled) {
-  background: var(--button-success-bg-hover);
+  &:hover:not(:disabled) {
+    background: var(--button-success-bg-hover);
+  }
 }
 
 .danx-button--warning {
   background: var(--button-warning-bg);
   color: var(--button-warning-text);
-}
 
-.danx-button--warning:hover:not(:disabled) {
-  background: var(--button-warning-bg-hover);
+  &:hover:not(:disabled) {
+    background: var(--button-warning-bg-hover);
+  }
 }
 
 .danx-button--info {
   background: var(--button-info-bg);
   color: var(--button-info-text);
-}
 
-.danx-button--info:hover:not(:disabled) {
-  background: var(--button-info-bg-hover);
+  &:hover:not(:disabled) {
+    background: var(--button-info-bg-hover);
+  }
 }
 
 .danx-button--muted {
   background: var(--button-muted-bg);
   color: var(--button-muted-text);
-}
 
-.danx-button--muted:hover:not(:disabled) {
-  background: var(--button-muted-bg-hover);
+  &:hover:not(:disabled) {
+    background: var(--button-muted-bg-hover);
+  }
 }
 
 /* ==========================================================================
    States
    ========================================================================== */
 
-.danx-button:disabled {
-  opacity: var(--button-disabled-opacity);
-  cursor: not-allowed;
-}
-
 .danx-button--loading {
   cursor: wait;
-}
-
-.danx-button:active:not(:disabled) {
-  transform: scale(0.93);
 }
 
 /* ==========================================================================
@@ -191,11 +195,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.danx-button__icon svg {
-  width: 100%;
-  height: 100%;
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 /* ==========================================================================

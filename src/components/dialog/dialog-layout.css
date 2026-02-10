@@ -32,6 +32,16 @@
     opacity var(--dialog-animation-duration) var(--ease-out),
     overlay var(--dialog-animation-duration) var(--ease-out) allow-discrete,
     display var(--dialog-animation-duration) var(--ease-out) allow-discrete;
+
+  /* Backdrop (behind the dialog element) */
+  &::backdrop {
+    background: var(--dialog-backdrop);
+    opacity: 1;
+    transition:
+      opacity var(--dialog-animation-duration) var(--ease-out),
+      overlay var(--dialog-animation-duration) var(--ease-out) allow-discrete,
+      display var(--dialog-animation-duration) var(--ease-out) allow-discrete;
+  }
 }
 
 /* Entry animation using @starting-style */
@@ -39,20 +49,13 @@
   .danx-dialog[open] {
     opacity: 0;
   }
-}
 
-/* Backdrop (behind the dialog element) */
-.danx-dialog::backdrop {
-  background: var(--dialog-backdrop);
-  opacity: 1;
-  transition:
-    opacity var(--dialog-animation-duration) var(--ease-out),
-    overlay var(--dialog-animation-duration) var(--ease-out) allow-discrete,
-    display var(--dialog-animation-duration) var(--ease-out) allow-discrete;
-}
-
-@starting-style {
   .danx-dialog[open]::backdrop {
+    opacity: 0;
+  }
+
+  .danx-dialog[open] .danx-dialog__box {
+    transform: scale(0.96) translateY(8px);
     opacity: 0;
   }
 }
@@ -88,21 +91,21 @@
     opacity var(--dialog-animation-duration) var(--ease-out),
     width var(--dialog-animation-duration) var(--ease-out),
     height var(--dialog-animation-duration) var(--ease-out);
-}
 
-@starting-style {
-  .danx-dialog[open] .danx-dialog__box {
-    transform: scale(0.96) translateY(8px);
-    opacity: 0;
+  /* Add top padding when there's no header */
+  > .danx-dialog__content:first-child {
+    padding-top: var(--dialog-padding);
   }
-}
 
-/* Mobile responsive adjustments */
-@media (max-width: 640px) {
-  .danx-dialog__box {
+  /* Mobile responsive adjustments */
+  @media (max-width: 640px) {
     max-width: 95vw;
     max-height: 90vh;
     border-radius: var(--radius-xl);
+
+    > .danx-dialog__content:first-child {
+      padding-top: var(--dialog-padding-mobile);
+    }
   }
 }
 
@@ -126,6 +129,10 @@
   padding: var(--spacing-3) var(--dialog-padding);
   background: var(--dialog-header-bg);
   border-bottom: 1px solid var(--dialog-header-border);
+
+  @media (max-width: 640px) {
+    padding: var(--space-sm) var(--dialog-padding-mobile);
+  }
 }
 
 .danx-dialog__title {
@@ -135,6 +142,10 @@
   font-weight: var(--dialog-title-weight);
   line-height: var(--leading-tight);
   letter-spacing: -0.01em;
+
+  @media (max-width: 640px) {
+    font-size: var(--text-base);
+  }
 }
 
 .danx-dialog__subtitle {
@@ -142,17 +153,6 @@
   color: var(--dialog-subtitle-color);
   font-size: var(--dialog-subtitle-size);
   line-height: var(--leading-normal);
-}
-
-/* Mobile header adjustments */
-@media (max-width: 640px) {
-  .danx-dialog__header {
-    padding: var(--space-sm) var(--dialog-padding-mobile);
-  }
-
-  .danx-dialog__title {
-    font-size: var(--text-base);
-  }
 }
 
 /* ==========================================================================
@@ -166,22 +166,10 @@
   color: var(--color-text-muted);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
-}
 
-/* Add top padding when there's no header */
-.danx-dialog__box > .danx-dialog__content:first-child {
-  padding-top: var(--dialog-padding);
-}
-
-/* Mobile content adjustments */
-@media (max-width: 640px) {
-  .danx-dialog__content {
+  @media (max-width: 640px) {
     padding: var(--space-sm) var(--dialog-padding-mobile);
     font-size: var(--text-sm);
-  }
-
-  .danx-dialog__box > .danx-dialog__content:first-child {
-    padding-top: var(--dialog-padding-mobile);
   }
 }
 
@@ -197,11 +185,8 @@
   padding: var(--space-sm) var(--dialog-padding);
   border-top: 1px solid var(--color-border-subtle);
   background: var(--color-surface-sunken);
-}
 
-/* Mobile footer adjustments */
-@media (max-width: 640px) {
-  .danx-dialog__footer {
+  @media (max-width: 640px) {
     padding: var(--space-xs) var(--dialog-padding-mobile);
     flex-direction: column-reverse;
     gap: var(--space-sm);

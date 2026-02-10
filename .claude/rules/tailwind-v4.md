@@ -121,6 +121,43 @@ Use native CSS for entry animations:
 - GPU-accelerated
 - Works with `v-if` mounting
 
+## CSS Nesting Required
+
+**ALWAYS use native CSS nesting. Flat repeated-parent selectors are forbidden.**
+
+- Descendant selectors nest implicitly (`.child {}` inside `.parent {}`)
+- Use `&` for pseudo-classes, pseudo-elements, and compound modifier classes (e.g., `&:hover`, `&.is-active`)
+- **NEVER use `&` for BEM suffix concatenation** (e.g., `&--modifier`, `&__element`) — Lightning CSS produces invalid selectors. BEM modifiers must be top-level blocks.
+- Exceptions: token-only files (`:root`, `.dark`, `@theme`) that are flat by nature
+
+```css
+/* CORRECT - Nested with top-level BEM modifiers */
+.parent {
+  color: red;
+
+  .child { color: blue; }
+  &:hover { color: green; }
+  &.is-active { color: white; }
+}
+
+.parent--variant {
+  color: orange;
+
+  &:hover { color: yellow; }
+}
+
+/* WRONG - &--suffix concatenation (broken in Lightning CSS) */
+.parent {
+  &--variant { color: orange; }
+}
+
+/* WRONG - Flat repeated-parent */
+.parent { color: red; }
+.parent .child { color: blue; }
+.parent:hover { color: green; }
+.parent.is-active { color: white; }
+```
+
 ## Forbidden Patterns
 
 | Pattern | Problem | Solution |
@@ -130,6 +167,8 @@ Use native CSS for entry animations:
 | Dark mode in components | Duplication | Put dark mode in semantic layer |
 | JavaScript animations | Bundle size | Use CSS `@starting-style` |
 | Inline styles | Specificity | Use CSS tokens |
+| Flat repeated-parent selectors | Repetitive, hard to scan | Use native CSS nesting |
+| `&--suffix` BEM concatenation | Lightning CSS produces invalid selectors | Top-level BEM modifier blocks |
 
 ## Differences from Tailwind v3
 
