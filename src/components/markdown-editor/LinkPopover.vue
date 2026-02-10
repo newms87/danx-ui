@@ -30,7 +30,7 @@
  *   />
  */
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import DanxPopover from "./DanxPopover.vue";
+import MdeFloatingPanel from "./MdeFloatingPanel.vue";
 import type { PopoverPosition } from "./usePopoverManager";
 import { calculatePopoverPosition } from "./popoverUtils";
 
@@ -107,7 +107,7 @@ watch(
 </script>
 
 <template>
-  <DanxPopover
+  <MdeFloatingPanel
     :title="isEditing ? 'Edit Link' : 'Insert Link'"
     :confirm-label="isEditing ? 'Update' : 'Insert'"
     class="dx-link-popover"
@@ -139,14 +139,14 @@ watch(
     </div>
 
     <div v-if="isEditing" class="edit-hint">Enter an empty URL to remove the link.</div>
-  </DanxPopover>
+  </MdeFloatingPanel>
 </template>
 
 <style>
 .dx-link-popover {
   width: 320px;
 
-  .popover-content {
+  .mde-floating-panel__content {
     gap: 0.875rem;
   }
 

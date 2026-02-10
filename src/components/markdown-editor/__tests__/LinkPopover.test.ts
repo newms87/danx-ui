@@ -24,17 +24,17 @@ describe("LinkPopover", () => {
   describe("rendering", () => {
     it("renders overlay", () => {
       mountPopover();
-      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
+      expect(wrapper.find(".mde-floating-overlay").exists()).toBe(true);
     });
 
     it("shows Insert Link title when no existingUrl", () => {
       mountPopover();
-      expect(wrapper.find(".popover-header h3").text()).toBe("Insert Link");
+      expect(wrapper.find(".mde-floating-panel__header h3").text()).toBe("Insert Link");
     });
 
     it("shows Edit Link title when existingUrl provided", () => {
       mountPopover({ existingUrl: "https://example.com" });
-      expect(wrapper.find(".popover-header h3").text()).toBe("Edit Link");
+      expect(wrapper.find(".mde-floating-panel__header h3").text()).toBe("Edit Link");
     });
 
     it("shows label input when inserting new link", () => {
@@ -54,12 +54,12 @@ describe("LinkPopover", () => {
 
     it("shows Insert button when inserting", () => {
       mountPopover();
-      expect(wrapper.find(".btn-insert").text()).toBe("Insert");
+      expect(wrapper.find(".mde-floating-panel__btn-confirm").text()).toBe("Insert");
     });
 
     it("shows Update button when editing", () => {
       mountPopover({ existingUrl: "https://example.com" });
-      expect(wrapper.find(".btn-insert").text()).toBe("Update");
+      expect(wrapper.find(".mde-floating-panel__btn-confirm").text()).toBe("Update");
     });
 
     it("pre-fills URL when editing", () => {
@@ -113,7 +113,7 @@ describe("LinkPopover", () => {
       mountPopover();
       await wrapper.find("#link-url").setValue("https://example.com");
       await wrapper.find("#link-label").setValue("Example");
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")).toHaveLength(1);
       expect(wrapper.emitted("submit")![0]).toEqual(["https://example.com", "Example"]);
@@ -122,7 +122,7 @@ describe("LinkPopover", () => {
     it("emits submit with url only when label empty", async () => {
       mountPopover();
       await wrapper.find("#link-url").setValue("https://example.com");
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")![0]).toEqual(["https://example.com", undefined]);
     });
@@ -131,20 +131,20 @@ describe("LinkPopover", () => {
       mountPopover();
       await wrapper.find("#link-url").setValue("  https://example.com  ");
       await wrapper.find("#link-label").setValue("  Example  ");
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")![0]).toEqual(["https://example.com", "Example"]);
     });
 
     it("emits cancel when cancel button clicked", async () => {
       mountPopover();
-      await wrapper.find(".btn-cancel").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-cancel").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
 
     it("emits cancel when overlay clicked", async () => {
       mountPopover();
-      await wrapper.find(".dx-popover-overlay").trigger("click");
+      await wrapper.find(".mde-floating-overlay").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
 
@@ -173,7 +173,7 @@ describe("LinkPopover", () => {
 
     it("emits close button click on close-btn", async () => {
       mountPopover();
-      await wrapper.find(".close-btn").trigger("click");
+      await wrapper.find(".mde-floating-panel__close-btn").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
   });

@@ -28,7 +28,7 @@
  *   />
  */
 import { computed, ref } from "vue";
-import DanxPopover from "./DanxPopover.vue";
+import MdeFloatingPanel from "./MdeFloatingPanel.vue";
 import type { PopoverPosition } from "./usePopoverManager";
 import { calculatePopoverPosition } from "./popoverUtils";
 
@@ -87,7 +87,7 @@ function onCancel(): void {
 </script>
 
 <template>
-  <DanxPopover
+  <MdeFloatingPanel
     title="Insert Table"
     confirm-label="Insert"
     class="dx-table-popover"
@@ -142,14 +142,14 @@ function onCancel(): void {
         />
       </div>
     </div>
-  </DanxPopover>
+  </MdeFloatingPanel>
 </template>
 
 <style>
 .dx-table-popover {
   width: 280px;
 
-  .popover-content {
+  .mde-floating-panel__content {
     align-items: center;
     gap: 0.75rem;
   }

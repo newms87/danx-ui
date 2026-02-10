@@ -1,0 +1,25 @@
+/**
+ * DanxPopover Tokens
+ *
+ * Component tokens (Tier 3) for the trigger-anchored popover.
+ * Override these to customize popover appearance.
+ *
+ * CSS Tokens:
+ * --popover-bg                 Panel background color
+ * --popover-border             Panel border color
+ * --popover-border-radius      Panel corner radius
+ * --popover-shadow             Panel box shadow color
+ * --popover-text               Panel text color
+ * --popover-offset             Gap between trigger and panel
+ * --popover-animation-duration Animation duration
+ */
+
+:root {
+  --popover-bg: var(--color-surface-elevated);
+  --popover-border: var(--color-border);
+  --popover-border-radius: 0.5rem;
+  --popover-shadow: rgb(0 0 0 / 0.5);
+  --popover-text: var(--color-text);
+  --popover-offset: 0.5rem;
+  --popover-animation-duration: var(--duration-200);
+}

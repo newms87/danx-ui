@@ -1,0 +1,36 @@
+/**
+ * DanxPopover Type Definitions
+ *
+ * Types for the trigger-anchored popover component.
+ */
+
+/** Placement direction for the popover panel relative to the trigger */
+export type PopoverPlacement = "top" | "bottom" | "left" | "right";
+
+export interface DanxPopoverProps {
+  /**
+   * Controls popover visibility via v-model.
+   * When true, the panel is rendered and positioned.
+   * When false, the panel is removed from DOM.
+   */
+  modelValue?: boolean;
+
+  /**
+   * Placement direction relative to the trigger element.
+   * Auto-flips to the opposite side if the panel would overflow the viewport.
+   */
+  placement?: PopoverPlacement;
+}
+
+export interface DanxPopoverEmits {
+  /** Emitted when popover visibility changes via v-model */
+  (e: "update:modelValue", value: boolean): void;
+}
+
+export interface DanxPopoverSlots {
+  /** Trigger element that the popover anchors to */
+  trigger(): unknown;
+
+  /** Panel content rendered inside the floating popover */
+  default(): unknown;
+}

@@ -69,6 +69,9 @@ watch(theme, (newTheme) => {
               <RouterLink to="/dialog" class="demo-sidebar__link">Dialog</RouterLink>
             </li>
             <li>
+              <RouterLink to="/popover" class="demo-sidebar__link">Popover</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/markdown-editor" class="demo-sidebar__link"
                 >Markdown Editor</RouterLink
               >

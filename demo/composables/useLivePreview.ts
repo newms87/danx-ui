@@ -32,6 +32,7 @@ import {
 import { DanxButton, DanxActionButton, buttonIcons } from "../../src/components/button";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
+import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
@@ -41,6 +42,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxActionButton,
   CodeViewer,
   DanxDialog,
+  DanxPopover,
   MarkdownEditor,
 };
 
@@ -58,6 +60,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxActionButton,
   CodeViewer,
   DanxDialog,
+  DanxPopover,
   useDialog,
   MarkdownEditor,
   starIcon,

@@ -15,12 +15,12 @@ function createHotkey(overrides: Partial<HotkeyDefinition> = {}): HotkeyDefiniti
 
 describe("HotkeyHelpPopover", () => {
   describe("rendering", () => {
-    it("renders the overlay", () => {
+    it("renders the dialog", () => {
       const wrapper = mount(HotkeyHelpPopover, {
         props: { hotkeys: [] },
         attachTo: document.body,
       });
-      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
+      expect(wrapper.find(".danx-dialog").exists()).toBe(true);
       wrapper.unmount();
     });
 
@@ -29,7 +29,7 @@ describe("HotkeyHelpPopover", () => {
         props: { hotkeys: [] },
         attachTo: document.body,
       });
-      expect(wrapper.find(".popover-header h3").text()).toBe("Keyboard Shortcuts");
+      expect(wrapper.find(".danx-dialog__title").text()).toBe("Keyboard Shortcuts");
       wrapper.unmount();
     });
 
@@ -38,7 +38,7 @@ describe("HotkeyHelpPopover", () => {
         props: { hotkeys: [] },
         attachTo: document.body,
       });
-      expect(wrapper.find(".close-btn").exists()).toBe(true);
+      expect(wrapper.find(".danx-dialog__close-x").exists()).toBe(true);
       wrapper.unmount();
     });
   });
@@ -196,13 +196,13 @@ describe("HotkeyHelpPopover", () => {
   });
 
   describe("events", () => {
-    it("emits close when overlay is clicked", async () => {
+    it("emits close when backdrop is clicked", async () => {
       const wrapper = mount(HotkeyHelpPopover, {
         props: { hotkeys: [] },
         attachTo: document.body,
       });
 
-      await wrapper.find(".dx-popover-overlay").trigger("click");
+      await wrapper.find(".danx-dialog").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
       wrapper.unmount();
     });
@@ -213,18 +213,18 @@ describe("HotkeyHelpPopover", () => {
         attachTo: document.body,
       });
 
-      await wrapper.find(".close-btn").trigger("click");
+      await wrapper.find(".danx-dialog__close-x").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
       wrapper.unmount();
     });
 
-    it("emits close when Escape is pressed on overlay", async () => {
+    it("emits close when Escape triggers cancel event on dialog", async () => {
       const wrapper = mount(HotkeyHelpPopover, {
         props: { hotkeys: [] },
         attachTo: document.body,
       });
 
-      await wrapper.find(".dx-popover-overlay").trigger("keydown", { key: "Escape" });
+      await wrapper.find(".danx-dialog").trigger("cancel");
       expect(wrapper.emitted("close")).toHaveLength(1);
       wrapper.unmount();
     });

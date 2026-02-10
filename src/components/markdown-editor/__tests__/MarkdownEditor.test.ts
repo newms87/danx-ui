@@ -130,7 +130,7 @@ describe("MarkdownEditor", () => {
       await wrapper.find(".hotkey-help-btn").trigger("click");
       expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(true);
 
-      await wrapper.find(".close-btn").trigger("click");
+      await wrapper.find(".danx-dialog__close-x").trigger("click");
       expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(false);
     });
   });

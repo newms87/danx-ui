@@ -8,6 +8,7 @@
 export { DanxActionButton, DanxButton } from "./components/button";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxDialog } from "./components/dialog";
+export { DanxPopover } from "./components/popover";
 export { MarkdownEditor } from "./components/markdown-editor";
 
 // Composables
@@ -57,6 +58,12 @@ export type {
   DanxDialogSlots,
   UseDialogReturn,
 } from "./components/dialog";
+export type {
+  DanxPopoverEmits,
+  DanxPopoverProps,
+  DanxPopoverSlots,
+  PopoverPlacement,
+} from "./components/popover";
 export type {
   TokenRenderer,
   TokenState,

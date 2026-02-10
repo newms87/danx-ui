@@ -24,7 +24,7 @@
  *   />
  */
 import { computed } from "vue";
-import DanxPopover from "./DanxPopover.vue";
+import { DanxDialog } from "../dialog";
 import { HotkeyDefinition, HotkeyGroup } from "./useMarkdownHotkeys";
 
 const props = defineProps<HotkeyHelpPopoverProps>();
@@ -109,11 +109,12 @@ function formatKey(key: string): string {
 </script>
 
 <template>
-  <DanxPopover
+  <DanxDialog
+    :model-value="true"
     title="Keyboard Shortcuts"
-    overlay="centered"
+    close-x
     class="dx-hotkey-help-popover"
-    @cancel="$emit('close')"
+    @close="$emit('close')"
   >
     <div class="hotkey-groups-grid">
       <div v-for="group in groupedHotkeys" :key="group.name" class="hotkey-group">
@@ -126,29 +127,31 @@ function formatKey(key: string): string {
         </div>
       </div>
     </div>
-  </DanxPopover>
+  </DanxDialog>
 </template>
 
 <style>
 .dx-hotkey-help-popover {
-  min-width: 320px;
-  max-width: 90vw;
-  max-height: 80vh;
-
-  .popover-header {
-    padding: 1rem 1.25rem;
-
-    h3 {
-      font-size: 1rem;
-    }
-
-    .close-btn {
-      width: 1.75rem;
-      height: 1.75rem;
-    }
+  .danx-dialog__box {
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 80vh;
   }
 
-  .popover-content {
+  .danx-dialog__header {
+    padding: 1rem 1.25rem;
+  }
+
+  .danx-dialog__title {
+    font-size: 1rem;
+  }
+
+  .danx-dialog__close-x {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .danx-dialog__content {
     padding: 1rem 1.25rem;
     overflow-y: auto;
   }

@@ -23,12 +23,12 @@ describe("TablePopover", () => {
   describe("rendering", () => {
     it("renders overlay", () => {
       mountPopover();
-      expect(wrapper.find(".dx-popover-overlay").exists()).toBe(true);
+      expect(wrapper.find(".mde-floating-overlay").exists()).toBe(true);
     });
 
     it("shows Insert Table heading", () => {
       mountPopover();
-      expect(wrapper.find(".popover-header h3").text()).toBe("Insert Table");
+      expect(wrapper.find(".mde-floating-panel__header h3").text()).toBe("Insert Table");
     });
 
     it("renders 5x5 grid", () => {
@@ -110,7 +110,7 @@ describe("TablePopover", () => {
       mountPopover();
       await wrapper.find("#table-rows").setValue(7);
       await wrapper.find("#table-cols").setValue(4);
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")).toHaveLength(1);
       expect(wrapper.emitted("submit")![0]).toEqual([7, 4]);
@@ -120,7 +120,7 @@ describe("TablePopover", () => {
       mountPopover();
       await wrapper.find("#table-rows").setValue(25);
       await wrapper.find("#table-cols").setValue(3);
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")![0]).toEqual([20, 3]);
     });
@@ -129,7 +129,7 @@ describe("TablePopover", () => {
       mountPopover();
       await wrapper.find("#table-rows").setValue(3);
       await wrapper.find("#table-cols").setValue(15);
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")![0]).toEqual([3, 10]);
     });
@@ -138,7 +138,7 @@ describe("TablePopover", () => {
       mountPopover();
       await wrapper.find("#table-rows").setValue(0);
       await wrapper.find("#table-cols").setValue(-1);
-      await wrapper.find(".btn-insert").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
 
       expect(wrapper.emitted("submit")![0]).toEqual([1, 1]);
     });
@@ -180,13 +180,13 @@ describe("TablePopover", () => {
   describe("events", () => {
     it("emits cancel on Cancel button click", async () => {
       mountPopover();
-      await wrapper.find(".btn-cancel").trigger("click");
+      await wrapper.find(".mde-floating-panel__btn-cancel").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
 
     it("emits cancel on overlay click", async () => {
       mountPopover();
-      await wrapper.find(".dx-popover-overlay").trigger("click");
+      await wrapper.find(".mde-floating-overlay").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
 
@@ -199,7 +199,7 @@ describe("TablePopover", () => {
 
     it("emits cancel on close button click", async () => {
       mountPopover();
-      await wrapper.find(".close-btn").trigger("click");
+      await wrapper.find(".mde-floating-panel__close-btn").trigger("click");
       expect(wrapper.emitted("cancel")).toHaveLength(1);
     });
   });

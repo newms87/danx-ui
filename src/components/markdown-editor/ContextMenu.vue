@@ -28,7 +28,7 @@
  *   />
  */
 import { computed, onUnmounted, ref } from "vue";
-import DanxPopover from "./DanxPopover.vue";
+import MdeFloatingPanel from "./MdeFloatingPanel.vue";
 import type { ContextMenuItem } from "./types";
 import type { PopoverPosition } from "./usePopoverManager";
 import { calculatePopoverPosition } from "./popoverUtils";
@@ -135,7 +135,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DanxPopover overlay="transparent" class="dx-context-menu" :style="menuStyle" @cancel="onClose">
+  <MdeFloatingPanel
+    overlay="transparent"
+    class="dx-context-menu"
+    :style="menuStyle"
+    @cancel="onClose"
+  >
     <template v-for="(item, itemIndex) in items" :key="item.id">
       <!-- Divider -->
       <div v-if="item.divider" class="context-menu-divider" />
@@ -192,7 +197,7 @@ onUnmounted(() => {
         </div>
       </template>
     </template>
-  </DanxPopover>
+  </MdeFloatingPanel>
 </template>
 
 <style>
@@ -204,7 +209,7 @@ onUnmounted(() => {
   min-width: 200px;
   max-width: 320px;
 
-  .popover-content {
+  .mde-floating-panel__content {
     padding: 0.25rem 0;
   }
 

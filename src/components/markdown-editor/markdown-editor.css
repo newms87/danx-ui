@@ -12,32 +12,7 @@
 
 @import "./markdown-editor-tokens.css";
 @import "./markdown-editor-content.css";
-/* ====================================================
- * Popover Token Bridging
- *
- * Overrides standalone popover tokens within the markdown
- * editor scope so popovers inherit the editor's theme.
- * ==================================================== */
-
-.dx-markdown-editor {
-  --popover-bg: var(--dx-mde-popover-bg);
-  --popover-border: var(--dx-mde-popover-border);
-  --popover-shadow: var(--dx-mde-popover-shadow);
-  --popover-heading: var(--dx-mde-popover-heading);
-  --popover-muted: var(--dx-mde-popover-muted);
-  --popover-text: var(--dx-mde-popover-text);
-  --popover-overlay-bg: var(--dx-mde-overlay-bg);
-  --popover-overlay-centered: var(--dx-mde-popover-shadow);
-  --popover-footer-bg: rgba(0, 0, 0, 0.2);
-  --popover-btn-cancel-border: var(--dx-mde-btn-cancel-border);
-  --popover-btn-cancel-text: var(--dx-mde-btn-cancel-text);
-  --popover-btn-cancel-hover-bg: var(--dx-mde-menu-trigger-bg);
-  --popover-btn-cancel-hover-border: var(--dx-mde-btn-cancel-hover-border);
-  --popover-btn-confirm-bg: var(--dx-mde-btn-primary-bg);
-  --popover-btn-confirm-text: var(--dx-mde-btn-primary-text);
-  --popover-btn-confirm-hover: var(--dx-mde-btn-primary-hover);
-  --popover-close-hover-bg: var(--dx-mde-menu-item-hover);
-}
+@import "./mde-floating-panel.css";
 
 /* ====================================================
  * Shared Input Styles for Markdown Editor Popovers
