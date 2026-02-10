@@ -63,8 +63,8 @@ Component-specific tokens referencing semantic tokens:
 
 ```css
 .dialog {
-  --dialog-bg: var(--color-surface);
-  --dialog-text: var(--color-on-surface);
+  --dx-dialog-bg: var(--color-surface);
+  --dx-dialog-text: var(--color-on-surface);
 }
 ```
 
@@ -83,10 +83,10 @@ Component-specific tokens referencing semantic tokens:
 
 /* WRONG - Dark mode on component layer */
 .dialog {
-  --dialog-bg: var(--color-gray-100);
+  --dx-dialog-bg: var(--color-gray-100);
 }
 .dark .dialog {
-  --dialog-bg: var(--color-gray-900);
+  --dx-dialog-bg: var(--color-gray-900);
 }
 ```
 

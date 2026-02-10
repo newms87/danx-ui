@@ -20,22 +20,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--button-font-family);
+  font-family: var(--dx-button-font-family);
   font-weight: var(--font-medium);
   line-height: var(--leading-none);
   background: transparent;
   color: var(--color-text);
   border: none;
-  border-radius: var(--button-border-radius);
+  border-radius: var(--dx-button-border-radius);
   cursor: pointer;
   transition:
-    background var(--button-transition),
-    color var(--button-transition),
-    transform var(--button-transition),
-    opacity var(--button-transition);
+    background var(--dx-button-transition),
+    color var(--dx-button-transition),
+    transform var(--dx-button-transition),
+    opacity var(--dx-button-transition);
 
   &:hover:not(:disabled) {
-    background: var(--button-hover-bg);
+    background: var(--dx-button-hover-bg);
   }
 
   &:focus-visible {
@@ -44,7 +44,7 @@
   }
 
   &:disabled {
-    opacity: var(--button-disabled-opacity);
+    opacity: var(--dx-button-disabled-opacity);
     cursor: not-allowed;
   }
 
@@ -58,74 +58,74 @@
    ========================================================================== */
 
 .danx-button--xxs {
-  padding: var(--button-xxs-padding-y) var(--button-xxs-padding-x);
-  font-size: var(--button-xxs-font-size);
-  line-height: var(--button-xxs-icon-size);
-  gap: var(--button-xxs-gap);
+  padding: var(--dx-button-xxs-padding-y) var(--dx-button-xxs-padding-x);
+  font-size: var(--dx-button-xxs-font-size);
+  line-height: var(--dx-button-xxs-icon-size);
+  gap: var(--dx-button-xxs-gap);
 
   .danx-button__icon {
-    width: var(--button-xxs-icon-size);
-    height: var(--button-xxs-icon-size);
+    width: var(--dx-button-xxs-icon-size);
+    height: var(--dx-button-xxs-icon-size);
   }
 }
 
 .danx-button--xs {
-  padding: var(--button-xs-padding-y) var(--button-xs-padding-x);
-  font-size: var(--button-xs-font-size);
-  line-height: var(--button-xs-icon-size);
-  gap: var(--button-xs-gap);
+  padding: var(--dx-button-xs-padding-y) var(--dx-button-xs-padding-x);
+  font-size: var(--dx-button-xs-font-size);
+  line-height: var(--dx-button-xs-icon-size);
+  gap: var(--dx-button-xs-gap);
 
   .danx-button__icon {
-    width: var(--button-xs-icon-size);
-    height: var(--button-xs-icon-size);
+    width: var(--dx-button-xs-icon-size);
+    height: var(--dx-button-xs-icon-size);
   }
 }
 
 .danx-button--sm {
-  padding: var(--button-sm-padding-y) var(--button-sm-padding-x);
-  font-size: var(--button-sm-font-size);
-  line-height: var(--button-sm-icon-size);
-  gap: var(--button-sm-gap);
+  padding: var(--dx-button-sm-padding-y) var(--dx-button-sm-padding-x);
+  font-size: var(--dx-button-sm-font-size);
+  line-height: var(--dx-button-sm-icon-size);
+  gap: var(--dx-button-sm-gap);
 
   .danx-button__icon {
-    width: var(--button-sm-icon-size);
-    height: var(--button-sm-icon-size);
+    width: var(--dx-button-sm-icon-size);
+    height: var(--dx-button-sm-icon-size);
   }
 }
 
 .danx-button--md {
-  padding: var(--button-md-padding-y) var(--button-md-padding-x);
-  font-size: var(--button-md-font-size);
-  line-height: var(--button-md-icon-size);
-  gap: var(--button-md-gap);
+  padding: var(--dx-button-md-padding-y) var(--dx-button-md-padding-x);
+  font-size: var(--dx-button-md-font-size);
+  line-height: var(--dx-button-md-icon-size);
+  gap: var(--dx-button-md-gap);
 
   .danx-button__icon {
-    width: var(--button-md-icon-size);
-    height: var(--button-md-icon-size);
+    width: var(--dx-button-md-icon-size);
+    height: var(--dx-button-md-icon-size);
   }
 }
 
 .danx-button--lg {
-  padding: var(--button-lg-padding-y) var(--button-lg-padding-x);
-  font-size: var(--button-lg-font-size);
-  line-height: var(--button-lg-icon-size);
-  gap: var(--button-lg-gap);
+  padding: var(--dx-button-lg-padding-y) var(--dx-button-lg-padding-x);
+  font-size: var(--dx-button-lg-font-size);
+  line-height: var(--dx-button-lg-icon-size);
+  gap: var(--dx-button-lg-gap);
 
   .danx-button__icon {
-    width: var(--button-lg-icon-size);
-    height: var(--button-lg-icon-size);
+    width: var(--dx-button-lg-icon-size);
+    height: var(--dx-button-lg-icon-size);
   }
 }
 
 .danx-button--xl {
-  padding: var(--button-xl-padding-y) var(--button-xl-padding-x);
-  font-size: var(--button-xl-font-size);
-  line-height: var(--button-xl-icon-size);
-  gap: var(--button-xl-gap);
+  padding: var(--dx-button-xl-padding-y) var(--dx-button-xl-padding-x);
+  font-size: var(--dx-button-xl-font-size);
+  line-height: var(--dx-button-xl-icon-size);
+  gap: var(--dx-button-xl-gap);
 
   .danx-button__icon {
-    width: var(--button-xl-icon-size);
-    height: var(--button-xl-icon-size);
+    width: var(--dx-button-xl-icon-size);
+    height: var(--dx-button-xl-icon-size);
   }
 }
 
@@ -134,47 +134,47 @@
    ========================================================================== */
 
 .danx-button--danger {
-  background: var(--button-danger-bg);
-  color: var(--button-danger-text);
+  background: var(--dx-button-danger-bg);
+  color: var(--dx-button-danger-text);
 
   &:hover:not(:disabled) {
-    background: var(--button-danger-bg-hover);
+    background: var(--dx-button-danger-bg-hover);
   }
 }
 
 .danx-button--success {
-  background: var(--button-success-bg);
-  color: var(--button-success-text);
+  background: var(--dx-button-success-bg);
+  color: var(--dx-button-success-text);
 
   &:hover:not(:disabled) {
-    background: var(--button-success-bg-hover);
+    background: var(--dx-button-success-bg-hover);
   }
 }
 
 .danx-button--warning {
-  background: var(--button-warning-bg);
-  color: var(--button-warning-text);
+  background: var(--dx-button-warning-bg);
+  color: var(--dx-button-warning-text);
 
   &:hover:not(:disabled) {
-    background: var(--button-warning-bg-hover);
+    background: var(--dx-button-warning-bg-hover);
   }
 }
 
 .danx-button--info {
-  background: var(--button-info-bg);
-  color: var(--button-info-text);
+  background: var(--dx-button-info-bg);
+  color: var(--dx-button-info-text);
 
   &:hover:not(:disabled) {
-    background: var(--button-info-bg-hover);
+    background: var(--dx-button-info-bg-hover);
   }
 }
 
 .danx-button--muted {
-  background: var(--button-muted-bg);
-  color: var(--button-muted-text);
+  background: var(--dx-button-muted-bg);
+  color: var(--dx-button-muted-text);
 
   &:hover:not(:disabled) {
-    background: var(--button-muted-bg-hover);
+    background: var(--dx-button-muted-bg-hover);
   }
 }
 

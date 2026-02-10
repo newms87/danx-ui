@@ -57,7 +57,7 @@ defineEmits<{
 
   .hotkey-help-btn {
     color: var(--dx-mde-popover-dimmed);
-    --button-hover-bg: var(--dx-mde-menu-item-hover);
+    --dx-button-hover-bg: var(--dx-mde-menu-item-hover);
   }
 }
 </style>

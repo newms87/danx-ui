@@ -24,12 +24,12 @@
 .danx-context-menu {
   position: fixed;
   z-index: 1001;
-  background: var(--context-menu-bg);
-  border: 1px solid var(--context-menu-border);
-  border-radius: var(--context-menu-border-radius);
-  box-shadow: 0 10px 25px var(--context-menu-shadow);
-  min-width: var(--context-menu-min-width);
-  max-width: var(--context-menu-max-width);
+  background: var(--dx-context-menu-bg);
+  border: 1px solid var(--dx-context-menu-border);
+  border-radius: var(--dx-context-menu-border-radius);
+  box-shadow: 0 10px 25px var(--dx-context-menu-shadow);
+  min-width: var(--dx-context-menu-min-width);
+  max-width: var(--dx-context-menu-max-width);
   padding: 0.25rem 0;
   overflow: visible;
 
@@ -64,7 +64,7 @@
   padding: 0.5rem 0.75rem;
   background: transparent;
   border: none;
-  color: var(--context-menu-text);
+  color: var(--dx-context-menu-text);
   font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
@@ -72,11 +72,11 @@
   gap: 0.5rem;
 
   &:hover:not(.is-disabled) {
-    background: var(--context-menu-item-hover);
+    background: var(--dx-context-menu-item-hover);
   }
 
   &.is-disabled {
-    color: var(--context-menu-text-muted);
+    color: var(--dx-context-menu-text-muted);
     cursor: not-allowed;
   }
 
@@ -87,8 +87,8 @@
 
 .danx-context-menu__icon {
   flex-shrink: 0;
-  width: var(--context-menu-icon-size);
-  height: var(--context-menu-icon-size);
+  width: var(--dx-context-menu-icon-size);
+  height: var(--dx-context-menu-icon-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -106,7 +106,7 @@
 
 .danx-context-menu__shortcut {
   font-size: 0.75rem;
-  color: var(--context-menu-text-muted);
+  color: var(--dx-context-menu-text-muted);
   font-family: "Consolas", "Monaco", monospace;
   margin-left: 1rem;
   white-space: nowrap;
@@ -114,7 +114,7 @@
 
 .danx-context-menu__chevron {
   font-size: 0.75rem;
-  color: var(--context-menu-text-muted);
+  color: var(--dx-context-menu-text-muted);
   margin-left: 0.5rem;
 }
 
@@ -124,7 +124,7 @@
 
 .danx-context-menu__divider {
   height: 1px;
-  background: var(--context-menu-divider);
+  background: var(--dx-context-menu-divider);
   margin: 0.25rem 0;
 }
 
@@ -137,12 +137,12 @@
   top: 0;
   left: 100%;
   margin-left: 2px;
-  background: var(--context-menu-bg);
-  border: 1px solid var(--context-menu-border);
-  border-radius: var(--context-menu-border-radius);
-  box-shadow: 0 10px 25px var(--context-menu-shadow);
-  min-width: var(--context-menu-min-width);
-  max-width: var(--context-menu-max-width);
+  background: var(--dx-context-menu-bg);
+  border: 1px solid var(--dx-context-menu-border);
+  border-radius: var(--dx-context-menu-border-radius);
+  box-shadow: 0 10px 25px var(--dx-context-menu-shadow);
+  min-width: var(--dx-context-menu-min-width);
+  max-width: var(--dx-context-menu-max-width);
   overflow: hidden;
   padding: 0.25rem 0;
   z-index: 1002;

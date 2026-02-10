@@ -49,15 +49,16 @@
  *
  * | Token                    | Default                  | Description             |
  * |--------------------------|--------------------------|-------------------------|
- * | --dialog-bg              | --color-surface          | Background color        |
- * | --dialog-border-color    | --color-border           | Border color            |
- * | --dialog-border-radius   | --radius-dialog          | Corner radius           |
- * | --dialog-shadow          | --shadow-dialog          | Box shadow              |
- * | --dialog-padding         | --space-lg               | Content padding         |
- * | --dialog-title-color     | --color-text             | Title text color        |
- * | --dialog-title-size      | --text-xl                | Title font size         |
- * | --dialog-subtitle-color  | --color-text-muted       | Subtitle text color     |
- * | --dialog-backdrop        | --color-backdrop         | Backdrop color          |
+ * | --dx-dialog-bg              | --color-surface          | Background color        |
+ * | --dx-dialog-border-color    | --color-border           | Border color            |
+ * | --dx-dialog-border-radius   | --radius-dialog          | Corner radius           |
+ * | --dx-dialog-shadow          | --shadow-dialog          | Box shadow              |
+ * | --dx-dialog-padding         | --space-lg               | Content padding         |
+ * | --dx-dialog-title-color     | --color-text             | Title text color        |
+ * | --dx-dialog-title-size      | --text-xl                | Title font size         |
+ * | --dx-dialog-subtitle-color  | --color-text-muted       | Subtitle text color     |
+ * | --dx-dialog-backdrop        | --color-backdrop         | Backdrop color          |
+ * | --dx-dialog-backdrop-blur   | 4px                      | Backdrop blur radius    |
  *
  * ## Usage Examples
  *

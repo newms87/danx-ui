@@ -5,23 +5,23 @@
  * Override these to customize button appearance.
  *
  * CSS Tokens:
- * --button-font-family          Font family
- * --button-border-radius        Corner radius
- * --button-transition           Transition timing
- * --button-disabled-opacity     Opacity when disabled
- * --button-hover-bg             Hover background for default (blank) type
+ * --dx-button-font-family          Font family
+ * --dx-button-border-radius        Corner radius
+ * --dx-button-transition           Transition timing
+ * --dx-button-disabled-opacity     Opacity when disabled
+ * --dx-button-hover-bg             Hover background for default (blank) type
  *
  * Size tokens (for each size: xxs, xs, sm, md, lg, xl):
- * --button-{size}-padding-x     Horizontal padding
- * --button-{size}-padding-y     Vertical padding
- * --button-{size}-icon-size     Icon dimensions
- * --button-{size}-font-size     Font size
- * --button-{size}-gap           Gap between icon and text
+ * --dx-button-{size}-padding-x     Horizontal padding
+ * --dx-button-{size}-padding-y     Vertical padding
+ * --dx-button-{size}-icon-size     Icon dimensions
+ * --dx-button-{size}-font-size     Font size
+ * --dx-button-{size}-gap           Gap between icon and text
  *
  * Type tokens (danger, success, warning, info, muted; blank has no tokens):
- * --button-{type}-bg            Background color
- * --button-{type}-bg-hover      Background on hover
- * --button-{type}-text          Text/icon color
+ * --dx-button-{type}-bg            Background color
+ * --dx-button-{type}-bg-hover      Background on hover
+ * --dx-button-{type}-text          Text/icon color
  */
 
 :root {
@@ -29,109 +29,109 @@
      Global Button Tokens
      ========================================================================== */
 
-  --button-font-family: var(--font-sans);
-  --button-border-radius: var(--radius-button);
-  --button-transition: var(--transition-fast);
-  --button-disabled-opacity: 0.5;
-  --button-hover-bg: var(--color-surface-sunken);
+  --dx-button-font-family: var(--font-sans);
+  --dx-button-border-radius: var(--radius-button);
+  --dx-button-transition: var(--transition-fast);
+  --dx-button-disabled-opacity: 0.5;
+  --dx-button-hover-bg: var(--color-surface-sunken);
 
   /* ==========================================================================
      Size Tokens - XXS
      ========================================================================== */
 
-  --button-xxs-padding-x: var(--spacing-1);
-  --button-xxs-padding-y: var(--spacing-0-5);
-  --button-xxs-icon-size: 0.75rem;
-  --button-xxs-font-size: var(--text-xs);
-  --button-xxs-gap: var(--spacing-1);
+  --dx-button-xxs-padding-x: var(--spacing-1);
+  --dx-button-xxs-padding-y: var(--spacing-0-5);
+  --dx-button-xxs-icon-size: 0.75rem;
+  --dx-button-xxs-font-size: var(--text-xs);
+  --dx-button-xxs-gap: var(--spacing-1);
 
   /* ==========================================================================
      Size Tokens - XS
      ========================================================================== */
 
-  --button-xs-padding-x: var(--spacing-1-5);
-  --button-xs-padding-y: var(--spacing-1);
-  --button-xs-icon-size: 0.875rem;
-  --button-xs-font-size: var(--text-xs);
-  --button-xs-gap: var(--spacing-1);
+  --dx-button-xs-padding-x: var(--spacing-1-5);
+  --dx-button-xs-padding-y: var(--spacing-1);
+  --dx-button-xs-icon-size: 0.875rem;
+  --dx-button-xs-font-size: var(--text-xs);
+  --dx-button-xs-gap: var(--spacing-1);
 
   /* ==========================================================================
      Size Tokens - SM
      ========================================================================== */
 
-  --button-sm-padding-x: var(--spacing-2);
-  --button-sm-padding-y: var(--spacing-1-5);
-  --button-sm-icon-size: 1rem;
-  --button-sm-font-size: var(--text-sm);
-  --button-sm-gap: var(--spacing-1-5);
+  --dx-button-sm-padding-x: var(--spacing-2);
+  --dx-button-sm-padding-y: var(--spacing-1-5);
+  --dx-button-sm-icon-size: 1rem;
+  --dx-button-sm-font-size: var(--text-sm);
+  --dx-button-sm-gap: var(--spacing-1-5);
 
   /* ==========================================================================
      Size Tokens - MD (default)
      ========================================================================== */
 
-  --button-md-padding-x: var(--spacing-3);
-  --button-md-padding-y: var(--spacing-2);
-  --button-md-icon-size: 1.125rem;
-  --button-md-font-size: var(--text-sm);
-  --button-md-gap: var(--spacing-2);
+  --dx-button-md-padding-x: var(--spacing-3);
+  --dx-button-md-padding-y: var(--spacing-2);
+  --dx-button-md-icon-size: 1.125rem;
+  --dx-button-md-font-size: var(--text-sm);
+  --dx-button-md-gap: var(--spacing-2);
 
   /* ==========================================================================
      Size Tokens - LG
      ========================================================================== */
 
-  --button-lg-padding-x: var(--spacing-4);
-  --button-lg-padding-y: var(--spacing-2-5);
-  --button-lg-icon-size: 1.25rem;
-  --button-lg-font-size: var(--text-base);
-  --button-lg-gap: var(--spacing-2);
+  --dx-button-lg-padding-x: var(--spacing-4);
+  --dx-button-lg-padding-y: var(--spacing-2-5);
+  --dx-button-lg-icon-size: 1.25rem;
+  --dx-button-lg-font-size: var(--text-base);
+  --dx-button-lg-gap: var(--spacing-2);
 
   /* ==========================================================================
      Size Tokens - XL
      ========================================================================== */
 
-  --button-xl-padding-x: var(--spacing-5);
-  --button-xl-padding-y: var(--spacing-3);
-  --button-xl-icon-size: 1.5rem;
-  --button-xl-font-size: var(--text-lg);
-  --button-xl-gap: var(--spacing-2-5);
+  --dx-button-xl-padding-x: var(--spacing-5);
+  --dx-button-xl-padding-y: var(--spacing-3);
+  --dx-button-xl-icon-size: 1.5rem;
+  --dx-button-xl-font-size: var(--text-lg);
+  --dx-button-xl-gap: var(--spacing-2-5);
 
   /* ==========================================================================
      Type Tokens - Danger
      ========================================================================== */
 
-  --button-danger-bg: var(--color-danger);
-  --button-danger-bg-hover: var(--color-danger-hover);
-  --button-danger-text: var(--color-text-inverted);
+  --dx-button-danger-bg: var(--color-danger);
+  --dx-button-danger-bg-hover: var(--color-danger-hover);
+  --dx-button-danger-text: var(--color-text-inverted);
 
   /* ==========================================================================
      Type Tokens - Success
      ========================================================================== */
 
-  --button-success-bg: var(--color-success);
-  --button-success-bg-hover: var(--color-success-hover);
-  --button-success-text: var(--color-text-inverted);
+  --dx-button-success-bg: var(--color-success);
+  --dx-button-success-bg-hover: var(--color-success-hover);
+  --dx-button-success-text: var(--color-text-inverted);
 
   /* ==========================================================================
      Type Tokens - Warning
      ========================================================================== */
 
-  --button-warning-bg: var(--color-warning);
-  --button-warning-bg-hover: var(--color-warning-hover);
-  --button-warning-text: var(--color-text-inverted);
+  --dx-button-warning-bg: var(--color-warning);
+  --dx-button-warning-bg-hover: var(--color-warning-hover);
+  --dx-button-warning-text: var(--color-text-inverted);
 
   /* ==========================================================================
      Type Tokens - Info
      ========================================================================== */
 
-  --button-info-bg: var(--color-interactive);
-  --button-info-bg-hover: var(--color-interactive-hover);
-  --button-info-text: var(--color-text-inverted);
+  --dx-button-info-bg: var(--color-interactive);
+  --dx-button-info-bg-hover: var(--color-interactive-hover);
+  --dx-button-info-text: var(--color-text-inverted);
 
   /* ==========================================================================
      Type Tokens - Muted
      ========================================================================== */
 
-  --button-muted-bg: var(--color-surface-sunken);
-  --button-muted-bg-hover: var(--color-border);
-  --button-muted-text: var(--color-text-muted);
+  --dx-button-muted-bg: var(--color-surface-sunken);
+  --dx-button-muted-bg-hover: var(--color-border);
+  --dx-button-muted-text: var(--color-text-muted);
 }

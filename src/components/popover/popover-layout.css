@@ -19,20 +19,20 @@
 .danx-popover {
   position: fixed;
   z-index: 1000;
-  background: var(--popover-bg);
-  border: 1px solid var(--popover-border);
-  border-radius: var(--popover-border-radius);
-  box-shadow: 0 25px 50px var(--popover-shadow);
+  background: var(--dx-popover-bg);
+  border: 1px solid var(--dx-popover-border);
+  border-radius: var(--dx-popover-border-radius);
+  box-shadow: 0 25px 50px var(--dx-popover-shadow);
   display: flex;
   flex-direction: column;
-  color: var(--popover-text);
+  color: var(--dx-popover-text);
 
   /* Animation */
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity var(--popover-animation-duration) var(--ease-out),
-    transform var(--popover-animation-duration) var(--ease-out);
+    opacity var(--dx-popover-animation-duration) var(--ease-out),
+    transform var(--dx-popover-animation-duration) var(--ease-out);
 }
 
 /* Entry animation */

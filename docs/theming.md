@@ -34,8 +34,8 @@ Override semantic tokens to change system-wide behavior.
 Per-component tokens that reference semantic tokens.
 
 ```css
---dialog-bg: var(--color-surface);
---dialog-title-color: var(--color-text);
+--dx-dialog-bg: var(--color-surface);
+--dx-dialog-title-color: var(--color-text);
 ```
 
 Override component tokens for surgical, component-specific changes.
@@ -49,7 +49,7 @@ Change one aspect of one component:
 ```css
 /* Make dialog backgrounds slightly gray */
 .my-app {
-  --dialog-bg: #f8f8f8;
+  --dx-dialog-bg: #f8f8f8;
 }
 ```
 
@@ -141,15 +141,15 @@ Override the built-in dark semantics:
 
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--dialog-bg` | `--color-surface` | Background |
-| `--dialog-border-color` | `--color-border` | Border color |
-| `--dialog-border-radius` | `--radius-dialog` | Corner radius |
-| `--dialog-shadow` | `--shadow-dialog` | Box shadow |
-| `--dialog-padding` | `--space-lg` | Content padding |
-| `--dialog-title-color` | `--color-text` | Title color |
-| `--dialog-title-size` | `--text-xl` | Title font size |
-| `--dialog-subtitle-color` | `--color-text-muted` | Subtitle color |
-| `--dialog-backdrop` | `--color-backdrop` | Backdrop color |
+| `--dx-dialog-bg` | `--color-surface` | Background |
+| `--dx-dialog-border-color` | `--color-border` | Border color |
+| `--dx-dialog-border-radius` | `--radius-dialog` | Corner radius |
+| `--dx-dialog-shadow` | `--shadow-dialog` | Box shadow |
+| `--dx-dialog-padding` | `--space-lg` | Content padding |
+| `--dx-dialog-title-color` | `--color-text` | Title color |
+| `--dx-dialog-title-size` | `--text-xl` | Title font size |
+| `--dx-dialog-subtitle-color` | `--color-text-muted` | Subtitle color |
+| `--dx-dialog-backdrop` | `--color-backdrop` | Backdrop color |
 
 ## Importing Tokens Only
 

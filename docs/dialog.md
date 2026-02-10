@@ -181,14 +181,14 @@ Prevent closing via ESC or backdrop click:
 ```css
 /* Global override */
 :root {
-  --dialog-bg: #fafafa;
-  --dialog-border-radius: 1rem;
+  --dx-dialog-bg: #fafafa;
+  --dx-dialog-border-radius: 1rem;
 }
 
 /* Scoped override */
 .my-dialog {
-  --dialog-title-color: #7c3aed;
-  --dialog-button-primary-bg: #7c3aed;
+  --dx-dialog-title-color: #7c3aed;
+  --dx-dialog-button-primary-bg: #7c3aed;
 }
 ```
 
@@ -196,18 +196,19 @@ Prevent closing via ESC or backdrop click:
 
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--dialog-bg` | `--color-surface` | Background |
-| `--dialog-border-color` | `--color-border` | Border color |
-| `--dialog-border-radius` | `--radius-dialog` | Corner radius |
-| `--dialog-shadow` | `--shadow-dialog` | Box shadow |
-| `--dialog-padding` | `--space-lg` | Content padding |
-| `--dialog-gap` | `--space-md` | Header/content/footer gap |
-| `--dialog-title-color` | `--color-text` | Title color |
-| `--dialog-title-size` | `--text-xl` | Title font size |
-| `--dialog-subtitle-color` | `--color-text-muted` | Subtitle color |
-| `--dialog-backdrop` | `--color-backdrop` | Backdrop color |
-| `--dialog-button-primary-bg` | `--color-interactive` | Confirm button bg |
-| `--dialog-button-secondary-bg` | transparent | Close button bg |
+| `--dx-dialog-bg` | `--color-surface` | Background |
+| `--dx-dialog-border-color` | `--color-border` | Border color |
+| `--dx-dialog-border-radius` | `--radius-dialog` | Corner radius |
+| `--dx-dialog-shadow` | `--shadow-dialog` | Box shadow |
+| `--dx-dialog-padding` | `--space-lg` | Content padding |
+| `--dx-dialog-gap` | `--space-md` | Header/content/footer gap |
+| `--dx-dialog-title-color` | `--color-text` | Title color |
+| `--dx-dialog-title-size` | `--text-xl` | Title font size |
+| `--dx-dialog-subtitle-color` | `--color-text-muted` | Subtitle color |
+| `--dx-dialog-backdrop` | `--color-backdrop` | Backdrop color |
+| `--dx-dialog-backdrop-blur` | `4px` | Backdrop blur radius |
+| `--dx-dialog-button-primary-bg` | `--color-interactive` | Confirm button bg |
+| `--dx-dialog-button-secondary-bg` | transparent | Close button bg |
 
 ## useDialog Composable
 

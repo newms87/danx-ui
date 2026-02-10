@@ -87,7 +87,7 @@
 
 .mde-floating-panel__header .mde-floating-panel__close-btn {
   color: var(--dx-mde-popover-muted);
-  --button-hover-bg: var(--dx-mde-menu-item-hover);
+  --dx-button-hover-bg: var(--dx-mde-menu-item-hover);
 
   &:hover:not(:disabled) {
     color: var(--dx-mde-popover-heading);
@@ -118,6 +118,6 @@
 
   .mde-floating-panel__btn-cancel {
     color: var(--dx-mde-popover-text);
-    --button-hover-bg: var(--dx-mde-menu-trigger-bg);
+    --dx-button-hover-bg: var(--dx-mde-menu-trigger-bg);
   }
 }

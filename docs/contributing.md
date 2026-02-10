@@ -86,7 +86,7 @@ Every component file must include a comprehensive comment block covering:
 Follow the three-tier token system:
 1. **Primitives** - Raw values (`--color-slate-700`)
 2. **Semantics** - Meaning (`--color-surface`)
-3. **Component** - Per-component (`--dialog-bg`)
+3. **Component** - Per-component (`--dx-dialog-bg`)
 
 ## Pull Request Process
 

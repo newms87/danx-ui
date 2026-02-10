@@ -41,31 +41,31 @@
  * Global tokens:
  * | Token                     | Default           | Description          |
  * |---------------------------|-------------------|----------------------|
- * | --button-font-family      | --font-sans       | Font family          |
- * | --button-border-radius    | --radius-button   | Corner radius        |
- * | --button-transition       | --transition-fast | Transition timing    |
- * | --button-disabled-opacity | 0.5               | Disabled opacity     |
+ * | --dx-button-font-family      | --font-sans       | Font family          |
+ * | --dx-button-border-radius    | --radius-button   | Corner radius        |
+ * | --dx-button-transition       | --transition-fast | Transition timing    |
+ * | --dx-button-disabled-opacity | 0.5               | Disabled opacity     |
  *
  * Size tokens (per size: xxs, xs, sm, md, lg, xl):
  * | Token                     | Description       |
  * |---------------------------|-------------------|
- * | --button-{size}-padding-x | Horizontal padding|
- * | --button-{size}-padding-y | Vertical padding  |
- * | --button-{size}-icon-size | Icon dimensions   |
- * | --button-{size}-font-size | Font size         |
- * | --button-{size}-gap       | Icon-text gap     |
+ * | --dx-button-{size}-padding-x | Horizontal padding|
+ * | --dx-button-{size}-padding-y | Vertical padding  |
+ * | --dx-button-{size}-icon-size | Icon dimensions   |
+ * | --dx-button-{size}-font-size | Font size         |
+ * | --dx-button-{size}-gap       | Icon-text gap     |
  *
- * Note: Each size modifier sets `line-height` to match `--button-{size}-icon-size`.
+ * Note: Each size modifier sets `line-height` to match `--dx-button-{size}-icon-size`.
  * This ensures consistent button height regardless of content. The loading spinner
  * uses `1lh` for its dimensions, so it automatically matches the icon size.
- * Overriding `--button-{size}-icon-size` also changes text line-height and spinner size.
+ * Overriding `--dx-button-{size}-icon-size` also changes text line-height and spinner size.
  *
  * Type tokens (danger, success, warning, info, muted; blank has no tokens):
  * | Token                   | Description        |
  * |-------------------------|--------------------|
- * | --button-{type}-bg      | Background color   |
- * | --button-{type}-bg-hover| Hover background   |
- * | --button-{type}-text    | Text/icon color    |
+ * | --dx-button-{type}-bg      | Background color   |
+ * | --dx-button-{type}-bg-hover| Hover background   |
+ * | --dx-button-{type}-text    | Text/icon color    |
  *
  * ## Usage Examples
  *

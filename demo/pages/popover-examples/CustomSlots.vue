@@ -6,7 +6,16 @@ const show = ref(false);
 </script>
 
 <template>
-  <DanxPopover v-model="show" class="custom-popover">
+  <DanxPopover
+    v-model="show"
+    style="
+      --dx-popover-bg: #1a1a2e;
+      --dx-popover-border: #7c3aed;
+      --dx-popover-text: #e2e8f0;
+      --dx-popover-border-radius: 1rem;
+      --dx-popover-shadow: rgb(124 58 237 / 0.3);
+    "
+  >
     <template #trigger>
       <DanxButton type="info" @click="show = !show">Custom Styled</DanxButton>
     </template>
@@ -19,13 +28,3 @@ const show = ref(false);
     </div>
   </DanxPopover>
 </template>
-
-<style>
-.custom-popover {
-  --popover-bg: #1a1a2e;
-  --popover-border: #7c3aed;
-  --popover-text: #e2e8f0;
-  --popover-border-radius: 1rem;
-  --popover-shadow: rgb(124 58 237 / 0.3);
-}
-</style>

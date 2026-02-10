@@ -66,8 +66,8 @@ Every `.vue` file MUST have a comprehensive comment block at the top of the scri
  *   default - Dialog content positioned above overlay
  *
  * @tokens
- *   --dialog-overlay-bg - Background color (default: rgb(0 0 0 / 0.5))
- *   --dialog-overlay-z - Z-index (default: 40)
+ *   --dx-dialog-overlay-bg - Background color (default: rgb(0 0 0 / 0.5))
+ *   --dx-dialog-overlay-z - Z-index (default: 40)
  *
  * @example
  *   <DialogOverlay v-model:isOpen="showDialog">
@@ -148,8 +148,8 @@ Every slot must be documented in the component's comment block.
 
 <style>
 .my-dialog {
-  --dialog-bg: blue;
-  --dialog-padding: 2rem;
+  --dx-dialog-bg: blue;
+  --dx-dialog-padding: 2rem;
 }
 </style>
 ```
@@ -157,10 +157,10 @@ Every slot must be documented in the component's comment block.
 ### Token Naming Convention
 
 ```css
---{component}-{property}
---dialog-bg
---dialog-padding
---dialog-border-radius
+--dx-{component}-{property}
+--dx-dialog-bg
+--dx-dialog-padding
+--dx-dialog-border-radius
 ```
 
 ## Forbidden Patterns

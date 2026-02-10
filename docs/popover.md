@@ -68,7 +68,7 @@ const show = ref(false);
 
 ## Placement
 
-The `placement` prop controls where the panel appears relative to the trigger element. An 8px gap separates the trigger from the panel (configurable via `--popover-offset`).
+The `placement` prop controls where the panel appears relative to the trigger element. An 8px gap separates the trigger from the panel (configurable via `--dx-popover-offset`).
 
 ```vue
 <DanxPopover v-model="show" placement="top">
@@ -122,9 +122,9 @@ Override tokens on a wrapper class or directly on the popover:
 
 ```css
 .my-popover {
-  --popover-bg: #1a1a2e;
-  --popover-border: #7c3aed;
-  --popover-border-radius: 1rem;
+  --dx-popover-bg: #1a1a2e;
+  --dx-popover-border: #7c3aed;
+  --dx-popover-border-radius: 1rem;
 }
 ```
 
@@ -140,10 +140,10 @@ Attrs (including `class`) are forwarded to the panel element, not the trigger wr
 
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--popover-bg` | `--color-surface-elevated` | Background color |
-| `--popover-border` | `--color-border` | Border color |
-| `--popover-border-radius` | `0.5rem` | Corner radius |
-| `--popover-shadow` | `rgb(0 0 0 / 0.5)` | Box shadow color |
-| `--popover-text` | `--color-text` | Text color |
-| `--popover-offset` | `0.5rem` | Gap between trigger and panel |
-| `--popover-animation-duration` | `--duration-200` | Animation duration |
+| `--dx-popover-bg` | `--color-surface-elevated` | Background color |
+| `--dx-popover-border` | `--color-border` | Border color |
+| `--dx-popover-border-radius` | `0.5rem` | Corner radius |
+| `--dx-popover-shadow` | `rgb(0 0 0 / 0.5)` | Box shadow color |
+| `--dx-popover-text` | `--color-text` | Text color |
+| `--dx-popover-offset` | `0.5rem` | Gap between trigger and panel |
+| `--dx-popover-animation-duration` | `--duration-200` | Animation duration |

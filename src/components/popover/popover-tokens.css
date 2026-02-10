@@ -5,21 +5,21 @@
  * Override these to customize popover appearance.
  *
  * CSS Tokens:
- * --popover-bg                 Panel background color
- * --popover-border             Panel border color
- * --popover-border-radius      Panel corner radius
- * --popover-shadow             Panel box shadow color
- * --popover-text               Panel text color
- * --popover-offset             Gap between trigger and panel
- * --popover-animation-duration Animation duration
+ * --dx-popover-bg                 Panel background color
+ * --dx-popover-border             Panel border color
+ * --dx-popover-border-radius      Panel corner radius
+ * --dx-popover-shadow             Panel box shadow color
+ * --dx-popover-text               Panel text color
+ * --dx-popover-offset             Gap between trigger and panel
+ * --dx-popover-animation-duration Animation duration
  */
 
 :root {
-  --popover-bg: var(--color-surface-elevated);
-  --popover-border: var(--color-border);
-  --popover-border-radius: 0.5rem;
-  --popover-shadow: rgb(0 0 0 / 0.5);
-  --popover-text: var(--color-text);
-  --popover-offset: 0.5rem;
-  --popover-animation-duration: var(--duration-200);
+  --dx-popover-bg: var(--color-surface-elevated);
+  --dx-popover-border: var(--color-border);
+  --dx-popover-border-radius: 0.5rem;
+  --dx-popover-shadow: rgb(0 0 0 / 0.5);
+  --dx-popover-text: var(--color-text);
+  --dx-popover-offset: 0.5rem;
+  --dx-popover-animation-duration: var(--duration-200);
 }

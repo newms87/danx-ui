@@ -158,14 +158,14 @@ import starIcon from 'danx-icon/src/fontawesome/solid/star.svg?raw';
 ```css
 /* Global override */
 :root {
-  --button-border-radius: 9999px;
+  --dx-button-border-radius: 9999px;
 }
 
 /* Scoped override - change success button color */
 .my-save-button {
-  --button-success-bg: #7c3aed;
-  --button-success-bg-hover: #6d28d9;
-  --button-success-text: white;
+  --dx-button-success-bg: #7c3aed;
+  --dx-button-success-bg-hover: #6d28d9;
+  --dx-button-success-text: white;
 }
 ```
 
@@ -175,10 +175,10 @@ import starIcon from 'danx-icon/src/fontawesome/solid/star.svg?raw';
 
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--button-font-family` | `--font-sans` | Font family |
-| `--button-border-radius` | `--radius-button` | Corner radius |
-| `--button-transition` | `--transition-fast` | Transition timing |
-| `--button-disabled-opacity` | `0.5` | Disabled opacity |
+| `--dx-button-font-family` | `--font-sans` | Font family |
+| `--dx-button-border-radius` | `--radius-button` | Corner radius |
+| `--dx-button-transition` | `--transition-fast` | Transition timing |
+| `--dx-button-disabled-opacity` | `0.5` | Disabled opacity |
 
 #### Size Tokens
 
@@ -186,11 +186,11 @@ For each size (`xxs`, `xs`, `sm`, `md`, `lg`):
 
 | Token Pattern | Description |
 |---------------|-------------|
-| `--button-{size}-padding-x` | Horizontal padding |
-| `--button-{size}-padding-y` | Vertical padding |
-| `--button-{size}-icon-size` | Icon dimensions |
-| `--button-{size}-font-size` | Font size |
-| `--button-{size}-gap` | Icon-text gap |
+| `--dx-button-{size}-padding-x` | Horizontal padding |
+| `--dx-button-{size}-padding-y` | Vertical padding |
+| `--dx-button-{size}-icon-size` | Icon dimensions |
+| `--dx-button-{size}-font-size` | Font size |
+| `--dx-button-{size}-gap` | Icon-text gap |
 
 #### Type Tokens
 
@@ -198,9 +198,9 @@ For each named type (`danger`, `success`, `warning`, `info`, `muted`; blank has 
 
 | Token Pattern | Description |
 |---------------|-------------|
-| `--button-{type}-bg` | Background color |
-| `--button-{type}-bg-hover` | Hover background |
-| `--button-{type}-text` | Text/icon color |
+| `--dx-button-{type}-bg` | Background color |
+| `--dx-button-{type}-bg-hover` | Hover background |
+| `--dx-button-{type}-text` | Text/icon color |
 
 ## TypeScript Types
 

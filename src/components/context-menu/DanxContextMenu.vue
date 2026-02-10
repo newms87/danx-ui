@@ -18,17 +18,17 @@
  *   action - Fired with the clicked ContextMenuItem before executing its action
  *
  * @tokens
- *   --context-menu-bg - Menu background color
- *   --context-menu-border - Menu border color
- *   --context-menu-shadow - Box shadow color
- *   --context-menu-text - Item text color
- *   --context-menu-text-muted - Shortcut/chevron/disabled text color
- *   --context-menu-item-hover - Item hover background
- *   --context-menu-divider - Divider line color
- *   --context-menu-min-width - Minimum menu width
- *   --context-menu-max-width - Maximum menu width
- *   --context-menu-icon-size - Icon dimensions
- *   --context-menu-border-radius - Corner radius
+ *   --dx-context-menu-bg - Menu background color
+ *   --dx-context-menu-border - Menu border color
+ *   --dx-context-menu-shadow - Box shadow color
+ *   --dx-context-menu-text - Item text color
+ *   --dx-context-menu-text-muted - Shortcut/chevron/disabled text color
+ *   --dx-context-menu-item-hover - Item hover background
+ *   --dx-context-menu-divider - Divider line color
+ *   --dx-context-menu-min-width - Minimum menu width
+ *   --dx-context-menu-max-width - Maximum menu width
+ *   --dx-context-menu-icon-size - Icon dimensions
+ *   --dx-context-menu-border-radius - Corner radius
  *
  * @example
  *   <DanxContextMenu

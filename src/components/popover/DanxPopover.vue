@@ -41,13 +41,13 @@
  *
  * | Token                   | Default                  | Description        |
  * |-------------------------|--------------------------|--------------------|
- * | --popover-bg            | --color-surface-elevated | Background color   |
- * | --popover-border        | --color-border           | Border color       |
- * | --popover-border-radius | 0.5rem                   | Corner radius      |
- * | --popover-shadow        | rgb(0 0 0 / 0.5)        | Box shadow color   |
- * | --popover-text          | --color-text             | Body text color    |
- * | --popover-offset        | 0.5rem                   | Gap from trigger   |
- * | --popover-animation-duration | --duration-200      | Animation duration |
+ * | --dx-popover-bg            | --color-surface-elevated | Background color   |
+ * | --dx-popover-border        | --color-border           | Border color       |
+ * | --dx-popover-border-radius | 0.5rem                   | Corner radius      |
+ * | --dx-popover-shadow        | rgb(0 0 0 / 0.5)        | Box shadow color   |
+ * | --dx-popover-text          | --color-text             | Body text color    |
+ * | --dx-popover-offset        | 0.5rem                   | Gap from trigger   |
+ * | --dx-popover-animation-duration | --duration-200      | Animation duration |
  *
  * ## Usage Examples
  *

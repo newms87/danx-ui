@@ -5,46 +5,48 @@
  * Override these to customize dialog appearance.
  *
  * CSS Tokens:
- * --dialog-bg              Background color
- * --dialog-border-color    Border color
- * --dialog-border-radius   Corner radius
- * --dialog-shadow          Box shadow
- * --dialog-glow            Glow effect (dark mode)
- * --dialog-padding         Content padding
- * --dialog-padding-mobile  Padding on mobile devices
- * --dialog-max-width       Maximum width
- * --dialog-max-height      Maximum height
- * --dialog-header-bg       Header background color
- * --dialog-header-border   Header bottom border color
- * --dialog-title-color     Title text color
- * --dialog-title-size      Title font size
- * --dialog-title-weight    Title font weight
- * --dialog-subtitle-color  Subtitle text color
- * --dialog-subtitle-size   Subtitle font size
- * --dialog-backdrop             Backdrop color
- * --dialog-animation-duration   Animation duration
+ * --dx-dialog-bg              Background color
+ * --dx-dialog-border-color    Border color
+ * --dx-dialog-border-radius   Corner radius
+ * --dx-dialog-shadow          Box shadow
+ * --dx-dialog-glow            Glow effect (dark mode)
+ * --dx-dialog-padding         Content padding
+ * --dx-dialog-padding-mobile  Padding on mobile devices
+ * --dx-dialog-max-width       Maximum width
+ * --dx-dialog-max-height      Maximum height
+ * --dx-dialog-header-bg       Header background color
+ * --dx-dialog-header-border   Header bottom border color
+ * --dx-dialog-title-color     Title text color
+ * --dx-dialog-title-size      Title font size
+ * --dx-dialog-title-weight    Title font weight
+ * --dx-dialog-subtitle-color  Subtitle text color
+ * --dx-dialog-subtitle-size   Subtitle font size
+ * --dx-dialog-backdrop             Backdrop color
+ * --dx-dialog-backdrop-blur        Backdrop blur radius
+ * --dx-dialog-animation-duration   Animation duration
  */
 
 :root {
-  --dialog-bg: var(--color-surface-elevated);
-  --dialog-border-color: var(--color-border);
-  --dialog-border-radius: var(--radius-dialog);
-  --dialog-shadow: var(--shadow-dialog);
-  --dialog-glow: var(--shadow-glow);
-  --dialog-padding: var(--space-lg);
-  --dialog-padding-mobile: var(--space-md);
-  --dialog-gap: var(--space-md);
-  --dialog-max-width: 90vw;
-  --dialog-max-height: 85vh;
+  --dx-dialog-bg: var(--color-surface-elevated);
+  --dx-dialog-border-color: var(--color-border);
+  --dx-dialog-border-radius: var(--radius-dialog);
+  --dx-dialog-shadow: var(--shadow-dialog);
+  --dx-dialog-glow: var(--shadow-glow);
+  --dx-dialog-padding: var(--space-lg);
+  --dx-dialog-padding-mobile: var(--space-md);
+  --dx-dialog-gap: var(--space-md);
+  --dx-dialog-max-width: 90vw;
+  --dx-dialog-max-height: 85vh;
 
-  --dialog-header-bg: var(--color-surface-sunken);
-  --dialog-header-border: var(--color-border);
-  --dialog-title-color: var(--color-text);
-  --dialog-title-size: var(--text-lg);
-  --dialog-title-weight: var(--font-semibold);
-  --dialog-subtitle-color: var(--color-text-muted);
-  --dialog-subtitle-size: var(--text-sm);
+  --dx-dialog-header-bg: var(--color-surface-sunken);
+  --dx-dialog-header-border: var(--color-border);
+  --dx-dialog-title-color: var(--color-text);
+  --dx-dialog-title-size: var(--text-lg);
+  --dx-dialog-title-weight: var(--font-semibold);
+  --dx-dialog-subtitle-color: var(--color-text-muted);
+  --dx-dialog-subtitle-size: var(--text-sm);
 
-  --dialog-backdrop: var(--color-backdrop);
-  --dialog-animation-duration: var(--duration-300);
+  --dx-dialog-backdrop: var(--color-backdrop);
+  --dx-dialog-backdrop-blur: 4px;
+  --dx-dialog-animation-duration: var(--duration-300);
 }
