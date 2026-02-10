@@ -17,6 +17,7 @@
  */
 import { type Component, type Ref, ref, shallowRef, watch } from "vue";
 import { DanxButton } from "../../src/components/button";
+import { CodeViewer } from "../../src/components/code-viewer";
 import { useLivePreview } from "../composables/useLivePreview";
 
 const props = defineProps<{
@@ -27,6 +28,7 @@ const props = defineProps<{
 
 const editableCode = ref(props.code ?? "");
 const isCodeVisible = ref(false);
+const codeVersion = ref(0);
 
 watch(
   () => props.code,
@@ -51,6 +53,11 @@ const { component: liveComponent, error: liveError } = useOptionalPreview();
 
 function resetCode() {
   editableCode.value = props.code ?? "";
+  codeVersion.value++;
+}
+
+function onCodeInput(event: Event) {
+  editableCode.value = (event.target as HTMLElement).innerText;
 }
 </script>
 
@@ -80,11 +87,14 @@ function resetCode() {
       </div>
 
       <div v-if="isCodeVisible" class="demo-section__code-area">
-        <textarea
-          v-model="editableCode"
-          class="demo-section__textarea"
-          spellcheck="false"
-          :rows="editableCode.split('\n').length + 1"
+        <CodeViewer
+          :key="codeVersion"
+          :model-value="editableCode"
+          format="html"
+          :can-edit="true"
+          :editable="true"
+          @input="onCodeInput"
+          @update:model-value="(val: unknown) => (editableCode = val as string)"
         />
         <div v-if="liveError" class="demo-section__error">
           {{ liveError }}
@@ -144,26 +154,6 @@ function resetCode() {
 
 .demo-section__code-area {
   margin-top: 0.75rem;
-}
-
-.demo-section__textarea {
-  width: 100%;
-  padding: 0.75rem;
-  font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", monospace;
-  font-size: 0.8125rem;
-  line-height: 1.6;
-  color: var(--color-text);
-  background: var(--color-surface-sunken);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  resize: vertical;
-  tab-size: 2;
-  box-sizing: border-box;
-}
-
-.demo-section__textarea:focus {
-  outline: 2px solid var(--color-interactive);
-  outline-offset: -1px;
 }
 
 .demo-section__error {
