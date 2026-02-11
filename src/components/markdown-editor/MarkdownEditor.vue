@@ -14,6 +14,7 @@
  *   readonly?: boolean - Disables editing (default: false)
  *   hideFooter?: boolean - Hides the character count footer (default: false)
  *   tokenRenderers?: TokenRenderer[] - Custom inline token renderers (default: [])
+ *   debounceMs?: number - Debounce delay (ms) for v-model emit while editing (default: 300, 0 for immediate)
  *
  * @emits
  *   update:modelValue - Emitted when editor content changes (via defineModel)
@@ -53,6 +54,8 @@ export interface MarkdownEditorProps {
   hideFooter?: boolean;
   /** Custom token renderers for inline tokens like {{123}} */
   tokenRenderers?: TokenRenderer[];
+  /** Debounce delay (ms) for v-model emit while editing (default: 300, 0 for immediate) */
+  debounceMs?: number;
 }
 
 const props = withDefaults(defineProps<MarkdownEditorProps>(), {
@@ -60,6 +63,7 @@ const props = withDefaults(defineProps<MarkdownEditorProps>(), {
   readonly: false,
   hideFooter: false,
   tokenRenderers: () => [],
+  debounceMs: 300,
 });
 
 const modelValue = defineModel<string>({ default: "" });
@@ -75,6 +79,7 @@ const tablePopover = useTablePopover();
 const editor = useMarkdownEditor({
   contentRef: contentElementRef,
   initialValue: modelValue.value,
+  debounceMs: props.debounceMs,
   onEmitValue: (markdown: string) => {
     modelValue.value = markdown;
   },

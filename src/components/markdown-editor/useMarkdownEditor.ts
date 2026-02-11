@@ -40,6 +40,8 @@ import { TokenRenderer, TokenState } from "./types";
 export interface UseMarkdownEditorOptions {
   contentRef: Ref<HTMLElement | null>;
   initialValue: string;
+  /** Debounce delay (ms) for v-model emit while editing (default: 300, 0 for immediate) */
+  debounceMs?: number;
   onEmitValue: (markdown: string) => void;
   /** Callback to show the link popover UI */
   onShowLinkPopover?: (options: ShowLinkPopoverOptions) => void;
@@ -87,6 +89,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
   const {
     contentRef,
     initialValue,
+    debounceMs,
     onEmitValue,
     onShowLinkPopover,
     onShowTablePopover,
@@ -111,7 +114,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
   const sync = useMarkdownSync({
     contentRef,
     onEmitValue,
-    debounceMs: 300,
+    debounceMs,
     getCodeBlockById: codeBlocks.getCodeBlockById,
     registerCodeBlock: codeBlocks.registerCodeBlock,
     tokenRenderers,

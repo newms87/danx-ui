@@ -35,6 +35,8 @@ export interface UseCodeViewerEditorOptions {
   currentFormat: Ref<CodeFormat>;
   canEdit: Ref<boolean>;
   editable: Ref<boolean>;
+  /** Delay in ms for debounced v-model emit during editing (default 300, 0 for immediate) */
+  debounceMs?: number;
   onEmitModelValue: (value: object | string | null) => void;
   onEmitEditable: (editable: boolean) => void;
   /** Callback when format changes (e.g., cycling languages) */
@@ -78,6 +80,7 @@ export function useCodeViewerEditor(
     currentFormat,
     canEdit,
     editable,
+    debounceMs = 300,
     onEmitModelValue,
     onEmitEditable,
     onEmitFormat,
@@ -88,6 +91,7 @@ export function useCodeViewerEditor(
 
   let validationTimeout: ReturnType<typeof setTimeout> | null = null;
   let highlightTimeout: ReturnType<typeof setTimeout> | null = null;
+  let emitTimeout: ReturnType<typeof setTimeout> | null = null;
 
   const internalEditable = ref(editable.value);
   const editingContent = ref("");
@@ -145,6 +149,29 @@ export function useCodeViewerEditor(
         }
       });
     }
+  }
+
+  /** Emit the current editing content as parsed object (if parseable) or raw string */
+  function emitCurrentValue(): void {
+    const parsed = codeFormat.parse(editingContent.value);
+    if (parsed) {
+      onEmitModelValue(parsed);
+    } else {
+      onEmitModelValue(editingContent.value);
+    }
+  }
+
+  function debouncedEmit(): void {
+    if (emitTimeout) {
+      clearTimeout(emitTimeout);
+    }
+    if (debounceMs === 0) {
+      emitCurrentValue();
+      return;
+    }
+    emitTimeout = setTimeout(() => {
+      emitCurrentValue();
+    }, debounceMs);
   }
 
   function debouncedValidate(): void {
@@ -216,6 +243,7 @@ export function useCodeViewerEditor(
 
     debouncedValidate();
     debouncedHighlight();
+    debouncedEmit();
   }
 
   function onContentEditableBlur(): void {
@@ -231,14 +259,13 @@ export function useCodeViewerEditor(
       clearTimeout(highlightTimeout);
       highlightTimeout = null;
     }
+    if (emitTimeout) {
+      clearTimeout(emitTimeout);
+      emitTimeout = null;
+    }
     validationError.value = codeFormat.validateWithError(editingContent.value, currentFormat.value);
 
-    const parsed = codeFormat.parse(editingContent.value);
-    if (parsed) {
-      onEmitModelValue(parsed);
-    } else {
-      onEmitModelValue(editingContent.value);
-    }
+    emitCurrentValue();
 
     if (codeRef.value) {
       codeRef.value.innerHTML = highlightSyntax(editingContent.value, {
@@ -447,6 +474,7 @@ export function useCodeViewerEditor(
   onUnmounted(() => {
     if (validationTimeout) clearTimeout(validationTimeout);
     if (highlightTimeout) clearTimeout(highlightTimeout);
+    if (emitTimeout) clearTimeout(emitTimeout);
   });
 
   return {

@@ -84,6 +84,11 @@ describe("MarkdownEditor", () => {
       expect(wrapper.find(".theme-light").exists()).toBe(false);
     });
 
+    it("accepts debounceMs prop without error", () => {
+      mountEditor({ debounceMs: 100 });
+      expect(wrapper.find(".dx-markdown-editor").exists()).toBe(true);
+    });
+
     it("uses --dx-mde-color token for .dx-markdown-content text color (not inherit)", () => {
       const cssPath = resolve(__dirname, "../markdown-editor.css");
       const css = readFileSync(cssPath, "utf-8");

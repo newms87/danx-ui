@@ -65,6 +65,8 @@ export interface DanxCodeViewerProps {
   theme?: "dark" | "light";
   /** Whether to hide the footer entirely. */
   hideFooter?: boolean;
+  /** How frequently v-model emits during editing, in milliseconds (default: 300). Set 0 for immediate. */
+  debounceMs?: number;
   /** Current validation state via v-model:valid. True when content is valid for the current format. */
   valid?: boolean;
 }

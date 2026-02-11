@@ -30,6 +30,7 @@
  * | allowAnyLanguage  | boolean                | false    | Show language search in badge              |
  * | theme             | "dark"/"light"         | "dark"   | Color theme                                |
  * | hideFooter        | boolean                | false    | Hide the footer bar                        |
+ * | debounceMs        | number                 | 300      | Debounce delay (ms) for v-model emit while editing (0 = immediate) |
  *
  * ## Events
  * - update:modelValue — edited value (object or string)
@@ -84,6 +85,7 @@ const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
   defaultCollapsed: true,
   theme: "dark",
   hideFooter: false,
+  debounceMs: 300,
 });
 
 const emit = defineEmits<DanxCodeViewerEmits>();
@@ -121,6 +123,7 @@ const editor = useCodeViewerEditor({
   currentFormat,
   canEdit: toRef(props, "canEdit"),
   editable: toRef(props, "editable"),
+  debounceMs: props.debounceMs,
   onEmitModelValue: (value) => emit("update:modelValue", value),
   onEmitEditable: (editable) => emit("update:editable", editable),
   onEmitFormat: (format) => onFormatChange(format),

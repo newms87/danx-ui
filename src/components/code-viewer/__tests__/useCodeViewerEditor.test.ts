@@ -791,6 +791,80 @@ describe("useCodeViewerEditor", () => {
       delete (preElement as unknown as Record<string, unknown>)["innerHTML"];
     });
 
+    it("debouncedEmit calls onEmitModelValue after default 300ms debounce", () => {
+      const { editor, codeRef, callbacks } = createEditor({ editable: ref(true) });
+      preElement = createPreElement("name: changed");
+      codeRef.value = preElement;
+
+      const event = new Event("input", { bubbles: true });
+      Object.defineProperty(event, "target", { value: preElement });
+      editor.onContentEditableInput(event);
+
+      // Should not have emitted yet
+      expect(callbacks.onEmitModelValue).not.toHaveBeenCalled();
+
+      // Advance past the 300ms debounce
+      vi.advanceTimersByTime(300);
+
+      // Now it should have emitted
+      expect(callbacks.onEmitModelValue).toHaveBeenCalled();
+    });
+
+    it("debouncedEmit respects custom debounceMs", () => {
+      const { editor, codeRef, callbacks } = createEditor({
+        editable: ref(true),
+        debounceMs: 100,
+      });
+      preElement = createPreElement("name: fast");
+      codeRef.value = preElement;
+
+      const event = new Event("input", { bubbles: true });
+      Object.defineProperty(event, "target", { value: preElement });
+      editor.onContentEditableInput(event);
+
+      // Should not have emitted at 50ms
+      vi.advanceTimersByTime(50);
+      expect(callbacks.onEmitModelValue).not.toHaveBeenCalled();
+
+      // Should emit at 100ms
+      vi.advanceTimersByTime(50);
+      expect(callbacks.onEmitModelValue).toHaveBeenCalled();
+    });
+
+    it("debouncedEmit with debounceMs 0 emits immediately", () => {
+      const { editor, codeRef, callbacks } = createEditor({
+        editable: ref(true),
+        debounceMs: 0,
+      });
+      preElement = createPreElement("name: immediate");
+      codeRef.value = preElement;
+
+      const event = new Event("input", { bubbles: true });
+      Object.defineProperty(event, "target", { value: preElement });
+      editor.onContentEditableInput(event);
+
+      // Should have emitted immediately (no timer needed)
+      expect(callbacks.onEmitModelValue).toHaveBeenCalled();
+    });
+
+    it("blur clears pending emit timeout and emits immediately", () => {
+      const { editor, codeRef, callbacks } = createEditor({ editable: ref(true) });
+      preElement = createPreElement("name: blur-test");
+      codeRef.value = preElement;
+
+      // Trigger input to start debounced emit
+      const event = new Event("input", { bubbles: true });
+      Object.defineProperty(event, "target", { value: preElement });
+      editor.onContentEditableInput(event);
+
+      // Not yet emitted
+      expect(callbacks.onEmitModelValue).not.toHaveBeenCalled();
+
+      // Blur should emit immediately
+      editor.onContentEditableBlur();
+      expect(callbacks.onEmitModelValue).toHaveBeenCalled();
+    });
+
     it("debouncedValidate clears previous timeout on rapid calls", () => {
       const { editor, codeRef, currentFormat } = createEditor({ editable: ref(true) });
       preElement = createPreElement('{"key": "value"}');
@@ -894,7 +968,7 @@ describe("useCodeViewerEditor", () => {
       clearTimeoutSpy.mockClear();
       wrapper.unmount();
 
-      expect(clearTimeoutSpy.mock.calls.length).toBeGreaterThanOrEqual(2);
+      expect(clearTimeoutSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
       clearTimeoutSpy.mockRestore();
       vi.useRealTimers();
     });
