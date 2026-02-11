@@ -55,7 +55,7 @@ onUnmounted(() => {
   observer?.disconnect();
 });
 
-const currentTheme = computed<"dark" | "light">(() => (isDark.value ? "dark" : "light"));
+const isLightTheme = computed(() => !isDark.value);
 </script>
 
 <template>
@@ -85,7 +85,12 @@ const currentTheme = computed<"dark" | "light">(() => (isDark.value ? "dark" : "
     </div>
 
     <div v-if="hasDocs && activeTab === 'docs'" class="demo-page__docs">
-      <MarkdownEditor :model-value="docs" readonly hide-footer :theme="currentTheme" />
+      <MarkdownEditor
+        :model-value="docs"
+        readonly
+        hide-footer
+        :class="{ 'theme-light': isLightTheme }"
+      />
     </div>
   </div>
 </template>

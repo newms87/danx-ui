@@ -83,14 +83,14 @@
     font-weight: 600;
     color: var(--dx-mde-popover-heading);
   }
-}
 
-.mde-floating-panel__header .mde-floating-panel__close-btn {
-  color: var(--dx-mde-popover-muted);
-  --dx-button-hover-bg: var(--dx-mde-menu-item-hover);
+  .mde-floating-panel__close-btn {
+    color: var(--dx-mde-popover-muted);
+    --dx-button-hover-bg: var(--dx-mde-menu-item-hover);
 
-  &:hover:not(:disabled) {
-    color: var(--dx-mde-popover-heading);
+    &:hover:not(:disabled) {
+      color: var(--dx-mde-popover-heading);
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, ref } from "vue";
 import { useMarkdownEditor } from "../useMarkdownEditor";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
@@ -985,13 +985,14 @@ describe("useMarkdownEditor", () => {
 
       // Position cursor in second row
       const cells = editor.container.querySelectorAll("td");
-      if (cells[1]?.firstChild) {
-        editor.setCursor(cells[1].firstChild, 0);
-      }
+      expect(cells[1]?.firstChild).not.toBeNull();
+      editor.setCursor(cells[1]!.firstChild!, 0);
 
       const event = keyEvent("ArrowUp");
+      const preventSpy = vi.spyOn(event, "preventDefault");
       markdownEditor.onKeyDown(event);
-      // The table navigation should have been attempted
+      // Arrow navigation in a table cell calls preventDefault when handled
+      expect(preventSpy).toHaveBeenCalled();
     });
 
     it("handles ArrowDown in table", () => {
@@ -1000,12 +1001,13 @@ describe("useMarkdownEditor", () => {
       );
 
       const cells = editor.container.querySelectorAll("td");
-      if (cells[0]?.firstChild) {
-        editor.setCursor(cells[0].firstChild, 0);
-      }
+      expect(cells[0]?.firstChild).not.toBeNull();
+      editor.setCursor(cells[0]!.firstChild!, 0);
 
       const event = keyEvent("ArrowDown");
+      const preventSpy = vi.spyOn(event, "preventDefault");
       markdownEditor.onKeyDown(event);
+      expect(preventSpy).toHaveBeenCalled();
     });
 
     it("does not handle arrow keys with modifiers", () => {
@@ -1014,9 +1016,8 @@ describe("useMarkdownEditor", () => {
       );
 
       const cells = editor.container.querySelectorAll("td");
-      if (cells[0]?.firstChild) {
-        editor.setCursor(cells[0].firstChild, 0);
-      }
+      expect(cells[0]?.firstChild).not.toBeNull();
+      editor.setCursor(cells[0]!.firstChild!, 0);
 
       const event = keyEvent("ArrowDown", { ctrl: true });
       const preventSpy = vi.spyOn(event, "preventDefault");
@@ -1032,9 +1033,8 @@ describe("useMarkdownEditor", () => {
       const markdownEditor = createEditor("<table><tr><td>Cell</td><td>Cell 2</td></tr></table>");
 
       const td = editor.container.querySelector("td")!;
-      if (td.firstChild) {
-        editor.setCursor(td.firstChild, 2);
-      }
+      expect(td.firstChild).not.toBeNull();
+      editor.setCursor(td.firstChild!, 2);
 
       const event = keyEvent("Enter");
       const preventSpy = vi.spyOn(event, "preventDefault");
@@ -1049,9 +1049,8 @@ describe("useMarkdownEditor", () => {
       const markdownEditor = createEditor("<table><tr><td>Cell 1</td><td>Cell 2</td></tr></table>");
 
       const td = editor.container.querySelector("td")!;
-      if (td.firstChild) {
-        editor.setCursor(td.firstChild, 2);
-      }
+      expect(td.firstChild).not.toBeNull();
+      editor.setCursor(td.firstChild!, 2);
 
       const event = keyEvent("Tab", { code: "Tab" });
       const preventSpy = vi.spyOn(event, "preventDefault");
@@ -1064,12 +1063,14 @@ describe("useMarkdownEditor", () => {
       const markdownEditor = createEditor("<ul><li>First<ul><li>Nested</li></ul></li></ul>");
 
       const nestedLi = editor.container.querySelectorAll("li")[1];
-      if (nestedLi?.firstChild) {
-        editor.setCursor(nestedLi.firstChild, 0);
-      }
+      expect(nestedLi?.firstChild).not.toBeNull();
+      editor.setCursor(nestedLi!.firstChild!, 0);
 
       const event = keyEvent("Tab", { shift: true, code: "Tab" });
+      const preventSpy = vi.spyOn(event, "preventDefault");
       markdownEditor.onKeyDown(event);
+      // Tab key in editor always calls preventDefault
+      expect(preventSpy).toHaveBeenCalled();
     });
   });
 
@@ -1399,6 +1400,115 @@ describe("useMarkdownEditor", () => {
 
       // Should have cycled yaml -> json
       expect(markdownEditor.codeBlocks.codeBlocks.get("cb-1")?.language).toBe("json");
+    });
+  });
+
+  describe("contentRef watcher (one-shot charCount init)", () => {
+    it("updates charCount when contentRef transitions from null to element", async () => {
+      // Create editor with null contentRef initially
+      const contentRef = ref<HTMLElement | null>(null);
+      onEmitValue = vi.fn();
+      const markdownEditor = useMarkdownEditor({
+        contentRef,
+        initialValue: "Hello world",
+        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+      });
+
+      // charCount starts at 0 because contentRef is null
+      expect(markdownEditor.charCount.value).toBe(0);
+
+      // Mount a real element with text content
+      const container = document.createElement("div");
+      container.textContent = "Hello world";
+      document.body.appendChild(container);
+      contentRef.value = container;
+      await nextTick();
+
+      // Watcher should have fired and updated charCount
+      expect(markdownEditor.charCount.value).toBe(11);
+
+      container.remove();
+    });
+
+    it("stops watching after first non-null contentRef", async () => {
+      const contentRef = ref<HTMLElement | null>(null);
+      onEmitValue = vi.fn();
+      const markdownEditor = useMarkdownEditor({
+        contentRef,
+        initialValue: "",
+        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+      });
+
+      // Mount first element
+      const container1 = document.createElement("div");
+      container1.textContent = "First";
+      document.body.appendChild(container1);
+      contentRef.value = container1;
+      await nextTick();
+
+      expect(markdownEditor.charCount.value).toBe(5);
+
+      // Replace with a different element — watcher already stopped,
+      // so charCount should NOT update automatically
+      const container2 = document.createElement("div");
+      container2.textContent = "Second element";
+      document.body.appendChild(container2);
+      contentRef.value = container2;
+      await nextTick();
+
+      // charCount remains at 5 because the watcher stopped itself
+      expect(markdownEditor.charCount.value).toBe(5);
+
+      container1.remove();
+      container2.remove();
+    });
+  });
+
+  describe("onInput branch paths", () => {
+    it("skips sync when heading pattern is converted", () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor("<p># Hello</p>");
+      editor.setCursorInBlock(0, 7);
+
+      markdownEditor.onInput();
+
+      // The heading pattern "# Hello" should have been converted to <h1>
+      expect(editor.getHtml()).toContain("<h1>");
+      expect(editor.getHtml()).not.toContain("<p>");
+
+      // debouncedSyncFromHtml should NOT have been called (heading conversion skipped it)
+      vi.advanceTimersByTime(400);
+      // onEmitValue is not called because onContentChange from headings triggers its own sync,
+      // but debouncedSyncFromHtml in onInput was skipped
+      vi.useRealTimers();
+    });
+
+    it("skips sync when list pattern is converted", () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor("<p>- Item text</p>");
+      editor.setCursorInBlock(0, 11);
+
+      markdownEditor.onInput();
+
+      // The list pattern "- Item text" should have been converted to <ul><li>
+      expect(editor.getHtml()).toContain("<ul>");
+      expect(editor.getHtml()).toContain("<li>");
+      expect(editor.getHtml()).not.toContain("<p>");
+
+      vi.useRealTimers();
+    });
+
+    it("falls through to sync when no pattern is converted", () => {
+      vi.useFakeTimers();
+      const markdownEditor = createEditor("<p>Normal text</p>");
+      editor.setCursorInBlock(0, 5);
+
+      markdownEditor.onInput();
+
+      // No pattern conversion — should fall through to debouncedSyncFromHtml
+      vi.advanceTimersByTime(400);
+      expect(onEmitValue).toHaveBeenCalled();
+      vi.useRealTimers();
     });
   });
 });

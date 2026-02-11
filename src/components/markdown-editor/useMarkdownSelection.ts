@@ -1,4 +1,5 @@
 import { Ref } from "vue";
+import { findAncestorByTag } from "./blockUtils";
 import { getCursorOffset, setCursorOffset } from "./cursorOffset";
 
 /**
@@ -21,24 +22,26 @@ export interface UseMarkdownSelectionReturn {
   getBlockIndex: () => number;
 }
 
+/** Tags recognized as block-level parents for cursor tracking */
+const BLOCK_PARENT_TAGS = new Set([
+  "P",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "LI",
+  "BLOCKQUOTE",
+  "PRE",
+  "DIV",
+]);
+
 /**
  * Get the block-level parent element (p, h1-h6, li, blockquote, etc.) containing the cursor
  */
 function findBlockParent(node: Node, contentRef: HTMLElement): Element | null {
-  const blockTags = ["P", "H1", "H2", "H3", "H4", "H5", "H6", "LI", "BLOCKQUOTE", "PRE", "DIV"];
-
-  let current: Node | null = node;
-  while (current && current !== contentRef) {
-    if (current.nodeType === Node.ELEMENT_NODE) {
-      const element = current as Element;
-      if (blockTags.includes(element.tagName)) {
-        return element;
-      }
-    }
-    current = current.parentNode;
-  }
-
-  return null;
+  return findAncestorByTag(node, contentRef, BLOCK_PARENT_TAGS);
 }
 
 /**

@@ -9,6 +9,11 @@
  * useTableColumnOps) for shared table DOM operations.
  */
 
+import { findAncestorByTag } from "./blockUtils";
+
+const TABLE_TAGS = new Set(["TABLE"]);
+const CELL_TAGS = new Set(["TD", "TH"]);
+
 /**
  * Find the table ancestor if one exists
  */
@@ -16,17 +21,7 @@ export function findTableAncestor(
   node: Node | null,
   contentRef: HTMLElement
 ): HTMLTableElement | null {
-  if (!node) return null;
-
-  let current: Node | null = node;
-  while (current && current !== contentRef) {
-    if (current.nodeType === Node.ELEMENT_NODE && (current as Element).tagName === "TABLE") {
-      return current as HTMLTableElement;
-    }
-    current = current.parentNode;
-  }
-
-  return null;
+  return findAncestorByTag(node, contentRef, TABLE_TAGS) as HTMLTableElement | null;
 }
 
 /**
@@ -36,20 +31,7 @@ export function findCellAncestor(
   node: Node | null,
   contentRef: HTMLElement
 ): HTMLTableCellElement | null {
-  if (!node) return null;
-
-  let current: Node | null = node;
-  while (current && current !== contentRef) {
-    if (current.nodeType === Node.ELEMENT_NODE) {
-      const tag = (current as Element).tagName;
-      if (tag === "TD" || tag === "TH") {
-        return current as HTMLTableCellElement;
-      }
-    }
-    current = current.parentNode;
-  }
-
-  return null;
+  return findAncestorByTag(node, contentRef, CELL_TAGS) as HTMLTableCellElement | null;
 }
 
 /**

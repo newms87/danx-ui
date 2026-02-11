@@ -39,9 +39,6 @@ const content = ref('# Hello World\n\nStart editing...');
 | `modelValue` | `string` | `""` | Markdown content (use v-model) |
 | `placeholder` | `string` | `"Start typing..."` | Placeholder text when empty |
 | `readonly` | `boolean` | `false` | Disables editing |
-| `minHeight` | `string` | `"100px"` | Minimum height of editor content area |
-| `maxHeight` | `string` | `"none"` | Maximum height of editor content area |
-| `theme` | `"dark" \| "light"` | `"dark"` | Visual theme |
 | `hideFooter` | `boolean` | `false` | Hides the character count footer |
 | `tokenRenderers` | `TokenRenderer[]` | `[]` | Custom inline token renderers |
 
@@ -69,7 +66,7 @@ const content = ref('# Hello World\n\nStart editing...');
 ### Light Theme
 
 ```vue
-<MarkdownEditor v-model="content" theme="light" />
+<MarkdownEditor v-model="content" class="theme-light" />
 ```
 
 ## Keyboard Shortcuts
@@ -231,15 +228,9 @@ In readonly mode, the editor renders the markdown as styled HTML but disables ed
 
 ## Size Constraints
 
-Control the content area size via props or CSS:
-
-```vue
-<!-- Via props -->
-<MarkdownEditor v-model="content" min-height="200px" max-height="500px" />
-```
+Control the content area size via CSS tokens:
 
 ```css
-/* Via CSS tokens */
 .my-editor {
   --dx-mde-min-height: 200px;
   --dx-mde-max-height: 500px;

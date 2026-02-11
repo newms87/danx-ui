@@ -116,6 +116,29 @@ export function getTargetBlock(
 }
 
 /**
+ * Walk up from a node through its ancestors until reaching the container,
+ * returning the first element whose tag name is in the provided set.
+ * Returns null if no match is found or node is null.
+ */
+export function findAncestorByTag(
+  node: Node | null,
+  container: HTMLElement,
+  tagNames: Set<string>
+): Element | null {
+  if (!node) return null;
+
+  let current: Node | null = node;
+  while (current && current !== container) {
+    if (current.nodeType === Node.ELEMENT_NODE && tagNames.has((current as Element).tagName)) {
+      return current;
+    }
+    current = current.parentNode;
+  }
+
+  return null;
+}
+
+/**
  * Find the anchor element ancestor of a node within a container.
  * Used for Ctrl+Click link opening and link editing.
  */
@@ -123,15 +146,7 @@ export function findLinkAncestor(
   node: Node | null,
   container: HTMLElement
 ): HTMLAnchorElement | null {
-  if (!node) return null;
-
-  let current: Node | null = node;
-  while (current && current !== container) {
-    if (current.nodeType === Node.ELEMENT_NODE && (current as Element).tagName === "A") {
-      return current as HTMLAnchorElement;
-    }
-    current = current.parentNode;
-  }
-
-  return null;
+  return findAncestorByTag(node, container, LINK_TAGS) as HTMLAnchorElement | null;
 }
+
+const LINK_TAGS = new Set(["A"]);

@@ -70,13 +70,17 @@ describe("MarkdownEditor", () => {
       expect(wrapper.find(".dx-markdown-editor.is-readonly").exists()).toBe(true);
     });
 
-    it("applies theme-light class when theme is light", () => {
-      mountEditor({ theme: "light" });
+    it("applies theme-light class when added by consumer", () => {
+      wrapper = mount(MarkdownEditor, {
+        props: { modelValue: "" },
+        attrs: { class: "theme-light" },
+        attachTo: document.body,
+      });
       expect(wrapper.find(".dx-markdown-editor.theme-light").exists()).toBe(true);
     });
 
-    it("does not add theme-light class for dark theme", () => {
-      mountEditor({ theme: "dark" });
+    it("does not have theme-light class by default", () => {
+      mountEditor();
       expect(wrapper.find(".theme-light").exists()).toBe(false);
     });
 
@@ -189,6 +193,21 @@ describe("MarkdownEditor", () => {
     it("does not render badge container without slot", () => {
       mountEditor();
       expect(wrapper.find(".dx-editor-badge").exists()).toBe(false);
+    });
+  });
+
+  describe("footer slot", () => {
+    it("renders footer slot content between char count and hotkey button", () => {
+      wrapper = mount(MarkdownEditor, {
+        props: { modelValue: "" },
+        slots: {
+          footer: "<span class='test-footer-content'>Save status</span>",
+        },
+        attachTo: document.body,
+      });
+      const footer = wrapper.find(".dx-markdown-editor-footer");
+      expect(footer.exists()).toBe(true);
+      expect(footer.find(".test-footer-content").text()).toBe("Save status");
     });
   });
 

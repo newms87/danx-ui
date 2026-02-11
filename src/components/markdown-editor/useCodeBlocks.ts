@@ -1,14 +1,23 @@
+/**
+ * Code Blocks Composable
+ *
+ * Manages code block state (content, language) and operations within the
+ * markdown editor. Tracks all code blocks via a reactive Map, handles
+ * toggling blocks on/off, detecting code fence patterns, and coordinating
+ * mount/focus lifecycle through pending focus tracking.
+ *
+ * @see codeBlockToggle.ts for toggle/pattern extraction
+ * @see codeBlockUtils.ts for DOM manipulation helpers
+ */
+
 import { reactive, Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
-import { detectCodeFenceStart } from "../../shared/markdown";
-import { positionCursorAtEnd } from "./cursorPosition";
+import { getCodeBlockWrapper } from "./codeBlockUtils";
 import {
-  getTargetBlock,
-  getCodeBlockWrapper,
-  createCodeBlockWrapper,
-  convertCodeBlockToParagraph,
-  isConvertibleBlock,
-} from "./codeBlockUtils";
+  toggleCodeBlock as toggleCodeBlockFn,
+  checkAndConvertCodeBlockPattern as checkPatternFn,
+  CodeBlockToggleDeps,
+} from "./codeBlockToggle";
 
 /**
  * Represents a code block's state
@@ -213,102 +222,21 @@ export function useCodeBlocks(options: UseCodeBlocksOptions): UseCodeBlocksRetur
     }
   }
 
-  /**
-   * Toggle code block on the current block
-   * - If paragraph/div/heading: convert to code block wrapper
-   * - If already in code block: convert back to paragraph
-   * - If in a list: convert list item to paragraph first, then to code block
-   */
+  // Shared dependency object for extracted toggle/pattern functions
+  const toggleDeps: CodeBlockToggleDeps = {
+    contentRef,
+    selection,
+    codeBlocks,
+    pendingFocusIds,
+    onContentChange,
+  };
+
   function toggleCodeBlock(): void {
-    if (!contentRef.value) return;
-
-    // Check if already in a code block wrapper
-    const wrapper = getCodeBlockWrapper(selection);
-    if (wrapper) {
-      const p = convertCodeBlockToParagraph(wrapper, codeBlocks);
-      positionCursorAtEnd(p);
-      onContentChange();
-      return;
-    }
-
-    // Get the target block
-    const block = getTargetBlock(contentRef, selection);
-    if (!block) return;
-
-    // If in a list item, we can't directly convert to code block
-    // The caller (MarkdownEditor) should handle this by first converting to paragraph
-    if (block.tagName === "LI") {
-      // For now, just return - the menu handler will deal with this
-      return;
-    }
-
-    // Convert to code block wrapper
-    if (isConvertibleBlock(block)) {
-      const content = block.textContent || "";
-      const { wrapper, id } = createCodeBlockWrapper(content, "");
-
-      // Register in state
-      codeBlocks.set(id, {
-        id,
-        content,
-        language: "",
-      });
-
-      // Replace block with wrapper
-      block.parentNode?.replaceChild(wrapper, block);
-
-      // Mark this code block for focus when it mounts
-      pendingFocusIds.add(id);
-
-      onContentChange();
-    }
+    toggleCodeBlockFn(toggleDeps);
   }
 
-  /**
-   * Check if the current block contains a code fence pattern (``` or ```language)
-   * and convert it to the appropriate code block if detected.
-   * Only converts paragraphs/divs/headings, not existing code blocks.
-   * @returns true if a pattern was detected and converted, false otherwise
-   */
   function checkAndConvertCodeBlockPattern(): boolean {
-    if (!contentRef.value) return false;
-
-    const block = getTargetBlock(contentRef, selection);
-    if (!block) return false;
-
-    // Only convert paragraphs, divs, or headings - not existing code blocks or list items
-    if (!isConvertibleBlock(block)) return false;
-
-    // Get the text content of the block
-    const textContent = block.textContent || "";
-
-    // Check for code fence pattern
-    const pattern = detectCodeFenceStart(textContent);
-    if (!pattern) return false;
-
-    // Pattern detected - convert to code block wrapper
-    const language = pattern.language || "";
-
-    const { wrapper, id } = createCodeBlockWrapper("", language);
-
-    // Register in state
-    codeBlocks.set(id, {
-      id,
-      content: "",
-      language,
-    });
-
-    // Replace block with wrapper
-    block.parentNode?.replaceChild(wrapper, block);
-
-    // Mark this code block for focus when it mounts
-    // The useCodeBlockManager will call handleCodeBlockMounted after mounting
-    pendingFocusIds.add(id);
-
-    // Notify of content change
-    onContentChange();
-
-    return true;
+    return checkPatternFn(toggleDeps);
   }
 
   return {

@@ -15,14 +15,18 @@ Add more lines to see the scrollbar appear when content exceeds the maximum heig
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
     <div>
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600;">minHeight="60px"</p>
-      <MarkdownEditor v-model="shortContent" min-height="60px" />
+      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600">
+        --dx-mde-min-height: 60px
+      </p>
+      <MarkdownEditor v-model="shortContent" style="--dx-mde-min-height: 60px" />
     </div>
     <div>
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600;">maxHeight="150px"</p>
-      <MarkdownEditor v-model="tallContent" max-height="150px" />
+      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600">
+        --dx-mde-max-height: 150px
+      </p>
+      <MarkdownEditor v-model="tallContent" style="--dx-mde-max-height: 150px" />
     </div>
   </div>
 </template>

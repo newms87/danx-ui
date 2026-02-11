@@ -12,9 +12,6 @@
  *   modelValue: string - The markdown content (use v-model, default: "")
  *   placeholder?: string - Placeholder text when empty (default: "Start typing...")
  *   readonly?: boolean - Disables editing (default: false)
- *   minHeight?: string - Minimum height of editor content area (default: "100px")
- *   maxHeight?: string - Maximum height of editor content area (default: "none")
- *   theme?: "dark" | "light" - Visual theme (default: "dark")
  *   hideFooter?: boolean - Hides the character count footer (default: false)
  *   tokenRenderers?: TokenRenderer[] - Custom inline token renderers (default: [])
  *
@@ -26,14 +23,14 @@
  *   footer - Extra content in the footer bar between char count and hotkey button
  *
  * @tokens
- *   --dx-mde-min-height - Override minimum height via CSS
- *   --dx-mde-max-height - Override maximum height via CSS
+ *   --dx-mde-min-height - Override minimum height (default: 100px)
+ *   --dx-mde-max-height - Override maximum height (default: none)
  *
  * @example
  *   <MarkdownEditor v-model="markdown" placeholder="Write something..." />
  *
  * @example
- *   <MarkdownEditor v-model="content" theme="light" :hide-footer="true">
+ *   <MarkdownEditor v-model="content" class="theme-light" :hide-footer="true">
  *     <template #badge><ShareButton /></template>
  *   </MarkdownEditor>
  */
@@ -53,9 +50,6 @@ import TablePopover from "./TablePopover.vue";
 export interface MarkdownEditorProps {
   placeholder?: string;
   readonly?: boolean;
-  minHeight?: string;
-  maxHeight?: string;
-  theme?: "dark" | "light";
   hideFooter?: boolean;
   /** Custom token renderers for inline tokens like {{123}} */
   tokenRenderers?: TokenRenderer[];
@@ -64,9 +58,6 @@ export interface MarkdownEditorProps {
 const props = withDefaults(defineProps<MarkdownEditorProps>(), {
   placeholder: "Start typing...",
   readonly: false,
-  minHeight: "100px",
-  maxHeight: "none",
-  theme: "dark",
   hideFooter: false,
   tokenRenderers: () => [],
 });
@@ -123,11 +114,7 @@ watch(modelValue, (newValue) => {
 </script>
 
 <template>
-  <div
-    class="dx-markdown-editor"
-    :class="[{ 'is-readonly': readonly }, props.theme === 'light' ? 'theme-light' : '']"
-    :style="{ '--dx-mde-min-height': minHeight, '--dx-mde-max-height': maxHeight }"
-  >
+  <div class="dx-markdown-editor" :class="{ 'is-readonly': readonly }">
     <div class="dx-markdown-editor-body" @contextmenu="contextMenu.show">
       <MarkdownEditorContent
         :html="editor.renderedHtml.value"

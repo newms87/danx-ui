@@ -1,6 +1,10 @@
-import { App, computed, createApp, h, nextTick, ref, Ref, watch } from "vue";
-import CodeViewer from "../code-viewer/CodeViewer.vue";
+import { Ref } from "vue";
 import { CodeBlockState } from "./useCodeBlocks";
+import {
+  mountCodeViewer as mountCodeViewerFn,
+  MountedInstance,
+  MountCodeViewerDeps,
+} from "./codeViewerMount";
 import { useDomObserver } from "./useDomObserver";
 
 /**
@@ -38,32 +42,6 @@ export interface UseCodeBlockManagerReturn {
 }
 
 /**
- * Mounted CodeViewer instance tracking
- */
-interface MountedInstance {
-  app: App;
-  mountPoint: HTMLElement;
-}
-
-/**
- * Map language aliases to CodeViewer format
- */
-function mapLanguageToFormat(language: string): string {
-  const formatMap: Record<string, string> = {
-    js: "javascript",
-    ts: "typescript",
-    py: "python",
-    rb: "ruby",
-    yml: "yaml",
-    md: "markdown",
-    sh: "bash",
-    shell: "bash",
-  };
-
-  return formatMap[language] || language || "text";
-}
-
-/**
  * Composable for managing CodeViewer instances within the markdown editor.
  * Handles mounting/unmounting Vue apps for code block "islands".
  */
@@ -80,142 +58,22 @@ export function useCodeBlockManager(
     onCodeBlockMounted,
   } = options;
 
-  // Track mounted instances by code block ID
   const mountedInstances = new Map<string, MountedInstance>();
-
-  // Track watchers for cleanup
   const mountedWatchers = new Map<string, () => void>();
 
-  /**
-   * Create and mount a CodeViewer instance for a code block
-   */
+  const mountDeps: MountCodeViewerDeps = {
+    codeBlocks,
+    mountedInstances,
+    mountedWatchers,
+    updateCodeBlockContent,
+    updateCodeBlockLanguage,
+    onCodeBlockExit,
+    onCodeBlockDelete,
+    onCodeBlockMounted,
+  };
+
   function mountCodeViewer(wrapper: HTMLElement): void {
-    const id = wrapper.getAttribute("data-code-block-id");
-    if (!id) return;
-
-    // Skip if already mounted
-    if (mountedInstances.has(id)) return;
-
-    const mountPoint = wrapper.querySelector(".code-viewer-mount-point") as HTMLElement;
-    if (!mountPoint) return;
-
-    // Get state from the codeBlocks map
-    const state = codeBlocks.get(id);
-
-    // If no state in map, try to get from data attributes (initial load)
-    const initialContent = state?.content ?? mountPoint.getAttribute("data-content") ?? "";
-    const initialLanguage = state?.language ?? mountPoint.getAttribute("data-language") ?? "";
-
-    // Ensure state exists in the map
-    if (!state) {
-      codeBlocks.set(id, {
-        id,
-        content: initialContent,
-        language: initialLanguage,
-      });
-    }
-
-    // Create reactive refs for the CodeViewer props
-    // These will be updated by watchers when the codeBlocks map changes
-    const reactiveContent = ref(initialContent);
-    const reactiveLanguage = ref(initialLanguage);
-
-    // Set up watchers to track changes to this code block's state
-    // We need separate watchers for content and language to ensure Vue properly
-    // tracks the reactive properties accessed within each getter function
-    const stopContentWatcher = watch(
-      () => codeBlocks.get(id)?.content,
-      (newContent) => {
-        if (newContent !== undefined) {
-          reactiveContent.value = newContent;
-        }
-      }
-    );
-
-    const stopLanguageWatcher = watch(
-      () => codeBlocks.get(id)?.language,
-      (newLanguage) => {
-        if (newLanguage !== undefined) {
-          reactiveLanguage.value = newLanguage;
-        }
-      }
-    );
-
-    // Combined cleanup function for both watchers
-    const stopWatcher = () => {
-      stopContentWatcher();
-      stopLanguageWatcher();
-    };
-
-    // Store the watcher cleanup function
-    mountedWatchers.set(id, stopWatcher);
-
-    // Create Vue app for CodeViewer
-    const app = createApp({
-      setup() {
-        // Handle model value updates
-        const onUpdateModelValue = (value: object | string | null) => {
-          const content = typeof value === "string" ? value : JSON.stringify(value);
-          updateCodeBlockContent(id, content);
-        };
-
-        // Handle format/language updates
-        const onUpdateFormat = (format: string) => {
-          updateCodeBlockLanguage(id, format);
-        };
-
-        // Handle exit (double-Enter at end of code block)
-        const onExit = () => {
-          if (onCodeBlockExit) {
-            onCodeBlockExit(id);
-          }
-        };
-
-        // Handle delete (Backspace/Delete on empty code block)
-        const onDelete = () => {
-          if (onCodeBlockDelete) {
-            onCodeBlockDelete(id);
-          }
-        };
-
-        // Create a computed for the format to ensure proper reactivity tracking
-        // The render function needs a computed that Vue can track for re-renders
-        const computedFormat = computed(
-          () =>
-            mapLanguageToFormat(reactiveLanguage.value) as import("../code-viewer/types").CodeFormat
-        );
-
-        return () =>
-          h(CodeViewer, {
-            modelValue: reactiveContent.value,
-            format: computedFormat.value,
-            canEdit: true,
-            editable: true,
-            allowAnyLanguage: true,
-            class: "code-block-island",
-            "onUpdate:modelValue": onUpdateModelValue,
-            "onUpdate:format": onUpdateFormat,
-            onExit,
-            onDelete,
-          });
-      },
-    });
-
-    // Clear mount point content (remove data attributes div structure)
-    mountPoint.innerHTML = "";
-
-    // Mount the app
-    app.mount(mountPoint);
-
-    // Track the instance
-    mountedInstances.set(id, { app, mountPoint });
-
-    // Notify that the code block was mounted (after nextTick to ensure DOM is ready)
-    if (onCodeBlockMounted) {
-      nextTick(() => {
-        onCodeBlockMounted(id, wrapper);
-      });
-    }
+    mountCodeViewerFn(wrapper, mountDeps);
   }
 
   /**

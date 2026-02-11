@@ -1,6 +1,14 @@
+/**
+ * Blockquote Composable
+ *
+ * Provides toggle and detection for blockquote elements in the markdown editor.
+ * Handles wrapping/unwrapping the current block in a <blockquote>, preserving
+ * cursor position across transformations via cursorOffset helpers.
+ */
+
 import { Ref } from "vue";
 import { getCursorOffset, setCursorOffset } from "./cursorOffset";
-import { CONVERTIBLE_BLOCK_TAGS } from "./blockUtils";
+import { CONVERTIBLE_BLOCK_TAGS, findAncestorByTag } from "./blockUtils";
 
 /**
  * Options for useBlockquotes composable
@@ -20,37 +28,23 @@ export interface UseBlockquotesReturn {
   isInBlockquote: () => boolean;
 }
 
+/** Tags recognized as the current block in blockquote context */
+const BLOCKQUOTE_BLOCK_TAGS = new Set([...CONVERTIBLE_BLOCK_TAGS, "BLOCKQUOTE"]);
+
+const BLOCKQUOTE_ONLY = new Set(["BLOCKQUOTE"]);
+
 /**
  * Find the nearest block-level element containing the cursor
  */
 function findCurrentBlock(node: Node, contentRef: HTMLElement): Element | null {
-  let current: Node | null = node;
-  while (current && current !== contentRef) {
-    if (current.nodeType === Node.ELEMENT_NODE) {
-      const element = current as Element;
-      if (CONVERTIBLE_BLOCK_TAGS.has(element.tagName) || element.tagName === "BLOCKQUOTE") {
-        return element;
-      }
-    }
-    current = current.parentNode;
-  }
-
-  return null;
+  return findAncestorByTag(node, contentRef, BLOCKQUOTE_BLOCK_TAGS);
 }
 
 /**
  * Find the blockquote ancestor if one exists
  */
 function findBlockquoteAncestor(node: Node, contentRef: HTMLElement): HTMLQuoteElement | null {
-  let current: Node | null = node;
-  while (current && current !== contentRef) {
-    if (current.nodeType === Node.ELEMENT_NODE && (current as Element).tagName === "BLOCKQUOTE") {
-      return current as HTMLQuoteElement;
-    }
-    current = current.parentNode;
-  }
-
-  return null;
+  return findAncestorByTag(node, contentRef, BLOCKQUOTE_ONLY) as HTMLQuoteElement | null;
 }
 
 /**

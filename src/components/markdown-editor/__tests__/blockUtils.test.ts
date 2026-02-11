@@ -7,6 +7,7 @@ import {
   isListItemTag,
   isConvertibleBlock,
   getTargetBlock,
+  findAncestorByTag,
   findLinkAncestor,
 } from "../blockUtils";
 import { useMarkdownSelection } from "../useMarkdownSelection";
@@ -380,6 +381,63 @@ describe("blockUtils", () => {
 
       const result = getTargetBlock(contentRef, selection);
       expect(result).toBeNull();
+    });
+  });
+
+  describe("findAncestorByTag", () => {
+    it("returns null when node is null", () => {
+      const container = document.createElement("div");
+      expect(findAncestorByTag(null, container, new Set(["P"]))).toBeNull();
+    });
+
+    it("returns the first matching ancestor", () => {
+      const container = document.createElement("div");
+      const blockquote = document.createElement("blockquote");
+      const p = document.createElement("p");
+      const text = document.createTextNode("hello");
+      p.appendChild(text);
+      blockquote.appendChild(p);
+      container.appendChild(blockquote);
+
+      const result = findAncestorByTag(text, container, new Set(["BLOCKQUOTE"]));
+      expect(result).toBe(blockquote);
+    });
+
+    it("returns the closest match when multiple tags match", () => {
+      const container = document.createElement("div");
+      const blockquote = document.createElement("blockquote");
+      const p = document.createElement("p");
+      const text = document.createTextNode("hello");
+      p.appendChild(text);
+      blockquote.appendChild(p);
+      container.appendChild(blockquote);
+
+      // Both P and BLOCKQUOTE are in the set — P is closer so it should be returned
+      const result = findAncestorByTag(text, container, new Set(["P", "BLOCKQUOTE"]));
+      expect(result).toBe(p);
+    });
+
+    it("returns null when no ancestor matches", () => {
+      const container = document.createElement("div");
+      const span = document.createElement("span");
+      const text = document.createTextNode("hello");
+      span.appendChild(text);
+      container.appendChild(span);
+
+      expect(findAncestorByTag(text, container, new Set(["TABLE"]))).toBeNull();
+    });
+
+    it("stops at the container boundary", () => {
+      const outer = document.createElement("div");
+      const table = document.createElement("table");
+      const container = document.createElement("div");
+      const text = document.createTextNode("hello");
+      container.appendChild(text);
+      table.appendChild(container);
+      outer.appendChild(table);
+
+      // TABLE is above the container so it should NOT be found
+      expect(findAncestorByTag(text, container, new Set(["TABLE"]))).toBeNull();
     });
   });
 

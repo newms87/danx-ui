@@ -6,14 +6,14 @@ const content = ref("Edit in **dark** or *light* theme.");
 </script>
 
 <template>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%">
     <div>
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600;">Dark (default)</p>
-      <MarkdownEditor v-model="content" theme="dark" />
+      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600">Dark (default)</p>
+      <MarkdownEditor v-model="content" />
     </div>
     <div>
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600;">Light</p>
-      <MarkdownEditor v-model="content" theme="light" />
+      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600">Light</p>
+      <MarkdownEditor v-model="content" class="theme-light" />
     </div>
   </div>
 </template>
