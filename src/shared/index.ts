@@ -8,3 +8,4 @@ export type * from "./types";
 export * from "./syntax-highlighting";
 export * from "./markdown";
 export * from "./formatters";
+export * from "./arrayUtils";
