@@ -1,6 +1,8 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import MarkdownEditor from "../MarkdownEditor.vue";
 
 describe("MarkdownEditor", () => {
@@ -76,6 +78,16 @@ describe("MarkdownEditor", () => {
     it("does not add theme-light class for dark theme", () => {
       mountEditor({ theme: "dark" });
       expect(wrapper.find(".theme-light").exists()).toBe(false);
+    });
+
+    it("uses --dx-mde-color token for .dx-markdown-content text color (not inherit)", () => {
+      const cssPath = resolve(__dirname, "../markdown-editor.css");
+      const css = readFileSync(cssPath, "utf-8");
+
+      // The .dx-markdown-content block must use the theme token, not inherit
+      const markdownContentMatch = css.match(/\.dx-markdown-content\s*\{[^}]*color:\s*([^;]+);/);
+      expect(markdownContentMatch).not.toBeNull();
+      expect(markdownContentMatch![1].trim()).toBe("var(--dx-mde-color)");
     });
   });
 
@@ -189,6 +201,15 @@ describe("MarkdownEditor", () => {
       const footer = wrapper.find(".char-count");
       // charCount updates after content mount
       expect(footer.exists()).toBe(true);
+    });
+
+    it("initializes char count from modelValue on mount", async () => {
+      mountEditor({ modelValue: "Hello world" });
+      await nextTick();
+      await nextTick();
+
+      const footer = wrapper.find(".char-count");
+      expect(footer.text()).toContain("11");
     });
   });
 });

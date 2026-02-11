@@ -64,7 +64,7 @@
 
 .dx-markdown-content {
   line-height: 1.6;
-  color: inherit;
+  color: var(--dx-mde-color);
 
   /* Headings */
   h1,
@@ -98,6 +98,7 @@
   /* Inline code */
   code {
     background: var(--dx-mde-content-code-bg);
+    color: var(--dx-mde-content-code-color);
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-size: 0.9em;
@@ -122,8 +123,10 @@
   /* Blockquotes */
   blockquote {
     border-left: 4px solid var(--dx-mde-content-blockquote-border);
+    background: var(--dx-mde-content-blockquote-bg);
     margin: 1em 0;
     padding: 0.5em 1em;
+    border-radius: 0 4px 4px 0;
     color: var(--dx-mde-content-blockquote-text);
 
     p:first-child { margin-top: 0; }

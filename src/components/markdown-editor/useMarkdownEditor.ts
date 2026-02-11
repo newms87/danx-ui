@@ -14,7 +14,7 @@
  * @see editorActions.ts for document structure actions
  */
 
-import { computed, nextTick, Ref, ref } from "vue";
+import { computed, nextTick, Ref, ref, watch } from "vue";
 import { registerDefaultHotkeys } from "./defaultHotkeys";
 import { createCodeBlockHandlers } from "./editorCodeBlockHandlers";
 import { createEditorActions } from "./editorActions";
@@ -248,6 +248,14 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
   if (initialValue) {
     sync.syncFromMarkdown(initialValue);
   }
+
+  // Update char count once the contenteditable element mounts with v-html content
+  const stopWatchingContent = watch(contentRef, (el) => {
+    if (el) {
+      updateCharCount();
+      stopWatchingContent();
+    }
+  });
 
   const editorReturn: UseMarkdownEditorReturn = {
     renderedHtml: sync.renderedHtml,
