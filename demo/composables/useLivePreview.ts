@@ -35,6 +35,31 @@ import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
+import {
+  fCurrency,
+  fCurrencyNoCents,
+  fNumber,
+  fShortCurrency,
+  fShortNumber,
+  fShortSize,
+  fBoolean,
+  fPercent,
+  centerTruncate,
+  fPhone,
+  fNameOrCount,
+  fDate,
+  fDateTime,
+  fSlashDate,
+  fLocalizedDateTime,
+  fDateTimeMs,
+  dbDateTime,
+  fSecondsToTime,
+  fSecondsToDuration,
+  fMillisecondsToDuration,
+  fDuration,
+  fTimeAgo,
+  DateTime,
+} from "../../src/shared/formatters";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
 /** Components available in compiled templates via the `components` option */
@@ -68,6 +93,32 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   MarkdownEditor,
   starIcon,
   buttonIcons,
+  // Formatters - numbers
+  fCurrency,
+  fCurrencyNoCents,
+  fNumber,
+  fShortCurrency,
+  fShortNumber,
+  fShortSize,
+  fBoolean,
+  fPercent,
+  // Formatters - strings
+  centerTruncate,
+  fPhone,
+  fNameOrCount,
+  // Formatters - datetime
+  fDate,
+  fDateTime,
+  fSlashDate,
+  fLocalizedDateTime,
+  fDateTimeMs,
+  dbDateTime,
+  fSecondsToTime,
+  fSecondsToDuration,
+  fMillisecondsToDuration,
+  fDuration,
+  fTimeAgo,
+  DateTime,
 };
 
 const DEBOUNCE_MS = 250;

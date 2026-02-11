@@ -104,6 +104,7 @@ A feature is NOT complete until all three are done.
 | **Relative paths only** | No `/home/...` paths in commands |
 | **NEVER run yarn lint manually** | Hooks run ESLint after every Write/Edit. Running it manually is redundant. |
 | **ALWAYS run yarn test:coverage** | Run as final verification for ANY task. Failing thresholds = blocking. |
+| **ALWAYS register demo exports** | New exports from `src/index.ts` must be added to `AVAILABLE_VALUES` in `demo/composables/useLivePreview.ts` |
 
 ## Project Structure
 
@@ -142,6 +143,7 @@ docs/                     # User documentation
 - `.claude/rules/vue-patterns.md` - Vue 3 best practices
 - `.claude/rules/testing.md` - Test coverage requirements
 - `.claude/rules/tool-usage.md` - Write/Edit tool requirements
+- `.claude/rules/demo-live-preview.md` - Live preview registry for demos
 
 **User Docs:**
 - `docs/getting-started.md` - Installation and setup
