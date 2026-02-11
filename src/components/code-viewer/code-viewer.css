@@ -138,6 +138,7 @@
   .syntax-operator { color: var(--dx-code-viewer-syntax-operator); }
   .syntax-regex { color: var(--dx-code-viewer-syntax-regex); }
   .syntax-template { color: var(--dx-code-viewer-syntax-template); }
+  .syntax-variable { color: var(--dx-code-viewer-syntax-variable); }
   .syntax-tag { color: var(--dx-code-viewer-syntax-tag); }
   .syntax-attribute { color: var(--dx-code-viewer-syntax-attribute); }
   .syntax-doctype { color: var(--dx-code-viewer-syntax-doctype); }

@@ -6,7 +6,9 @@
 import { escapeHtml } from "../escapeHtml";
 import { highlightCSS } from "./highlightCSS";
 import { highlightJavaScript } from "./highlightJavaScript";
+import { highlightBash } from "./highlightBash";
 import { highlightHTML } from "./highlightHTML";
+import { highlightTypeScript } from "./highlightTypeScript";
 
 export type HighlightFormat =
   | "json"
@@ -342,8 +344,11 @@ export function highlightSyntax(code: string, options: HighlightOptions): string
     case "css":
       return highlightCSS(code);
     case "javascript":
-    case "typescript":
       return highlightJavaScript(code);
+    case "typescript":
+      return highlightTypeScript(code);
+    case "bash":
+      return highlightBash(code);
     case "text":
     case "markdown":
     default:

@@ -25,6 +25,8 @@ export interface UseCodeBlockManagerOptions {
   onCodeBlockDelete?: (id: string) => void;
   /** Callback when a code block is mounted */
   onCodeBlockMounted?: (id: string, wrapper: HTMLElement) => void;
+  /** When true, CodeViewers are non-editable with hidden footers */
+  readonly?: boolean;
 }
 
 /**
@@ -56,6 +58,7 @@ export function useCodeBlockManager(
     onCodeBlockExit,
     onCodeBlockDelete,
     onCodeBlockMounted,
+    readonly,
   } = options;
 
   const mountedInstances = new Map<string, MountedInstance>();
@@ -70,6 +73,7 @@ export function useCodeBlockManager(
     onCodeBlockExit,
     onCodeBlockDelete,
     onCodeBlockMounted,
+    readonly,
   };
 
   function mountCodeViewer(wrapper: HTMLElement): void {

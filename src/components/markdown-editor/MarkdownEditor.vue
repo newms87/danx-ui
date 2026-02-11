@@ -81,6 +81,7 @@ const editor = useMarkdownEditor({
   onShowLinkPopover: linkPopover.show,
   onShowTablePopover: tablePopover.show,
   tokenRenderers: props.tokenRenderers,
+  readonly: props.readonly,
 });
 
 // Initialize focus tracking

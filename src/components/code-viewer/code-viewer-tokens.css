@@ -86,6 +86,7 @@
   --dx-code-viewer-syntax-operator: #d4d4d4;
   --dx-code-viewer-syntax-regex: #d16969;
   --dx-code-viewer-syntax-template: #ce9178;
+  --dx-code-viewer-syntax-variable: #9cdcfe;
   --dx-code-viewer-syntax-tag: #569cd6;
   --dx-code-viewer-syntax-attribute: #9cdcfe;
   --dx-code-viewer-syntax-doctype: #808080;
@@ -160,6 +161,7 @@
   --dx-code-viewer-syntax-operator: #64748b;
   --dx-code-viewer-syntax-regex: #be123c;
   --dx-code-viewer-syntax-template: #c2410c;
+  --dx-code-viewer-syntax-variable: #0891b2;
   --dx-code-viewer-syntax-tag: #0369a1;
   --dx-code-viewer-syntax-attribute: #0891b2;
   --dx-code-viewer-syntax-doctype: #64748b;

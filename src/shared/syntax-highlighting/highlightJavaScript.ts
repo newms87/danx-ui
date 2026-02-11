@@ -122,9 +122,11 @@ function canPrecedeRegex(lastToken: string): boolean {
 }
 
 /**
- * Highlight JavaScript syntax by tokenizing character-by-character
+ * Highlight JavaScript syntax by tokenizing character-by-character.
+ * An optional extraKeywords set can be passed to highlight additional
+ * keywords (e.g., TypeScript-specific keywords) using the same class.
  */
-export function highlightJavaScript(code: string): string {
+export function highlightJavaScript(code: string, extraKeywords?: Set<string>): string {
   if (!code) return "";
 
   const result: string[] = [];
@@ -332,7 +334,7 @@ export function highlightJavaScript(code: string): string {
 
       const identifier = code.slice(startIndex, i);
 
-      if (JS_KEYWORDS.has(identifier)) {
+      if (JS_KEYWORDS.has(identifier) || extraKeywords?.has(identifier)) {
         result.push(`<span class="syntax-keyword">${escapeHtml(identifier)}</span>`);
         lastToken = identifier;
       } else if (JS_BUILTINS.has(identifier)) {

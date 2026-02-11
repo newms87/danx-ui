@@ -52,6 +52,21 @@ describe("highlightSyntax", () => {
       expect(result).toContain('class="syntax-keyword"');
       expect(result).toContain('class="syntax-number"');
     });
+
+    it("routes typescript format to TypeScript highlighter", () => {
+      const result = highlightSyntax("interface Foo { name: string }", {
+        format: "typescript",
+      });
+      expect(result).toContain('class="syntax-keyword"');
+      // "interface" is a TS keyword, not a JS keyword
+      expect(result).toContain("interface");
+    });
+
+    it("routes bash format to Bash highlighter", () => {
+      const result = highlightSyntax('echo "hello"', { format: "bash" });
+      expect(result).toContain('class="syntax-keyword"');
+      expect(result).toContain('class="syntax-string"');
+    });
   });
 
   describe("text format", () => {
@@ -394,9 +409,11 @@ describe("highlightSyntax", () => {
         "html",
         "css",
         "javascript",
+        "typescript",
+        "bash",
         "vue",
       ];
-      expect(formats).toHaveLength(8);
+      expect(formats).toHaveLength(10);
     });
   });
 });

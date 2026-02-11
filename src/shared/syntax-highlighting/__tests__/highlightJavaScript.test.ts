@@ -485,6 +485,32 @@ describe("highlightJavaScript", () => {
     });
   });
 
+  describe("extraKeywords parameter", () => {
+    it("highlights extra keywords as syntax-keyword", () => {
+      const extra = new Set(["interface", "type", "enum"]);
+      const result = highlightJavaScript("interface", extra);
+      expect(result).toBe('<span class="syntax-keyword">interface</span>');
+    });
+
+    it("does not highlight extra keywords when not provided", () => {
+      const result = highlightJavaScript("interface");
+      expect(result).toBe("interface");
+    });
+
+    it("highlights both JS keywords and extra keywords", () => {
+      const extra = new Set(["type"]);
+      const result = highlightJavaScript("const type", extra);
+      expect(result).toContain('<span class="syntax-keyword">const</span>');
+      expect(result).toContain('<span class="syntax-keyword">type</span>');
+    });
+
+    it("does not highlight identifiers that are not in either set", () => {
+      const extra = new Set(["interface"]);
+      const result = highlightJavaScript("myVar", extra);
+      expect(result).toBe("myVar");
+    });
+  });
+
   describe("additional edge cases", () => {
     it("handles unterminated regex at newline", () => {
       // Regex /pattern followed by newline without closing / (line 270-271)

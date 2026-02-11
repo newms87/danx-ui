@@ -16,4 +16,6 @@ export { highlightSyntax } from "./highlightSyntax";
 export type { HighlightFormat, HighlightOptions } from "./highlightSyntax";
 export { highlightCSS } from "./highlightCSS";
 export { highlightJavaScript } from "./highlightJavaScript";
+export { highlightBash } from "./highlightBash";
 export { highlightHTML } from "./highlightHTML";
+export { highlightTypeScript } from "./highlightTypeScript";

@@ -11,6 +11,7 @@ function createTestWrapper(options?: {
   onCodeBlockExit?: (id: string) => void;
   onCodeBlockDelete?: (id: string) => void;
   onCodeBlockMounted?: (id: string, wrapper: HTMLElement) => void;
+  readonly?: boolean;
 }) {
   const contentRef = ref<HTMLElement | null>(null);
   const codeBlocks = new Map<string, CodeBlockState>();
@@ -29,6 +30,7 @@ function createTestWrapper(options?: {
         onCodeBlockExit: options?.onCodeBlockExit,
         onCodeBlockDelete: options?.onCodeBlockDelete,
         onCodeBlockMounted: options?.onCodeBlockMounted,
+        readonly: options?.readonly,
       });
       return { contentRef };
     },
@@ -836,6 +838,65 @@ describe("useCodeBlockManager", () => {
       const props = getCodeViewerProps(container, "cb-empty");
       expect(props).not.toBeNull();
       expect(props!.format).toBe("text");
+    });
+  });
+
+  describe("readonly flag propagation", () => {
+    it("mounts CodeViewer with editable props when readonly is false", async () => {
+      testData = createTestWrapper({ readonly: false });
+      await nextTick();
+
+      const container = testData.contentRef.value!;
+      const codeBlock = createCodeBlockElement("cb-rw", "code", "javascript");
+      container.appendChild(codeBlock);
+
+      testData.getManager().mountCodeViewers();
+      await nextTick();
+
+      const props = getCodeViewerProps(container, "cb-rw");
+      expect(props).not.toBeNull();
+      expect(props!.canEdit).toBe(true);
+      expect(props!.editable).toBe(true);
+      expect(props!.allowAnyLanguage).toBe(true);
+      expect(props!.hideFooter).toBe(false);
+    });
+
+    it("mounts CodeViewer with non-editable props when readonly is true", async () => {
+      testData = createTestWrapper({ readonly: true });
+      await nextTick();
+
+      const container = testData.contentRef.value!;
+      const codeBlock = createCodeBlockElement("cb-ro", "code", "javascript");
+      container.appendChild(codeBlock);
+
+      testData.getManager().mountCodeViewers();
+      await nextTick();
+
+      const props = getCodeViewerProps(container, "cb-ro");
+      expect(props).not.toBeNull();
+      expect(props!.canEdit).toBe(false);
+      expect(props!.editable).toBe(false);
+      expect(props!.allowAnyLanguage).toBe(false);
+      expect(props!.hideFooter).toBe(true);
+    });
+
+    it("defaults to editable when readonly is undefined", async () => {
+      testData = createTestWrapper();
+      await nextTick();
+
+      const container = testData.contentRef.value!;
+      const codeBlock = createCodeBlockElement("cb-default", "code", "javascript");
+      container.appendChild(codeBlock);
+
+      testData.getManager().mountCodeViewers();
+      await nextTick();
+
+      const props = getCodeViewerProps(container, "cb-default");
+      expect(props).not.toBeNull();
+      expect(props!.canEdit).toBe(true);
+      expect(props!.editable).toBe(true);
+      expect(props!.allowAnyLanguage).toBe(true);
+      expect(props!.hideFooter).toBe(false);
     });
   });
 

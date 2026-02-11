@@ -47,6 +47,8 @@ export interface UseMarkdownEditorOptions {
   onShowTablePopover?: (options: ShowTablePopoverOptions) => void;
   /** Optional array of token renderers for custom inline tokens */
   tokenRenderers?: TokenRenderer[];
+  /** When true, embedded CodeViewers are non-editable with hidden footers */
+  readonly?: boolean;
 }
 
 /**
@@ -89,6 +91,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     onShowLinkPopover,
     onShowTablePopover,
     tokenRenderers,
+    readonly,
   } = options;
 
   const isShowingHotkeyHelp = ref(false);
@@ -191,6 +194,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     onCodeBlockExit: handleCodeBlockExit,
     onCodeBlockDelete: handleCodeBlockDelete,
     onCodeBlockMounted: codeBlocks.handleCodeBlockMounted,
+    readonly,
   });
 
   const tokenManager = useTokenManager({

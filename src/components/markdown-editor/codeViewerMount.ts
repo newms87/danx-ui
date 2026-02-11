@@ -30,6 +30,8 @@ export interface MountCodeViewerDeps {
   onCodeBlockExit?: (id: string) => void;
   onCodeBlockDelete?: (id: string) => void;
   onCodeBlockMounted?: (id: string, wrapper: HTMLElement) => void;
+  /** When true, CodeViewers are non-editable with hidden footers */
+  readonly?: boolean;
 }
 
 /**
@@ -64,6 +66,7 @@ export function mountCodeViewer(wrapper: HTMLElement, deps: MountCodeViewerDeps)
     onCodeBlockExit,
     onCodeBlockDelete,
     onCodeBlockMounted,
+    readonly: isReadonly,
   } = deps;
 
   const id = wrapper.getAttribute("data-code-block-id");
@@ -136,9 +139,10 @@ export function mountCodeViewer(wrapper: HTMLElement, deps: MountCodeViewerDeps)
         h(CodeViewer, {
           modelValue: reactiveContent.value,
           format: computedFormat.value,
-          canEdit: true,
-          editable: true,
-          allowAnyLanguage: true,
+          canEdit: !isReadonly,
+          editable: !isReadonly,
+          allowAnyLanguage: !isReadonly,
+          hideFooter: !!isReadonly,
           class: "code-block-island",
           "onUpdate:modelValue": onUpdateModelValue,
           "onUpdate:format": onUpdateFormat,
