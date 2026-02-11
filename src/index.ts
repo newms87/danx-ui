@@ -94,8 +94,21 @@ export {
   fPercent,
   // String formatters
   centerTruncate,
+  fTruncate,
+  fUppercase,
+  fLowercase,
+  fAddress,
   fPhone,
   fNameOrCount,
+  // Array utilities
+  arrayCount,
+  arraySum,
+  arrayAvg,
+  arrayMin,
+  arrayMax,
+  arrayFirst,
+  arrayLast,
+  arrayJoin,
   // DateTime parsers
   parseDateTime,
   parseSqlDateTime,

@@ -45,6 +45,10 @@ import {
   fBoolean,
   fPercent,
   centerTruncate,
+  fTruncate,
+  fUppercase,
+  fLowercase,
+  fAddress,
   fPhone,
   fNameOrCount,
   fDate,
@@ -60,6 +64,16 @@ import {
   fTimeAgo,
   DateTime,
 } from "../../src/shared/formatters";
+import {
+  arrayCount,
+  arraySum,
+  arrayAvg,
+  arrayMin,
+  arrayMax,
+  arrayFirst,
+  arrayLast,
+  arrayJoin,
+} from "../../src/shared/arrayUtils";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
 /** Components available in compiled templates via the `components` option */
@@ -104,8 +118,21 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   fPercent,
   // Formatters - strings
   centerTruncate,
+  fTruncate,
+  fUppercase,
+  fLowercase,
+  fAddress,
   fPhone,
   fNameOrCount,
+  // Array utilities
+  arrayCount,
+  arraySum,
+  arrayAvg,
+  arrayMin,
+  arrayMax,
+  arrayFirst,
+  arrayLast,
+  arrayJoin,
   // Formatters - datetime
   fDate,
   fDateTime,

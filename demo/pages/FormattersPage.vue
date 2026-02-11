@@ -13,6 +13,7 @@ import numberCode from "./formatter-examples/NumberFormatters.vue?raw";
 import booleanCode from "./formatter-examples/BooleanFormatters.vue?raw";
 import stringCode from "./formatter-examples/StringFormatters.vue?raw";
 import dateTimeCode from "./formatter-examples/DateTimeFormatters.vue?raw";
+import arrayCode from "./formatter-examples/ArrayUtilities.vue?raw";
 </script>
 
 <template>
@@ -43,6 +44,12 @@ import dateTimeCode from "./formatter-examples/DateTimeFormatters.vue?raw";
       title="Date/Time Formatters"
       description="Date formatting, durations, and relative time."
       :code="dateTimeCode"
+    />
+
+    <DemoSection
+      title="Array Utilities"
+      description="Aggregate and accessor functions for arrays: count, sum, average, min, max, first, last, and join."
+      :code="arrayCode"
     />
   </DemoPage>
 </template>

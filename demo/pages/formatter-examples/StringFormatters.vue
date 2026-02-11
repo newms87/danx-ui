@@ -2,7 +2,15 @@
 /**
  * StringFormatters - Demo examples for string formatting utilities
  */
-import { centerTruncate, fPhone, fNameOrCount } from "danx-ui";
+import {
+  centerTruncate,
+  fTruncate,
+  fUppercase,
+  fLowercase,
+  fAddress,
+  fPhone,
+  fNameOrCount,
+} from "danx-ui";
 
 const examples = [
   {
@@ -22,6 +30,21 @@ const examples = [
   {
     label: 'fNameOrCount({title:"My Report"}, "reports")',
     result: fNameOrCount({ title: "My Report" }, "reports"),
+  },
+  {
+    label: 'fTruncate("A very long string that exceeds the limit", 20)',
+    result: fTruncate("A very long string that exceeds the limit", 20),
+  },
+  { label: 'fTruncate("short", 20)', result: fTruncate("short", 20) },
+  { label: 'fUppercase("hello world")', result: fUppercase("hello world") },
+  { label: 'fLowercase("HELLO WORLD")', result: fLowercase("HELLO WORLD") },
+  {
+    label: 'fAddress({street:"123 Main St",city:"Springfield",state:"IL",zip:"62704"})',
+    result: fAddress({ street: "123 Main St", city: "Springfield", state: "IL", zip: "62704" }),
+  },
+  {
+    label: 'fAddress({city:"Springfield",state:"IL"})',
+    result: fAddress({ city: "Springfield", state: "IL" }),
   },
 ];
 </script>

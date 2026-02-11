@@ -111,6 +111,49 @@ fPhone("5551234567")   // "(555) 123-4567"
 fPhone("15551234567")  // "+1 (555) 123-4567"
 ```
 
+### fTruncate(value, maxLength?)
+
+Truncates a string at the end with an ellipsis. Default maxLength is 100.
+
+```ts
+fTruncate("A very long string", 10) // "A very lon..."
+fTruncate("short", 10)              // "short"
+fTruncate(null)                     // ""
+```
+
+### fUppercase(value)
+
+Converts a value to uppercase.
+
+```ts
+fUppercase("hello world") // "HELLO WORLD"
+fUppercase(null)           // ""
+```
+
+### fLowercase(value)
+
+Converts a value to lowercase.
+
+```ts
+fLowercase("HELLO WORLD") // "hello world"
+fLowercase(null)           // ""
+```
+
+### fAddress(value, mode?)
+
+Formats an address object as a single-line or multiline string.
+
+```ts
+fAddress({ street: "123 Main St", city: "Springfield", state: "IL", zip: "62704" })
+// "123 Main St, Springfield, IL, 62704"
+
+fAddress({ city: "Springfield", state: "IL" })
+// "Springfield, IL"
+
+fAddress({ street: "123 Main St", city: "Springfield", state: "IL", zip: "62704" }, "multiline")
+// "123 Main St\nSpringfield, IL 62704"
+```
+
 ### fNameOrCount(items, label)
 
 Returns a name for a single item, or a count for arrays.
@@ -118,6 +161,82 @@ Returns a name for a single item, or a count for arrays.
 ```ts
 fNameOrCount([{ name: "A" }, { name: "B" }], "items")  // "2 items"
 fNameOrCount({ title: "Report" }, "reports")             // "Report"
+```
+
+## Array Utilities
+
+Aggregate and accessor functions for arrays. Each function accepts an array and an optional dot-notation field path for accessing nested values on array items.
+
+### arrayCount(value)
+
+Returns the length of an array, or 0 for non-array input.
+
+```ts
+arrayCount([1, 2, 3])  // 3
+arrayCount("hello")    // 0
+```
+
+### arraySum(value, fieldPath?)
+
+Sums numeric values across an array. NaN values are treated as 0.
+
+```ts
+arraySum([1, 2, 3])                        // 6
+arraySum([{ val: 10 }, { val: 20 }], "val") // 30
+```
+
+### arrayAvg(value, fieldPath?)
+
+Averages numeric values across an array. Returns 0 for empty arrays.
+
+```ts
+arrayAvg([10, 20, 30])                      // 20
+arrayAvg([{ val: 10 }, { val: 30 }], "val") // 20
+```
+
+### arrayMin(value, fieldPath?)
+
+Minimum value across an array. Returns Infinity for empty arrays.
+
+```ts
+arrayMin([3, 1, 2])                          // 1
+arrayMin([{ val: 30 }, { val: 10 }], "val")  // 10
+```
+
+### arrayMax(value, fieldPath?)
+
+Maximum value across an array. Returns -Infinity for empty arrays.
+
+```ts
+arrayMax([3, 1, 2])                          // 3
+arrayMax([{ val: 30 }, { val: 10 }], "val")  // 30
+```
+
+### arrayFirst(value, fieldPath?)
+
+Returns the first element, optionally accessing a field on it.
+
+```ts
+arrayFirst([10, 20, 30])                         // 10
+arrayFirst([{ name: "Alice" }], "name")           // "Alice"
+```
+
+### arrayLast(value, fieldPath?)
+
+Returns the last element, optionally accessing a field on it.
+
+```ts
+arrayLast([10, 20, 30])                          // 30
+arrayLast([{ name: "Alice" }, { name: "Bob" }], "name") // "Bob"
+```
+
+### arrayJoin(value, separator?)
+
+Joins array values with a separator string. Default separator is `", "`.
+
+```ts
+arrayJoin(["a", "b", "c"])        // "a, b, c"
+arrayJoin(["a", "b", "c"], " | ") // "a | b | c"
 ```
 
 ## Date/Time Formatters
