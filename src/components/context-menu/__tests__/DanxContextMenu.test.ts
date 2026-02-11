@@ -117,17 +117,35 @@ describe("DanxContextMenu", () => {
       const style = wrapper.find(".danx-context-menu").attributes("style");
       expect(style).toContain("left: 10px");
     });
+
+    it("adds open-left class to submenu when near right viewport edge", async () => {
+      mountMenu(
+        [
+          createItem({
+            children: [createItem({ id: "child-1", label: "Child" })],
+          }),
+        ],
+        { x: 900, y: 200 }
+      );
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
+      expect(submenu.exists()).toBe(true);
+      expect(submenu.classes()).toContain("open-left");
+    });
   });
 
   describe("item click", () => {
     it("calls action and emits close on item click", async () => {
       const action = vi.fn();
-      mountMenu([createItem({ action })]);
+      const item = createItem({ action });
+      mountMenu([item]);
 
       await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(action).toHaveBeenCalled();
       expect(wrapper.emitted("close")).toHaveLength(1);
       expect(wrapper.emitted("action")).toHaveLength(1);
+      expect(wrapper.emitted("action")![0]).toEqual([item]);
     });
 
     it("does not call action on disabled item", async () => {
@@ -284,7 +302,7 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
-    it("handleItemLeave skips clearing when no hover timeout is pending", async () => {
+    it("closes submenu on leave when opened via click without prior hover", async () => {
       mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
@@ -301,7 +319,7 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
     });
 
-    it("handleSubmenuEnter is a no-op when no close timeout is pending", async () => {
+    it("keeps submenu open when mouse enters it without prior leave delay", async () => {
       mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
@@ -318,7 +336,7 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
     });
 
-    it("handleSubmenuLeave closes submenu when opened via click", async () => {
+    it("closes submenu when mouse leaves it after being opened via click", async () => {
       mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
@@ -333,6 +351,30 @@ describe("DanxContextMenu", () => {
       vi.advanceTimersByTime(150);
       await wrapper.vm.$nextTick();
       expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
+    });
+
+    it("switches to second parent submenu when hovering rapidly between parents", async () => {
+      mountMenu([
+        createItem({
+          id: "parent-1",
+          children: [createItem({ id: "child-1", label: "Child 1" })],
+        }),
+        createItem({
+          id: "parent-2",
+          children: [createItem({ id: "child-2", label: "Child 2" })],
+        }),
+      ]);
+
+      const itemWrappers = wrapper.findAll(".danx-context-menu__item-wrapper");
+      await itemWrappers[0]!.trigger("mouseenter");
+      // Immediately hover second parent before 100ms elapses
+      await itemWrappers[1]!.trigger("mouseenter");
+      vi.advanceTimersByTime(100);
+      await wrapper.vm.$nextTick();
+
+      const submenus = wrapper.findAll(".danx-context-menu__submenu");
+      expect(submenus.length).toBe(1);
+      expect(submenus[0]!.find(".danx-context-menu__label").text()).toBe("Child 2");
     });
 
     it("only shows submenu for active parent, not other parents", async () => {
@@ -435,11 +477,29 @@ describe("DanxContextMenu", () => {
       );
     });
 
-    it("calls child action and emits close on child click", async () => {
+    it("does not call action or emit events when clicking disabled child", async () => {
       const childAction = vi.fn();
       mountMenu([
         createItem({
-          children: [createItem({ id: "child-1", action: childAction })],
+          children: [createItem({ id: "child-1", action: childAction, disabled: true })],
+        }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      const childBtn = wrapper.find(".danx-context-menu__submenu .danx-context-menu__item");
+      childBtn.element.removeAttribute("disabled");
+      await childBtn.trigger("click");
+      expect(childAction).not.toHaveBeenCalled();
+      expect(wrapper.emitted("close")).toBeUndefined();
+      expect(wrapper.emitted("action")).toBeUndefined();
+    });
+
+    it("calls child action and emits close on child click", async () => {
+      const childAction = vi.fn();
+      const child = createItem({ id: "child-1", action: childAction });
+      mountMenu([
+        createItem({
+          children: [child],
         }),
       ]);
 
@@ -447,6 +507,8 @@ describe("DanxContextMenu", () => {
       await wrapper.find(".danx-context-menu__submenu .danx-context-menu__item").trigger("click");
       expect(childAction).toHaveBeenCalled();
       expect(wrapper.emitted("close")).toHaveLength(1);
+      expect(wrapper.emitted("action")).toHaveLength(1);
+      expect(wrapper.emitted("action")![0]).toEqual([child]);
     });
   });
 
@@ -462,6 +524,13 @@ describe("DanxContextMenu", () => {
       const event = new KeyboardEvent("keydown", { key: "Escape" });
       document.dispatchEvent(event);
       expect(wrapper.emitted("close")).toHaveLength(1);
+    });
+
+    it("does not emit close on non-Escape key", () => {
+      mountMenu();
+      const event = new KeyboardEvent("keydown", { key: "Enter" });
+      document.dispatchEvent(event);
+      expect(wrapper.emitted("close")).toBeUndefined();
     });
   });
 

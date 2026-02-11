@@ -31,6 +31,7 @@ import {
 } from "vue";
 import { DanxButton, DanxActionButton, buttonIcons } from "../../src/components/button";
 import { CodeViewer } from "../../src/components/code-viewer";
+import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
@@ -41,6 +42,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButton,
   DanxActionButton,
   CodeViewer,
+  DanxContextMenu,
   DanxDialog,
   DanxPopover,
   MarkdownEditor,
@@ -59,6 +61,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxButton,
   DanxActionButton,
   CodeViewer,
+  DanxContextMenu,
   DanxDialog,
   DanxPopover,
   useDialog,

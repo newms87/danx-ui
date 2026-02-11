@@ -53,15 +53,25 @@ const emit = defineEmits<{
   action: [item: ContextMenuItem];
 }>();
 
+const ESTIMATED_MENU_WIDTH = 320;
+const ESTIMATED_MENU_HEIGHT = 400;
+
 const activeSubmenuId = ref<string | null>(null);
-const submenuOpenLeft = ref(false);
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const menuStyle = computed(() => {
-  const result = calculateContextMenuPosition(props.position.x, props.position.y, 320, 400);
-  submenuOpenLeft.value = result.nearRightEdge;
-  return { top: result.top, left: result.left };
-});
+const positionResult = computed(() =>
+  calculateContextMenuPosition(
+    props.position.x,
+    props.position.y,
+    ESTIMATED_MENU_WIDTH,
+    ESTIMATED_MENU_HEIGHT
+  )
+);
+const menuStyle = computed(() => ({
+  top: positionResult.value.top,
+  left: positionResult.value.left,
+}));
+const submenuOpenLeft = computed(() => positionResult.value.nearRightEdge);
 
 function handleItemHover(item: ContextMenuItem): void {
   if (hoverTimeout) {
@@ -144,7 +154,7 @@ onUnmounted(() => {
   <div class="danx-context-menu-overlay" @click.self="onClose" />
 
   <!-- Menu container -->
-  <div class="danx-context-menu" :style="menuStyle">
+  <div class="danx-context-menu danx-context-menu-panel" :style="menuStyle">
     <template v-for="item in items" :key="item.id">
       <!-- Divider -->
       <div v-if="item.divider" class="danx-context-menu__divider" />
@@ -177,7 +187,7 @@ onUnmounted(() => {
           <!-- Nested submenu -->
           <div
             v-if="item.children?.length && activeSubmenuId === item.id"
-            class="danx-context-menu__submenu"
+            class="danx-context-menu__submenu danx-context-menu-panel"
             :class="{ 'open-left': submenuOpenLeft }"
             @mouseenter="handleSubmenuEnter"
             @mouseleave="handleSubmenuLeave"

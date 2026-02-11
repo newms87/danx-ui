@@ -66,6 +66,9 @@ watch(theme, (newTheme) => {
               <RouterLink to="/code-viewer" class="demo-sidebar__link">Code Viewer</RouterLink>
             </li>
             <li>
+              <RouterLink to="/context-menu" class="demo-sidebar__link">Context Menu</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/dialog" class="demo-sidebar__link">Dialog</RouterLink>
             </li>
             <li>

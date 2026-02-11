@@ -18,6 +18,7 @@ export {
   useCodeViewerCollapse,
   useCodeViewerEditor,
 } from "./components/code-viewer";
+export { calculateContextMenuPosition } from "./components/context-menu";
 export { useDialog } from "./components/dialog";
 export { useMarkdownEditor } from "./components/markdown-editor";
 
@@ -56,6 +57,7 @@ export type {
 export type {
   ContextMenuItem,
   ContextMenuPosition,
+  ContextMenuPositionResult,
   DanxContextMenuEmits,
   DanxContextMenuProps,
 } from "./components/context-menu";
