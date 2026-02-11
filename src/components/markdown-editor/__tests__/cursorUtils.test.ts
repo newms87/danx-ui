@@ -436,7 +436,7 @@ describe("cursorUtils", () => {
       dispatchInputEvent(container);
 
       expect(handler).toHaveBeenCalledTimes(1);
-      expect(handler.mock.calls[0][0]).toBeInstanceOf(InputEvent);
+      expect(handler.mock.calls[0]![0]).toBeInstanceOf(InputEvent);
     });
 
     it("dispatches event that bubbles", () => {

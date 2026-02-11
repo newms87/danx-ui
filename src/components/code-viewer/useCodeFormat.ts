@@ -164,7 +164,7 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
           const pos = parseInt(posMatch[1], 10);
           const lines = content.substring(0, pos).split("\n");
           line = lines.length;
-          const lastLine = lines[lines.length - 1];
+          const lastLine = lines[lines.length - 1] ?? "";
           column = lastLine.length + 1;
         }
       }

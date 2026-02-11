@@ -130,7 +130,7 @@ export function findAncestorByTag(
   let current: Node | null = node;
   while (current && current !== container) {
     if (current.nodeType === Node.ELEMENT_NODE && tagNames.has((current as Element).tagName)) {
-      return current;
+      return current as Element;
     }
     current = current.parentNode;
   }

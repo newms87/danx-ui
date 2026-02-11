@@ -84,20 +84,20 @@ export interface DanxDialogEmits {
 
 export interface DanxDialogSlots {
   /** Main content area */
-  default(): unknown;
+  default?(): unknown;
 
   /** Custom title content (replaces title prop) */
-  title(): unknown;
+  title?(): unknown;
 
   /** Custom subtitle content (replaces subtitle prop) */
-  subtitle(): unknown;
+  subtitle?(): unknown;
 
   /** Replace entire footer/actions area */
-  actions(): unknown;
+  actions?(): unknown;
 
   /** Replace close button only */
-  "close-button"(): unknown;
+  "close-button"?(): unknown;
 
   /** Replace confirm button only */
-  "confirm-button"(): unknown;
+  "confirm-button"?(): unknown;
 }

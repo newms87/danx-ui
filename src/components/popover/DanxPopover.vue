@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, toRef } from "vue";
-import type { DanxPopoverEmits, DanxPopoverProps, DanxPopoverSlots } from "./types";
+import type { DanxPopoverProps, DanxPopoverSlots } from "./types";
 import { useClickOutside } from "./useClickOutside";
 import { usePopoverPositioning } from "./usePopoverPositioning";
 
@@ -82,7 +82,6 @@ const props = withDefaults(defineProps<DanxPopoverProps>(), {
   placement: "bottom",
 });
 
-const emit = defineEmits<DanxPopoverEmits>();
 const modelValue = defineModel<boolean>({ default: false });
 
 defineSlots<DanxPopoverSlots>();

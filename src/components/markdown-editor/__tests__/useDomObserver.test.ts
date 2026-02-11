@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ref, nextTick } from "vue";
+import { ref, nextTick, Ref } from "vue";
 import { useDomObserver } from "../useDomObserver";
 
 // Mock Vue lifecycle hooks
@@ -35,12 +35,14 @@ describe("useDomObserver", () => {
 
   function setup(opts?: { skipInitialMount?: boolean }): void {
     useDomObserver({
-      contentRef,
+      contentRef: contentRef as unknown as Ref<HTMLElement | null>,
       dataAttribute: "data-test-id",
-      onNodeAdded,
-      onNodeRemoved,
-      onCleanup,
-      onInitialMount: opts?.skipInitialMount ? undefined : onInitialMount,
+      onNodeAdded: onNodeAdded as unknown as (el: HTMLElement) => void,
+      onNodeRemoved: onNodeRemoved as unknown as (el: HTMLElement) => void,
+      onCleanup: onCleanup as unknown as () => void,
+      onInitialMount: opts?.skipInitialMount
+        ? undefined
+        : (onInitialMount as unknown as () => void),
     });
   }
 

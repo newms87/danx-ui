@@ -72,8 +72,8 @@ export interface DanxButtonEmits {
 
 export interface DanxButtonSlots {
   /** Override the icon rendering entirely */
-  icon(): unknown;
+  icon?(): unknown;
 
   /** Button text content */
-  default(): unknown;
+  default?(): unknown;
 }

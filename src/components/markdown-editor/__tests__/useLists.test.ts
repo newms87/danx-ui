@@ -906,7 +906,7 @@ describe("useLists", () => {
       expect(handled).toBe(true);
 
       // Restore
-      delete (li as Record<string, unknown>)["lastChild"];
+      delete (li as unknown as Record<string, unknown>)["lastChild"];
     });
 
     it("checkAndConvertListPattern uses fallback when textContent is null (line 121)", () => {
@@ -926,7 +926,7 @@ describe("useLists", () => {
       expect(converted).toBe(false);
 
       // Restore
-      delete (block as Record<string, unknown>)["textContent"];
+      delete (block as unknown as Record<string, unknown>)["textContent"];
     });
 
     it("handles list item with only whitespace as empty", () => {

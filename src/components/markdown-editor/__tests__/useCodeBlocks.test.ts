@@ -977,7 +977,7 @@ describe("useCodeBlocks", () => {
       expect(onContentChange).toHaveBeenCalled();
 
       // Restore
-      delete (block as Record<string, unknown>)["textContent"];
+      delete (block as unknown as Record<string, unknown>)["textContent"];
     });
 
     it("checkAndConvertCodeBlockPattern uses empty string when language is falsy (line 377)", () => {

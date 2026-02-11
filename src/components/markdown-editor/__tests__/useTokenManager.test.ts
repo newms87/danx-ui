@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { defineComponent, nextTick, ref } from "vue";
 import { mount } from "@vue/test-utils";
 import { useTokenManager } from "../useTokenManager";
@@ -19,7 +19,7 @@ function createMockRenderer(id = "test-renderer"): TokenRenderer {
   return {
     id,
     pattern: /\{\{(\d+)\}\}/g,
-    toHtml: (match, groups) =>
+    toHtml: (_match, groups) =>
       `<span data-token-id="tok-${groups[0]}" data-token-renderer="${id}" data-token-groups='${JSON.stringify(groups)}' contenteditable="false"><span class="token-mount-point"></span></span>`,
     component: TestTokenComponent,
     getProps: (groups) => ({ value: groups[0] }),

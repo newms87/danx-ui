@@ -91,7 +91,7 @@ describe("MarkdownEditor", () => {
       // The .dx-markdown-content block must use the theme token, not inherit
       const markdownContentMatch = css.match(/\.dx-markdown-content\s*\{[^}]*color:\s*([^;]+);/);
       expect(markdownContentMatch).not.toBeNull();
-      expect(markdownContentMatch![1].trim()).toBe("var(--dx-mde-color)");
+      expect(markdownContentMatch![1]!.trim()).toBe("var(--dx-mde-color)");
     });
   });
 

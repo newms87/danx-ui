@@ -11,7 +11,6 @@
 
 import { Ref } from "vue";
 import { UseMarkdownSelectionReturn } from "./useMarkdownSelection";
-import { positionCursorAtEnd } from "./cursorPosition";
 import { getCursorOffset, setCursorOffset } from "./cursorOffset";
 import { getListItem, getParentList } from "./listDomUtils";
 import { convertListItemToParagraph } from "./listConversions";

@@ -321,7 +321,7 @@ describe("defaultHotkeys", () => {
         (h) => h.key === "ctrl+alt+l" && h.group === "tables"
       );
       expect(alignLeftHotkeys.length).toBe(1);
-      alignLeftHotkeys[0].action();
+      alignLeftHotkeys[0]!.action();
       expect(editor.tables.setColumnAlignmentLeft).toHaveBeenCalled();
 
       findHotkey("ctrl+alt+c")!.action();

@@ -328,7 +328,6 @@ describe("useCodeViewerEditor", () => {
       preElement = createPreElement();
       codeRef.value = preElement;
 
-      const prevContent = editor.editingContent.value;
       codeFormat.setFormat("json");
       editor.updateEditingContentOnFormatChange();
       // Content should have changed to JSON format
@@ -701,8 +700,6 @@ describe("useCodeViewerEditor", () => {
       Object.defineProperty(event, "target", { value: preElement });
       editor.onContentEditableInput(event);
 
-      const htmlBefore = preElement.innerHTML;
-
       // Advance past the 300ms debounce
       vi.advanceTimersByTime(300);
 
@@ -791,7 +788,7 @@ describe("useCodeViewerEditor", () => {
       expect(focusSpy).toHaveBeenCalled();
 
       // Clean up the property override
-      delete (preElement as Record<string, unknown>)["innerHTML"];
+      delete (preElement as unknown as Record<string, unknown>)["innerHTML"];
     });
 
     it("debouncedValidate clears previous timeout on rapid calls", () => {

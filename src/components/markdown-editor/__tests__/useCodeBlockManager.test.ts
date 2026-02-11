@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { defineComponent, nextTick, reactive, ref } from "vue";
-import { mount, VueWrapper } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import { useCodeBlockManager } from "../useCodeBlockManager";
 import { CodeBlockState } from "../useCodeBlocks";
 

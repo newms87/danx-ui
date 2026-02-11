@@ -77,7 +77,6 @@ export type {
 export type {
   TokenRenderer,
   TokenState,
-  LineType,
   UseMarkdownEditorOptions,
   UseMarkdownEditorReturn,
 } from "./components/markdown-editor";

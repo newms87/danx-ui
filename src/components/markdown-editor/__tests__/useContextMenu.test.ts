@@ -93,8 +93,8 @@ describe("useContextMenu", () => {
 
       // Code context should have minimal menu - just toggle code block
       expect(menu.items.value.length).toBe(1);
-      expect(menu.items.value[0].id).toBe("code-block");
-      expect(menu.items.value[0].label).toBe("Toggle Code Block");
+      expect(menu.items.value[0]!.id).toBe("code-block");
+      expect(menu.items.value[0]!.label).toBe("Toggle Code Block");
     });
 
     it("code context toggle action calls toggleCodeBlock", () => {
@@ -102,7 +102,7 @@ describe("useContextMenu", () => {
       const menu = useContextMenu({ editor });
       menu.show(createMouseEvent());
 
-      menu.items.value[0].action!();
+      menu.items.value[0]!.action!();
       expect(editor.codeBlocks.toggleCodeBlock).toHaveBeenCalled();
     });
 
@@ -200,7 +200,7 @@ describe("useContextMenu", () => {
       const blocksItem = menu.items.value.find((i) => i.id === "blocks");
       expect(blocksItem?.children).toBeDefined();
       expect(blocksItem!.children!.length).toBe(1);
-      expect(blocksItem!.children![0].id).toBe("blockquote");
+      expect(blocksItem!.children![0]!.id).toBe("blockquote");
     });
 
     it("builds text context menu (full menu) when in normal text", () => {
@@ -301,7 +301,7 @@ describe("useContextMenu", () => {
       menu.show(createMouseEvent());
 
       expect(menu.items.value.length).toBe(1);
-      expect(menu.items.value[0].id).toBe("code-block");
+      expect(menu.items.value[0]!.id).toBe("code-block");
     });
   });
 

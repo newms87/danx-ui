@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { defineComponent, ref, nextTick } from "vue";
-import { mount, VueWrapper } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import { useFocusTracking } from "../useFocusTracking";
 
 /**
@@ -47,7 +47,7 @@ function dispatchFocusOut(element: Element, relatedTarget?: Element | null): voi
 }
 
 describe("useFocusTracking", () => {
-  let wrapper: VueWrapper;
+  let wrapper: ReturnType<typeof mount<typeof TestComponent>>;
 
   afterEach(() => {
     if (wrapper) {
