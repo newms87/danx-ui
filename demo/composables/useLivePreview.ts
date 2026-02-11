@@ -153,7 +153,12 @@ export function parseScript(script: string): {
   const bindings: Record<string, unknown> = {};
   const bodyLines: string[] = [];
 
-  for (const line of script.split("\n")) {
+  // Collapse multi-line imports into single lines so the per-line regex can match them
+  const normalized = script.replace(/import\s*\{[^}]*\}\s*from\s*["'][^"']+["'];?/gs, (match) =>
+    match.replace(/\s*\n\s*/g, " ")
+  );
+
+  for (const line of normalized.split("\n")) {
     const trimmed = line.trim();
 
     // Skip type-only imports (TypeScript, no runtime effect)

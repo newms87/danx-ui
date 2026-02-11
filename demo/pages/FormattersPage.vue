@@ -10,6 +10,7 @@ import DemoPage from "../components/DemoPage.vue";
 import formattersDocs from "../../docs/formatters.md?raw";
 
 import numberCode from "./formatter-examples/NumberFormatters.vue?raw";
+import booleanCode from "./formatter-examples/BooleanFormatters.vue?raw";
 import stringCode from "./formatter-examples/StringFormatters.vue?raw";
 import dateTimeCode from "./formatter-examples/DateTimeFormatters.vue?raw";
 </script>
@@ -24,6 +25,12 @@ import dateTimeCode from "./formatter-examples/DateTimeFormatters.vue?raw";
       title="Number Formatters"
       description="Currency, percentages, shorthand notation, and file sizes."
       :code="numberCode"
+    />
+
+    <DemoSection
+      title="Boolean Formatters"
+      description="Human-readable yes/no/empty display for boolean and nullable values."
+      :code="booleanCode"
     />
 
     <DemoSection

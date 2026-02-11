@@ -27,9 +27,9 @@ const examples = [
   { label: "fSecondsToTime(3661)", result: fSecondsToTime(3661) },
   { label: "fSecondsToDuration(3661)", result: fSecondsToDuration(3661) },
   { label: "fMillisecondsToDuration(3661500)", result: fMillisecondsToDuration(3661500) },
-  { label: "fTimeAgo(5 min ago)", result: fTimeAgo(fiveMinAgo!) },
-  { label: "fTimeAgo(2 hours ago)", result: fTimeAgo(twoHoursAgo!) },
-  { label: "fTimeAgo(3 days ago)", result: fTimeAgo(threeDaysAgo!) },
+  { label: "fTimeAgo(5 min ago)", result: fTimeAgo(fiveMinAgo ?? "") },
+  { label: "fTimeAgo(2 hours ago)", result: fTimeAgo(twoHoursAgo ?? "") },
+  { label: "fTimeAgo(3 days ago)", result: fTimeAgo(threeDaysAgo ?? "") },
 ];
 </script>
 

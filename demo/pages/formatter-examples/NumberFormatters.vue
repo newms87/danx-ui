@@ -10,7 +10,6 @@ import {
   fShortCurrency,
   fShortNumber,
   fShortSize,
-  fBoolean,
   fPercent,
 } from "danx-ui";
 
@@ -23,11 +22,7 @@ const examples = computed(() => [
   { label: "fShortCurrency", result: fShortCurrency(amount.value) },
   { label: "fShortNumber", result: fShortNumber(amount.value) },
   { label: "fShortSize (bytes)", result: fShortSize(amount.value) },
-  { label: "fBoolean(true)", result: fBoolean(true) },
-  { label: "fBoolean(false)", result: fBoolean(false) },
-  { label: "fBoolean(null)", result: fBoolean(null) },
-  { label: "fPercent(0.452)", result: fPercent(0.452) },
-  { label: "fPercent(0.85)", result: fPercent(0.85) },
+  { label: "fPercent", result: fPercent(amount.value) },
 ]);
 </script>
 
