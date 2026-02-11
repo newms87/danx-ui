@@ -16,6 +16,8 @@ export type HighlightFormat =
   | "html"
   | "css"
   | "javascript"
+  | "typescript"
+  | "bash"
   | "vue";
 
 export interface HighlightOptions {
@@ -340,6 +342,7 @@ export function highlightSyntax(code: string, options: HighlightOptions): string
     case "css":
       return highlightCSS(code);
     case "javascript":
+    case "typescript":
       return highlightJavaScript(code);
     case "text":
     case "markdown":

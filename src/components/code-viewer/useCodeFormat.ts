@@ -33,7 +33,16 @@ export interface UseCodeFormatReturn {
 }
 
 /** Formats that are always valid (no structural validation). */
-const STRING_FORMATS: CodeFormat[] = ["text", "markdown", "css", "javascript", "html", "vue"];
+const STRING_FORMATS: CodeFormat[] = [
+  "text",
+  "markdown",
+  "css",
+  "javascript",
+  "typescript",
+  "bash",
+  "html",
+  "vue",
+];
 
 /** Pretty-print a JSON value with 2-space indentation. Only called with non-null objects from formatValueToString. */
 function fJSON(value: object): string {

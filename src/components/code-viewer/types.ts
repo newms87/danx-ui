@@ -20,6 +20,8 @@ export type CodeFormat =
   | "html"
   | "css"
   | "javascript"
+  | "typescript"
+  | "bash"
   | "vue";
 
 /**
