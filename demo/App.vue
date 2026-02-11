@@ -81,6 +81,14 @@ watch(theme, (newTheme) => {
             </li>
           </ul>
         </li>
+        <li>
+          <span class="demo-sidebar__section">Utilities</span>
+          <ul>
+            <li>
+              <RouterLink to="/formatters" class="demo-sidebar__link">Formatters</RouterLink>
+            </li>
+          </ul>
+        </li>
       </ul>
 
       <div class="demo-sidebar__footer">

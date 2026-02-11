@@ -9,6 +9,7 @@ import DialogPage from "./pages/DialogPage.vue";
 import HomePage from "./pages/HomePage.vue";
 import PopoverPage from "./pages/PopoverPage.vue";
 import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
+import FormattersPage from "./pages/FormattersPage.vue";
 
 // Import global styles
 import "../src/styles.css";
@@ -24,6 +25,7 @@ const router = createRouter({
     { path: "/dialog", name: "dialog", component: DialogPage },
     { path: "/popover", name: "popover", component: PopoverPage },
     { path: "/markdown-editor", name: "markdown-editor", component: MarkdownEditorPage },
+    { path: "/formatters", name: "formatters", component: FormattersPage },
   ],
 });
 
