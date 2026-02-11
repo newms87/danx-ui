@@ -101,6 +101,7 @@ export {
   fPhone,
   fNameOrCount,
   // Array utilities
+  getNestedValue,
   arrayCount,
   arraySum,
   arrayAvg,

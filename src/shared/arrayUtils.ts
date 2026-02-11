@@ -10,7 +10,7 @@
  * Walk a dot-notation path on an object to get a nested value.
  * Returns the value at the path, or undefined if any segment is missing.
  */
-function getNestedValue(obj: unknown, path: string): unknown {
+export function getNestedValue(obj: unknown, path: string): unknown {
   if (!path || obj === null || obj === undefined) return obj;
   return path.split(".").reduce<unknown>((current, key) => {
     if (current === null || current === undefined) return undefined;
