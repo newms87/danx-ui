@@ -1,8 +1,4 @@
-# Testing Rules
-
-## 100% Test Coverage Required
-
-All components and composables must have comprehensive tests. No exceptions.
+# Testing (Project-Specific)
 
 ## Test File Organization
 
@@ -130,55 +126,5 @@ describe("useDialog", () => {
     open();
     expect(isOpen.value).toBe(true);
   });
-});
-```
-
-## TDD for Bug Fixes
-
-When fixing bugs, always use TDD:
-
-1. **Write failing test** - Create test that fails due to the bug
-2. **Run test** - Verify it fails for the right reason
-3. **Fix the bug** - Minimal change to make test pass
-4. **Verify** - Run test, confirm it passes
-
-## Good vs Bad Tests
-
-### Good Tests
-
-```typescript
-// Tests actual behavior
-it("closes dialog when Escape key pressed", async () => {
-  const wrapper = mount(Dialog, { props: { isOpen: true } });
-  await wrapper.trigger("keydown", { key: "Escape" });
-  expect(wrapper.emitted("update:isOpen")).toEqual([[false]]);
-});
-
-// Tests edge case
-it("handles undefined width by using default", () => {
-  const wrapper = mount(Dialog, { props: { isOpen: true } });
-  expect(wrapper.find(".dialog").attributes("style")).toContain("80vw");
-});
-```
-
-### Bad Tests
-
-```typescript
-// Tests Vue framework, not your code
-it("renders with v-if", () => {
-  const wrapper = mount(Dialog, { props: { isOpen: false } });
-  expect(wrapper.find(".dialog").exists()).toBe(false);
-});
-
-// Tests implementation detail
-it("uses ref for isOpen state", () => {
-  const { isOpen } = useDialog();
-  expect(isOpen).toBeInstanceOf(Object); // Who cares?
-});
-
-// Tests third-party library
-it("mount returns wrapper", () => {
-  const wrapper = mount(Dialog);
-  expect(wrapper).toBeDefined(); // Tests @vue/test-utils, not your code
 });
 ```

@@ -17,16 +17,7 @@ yarn test:coverage # Run with coverage report
 
 ## Core Principles
 
-`SOLID / DRY / Zero-Debt / One-Way / Read-First / Flawless`
-
-| Principle | Description |
-|-----------|-------------|
-| **Zero Tech Debt** | No legacy, backwards compat, dead code, or hacks |
-| **SOLID** | Single responsibility, small files (<150 lines), small methods |
-| **DRY** | Refactor duplication immediately |
-| **One Way** | ONE correct pattern for everything |
-| **Read First** | Read existing code before writing |
-| **Flawless** | Every component perfectly documented, typed, styled, tested |
+See `~/.claude/rules/core-principles.md` for full principles. Summary: `SOLID / DRY / Zero-Debt / One-Way / Read-First / Flawless`
 
 ## Technology Stack
 
@@ -94,15 +85,12 @@ A feature is NOT complete until all three are done.
 
 | Rule | Description |
 |------|-------------|
-| **ALWAYS use Write/Edit tools** | NEVER use bash commands (sed, awk, echo) to edit files |
 | **Type files use `.ts`** | `.d.ts` is reserved for ambient declarations (e.g. `vite-env.d.ts`) |
 | **NEVER use Options API** | Composition API with `<script setup>` only |
 | **NEVER use default exports** | Named exports for tree-shaking |
 | **NEVER add runtime dependencies** | Vue is peer dep only |
 | **NEVER use styling props** | CSS tokens only |
 | **NEVER use defineExpose** | Use v-model instead |
-| **Relative paths only** | No `/home/...` paths in commands |
-| **NEVER run yarn lint manually** | Hooks run ESLint after every Write/Edit. Running it manually is redundant. |
 | **ALWAYS run yarn test:coverage** | Run as final verification for ANY task. Failing thresholds = blocking. |
 | **ALWAYS register demo exports** | New exports from `src/index.ts` must be added to `AVAILABLE_VALUES` in `demo/composables/useLivePreview.ts` |
 
@@ -137,12 +125,10 @@ docs/                     # User documentation
 ## Key Documentation
 
 **Rules:**
-- `.claude/rules/core-principles.md` - SOLID/DRY/Zero-Debt
 - `.claude/rules/component-architecture.md` - Vue component patterns
 - `.claude/rules/tailwind-v4.md` - Tailwind v4 specifics
 - `.claude/rules/vue-patterns.md` - Vue 3 best practices
 - `.claude/rules/testing.md` - Test coverage requirements
-- `.claude/rules/tool-usage.md` - Write/Edit tool requirements
 - `.claude/rules/demo-live-preview.md` - Live preview registry for demos
 
 **User Docs:**
@@ -161,7 +147,6 @@ docs/                     # User documentation
 | `v-show` for dialogs | DOM pollution | Use v-if |
 | `any` type | Type safety | Proper types |
 | Options API | Outdated | Composition API |
-| Bash file editing | Bypasses linting | Write/Edit tools |
 | `types.d.ts` (project types) | Misleading — `.d.ts` is for ambient declarations | Use `types.ts` |
 | Flat repeated-parent selectors | Repetitive, hard to scan | Use native CSS nesting |
 | `&--suffix` BEM concatenation | Lightning CSS produces invalid selectors | Top-level BEM modifier blocks |
