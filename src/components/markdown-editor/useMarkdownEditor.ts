@@ -124,7 +124,8 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     },
   });
 
-  syncCallback = () => sync.debouncedSyncFromHtml();
+  const onContentChange = () => sync.debouncedSyncFromHtml();
+  syncCallback = onContentChange;
 
   const hotkeys = useMarkdownHotkeys({
     contentRef,
@@ -136,34 +137,34 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
   const headings = useHeadings({
     contentRef,
     selection,
-    onContentChange: () => sync.debouncedSyncFromHtml(),
+    onContentChange,
   });
 
   const inlineFormatting = useInlineFormatting({
     contentRef,
-    onContentChange: () => sync.debouncedSyncFromHtml(),
+    onContentChange,
   });
 
   const lists = useLists({
     contentRef,
     selection,
-    onContentChange: () => sync.debouncedSyncFromHtml(),
+    onContentChange,
   });
 
   const blockquotes = useBlockquotes({
     contentRef,
-    onContentChange: () => sync.debouncedSyncFromHtml(),
+    onContentChange,
   });
 
   const links = useLinks({
     contentRef,
-    onContentChange: () => sync.debouncedSyncFromHtml(),
+    onContentChange,
     onShowLinkPopover,
   });
 
   const tables = useTables({
     contentRef,
-    onContentChange: () => sync.debouncedSyncFromHtml(),
+    onContentChange,
     onShowTablePopover,
   });
 

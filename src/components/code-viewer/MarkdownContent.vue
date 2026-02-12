@@ -107,52 +107,20 @@ function renderBlockquote(content: string): string {
 
       <!-- Unordered lists -->
       <ul v-else-if="token.type === 'ul'">
-        <li v-for="(item, itemIndex) in token.items" :key="itemIndex">
-          <span v-html="parseInlineContent(item.content)" />
-          <template v-if="item.children && item.children.length > 0">
-            <template v-for="(child, childIndex) in item.children" :key="'child-' + childIndex">
-              <ul v-if="child.type === 'ul'">
-                <li
-                  v-for="(nestedItem, nestedIndex) in child.items"
-                  :key="nestedIndex"
-                  v-html="renderListItem(nestedItem)"
-                />
-              </ul>
-              <ol v-else-if="child.type === 'ol'" :start="child.start">
-                <li
-                  v-for="(nestedItem, nestedIndex) in child.items"
-                  :key="nestedIndex"
-                  v-html="renderListItem(nestedItem)"
-                />
-              </ol>
-            </template>
-          </template>
-        </li>
+        <li
+          v-for="(item, itemIndex) in token.items"
+          :key="itemIndex"
+          v-html="renderListItem(item)"
+        />
       </ul>
 
       <!-- Ordered lists -->
       <ol v-else-if="token.type === 'ol'" :start="token.start">
-        <li v-for="(item, itemIndex) in token.items" :key="itemIndex">
-          <span v-html="parseInlineContent(item.content)" />
-          <template v-if="item.children && item.children.length > 0">
-            <template v-for="(child, childIndex) in item.children" :key="'child-' + childIndex">
-              <ul v-if="child.type === 'ul'">
-                <li
-                  v-for="(nestedItem, nestedIndex) in child.items"
-                  :key="nestedIndex"
-                  v-html="renderListItem(nestedItem)"
-                />
-              </ul>
-              <ol v-else-if="child.type === 'ol'" :start="child.start">
-                <li
-                  v-for="(nestedItem, nestedIndex) in child.items"
-                  :key="nestedIndex"
-                  v-html="renderListItem(nestedItem)"
-                />
-              </ol>
-            </template>
-          </template>
-        </li>
+        <li
+          v-for="(item, itemIndex) in token.items"
+          :key="itemIndex"
+          v-html="renderListItem(item)"
+        />
       </ol>
 
       <!-- Task lists -->
