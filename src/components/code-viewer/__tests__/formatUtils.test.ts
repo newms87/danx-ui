@@ -34,5 +34,13 @@ describe("formatUtils", () => {
     it("vue returns only vue", () => {
       expect(getAvailableFormats("vue")).toEqual(["vue"]);
     });
+
+    it("typescript returns only typescript", () => {
+      expect(getAvailableFormats("typescript")).toEqual(["typescript"]);
+    });
+
+    it("bash returns only bash", () => {
+      expect(getAvailableFormats("bash")).toEqual(["bash"]);
+    });
   });
 });

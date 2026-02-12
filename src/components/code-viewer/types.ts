@@ -47,8 +47,6 @@ export interface DanxCodeViewerProps {
   format?: CodeFormat;
   /** Optional label shown above the code viewer. */
   label?: string;
-  /** Additional CSS class(es) applied to the code content area. */
-  editorClass?: string;
   /** Whether editing is allowed (shows edit toggle in footer). */
   canEdit?: boolean;
   /** Whether the viewer starts in edit mode. */

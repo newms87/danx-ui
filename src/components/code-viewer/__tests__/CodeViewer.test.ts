@@ -45,11 +45,6 @@ describe("CodeViewer", () => {
       const wrapper = mountCodeViewer({ theme: "dark" });
       expect(wrapper.find(".dx-code-viewer").classes()).not.toContain("theme-light");
     });
-
-    it("applies editorClass to code content", () => {
-      const wrapper = mountCodeViewer({ editorClass: "custom-class" });
-      expect(wrapper.find(".code-content").classes()).toContain("custom-class");
-    });
   });
 
   describe("footer", () => {

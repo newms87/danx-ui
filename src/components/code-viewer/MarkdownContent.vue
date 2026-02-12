@@ -8,7 +8,28 @@
  * and inline formatting (bold, italic, links, images, code spans).
  *
  * Uses the shared markdown tokenizer/parser from danx-ui's shared utilities.
- * Code blocks are rendered as nested CodeViewer instances.
+ * Code blocks are rendered as nested CodeViewer instances. Newlines within
+ * paragraphs are converted to <br /> tags for soft line breaks.
+ *
+ * @props
+ *   content: string - Raw markdown string to render (default: "")
+ *   defaultCodeFormat?: "json" | "yaml" - Default format for embedded code blocks
+ *
+ * @emits
+ *   (none)
+ *
+ * @slots
+ *   (none) - All content is rendered from the markdown source
+ *
+ * @tokens
+ *   Inherits CodeViewer tokens for nested code blocks. No component-specific tokens.
+ *
+ * @example
+ *   Basic markdown rendering:
+ *     <MarkdownContent content="# Hello\n\nSome **bold** text." />
+ *
+ *   With default code format for embedded blocks:
+ *     <MarkdownContent :content="mdString" default-code-format="yaml" />
  */
 -->
 

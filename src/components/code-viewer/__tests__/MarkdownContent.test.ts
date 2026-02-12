@@ -48,6 +48,12 @@ describe("MarkdownContent", () => {
       expect(wrapper.find("p").text()).toContain("Hello world");
     });
 
+    it("converts newlines to br tags in paragraphs", () => {
+      const wrapper = mountMarkdown("Line one\nLine two");
+      const p = wrapper.find("p");
+      expect(p.html()).toContain("<br>");
+    });
+
     it("renders inline formatting in paragraphs", () => {
       const wrapper = mountMarkdown("**bold** text");
       const p = wrapper.find("p");

@@ -7,8 +7,8 @@
  */
 
 import { Ref } from "vue";
-import { highlightSyntax } from "../../shared/syntax-highlighting";
 import { getCursorOffset, setCursorOffset } from "./cursorUtils";
+import { applyHighlighting } from "./highlightUtils";
 import type { CodeFormat, ValidationError } from "./types";
 
 export interface DebounceDeps {
@@ -94,9 +94,7 @@ export function createDebouncedOperations(deps: DebounceDeps): DebounceReturn {
       const hasFocus = activeElement === codeRef.value || codeRef.value.contains(activeElement);
 
       const cursorOffset = getCursorOffset(codeRef.value);
-      codeRef.value.innerHTML = highlightSyntax(editingContent.value, {
-        format: currentFormat.value,
-      });
+      applyHighlighting(codeRef, editingContent.value, currentFormat.value);
       setCursorOffset(codeRef.value, cursorOffset);
 
       if (hasFocus && document.activeElement !== codeRef.value) {

@@ -42,9 +42,10 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { searchSvg } from "./icons";
 import type { LanguageBadgeProps } from "./types";
+import { useLanguageSearch } from "./useLanguageSearch";
 
 const props = withDefaults(defineProps<LanguageBadgeProps>(), {
   availableFormats: () => [],
@@ -58,127 +59,37 @@ const emit = defineEmits<{
 
 const showSearchPanel = defineModel<boolean>("searchOpen", { default: false });
 
-const ALL_LANGUAGES = [
-  "bash",
-  "c",
-  "cpp",
-  "css",
-  "dockerfile",
-  "go",
-  "graphql",
-  "html",
-  "java",
-  "javascript",
-  "json",
-  "kotlin",
-  "markdown",
-  "php",
-  "python",
-  "ruby",
-  "rust",
-  "scss",
-  "sql",
-  "swift",
-  "text",
-  "typescript",
-  "xml",
-  "yaml",
-];
-
 const showOptions = ref(false);
-const searchQuery = ref("");
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const searchListRef = ref<HTMLElement | null>(null);
 const searchPanelRef = ref<HTMLElement | null>(null);
-const selectedIndex = ref(0);
 
 const otherFormats = computed(() => {
   return props.availableFormats.filter((f) => f !== props.format);
 });
 
-const filteredLanguages = computed(() => {
-  if (!searchQuery.value) {
-    return ALL_LANGUAGES;
-  }
-  const query = searchQuery.value.toLowerCase();
-  return ALL_LANGUAGES.filter((lang) => lang.toLowerCase().includes(query));
+const {
+  searchQuery,
+  selectedIndex,
+  filteredLanguages,
+  onSearchQueryChange,
+  navigateDown,
+  navigateUp,
+  selectCurrentItem,
+  selectLanguage,
+  openSearchPanel,
+  closeSearchPanel,
+} = useLanguageSearch({
+  showSearchPanel,
+  searchInputRef,
+  searchListRef,
+  searchPanelRef,
+  onSelect: (lang) => emit("change", lang),
 });
-
-function onSearchQueryChange() {
-  selectedIndex.value = 0;
-}
-
-function navigateDown() {
-  if (filteredLanguages.value.length === 0) return;
-  selectedIndex.value = (selectedIndex.value + 1) % filteredLanguages.value.length;
-  scrollSelectedIntoView();
-}
-
-function navigateUp() {
-  if (filteredLanguages.value.length === 0) return;
-  selectedIndex.value =
-    selectedIndex.value === 0 ? filteredLanguages.value.length - 1 : selectedIndex.value - 1;
-  scrollSelectedIntoView();
-}
-
-function selectCurrentItem() {
-  const lang = filteredLanguages.value[selectedIndex.value];
-  if (lang) {
-    selectLanguage(lang);
-  }
-}
-
-function scrollSelectedIntoView() {
-  nextTick(() => {
-    const selected = searchListRef.value?.querySelector(".is-selected");
-    selected?.scrollIntoView({ block: "nearest" });
-  });
-}
-
-watch(showSearchPanel, (isOpen) => {
-  if (isOpen) {
-    searchQuery.value = "";
-    selectedIndex.value = 0;
-    nextTick(() => {
-      searchInputRef.value?.focus();
-    });
-  }
-});
-
-function openSearchPanel() {
-  showSearchPanel.value = true;
-}
-
-function closeSearchPanel() {
-  showSearchPanel.value = false;
-  searchQuery.value = "";
-}
-
-function selectLanguage(lang: string) {
-  emit("change", lang);
-  closeSearchPanel();
-}
 
 function onMouseLeave() {
   showOptions.value = false;
 }
-
-function handleClickOutside(event: MouseEvent) {
-  if (showSearchPanel.value) {
-    const target = event.target as HTMLElement;
-    if (searchPanelRef.value && !searchPanelRef.value.contains(target)) {
-      closeSearchPanel();
-    }
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("mousedown", handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener("mousedown", handleClickOutside);
-});
 </script>
 
 <template>

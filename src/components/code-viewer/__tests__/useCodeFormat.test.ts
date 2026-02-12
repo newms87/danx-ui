@@ -164,6 +164,11 @@ describe("useCodeFormat", () => {
       expect(validate("key: value\nlist:\n  - one\n  - two", "yaml")).toBe(true);
     });
 
+    it("returns false for invalid YAML", () => {
+      const { validate } = useCodeFormat();
+      expect(validate("key: value\n  bad:\nindent", "yaml")).toBe(false);
+    });
+
     it("returns true for all string formats", () => {
       const { validate } = useCodeFormat();
       const formats = ["text", "markdown", "css", "javascript", "html"] as const;

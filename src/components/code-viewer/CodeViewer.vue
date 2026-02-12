@@ -21,7 +21,6 @@
  * | modelValue        | object/string/null     | null     | Data to display                            |
  * | format            | CodeFormat             | "yaml"   | Display format                             |
  * | label             | string                 | ""       | Label above the viewer                     |
- * | editorClass       | string                 | ""       | Extra CSS class for content area           |
  * | canEdit           | boolean                | false    | Enable edit toggle                         |
  * | editable          | boolean                | false    | Start in edit mode                         |
  * | collapsible       | boolean                | false    | Enable collapse                            |
@@ -78,7 +77,6 @@ const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
   modelValue: null,
   format: "yaml",
   label: "",
-  editorClass: "",
   canEdit: false,
   editable: false,
   collapsible: false,
@@ -242,7 +240,7 @@ watch(
         <pre
           v-if="!editor.isEditing.value && currentFormat !== 'markdown'"
           class="code-content dx-scrollbar flex-1 min-h-0"
-          :class="[editorClass, { 'is-collapsible': collapsible }]"
+          :class="{ 'is-collapsible': collapsible }"
         ><code :class="'language-' + currentFormat" v-html="editor.highlightedContent.value"></code></pre>
 
         <!-- Markdown display - rendered HTML -->
@@ -251,7 +249,7 @@ watch(
           :content="markdownSource"
           :default-code-format="defaultCodeFormat"
           class="code-content dx-scrollbar flex-1 min-h-0"
-          :class="[editorClass, { 'is-collapsible': collapsible }]"
+          :class="{ 'is-collapsible': collapsible }"
         />
 
         <!-- Code editor - contenteditable -->
@@ -259,7 +257,7 @@ watch(
           v-else
           ref="codeRef"
           class="code-content dx-scrollbar flex-1 min-h-0 is-editable"
-          :class="[editorClass, 'language-' + currentFormat, { 'is-collapsible': collapsible }]"
+          :class="['language-' + currentFormat, { 'is-collapsible': collapsible }]"
           contenteditable="true"
           @input="editor.onContentEditableInput"
           @blur="editor.onContentEditableBlur"

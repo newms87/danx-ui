@@ -13,6 +13,7 @@ import { computed, nextTick, onUnmounted, Ref, ref, watchEffect } from "vue";
 import { highlightSyntax } from "../../shared/syntax-highlighting";
 import { createDebouncedOperations } from "./codeViewerDebounce";
 import { createKeyboardHandlers } from "./codeViewerKeyHandlers";
+import { applyHighlighting } from "./highlightUtils";
 import type { CodeFormat, ValidationError } from "./types";
 import type { UseCodeFormatReturn } from "./useCodeFormat";
 
@@ -129,13 +130,12 @@ export function useCodeViewerEditor(
   function updateEditingContentOnFormatChange(): void {
     if (isEditing.value) {
       editingContent.value = codeFormat.formattedContent.value;
-      cachedHighlightedContent.value = highlightSyntax(editingContent.value, {
-        format: currentFormat.value,
-      });
       nextTick(() => {
-        if (codeRef.value) {
-          codeRef.value.innerHTML = cachedHighlightedContent.value;
-        }
+        cachedHighlightedContent.value = applyHighlighting(
+          codeRef,
+          editingContent.value,
+          currentFormat.value
+        );
       });
     }
   }
@@ -176,10 +176,8 @@ export function useCodeViewerEditor(
       validationError.value = null;
       lastEmittedValue = undefined;
       nextTick(() => {
+        applyHighlighting(codeRef, editingContent.value, currentFormat.value);
         if (codeRef.value) {
-          codeRef.value.innerHTML = highlightSyntax(editingContent.value, {
-            format: currentFormat.value,
-          });
           codeRef.value.focus();
           const selection = window.getSelection();
           const range = document.createRange();
@@ -214,12 +212,7 @@ export function useCodeViewerEditor(
     validationError.value = codeFormat.validateWithError(editingContent.value, currentFormat.value);
 
     emitCurrentValue();
-
-    if (codeRef.value) {
-      codeRef.value.innerHTML = highlightSyntax(editingContent.value, {
-        format: currentFormat.value,
-      });
-    }
+    applyHighlighting(codeRef, editingContent.value, currentFormat.value);
   }
 
   const { onKeyDown } = createKeyboardHandlers({
@@ -240,11 +233,7 @@ export function useCodeViewerEditor(
   if (isEditing.value) {
     editingContent.value = codeFormat.formattedContent.value;
     nextTick(() => {
-      if (codeRef.value) {
-        codeRef.value.innerHTML = highlightSyntax(editingContent.value, {
-          format: currentFormat.value,
-        });
-      }
+      applyHighlighting(codeRef, editingContent.value, currentFormat.value);
     });
   }
 

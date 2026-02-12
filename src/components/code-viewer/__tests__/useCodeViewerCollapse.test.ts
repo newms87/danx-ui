@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ref } from "vue";
+import type { CodeFormat } from "../types";
 import { useCodeFormat } from "../useCodeFormat";
 import {
   buildStructuredPreview,
@@ -13,7 +14,7 @@ function createCollapse(
   format: "json" | "yaml" | "text" | "markdown"
 ) {
   const modelValue = ref(value);
-  const formatRef = ref(format as any);
+  const formatRef = ref<CodeFormat>(format);
   const codeFormat = useCodeFormat({ initialFormat: format, initialValue: value });
   const displayContent = ref(codeFormat.formattedContent.value);
   return useCodeViewerCollapse({ modelValue, format: formatRef, displayContent, codeFormat });
@@ -133,7 +134,7 @@ describe("useCodeViewerCollapse", () => {
   describe("collapsedPreview", () => {
     it("shows null span when content is empty", () => {
       const modelValue = ref(null);
-      const formatRef = ref("json" as any);
+      const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json", initialValue: null });
       const displayContent = ref("");
       const { collapsedPreview } = useCodeViewerCollapse({
@@ -187,7 +188,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("shows null span for YAML null", () => {
       const modelValue = ref(null);
-      const formatRef = ref("yaml" as any);
+      const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml", initialValue: null });
       const displayContent = ref("null");
       const { collapsedPreview } = useCodeViewerCollapse({
@@ -237,7 +238,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("highlights JSON primitive (non-object, non-array)", () => {
       const modelValue = ref("42");
-      const formatRef = ref("json" as any);
+      const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json", initialValue: "42" });
       const displayContent = ref("42");
       const { collapsedPreview } = useCodeViewerCollapse({
@@ -252,7 +253,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("handles YAML primitive (non-object, non-array)", () => {
       const modelValue = ref("hello");
-      const formatRef = ref("yaml" as any);
+      const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml", initialValue: "hello" });
       const displayContent = ref("hello");
       const { collapsedPreview } = useCodeViewerCollapse({
@@ -266,7 +267,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("fallback for invalid JSON content shows collapsed text", () => {
       const modelValue = ref("{invalid json");
-      const formatRef = ref("json" as any);
+      const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json" });
       codeFormat.setContent("{invalid json");
       const displayContent = ref("{invalid json");
@@ -282,7 +283,7 @@ describe("useCodeViewerCollapse", () => {
     it("JSON catch block truncates content longer than 100 chars", () => {
       const longContent = "{" + "x".repeat(120);
       const modelValue = ref(longContent);
-      const formatRef = ref("json" as any);
+      const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json" });
       codeFormat.setContent(longContent);
       const displayContent = ref(longContent);
@@ -299,7 +300,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("fallback for invalid YAML content shows first line", () => {
       const modelValue = ref("invalid: yaml: : :");
-      const formatRef = ref("yaml" as any);
+      const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml" });
       codeFormat.setContent("invalid: yaml: : :");
       const displayContent = ref("invalid: yaml: : :");
@@ -314,7 +315,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("shows null span for JSON null when modelValue is non-string null", () => {
       const modelValue = ref(null);
-      const formatRef = ref("json" as any);
+      const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json" });
       const displayContent = ref("null");
       const { collapsedPreview } = useCodeViewerCollapse({
@@ -328,7 +329,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("YAML catch block falls back to first line when parse throws", () => {
       const modelValue = ref("some: content");
-      const formatRef = ref("yaml" as any);
+      const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml" });
       // Override parse to throw, triggering the catch block
       codeFormat.parse = () => {
@@ -346,7 +347,7 @@ describe("useCodeViewerCollapse", () => {
 
     it("YAML catch block truncates long first line", () => {
       const modelValue = ref("long content");
-      const formatRef = ref("yaml" as any);
+      const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml" });
       codeFormat.parse = () => {
         throw new Error("parse failure");
@@ -363,12 +364,12 @@ describe("useCodeViewerCollapse", () => {
     });
 
     it("handles YAML with undefined modelValue (non-object, non-array, non-null)", () => {
-      const modelValue = ref(undefined);
-      const formatRef = ref("yaml" as any);
+      const modelValue = ref<object | string | null | undefined>(undefined);
+      const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml" });
       const displayContent = ref("some content");
       const { collapsedPreview } = useCodeViewerCollapse({
-        modelValue: modelValue as any,
+        modelValue,
         format: formatRef,
         displayContent,
         codeFormat,
