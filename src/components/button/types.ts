@@ -63,6 +63,12 @@ export interface DanxButtonProps {
    * Tooltip text shown on hover (native title attribute).
    */
   tooltip?: string;
+
+  /**
+   * Text label for the button. Alternative to using the default slot.
+   * When both label prop and slot content are provided, slot content wins.
+   */
+  label?: string;
 }
 
 export interface DanxButtonEmits {

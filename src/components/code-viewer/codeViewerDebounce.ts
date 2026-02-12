@@ -89,6 +89,7 @@ export function createDebouncedOperations(deps: DebounceDeps): DebounceReturn {
     }
     highlightTimeout = setTimeout(() => {
       if (!codeRef.value || !isEditing.value) return;
+      if (typeof document === "undefined") return;
 
       const activeElement = document.activeElement;
       const hasFocus = activeElement === codeRef.value || codeRef.value.contains(activeElement);

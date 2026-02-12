@@ -19,6 +19,7 @@ import iconOnlyCode from "./button-examples/IconOnly.vue?raw";
 import loadingCode from "./button-examples/Loading.vue?raw";
 import semanticTypesCode from "./button-examples/SemanticTypes.vue?raw";
 import sizesCode from "./button-examples/Sizes.vue?raw";
+import labelPropCode from "./button-examples/LabelProp.vue?raw";
 import textOnlyCode from "./button-examples/TextOnly.vue?raw";
 </script>
 
@@ -38,6 +39,12 @@ import textOnlyCode from "./button-examples/TextOnly.vue?raw";
       title="All Icons"
       description='All 24 built-in icons by name. Just use icon="name" — no imports needed.'
       :code="allIconsCode"
+    />
+
+    <DemoSection
+      title="Label Prop"
+      description="Use the label prop as an alternative to slot content."
+      :code="labelPropCode"
     />
 
     <DemoSection

@@ -38,6 +38,7 @@ function handleSave() {
 | `disabled` | `boolean` | `false` | Disables the button |
 | `loading` | `boolean` | `false` | Shows spinner, prevents clicks |
 | `tooltip` | `string` | - | Native title attribute |
+| `label` | `string` | - | Text label (alternative to slot) |
 
 ## Events
 

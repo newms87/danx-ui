@@ -12,6 +12,7 @@ import actionButtonDocs from "../../docs/action-button.md?raw";
 
 // Load SFC examples as raw strings for live-editable demos
 import basicTriggerCode from "./action-button-examples/BasicTrigger.vue?raw";
+import labelPropCode from "./action-button-examples/LabelProp.vue?raw";
 import confirmationCode from "./action-button-examples/Confirmation.vue?raw";
 import loadingStatesCode from "./action-button-examples/LoadingStates.vue?raw";
 import eventCallbacksCode from "./action-button-examples/EventCallbacks.vue?raw";
@@ -27,6 +28,12 @@ import eventCallbacksCode from "./action-button-examples/EventCallbacks.vue?raw"
       title="Basic Action Trigger"
       description="Click to trigger an async action. The button shows a loading spinner while the action runs."
       :code="basicTriggerCode"
+    />
+
+    <DemoSection
+      title="Label Prop"
+      description="Use the label prop as an alternative to slot content."
+      :code="labelPropCode"
     />
 
     <DemoSection

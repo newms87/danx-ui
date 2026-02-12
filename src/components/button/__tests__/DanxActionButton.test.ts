@@ -75,6 +75,24 @@ describe("DanxActionButton", () => {
       expect(wrapper.text()).toContain("Delete Item");
     });
 
+    it("passes through label prop to DanxButton", () => {
+      const wrapper = mount(DanxActionButton, {
+        props: { label: "Create" },
+      });
+
+      expect(wrapper.text()).toContain("Create");
+    });
+
+    it("slot content takes precedence over label prop", () => {
+      const wrapper = mount(DanxActionButton, {
+        props: { label: "From Prop" },
+        slots: { default: "From Slot" },
+      });
+
+      expect(wrapper.text()).toContain("From Slot");
+      expect(wrapper.text()).not.toContain("From Prop");
+    });
+
     it("passes through component icon prop", () => {
       const CustomIcon = markRaw(
         defineComponent({
@@ -235,6 +253,16 @@ describe("DanxActionButton", () => {
       });
 
       expect(wrapper.find(".danx-button__spinner").exists()).toBe(false);
+    });
+
+    it("shows loading when multiple loading sources are true", () => {
+      const action = createMockAction({ isApplying: true });
+
+      const wrapper = mount(DanxActionButton, {
+        props: { action, saving: true },
+      });
+
+      expect(wrapper.find(".danx-button__spinner").exists()).toBe(true);
     });
 
     it("does not show loading when no loading sources are active", () => {

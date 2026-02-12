@@ -23,6 +23,7 @@
  * | disabled | boolean     | false    | Disables the button                   |
  * | loading  | boolean     | false    | Shows spinner, prevents clicks        |
  * | tooltip  | string      | -        | Native title attribute                |
+ * | label    | string      | -        | Text label (alternative to slot)      |
  *
  * ## Events
  * | Event | Payload    | Description                              |
@@ -155,6 +156,6 @@ const IconComponent = computed(() => {
     </span>
 
     <!-- Content -->
-    <slot />
+    <slot>{{ label }}</slot>
   </button>
 </template>

@@ -26,6 +26,7 @@
  * | confirm     | boolean          | false           | Show confirmation before triggering  |
  * | confirmText | string           | "Are you sure?" | Confirmation dialog message          |
  * | saving      | boolean          | -               | Manual loading state override        |
+ * | label       | string           | -               | Text label (alternative to slot)     |
  *
  * ## Events
  * | Event   | Payload | Description                                |
@@ -123,6 +124,7 @@ function handleConfirm() {
     :disabled="disabled"
     :loading="isLoading"
     :tooltip="tooltip"
+    :label="label"
     @click="handleClick"
   >
     <slot />

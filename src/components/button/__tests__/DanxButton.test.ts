@@ -33,6 +33,24 @@ describe("DanxButton", () => {
       expect(wrapper.text()).toContain("Save Changes");
     });
 
+    it("renders label prop as text content", () => {
+      const wrapper = mount(DanxButton, {
+        props: { label: "Save Changes" },
+      });
+
+      expect(wrapper.text()).toContain("Save Changes");
+    });
+
+    it("slot content takes precedence over label prop", () => {
+      const wrapper = mount(DanxButton, {
+        props: { label: "From Prop" },
+        slots: { default: "From Slot" },
+      });
+
+      expect(wrapper.text()).toContain("From Slot");
+      expect(wrapper.text()).not.toContain("From Prop");
+    });
+
     it("renders icon-only when icon prop provided without slot content", () => {
       const wrapper = mount(DanxButton, {
         props: { icon: saveIcon },
@@ -230,6 +248,12 @@ describe("DanxButton", () => {
       expect(wrapper.find(".danx-button__icon").exists()).toBe(false);
       expect(wrapper.find(".slot-icon").exists()).toBe(false);
       expect(wrapper.find(".danx-button__spinner").exists()).toBe(true);
+    });
+
+    it("does not apply loading class when loading is false", () => {
+      const wrapper = mount(DanxButton);
+
+      expect(wrapper.classes()).not.toContain("danx-button--loading");
     });
 
     it("adds loading class when loading=true", () => {

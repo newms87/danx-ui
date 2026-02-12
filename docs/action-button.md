@@ -42,6 +42,7 @@ const deleteAction: ResourceAction = {
 | `icon` | `Component \| string` | - | Icon name, raw SVG string, or component |
 | `disabled` | `boolean` | `false` | Disables the button |
 | `tooltip` | `string` | - | Native title attribute |
+| `label` | `string` | - | Text label (alternative to slot) |
 | `action` | `ResourceAction` | - | Action object to trigger on click |
 | `target` | `ActionTarget` | - | Target passed to `action.trigger()` |
 | `input` | `Record<string, unknown>` | - | Data passed as second argument to `action.trigger()` |

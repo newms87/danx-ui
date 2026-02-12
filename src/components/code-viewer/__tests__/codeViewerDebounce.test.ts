@@ -162,6 +162,37 @@ describe("createDebouncedOperations", () => {
       vi.advanceTimersByTime(300);
     });
 
+    it("skips when document is unavailable", () => {
+      const deps = createDeps({
+        editingContent: ref("key: value"),
+        currentFormat: ref<CodeFormat>("yaml"),
+      });
+      preElement = createPreElement("key: value");
+      deps.codeRef.value = preElement;
+
+      const { debouncedHighlight } = createDebouncedOperations(deps);
+      debouncedHighlight();
+
+      const htmlBefore = preElement.innerHTML;
+      const originalDocument = globalThis.document;
+      // Simulate document being unavailable (e.g., SSR or torn-down test env)
+      Object.defineProperty(globalThis, "document", {
+        value: undefined,
+        configurable: true,
+        writable: true,
+      });
+
+      vi.advanceTimersByTime(300);
+      expect(preElement.innerHTML).toBe(htmlBefore);
+
+      // Restore document
+      Object.defineProperty(globalThis, "document", {
+        value: originalDocument,
+        configurable: true,
+        writable: true,
+      });
+    });
+
     it("skips when isEditing is false", () => {
       const deps = createDeps();
       preElement = createPreElement("content");
