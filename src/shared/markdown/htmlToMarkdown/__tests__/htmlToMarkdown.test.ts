@@ -389,6 +389,187 @@ describe("htmlToMarkdown", () => {
     });
   });
 
+  describe("block-level inline elements", () => {
+    it("converts block-level br to line break", () => {
+      expect(htmlToMarkdown("<br>")).toBe("");
+    });
+
+    it("converts block-level strong to bold", () => {
+      expect(htmlToMarkdown("<strong>bold</strong>")).toBe("**bold**");
+    });
+
+    it("converts block-level b to bold", () => {
+      expect(htmlToMarkdown("<b>bold</b>")).toBe("**bold**");
+    });
+
+    it("skips empty block-level strong", () => {
+      expect(htmlToMarkdown("<strong></strong>")).toBe("");
+    });
+
+    it("converts block-level em to italic", () => {
+      expect(htmlToMarkdown("<em>italic</em>")).toBe("*italic*");
+    });
+
+    it("converts block-level i to italic", () => {
+      expect(htmlToMarkdown("<i>italic</i>")).toBe("*italic*");
+    });
+
+    it("skips empty block-level em", () => {
+      expect(htmlToMarkdown("<em></em>")).toBe("");
+    });
+
+    it("converts block-level code to inline code", () => {
+      expect(htmlToMarkdown("<code>snippet</code>")).toBe("`snippet`");
+    });
+
+    it("converts block-level li (orphaned) to inline content", () => {
+      expect(htmlToMarkdown("<li>orphan item</li>")).toBe("orphan item");
+    });
+
+    it("converts block-level link", () => {
+      expect(htmlToMarkdown('<a href="https://example.com">click</a>')).toBe(
+        "[click](https://example.com)"
+      );
+    });
+
+    it("converts block-level del to strikethrough", () => {
+      expect(htmlToMarkdown("<del>removed</del>")).toBe("~~removed~~");
+    });
+
+    it("converts block-level s to strikethrough", () => {
+      expect(htmlToMarkdown("<s>removed</s>")).toBe("~~removed~~");
+    });
+
+    it("skips empty block-level del", () => {
+      expect(htmlToMarkdown("<del></del>")).toBe("");
+    });
+
+    it("converts block-level mark to highlight", () => {
+      expect(htmlToMarkdown("<mark>highlighted</mark>")).toBe("==highlighted==");
+    });
+
+    it("skips empty block-level mark", () => {
+      expect(htmlToMarkdown("<mark></mark>")).toBe("");
+    });
+
+    it("converts block-level sup to superscript", () => {
+      expect(htmlToMarkdown("<sup>up</sup>")).toBe("^up^");
+    });
+
+    it("skips empty block-level sup", () => {
+      expect(htmlToMarkdown("<sup></sup>")).toBe("");
+    });
+
+    it("converts block-level sub to subscript", () => {
+      expect(htmlToMarkdown("<sub>down</sub>")).toBe("~down~");
+    });
+
+    it("skips empty block-level sub", () => {
+      expect(htmlToMarkdown("<sub></sub>")).toBe("");
+    });
+
+    it("processes unknown elements by recursing into children", () => {
+      expect(htmlToMarkdown("<section><p>inside section</p></section>")).toBe("inside section");
+    });
+  });
+
+  describe("code block wrapper divs", () => {
+    it("converts div with data-code-block-id to code block", () => {
+      const html =
+        '<div data-code-block-id="cb-1"><div class="code-viewer-mount-point" data-content="const x = 1;" data-language="typescript"></div></div>';
+      expect(htmlToMarkdown(html)).toBe("```typescript\nconst x = 1;\n```");
+    });
+
+    it("handles code block wrapper with empty content", () => {
+      const html =
+        '<div data-code-block-id="cb-2"><div class="code-viewer-mount-point" data-content="" data-language=""></div></div>';
+      expect(htmlToMarkdown(html)).toBe("```\n\n```");
+    });
+  });
+
+  describe("color-preview spans", () => {
+    it("processes color-preview span at block level", () => {
+      expect(htmlToMarkdown('<span class="color-preview">#ff0000</span>')).toBe("#ff0000");
+    });
+
+    it("processes color-preview span inside inline content", () => {
+      expect(htmlToMarkdown('<p>Color: <span class="color-preview">#00ff00</span> value</p>')).toBe(
+        "Color: #00ff00 value"
+      );
+    });
+  });
+
+  describe("inline images", () => {
+    it("converts img inside paragraph via inline content", () => {
+      expect(
+        htmlToMarkdown('<p>See <img src="https://example.com/pic.png" alt="photo"> here</p>')
+      ).toBe("See ![photo](https://example.com/pic.png) here");
+    });
+  });
+
+  describe("nested list with inline formatting", () => {
+    it("handles inline element inside li with nested list", () => {
+      const html = "<ul><li><strong>bold parent</strong><ul><li>child</li></ul></li></ul>";
+      const result = htmlToMarkdown(html);
+      expect(result).toContain("- bold parent");
+      expect(result).toContain("  - child");
+    });
+  });
+
+  describe("code inside pre as root element", () => {
+    it("handles code element when pre is root", () => {
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = "direct code content";
+      pre.appendChild(code);
+      expect(htmlToMarkdown(pre)).toBe("direct code content");
+    });
+  });
+
+  describe("table edge cases", () => {
+    it("generates default separator when no thead with alignments", () => {
+      const html =
+        "<table><tbody><tr><td>A</td><td>B</td></tr><tr><td>C</td><td>D</td></tr></tbody></table>";
+      const result = htmlToMarkdown(html);
+      expect(result).toContain("| A | B |");
+      expect(result).toContain("| --- | --- |");
+      expect(result).toContain("| C | D |");
+    });
+
+    it("returns empty for table with no rows", () => {
+      expect(htmlToMarkdown("<table><tbody></tbody></table>")).toBe("");
+    });
+
+    it("handles thead with no tr inside", () => {
+      const html = "<table><thead></thead><tbody><tr><td>A</td></tr></tbody></table>";
+      const result = htmlToMarkdown(html);
+      expect(result).toContain("| A |");
+    });
+
+    it("handles table with thead but no tbody via programmatic DOM", () => {
+      // Browsers auto-insert <tbody> when parsing HTML, so build DOM manually.
+      // This exercises both the `|| table` fallback and the thead row skip.
+      const container = document.createElement("div");
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      const th = document.createElement("th");
+      th.textContent = "Header";
+      headerRow.appendChild(th);
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      const dataRow = document.createElement("tr");
+      const td = document.createElement("td");
+      td.textContent = "Data";
+      dataRow.appendChild(td);
+      table.appendChild(dataRow);
+      container.appendChild(table);
+      const result = htmlToMarkdown(container);
+      expect(result).toContain("| Header |");
+      expect(result).toContain("| Data |");
+    });
+  });
+
   describe("custom element processor for inline tokens", () => {
     it("uses custom processor for token wrapper spans inside paragraphs", () => {
       const html = `<p>Before <span class="custom-token-wrapper" contenteditable="false" data-token-id="tok-1" data-token-renderer="test" data-token-groups='["42"]'><span class="token-mount-point"></span></span> after</p>`;
