@@ -3,8 +3,36 @@
  * CodeViewerCollapsed Component
  *
  * Renders the collapsed single-line preview of a CodeViewer.
- * Shows an expand icon, truncated content preview, and a language badge.
- * Clicking the row expands back to the full code view.
+ * Shows a chevron-right expand icon, truncated content preview,
+ * and a LanguageBadge for format switching. Clicking anywhere on
+ * the row (except the badge) emits expand to restore the full view.
+ *
+ * @props
+ *   preview: string - HTML string showing a collapsed preview of the content
+ *   format: string - Current format/language displayed in the badge
+ *   availableFormats?: string[] - Formats available for quick switching (default: [])
+ *   allowAnyLanguage?: boolean - Whether to show the language search panel (default: false)
+ *
+ * @emits
+ *   expand - Fired when the collapsed row is clicked to restore full view
+ *   format-change(format: string) - Fired when a different language is selected via the badge
+ *
+ * @tokens
+ *   --dx-code-viewer-collapsed-bg - Background color of the collapsed row
+ *   --dx-code-viewer-collapsed-bg-hover - Background color on hover
+ *   --dx-code-viewer-collapsed-text - Text color of the preview content
+ *   --dx-code-viewer-border-radius - Border radius (inherited from viewer)
+ *   --dx-code-viewer-font-family - Font family (inherited from viewer)
+ *   --dx-code-viewer-font-size - Font size (inherited from viewer)
+ *
+ * @example
+ *   <CodeViewerCollapsed
+ *     preview="<span>{ &quot;key&quot;: &quot;value&quot; }</span>"
+ *     format="json"
+ *     :available-formats="['json', 'yaml']"
+ *     @expand="isCollapsed = false"
+ *     @format-change="onFormatChange"
+ *   />
  */
 -->
 

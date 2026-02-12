@@ -4,13 +4,40 @@
  *
  * Displays the current code format/language as a badge in the top-right corner
  * of the CodeViewer. On hover, shows alternative format options for quick switching.
- * When allowAnyLanguage is true, includes a searchable language selection panel.
+ * When allowAnyLanguage is true, includes a searchable language selection panel
+ * with keyboard navigation (Arrow Up/Down, Enter, Escape).
  *
  * Features:
- * - Hover-to-reveal format options (e.g., JSON ↔ YAML)
+ * - Hover-to-reveal format options (e.g., JSON / YAML)
  * - Keyboard-navigable search panel for all supported languages
  * - Click-outside-to-close for the search panel
  * - Slide and fade animations for smooth transitions
+ *
+ * @props
+ *   format: string - Current format/language being displayed
+ *   availableFormats?: string[] - Formats available for quick switching on hover (default: [])
+ *   toggleable?: boolean - Whether format switching is enabled (default: true)
+ *   allowAnyLanguage?: boolean - Whether to show a search panel for selecting any language (default: false)
+ *
+ * @model
+ *   searchOpen: boolean - Controls visibility of the language search panel (default: false)
+ *
+ * @emits
+ *   change(format: string) - Fired when a different language is selected
+ *
+ * @tokens
+ *   --dx-code-viewer-badge-bg - Badge background color
+ *   --dx-code-viewer-badge-text - Badge text color
+ *   --dx-code-viewer-badge-font-size - Badge font size
+ *   --dx-code-viewer-badge-active-radius - Border radius when options are visible
+ *
+ * @example
+ *   <LanguageBadge
+ *     format="json"
+ *     :available-formats="['json', 'yaml']"
+ *     allow-any-language
+ *     @change="onFormatChange"
+ *   />
  */
 -->
 

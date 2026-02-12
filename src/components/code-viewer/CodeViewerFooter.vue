@@ -3,7 +3,33 @@
  * CodeViewerFooter Component
  *
  * Footer bar for CodeViewer showing character count, validation errors,
- * and an edit toggle button. Replaces QBtn with DanxButton.
+ * and an edit toggle button. Displays a pencil icon that highlights when
+ * the editor is in edit mode.
+ *
+ * @props
+ *   charCount: number - Number of characters in the displayed content
+ *   validationError: ValidationError | null - Current parse/validation error, if any
+ *   canEdit: boolean - Whether editing is allowed (controls edit button visibility)
+ *   isEditing: boolean - Whether currently in edit mode (highlights edit button)
+ *
+ * @emits
+ *   toggle-edit - Fired when the edit pencil button is clicked
+ *
+ * @tokens
+ *   --dx-code-viewer-footer-bg - Footer background color
+ *   --dx-code-viewer-footer-error-bg - Background when a validation error is shown
+ *   --dx-code-viewer-footer-error-border - Top border when a validation error is shown
+ *   --dx-code-viewer-border-radius - Bottom border radius (inherited from viewer)
+ *   --dx-code-viewer-light-border - Top border for light theme variant
+ *
+ * @example
+ *   <CodeViewerFooter
+ *     :char-count="1234"
+ *     :validation-error="null"
+ *     :can-edit="true"
+ *     :is-editing="false"
+ *     @toggle-edit="toggleEdit"
+ *   />
  */
 -->
 
