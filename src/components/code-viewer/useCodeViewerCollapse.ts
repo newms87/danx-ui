@@ -46,6 +46,37 @@ export function getSyntaxClass(val: unknown): string {
   return "punctuation";
 }
 
+export interface StructuredPreviewOptions {
+  wrapInBraces: boolean;
+  includeQuotes: boolean;
+  format: CodeFormat;
+}
+
+/**
+ * Build a collapsed preview for a parsed structured value (JSON or YAML).
+ * Handles null, arrays, objects (key-value pairs), and primitives.
+ */
+export function buildStructuredPreview(parsed: unknown, options: StructuredPreviewOptions): string {
+  if (parsed === null) return '<span class="syntax-null">null</span>';
+  if (Array.isArray(parsed)) return `[${parsed.length} items]`;
+
+  if (typeof parsed === "object") {
+    const keys = Object.keys(parsed);
+    const keyPreviews = keys.slice(0, 3).map((k) => {
+      const val = (parsed as Record<string, unknown>)[k];
+      const valStr = formatValuePreview(val, options.includeQuotes);
+      return `<span class="syntax-key">${k}</span>: <span class="syntax-${getSyntaxClass(val)}">${valStr}</span>`;
+    });
+    const ellipsis = keys.length > 3 ? ", ..." : "";
+    const joined = keyPreviews.join(", ") + ellipsis;
+    return options.wrapInBraces ? `{${joined}}` : joined;
+  }
+
+  return options.format === "json"
+    ? highlightSyntax(String(parsed), { format: "json" })
+    : String(parsed);
+}
+
 export function useCodeViewerCollapse(
   options: UseCodeViewerCollapseOptions
 ): UseCodeViewerCollapseReturn {
@@ -69,24 +100,11 @@ export function useCodeViewerCollapse(
       try {
         const parsed =
           typeof modelValue.value === "string" ? JSON.parse(modelValue.value) : modelValue.value;
-
-        if (parsed === null) {
-          return '<span class="syntax-null">null</span>';
-        }
-
-        if (Array.isArray(parsed)) {
-          preview = `[${parsed.length} items]`;
-        } else if (typeof parsed === "object") {
-          const keys = Object.keys(parsed);
-          const keyPreviews = keys.slice(0, 3).map((k) => {
-            const val = parsed[k];
-            const valStr = formatValuePreview(val);
-            return `<span class="syntax-key">${k}</span>: <span class="syntax-${getSyntaxClass(val)}">${valStr}</span>`;
-          });
-          preview = `{${keyPreviews.join(", ")}${keys.length > 3 ? ", ..." : ""}}`;
-        } else {
-          preview = highlightSyntax(String(parsed), { format: "json" });
-        }
+        preview = buildStructuredPreview(parsed, {
+          wrapInBraces: true,
+          includeQuotes: true,
+          format: "json",
+        });
       } catch {
         preview = content.replace(/\s+/g, " ").slice(0, maxLength);
         if (content.length > maxLength) preview += "...";
@@ -98,24 +116,11 @@ export function useCodeViewerCollapse(
           typeof modelValue.value === "string"
             ? codeFormat.parse(modelValue.value)
             : modelValue.value;
-
-        if (parsed === null) {
-          return '<span class="syntax-null">null</span>';
-        }
-
-        if (Array.isArray(parsed)) {
-          preview = `[${parsed.length} items]`;
-        } else if (typeof parsed === "object") {
-          const keys = Object.keys(parsed);
-          const keyPreviews = keys.slice(0, 3).map((k) => {
-            const val = (parsed as Record<string, unknown>)[k];
-            const valStr = formatValuePreview(val, false);
-            return `<span class="syntax-key">${k}</span>: <span class="syntax-${getSyntaxClass(val)}">${valStr}</span>`;
-          });
-          preview = keyPreviews.join(", ") + (keys.length > 3 ? ", ..." : "");
-        } else {
-          preview = String(parsed);
-        }
+        preview = buildStructuredPreview(parsed, {
+          wrapInBraces: false,
+          includeQuotes: false,
+          format: format.value,
+        });
       } catch {
         const firstLine = content.split("\n")[0] ?? "";
         preview = firstLine.length > maxLength ? firstLine.slice(0, maxLength) + "..." : firstLine;

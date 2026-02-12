@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import CodeViewer from "../CodeViewer.vue";
@@ -513,6 +513,53 @@ describe("CodeViewer", () => {
     it("accepts valid prop as v-model:valid binding", () => {
       const wrapper = mountCodeViewer({ valid: true });
       expect(wrapper.props("valid")).toBe(true);
+    });
+
+    it("emits update:valid false on invalid JSON edit content, then true when corrected", async () => {
+      vi.useFakeTimers();
+      const wrapper = mountCodeViewer({
+        canEdit: true,
+        editable: true,
+        modelValue: '{"key": "value"}',
+        format: "json",
+      });
+      await nextTick();
+      const editablePre = wrapper.find("pre[contenteditable]");
+
+      // Type invalid JSON
+      Object.defineProperty(editablePre.element, "innerText", {
+        value: "{invalid json",
+        writable: true,
+      });
+      await editablePre.trigger("input");
+      await nextTick();
+
+      // Advance past validation debounce (300ms)
+      vi.advanceTimersByTime(300);
+      await nextTick();
+
+      // isValid should now be false, triggering update:valid with false
+      const validEmits = wrapper.emitted("update:valid") as boolean[][];
+      const lastValid = validEmits[validEmits.length - 1]![0];
+      expect(lastValid).toBe(false);
+
+      // Now correct the content
+      Object.defineProperty(editablePre.element, "innerText", {
+        value: '{"key": "fixed"}',
+        writable: true,
+      });
+      await editablePre.trigger("input");
+      await nextTick();
+
+      vi.advanceTimersByTime(300);
+      await nextTick();
+
+      // Should now emit true
+      const validEmitsAfter = wrapper.emitted("update:valid") as boolean[][];
+      const lastValidAfter = validEmitsAfter[validEmitsAfter.length - 1]![0];
+      expect(lastValidAfter).toBe(true);
+
+      vi.useRealTimers();
     });
   });
 

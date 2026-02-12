@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ref } from "vue";
 import { useCodeFormat } from "../useCodeFormat";
 import {
+  buildStructuredPreview,
   formatValuePreview,
   getSyntaxClass,
   useCodeViewerCollapse,
@@ -73,6 +74,59 @@ describe("useCodeViewerCollapse", () => {
 
     it("returns 'punctuation' for objects", () => {
       expect(getSyntaxClass({ a: 1 })).toBe("punctuation");
+    });
+  });
+
+  describe("buildStructuredPreview", () => {
+    const jsonOpts = { wrapInBraces: true, includeQuotes: true, format: "json" as const };
+    const yamlOpts = { wrapInBraces: false, includeQuotes: false, format: "yaml" as const };
+
+    it("returns null span for null", () => {
+      expect(buildStructuredPreview(null, jsonOpts)).toBe('<span class="syntax-null">null</span>');
+    });
+
+    it("returns item count for arrays", () => {
+      expect(buildStructuredPreview([1, 2], jsonOpts)).toBe("[2 items]");
+    });
+
+    it("wraps object preview in braces for JSON", () => {
+      const result = buildStructuredPreview({ a: 1 }, jsonOpts);
+      expect(result).toMatch(/^\{.*\}$/);
+      expect(result).toContain("syntax-key");
+    });
+
+    it("does not wrap object preview in braces for YAML", () => {
+      const result = buildStructuredPreview({ a: 1 }, yamlOpts);
+      expect(result).not.toMatch(/^\{/);
+      expect(result).toContain("syntax-key");
+    });
+
+    it("includes quotes for JSON values", () => {
+      const result = buildStructuredPreview({ name: "test" }, jsonOpts);
+      expect(result).toContain('"test"');
+    });
+
+    it("excludes quotes for YAML values", () => {
+      const result = buildStructuredPreview({ name: "test" }, yamlOpts);
+      expect(result).not.toContain('"test"');
+      expect(result).toContain("test");
+    });
+
+    it("shows ellipsis for objects with more than 3 keys", () => {
+      expect(buildStructuredPreview({ a: 1, b: 2, c: 3, d: 4 }, jsonOpts)).toContain(", ...");
+    });
+
+    it("omits ellipsis for objects with 3 or fewer keys", () => {
+      expect(buildStructuredPreview({ a: 1, b: 2 }, jsonOpts)).not.toContain(", ...");
+    });
+
+    it("uses highlightSyntax for JSON primitives", () => {
+      const result = buildStructuredPreview(42, jsonOpts);
+      expect(result).toBeTruthy();
+    });
+
+    it("uses String() for YAML primitives", () => {
+      expect(buildStructuredPreview(42, yamlOpts)).toBe("42");
     });
   });
 

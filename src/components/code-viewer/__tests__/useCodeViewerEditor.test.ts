@@ -348,6 +348,18 @@ describe("useCodeViewerEditor", () => {
       expect(preElement.innerHTML).toContain("syntax-key");
     });
 
+    it("skips innerHTML update in nextTick when codeRef is null", async () => {
+      const { editor, codeFormat } = createEditor({ editable: ref(true) });
+      // Do NOT set codeRef — it stays null
+
+      codeFormat.setFormat("json");
+      editor.updateEditingContentOnFormatChange();
+      await nextTick();
+
+      // Should still update editing content, but no error from null codeRef
+      expect(editor.editingContent.value).toBeTruthy();
+    });
+
     it("does nothing when not editing", () => {
       const { editor } = createEditor();
       const content = editor.editingContent.value;
@@ -724,6 +736,29 @@ describe("useCodeViewerEditor", () => {
       vi.advanceTimersByTime(300);
     });
 
+    it("debouncedHighlight is a no-op when isEditing becomes false mid-debounce", () => {
+      const { editor, codeRef, canEdit } = createEditor({ editable: ref(true) });
+      preElement = createPreElement("original content");
+      codeRef.value = preElement;
+
+      // Trigger input to start debounced highlight
+      const event = new Event("input", { bubbles: true });
+      Object.defineProperty(event, "target", { value: preElement });
+      editor.onContentEditableInput(event);
+
+      // Capture innerHTML before debounce fires
+      const htmlBefore = preElement.innerHTML;
+
+      // Disable editing before debounce fires (isEditing = canEdit && internalEditable)
+      canEdit.value = false;
+
+      // Advance past debounce
+      vi.advanceTimersByTime(300);
+
+      // innerHTML should NOT have been updated since isEditing is now false
+      expect(preElement.innerHTML).toBe(htmlBefore);
+    });
+
     it("debouncedHighlight restores focus if element had focus", () => {
       const { editor, codeRef, currentFormat } = createEditor({ editable: ref(true) });
       preElement = createPreElement("key: value");
@@ -891,6 +926,45 @@ describe("useCodeViewerEditor", () => {
       vi.advanceTimersByTime(100);
       // Now second timeout fired
       expect(editor.validationError.value).not.toBeNull();
+    });
+  });
+
+  describe("double-emit guard", () => {
+    it("skips emitting the same value on consecutive blurs", () => {
+      const { editor, codeRef, callbacks } = createEditor({ editable: ref(true) });
+      preElement = createPreElement("unparseable{{{");
+      codeRef.value = preElement;
+      editor.isUserEditing.value = true;
+      // Use unparseable content so value is a string (=== works for primitives)
+      editor.editingContent.value = "unparseable{{{";
+
+      // First blur emits the raw string
+      editor.onContentEditableBlur();
+      expect(callbacks.onEmitModelValue).toHaveBeenCalledTimes(1);
+      expect(callbacks.onEmitModelValue).toHaveBeenCalledWith("unparseable{{{");
+
+      // Second blur with same content — re-enter user editing state
+      editor.isUserEditing.value = true;
+      editor.onContentEditableBlur();
+      // Should NOT emit again because same string value
+      expect(callbacks.onEmitModelValue).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("blur with null codeRef", () => {
+    it("emits but skips innerHTML update when codeRef is null", () => {
+      const { editor, codeRef, callbacks } = createEditor({ editable: ref(true) });
+      preElement = createPreElement("name: test");
+      codeRef.value = preElement;
+      editor.isUserEditing.value = true;
+      editor.editingContent.value = "name: test\n";
+
+      // Set codeRef to null before blur
+      codeRef.value = null;
+
+      editor.onContentEditableBlur();
+      // Should still emit even though codeRef is null
+      expect(callbacks.onEmitModelValue).toHaveBeenCalled();
     });
   });
 

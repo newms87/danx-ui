@@ -17,7 +17,8 @@
  */
 
 import { Ref } from "vue";
-import { getAvailableFormats, getCurrentLineInfo, getSmartIndent } from "./cursorUtils";
+import { getCurrentLineInfo, getSmartIndent } from "./cursorUtils";
+import { getAvailableFormats } from "./formatUtils";
 import type { CodeFormat } from "./types";
 
 export interface KeyboardHandlerDeps {
