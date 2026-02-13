@@ -18,6 +18,7 @@ describe("ESCAPE_MAP", () => {
       "\\!",
       "\\=",
       "\\^",
+      "\\|",
     ];
     for (const key of expectedKeys) {
       expect(ESCAPE_MAP).toHaveProperty(key);
@@ -37,7 +38,7 @@ describe("ESCAPE_MAP", () => {
   });
 
   it("has exactly 14 entries", () => {
-    expect(Object.keys(ESCAPE_MAP).length).toBe(14);
+    expect(Object.keys(ESCAPE_MAP).length).toBe(15);
   });
 });
 
@@ -61,6 +62,7 @@ describe("UNESCAPE_MAP", () => {
     expect(UNESCAPE_MAP[ESCAPE_MAP["\\!"]!]).toBe("!");
     expect(UNESCAPE_MAP[ESCAPE_MAP["\\="]!]).toBe("=");
     expect(UNESCAPE_MAP[ESCAPE_MAP["\\^"]!]).toBe("^");
+    expect(UNESCAPE_MAP[ESCAPE_MAP["\\|"]!]).toBe("|");
   });
 
   it("maps the HTML-escaped greater-than placeholder to &gt;", () => {
@@ -152,10 +154,10 @@ describe("round-trip: applyEscapes then revertEscapes", () => {
   });
 
   it("converts multiple escapes to their literals after round-trip", () => {
-    const input = "\\* \\_ \\~ \\` \\[ \\] \\# \\- \\+ \\. \\! \\= \\^";
+    const input = "\\* \\_ \\~ \\` \\[ \\] \\# \\- \\+ \\. \\! \\= \\^ \\|";
     const escaped = applyEscapes(input);
     const reverted = revertEscapes(escaped);
-    expect(reverted).toBe("* _ ~ ` [ ] # - + . ! = ^");
+    expect(reverted).toBe("* _ ~ ` [ ] # - + . ! = ^ |");
   });
 
   it("preserves non-escaped text through round-trip", () => {

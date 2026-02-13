@@ -92,5 +92,21 @@ describe("utils", () => {
     it("handles leading/trailing whitespace on line", () => {
       expect(parsePipeRow("  | A | B |  ")).toEqual(["A", "B"]);
     });
+
+    it("handles escaped pipes in cell content", () => {
+      expect(parsePipeRow("| A \\| B | C |")).toEqual(["A | B", "C"]);
+    });
+
+    it("handles multiple escaped pipes in one cell", () => {
+      expect(parsePipeRow("| A \\| B \\| C | D |")).toEqual(["A | B | C", "D"]);
+    });
+
+    it("handles escaped pipe at start of cell", () => {
+      expect(parsePipeRow("| \\|leading | B |")).toEqual(["|leading", "B"]);
+    });
+
+    it("handles escaped pipe at end of cell", () => {
+      expect(parsePipeRow("| trailing\\| | B |")).toEqual(["trailing|", "B"]);
+    });
   });
 });

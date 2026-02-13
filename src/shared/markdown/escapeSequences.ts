@@ -22,6 +22,7 @@ export const ESCAPE_MAP: Record<string, string> = {
   "\\!": "\uE00B",
   "\\=": "\uE00C",
   "\\^": "\uE00D",
+  "\\|": "\uE00E",
 };
 
 /**

@@ -115,4 +115,11 @@ describe("parseTable", () => {
     const result = parseTable(lines, 0);
     expect(result).not.toBeNull();
   });
+
+  it("handles escaped pipes in cell content", () => {
+    const lines = ["| Type | Default |", "| --- | --- |", "| Component \\| string | - |"];
+    const result = parseTable(lines, 0);
+    expect(result!.token).toHaveProperty("headers", ["Type", "Default"]);
+    expect(result!.token).toHaveProperty("rows", [["Component | string", "-"]]);
+  });
 });
