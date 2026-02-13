@@ -213,7 +213,7 @@ describe("useLanguageSearch", () => {
     });
 
     it("focuses search input when panel opens", async () => {
-      const { wrapper, result, showSearchPanel, searchInputRef } = mountWithSearch();
+      const { wrapper, showSearchPanel, searchInputRef } = mountWithSearch();
       cleanup = () => wrapper.unmount();
       const input = document.createElement("input");
       document.body.appendChild(input);
