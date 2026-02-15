@@ -8,6 +8,7 @@ import CodeViewerPage from "./pages/CodeViewerPage.vue";
 import ContextMenuPage from "./pages/ContextMenuPage.vue";
 import DialogPage from "./pages/DialogPage.vue";
 import HomePage from "./pages/HomePage.vue";
+import IconPage from "./pages/IconPage.vue";
 import PopoverPage from "./pages/PopoverPage.vue";
 import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
 import FormattersPage from "./pages/FormattersPage.vue";
@@ -24,6 +25,7 @@ const router = createRouter({
     { path: "/action-button", name: "action-button", component: ActionButtonPage },
     { path: "/code-viewer", name: "code-viewer", component: CodeViewerPage },
     { path: "/context-menu", name: "context-menu", component: ContextMenuPage },
+    { path: "/icon", name: "icon", component: IconPage },
     { path: "/dialog", name: "dialog", component: DialogPage },
     { path: "/popover", name: "popover", component: PopoverPage },
     { path: "/markdown-editor", name: "markdown-editor", component: MarkdownEditorPage },
