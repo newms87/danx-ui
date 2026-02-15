@@ -12,6 +12,7 @@
 @import "tailwindcss";
 @import "./shared/tokens/index.css";
 @import "./components/button/button.css" layer(components);
+@import "./components/icon/icon.css" layer(components);
 @import "./components/code-viewer/code-viewer.css" layer(components);
 @import "./components/context-menu/context-menu.css" layer(components);
 @import "./components/dialog/dialog.css" layer(components);

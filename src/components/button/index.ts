@@ -25,4 +25,3 @@ export type {
   DanxActionButtonProps,
   ResourceAction,
 } from "./action-types";
-export type { IconName } from "./icons";

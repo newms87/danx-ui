@@ -78,6 +78,8 @@ const props = withDefaults(defineProps<DanxActionButtonProps>(), {
 
 const emit = defineEmits<DanxActionButtonEmits>();
 
+defineOptions({ inheritAttrs: false });
+
 const showConfirmDialog = ref(false);
 
 const isLoading = computed(() => {
@@ -118,6 +120,7 @@ function handleConfirm() {
 
 <template>
   <DanxButton
+    v-bind="$attrs"
     :type="type"
     :size="size"
     :icon="icon"

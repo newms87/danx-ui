@@ -7,6 +7,7 @@
 // Components
 export { DanxActionButton, DanxButton } from "./components/button";
 export { DanxChip } from "./components/chip";
+export { DanxIcon } from "./components/icon";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog } from "./components/dialog";
@@ -24,7 +25,7 @@ export { useDialog } from "./components/dialog";
 export { useMarkdownEditor } from "./components/markdown-editor";
 
 // Icons
-export * from "./components/button/icons";
+export * from "./components/icon/icons";
 
 // Types
 export type {
@@ -39,6 +40,7 @@ export type {
   DanxButtonSlots,
   ResourceAction,
 } from "./components/button";
+export type { DanxIconProps } from "./components/icon";
 export type {
   ChipSize,
   ChipType,

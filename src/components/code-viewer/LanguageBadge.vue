@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { searchSvg } from "./icons";
+import { searchIcon as searchSvg } from "../icon/icons";
 import type { LanguageBadgeProps } from "./types";
 import { useLanguageSearch } from "./useLanguageSearch";
 

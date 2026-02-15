@@ -21,7 +21,7 @@
  *   <MarkdownEditorFooter :char-count="42" @show-hotkeys="openHelp" />
  */
 import DanxButton from "../button/DanxButton.vue";
-import { KeyboardIcon } from "./icons";
+import { keyboardIcon as KeyboardIcon } from "../icon/icons";
 
 export interface MarkdownEditorFooterProps {
   charCount: number;

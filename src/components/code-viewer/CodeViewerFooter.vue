@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { DanxButton } from "../button";
-import { pencilSvg } from "./icons";
+import { pencilIcon as pencilSvg } from "../icon/icons";
 import type { CodeViewerFooterProps } from "./types";
 
 const props = defineProps<CodeViewerFooterProps>();

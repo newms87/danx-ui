@@ -29,8 +29,9 @@ import {
   watch,
   watchEffect,
 } from "vue";
-import { DanxButton, DanxActionButton, buttonIcons } from "../../src/components/button";
+import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
+import { DanxIcon, buttonIcons } from "../../src/components/icon";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
@@ -82,6 +83,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButton,
   DanxActionButton,
   DanxChip,
+  DanxIcon,
   CodeViewer,
   DanxContextMenu,
   DanxDialog,
@@ -102,6 +104,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxButton,
   DanxActionButton,
   DanxChip,
+  DanxIcon,
   CodeViewer,
   DanxContextMenu,
   DanxDialog,

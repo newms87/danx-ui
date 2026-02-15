@@ -1,0 +1,30 @@
+/**
+ * DanxIcon Styles
+ *
+ * Provides consistent sizing and layout for all icon rendering.
+ * The icon container uses inline-flex for alignment, and the SVG
+ * fills its container completely. Size is controlled by --dx-icon-size
+ * or overridden via external CSS classes (e.g. w-6 h-6).
+ */
+
+@import "../../shared/tokens/index.css";
+
+.danx-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-icon-size, 1em);
+  height: var(--dx-icon-size, 1em);
+  flex-shrink: 0;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  > span {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+}

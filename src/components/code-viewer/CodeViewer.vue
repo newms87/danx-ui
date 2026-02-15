@@ -65,7 +65,7 @@ import { computed, ref, toRef, watch } from "vue";
 import CodeViewerCollapsed from "./CodeViewerCollapsed.vue";
 import CodeViewerFooter from "./CodeViewerFooter.vue";
 import { getAvailableFormats } from "./formatUtils";
-import { chevronDownSvg } from "./icons";
+import { chevronDownIcon as chevronDownSvg } from "../icon/icons";
 import LanguageBadge from "./LanguageBadge.vue";
 import MarkdownContent from "./MarkdownContent.vue";
 import type { CodeFormat, DanxCodeViewerEmits, DanxCodeViewerProps } from "./types";
