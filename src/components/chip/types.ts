@@ -1,5 +1,5 @@
 import type { Component } from "vue";
-import type { IconName } from "../button/icons";
+import type { IconName } from "../icon/icons";
 
 /**
  * DanxChip Type Definitions

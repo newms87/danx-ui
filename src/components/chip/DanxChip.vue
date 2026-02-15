@@ -90,9 +90,8 @@
 -->
 
 <script setup lang="ts">
-import { computed, h } from "vue";
-import type { IconName } from "../button/icons";
-import { buttonIcons, closeIcon } from "../button/icons";
+import { computed } from "vue";
+import { DanxIcon } from "../icon";
 import type { DanxChipEmits, DanxChipProps, DanxChipSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxChipProps>(), {
@@ -110,14 +109,6 @@ const chipClasses = computed(() => [
   props.type ? `danx-chip--${props.type}` : null,
 ]);
 
-const IconComponent = computed(() => {
-  if (typeof props.icon === "string") {
-    const svg = buttonIcons[props.icon as IconName] ?? props.icon;
-    return { render: () => h("span", { innerHTML: svg }) };
-  }
-  return props.icon;
-});
-
 function handleRemove() {
   emit("remove");
 }
@@ -128,7 +119,7 @@ function handleRemove() {
     <!-- Icon (only rendered when icon prop or icon slot is provided) -->
     <span v-if="$slots.icon || icon" class="danx-chip__icon">
       <slot name="icon">
-        <component :is="IconComponent" />
+        <DanxIcon :icon="icon!" />
       </slot>
     </span>
 
@@ -143,7 +134,7 @@ function handleRemove() {
       aria-label="Remove"
       @click.stop="handleRemove"
     >
-      <span v-html="closeIcon" />
+      <DanxIcon icon="close" />
     </button>
   </span>
 </template>

@@ -98,9 +98,8 @@
 -->
 
 <script setup lang="ts">
-import { computed, h } from "vue";
-import type { IconName } from "./icons";
-import { buttonIcons } from "./icons";
+import { computed } from "vue";
+import { DanxIcon } from "../icon";
 import type { DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
@@ -127,14 +126,6 @@ const isDisabled = computed(() => props.disabled || props.loading);
 function handleClick(event: MouseEvent) {
   emit("click", event);
 }
-
-const IconComponent = computed(() => {
-  if (typeof props.icon === "string") {
-    const svg = buttonIcons[props.icon as IconName] ?? props.icon;
-    return { render: () => h("span", { innerHTML: svg }) };
-  }
-  return props.icon;
-});
 </script>
 
 <template>
@@ -151,7 +142,7 @@ const IconComponent = computed(() => {
     <!-- Icon (only rendered when icon prop or icon slot is provided) -->
     <span v-if="!loading && ($slots.icon || icon)" class="danx-button__icon">
       <slot name="icon">
-        <component :is="IconComponent" />
+        <DanxIcon :icon="icon!" />
       </slot>
     </span>
 

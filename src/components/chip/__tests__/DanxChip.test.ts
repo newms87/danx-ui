@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import { h, defineComponent } from "vue";
 import DanxChip from "../DanxChip.vue";
-import { saveIcon } from "../../button/icons";
+import { saveIcon } from "../../icon/icons";
 import type { ChipType, ChipSize } from "../types";
 
 // All semantic chip types (excluding blank default)

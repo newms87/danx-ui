@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import { h, defineComponent } from "vue";
 import DanxButton from "../DanxButton.vue";
-import { saveIcon } from "../icons";
+import { saveIcon } from "../../icon/icons";
 import type { ButtonType, ButtonSize } from "../types";
 
 // All semantic button types (excluding blank default)
