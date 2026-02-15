@@ -85,6 +85,9 @@ watch(theme, (newTheme) => {
                 >Markdown Editor</RouterLink
               >
             </li>
+            <li>
+              <RouterLink to="/tabs" class="demo-sidebar__link">Tabs</RouterLink>
+            </li>
           </ul>
         </li>
         <li>

@@ -1,4 +1,16 @@
-# Demo Live Preview
+# Demo Pages
+
+## CRITICAL: Three Registration Points for New Demo Pages
+
+New demo pages require updates in **three places**:
+
+| File | What to Add |
+|------|-------------|
+| `demo/main.ts` | Route entry (`{ path, name, component }`) |
+| `demo/App.vue` | Sidebar `<RouterLink>` in the Components or Utilities list |
+| `demo/composables/useLivePreview.ts` | Component in `REGISTERED_COMPONENTS` and `AVAILABLE_VALUES` |
+
+Missing any one of these causes the page to be unreachable or broken. The route alone does NOT add a sidebar link — the nav in `App.vue` is hardcoded.
 
 ## CRITICAL: Register New Exports in useLivePreview
 
@@ -18,6 +30,20 @@ The demo's live-editable code examples use `demo/composables/useLivePreview.ts` 
 - Adding a new component → add to both `REGISTERED_COMPONENTS` and `AVAILABLE_VALUES`
 - Adding a new composable/function → add to `AVAILABLE_VALUES`
 - Adding a new constant/icon → add to `AVAILABLE_VALUES`
+
+## CRITICAL: No TypeScript in Demo Example Scripts
+
+`useLivePreview` evaluates `<script>` blocks with `new Function()` — **plain JavaScript only**. TypeScript syntax (type annotations, generics, `as` casts) causes a silent syntax error: `buildSetup` returns `null`, template bindings become undefined, and the example breaks with no obvious error.
+
+**Write demo example scripts in plain JS.** The `<script setup lang="ts">` tag is cosmetic — it is not compiled by Vite, it is eval'd as raw text.
+
+```vue
+<!-- WRONG — silent failure -->
+function removeTag(index: number) {
+
+<!-- CORRECT -->
+function removeTag(index) {
+```
 
 ### Validation
 

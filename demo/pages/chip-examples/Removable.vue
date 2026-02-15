@@ -4,7 +4,7 @@ import { DanxChip } from "danx-ui";
 
 const tags = ref(["Vue", "TypeScript", "Tailwind", "Vite"]);
 
-function removeTag(index: number) {
+function removeTag(index) {
   tags.value.splice(index, 1);
 }
 </script>

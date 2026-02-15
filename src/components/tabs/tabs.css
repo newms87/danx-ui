@@ -1,0 +1,97 @@
+/**
+ * DanxTabs Styles
+ *
+ * Component styles for the tab button group. Uses native CSS nesting.
+ * BEM modifiers are top-level blocks per Lightning CSS requirements.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./tabs-tokens.css";
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.danx-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--dx-tabs-bg);
+  border: 1px solid var(--dx-tabs-border);
+  border-radius: var(--dx-tabs-border-radius);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Sliding Indicator
+   ========================================================================== */
+
+.danx-tabs__indicator {
+  position: absolute;
+  inset-block: 0;
+  transition:
+    left var(--dx-tabs-indicator-transition),
+    width var(--dx-tabs-indicator-transition),
+    background-color var(--dx-tabs-indicator-transition);
+}
+
+/* ==========================================================================
+   Tab Button
+   ========================================================================== */
+
+.danx-tabs__tab {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--dx-tabs-gap);
+  padding: var(--dx-tabs-padding-y) var(--dx-tabs-padding-x);
+  font-size: var(--dx-tabs-font-size);
+  font-weight: var(--dx-tabs-font-weight);
+  color: var(--dx-tabs-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color var(--dx-tabs-transition);
+
+  &:hover:not(.is-active) {
+    color: var(--dx-tabs-text-hover);
+  }
+
+  &.is-active {
+    color: var(--dx-tabs-text-active);
+  }
+}
+
+/* ==========================================================================
+   Divider Between Tabs
+   ========================================================================== */
+
+.danx-tabs__divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--dx-tabs-divider);
+}
+
+/* ==========================================================================
+   Icon
+   ========================================================================== */
+
+.danx-tabs__icon {
+  flex-shrink: 0;
+  width: var(--dx-tabs-icon-size);
+  height: var(--dx-tabs-icon-size);
+
+  .danx-icon {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ==========================================================================
+   Count Badge
+   ========================================================================== */
+
+.danx-tabs__count {
+  opacity: var(--dx-tabs-count-opacity);
+}

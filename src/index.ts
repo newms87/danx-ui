@@ -13,6 +13,7 @@ export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog } from "./components/dialog";
 export { DanxPopover } from "./components/popover";
 export { MarkdownEditor } from "./components/markdown-editor";
+export { DanxTabs } from "./components/tabs";
 
 // Composables
 export {
@@ -90,6 +91,7 @@ export type {
   UseMarkdownEditorOptions,
   UseMarkdownEditorReturn,
 } from "./components/markdown-editor";
+export type { DanxTab, DanxTabsProps } from "./components/tabs";
 
 // Shared utilities
 export {

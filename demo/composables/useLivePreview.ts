@@ -37,6 +37,7 @@ import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
+import { DanxTabs } from "../../src/components/tabs";
 import {
   fCurrency,
   fCurrencyNoCents,
@@ -89,6 +90,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxDialog,
   DanxPopover,
   MarkdownEditor,
+  DanxTabs,
 };
 
 /**
@@ -111,6 +113,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxPopover,
   useDialog,
   MarkdownEditor,
+  DanxTabs,
   starIcon,
   buttonIcons,
   // Formatters - numbers

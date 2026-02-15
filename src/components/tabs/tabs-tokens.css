@@ -1,0 +1,74 @@
+/**
+ * DanxTabs Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize tab appearance.
+ *
+ * CSS Tokens:
+ * --dx-tabs-bg                  Container background
+ * --dx-tabs-border              Container border color
+ * --dx-tabs-border-radius       Container corner radius
+ * --dx-tabs-font-size           Tab label font size
+ * --dx-tabs-font-weight         Tab label font weight
+ * --dx-tabs-padding-x           Horizontal padding per tab button
+ * --dx-tabs-padding-y           Vertical padding per tab button
+ * --dx-tabs-gap                 Gap between icon and label within a tab
+ * --dx-tabs-icon-size           Tab icon dimensions
+ * --dx-tabs-text                Default (inactive) tab text color
+ * --dx-tabs-text-active         Active tab text color
+ * --dx-tabs-text-hover          Hover text color for inactive tabs
+ * --dx-tabs-active-color        Fallback indicator background color
+ * --dx-tabs-divider             Border color between tabs
+ * --dx-tabs-transition          Transition timing for color changes
+ * --dx-tabs-indicator-transition Transition timing for indicator slide
+ * --dx-tabs-count-opacity       Opacity for count badges
+ */
+
+:root {
+  /* ==========================================================================
+     Container Tokens
+     ========================================================================== */
+
+  --dx-tabs-bg: var(--color-surface-sunken);
+  --dx-tabs-border: var(--color-border);
+  --dx-tabs-border-radius: var(--radius-component);
+
+  /* ==========================================================================
+     Typography Tokens
+     ========================================================================== */
+
+  --dx-tabs-font-size: var(--text-sm);
+  --dx-tabs-font-weight: var(--font-medium);
+
+  /* ==========================================================================
+     Layout Tokens
+     ========================================================================== */
+
+  --dx-tabs-padding-x: var(--spacing-3);
+  --dx-tabs-padding-y: var(--spacing-1-5);
+  --dx-tabs-gap: var(--spacing-1-5);
+  --dx-tabs-icon-size: 0.875rem;
+
+  /* ==========================================================================
+     Color Tokens
+     ========================================================================== */
+
+  --dx-tabs-text: var(--color-text-muted);
+  --dx-tabs-text-active: var(--color-text-inverted);
+  --dx-tabs-text-hover: var(--color-text);
+  --dx-tabs-active-color: var(--color-interactive);
+  --dx-tabs-divider: var(--color-border);
+
+  /* ==========================================================================
+     Animation Tokens
+     ========================================================================== */
+
+  --dx-tabs-transition: var(--transition-fast);
+  --dx-tabs-indicator-transition: var(--duration-300) var(--ease-out);
+
+  /* ==========================================================================
+     Count Badge Tokens
+     ========================================================================== */
+
+  --dx-tabs-count-opacity: 0.7;
+}
