@@ -28,8 +28,15 @@ export type HighlightFormat =
   | "bash"
   | "vue";
 
+/** Options for nested JSON toggle support in highlighters */
+export interface NestedJsonOptions {
+  isExpanded: (id: string) => boolean;
+}
+
 export interface HighlightOptions {
   format: HighlightFormat;
+  /** When provided, enables nested JSON detection and toggle markup in JSON/YAML highlighting */
+  nestedJson?: NestedJsonOptions;
 }
 
 /**
@@ -40,9 +47,9 @@ export function highlightSyntax(code: string, options: HighlightOptions): string
 
   switch (options.format) {
     case "json":
-      return highlightJSON(code);
+      return highlightJSON(code, options.nestedJson);
     case "yaml":
-      return highlightYAML(code);
+      return highlightYAML(code, options.nestedJson);
     case "vue":
     case "html":
       return highlightHTML(code);

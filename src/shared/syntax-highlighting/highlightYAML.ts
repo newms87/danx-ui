@@ -5,18 +5,55 @@
  * block scalars (| and >), quoted strings spanning lines, and unquoted
  * multi-line values. Highlights keys, string/number/boolean/null values,
  * comments, and array item dashes.
+ *
+ * When nestedJsonOptions is provided, string values containing valid JSON
+ * objects/arrays are wrapped in toggleable markup with expanded (pretty-printed)
+ * and raw (escaped string) views.
  */
 
 import { escapeHtml } from "../escapeHtml";
+import { isNestedJson, parseNestedJson } from "../nestedJson";
+import type { NestedJsonOptions } from "./highlightSyntax";
+import { buildNestedJsonMarkup } from "./nestedJsonMarkup";
+
+/** Reverse HTML entity escaping to get raw text for JSON parsing */
+function unescapeHtml(html: string): string {
+  return html
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
+/** Running counter for generating unique nested JSON IDs within a single YAML highlight pass */
+let yamlNestedJsonCounter = 0;
 
 /**
- * Highlight a YAML value based on its type
+ * Highlight a YAML value based on its type, with optional nested JSON detection
  */
-function highlightYAMLValue(value: string): string {
+function highlightYAMLValue(value: string, nestedJsonOptions?: NestedJsonOptions): string {
   if (!value) return value;
 
-  // Quoted string (complete)
+  // Quoted string (complete) — check inner content for nested JSON
   if (/^(&quot;.*&quot;|&#039;.*&#039;)$/.test(value) || /^["'].*["']$/.test(value)) {
+    if (nestedJsonOptions) {
+      // Extract inner content (strip HTML-escaped quotes and unescape entities)
+      // Values are always HTML-escaped by the YAML highlighter before reaching this function,
+      // so quotes are always &quot; or &#039;, never raw " or '
+      const inner = unescapeHtml(value.slice(6, -6));
+
+      if (isNestedJson(inner)) {
+        const parsed = parseNestedJson(inner)!;
+        const id = `nj-yaml-${yamlNestedJsonCounter++}`;
+        return buildNestedJsonMarkup({
+          id,
+          parsed,
+          rawEscapedValue: `<span class="syntax-string">${value}</span>`,
+          isExpanded: nestedJsonOptions.isExpanded(id),
+        });
+      }
+    }
     return `<span class="syntax-string">${value}</span>`;
   }
   // Number (strict format: integers, decimals, scientific notation)
@@ -35,6 +72,20 @@ function highlightYAMLValue(value: string): string {
   if (/^[|>][-+]?\d*$/.test(value)) {
     return `<span class="syntax-punctuation">${value}</span>`;
   }
+
+  // Unquoted string — check for nested JSON (unquoted JSON in YAML flow style)
+  const rawValue = unescapeHtml(value);
+  if (nestedJsonOptions && isNestedJson(rawValue)) {
+    const parsed = parseNestedJson(rawValue)!;
+    const id = `nj-yaml-${yamlNestedJsonCounter++}`;
+    return buildNestedJsonMarkup({
+      id,
+      parsed,
+      rawEscapedValue: `<span class="syntax-string">${value}</span>`,
+      isExpanded: nestedJsonOptions.isExpanded(id),
+    });
+  }
+
   // Unquoted string
   return `<span class="syntax-string">${value}</span>`;
 }
@@ -50,9 +101,15 @@ function getIndentLevel(line: string): number {
 
 /**
  * Highlight YAML syntax with multi-line string support
+ *
+ * @param code - The YAML source code to highlight
+ * @param nestedJsonOptions - Optional nested JSON toggle support
  */
-export function highlightYAML(code: string): string {
+export function highlightYAML(code: string, nestedJsonOptions?: NestedJsonOptions): string {
   // Parent highlightSyntax() already guards against empty code
+  // Reset YAML nested JSON counter for each highlight pass
+  yamlNestedJsonCounter = 0;
+
   const lines = code.split("\n");
   const highlightedLines: string[] = [];
 
@@ -194,7 +251,7 @@ export function highlightYAML(code: string): string {
       }
 
       // Normal single-line value
-      const highlightedValue = highlightYAMLValue(value!);
+      const highlightedValue = highlightYAMLValue(value!, nestedJsonOptions);
       highlightedLines.push(
         `${indent}<span class="syntax-key">${key}</span><span class="syntax-punctuation">${colon}</span>${space}${highlightedValue}`
       );
@@ -205,7 +262,7 @@ export function highlightYAML(code: string): string {
     const arrayMatch = escaped.match(/^(\s*)(-)(\s*)(.*)$/);
     if (arrayMatch) {
       const [, indent, dash, space, value] = arrayMatch!;
-      const highlightedValue = value! ? highlightYAMLValue(value!) : "";
+      const highlightedValue = value! ? highlightYAMLValue(value!, nestedJsonOptions) : "";
       highlightedLines.push(
         `${indent}<span class="syntax-punctuation">${dash}</span>${space}${highlightedValue}`
       );

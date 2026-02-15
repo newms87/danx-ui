@@ -142,6 +142,31 @@
   .syntax-tag { color: var(--dx-code-viewer-syntax-tag); }
   .syntax-attribute { color: var(--dx-code-viewer-syntax-attribute); }
   .syntax-doctype { color: var(--dx-code-viewer-syntax-doctype); }
+
+  /* Nested JSON Toggle */
+  .nested-json-toggle {
+    cursor: pointer;
+    user-select: none;
+    color: var(--dx-code-viewer-nested-toggle-color);
+    font-size: 0.75em;
+    margin-right: 0.25em;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--dx-code-viewer-nested-toggle-color-hover);
+    }
+  }
+
+  .nested-json-parsed {
+    display: inline;
+    border-left: 2px solid var(--dx-code-viewer-nested-border);
+    padding-left: 0.5em;
+    margin-left: 0.25em;
+  }
+
+  .nested-json-raw {
+    display: inline;
+  }
 }
 
 /* ==========================================

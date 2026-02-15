@@ -212,4 +212,81 @@ describe("highlightYAML", () => {
       expect(result).toContain("just some bare text without colon");
     });
   });
+
+  describe("nested JSON detection", () => {
+    const opts = { isExpanded: () => true };
+
+    it("wraps quoted string containing JSON object in nested-json markup", () => {
+      const yaml = 'data: \'{"key":"value"}\'';
+      const result = highlightYAML(yaml, opts);
+      expect(result).toContain('class="nested-json"');
+      expect(result).toContain('class="nested-json-toggle"');
+      expect(result).toContain('class="nested-json-parsed"');
+    });
+
+    it("wraps unquoted JSON string value in nested-json markup", () => {
+      const yaml = 'data: {"key":"value"}';
+      const result = highlightYAML(yaml, opts);
+      expect(result).toContain('class="nested-json"');
+    });
+
+    it("wraps unquoted JSON object value in nested-json markup", () => {
+      const yaml = 'data: {"a":1,"b":2}';
+      const result = highlightYAML(yaml, opts);
+      expect(result).toContain('class="nested-json"');
+      expect(result).toContain('class="nested-json-parsed"');
+    });
+
+    it("wraps unquoted JSON array value in nested-json markup", () => {
+      const yaml = "items: [1,2,3]";
+      const result = highlightYAML(yaml, opts);
+      expect(result).toContain('class="nested-json"');
+    });
+
+    it("does not wrap normal strings as nested JSON", () => {
+      const yaml = "name: John Doe";
+      const result = highlightYAML(yaml, opts);
+      expect(result).not.toContain('class="nested-json"');
+      expect(result).toContain('class="syntax-string"');
+    });
+
+    it("shows raw view when isExpanded returns false", () => {
+      const collapsedOpts = { isExpanded: () => false };
+      const yaml = 'data: {"a":1}';
+      const result = highlightYAML(yaml, collapsedOpts);
+      expect(result).toContain('class="nested-json-raw"');
+      expect(result).not.toContain('class="nested-json-parsed"');
+    });
+
+    it("shows raw view for quoted string when isExpanded returns false", () => {
+      const collapsedOpts = { isExpanded: () => false };
+      const yaml = "data: '{\"a\":1}'";
+      const result = highlightYAML(yaml, collapsedOpts);
+      expect(result).toContain('class="nested-json-raw"');
+      expect(result).not.toContain('class="nested-json-parsed"');
+    });
+
+    it("does not add nested-json markup when options omitted", () => {
+      const yaml = 'data: {"a":1}';
+      const result = highlightYAML(yaml);
+      expect(result).not.toContain('class="nested-json"');
+      expect(result).toContain('class="syntax-string"');
+    });
+
+    it("detects nested JSON in array item values", () => {
+      // Array item with JSON array (no colon, so YAML parser correctly sees it as array item)
+      const yaml = "- [1,2,3]";
+      const result = highlightYAML(yaml, opts);
+      expect(result).toContain('class="nested-json"');
+    });
+
+    it("includes toggle indicator with triangle character", () => {
+      const yaml = 'data: {"a":1}';
+      const expanded = highlightYAML(yaml, { isExpanded: () => true });
+      expect(expanded).toContain("\u25BC"); // down triangle
+
+      const collapsed = highlightYAML(yaml, { isExpanded: () => false });
+      expect(collapsed).toContain("\u25B6"); // right triangle
+    });
+  });
 });

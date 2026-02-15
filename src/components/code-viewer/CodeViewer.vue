@@ -241,6 +241,7 @@ watch(
           v-if="!editor.isEditing.value && currentFormat !== 'markdown'"
           class="code-content dx-scrollbar flex-1 min-h-0"
           :class="{ 'is-collapsible': collapsible }"
+          @click="editor.onNestedJsonClick"
         ><code :class="'language-' + currentFormat" v-html="editor.highlightedContent.value"></code></pre>
 
         <!-- Markdown display - rendered HTML -->

@@ -9,13 +9,14 @@
  * Debounced operations are delegated to codeViewerDebounce.ts.
  */
 
-import { computed, nextTick, onUnmounted, Ref, ref, watchEffect } from "vue";
+import { computed, nextTick, onUnmounted, Ref, ref, watch, watchEffect } from "vue";
 import { highlightSyntax } from "../../shared/syntax-highlighting";
 import { createDebouncedOperations } from "./codeViewerDebounce";
 import { createKeyboardHandlers } from "./codeViewerKeyHandlers";
 import { applyHighlighting } from "./highlightUtils";
 import type { CodeFormat, ValidationError } from "./types";
 import type { UseCodeFormatReturn } from "./useCodeFormat";
+import { useNestedJsonToggle } from "./useNestedJsonToggle";
 
 export interface UseCodeViewerEditorOptions {
   codeRef: Ref<HTMLPreElement | null>;
@@ -56,6 +57,7 @@ export interface UseCodeViewerEditorReturn {
   syncEditableFromProp: (value: boolean) => void;
   syncEditingContentFromValue: () => void;
   updateEditingContentOnFormatChange: () => void;
+  onNestedJsonClick: (event: MouseEvent) => void;
 }
 
 /** Composable for CodeViewer editor functionality */
@@ -84,6 +86,8 @@ export function useCodeViewerEditor(
   const validationError = ref<ValidationError | null>(null);
   let lastEmittedValue: object | string | null | undefined = undefined;
 
+  const nestedJsonToggle = useNestedJsonToggle();
+
   const hasValidationError = computed(() => validationError.value !== null);
   const isEditing = computed(() => canEdit.value && internalEditable.value);
 
@@ -98,7 +102,17 @@ export function useCodeViewerEditor(
     if (isUserEditing.value) {
       return cachedHighlightedContent.value;
     }
-    return highlightSyntax(displayContent.value, { format: currentFormat.value });
+    // Read toggleVersion to create reactive dependency for re-highlighting on toggle
+    nestedJsonToggle.toggleVersion.value;
+    return highlightSyntax(displayContent.value, {
+      format: currentFormat.value,
+      nestedJson: { isExpanded: nestedJsonToggle.isExpanded },
+    });
+  });
+
+  // Reset nested JSON toggle state when content changes (new data loaded)
+  watch(displayContent, () => {
+    nestedJsonToggle.reset();
   });
 
   // Keep the cache warm so it's available when isUserEditing transitions to true
@@ -260,5 +274,6 @@ export function useCodeViewerEditor(
     syncEditableFromProp,
     syncEditingContentFromValue,
     updateEditingContentOnFormatChange,
+    onNestedJsonClick: nestedJsonToggle.handleClick,
   };
 }

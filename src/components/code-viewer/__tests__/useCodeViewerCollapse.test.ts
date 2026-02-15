@@ -59,6 +59,18 @@ describe("useCodeViewerCollapse", () => {
     it("returns stringified boolean", () => {
       expect(formatValuePreview(true)).toBe("true");
     });
+
+    it("shows object preview for nested JSON object string", () => {
+      expect(formatValuePreview('{"key":"value"}')).toBe("{...}");
+    });
+
+    it("shows array preview for nested JSON array string", () => {
+      expect(formatValuePreview("[1,2,3]")).toBe("[3 items]");
+    });
+
+    it("does not treat non-JSON strings as nested JSON", () => {
+      expect(formatValuePreview("just a string")).toBe('"just a string"');
+    });
   });
 
   describe("getSyntaxClass", () => {
@@ -133,6 +145,20 @@ describe("useCodeViewerCollapse", () => {
 
     it("uses String() for YAML primitives", () => {
       expect(buildStructuredPreview(42, yamlOpts)).toBe("42");
+    });
+
+    it("recursively previews nested JSON string values in objects", () => {
+      const obj = { data: '{"inner":"value"}', count: 5 };
+      const result = buildStructuredPreview(obj, jsonOpts);
+      // The nested JSON string should be parsed and shown as structured preview
+      expect(result).toContain("data");
+      expect(result).toContain("inner");
+    });
+
+    it("shows array count for nested JSON array string in objects", () => {
+      const obj = { items: "[1,2,3]" };
+      const result = buildStructuredPreview(obj, jsonOpts);
+      expect(result).toContain("[3 items]");
     });
   });
 

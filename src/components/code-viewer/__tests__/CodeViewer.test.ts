@@ -45,6 +45,17 @@ describe("CodeViewer", () => {
       const wrapper = mountCodeViewer({ theme: "dark" });
       expect(wrapper.find(".dx-code-viewer").classes()).not.toContain("theme-light");
     });
+
+    it("handles click on pre element for nested JSON toggle", async () => {
+      const wrapper = mountCodeViewer({
+        modelValue: { data: '{"key":"value"}' },
+        format: "json",
+      });
+      const pre = wrapper.find("pre.code-content");
+      expect(pre.exists()).toBe(true);
+      // Clicking should not error — the handler delegates to nested JSON toggle
+      await pre.trigger("click");
+    });
   });
 
   describe("footer", () => {

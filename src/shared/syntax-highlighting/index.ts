@@ -18,7 +18,7 @@
  */
 
 export { highlightSyntax } from "./highlightSyntax";
-export type { HighlightFormat, HighlightOptions } from "./highlightSyntax";
+export type { HighlightFormat, HighlightOptions, NestedJsonOptions } from "./highlightSyntax";
 export { highlightJSON } from "./highlightJSON";
 export { highlightYAML } from "./highlightYAML";
 export { highlightCSS } from "./highlightCSS";

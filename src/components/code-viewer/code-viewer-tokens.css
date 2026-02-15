@@ -70,6 +70,11 @@
   --dx-code-viewer-editable-hover-border: rgba(86, 156, 214, 0.3);
   --dx-code-viewer-editable-caret: #d4d4d4;
 
+  /* Nested JSON toggle */
+  --dx-code-viewer-nested-toggle-color: #808080;
+  --dx-code-viewer-nested-toggle-color-hover: #d4d4d4;
+  --dx-code-viewer-nested-border: rgba(255, 255, 255, 0.15);
+
   /* Syntax highlighting - Dark theme */
   --dx-code-viewer-syntax-key: #9cdcfe;
   --dx-code-viewer-syntax-string: #9ae6b4;
@@ -144,6 +149,11 @@
   --dx-code-viewer-editable-focus-border: rgba(14, 165, 233, 0.6);
   --dx-code-viewer-editable-hover-border: rgba(14, 165, 233, 0.3);
   --dx-code-viewer-editable-caret: #1e293b;
+
+  /* Nested JSON toggle (light) */
+  --dx-code-viewer-nested-toggle-color: #94a3b8;
+  --dx-code-viewer-nested-toggle-color-hover: #1e293b;
+  --dx-code-viewer-nested-border: rgba(0, 0, 0, 0.15);
 
   /* Syntax highlighting - Light theme */
   --dx-code-viewer-syntax-key: #0369a1;

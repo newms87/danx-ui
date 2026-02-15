@@ -123,4 +123,75 @@ describe("highlightJSON", () => {
       expect(result).toContain(" ");
     });
   });
+
+  describe("nested JSON detection", () => {
+    const opts = { isExpanded: () => true };
+
+    it("wraps string containing JSON object in nested-json markup when options provided", () => {
+      // The JSON string value contains an escaped JSON object
+      const code = '{"data": "{\\"key\\":\\"value\\"}"}';
+      const result = highlightJSON(code, opts);
+      expect(result).toContain('class="nested-json"');
+      expect(result).toContain("data-nested-json-id=");
+      expect(result).toContain('class="nested-json-toggle"');
+      expect(result).toContain('class="nested-json-parsed"');
+    });
+
+    it("wraps string containing JSON array in nested-json markup when options provided", () => {
+      const code = '{"items": "[1,2,3]"}';
+      const result = highlightJSON(code, opts);
+      expect(result).toContain('class="nested-json"');
+      expect(result).toContain('class="nested-json-parsed"');
+    });
+
+    it("does not wrap normal strings as nested JSON", () => {
+      const code = '{"key": "just a string"}';
+      const result = highlightJSON(code, opts);
+      expect(result).not.toContain('class="nested-json"');
+      expect(result).toContain('class="syntax-string"');
+    });
+
+    it("shows raw view when isExpanded returns false", () => {
+      const collapsedOpts = { isExpanded: () => false };
+      const code = '{"data": "{\\"a\\":1}"}';
+      const result = highlightJSON(code, collapsedOpts);
+      expect(result).toContain('class="nested-json-raw"');
+      expect(result).not.toContain('class="nested-json-parsed"');
+    });
+
+    it("shows expanded view when isExpanded returns true", () => {
+      const expandedOpts = { isExpanded: () => true };
+      const code = '{"data": "{\\"a\\":1}"}';
+      const result = highlightJSON(code, expandedOpts);
+      expect(result).toContain('class="nested-json-parsed"');
+      expect(result).not.toContain('class="nested-json-raw"');
+    });
+
+    it("does not add nested-json markup when options omitted", () => {
+      const code = '{"data": "{\\"key\\":\\"value\\"}"}';
+      const result = highlightJSON(code);
+      expect(result).not.toContain('class="nested-json"');
+      expect(result).toContain('class="syntax-string"');
+    });
+
+    it("generates deterministic IDs based on character position", () => {
+      const code = '{"a": "{\\"x\\":1}", "b": "{\\"y\\":2}"}';
+      const result = highlightJSON(code, opts);
+      // Both nested JSON instances should have unique IDs
+      const ids = result.match(/data-nested-json-id="nj-\d+"/g);
+      expect(ids).not.toBeNull();
+      expect(ids!.length).toBeGreaterThanOrEqual(2);
+      // IDs should be different (based on different positions)
+      expect(ids![0]).not.toBe(ids![1]);
+    });
+
+    it("includes toggle indicator with triangle character", () => {
+      const code = '{"data": "{\\"a\\":1}"}';
+      const expanded = highlightJSON(code, { isExpanded: () => true });
+      expect(expanded).toContain("\u25BC"); // down triangle for expanded
+
+      const collapsed = highlightJSON(code, { isExpanded: () => false });
+      expect(collapsed).toContain("\u25B6"); // right triangle for collapsed
+    });
+  });
 });

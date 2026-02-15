@@ -7,6 +7,7 @@
  */
 
 import { computed, Ref } from "vue";
+import { isNestedJson, parseNestedJson } from "../../shared/nestedJson";
 import { highlightSyntax } from "../../shared/syntax-highlighting";
 import type { CodeFormat } from "./types";
 import type { UseCodeFormatReturn } from "./useCodeFormat";
@@ -35,6 +36,11 @@ export function formatValuePreview(val: unknown, includeQuotes = true, maxLength
     return "null";
   }
   if (typeof val === "string") {
+    // Detect nested JSON strings and show their parsed structure
+    if (isNestedJson(val)) {
+      const parsed = parseNestedJson(val)!;
+      return Array.isArray(parsed) ? `[${parsed.length} items]` : "{...}";
+    }
     const truncated = val.length > maxLength ? val.slice(0, maxLength) + "..." : val;
     return includeQuotes ? `"${truncated}"` : truncated;
   }
@@ -71,6 +77,14 @@ export function buildStructuredPreview(parsed: unknown, options: StructuredPrevi
     const keys = Object.keys(parsed);
     const keyPreviews = keys.slice(0, 3).map((k) => {
       const val = (parsed as Record<string, unknown>)[k];
+      // If the value is a nested JSON string, parse and recursively preview it
+      if (typeof val === "string" && isNestedJson(val)) {
+        const nestedParsed = parseNestedJson(val);
+        if (nestedParsed !== null) {
+          const nestedPreview = buildStructuredPreview(nestedParsed, options);
+          return `<span class="syntax-key">${k}</span>: ${nestedPreview}`;
+        }
+      }
       const valStr = formatValuePreview(val, options.includeQuotes);
       return `<span class="syntax-key">${k}</span>: <span class="syntax-${getSyntaxClass(val)}">${valStr}</span>`;
     });
