@@ -34,9 +34,14 @@ describe("useCodeViewerCollapse", () => {
       expect(formatValuePreview("hello", false)).toBe("hello");
     });
 
-    it("truncates strings longer than 15 characters", () => {
-      const long = "abcdefghijklmnop";
-      expect(formatValuePreview(long)).toBe('"abcdefghijklmno..."');
+    it("does not truncate strings under 50 characters", () => {
+      const medium = "2026-02-15 12:16:16.703";
+      expect(formatValuePreview(medium)).toBe('"2026-02-15 12:16:16.703"');
+    });
+
+    it("truncates strings longer than 50 characters", () => {
+      const long = "a".repeat(60);
+      expect(formatValuePreview(long)).toBe('"' + "a".repeat(50) + '..."');
     });
 
     it("shows item count for arrays", () => {

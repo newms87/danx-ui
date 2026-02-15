@@ -22,13 +22,20 @@ export interface UseCodeViewerCollapseReturn {
   collapsedPreview: Ref<string>;
 }
 
-/** Format a value for collapsed preview display */
-export function formatValuePreview(val: unknown, includeQuotes = true): string {
+/**
+ * Format a value for collapsed preview display.
+ *
+ * The maxLength parameter controls when string values get truncated.
+ * Short values (under maxLength) are shown in full — no ellipsis for
+ * values that nearly fit. CSS text-overflow handles final clipping
+ * if the overall preview is too wide for the container.
+ */
+export function formatValuePreview(val: unknown, includeQuotes = true, maxLength = 50): string {
   if (val === null) {
     return "null";
   }
   if (typeof val === "string") {
-    const truncated = val.length > 15 ? val.slice(0, 15) + "..." : val;
+    const truncated = val.length > maxLength ? val.slice(0, maxLength) + "..." : val;
     return includeQuotes ? `"${truncated}"` : truncated;
   }
   if (typeof val === "object") {
