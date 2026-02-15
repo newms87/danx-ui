@@ -13,6 +13,7 @@
 @import "./markdown-editor-tokens.css";
 @import "./markdown-editor-content.css";
 @import "./mde-floating-panel.css";
+@import "../../shared/tokens/color-swatch.css";
 
 /* ====================================================
  * Shared Input Styles for Markdown Editor Popovers
@@ -260,26 +261,6 @@
 
   sub { vertical-align: sub; }
   sup { vertical-align: super; }
-
-  /* Hex color preview swatch — rendered as ::before pseudo-element so it is
-     invisible to the editing model (cannot be selected, deleted, or cursored). */
-  .color-preview {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25em;
-
-    &::before {
-      content: "";
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-      border: 1px solid var(--dx-mde-content-swatch-border);
-      background-color: var(--swatch-color);
-      vertical-align: middle;
-      flex-shrink: 0;
-    }
-  }
 
   /* Tables */
   table {

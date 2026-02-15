@@ -79,7 +79,7 @@
   --dx-mde-content-table-border: rgba(139, 92, 246, 0.3);
   --dx-mde-content-table-th-bg: rgba(139, 92, 246, 0.15);
   --dx-mde-content-table-stripe: rgba(139, 92, 246, 0.05);
-  --dx-mde-content-swatch-border: rgba(255, 255, 255, 0.3);
+  --dx-swatch-border: rgba(255, 255, 255, 0.3);
 }
 
 /* === Light Theme === */
@@ -154,5 +154,5 @@
   --dx-mde-content-table-border: rgba(124, 58, 237, 0.25);
   --dx-mde-content-table-th-bg: rgba(124, 58, 237, 0.1);
   --dx-mde-content-table-stripe: rgba(124, 58, 237, 0.04);
-  --dx-mde-content-swatch-border: rgba(0, 0, 0, 0.2);
+  --dx-swatch-border: rgba(0, 0, 0, 0.2);
 }

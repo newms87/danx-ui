@@ -1,0 +1,28 @@
+/**
+ * Color Swatch Preview
+ *
+ * Inline swatch rendered as a ::before pseudo-element next to hex color codes.
+ * Shared between MarkdownEditor and CodeViewer. The swatch is invisible to
+ * selection and editing models.
+ *
+ * @tokens
+ *   --dx-swatch-border - Border color for the swatch square
+ */
+
+.color-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--dx-swatch-border);
+    background-color: var(--swatch-color);
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+}

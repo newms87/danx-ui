@@ -8,6 +8,7 @@
  */
 
 import { escapeHtml } from "../escapeHtml";
+import { decorateHexInHtml } from "./decorateHexInHtml";
 import { highlightBash } from "./highlightBash";
 import { highlightCSS } from "./highlightCSS";
 import { highlightHTML } from "./highlightHTML";
@@ -37,6 +38,8 @@ export interface HighlightOptions {
   format: HighlightFormat;
   /** When provided, enables nested JSON detection and toggle markup in JSON/YAML highlighting */
   nestedJson?: NestedJsonOptions;
+  /** When true, post-processes output to wrap hex color codes with swatch previews */
+  colorSwatches?: boolean;
 }
 
 /**
@@ -45,25 +48,41 @@ export interface HighlightOptions {
 export function highlightSyntax(code: string, options: HighlightOptions): string {
   if (!code) return "";
 
+  let result: string;
+
   switch (options.format) {
     case "json":
-      return highlightJSON(code, options.nestedJson);
+      result = highlightJSON(code, options.nestedJson);
+      break;
     case "yaml":
-      return highlightYAML(code, options.nestedJson);
+      result = highlightYAML(code, options.nestedJson);
+      break;
     case "vue":
     case "html":
-      return highlightHTML(code);
+      result = highlightHTML(code);
+      break;
     case "css":
-      return highlightCSS(code);
+      result = highlightCSS(code);
+      break;
     case "javascript":
-      return highlightJavaScript(code);
+      result = highlightJavaScript(code);
+      break;
     case "typescript":
-      return highlightTypeScript(code);
+      result = highlightTypeScript(code);
+      break;
     case "bash":
-      return highlightBash(code);
+      result = highlightBash(code);
+      break;
     case "text":
     case "markdown":
     default:
-      return escapeHtml(code);
+      result = escapeHtml(code);
+      break;
   }
+
+  if (options.colorSwatches) {
+    result = decorateHexInHtml(result);
+  }
+
+  return result;
 }

@@ -107,6 +107,7 @@ export function useCodeViewerEditor(
     return highlightSyntax(displayContent.value, {
       format: currentFormat.value,
       nestedJson: { isExpanded: nestedJsonToggle.isExpanded },
+      colorSwatches: true,
     });
   });
 

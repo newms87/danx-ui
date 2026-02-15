@@ -6,6 +6,7 @@
  */
 
 @import "../../shared/tokens/index.css";
+@import "../../shared/tokens/color-swatch.css";
 @import "./code-viewer-tokens.css";
 
 /* ==========================================

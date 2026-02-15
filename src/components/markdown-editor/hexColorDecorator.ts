@@ -16,20 +16,11 @@
  * DOM replacement.
  */
 
-/** Combined pattern matching 6-digit then 3-digit hex colors */
-const HEX_PATTERN =
-  /(?<![&\w])#([0-9a-fA-F]{6})(?![0-9a-fA-F])|(?<![&\w])#([0-9a-fA-F]{3})(?![0-9a-fA-F])/g;
-
-/** Validation pattern for a complete hex color string */
-const VALID_HEX = /^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/;
+import { findHexMatches, HEX_PATTERN, VALID_HEX } from "../../shared/hexColor";
+import type { HexMatch } from "../../shared/hexColor";
 
 /** Selectors for elements whose text nodes should not be decorated */
 const SKIP_SELECTOR = "pre, code, .code-block-wrapper, .color-preview";
-
-interface HexMatch {
-  index: number;
-  fullMatch: string;
-}
 
 interface CursorPosition {
   node: Node;
@@ -70,20 +61,6 @@ function cleanupSwatches(
       selection?.collapse(textNode, Math.min(cursorOffset, text.length));
     }
   }
-}
-
-/**
- * Find hex color matches in a text string.
- * Returns matches sorted by index.
- */
-function findHexMatches(text: string): HexMatch[] {
-  HEX_PATTERN.lastIndex = 0;
-  const matches: HexMatch[] = [];
-  let match;
-  while ((match = HEX_PATTERN.exec(text))) {
-    matches.push({ index: match.index, fullMatch: match[0] });
-  }
-  return matches;
 }
 
 /**

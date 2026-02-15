@@ -398,6 +398,68 @@ describe("highlightSyntax", () => {
     });
   });
 
+  describe("colorSwatches option", () => {
+    it("wraps hex colors in color-preview spans when enabled", () => {
+      const result = highlightSyntax(".foo { color: #ff0000; }", {
+        format: "css",
+        colorSwatches: true,
+      });
+      expect(result).toContain("color-preview");
+      expect(result).toContain('style="--swatch-color: #ff0000"');
+    });
+
+    it("does not wrap hex colors when colorSwatches is false", () => {
+      const result = highlightSyntax(".foo { color: #ff0000; }", {
+        format: "css",
+        colorSwatches: false,
+      });
+      expect(result).not.toContain("color-preview");
+    });
+
+    it("does not wrap hex colors when colorSwatches is omitted", () => {
+      const result = highlightSyntax(".foo { color: #ff0000; }", {
+        format: "css",
+      });
+      expect(result).not.toContain("color-preview");
+    });
+
+    it("works with text format", () => {
+      const result = highlightSyntax("color is #abc", {
+        format: "text",
+        colorSwatches: true,
+      });
+      expect(result).toContain("color-preview");
+      expect(result).toContain('style="--swatch-color: #abc"');
+    });
+
+    it("works with json format containing hex in values", () => {
+      const result = highlightSyntax('{"color": "#abc123"}', {
+        format: "json",
+        colorSwatches: true,
+      });
+      expect(result).toContain("color-preview");
+      expect(result).toContain('style="--swatch-color: #abc123"');
+    });
+
+    it("works with yaml format containing hex in values", () => {
+      const result = highlightSyntax("color: #abc123", {
+        format: "yaml",
+        colorSwatches: true,
+      });
+      expect(result).toContain("color-preview");
+      expect(result).toContain('style="--swatch-color: #abc123"');
+    });
+
+    it("wraps multiple hex colors in one input", () => {
+      const result = highlightSyntax(".foo { color: #aaa; background: #bbb; }", {
+        format: "css",
+        colorSwatches: true,
+      });
+      expect(result).toContain('style="--swatch-color: #aaa"');
+      expect(result).toContain('style="--swatch-color: #bbb"');
+    });
+  });
+
   describe("type exports", () => {
     it("HighlightFormat type includes all expected formats", () => {
       // This is a compile-time check - if these assignments fail, TypeScript will error

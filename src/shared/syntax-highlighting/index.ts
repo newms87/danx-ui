@@ -14,6 +14,7 @@
  * - highlightTypeScript: TypeScript-specific highlighter
  * - highlightHTML: HTML-specific highlighter (with embedded CSS/JS support)
  * - highlightBash: Bash/Shell-specific highlighter
+ * - decorateHexInHtml: Post-processor for hex color swatch previews
  * - Types: HighlightFormat, HighlightOptions
  */
 
@@ -26,3 +27,4 @@ export { highlightJavaScript } from "./highlightJavaScript";
 export { highlightBash } from "./highlightBash";
 export { highlightHTML } from "./highlightHTML";
 export { highlightTypeScript } from "./highlightTypeScript";
+export { decorateHexInHtml } from "./decorateHexInHtml";
