@@ -1,20 +1,27 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { nextTick, ref } from "vue";
+import { defineComponent, nextTick, ref } from "vue";
+import { mount } from "@vue/test-utils";
 import { useMarkdownEditor } from "../useMarkdownEditor";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
 
 describe("useMarkdownEditor", () => {
   let editor: TestEditorResult;
   let onEmitValue: ReturnType<typeof vi.fn>;
+  const mountedWrappers: ReturnType<typeof mount>[] = [];
 
   afterEach(() => {
+    for (const wrapper of mountedWrappers) {
+      wrapper.unmount();
+    }
+    mountedWrappers.length = 0;
     if (editor) {
       editor.destroy();
     }
   });
 
   /**
-   * Create markdown editor composable with test editor
+   * Create markdown editor composable with test editor.
+   * Wraps the composable in a component setup context to handle onUnmounted correctly.
    */
   function createEditor(
     initialHtml: string,
@@ -26,12 +33,23 @@ describe("useMarkdownEditor", () => {
   ) {
     editor = createTestEditor(initialHtml);
     onEmitValue = vi.fn();
-    return useMarkdownEditor({
-      contentRef: editor.contentRef,
-      initialValue,
-      onEmitValue: onEmitValue as unknown as (markdown: string) => void,
-      ...extraOptions,
-    });
+    let result!: ReturnType<typeof useMarkdownEditor>;
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          result = useMarkdownEditor({
+            contentRef: editor.contentRef,
+            initialValue,
+            onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+            ...extraOptions,
+          });
+          return {};
+        },
+        template: "<div />",
+      })
+    );
+    mountedWrappers.push(wrapper);
+    return result;
   }
 
   /**
@@ -1252,19 +1270,29 @@ describe("useMarkdownEditor", () => {
         pattern: /\{\{(\d+)\}\}/g,
         toHtml: (_match: string, groups: string[]) =>
           `<span data-token-id="x" data-token-renderer="test-renderer" data-token-groups='${JSON.stringify(groups)}'></span>`,
-        component: {} as never,
+        component: defineComponent({ template: "<span />" }) as never,
         getProps: (groups: string[]) => ({ id: groups[0] }),
         toMarkdown: (el: HTMLElement) => `{{${el.getAttribute("data-token-groups")}}}`,
       };
 
       editor = createTestEditor("");
       onEmitValue = vi.fn();
-      const markdownEditor = useMarkdownEditor({
-        contentRef: editor.contentRef,
-        initialValue: "Hello {{123}} world",
-        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
-        tokenRenderers: [tokenRenderer],
-      });
+      let markdownEditor!: ReturnType<typeof useMarkdownEditor>;
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            markdownEditor = useMarkdownEditor({
+              contentRef: editor.contentRef,
+              initialValue: "Hello {{123}} world",
+              onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+              tokenRenderers: [tokenRenderer],
+            });
+            return {};
+          },
+          template: "<div />",
+        })
+      );
+      mountedWrappers.push(wrapper);
 
       // The registerToken callback (line 115-116) should have been called during syncFromMarkdown
       // which calls convertTokensToWrappers, which calls the registerToken callback
@@ -1282,7 +1310,7 @@ describe("useMarkdownEditor", () => {
         id: "test-renderer",
         pattern: /\{\{(\d+)\}\}/g,
         toHtml: (_match: string, groups: string[]) => `<span data-token-id="x">${groups[0]}</span>`,
-        component: {} as never,
+        component: defineComponent({ template: "<span />" }) as never,
         getProps: (groups: string[]) => ({ id: groups[0] }),
         toMarkdown: (el: HTMLElement) => {
           const groups = el.getAttribute("data-token-groups");
@@ -1292,12 +1320,22 @@ describe("useMarkdownEditor", () => {
 
       editor = createTestEditor("");
       onEmitValue = vi.fn();
-      const markdownEditor = useMarkdownEditor({
-        contentRef: editor.contentRef,
-        initialValue: "Test {{456}} here",
-        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
-        tokenRenderers: [tokenRenderer],
-      });
+      let markdownEditor!: ReturnType<typeof useMarkdownEditor>;
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            markdownEditor = useMarkdownEditor({
+              contentRef: editor.contentRef,
+              initialValue: "Test {{456}} here",
+              onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+              tokenRenderers: [tokenRenderer],
+            });
+            return {};
+          },
+          template: "<div />",
+        })
+      );
+      mountedWrappers.push(wrapper);
 
       // Tokens are registered during syncFromMarkdown via registerToken callback
       const tokenId = Array.from(markdownEditor.tokens.keys())[0]!;
@@ -1408,11 +1446,21 @@ describe("useMarkdownEditor", () => {
       // Create editor with null contentRef initially
       const contentRef = ref<HTMLElement | null>(null);
       onEmitValue = vi.fn();
-      const markdownEditor = useMarkdownEditor({
-        contentRef,
-        initialValue: "Hello world",
-        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
-      });
+      let markdownEditor!: ReturnType<typeof useMarkdownEditor>;
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            markdownEditor = useMarkdownEditor({
+              contentRef,
+              initialValue: "Hello world",
+              onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+            });
+            return {};
+          },
+          template: "<div />",
+        })
+      );
+      mountedWrappers.push(wrapper);
 
       // charCount starts at 0 because contentRef is null
       expect(markdownEditor.charCount.value).toBe(0);
@@ -1433,11 +1481,21 @@ describe("useMarkdownEditor", () => {
     it("stops watching after first non-null contentRef", async () => {
       const contentRef = ref<HTMLElement | null>(null);
       onEmitValue = vi.fn();
-      const markdownEditor = useMarkdownEditor({
-        contentRef,
-        initialValue: "",
-        onEmitValue: onEmitValue as unknown as (markdown: string) => void,
-      });
+      let markdownEditor!: ReturnType<typeof useMarkdownEditor>;
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            markdownEditor = useMarkdownEditor({
+              contentRef,
+              initialValue: "",
+              onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+            });
+            return {};
+          },
+          template: "<div />",
+        })
+      );
+      mountedWrappers.push(wrapper);
 
       // Mount first element
       const container1 = document.createElement("div");

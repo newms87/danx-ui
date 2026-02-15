@@ -298,7 +298,7 @@ describe("MarkdownContent", () => {
 
   describe("defaults", () => {
     it("defaults content to empty string", () => {
-      const wrapper = mount(MarkdownContent, { props: {} as { content: string } });
+      const wrapper = mount(MarkdownContent, { props: { content: "" } });
       expect(wrapper.find(".dx-markdown-content").exists()).toBe(true);
     });
   });

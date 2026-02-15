@@ -14,7 +14,27 @@ function createPreElement(content = ""): HTMLPreElement {
   return el;
 }
 
+/** Tracks mounted wrappers so afterEach can unmount them (triggers onUnmounted cleanly) */
+const mountedWrappers: ReturnType<typeof mount>[] = [];
+
 function createEditor(overrides: Record<string, unknown> = {}) {
+  let result!: ReturnType<typeof createEditorRaw>;
+
+  const wrapper = mount(
+    defineComponent({
+      setup() {
+        result = createEditorRaw(overrides);
+        return {};
+      },
+      template: "<div />",
+    })
+  );
+  mountedWrappers.push(wrapper);
+
+  return result;
+}
+
+function createEditorRaw(overrides: Record<string, unknown> = {}) {
   const codeRef = ref<HTMLPreElement | null>(null);
   const codeFormat = useCodeFormat({
     initialFormat: "yaml",
@@ -50,6 +70,12 @@ describe("useCodeViewerEditor", () => {
   let preElement: HTMLPreElement | null = null;
 
   afterEach(() => {
+    // Unmount all wrapper components (triggers onUnmounted cleanly)
+    for (const wrapper of mountedWrappers) {
+      wrapper.unmount();
+    }
+    mountedWrappers.length = 0;
+
     if (preElement) {
       document.body.removeChild(preElement);
       preElement = null;
@@ -653,16 +679,11 @@ describe("useCodeViewerEditor", () => {
 
   describe("charCount", () => {
     it("returns 0 for empty content", () => {
-      const codeFormat = useCodeFormat({ initialFormat: "text", initialValue: "" });
-      const codeRef = ref<HTMLPreElement | null>(null);
-      const editor = useCodeViewerEditor({
-        codeRef,
-        codeFormat,
+      const { editor } = createEditor({
+        codeFormat: useCodeFormat({ initialFormat: "text", initialValue: "" }),
         currentFormat: ref<CodeFormat>("text"),
         canEdit: ref(false),
         editable: ref(false),
-        onEmitModelValue: vi.fn(),
-        onEmitEditable: vi.fn(),
       });
       expect(editor.charCount.value).toBe(0);
     });

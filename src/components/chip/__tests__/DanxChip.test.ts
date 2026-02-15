@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import { h, defineComponent } from "vue";
+import { h, defineComponent, markRaw } from "vue";
 import DanxChip from "../DanxChip.vue";
 import { saveIcon } from "../../icon/icons";
 import type { ChipType, ChipSize } from "../types";
@@ -133,11 +133,13 @@ describe("DanxChip", () => {
     });
 
     it("renders custom icon component when icon prop is a Component", () => {
-      const CustomIcon = defineComponent({
-        render() {
-          return h("span", { class: "custom-icon" }, "X");
-        },
-      });
+      const CustomIcon = markRaw(
+        defineComponent({
+          render() {
+            return h("span", { class: "custom-icon" }, "X");
+          },
+        })
+      );
 
       const wrapper = mount(DanxChip, {
         props: { icon: CustomIcon },
@@ -155,11 +157,13 @@ describe("DanxChip", () => {
     });
 
     it("icon slot takes precedence over icon prop", () => {
-      const CustomIcon = defineComponent({
-        render() {
-          return h("span", { class: "prop-icon" }, "Prop");
-        },
-      });
+      const CustomIcon = markRaw(
+        defineComponent({
+          render() {
+            return h("span", { class: "prop-icon" }, "Prop");
+          },
+        })
+      );
 
       const wrapper = mount(DanxChip, {
         props: { icon: CustomIcon },

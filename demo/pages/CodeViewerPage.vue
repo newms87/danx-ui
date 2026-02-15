@@ -13,6 +13,7 @@ import editableYamlCode from "./code-viewer-examples/EditableYaml.vue?raw";
 import markdownContentCode from "./code-viewer-examples/MarkdownContent.vue?raw";
 import collapsiblePreviewCode from "./code-viewer-examples/CollapsiblePreview.vue?raw";
 import darkAndLightCode from "./code-viewer-examples/DarkAndLight.vue?raw";
+import nestedJsonCode from "./code-viewer-examples/NestedJson.vue?raw";
 import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
 </script>
 
@@ -43,6 +44,12 @@ import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
       title="Collapsible Preview"
       description="Collapsible mode shows a single-line preview. Click to expand the full content."
       :code="collapsiblePreviewCode"
+    />
+
+    <DemoSection
+      title="Nested JSON Toggle"
+      description="String values containing valid JSON are auto-detected and shown expanded. Click the triangle indicator to toggle between parsed and raw views."
+      :code="nestedJsonCode"
     />
 
     <DemoSection

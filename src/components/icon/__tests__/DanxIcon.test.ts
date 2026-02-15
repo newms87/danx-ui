@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import { h, defineComponent } from "vue";
+import { h, defineComponent, markRaw } from "vue";
 import DanxIcon from "../DanxIcon.vue";
 import { saveIcon } from "../icons";
 
@@ -43,11 +43,13 @@ describe("DanxIcon", () => {
     });
 
     it("renders Vue component via :is", () => {
-      const CustomIcon = defineComponent({
-        render() {
-          return h("span", { class: "custom-icon" }, "X");
-        },
-      });
+      const CustomIcon = markRaw(
+        defineComponent({
+          render() {
+            return h("span", { class: "custom-icon" }, "X");
+          },
+        })
+      );
 
       const wrapper = mount(DanxIcon, {
         props: { icon: CustomIcon },

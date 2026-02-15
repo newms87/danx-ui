@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import { h, defineComponent } from "vue";
+import { h, defineComponent, markRaw } from "vue";
 import DanxButton from "../DanxButton.vue";
 import { saveIcon } from "../../icon/icons";
 import type { ButtonType, ButtonSize } from "../types";
@@ -147,11 +147,13 @@ describe("DanxButton", () => {
     });
 
     it("renders custom icon component when icon prop is a Component", () => {
-      const CustomIcon = defineComponent({
-        render() {
-          return h("span", { class: "custom-icon" }, "X");
-        },
-      });
+      const CustomIcon = markRaw(
+        defineComponent({
+          render() {
+            return h("span", { class: "custom-icon" }, "X");
+          },
+        })
+      );
 
       const wrapper = mount(DanxButton, {
         props: { type: "success", icon: CustomIcon },
@@ -170,11 +172,13 @@ describe("DanxButton", () => {
     });
 
     it("icon slot takes precedence over icon prop", () => {
-      const CustomIcon = defineComponent({
-        render() {
-          return h("span", { class: "prop-icon" }, "Prop");
-        },
-      });
+      const CustomIcon = markRaw(
+        defineComponent({
+          render() {
+            return h("span", { class: "prop-icon" }, "Prop");
+          },
+        })
+      );
 
       const wrapper = mount(DanxButton, {
         props: { type: "success", icon: CustomIcon },

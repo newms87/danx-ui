@@ -8,6 +8,7 @@ import type { CodeBlockState } from "../useCodeBlocks";
 describe("useMarkdownSync", () => {
   let contentRef: Ref<HTMLElement | null>;
   let onEmitValue: ReturnType<typeof vi.fn>;
+  const mountedWrappers: ReturnType<typeof mount>[] = [];
 
   beforeEach(() => {
     const el = document.createElement("div");
@@ -17,19 +18,35 @@ describe("useMarkdownSync", () => {
   });
 
   afterEach(() => {
+    for (const wrapper of mountedWrappers) {
+      wrapper.unmount();
+    }
+    mountedWrappers.length = 0;
     contentRef.value?.remove();
   });
 
   /**
    * Create a useMarkdownSync instance with default options.
    * Accepts optional overrides for code block and token support.
+   * Wraps the composable in a component setup context to handle onUnmounted correctly.
    */
   function createSync(overrides: Partial<Parameters<typeof useMarkdownSync>[0]> = {}) {
-    return useMarkdownSync({
-      contentRef,
-      onEmitValue: onEmitValue as unknown as (markdown: string) => void,
-      ...overrides,
-    });
+    let result!: UseMarkdownSyncReturn;
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          result = useMarkdownSync({
+            contentRef,
+            onEmitValue: onEmitValue as unknown as (markdown: string) => void,
+            ...overrides,
+          });
+          return {};
+        },
+        template: "<div />",
+      })
+    );
+    mountedWrappers.push(wrapper);
+    return result;
   }
 
   // =========================================================================
@@ -591,6 +608,7 @@ describe("useMarkdownSync", () => {
       });
 
       const wrapper = mount(TestComponent, { attachTo: document.body });
+      mountedWrappers.push(wrapper);
       await nextTick();
 
       // Set content and trigger debounced sync
@@ -599,6 +617,8 @@ describe("useMarkdownSync", () => {
 
       // Unmount before debounce fires - this should clear the timeout
       wrapper.unmount();
+      const idx = mountedWrappers.indexOf(wrapper);
+      if (idx !== -1) mountedWrappers.splice(idx, 1);
 
       // Advance past the debounce period
       vi.advanceTimersByTime(400);

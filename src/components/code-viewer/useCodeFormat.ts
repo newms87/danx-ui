@@ -116,7 +116,7 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
       if (targetFormat === "json") {
         return fJSON(obj);
       } else {
-        return yamlStringify(obj as object);
+        return yamlStringify(obj as object, { lineWidth: 0 });
       }
     } catch {
       return typeof value === "string" ? value : JSON.stringify(value, null, 2);

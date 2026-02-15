@@ -72,6 +72,47 @@ A task is NOT complete if YOUR code has failing coverage.
 
 **Never skip this.** Running `yarn test:run` alone is insufficient — it does not check coverage thresholds.
 
+## CRITICAL: Zero Vue Warnings Policy
+
+**This repo enforces ZERO Vue warnings in tests.** Every `[Vue warn]` in stderr is a bug. Check for warnings after writing tests.
+
+### Common Warning Sources and Fixes
+
+| Warning | Cause | Fix |
+|---------|-------|-----|
+| `onUnmounted is called when there is no active component instance` | Composable with `onUnmounted` called outside component setup | Wrap in `mount(defineComponent({ setup() { result = useComposable(...); return {}; }, template: "<div />" }))` |
+| `Component that was made a reactive object` | `defineComponent()` result passed as prop to `mount()` | Wrap with `markRaw()`: `const Comp = markRaw(defineComponent(...))` |
+| `Missing required prop` | Mounting component without required props | Always provide all required props, even for default-value tests (pass empty/falsy values) |
+| `Component is missing template or render function` | Empty object `{}` used as component stub | Use `defineComponent({ template: "<span />" })` instead |
+
+### Composable Test Pattern (with lifecycle hooks)
+
+When a composable uses `onUnmounted`, `onMounted`, or other lifecycle hooks, you MUST create it inside a mounted component's setup. Use this helper pattern:
+
+```typescript
+const mountedWrappers: ReturnType<typeof mount>[] = [];
+
+function createComposable(options = {}) {
+  let result!: ReturnType<typeof useMyComposable>;
+  const wrapper = mount(
+    defineComponent({
+      setup() {
+        result = useMyComposable(options);
+        return {};
+      },
+      template: "<div />",
+    })
+  );
+  mountedWrappers.push(wrapper);
+  return result;
+}
+
+afterEach(() => {
+  for (const w of mountedWrappers) w.unmount();
+  mountedWrappers.length = 0;
+});
+```
+
 ## What NOT to Test
 
 | Skip Testing | Why |
