@@ -1,0 +1,142 @@
+/**
+ * DanxChip Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize chip appearance.
+ *
+ * CSS Tokens:
+ * --dx-chip-font-family          Font family
+ * --dx-chip-border-radius        Corner radius (pill shape)
+ * --dx-chip-transition           Transition timing
+ * --dx-chip-bg                   Default background color
+ * --dx-chip-text                 Default text color
+ *
+ * Size tokens (for each size: xxs, xs, sm, md, lg, xl):
+ * --dx-chip-{size}-padding-x     Horizontal padding
+ * --dx-chip-{size}-padding-y     Vertical padding
+ * --dx-chip-{size}-icon-size     Icon dimensions
+ * --dx-chip-{size}-font-size     Font size
+ * --dx-chip-{size}-gap           Gap between icon and text
+ *
+ * Type tokens (danger, success, warning, info, muted; blank has no tokens):
+ * --dx-chip-{type}-bg            Background color
+ * --dx-chip-{type}-text          Text/icon color
+ *
+ * Remove button tokens:
+ * --dx-chip-remove-size          Remove button icon size
+ * --dx-chip-remove-hover-bg      Remove button hover background
+ */
+
+:root {
+  /* ==========================================================================
+     Global Chip Tokens
+     ========================================================================== */
+
+  --dx-chip-font-family: var(--font-sans);
+  --dx-chip-border-radius: 9999px;
+  --dx-chip-transition: var(--transition-fast);
+  --dx-chip-bg: var(--color-surface-sunken);
+  --dx-chip-text: var(--color-text);
+
+  /* ==========================================================================
+     Remove Button Tokens
+     ========================================================================== */
+
+  --dx-chip-remove-size: 1em;
+  --dx-chip-remove-hover-bg: rgb(0 0 0 / 0.1);
+
+  /* ==========================================================================
+     Size Tokens - XXS
+     ========================================================================== */
+
+  --dx-chip-xxs-padding-x: var(--spacing-1-5);
+  --dx-chip-xxs-padding-y: var(--spacing-0-5);
+  --dx-chip-xxs-icon-size: 0.75rem;
+  --dx-chip-xxs-font-size: var(--text-xs);
+  --dx-chip-xxs-gap: var(--spacing-1);
+
+  /* ==========================================================================
+     Size Tokens - XS
+     ========================================================================== */
+
+  --dx-chip-xs-padding-x: var(--spacing-2);
+  --dx-chip-xs-padding-y: var(--spacing-1);
+  --dx-chip-xs-icon-size: 0.875rem;
+  --dx-chip-xs-font-size: var(--text-xs);
+  --dx-chip-xs-gap: var(--spacing-1);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-chip-sm-padding-x: var(--spacing-2-5);
+  --dx-chip-sm-padding-y: var(--spacing-1);
+  --dx-chip-sm-icon-size: 1rem;
+  --dx-chip-sm-font-size: var(--text-sm);
+  --dx-chip-sm-gap: var(--spacing-1-5);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-chip-md-padding-x: var(--spacing-3);
+  --dx-chip-md-padding-y: var(--spacing-1-5);
+  --dx-chip-md-icon-size: 1.125rem;
+  --dx-chip-md-font-size: var(--text-sm);
+  --dx-chip-md-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-chip-lg-padding-x: var(--spacing-4);
+  --dx-chip-lg-padding-y: var(--spacing-2);
+  --dx-chip-lg-icon-size: 1.25rem;
+  --dx-chip-lg-font-size: var(--text-base);
+  --dx-chip-lg-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - XL
+     ========================================================================== */
+
+  --dx-chip-xl-padding-x: var(--spacing-5);
+  --dx-chip-xl-padding-y: var(--spacing-2-5);
+  --dx-chip-xl-icon-size: 1.5rem;
+  --dx-chip-xl-font-size: var(--text-lg);
+  --dx-chip-xl-gap: var(--spacing-2-5);
+
+  /* ==========================================================================
+     Type Tokens - Danger
+     ========================================================================== */
+
+  --dx-chip-danger-bg: var(--color-danger);
+  --dx-chip-danger-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Success
+     ========================================================================== */
+
+  --dx-chip-success-bg: var(--color-success);
+  --dx-chip-success-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Warning
+     ========================================================================== */
+
+  --dx-chip-warning-bg: var(--color-warning);
+  --dx-chip-warning-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Info
+     ========================================================================== */
+
+  --dx-chip-info-bg: var(--color-interactive);
+  --dx-chip-info-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Muted
+     ========================================================================== */
+
+  --dx-chip-muted-bg: var(--color-surface-sunken);
+  --dx-chip-muted-text: var(--color-text-muted);
+}

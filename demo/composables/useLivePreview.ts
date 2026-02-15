@@ -30,6 +30,7 @@ import {
   watchEffect,
 } from "vue";
 import { DanxButton, DanxActionButton, buttonIcons } from "../../src/components/button";
+import { DanxChip } from "../../src/components/chip";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
@@ -80,6 +81,7 @@ import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButton,
   DanxActionButton,
+  DanxChip,
   CodeViewer,
   DanxContextMenu,
   DanxDialog,
@@ -99,6 +101,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   watchEffect,
   DanxButton,
   DanxActionButton,
+  DanxChip,
   CodeViewer,
   DanxContextMenu,
   DanxDialog,

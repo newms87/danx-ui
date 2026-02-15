@@ -6,6 +6,7 @@
 
 // Components
 export { DanxActionButton, DanxButton } from "./components/button";
+export { DanxChip } from "./components/chip";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog } from "./components/dialog";
@@ -38,6 +39,13 @@ export type {
   DanxButtonSlots,
   ResourceAction,
 } from "./components/button";
+export type {
+  ChipSize,
+  ChipType,
+  DanxChipEmits,
+  DanxChipProps,
+  DanxChipSlots,
+} from "./components/chip";
 export type {
   CodeFormat,
   CodeViewerCollapsedProps,

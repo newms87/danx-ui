@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 import ActionButtonPage from "./pages/ActionButtonPage.vue";
 import ButtonPage from "./pages/ButtonPage.vue";
+import ChipPage from "./pages/ChipPage.vue";
 import CodeViewerPage from "./pages/CodeViewerPage.vue";
 import ContextMenuPage from "./pages/ContextMenuPage.vue";
 import DialogPage from "./pages/DialogPage.vue";
@@ -19,6 +20,7 @@ const router = createRouter({
   routes: [
     { path: "/", name: "home", component: HomePage },
     { path: "/button", name: "button", component: ButtonPage },
+    { path: "/chip", name: "chip", component: ChipPage },
     { path: "/action-button", name: "action-button", component: ActionButtonPage },
     { path: "/code-viewer", name: "code-viewer", component: CodeViewerPage },
     { path: "/context-menu", name: "context-menu", component: ContextMenuPage },

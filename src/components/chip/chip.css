@@ -1,0 +1,194 @@
+/**
+ * DanxChip Styles
+ *
+ * Main entry point that imports tokens and defines chip layout,
+ * size modifiers, type modifiers, icon, and remove button.
+ *
+ * Note: BEM modifiers (.danx-chip--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ * Pseudo-classes and descendant selectors are still nested.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./chip-tokens.css";
+
+/* ==========================================================================
+   Base Chip Layout
+   ========================================================================== */
+
+.danx-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--dx-chip-font-family);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-none);
+  background: var(--dx-chip-bg);
+  color: var(--dx-chip-text);
+  border-radius: var(--dx-chip-border-radius);
+  transition:
+    background var(--dx-chip-transition),
+    color var(--dx-chip-transition);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-chip--xxs {
+  padding: var(--dx-chip-xxs-padding-y) var(--dx-chip-xxs-padding-x);
+  font-size: var(--dx-chip-xxs-font-size);
+  line-height: var(--dx-chip-xxs-icon-size);
+  gap: var(--dx-chip-xxs-gap);
+
+  .danx-chip__icon {
+    width: var(--dx-chip-xxs-icon-size);
+    height: var(--dx-chip-xxs-icon-size);
+  }
+}
+
+.danx-chip--xs {
+  padding: var(--dx-chip-xs-padding-y) var(--dx-chip-xs-padding-x);
+  font-size: var(--dx-chip-xs-font-size);
+  line-height: var(--dx-chip-xs-icon-size);
+  gap: var(--dx-chip-xs-gap);
+
+  .danx-chip__icon {
+    width: var(--dx-chip-xs-icon-size);
+    height: var(--dx-chip-xs-icon-size);
+  }
+}
+
+.danx-chip--sm {
+  padding: var(--dx-chip-sm-padding-y) var(--dx-chip-sm-padding-x);
+  font-size: var(--dx-chip-sm-font-size);
+  line-height: var(--dx-chip-sm-icon-size);
+  gap: var(--dx-chip-sm-gap);
+
+  .danx-chip__icon {
+    width: var(--dx-chip-sm-icon-size);
+    height: var(--dx-chip-sm-icon-size);
+  }
+}
+
+.danx-chip--md {
+  padding: var(--dx-chip-md-padding-y) var(--dx-chip-md-padding-x);
+  font-size: var(--dx-chip-md-font-size);
+  line-height: var(--dx-chip-md-icon-size);
+  gap: var(--dx-chip-md-gap);
+
+  .danx-chip__icon {
+    width: var(--dx-chip-md-icon-size);
+    height: var(--dx-chip-md-icon-size);
+  }
+}
+
+.danx-chip--lg {
+  padding: var(--dx-chip-lg-padding-y) var(--dx-chip-lg-padding-x);
+  font-size: var(--dx-chip-lg-font-size);
+  line-height: var(--dx-chip-lg-icon-size);
+  gap: var(--dx-chip-lg-gap);
+
+  .danx-chip__icon {
+    width: var(--dx-chip-lg-icon-size);
+    height: var(--dx-chip-lg-icon-size);
+  }
+}
+
+.danx-chip--xl {
+  padding: var(--dx-chip-xl-padding-y) var(--dx-chip-xl-padding-x);
+  font-size: var(--dx-chip-xl-font-size);
+  line-height: var(--dx-chip-xl-icon-size);
+  gap: var(--dx-chip-xl-gap);
+
+  .danx-chip__icon {
+    width: var(--dx-chip-xl-icon-size);
+    height: var(--dx-chip-xl-icon-size);
+  }
+}
+
+/* ==========================================================================
+   Type Modifiers
+   ========================================================================== */
+
+.danx-chip--danger {
+  background: var(--dx-chip-danger-bg);
+  color: var(--dx-chip-danger-text);
+}
+
+.danx-chip--success {
+  background: var(--dx-chip-success-bg);
+  color: var(--dx-chip-success-text);
+}
+
+.danx-chip--warning {
+  background: var(--dx-chip-warning-bg);
+  color: var(--dx-chip-warning-text);
+}
+
+.danx-chip--info {
+  background: var(--dx-chip-info-bg);
+  color: var(--dx-chip-info-text);
+}
+
+.danx-chip--muted {
+  background: var(--dx-chip-muted-bg);
+  color: var(--dx-chip-muted-text);
+}
+
+/* ==========================================================================
+   Icon
+   ========================================================================== */
+
+.danx-chip__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  > span {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ==========================================================================
+   Remove Button
+   ========================================================================== */
+
+.danx-chip__remove {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-chip-remove-size);
+  height: var(--dx-chip-remove-size);
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background var(--dx-chip-transition);
+
+  &:hover {
+    background: var(--dx-chip-remove-hover-bg);
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  > span {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+}
