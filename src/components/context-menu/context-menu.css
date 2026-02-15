@@ -93,17 +93,7 @@
 }
 
 .danx-context-menu__icon {
-  flex-shrink: 0;
-  width: var(--dx-context-menu-icon-size);
-  height: var(--dx-context-menu-icon-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 100%;
-    height: 100%;
-  }
+  --dx-icon-size: var(--dx-context-menu-icon-size);
 }
 
 .danx-context-menu__label {

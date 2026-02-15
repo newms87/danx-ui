@@ -37,7 +37,7 @@
 -->
 
 <script setup lang="ts">
-import { chevronRightIcon as chevronRightSvg } from "../icon/icons";
+import { DanxIcon } from "../icon";
 import LanguageBadge from "./LanguageBadge.vue";
 import type { CodeViewerCollapsedProps } from "./types";
 
@@ -54,7 +54,7 @@ defineEmits<{
 
 <template>
   <div class="code-collapsed relative flex items-center cursor-pointer" @click="$emit('expand')">
-    <span class="w-2.5 h-2.5 mr-2 flex-shrink-0 text-gray-500 block" v-html="chevronRightSvg" />
+    <DanxIcon icon="chevron-right" class="w-2.5 h-2.5 mr-2 text-gray-500" />
     <code class="code-collapsed-preview flex-1 min-w-0 truncate" v-html="preview" />
 
     <!-- Language badge - stop propagation to prevent expand when clicking -->

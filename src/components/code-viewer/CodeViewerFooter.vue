@@ -36,7 +36,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { DanxButton } from "../button";
-import { pencilIcon as pencilSvg } from "../icon/icons";
 import type { CodeViewerFooterProps } from "./types";
 
 const props = defineProps<CodeViewerFooterProps>();
@@ -65,12 +64,11 @@ const hasError = computed(() => props.validationError !== null);
     <!-- Edit toggle button -->
     <DanxButton
       v-if="canEdit"
+      icon="pencil"
       size="xs"
       class="text-gray-500 hover:text-gray-700"
       :class="{ 'text-sky-500 hover:text-sky-600': isEditing }"
       @click="$emit('toggle-edit')"
-    >
-      <span class="w-3.5 h-3.5" v-html="pencilSvg" />
-    </DanxButton>
+    />
   </div>
 </template>

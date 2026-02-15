@@ -21,7 +21,6 @@
  *   <MarkdownEditorFooter :char-count="42" @show-hotkeys="openHelp" />
  */
 import DanxButton from "../button/DanxButton.vue";
-import { keyboardIcon as KeyboardIcon } from "../icon/icons";
 
 export interface MarkdownEditorFooterProps {
   charCount: number;
@@ -41,7 +40,7 @@ defineEmits<{
     <div class="flex-1" />
     <DanxButton
       class="hotkey-help-btn"
-      :icon="KeyboardIcon"
+      icon="keyboard"
       size="xxs"
       tooltip="Keyboard shortcuts (Ctrl+?)"
       @click="$emit('show-hotkeys')"

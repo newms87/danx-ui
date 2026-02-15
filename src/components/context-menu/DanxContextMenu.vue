@@ -40,6 +40,7 @@
  *   />
  */
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import { DanxIcon } from "../icon";
 import type { ContextMenuItem, ContextMenuPosition } from "./types";
 import { calculateContextMenuPosition } from "./useContextMenuPosition";
 
@@ -176,7 +177,7 @@ onUnmounted(() => {
             :disabled="item.disabled"
             @click="onItemClick(item)"
           >
-            <span v-if="item.icon" class="danx-context-menu__icon" v-html="item.icon" />
+            <DanxIcon v-if="item.icon" :icon="item.icon" class="danx-context-menu__icon" />
             <span class="danx-context-menu__label">{{ item.label }}</span>
             <span v-if="item.shortcut && !item.children" class="danx-context-menu__shortcut">{{
               item.shortcut
@@ -202,7 +203,7 @@ onUnmounted(() => {
                 :disabled="child.disabled"
                 @click="onItemClick(child)"
               >
-                <span v-if="child.icon" class="danx-context-menu__icon" v-html="child.icon" />
+                <DanxIcon v-if="child.icon" :icon="child.icon" class="danx-context-menu__icon" />
                 <span class="danx-context-menu__label">{{ child.label }}</span>
                 <span v-if="child.shortcut" class="danx-context-menu__shortcut">{{
                   child.shortcut

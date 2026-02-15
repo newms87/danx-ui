@@ -1,3 +1,6 @@
+import type { Component } from "vue";
+import type { IconName } from "../icon/icons";
+
 /**
  * DanxContextMenu Type Definitions
  *
@@ -21,8 +24,8 @@ export interface ContextMenuItem {
   /** Display text */
   label: string;
 
-  /** Optional SVG icon string (rendered via v-html) */
-  icon?: string;
+  /** Optional icon: built-in name, raw SVG string, or Vue component */
+  icon?: Component | IconName | string;
 
   /** Keyboard shortcut display text (e.g. "Ctrl+C") */
   shortcut?: string;

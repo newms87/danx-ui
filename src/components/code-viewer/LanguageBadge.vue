@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { searchIcon as searchSvg } from "../icon/icons";
+import { DanxIcon } from "../icon";
 import type { LanguageBadgeProps } from "./types";
 import { useLanguageSearch } from "./useLanguageSearch";
 
@@ -106,7 +106,7 @@ function onMouseLeave() {
         class="dx-language-option dx-language-search-trigger"
         @click.stop="openSearchPanel"
       >
-        <span v-html="searchSvg" />
+        <DanxIcon icon="search" />
       </div>
     </transition>
 

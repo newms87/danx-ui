@@ -65,7 +65,7 @@ import { computed, ref, toRef, watch } from "vue";
 import CodeViewerCollapsed from "./CodeViewerCollapsed.vue";
 import CodeViewerFooter from "./CodeViewerFooter.vue";
 import { getAvailableFormats } from "./formatUtils";
-import { chevronDownIcon as chevronDownSvg } from "../icon/icons";
+import { DanxIcon } from "../icon";
 import LanguageBadge from "./LanguageBadge.vue";
 import MarkdownContent from "./MarkdownContent.vue";
 import type { CodeFormat, DanxCodeViewerEmits, DanxCodeViewerProps } from "./types";
@@ -230,7 +230,7 @@ watch(
           class="collapse-toggle absolute top-0 left-0 p-1 cursor-pointer z-10 text-gray-500 hover:text-gray-300"
           @click="toggleCollapse"
         >
-          <span class="w-3 h-3 block" v-html="chevronDownSvg" />
+          <DanxIcon icon="chevron-down" class="w-3 h-3" />
         </div>
 
         <!-- Clickable header to collapse when expanded -->
