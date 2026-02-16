@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { keyboardIcon, pencilIcon, searchIcon, saveIcon, trashIcon, buttonIcons } from "../icons";
+import { keyboardIcon, pencilIcon, searchIcon, saveIcon, trashIcon, iconRegistry } from "../icons";
 
 describe("icons", () => {
   it("exports keyboardIcon as an SVG string", () => {
@@ -19,16 +19,16 @@ describe("icons", () => {
   });
 
   it("exports all named icons as SVG strings", () => {
-    for (const [name, svg] of Object.entries(buttonIcons)) {
+    for (const [name, svg] of Object.entries(iconRegistry)) {
       expect(svg, `icon "${name}" should be an SVG string`).toContain("<svg");
     }
   });
 
   it("provides individual icon exports matching registry entries", () => {
-    expect(saveIcon).toBe(buttonIcons.save);
-    expect(trashIcon).toBe(buttonIcons.trash);
-    expect(pencilIcon).toBe(buttonIcons.pencil);
-    expect(keyboardIcon).toBe(buttonIcons.keyboard);
-    expect(searchIcon).toBe(buttonIcons.search);
+    expect(saveIcon).toBe(iconRegistry.save);
+    expect(trashIcon).toBe(iconRegistry.trash);
+    expect(pencilIcon).toBe(iconRegistry.pencil);
+    expect(keyboardIcon).toBe(iconRegistry.keyboard);
+    expect(searchIcon).toBe(iconRegistry.search);
   });
 });

@@ -1,0 +1,105 @@
+/**
+ * DanxTooltip Layout
+ *
+ * Trigger wrapper and floating panel styles.
+ */
+
+/* ==========================================================================
+   Trigger Wrapper
+   ========================================================================== */
+
+.danx-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  --dx-icon-size: var(--dx-tooltip-trigger-icon-size);
+}
+
+/* ==========================================================================
+   Panel (floating positioned container)
+   ========================================================================== */
+
+.danx-tooltip {
+  position: fixed;
+  z-index: 1001;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--dx-tooltip-gap);
+  max-width: var(--dx-tooltip-max-width);
+  padding: var(--dx-tooltip-padding-y) var(--dx-tooltip-padding-x);
+  background: var(--dx-tooltip-bg);
+  color: var(--dx-tooltip-text);
+  border: 1px solid var(--dx-tooltip-border);
+  border-radius: var(--dx-tooltip-border-radius);
+  box-shadow: var(--dx-tooltip-shadow);
+  font-size: var(--dx-tooltip-font-size);
+
+  /* Animation */
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--dx-tooltip-animation-duration) var(--ease-out),
+    transform var(--dx-tooltip-animation-duration) var(--ease-out);
+}
+
+/* Entry animation */
+@starting-style {
+  .danx-tooltip {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+
+/* ==========================================================================
+   Panel Icon
+   ========================================================================== */
+
+.danx-tooltip__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  --dx-icon-size: var(--dx-tooltip-icon-size);
+}
+
+/* ==========================================================================
+   Panel Content
+   ========================================================================== */
+
+.danx-tooltip__content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   Type Modifiers
+   ========================================================================== */
+
+.danx-tooltip--danger {
+  background: var(--dx-tooltip-danger-bg);
+  color: var(--dx-tooltip-danger-text);
+  border-color: var(--dx-tooltip-danger-bg);
+}
+
+.danx-tooltip--success {
+  background: var(--dx-tooltip-success-bg);
+  color: var(--dx-tooltip-success-text);
+  border-color: var(--dx-tooltip-success-bg);
+}
+
+.danx-tooltip--warning {
+  background: var(--dx-tooltip-warning-bg);
+  color: var(--dx-tooltip-warning-text);
+  border-color: var(--dx-tooltip-warning-bg);
+}
+
+.danx-tooltip--info {
+  background: var(--dx-tooltip-info-bg);
+  color: var(--dx-tooltip-info-text);
+  border-color: var(--dx-tooltip-info-bg);
+}
+
+.danx-tooltip--muted {
+  background: var(--dx-tooltip-muted-bg);
+  color: var(--dx-tooltip-muted-text);
+  border-color: var(--dx-tooltip-muted-bg);
+}

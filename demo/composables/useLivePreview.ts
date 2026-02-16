@@ -31,13 +31,20 @@ import {
 } from "vue";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
-import { DanxIcon, buttonIcons } from "../../src/components/icon";
+import {
+  DanxIcon,
+  iconRegistry,
+  infoIcon,
+  questionIcon,
+  warningTriangleIcon,
+} from "../../src/components/icon";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
 import { DanxTabs } from "../../src/components/tabs";
+import { DanxTooltip } from "../../src/components/tooltip";
 import {
   fCurrency,
   fCurrencyNoCents,
@@ -92,6 +99,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxPopover,
   MarkdownEditor,
   DanxTabs,
+  DanxTooltip,
 };
 
 /**
@@ -115,8 +123,12 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useDialog,
   MarkdownEditor,
   DanxTabs,
+  DanxTooltip,
   starIcon,
-  buttonIcons,
+  iconRegistry,
+  infoIcon,
+  questionIcon,
+  warningTriangleIcon,
   // Formatters - numbers
   fCurrency,
   fCurrencyNoCents,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { buttonIcons } from "danx-ui";
+import { iconRegistry } from "danx-ui";
 
-const iconNames = Object.keys(buttonIcons);
+const iconNames = Object.keys(iconRegistry);
 </script>
 
 <template>

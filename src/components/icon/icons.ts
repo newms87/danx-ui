@@ -3,7 +3,7 @@
  * All icons sourced from danx-icon (FontAwesome solid) via ?raw imports.
  * Vite inlines the SVG content at build time — zero runtime dependency.
  *
- * Use by name: <DanxIcon icon="trash" /> (looked up from buttonIcons)
+ * Use by name: <DanxIcon icon="trash" /> (looked up from iconRegistry)
  * Use by import: <DanxIcon :icon="trashIcon" /> (raw SVG string)
  * Use external: <DanxIcon :icon="mySvgString" /> (any SVG string)
  */
@@ -30,6 +30,9 @@ import usersSvg from "danx-icon/src/fontawesome/solid/users.svg?raw";
 import databaseSvg from "danx-icon/src/fontawesome/solid/database.svg?raw";
 import folderSvg from "danx-icon/src/fontawesome/solid/folder.svg?raw";
 import searchSvg from "danx-icon/src/fontawesome/solid/magnifying-glass.svg?raw";
+import circleInfoSvg from "danx-icon/src/fontawesome/solid/circle-info.svg?raw";
+import circleQuestionSvg from "danx-icon/src/fontawesome/solid/circle-question.svg?raw";
+import triangleExclamationSvg from "danx-icon/src/fontawesome/solid/triangle-exclamation.svg?raw";
 
 // Neutral
 import backSvg from "danx-icon/src/fontawesome/solid/arrow-left.svg?raw";
@@ -72,6 +75,9 @@ export const usersIcon = usersSvg;
 export const databaseIcon = databaseSvg;
 export const folderIcon = folderSvg;
 export const searchIcon = searchSvg;
+export const infoIcon = circleInfoSvg;
+export const questionIcon = circleQuestionSvg;
+export const warningTriangleIcon = triangleExclamationSvg;
 
 // Neutral
 export const cancelIcon = circleXmarkSvg;
@@ -97,7 +103,7 @@ export const chevronLeftIcon = chevronLeftSvg;
  * Lookup map from icon name to SVG string.
  * DanxIcon uses this internally to resolve `icon="trash"` style shorthand.
  */
-export const buttonIcons = {
+export const iconRegistry = {
   trash: trashIcon,
   stop: stopIcon,
   close: closeIcon,
@@ -131,7 +137,10 @@ export const buttonIcons = {
   "chevron-right": chevronRightIcon,
   "chevron-up": chevronUpIcon,
   "chevron-left": chevronLeftIcon,
+  info: infoIcon,
+  question: questionIcon,
+  "warning-triangle": warningTriangleIcon,
 } satisfies Record<string, string>;
 
-/** Union of all built-in icon names available in the buttonIcons lookup map */
-export type IconName = keyof typeof buttonIcons;
+/** Union of all built-in icon names available in the iconRegistry lookup map */
+export type IconName = keyof typeof iconRegistry;

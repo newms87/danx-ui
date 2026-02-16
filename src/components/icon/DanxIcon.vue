@@ -46,14 +46,14 @@
 <script setup lang="ts">
 import { computed, h } from "vue";
 import type { IconName } from "./icons";
-import { buttonIcons } from "./icons";
+import { iconRegistry } from "./icons";
 import type { DanxIconProps } from "./types";
 
 const props = defineProps<DanxIconProps>();
 
 const IconComponent = computed(() => {
   if (typeof props.icon === "string") {
-    const svg = buttonIcons[props.icon as IconName] ?? props.icon;
+    const svg = iconRegistry[props.icon as IconName] ?? props.icon;
     return { render: () => h("span", { innerHTML: svg }) };
   }
   return props.icon;

@@ -1,0 +1,80 @@
+/**
+ * DanxTooltip Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize tooltip appearance.
+ *
+ * CSS Tokens:
+ * --dx-tooltip-bg                   Default background color
+ * --dx-tooltip-text                 Default text color
+ * --dx-tooltip-border               Border color
+ * --dx-tooltip-border-radius        Corner radius
+ * --dx-tooltip-shadow               Box shadow
+ * --dx-tooltip-padding-x            Horizontal padding
+ * --dx-tooltip-padding-y            Vertical padding
+ * --dx-tooltip-font-size            Font size
+ * --dx-tooltip-max-width            Maximum panel width
+ * --dx-tooltip-icon-size            Panel icon size
+ * --dx-tooltip-trigger-icon-size    Trigger icon shortcut size
+ * --dx-tooltip-gap                  Gap between panel icon and content
+ * --dx-tooltip-animation-duration   Entry animation duration
+ *
+ * Type tokens (danger, success, warning, info, muted):
+ * --dx-tooltip-{type}-bg            Background color
+ * --dx-tooltip-{type}-text          Text/icon color
+ */
+
+:root {
+  /* ==========================================================================
+     Global Tooltip Tokens
+     ========================================================================== */
+
+  --dx-tooltip-bg: var(--color-surface-elevated);
+  --dx-tooltip-text: var(--color-text);
+  --dx-tooltip-border: var(--color-border);
+  --dx-tooltip-border-radius: 0.375rem;
+  --dx-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+  --dx-tooltip-padding-x: var(--spacing-3);
+  --dx-tooltip-padding-y: var(--spacing-2);
+  --dx-tooltip-font-size: var(--text-sm);
+  --dx-tooltip-max-width: 20rem;
+  --dx-tooltip-icon-size: 1.25rem;
+  --dx-tooltip-trigger-icon-size: 1em;
+  --dx-tooltip-gap: var(--spacing-2);
+  --dx-tooltip-animation-duration: var(--duration-150);
+
+  /* ==========================================================================
+     Type Tokens - Danger
+     ========================================================================== */
+
+  --dx-tooltip-danger-bg: var(--color-danger);
+  --dx-tooltip-danger-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Success
+     ========================================================================== */
+
+  --dx-tooltip-success-bg: var(--color-success);
+  --dx-tooltip-success-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Warning
+     ========================================================================== */
+
+  --dx-tooltip-warning-bg: var(--color-warning);
+  --dx-tooltip-warning-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Info
+     ========================================================================== */
+
+  --dx-tooltip-info-bg: var(--color-interactive);
+  --dx-tooltip-info-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Muted
+     ========================================================================== */
+
+  --dx-tooltip-muted-bg: var(--color-surface-sunken);
+  --dx-tooltip-muted-text: var(--color-text-muted);
+}
