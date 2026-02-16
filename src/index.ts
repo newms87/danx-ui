@@ -6,6 +6,7 @@
 
 // Components
 export { DanxActionButton, DanxButton } from "./components/button";
+export { DanxBadge } from "./components/badge";
 export { DanxChip } from "./components/chip";
 export { DanxIcon } from "./components/icon";
 export { CodeViewer } from "./components/code-viewer";
@@ -44,6 +45,7 @@ export type {
   ResourceAction,
 } from "./components/button";
 export type { DanxIconProps } from "./components/icon";
+export type { BadgePlacement, BadgeType, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
 export type {
   ChipSize,
   ChipType,

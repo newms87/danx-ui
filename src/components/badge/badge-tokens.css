@@ -1,0 +1,78 @@
+/**
+ * DanxBadge Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize badge appearance.
+ *
+ * CSS Tokens:
+ * --dx-badge-font-size          Font size for count/label text
+ * --dx-badge-font-weight        Font weight
+ * --dx-badge-min-width          Minimum width (keeps circular for single digits)
+ * --dx-badge-height             Badge height
+ * --dx-badge-padding-x          Horizontal padding
+ * --dx-badge-border-radius      Corner radius (fully round)
+ * --dx-badge-bg                 Default background color
+ * --dx-badge-text               Default text color
+ * --dx-badge-dot-size           Dot mode diameter
+ * --dx-badge-offset-x           Horizontal offset from corner
+ * --dx-badge-offset-y           Vertical offset from corner
+ * --dx-badge-border             Optional outline border for contrast
+ *
+ * Type tokens (danger, success, warning, info, muted):
+ * --dx-badge-{type}-bg          Background color
+ * --dx-badge-{type}-text        Text color
+ */
+
+:root {
+  /* ==========================================================================
+     Global Badge Tokens
+     ========================================================================== */
+
+  --dx-badge-font-size: 0.625rem;
+  --dx-badge-font-weight: var(--font-bold);
+  --dx-badge-min-width: 1.25rem;
+  --dx-badge-height: 1.25rem;
+  --dx-badge-padding-x: 0.375rem;
+  --dx-badge-border-radius: 9999px;
+  --dx-badge-bg: var(--color-danger);
+  --dx-badge-text: var(--color-text-inverted);
+  --dx-badge-dot-size: 0.5rem;
+  --dx-badge-offset-x: 0px;
+  --dx-badge-offset-y: 0px;
+  --dx-badge-border: none;
+
+  /* ==========================================================================
+     Type Tokens - Danger (default)
+     ========================================================================== */
+
+  --dx-badge-danger-bg: var(--color-danger);
+  --dx-badge-danger-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Success
+     ========================================================================== */
+
+  --dx-badge-success-bg: var(--color-success);
+  --dx-badge-success-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Warning
+     ========================================================================== */
+
+  --dx-badge-warning-bg: var(--color-warning);
+  --dx-badge-warning-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Info
+     ========================================================================== */
+
+  --dx-badge-info-bg: var(--color-interactive);
+  --dx-badge-info-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Type Tokens - Muted
+     ========================================================================== */
+
+  --dx-badge-muted-bg: var(--color-surface-sunken);
+  --dx-badge-muted-text: var(--color-text-muted);
+}

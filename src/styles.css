@@ -11,6 +11,7 @@
 
 @import "tailwindcss";
 @import "./shared/tokens/index.css";
+@import "./components/badge/badge.css" layer(components);
 @import "./components/button/button.css" layer(components);
 @import "./components/chip/chip.css" layer(components);
 @import "./components/icon/icon.css" layer(components);

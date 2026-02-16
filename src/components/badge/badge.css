@@ -1,0 +1,113 @@
+/**
+ * DanxBadge Styles
+ *
+ * Main entry point that imports tokens and defines badge wrapper,
+ * indicator layout, placement modifiers, dot mode, and type modifiers.
+ *
+ * Note: BEM modifiers are top-level blocks because Lightning CSS
+ * does not support &--suffix concatenation.
+ */
+
+@import "./badge-tokens.css";
+
+/* ==========================================================================
+   Base Badge Wrapper
+   ========================================================================== */
+
+.danx-badge {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ==========================================================================
+   Badge Indicator
+   ========================================================================== */
+
+.danx-badge__indicator {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--dx-badge-min-width);
+  height: var(--dx-badge-height);
+  padding: 0 var(--dx-badge-padding-x);
+  font-size: var(--dx-badge-font-size);
+  font-weight: var(--dx-badge-font-weight);
+  line-height: 1;
+  white-space: nowrap;
+  background: var(--dx-badge-bg);
+  color: var(--dx-badge-text);
+  border-radius: var(--dx-badge-border-radius);
+  border: var(--dx-badge-border);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Placement Modifiers
+   ========================================================================== */
+
+.danx-badge__indicator--top-right {
+  top: var(--dx-badge-offset-y);
+  right: var(--dx-badge-offset-x);
+  transform: translate(50%, -50%);
+}
+
+.danx-badge__indicator--top-left {
+  top: var(--dx-badge-offset-y);
+  left: var(--dx-badge-offset-x);
+  transform: translate(-50%, -50%);
+}
+
+.danx-badge__indicator--bottom-right {
+  bottom: var(--dx-badge-offset-y);
+  right: var(--dx-badge-offset-x);
+  transform: translate(50%, 50%);
+}
+
+.danx-badge__indicator--bottom-left {
+  bottom: var(--dx-badge-offset-y);
+  left: var(--dx-badge-offset-x);
+  transform: translate(-50%, 50%);
+}
+
+/* ==========================================================================
+   Dot Mode
+   ========================================================================== */
+
+.danx-badge__indicator--dot {
+  min-width: var(--dx-badge-dot-size);
+  width: var(--dx-badge-dot-size);
+  height: var(--dx-badge-dot-size);
+  padding: 0;
+}
+
+/* ==========================================================================
+   Type Modifiers
+   ========================================================================== */
+
+.danx-badge__indicator--danger {
+  background: var(--dx-badge-danger-bg);
+  color: var(--dx-badge-danger-text);
+}
+
+.danx-badge__indicator--success {
+  background: var(--dx-badge-success-bg);
+  color: var(--dx-badge-success-text);
+}
+
+.danx-badge__indicator--warning {
+  background: var(--dx-badge-warning-bg);
+  color: var(--dx-badge-warning-text);
+}
+
+.danx-badge__indicator--info {
+  background: var(--dx-badge-info-bg);
+  color: var(--dx-badge-info-text);
+}
+
+.danx-badge__indicator--muted {
+  background: var(--dx-badge-muted-bg);
+  color: var(--dx-badge-muted-text);
+}
