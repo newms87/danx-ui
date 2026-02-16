@@ -37,6 +37,9 @@ import {
   infoIcon,
   questionIcon,
   warningTriangleIcon,
+  listIcon,
+  gearIcon,
+  handleIcon,
 } from "../../src/components/icon";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
@@ -132,6 +135,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   infoIcon,
   questionIcon,
   warningTriangleIcon,
+  listIcon,
+  gearIcon,
+  handleIcon,
   // Formatters - numbers
   fCurrency,
   fCurrencyNoCents,

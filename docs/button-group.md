@@ -25,7 +25,7 @@ import type { DanxButtonGroupItem } from "danx-ui";
 const selected = ref("overview");
 
 const buttons: DanxButtonGroupItem[] = [
-  { value: "overview", label: "Overview", icon: "document" },
+  { value: "overview", label: "Overview", icon: "list" },
   { value: "details", label: "Details", icon: "edit" },
   { value: "settings", label: "Settings" },
 ];

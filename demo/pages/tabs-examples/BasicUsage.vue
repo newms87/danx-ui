@@ -7,7 +7,7 @@ const activeTab = ref("overview");
 const tabs = [
   { value: "overview", label: "Overview", icon: "list" },
   { value: "details", label: "Details", icon: "edit" },
-  { value: "settings", label: "Settings", icon: "handle" },
+  { value: "settings", label: "Settings", icon: "gear" },
 ];
 </script>
 

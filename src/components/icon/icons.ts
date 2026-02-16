@@ -52,6 +52,9 @@ import chevronDownSvg from "danx-icon/src/fontawesome/solid/chevron-down.svg?raw
 import chevronRightSvg from "danx-icon/src/fontawesome/solid/chevron-right.svg?raw";
 import chevronUpSvg from "danx-icon/src/fontawesome/solid/chevron-up.svg?raw";
 import chevronLeftSvg from "danx-icon/src/fontawesome/solid/chevron-left.svg?raw";
+import listSvg from "danx-icon/src/fontawesome/solid/list.svg?raw";
+import gearSvg from "danx-icon/src/fontawesome/solid/gear.svg?raw";
+import handleSvg from "danx-icon/src/fontawesome/solid/grip-vertical.svg?raw";
 
 // Destructive
 export const trashIcon = trashSvg;
@@ -98,6 +101,9 @@ export const chevronDownIcon = chevronDownSvg;
 export const chevronRightIcon = chevronRightSvg;
 export const chevronUpIcon = chevronUpSvg;
 export const chevronLeftIcon = chevronLeftSvg;
+export const listIcon = listSvg;
+export const gearIcon = gearSvg;
+export const handleIcon = handleSvg;
 
 /**
  * Lookup map from icon name to SVG string.
@@ -140,6 +146,9 @@ export const iconRegistry = {
   info: infoIcon,
   question: questionIcon,
   "warning-triangle": warningTriangleIcon,
+  list: listIcon,
+  gear: gearIcon,
+  handle: handleIcon,
 } satisfies Record<string, string>;
 
 /** Union of all built-in icon names available in the iconRegistry lookup map */

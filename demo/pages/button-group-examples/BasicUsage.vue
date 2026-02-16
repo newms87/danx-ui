@@ -5,9 +5,9 @@ import { DanxButtonGroup } from "danx-ui";
 const selected = ref("overview");
 
 const buttons = [
-  { value: "overview", label: "Overview", icon: "document" },
+  { value: "overview", label: "Overview", icon: "list" },
   { value: "details", label: "Details", icon: "edit" },
-  { value: "settings", label: "Settings", icon: "pencil" },
+  { value: "settings", label: "Settings", icon: "gear" },
 ];
 </script>
 
