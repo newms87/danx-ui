@@ -4,8 +4,8 @@ import { hashStringToIndex, useAutoColor, AUTO_COLOR_PALETTE } from "../autoColo
 
 describe("hashStringToIndex", () => {
   it("returns consistent index for same input", () => {
-    const a = hashStringToIndex("Pending", 7);
-    const b = hashStringToIndex("Pending", 7);
+    const a = hashStringToIndex("Pending", 14);
+    const b = hashStringToIndex("Pending", 14);
     expect(a).toBe(b);
   });
 
@@ -18,15 +18,15 @@ describe("hashStringToIndex", () => {
       "x",
       "A very long string value here",
     ]) {
-      const idx = hashStringToIndex(str, 7);
+      const idx = hashStringToIndex(str, 14);
       expect(idx).toBeGreaterThanOrEqual(0);
-      expect(idx).toBeLessThan(7);
+      expect(idx).toBeLessThan(14);
     }
   });
 
   it("returns 0 for empty string", () => {
     // 0 % count = 0
-    expect(hashStringToIndex("", 7)).toBe(0);
+    expect(hashStringToIndex("", 14)).toBe(0);
   });
 
   it("produces different indices for different strings", () => {
@@ -39,9 +39,9 @@ describe("hashStringToIndex", () => {
       "Archived",
       "In Review",
     ];
-    const indices = strings.map((s) => hashStringToIndex(s, 7));
+    const indices = strings.map((s) => hashStringToIndex(s, 14));
     const unique = new Set(indices);
-    // With 7 strings and 7 buckets, we expect at least 3 distinct values
+    // With 7 strings and 14 buckets, we expect at least 3 distinct values
     expect(unique.size).toBeGreaterThanOrEqual(3);
   });
 
@@ -51,8 +51,8 @@ describe("hashStringToIndex", () => {
 });
 
 describe("AUTO_COLOR_PALETTE", () => {
-  it("has 7 entries", () => {
-    expect(AUTO_COLOR_PALETTE).toHaveLength(7);
+  it("has 14 entries", () => {
+    expect(AUTO_COLOR_PALETTE).toHaveLength(14);
   });
 
   it("each entry has bg, text, darkBg, darkText", () => {
@@ -101,11 +101,11 @@ describe("useAutoColor", () => {
     expect(a.style.value).not.toEqual(b.style.value);
   });
 
-  it("colorIndex is in range 0..6", () => {
+  it("colorIndex is in range 0..13", () => {
     for (const label of ["Pending", "Approved", "Rejected", "Draft", ""]) {
       const { colorIndex } = useAutoColor(label);
       expect(colorIndex.value).toBeGreaterThanOrEqual(0);
-      expect(colorIndex.value).toBeLessThanOrEqual(6);
+      expect(colorIndex.value).toBeLessThanOrEqual(13);
     }
   });
 

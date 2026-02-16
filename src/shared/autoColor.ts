@@ -5,8 +5,9 @@
  * palette index. The same string always maps to the same color, giving
  * visually distinct colors to different tags/statuses without manual mapping.
  *
- * The palette uses hex values from the 7 chromatic primitive families
- * (blue, red, green, amber, purple, cyan, indigo) with light/dark pairs.
+ * The palette uses hex values from 14 chromatic Tailwind families
+ * (sky, blue, indigo, purple, violet, fuchsia, rose, orange, amber,
+ * lime, green, emerald, teal, cyan) with light/dark pairs.
  */
 
 import { computed, type CSSProperties, type MaybeRefOrGetter, toValue } from "vue";
@@ -26,17 +27,25 @@ export interface AutoColorEntry {
 }
 
 /**
- * 7-color palette derived from primitives.css chromatic families.
- * Each entry provides light and dark mode background/text pairs.
+ * 14-color palette derived from Tailwind chromatic families.
+ * Each entry provides light and dark mode background/text pairs
+ * using shade-100/700 for light mode and shade-900/200 for dark mode.
  */
 export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
+  { bg: "#e0f2fe", text: "#0369a1", darkBg: "#0c4a6e", darkText: "#bae6fd" }, // sky
   { bg: "#dbeafe", text: "#1d4ed8", darkBg: "#1e3a8a", darkText: "#bfdbfe" }, // blue
-  { bg: "#fee2e2", text: "#b91c1c", darkBg: "#7f1d1d", darkText: "#fecaca" }, // red
-  { bg: "#dcfce7", text: "#15803d", darkBg: "#14532d", darkText: "#bbf7d0" }, // green
-  { bg: "#fef3c7", text: "#b45309", darkBg: "#78350f", darkText: "#fde68a" }, // amber
-  { bg: "#f3e8ff", text: "#7c3aed", darkBg: "#581c87", darkText: "#e9d5ff" }, // purple
-  { bg: "#cffafe", text: "#0e7490", darkBg: "#164e63", darkText: "#a5f3fc" }, // cyan
   { bg: "#e0e7ff", text: "#4338ca", darkBg: "#312e81", darkText: "#c7d2fe" }, // indigo
+  { bg: "#f3e8ff", text: "#7c3aed", darkBg: "#581c87", darkText: "#e9d5ff" }, // purple
+  { bg: "#ede9fe", text: "#6d28d9", darkBg: "#4c1d95", darkText: "#ddd6fe" }, // violet
+  { bg: "#fae8ff", text: "#a21caf", darkBg: "#701a75", darkText: "#f5d0fe" }, // fuchsia
+  { bg: "#ffe4e6", text: "#be123c", darkBg: "#881337", darkText: "#fecdd3" }, // rose
+  { bg: "#ffedd5", text: "#c2410c", darkBg: "#7c2d12", darkText: "#fed7aa" }, // orange
+  { bg: "#fef3c7", text: "#b45309", darkBg: "#78350f", darkText: "#fde68a" }, // amber
+  { bg: "#ecfccb", text: "#4d7c0f", darkBg: "#365314", darkText: "#d9f99d" }, // lime
+  { bg: "#dcfce7", text: "#15803d", darkBg: "#14532d", darkText: "#bbf7d0" }, // green
+  { bg: "#d1fae5", text: "#047857", darkBg: "#064e3b", darkText: "#a7f3d0" }, // emerald
+  { bg: "#ccfbf1", text: "#0f766e", darkBg: "#134e4a", darkText: "#99f6e4" }, // teal
+  { bg: "#cffafe", text: "#0e7490", darkBg: "#164e63", darkText: "#a5f3fc" }, // cyan
 ];
 
 /**
@@ -54,7 +63,7 @@ export function hashStringToIndex(value: string, count: number): number {
 /**
  * Composable that returns reactive auto-color style for a given string value.
  *
- * Hashes the string to deterministically pick a color from the 7-color palette.
+ * Hashes the string to deterministically pick a color from the 14-color palette.
  * Detects dark mode via `document.documentElement.classList.contains("dark")`.
  *
  * The returned style sets `--dx-chip-bg` and `--dx-chip-text` CSS custom
@@ -66,7 +75,7 @@ export function hashStringToIndex(value: string, count: number): number {
  * only update when `value` changes (triggering a re-evaluation).
  *
  * @param value - String (or ref/getter) to hash for color selection
- * @returns Object with `colorIndex` (computed 0-6) and `style` (computed CSSProperties)
+ * @returns Object with `colorIndex` (computed 0-13) and `style` (computed CSSProperties)
  */
 export function useAutoColor(value: MaybeRefOrGetter<string>) {
   const colorIndex = computed(() => hashStringToIndex(toValue(value), AUTO_COLOR_PALETTE.length));
