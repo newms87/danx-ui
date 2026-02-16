@@ -12,6 +12,7 @@ import IconPage from "./pages/IconPage.vue";
 import PopoverPage from "./pages/PopoverPage.vue";
 import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
 import FormattersPage from "./pages/FormattersPage.vue";
+import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
 import TabsPage from "./pages/TabsPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
 
@@ -32,6 +33,7 @@ const router = createRouter({
     { path: "/popover", name: "popover", component: PopoverPage },
     { path: "/markdown-editor", name: "markdown-editor", component: MarkdownEditorPage },
     { path: "/formatters", name: "formatters", component: FormattersPage },
+    { path: "/button-group", name: "button-group", component: ButtonGroupPage },
     { path: "/tabs", name: "tabs", component: TabsPage },
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
   ],

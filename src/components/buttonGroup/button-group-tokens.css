@@ -1,0 +1,72 @@
+/**
+ * DanxButtonGroup Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize button group appearance.
+ *
+ * CSS Tokens:
+ * --dx-button-group-bg                  Container background
+ * --dx-button-group-border              Container border color
+ * --dx-button-group-border-radius       Container corner radius
+ * --dx-button-group-font-size           Button label font size
+ * --dx-button-group-font-weight         Button label font weight
+ * --dx-button-group-padding-x           Horizontal padding per button
+ * --dx-button-group-padding-y           Vertical padding per button
+ * --dx-button-group-gap                 Gap between icon and label within a button
+ * --dx-button-group-icon-size           Button icon dimensions
+ * --dx-button-group-text                Default (inactive) button text color
+ * --dx-button-group-text-active         Active button text color
+ * --dx-button-group-text-hover          Hover text color for inactive buttons
+ * --dx-button-group-active-bg           Active button background color
+ * --dx-button-group-divider             Border color between buttons
+ * --dx-button-group-transition          Transition timing for color changes
+ * --dx-button-group-count-opacity       Opacity for count badges
+ */
+
+:root {
+  /* ==========================================================================
+     Container Tokens
+     ========================================================================== */
+
+  --dx-button-group-bg: var(--color-surface-sunken);
+  --dx-button-group-border: var(--color-border);
+  --dx-button-group-border-radius: var(--radius-component);
+
+  /* ==========================================================================
+     Typography Tokens
+     ========================================================================== */
+
+  --dx-button-group-font-size: var(--text-sm);
+  --dx-button-group-font-weight: var(--font-medium);
+
+  /* ==========================================================================
+     Layout Tokens
+     ========================================================================== */
+
+  --dx-button-group-padding-x: var(--spacing-3);
+  --dx-button-group-padding-y: var(--spacing-1-5);
+  --dx-button-group-gap: var(--spacing-1-5);
+  --dx-button-group-icon-size: 0.875rem;
+
+  /* ==========================================================================
+     Color Tokens
+     ========================================================================== */
+
+  --dx-button-group-text: var(--color-text-muted);
+  --dx-button-group-text-active: var(--color-text-inverted);
+  --dx-button-group-text-hover: var(--color-text);
+  --dx-button-group-active-bg: var(--color-interactive);
+  --dx-button-group-divider: var(--color-border);
+
+  /* ==========================================================================
+     Animation Tokens
+     ========================================================================== */
+
+  --dx-button-group-transition: var(--transition-fast);
+
+  /* ==========================================================================
+     Count Badge Tokens
+     ========================================================================== */
+
+  --dx-button-group-count-opacity: 0.7;
+}

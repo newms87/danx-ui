@@ -63,6 +63,15 @@ describe("AUTO_COLOR_PALETTE", () => {
       expect(entry.darkText).toMatch(/^#[0-9a-f]{6}$/i);
     }
   });
+
+  it("each entry has inactiveBg, inactiveText, darkInactiveBg, darkInactiveText", () => {
+    for (const entry of AUTO_COLOR_PALETTE) {
+      expect(entry.inactiveBg).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(entry.inactiveText).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(entry.darkInactiveBg).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(entry.darkInactiveText).toMatch(/^#[0-9a-f]{6}$/i);
+    }
+  });
 });
 
 describe("useAutoColor", () => {
@@ -140,5 +149,76 @@ describe("useAutoColor", () => {
     expect(idxA.value).toBe(hashStringToIndex("Rejected", AUTO_COLOR_PALETTE.length));
     // Ensure it actually changed (these strings hash differently)
     expect(idxA.value).not.toBe(firstIndex);
+  });
+
+  describe("inactiveStyle", () => {
+    it("returns inactiveStyle with --dx-chip-bg and --dx-chip-text keys", () => {
+      const { inactiveStyle } = useAutoColor("Pending");
+      expect(inactiveStyle.value).toHaveProperty("--dx-chip-bg");
+      expect(inactiveStyle.value).toHaveProperty("--dx-chip-text");
+    });
+
+    it("uses light-mode inactive colors when dark class is absent", () => {
+      const { inactiveStyle, colorIndex } = useAutoColor("Test");
+      const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
+      expect(inactiveStyle.value["--dx-chip-bg" as keyof typeof inactiveStyle.value]).toBe(
+        entry.inactiveBg
+      );
+      expect(inactiveStyle.value["--dx-chip-text" as keyof typeof inactiveStyle.value]).toBe(
+        entry.inactiveText
+      );
+    });
+
+    it("uses dark-mode inactive colors when dark class is present", () => {
+      document.documentElement.classList.add("dark");
+      const { inactiveStyle, colorIndex } = useAutoColor("Test");
+      const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
+      expect(inactiveStyle.value["--dx-chip-bg" as keyof typeof inactiveStyle.value]).toBe(
+        entry.darkInactiveBg
+      );
+      expect(inactiveStyle.value["--dx-chip-text" as keyof typeof inactiveStyle.value]).toBe(
+        entry.darkInactiveText
+      );
+    });
+
+    it("inactive colors differ from active colors", () => {
+      const { style, inactiveStyle } = useAutoColor("Test");
+      expect(style.value).not.toEqual(inactiveStyle.value);
+    });
+  });
+
+  describe("tokenPrefix", () => {
+    it("defaults to --dx-chip prefix (DanxChip token)", () => {
+      const { style } = useAutoColor("Test");
+      expect(style.value).toHaveProperty("--dx-chip-bg");
+      expect(style.value).toHaveProperty("--dx-chip-text");
+    });
+
+    it("uses custom prefix when provided", () => {
+      const { style, inactiveStyle } = useAutoColor("Test", "--dx-button-group");
+      expect(style.value).toHaveProperty("--dx-button-group-bg");
+      expect(style.value).toHaveProperty("--dx-button-group-text");
+      expect(style.value).not.toHaveProperty("--dx-chip-bg");
+      expect(inactiveStyle.value).toHaveProperty("--dx-button-group-bg");
+      expect(inactiveStyle.value).toHaveProperty("--dx-button-group-text");
+    });
+
+    it("custom prefix applies correct active color values", () => {
+      const { style, colorIndex } = useAutoColor("Test", "--dx-custom");
+      const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
+      expect(style.value["--dx-custom-bg" as keyof typeof style.value]).toBe(entry.bg);
+      expect(style.value["--dx-custom-text" as keyof typeof style.value]).toBe(entry.text);
+    });
+
+    it("custom prefix applies correct inactive color values", () => {
+      const { inactiveStyle, colorIndex } = useAutoColor("Test", "--dx-custom");
+      const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
+      expect(inactiveStyle.value["--dx-custom-bg" as keyof typeof inactiveStyle.value]).toBe(
+        entry.inactiveBg
+      );
+      expect(inactiveStyle.value["--dx-custom-text" as keyof typeof inactiveStyle.value]).toBe(
+        entry.inactiveText
+      );
+    });
   });
 });

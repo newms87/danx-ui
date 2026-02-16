@@ -1,0 +1,88 @@
+/**
+ * DanxButtonGroup Styles
+ *
+ * Component styles for the toggle button group. Uses native CSS nesting.
+ * BEM modifiers are top-level blocks per Lightning CSS requirements.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./button-group-tokens.css";
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.danx-button-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--dx-button-group-bg);
+  border: 1px solid var(--dx-button-group-border);
+  border-radius: var(--dx-button-group-border-radius);
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Button
+   ========================================================================== */
+
+.danx-button-group__button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--dx-button-group-gap);
+  padding: var(--dx-button-group-padding-y) var(--dx-button-group-padding-x);
+  font-size: var(--dx-button-group-font-size);
+  font-weight: var(--dx-button-group-font-weight);
+  color: var(--dx-button-group-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    color var(--dx-button-group-transition),
+    background-color var(--dx-button-group-transition);
+
+  &:hover:not(.is-active) {
+    color: var(--dx-button-group-text-hover);
+  }
+
+  &.is-active {
+    color: var(--dx-button-group-text-active);
+    background: var(--dx-button-group-active-bg);
+  }
+}
+
+/* ==========================================================================
+   Divider Between Buttons
+   ========================================================================== */
+
+.danx-button-group__divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--dx-button-group-divider);
+}
+
+/* ==========================================================================
+   Icon
+   ========================================================================== */
+
+.danx-button-group__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--dx-button-group-icon-size);
+  height: var(--dx-button-group-icon-size);
+
+  .danx-icon {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ==========================================================================
+   Count Badge
+   ========================================================================== */
+
+.danx-button-group__count {
+  opacity: var(--dx-button-group-count-opacity);
+}

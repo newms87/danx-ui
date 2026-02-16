@@ -14,6 +14,7 @@ export { DanxDialog } from "./components/dialog";
 export { DanxPopover } from "./components/popover";
 export { MarkdownEditor } from "./components/markdown-editor";
 export { DanxTabs } from "./components/tabs";
+export { DanxButtonGroup } from "./components/buttonGroup";
 export { DanxTooltip } from "./components/tooltip";
 
 // Composables
@@ -93,6 +94,12 @@ export type {
   UseMarkdownEditorReturn,
 } from "./components/markdown-editor";
 export type { DanxTab, DanxTabsProps } from "./components/tabs";
+export type {
+  AutoColorMode,
+  DanxButtonGroupEmits,
+  DanxButtonGroupItem,
+  DanxButtonGroupProps,
+} from "./components/buttonGroup";
 export type {
   DanxTooltipProps,
   DanxTooltipSlots,

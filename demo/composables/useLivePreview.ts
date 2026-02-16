@@ -43,6 +43,7 @@ import { DanxContextMenu } from "../../src/components/context-menu";
 import { DanxDialog, useDialog } from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
+import { DanxButtonGroup } from "../../src/components/buttonGroup";
 import { DanxTabs } from "../../src/components/tabs";
 import { DanxTooltip } from "../../src/components/tooltip";
 import {
@@ -98,6 +99,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxDialog,
   DanxPopover,
   MarkdownEditor,
+  DanxButtonGroup,
   DanxTabs,
   DanxTooltip,
 };
@@ -122,6 +124,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxPopover,
   useDialog,
   MarkdownEditor,
+  DanxButtonGroup,
   DanxTabs,
   DanxTooltip,
   starIcon,

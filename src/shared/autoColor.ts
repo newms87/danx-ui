@@ -13,7 +13,8 @@
 import { computed, type CSSProperties, type MaybeRefOrGetter, toValue } from "vue";
 
 /**
- * A single palette entry with light-mode and dark-mode color pairs.
+ * A single palette entry with light-mode and dark-mode color pairs,
+ * plus inactive variants for toggle/button-group states.
  */
 export interface AutoColorEntry {
   /** Light-mode background (shade-100) */
@@ -24,6 +25,14 @@ export interface AutoColorEntry {
   darkBg: string;
   /** Dark-mode text (shade-200) */
   darkText: string;
+  /** Light-mode inactive background (shade-50) */
+  inactiveBg: string;
+  /** Light-mode inactive text (shade-400) */
+  inactiveText: string;
+  /** Dark-mode inactive background (shade-950) */
+  darkInactiveBg: string;
+  /** Dark-mode inactive text (shade-500) */
+  darkInactiveText: string;
 }
 
 /**
@@ -32,20 +41,160 @@ export interface AutoColorEntry {
  * using shade-100/700 for light mode and shade-900/200 for dark mode.
  */
 export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
-  { bg: "#e0f2fe", text: "#0369a1", darkBg: "#0c4a6e", darkText: "#bae6fd" }, // sky
-  { bg: "#dbeafe", text: "#1d4ed8", darkBg: "#1e3a8a", darkText: "#bfdbfe" }, // blue
-  { bg: "#e0e7ff", text: "#4338ca", darkBg: "#312e81", darkText: "#c7d2fe" }, // indigo
-  { bg: "#f3e8ff", text: "#7c3aed", darkBg: "#581c87", darkText: "#e9d5ff" }, // purple
-  { bg: "#ede9fe", text: "#6d28d9", darkBg: "#4c1d95", darkText: "#ddd6fe" }, // violet
-  { bg: "#fae8ff", text: "#a21caf", darkBg: "#701a75", darkText: "#f5d0fe" }, // fuchsia
-  { bg: "#ffe4e6", text: "#be123c", darkBg: "#881337", darkText: "#fecdd3" }, // rose
-  { bg: "#ffedd5", text: "#c2410c", darkBg: "#7c2d12", darkText: "#fed7aa" }, // orange
-  { bg: "#fef3c7", text: "#b45309", darkBg: "#78350f", darkText: "#fde68a" }, // amber
-  { bg: "#ecfccb", text: "#4d7c0f", darkBg: "#365314", darkText: "#d9f99d" }, // lime
-  { bg: "#dcfce7", text: "#15803d", darkBg: "#14532d", darkText: "#bbf7d0" }, // green
-  { bg: "#d1fae5", text: "#047857", darkBg: "#064e3b", darkText: "#a7f3d0" }, // emerald
-  { bg: "#ccfbf1", text: "#0f766e", darkBg: "#134e4a", darkText: "#99f6e4" }, // teal
-  { bg: "#cffafe", text: "#0e7490", darkBg: "#164e63", darkText: "#a5f3fc" }, // cyan
+  // sky
+  {
+    bg: "#e0f2fe",
+    text: "#0369a1",
+    darkBg: "#0c4a6e",
+    darkText: "#bae6fd",
+    inactiveBg: "#f0f9ff",
+    inactiveText: "#38bdf8",
+    darkInactiveBg: "#082f49",
+    darkInactiveText: "#0ea5e9",
+  },
+  // blue
+  {
+    bg: "#dbeafe",
+    text: "#1d4ed8",
+    darkBg: "#1e3a8a",
+    darkText: "#bfdbfe",
+    inactiveBg: "#eff6ff",
+    inactiveText: "#60a5fa",
+    darkInactiveBg: "#172554",
+    darkInactiveText: "#3b82f6",
+  },
+  // indigo
+  {
+    bg: "#e0e7ff",
+    text: "#4338ca",
+    darkBg: "#312e81",
+    darkText: "#c7d2fe",
+    inactiveBg: "#eef2ff",
+    inactiveText: "#818cf8",
+    darkInactiveBg: "#1e1b4b",
+    darkInactiveText: "#6366f1",
+  },
+  // purple
+  {
+    bg: "#f3e8ff",
+    text: "#7c3aed",
+    darkBg: "#581c87",
+    darkText: "#e9d5ff",
+    inactiveBg: "#faf5ff",
+    inactiveText: "#a78bfa",
+    darkInactiveBg: "#3b0764",
+    darkInactiveText: "#8b5cf6",
+  },
+  // violet
+  {
+    bg: "#ede9fe",
+    text: "#6d28d9",
+    darkBg: "#4c1d95",
+    darkText: "#ddd6fe",
+    inactiveBg: "#f5f3ff",
+    inactiveText: "#a78bfa",
+    darkInactiveBg: "#2e1065",
+    darkInactiveText: "#8b5cf6",
+  },
+  // fuchsia
+  {
+    bg: "#fae8ff",
+    text: "#a21caf",
+    darkBg: "#701a75",
+    darkText: "#f5d0fe",
+    inactiveBg: "#fdf4ff",
+    inactiveText: "#e879f9",
+    darkInactiveBg: "#4a044e",
+    darkInactiveText: "#d946ef",
+  },
+  // rose
+  {
+    bg: "#ffe4e6",
+    text: "#be123c",
+    darkBg: "#881337",
+    darkText: "#fecdd3",
+    inactiveBg: "#fff1f2",
+    inactiveText: "#fb7185",
+    darkInactiveBg: "#4c0519",
+    darkInactiveText: "#f43f5e",
+  },
+  // orange
+  {
+    bg: "#ffedd5",
+    text: "#c2410c",
+    darkBg: "#7c2d12",
+    darkText: "#fed7aa",
+    inactiveBg: "#fff7ed",
+    inactiveText: "#fb923c",
+    darkInactiveBg: "#431407",
+    darkInactiveText: "#f97316",
+  },
+  // amber
+  {
+    bg: "#fef3c7",
+    text: "#b45309",
+    darkBg: "#78350f",
+    darkText: "#fde68a",
+    inactiveBg: "#fffbeb",
+    inactiveText: "#fbbf24",
+    darkInactiveBg: "#451a03",
+    darkInactiveText: "#f59e0b",
+  },
+  // lime
+  {
+    bg: "#ecfccb",
+    text: "#4d7c0f",
+    darkBg: "#365314",
+    darkText: "#d9f99d",
+    inactiveBg: "#f7fee7",
+    inactiveText: "#a3e635",
+    darkInactiveBg: "#1a2e05",
+    darkInactiveText: "#84cc16",
+  },
+  // green
+  {
+    bg: "#dcfce7",
+    text: "#15803d",
+    darkBg: "#14532d",
+    darkText: "#bbf7d0",
+    inactiveBg: "#f0fdf4",
+    inactiveText: "#4ade80",
+    darkInactiveBg: "#052e16",
+    darkInactiveText: "#22c55e",
+  },
+  // emerald
+  {
+    bg: "#d1fae5",
+    text: "#047857",
+    darkBg: "#064e3b",
+    darkText: "#a7f3d0",
+    inactiveBg: "#ecfdf5",
+    inactiveText: "#34d399",
+    darkInactiveBg: "#022c22",
+    darkInactiveText: "#10b981",
+  },
+  // teal
+  {
+    bg: "#ccfbf1",
+    text: "#0f766e",
+    darkBg: "#134e4a",
+    darkText: "#99f6e4",
+    inactiveBg: "#f0fdfa",
+    inactiveText: "#2dd4bf",
+    darkInactiveBg: "#042f2e",
+    darkInactiveText: "#14b8a6",
+  },
+  // cyan
+  {
+    bg: "#cffafe",
+    text: "#0e7490",
+    darkBg: "#164e63",
+    darkText: "#a5f3fc",
+    inactiveBg: "#ecfeff",
+    inactiveText: "#22d3ee",
+    darkInactiveBg: "#083344",
+    darkInactiveText: "#06b6d4",
+  },
 ];
 
 /**
@@ -61,38 +210,52 @@ export function hashStringToIndex(value: string, count: number): number {
 }
 
 /**
- * Composable that returns reactive auto-color style for a given string value.
+ * Composable that returns reactive auto-color styles for a given string value.
  *
  * Hashes the string to deterministically pick a color from the 14-color palette.
  * Detects dark mode via `document.documentElement.classList.contains("dark")`.
  *
- * The returned style sets `--dx-chip-bg` and `--dx-chip-text` CSS custom
- * properties. Works with DanxChip directly, or any element whose CSS reads
- * those tokens.
+ * The returned `style` sets `{prefix}-bg` and `{prefix}-text` CSS custom
+ * properties for the active state. The returned `inactiveStyle` uses the
+ * muted inactive palette values for unselected/toggle-off states.
+ *
+ * The `tokenPrefix` parameter controls the CSS property key prefix.
+ * Defaults to `"--dx-chip"`, the token prefix used by DanxChip.
  *
  * Note: Dark mode detection reads the DOM class list at evaluation time.
  * If dark mode is toggled while the component is mounted, the style will
  * only update when `value` changes (triggering a re-evaluation).
  *
  * @param value - String (or ref/getter) to hash for color selection
- * @returns Object with `colorIndex` (computed 0-13) and `style` (computed CSSProperties)
+ * @param tokenPrefix - CSS variable prefix (default: "--dx-chip")
+ * @returns Object with `colorIndex`, `style` (active), and `inactiveStyle` (muted)
  */
-export function useAutoColor(value: MaybeRefOrGetter<string>) {
+export function useAutoColor(value: MaybeRefOrGetter<string>, tokenPrefix = "--dx-chip") {
   const colorIndex = computed(() => hashStringToIndex(toValue(value), AUTO_COLOR_PALETTE.length));
+
+  function checkDark(): boolean {
+    return typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  }
 
   const style = computed<CSSProperties>(() => {
     const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
-    const isDark =
-      typeof document !== "undefined" && document.documentElement.classList.contains("dark");
-
-    const bg = isDark ? entry.darkBg : entry.bg;
-    const text = isDark ? entry.darkText : entry.text;
+    const dark = checkDark();
 
     return {
-      "--dx-chip-bg": bg,
-      "--dx-chip-text": text,
+      [`${tokenPrefix}-bg`]: dark ? entry.darkBg : entry.bg,
+      [`${tokenPrefix}-text`]: dark ? entry.darkText : entry.text,
     } as CSSProperties;
   });
 
-  return { colorIndex, style };
+  const inactiveStyle = computed<CSSProperties>(() => {
+    const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
+    const dark = checkDark();
+
+    return {
+      [`${tokenPrefix}-bg`]: dark ? entry.darkInactiveBg : entry.inactiveBg,
+      [`${tokenPrefix}-text`]: dark ? entry.darkInactiveText : entry.inactiveText,
+    } as CSSProperties;
+  });
+
+  return { colorIndex, style, inactiveStyle };
 }

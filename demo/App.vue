@@ -64,6 +64,9 @@ watch(theme, (newTheme) => {
               <RouterLink to="/action-button" class="demo-sidebar__link">Action Button</RouterLink>
             </li>
             <li>
+              <RouterLink to="/button-group" class="demo-sidebar__link">Button Group</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/chip" class="demo-sidebar__link">Chip</RouterLink>
             </li>
             <li>
