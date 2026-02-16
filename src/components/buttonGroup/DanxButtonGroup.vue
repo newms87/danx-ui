@@ -66,6 +66,7 @@
  * | --dx-button-group-text-active      | --color-text-inverted  | Active text           |
  * | --dx-button-group-text-hover       | --color-text           | Hover text            |
  * | --dx-button-group-active-bg        | --color-interactive    | Active background     |
+ * | --dx-button-group-inactive-bg      | none                   | Inactive background   |
  * | --dx-button-group-divider          | --color-border         | Divider between btns  |
  *
  * Animation:
@@ -178,12 +179,13 @@ const buttonStyles = computed(() => {
           } as CSSProperties);
         } else {
           styles.set(button.value, {
-            "--dx-button-group-active-bg": isDark ? entry.darkBg : entry.bg,
-            "--dx-button-group-text-active": isDark ? entry.darkText : entry.text,
+            "--dx-button-group-active-bg": isDark ? entry.darkBg : entry.text,
+            "--dx-button-group-text-active": isDark ? entry.darkText : entry.bg,
           } as CSSProperties);
         }
       } else if (props.autoColorMode === "always") {
         styles.set(button.value, {
+          "--dx-button-group-inactive-bg": isDark ? entry.darkInactiveBg : entry.inactiveBg,
           "--dx-button-group-text": isDark ? entry.darkInactiveText : entry.inactiveText,
         } as CSSProperties);
       }

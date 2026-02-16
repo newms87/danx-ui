@@ -18,6 +18,7 @@
  * --dx-button-group-text-active         Active button text color
  * --dx-button-group-text-hover          Hover text color for inactive buttons
  * --dx-button-group-active-bg           Active button background color
+ * --dx-button-group-inactive-bg         Inactive button background (auto-color always mode)
  * --dx-button-group-divider             Border color between buttons
  * --dx-button-group-transition          Transition timing for color changes
  * --dx-button-group-count-opacity       Opacity for count badges
@@ -56,6 +57,7 @@
   --dx-button-group-text-active: var(--color-text-inverted);
   --dx-button-group-text-hover: var(--color-text);
   --dx-button-group-active-bg: var(--color-interactive);
+  --dx-button-group-inactive-bg: none;
   --dx-button-group-divider: var(--color-border);
 
   /* ==========================================================================

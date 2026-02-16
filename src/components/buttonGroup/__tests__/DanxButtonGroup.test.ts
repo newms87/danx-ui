@@ -519,9 +519,10 @@ describe("DanxButtonGroup", () => {
       const inactiveBtn = wrapper.findAll(".danx-button-group__button")[1]!;
       const style = inactiveBtn.attributes("style") ?? "";
       expect(style).toContain("--dx-button-group-text");
+      expect(style).toContain("--dx-button-group-inactive-bg");
     });
 
-    it("uses correct palette colors based on label hash", () => {
+    it("uses inverted palette colors for active button in light mode", () => {
       const buttons: DanxButtonGroupItem[] = [{ value: "a", label: "TestLabel" }];
       const wrapper = mount(DanxButtonGroup, {
         props: {
@@ -534,6 +535,7 @@ describe("DanxButtonGroup", () => {
       const index = hashStringToIndex("TestLabel", AUTO_COLOR_PALETTE.length);
       const entry = AUTO_COLOR_PALETTE[index]!;
       const style = wrapper.find(".danx-button-group__button").attributes("style") ?? "";
+      expect(style).toContain(entry.text);
       expect(style).toContain(entry.bg);
     });
 
@@ -567,7 +569,7 @@ describe("DanxButtonGroup", () => {
       const index = hashStringToIndex("CustomKey", AUTO_COLOR_PALETTE.length);
       const entry = AUTO_COLOR_PALETTE[index]!;
       const style = wrapper.find(".danx-button-group__button").attributes("style") ?? "";
-      expect(style).toContain(entry.bg);
+      expect(style).toContain(entry.text);
     });
 
     it("uses inactive palette for always mode inactive buttons", () => {
@@ -585,6 +587,7 @@ describe("DanxButtonGroup", () => {
       const entry = AUTO_COLOR_PALETTE[index]!;
       const style = wrapper.find(".danx-button-group__button").attributes("style") ?? "";
       expect(style).toContain(entry.inactiveText);
+      expect(style).toContain(entry.inactiveBg);
     });
 
     it("uses dark inactive palette for always mode in dark mode", () => {
@@ -603,6 +606,7 @@ describe("DanxButtonGroup", () => {
       const entry = AUTO_COLOR_PALETTE[index]!;
       const style = wrapper.find(".danx-button-group__button").attributes("style") ?? "";
       expect(style).toContain(entry.darkInactiveText);
+      expect(style).toContain(entry.darkInactiveBg);
     });
   });
 

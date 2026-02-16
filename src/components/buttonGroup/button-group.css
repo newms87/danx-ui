@@ -34,7 +34,7 @@
   font-size: var(--dx-button-group-font-size);
   font-weight: var(--dx-button-group-font-weight);
   color: var(--dx-button-group-text);
-  background: none;
+  background: var(--dx-button-group-inactive-bg);
   border: none;
   cursor: pointer;
   transition:

@@ -19,5 +19,6 @@
 @import "./components/dialog/dialog.css" layer(components);
 @import "./components/popover/popover.css" layer(components);
 @import "./components/markdown-editor/markdown-editor.css" layer(components);
+@import "./components/buttonGroup/button-group.css" layer(components);
 @import "./components/tabs/tabs.css" layer(components);
 @import "./components/tooltip/tooltip.css" layer(components);

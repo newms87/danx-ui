@@ -29,7 +29,7 @@ export interface AutoColorEntry {
   inactiveBg: string;
   /** Light-mode inactive text (shade-400) */
   inactiveText: string;
-  /** Dark-mode inactive background (shade-950) */
+  /** Dark-mode inactive background (near-black tinted) */
   darkInactiveBg: string;
   /** Dark-mode inactive text (shade-500) */
   darkInactiveText: string;
@@ -49,7 +49,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#bae6fd",
     inactiveBg: "#f0f9ff",
     inactiveText: "#38bdf8",
-    darkInactiveBg: "#082f49",
+    darkInactiveBg: "#041a2b",
     darkInactiveText: "#0ea5e9",
   },
   // blue
@@ -60,7 +60,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#bfdbfe",
     inactiveBg: "#eff6ff",
     inactiveText: "#60a5fa",
-    darkInactiveBg: "#172554",
+    darkInactiveBg: "#0b1530",
     darkInactiveText: "#3b82f6",
   },
   // indigo
@@ -71,7 +71,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#c7d2fe",
     inactiveBg: "#eef2ff",
     inactiveText: "#818cf8",
-    darkInactiveBg: "#1e1b4b",
+    darkInactiveBg: "#0f0d28",
     darkInactiveText: "#6366f1",
   },
   // purple
@@ -82,7 +82,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#e9d5ff",
     inactiveBg: "#faf5ff",
     inactiveText: "#a78bfa",
-    darkInactiveBg: "#3b0764",
+    darkInactiveBg: "#1e0436",
     darkInactiveText: "#8b5cf6",
   },
   // violet
@@ -93,7 +93,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#ddd6fe",
     inactiveBg: "#f5f3ff",
     inactiveText: "#a78bfa",
-    darkInactiveBg: "#2e1065",
+    darkInactiveBg: "#170836",
     darkInactiveText: "#8b5cf6",
   },
   // fuchsia
@@ -104,7 +104,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#f5d0fe",
     inactiveBg: "#fdf4ff",
     inactiveText: "#e879f9",
-    darkInactiveBg: "#4a044e",
+    darkInactiveBg: "#260228",
     darkInactiveText: "#d946ef",
   },
   // rose
@@ -115,7 +115,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#fecdd3",
     inactiveBg: "#fff1f2",
     inactiveText: "#fb7185",
-    darkInactiveBg: "#4c0519",
+    darkInactiveBg: "#28030d",
     darkInactiveText: "#f43f5e",
   },
   // orange
@@ -126,7 +126,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#fed7aa",
     inactiveBg: "#fff7ed",
     inactiveText: "#fb923c",
-    darkInactiveBg: "#431407",
+    darkInactiveBg: "#220a04",
     darkInactiveText: "#f97316",
   },
   // amber
@@ -137,7 +137,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#fde68a",
     inactiveBg: "#fffbeb",
     inactiveText: "#fbbf24",
-    darkInactiveBg: "#451a03",
+    darkInactiveBg: "#230d02",
     darkInactiveText: "#f59e0b",
   },
   // lime
@@ -148,7 +148,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#d9f99d",
     inactiveBg: "#f7fee7",
     inactiveText: "#a3e635",
-    darkInactiveBg: "#1a2e05",
+    darkInactiveBg: "#0d1703",
     darkInactiveText: "#84cc16",
   },
   // green
@@ -159,7 +159,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#bbf7d0",
     inactiveBg: "#f0fdf4",
     inactiveText: "#4ade80",
-    darkInactiveBg: "#052e16",
+    darkInactiveBg: "#03170b",
     darkInactiveText: "#22c55e",
   },
   // emerald
@@ -170,7 +170,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#a7f3d0",
     inactiveBg: "#ecfdf5",
     inactiveText: "#34d399",
-    darkInactiveBg: "#022c22",
+    darkInactiveBg: "#011611",
     darkInactiveText: "#10b981",
   },
   // teal
@@ -181,7 +181,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#99f6e4",
     inactiveBg: "#f0fdfa",
     inactiveText: "#2dd4bf",
-    darkInactiveBg: "#042f2e",
+    darkInactiveBg: "#021817",
     darkInactiveText: "#14b8a6",
   },
   // cyan
@@ -192,7 +192,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
     darkText: "#a5f3fc",
     inactiveBg: "#ecfeff",
     inactiveText: "#22d3ee",
-    darkInactiveBg: "#083344",
+    darkInactiveBg: "#041a24",
     darkInactiveText: "#06b6d4",
   },
 ];

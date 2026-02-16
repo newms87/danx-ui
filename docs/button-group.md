@@ -25,7 +25,7 @@ import type { DanxButtonGroupItem } from "danx-ui";
 const selected = ref("overview");
 
 const buttons: DanxButtonGroupItem[] = [
-  { value: "overview", label: "Overview", icon: "list" },
+  { value: "overview", label: "Overview", icon: "document" },
   { value: "details", label: "Details", icon: "edit" },
   { value: "settings", label: "Settings" },
 ];
@@ -144,6 +144,7 @@ Pass a string to `autoColor` to use it as the hash key instead of each button's 
 | --dx-button-group-text-active  | --color-text-inverted  | Active text        |
 | --dx-button-group-text-hover   | --color-text           | Hover text         |
 | --dx-button-group-active-bg    | --color-interactive    | Active background  |
+| --dx-button-group-inactive-bg  | none                   | Inactive background|
 | --dx-button-group-divider      | --color-border         | Divider color      |
 
 ### Animation
