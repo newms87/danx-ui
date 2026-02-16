@@ -78,6 +78,9 @@
    ========================================================================== */
 
 .danx-tabs__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   width: var(--dx-tabs-icon-size);
   height: var(--dx-tabs-icon-size);
