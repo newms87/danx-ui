@@ -77,6 +77,7 @@ import {
   arrayLast,
   arrayJoin,
 } from "../../src/shared/arrayUtils";
+import { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "../../src/shared/autoColor";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
 /** Components available in compiled templates via the `components` option */
@@ -155,6 +156,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   fDuration,
   fTimeAgo,
   DateTime,
+  // Auto-color
+  useAutoColor,
+  hashStringToIndex,
+  AUTO_COLOR_PALETTE,
 };
 
 const DEBOUNCE_MS = 250;

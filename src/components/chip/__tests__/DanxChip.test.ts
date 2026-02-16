@@ -283,6 +283,70 @@ describe("DanxChip", () => {
     });
   });
 
+  describe("Auto color", () => {
+    it("applies inline auto-color style when autoColor=true with label", () => {
+      const wrapper = mount(DanxChip, {
+        props: { autoColor: true, label: "Pending" },
+      });
+
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-chip-bg");
+      expect(style).toContain("--dx-chip-text");
+    });
+
+    it("hashes custom key when autoColor is a string", () => {
+      const wrapperCustom = mount(DanxChip, {
+        props: { autoColor: "group-a", label: "Display Text" },
+      });
+      const wrapperLabel = mount(DanxChip, {
+        props: { autoColor: true, label: "group-a" },
+      });
+
+      // autoColor="group-a" should produce same style as autoColor=true with label="group-a"
+      expect(wrapperCustom.attributes("style")).toBe(wrapperLabel.attributes("style"));
+    });
+
+    it("same label always produces the same style", () => {
+      const a = mount(DanxChip, { props: { autoColor: true, label: "Approved" } });
+      const b = mount(DanxChip, { props: { autoColor: true, label: "Approved" } });
+
+      expect(a.attributes("style")).toBe(b.attributes("style"));
+    });
+
+    it("different labels produce different styles", () => {
+      const a = mount(DanxChip, { props: { autoColor: true, label: "Pending" } });
+      const b = mount(DanxChip, { props: { autoColor: true, label: "Rejected" } });
+
+      expect(a.attributes("style")).not.toBe(b.attributes("style"));
+    });
+
+    it("produces valid style with autoColor=true and no label (empty string hash)", () => {
+      const wrapper = mount(DanxChip, {
+        props: { autoColor: true },
+      });
+
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-chip-bg");
+      expect(style).toContain("--dx-chip-text");
+    });
+
+    it("does not apply inline auto-color style by default", () => {
+      const wrapper = mount(DanxChip, {
+        props: { label: "Tag" },
+      });
+
+      expect(wrapper.attributes("style")).toBeUndefined();
+    });
+
+    it("does not apply inline auto-color style when autoColor=false", () => {
+      const wrapper = mount(DanxChip, {
+        props: { autoColor: false, label: "Tag" },
+      });
+
+      expect(wrapper.attributes("style")).toBeUndefined();
+    });
+  });
+
   describe("CSS classes", () => {
     it("has base class danx-chip", () => {
       const wrapper = mount(DanxChip);

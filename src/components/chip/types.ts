@@ -54,6 +54,16 @@ export interface DanxChipProps {
   label?: string;
 
   /**
+   * Automatically assigns a deterministic color based on a hashed string.
+   * When `true`, hashes the `label` prop to pick a color from the 7-color palette.
+   * When a string, hashes that string instead (useful when display text differs
+   * from the grouping key). When falsy (default), no auto-color is applied.
+   * Overrides `type` colors when both are set (inline style wins over class).
+   * @default false
+   */
+  autoColor?: boolean | string;
+
+  /**
    * Shows a remove (X) button that emits the remove event when clicked.
    * @default false
    */

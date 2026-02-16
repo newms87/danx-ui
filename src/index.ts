@@ -93,6 +93,10 @@ export type {
 } from "./components/markdown-editor";
 export type { DanxTab, DanxTabsProps } from "./components/tabs";
 
+// Auto-color
+export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";
+export type { AutoColorEntry } from "./shared/autoColor";
+
 // Shared utilities
 export {
   // Number formatters

@@ -18,12 +18,13 @@
  * ## Props
  * | Prop      | Type       | Default | Description                           |
  * |-----------|------------|---------|---------------------------------------|
- * | type      | ChipType   | ""      | Semantic color type                   |
- * | size      | ChipSize   | "md"    | Chip size                             |
- * | icon      | Component | string | - | Icon (name, SVG, or component)  |
- * | label     | string     | -       | Text label (alternative to slot)      |
- * | removable | boolean    | false   | Shows remove (X) button               |
- * | tooltip   | string     | -       | Native title attribute                |
+ * | type      | ChipType        | ""      | Semantic color type                   |
+ * | size      | ChipSize        | "md"    | Chip size                             |
+ * | icon      | Component|string| -       | Icon (name, SVG, or component)        |
+ * | label     | string          | -       | Text label (alternative to slot)      |
+ * | autoColor | boolean|string  | false   | Hash label/key for deterministic color|
+ * | removable | boolean         | false   | Shows remove (X) button               |
+ * | tooltip   | string          | -       | Native title attribute                |
  *
  * ## Events
  * | Event  | Payload | Description                              |
@@ -91,12 +92,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useAutoColor } from "../../shared/autoColor";
 import { DanxIcon } from "../icon";
 import type { DanxChipEmits, DanxChipProps, DanxChipSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxChipProps>(), {
   type: "",
   size: "md",
+  autoColor: false,
   removable: false,
 });
 
@@ -109,13 +112,22 @@ const chipClasses = computed(() => [
   props.type ? `danx-chip--${props.type}` : null,
 ]);
 
+const autoColorKey = computed(() => {
+  if (!props.autoColor) return "";
+  return typeof props.autoColor === "string" ? props.autoColor : (props.label ?? "");
+});
+
+const { style: autoColorStyle } = useAutoColor(autoColorKey);
+
+const chipStyle = computed(() => (props.autoColor ? autoColorStyle.value : undefined));
+
 function handleRemove() {
   emit("remove");
 }
 </script>
 
 <template>
-  <span :class="chipClasses" :title="tooltip">
+  <span :class="chipClasses" :style="chipStyle" :title="tooltip">
     <!-- Icon (only rendered when icon prop or icon slot is provided) -->
     <span v-if="$slots.icon || icon" class="danx-chip__icon">
       <slot name="icon">

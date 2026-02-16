@@ -11,3 +11,4 @@ export * from "./formatters";
 export * from "./arrayUtils";
 export * from "./nestedJson";
 export * from "./hexColor";
+export * from "./autoColor";

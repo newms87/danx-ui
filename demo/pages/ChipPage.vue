@@ -16,6 +16,7 @@ import sizesCode from "./chip-examples/Sizes.vue?raw";
 import semanticTypesCode from "./chip-examples/SemanticTypes.vue?raw";
 import withIconsCode from "./chip-examples/WithIcons.vue?raw";
 import removableCode from "./chip-examples/Removable.vue?raw";
+import autoColorCode from "./chip-examples/AutoColor.vue?raw";
 </script>
 
 <template>
@@ -48,6 +49,12 @@ import removableCode from "./chip-examples/Removable.vue?raw";
       title="Removable"
       description="Chips with remove button. Click X to remove from the list."
       :code="removableCode"
+    />
+
+    <DemoSection
+      title="Auto Colors"
+      description="Deterministic colors from label text. Same label always gets the same color. Pass a string to autoColor to hash a custom key instead of the label."
+      :code="autoColorCode"
     />
   </DemoPage>
 </template>
