@@ -116,10 +116,13 @@ const chipClasses = computed(() => [
   effectiveType.value ? `danx-chip--${effectiveType.value}` : null,
 ]);
 
-const autoColorKey = computed(() => {
-  if (!props.autoColor) return "";
-  return typeof props.autoColor === "string" ? props.autoColor : (props.label ?? "");
-});
+const autoColorKey = computed(() =>
+  !props.autoColor
+    ? ""
+    : typeof props.autoColor === "string"
+      ? props.autoColor
+      : (props.label ?? "")
+);
 
 const { style: autoColorStyle } = useAutoColor(autoColorKey);
 
