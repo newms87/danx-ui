@@ -81,7 +81,7 @@ export function useAutoColor(value: MaybeRefOrGetter<string>) {
   const colorIndex = computed(() => hashStringToIndex(toValue(value), AUTO_COLOR_PALETTE.length));
 
   const style = computed<CSSProperties>(() => {
-    const entry = AUTO_COLOR_PALETTE[colorIndex.value];
+    const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
     const isDark =
       typeof document !== "undefined" && document.documentElement.classList.contains("dark");
 

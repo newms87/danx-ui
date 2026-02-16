@@ -111,7 +111,7 @@ describe("useAutoColor", () => {
 
   it("uses light-mode colors when dark class is absent", () => {
     const { style, colorIndex } = useAutoColor("Test");
-    const entry = AUTO_COLOR_PALETTE[colorIndex.value];
+    const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
     expect(style.value["--dx-chip-bg" as keyof typeof style.value]).toBe(entry.bg);
     expect(style.value["--dx-chip-text" as keyof typeof style.value]).toBe(entry.text);
   });
@@ -119,7 +119,7 @@ describe("useAutoColor", () => {
   it("uses dark-mode colors when dark class is present", () => {
     document.documentElement.classList.add("dark");
     const { style, colorIndex } = useAutoColor("Test");
-    const entry = AUTO_COLOR_PALETTE[colorIndex.value];
+    const entry = AUTO_COLOR_PALETTE[colorIndex.value]!;
     expect(style.value["--dx-chip-bg" as keyof typeof style.value]).toBe(entry.darkBg);
     expect(style.value["--dx-chip-text" as keyof typeof style.value]).toBe(entry.darkText);
   });

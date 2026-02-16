@@ -55,28 +55,28 @@ describe("findHexMatches", () => {
   it("finds 6-digit hex colors", () => {
     const matches = findHexMatches("color: #ff0000;");
     expect(matches).toHaveLength(1);
-    expect(matches[0].fullMatch).toBe("#ff0000");
-    expect(matches[0].index).toBe(7);
+    expect(matches[0]!.fullMatch).toBe("#ff0000");
+    expect(matches[0]!.index).toBe(7);
   });
 
   it("finds 3-digit hex colors", () => {
     const matches = findHexMatches("color: #f00;");
     expect(matches).toHaveLength(1);
-    expect(matches[0].fullMatch).toBe("#f00");
-    expect(matches[0].index).toBe(7);
+    expect(matches[0]!.fullMatch).toBe("#f00");
+    expect(matches[0]!.index).toBe(7);
   });
 
   it("finds multiple hex colors", () => {
     const matches = findHexMatches("#aaa and #bbccdd");
     expect(matches).toHaveLength(2);
-    expect(matches[0].fullMatch).toBe("#aaa");
-    expect(matches[1].fullMatch).toBe("#bbccdd");
+    expect(matches[0]!.fullMatch).toBe("#aaa");
+    expect(matches[1]!.fullMatch).toBe("#bbccdd");
   });
 
   it("returns correct indices for multiple matches", () => {
     const matches = findHexMatches("#abc #def");
-    expect(matches[0].index).toBe(0);
-    expect(matches[1].index).toBe(5);
+    expect(matches[0]!.index).toBe(0);
+    expect(matches[1]!.index).toBe(5);
   });
 
   it("rejects hex inside HTML entities", () => {
@@ -98,6 +98,6 @@ describe("findHexMatches", () => {
     findHexMatches("#aaa");
     const matches = findHexMatches("#bbb");
     expect(matches).toHaveLength(1);
-    expect(matches[0].fullMatch).toBe("#bbb");
+    expect(matches[0]!.fullMatch).toBe("#bbb");
   });
 });

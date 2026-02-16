@@ -1,5 +1,5 @@
 import { mount, type VueWrapper } from "@vue/test-utils";
-import { defineComponent, markRaw, ref } from "vue";
+import { defineComponent, markRaw } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DanxTooltip } from "../index";
 
