@@ -26,6 +26,23 @@ function unescapeHtml(html: string): string {
     .replace(/&amp;/g, "&");
 }
 
+/**
+ * Unescape YAML string escape sequences to get raw content.
+ * Double-quoted strings use JSON-compatible escapes (\", \\, \n, \t, etc.)
+ * Single-quoted strings only escape single quotes via doubling ('')
+ */
+function unescapeYamlString(content: string, isDoubleQuoted: boolean): string {
+  if (isDoubleQuoted) {
+    try {
+      return JSON.parse('"' + content + '"');
+    } catch {
+      return content;
+    }
+  }
+  // Single-quoted: only escape is '' → '
+  return content.replace(/''/g, "'");
+}
+
 /** Running counter for generating unique nested JSON IDs within a single YAML highlight pass */
 let yamlNestedJsonCounter = 0;
 
@@ -41,7 +58,9 @@ function highlightYAMLValue(value: string, nestedJsonOptions?: NestedJsonOptions
       // Extract inner content (strip HTML-escaped quotes and unescape entities)
       // Values are always HTML-escaped by the YAML highlighter before reaching this function,
       // so quotes are always &quot; or &#039;, never raw " or '
-      const inner = unescapeHtml(value.slice(6, -6));
+      const htmlUnescaped = unescapeHtml(value.slice(6, -6));
+      const isDoubleQuoted = value.startsWith("&quot;");
+      const inner = unescapeYamlString(htmlUnescaped, isDoubleQuoted);
 
       if (isNestedJson(inner)) {
         const parsed = parseNestedJson(inner)!;

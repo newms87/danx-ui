@@ -266,6 +266,32 @@ describe("highlightYAML", () => {
       expect(result).not.toContain('class="nested-json-parsed"');
     });
 
+    it("detects nested JSON in double-quoted string with backslash escapes", () => {
+      // YAML serializes: template_json: '{"meta":"value"}' as double-quoted with \" escapes
+      const yaml = 'template_json: "{\\"meta\\":\\"value\\"}"';
+      const result = highlightYAML(yaml, opts);
+      expect(result).toContain('class="nested-json"');
+      expect(result).toContain('class="nested-json-parsed"');
+    });
+
+    it("detects nested JSON in single-quoted string with escaped single quotes", () => {
+      // YAML single-quoted strings escape ' as ''
+      const yaml = "data: '{''key'':''value''}'";
+      const result = highlightYAML(yaml, opts);
+      // Single-quoted JSON with '' escapes won't be valid JSON after unescaping
+      // (single quotes aren't valid JSON), so this should NOT detect as nested JSON
+      expect(result).not.toContain('class="nested-json"');
+    });
+
+    it("falls back gracefully for double-quoted strings with invalid escape sequences", () => {
+      // \x is not a valid JSON escape — JSON.parse will fail, fallback returns content as-is
+      const yaml = 'data: "hello\\xworld"';
+      const result = highlightYAML(yaml, opts);
+      // Should render as a normal string, not crash
+      expect(result).toContain('class="syntax-string"');
+      expect(result).not.toContain('class="nested-json"');
+    });
+
     it("does not add nested-json markup when options omitted", () => {
       const yaml = 'data: {"a":1}';
       const result = highlightYAML(yaml);
