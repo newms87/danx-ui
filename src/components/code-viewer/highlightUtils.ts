@@ -19,7 +19,7 @@ export function applyHighlighting(
   content: string,
   format: CodeFormat
 ): string {
-  const highlighted = highlightSyntax(content, { format });
+  const highlighted = highlightSyntax(content, { format, colorSwatches: true });
   if (codeRef.value) {
     codeRef.value.innerHTML = highlighted;
   }
