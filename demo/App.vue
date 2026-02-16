@@ -7,6 +7,7 @@
  */
 import { ref, onMounted, watch } from "vue";
 import { RouterLink, RouterView } from "vue-router";
+import { version } from "../package.json";
 
 type Theme = "light" | "dark";
 
@@ -46,7 +47,7 @@ watch(theme, (newTheme) => {
     <nav class="demo-sidebar">
       <div class="demo-sidebar__header">
         <h1>danx-ui</h1>
-        <span class="demo-sidebar__version">v0.1.0</span>
+        <span class="demo-sidebar__version">v{{ version }}</span>
       </div>
 
       <ul class="demo-sidebar__nav">
