@@ -10,12 +10,13 @@
  * - Automatic loading state from action.isApplying or target.isSaving
  * - Optional confirmation dialog before triggering
  * - Success/error/always event callbacks
- * - Full DanxButton prop passthrough (type, size, icon, disabled, tooltip)
+ * - Full DanxButton prop passthrough (type, customType, size, icon, disabled, tooltip)
  *
  * ## Props
  * | Prop        | Type             | Default         | Description                          |
  * |-------------|------------------|-----------------|--------------------------------------|
  * | type        | ButtonType       | ""              | Semantic color type                  |
+ * | customType  | string           | ""              | App-defined type (overrides type)    |
  * | size        | ButtonSize       | "md"            | Button size                          |
  * | icon        | Component|string | -               | Icon (name, SVG string, or component)|
  * | disabled    | boolean          | false           | Disables the button                  |
@@ -70,6 +71,7 @@ import type { DanxActionButtonEmits, DanxActionButtonProps } from "./action-type
 
 const props = withDefaults(defineProps<DanxActionButtonProps>(), {
   type: "",
+  customType: "",
   size: "md",
   disabled: false,
   confirm: false,
@@ -122,6 +124,7 @@ function handleConfirm() {
   <DanxButton
     v-bind="$attrs"
     :type="type"
+    :custom-type="customType"
     :size="size"
     :icon="icon"
     :disabled="disabled"

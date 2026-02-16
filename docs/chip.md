@@ -145,6 +145,28 @@ Per type (`danger`, `success`, `warning`, `info`, `muted`):
 }
 ```
 
+## Custom Types
+
+Use `customType` to define app-specific semantic types beyond the built-in set. When set, it generates the same BEM modifier class as `type` (e.g., `customType="restart"` produces `.danx-chip--restart`).
+
+```vue
+<DanxChip customType="restart">Restarting</DanxChip>
+```
+
+Define the matching CSS tokens in your app:
+
+```css
+.danx-chip--restart {
+  --dx-chip-restart-bg: oklch(0.85 0.1 50);
+  --dx-chip-restart-text: oklch(0.3 0.1 50);
+
+  background: var(--dx-chip-restart-bg);
+  color: var(--dx-chip-restart-text);
+}
+```
+
+When both `type` and `customType` are set, `customType` takes precedence.
+
 ## Accessibility
 
 - Chips use `<span>` elements (not buttons) since they are labels, not controls

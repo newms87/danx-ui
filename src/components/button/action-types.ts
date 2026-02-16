@@ -37,7 +37,7 @@ export interface ResourceAction<T extends ActionTargetItem = ActionTargetItem> {
 
 export interface DanxActionButtonProps extends Pick<
   DanxButtonProps,
-  "type" | "size" | "icon" | "disabled" | "tooltip" | "label"
+  "type" | "customType" | "size" | "icon" | "disabled" | "tooltip" | "label"
 > {
   /** Action object to trigger on click */
   action?: ResourceAction;

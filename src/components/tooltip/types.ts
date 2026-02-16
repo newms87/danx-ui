@@ -30,6 +30,15 @@ export interface DanxTooltipProps {
   type?: TooltipType;
 
   /**
+   * App-defined semantic type. Generates the same BEM modifier class as `type`
+   * (e.g., `customType="restart"` → `.danx-tooltip--restart`) but accepts any string.
+   * The app must define the matching CSS tokens and modifier rules.
+   * When set, takes precedence over `type` for class generation.
+   * @default ""
+   */
+  customType?: string;
+
+  /**
    * Icon displayed at the top-left of the panel content.
    * Accepts a built-in icon name, raw SVG string, or Vue component.
    * When omitted, no icon area is rendered.

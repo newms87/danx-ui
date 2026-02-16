@@ -35,6 +35,23 @@ describe("DanxActionButton", () => {
       expect(wrapper.find("button").classes()).toContain("danx-button--danger");
     });
 
+    it("passes through customType prop", () => {
+      const wrapper = mount(DanxActionButton, {
+        props: { customType: "restart" },
+      });
+
+      expect(wrapper.find("button").classes()).toContain("danx-button--restart");
+    });
+
+    it("customType takes precedence over type in DanxButton", () => {
+      const wrapper = mount(DanxActionButton, {
+        props: { type: "danger", customType: "restart" },
+      });
+
+      expect(wrapper.find("button").classes()).toContain("danx-button--restart");
+      expect(wrapper.find("button").classes()).not.toContain("danx-button--danger");
+    });
+
     it("passes through size prop", () => {
       const wrapper = mount(DanxActionButton, {
         props: { size: "lg" },

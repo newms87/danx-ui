@@ -347,6 +347,34 @@ describe("DanxChip", () => {
     });
   });
 
+  describe("Custom type", () => {
+    it("adds the correct BEM modifier class for customType", () => {
+      const wrapper = mount(DanxChip, {
+        props: { customType: "restart" },
+      });
+
+      expect(wrapper.classes()).toContain("danx-chip--restart");
+    });
+
+    it("customType takes precedence over type", () => {
+      const wrapper = mount(DanxChip, {
+        props: { type: "danger", customType: "restart" },
+      });
+
+      expect(wrapper.classes()).toContain("danx-chip--restart");
+      expect(wrapper.classes()).not.toContain("danx-chip--danger");
+    });
+
+    it("no modifier class when neither type nor customType is set", () => {
+      const wrapper = mount(DanxChip);
+
+      const modifierClasses = wrapper
+        .classes()
+        .filter((c) => c.startsWith("danx-chip--") && c !== "danx-chip--md");
+      expect(modifierClasses).toHaveLength(0);
+    });
+  });
+
   describe("CSS classes", () => {
     it("has base class danx-chip", () => {
       const wrapper = mount(DanxChip);

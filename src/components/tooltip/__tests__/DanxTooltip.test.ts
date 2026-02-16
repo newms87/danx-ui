@@ -440,6 +440,43 @@ describe("DanxTooltip", () => {
   });
 
   // ==========================================================================
+  // Custom Type
+  // ==========================================================================
+
+  describe("custom type", () => {
+    it("adds the correct BEM modifier class for customType", async () => {
+      mountTooltip({ customType: "restart" });
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip");
+      expect(panel?.classList.contains("danx-tooltip--restart")).toBe(true);
+    });
+
+    it("customType takes precedence over type", async () => {
+      mountTooltip({ type: "danger", customType: "restart" });
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip");
+      expect(panel?.classList.contains("danx-tooltip--restart")).toBe(true);
+      expect(panel?.classList.contains("danx-tooltip--danger")).toBe(false);
+    });
+
+    it("no modifier class when neither type nor customType is set", async () => {
+      mountTooltip({ type: "" });
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip");
+      const modifierClasses = Array.from(panel?.classList ?? []).filter((c) =>
+        c.startsWith("danx-tooltip--")
+      );
+      expect(modifierClasses).toHaveLength(0);
+    });
+  });
+
+  // ==========================================================================
   // Placement
   // ==========================================================================
 

@@ -144,3 +144,27 @@ Override tokens on a parent or wrapper element:
   --dx-tooltip-max-width: 30rem;
 }
 ```
+
+## Custom Types
+
+Use `customType` to define app-specific semantic types beyond the built-in set. When set, it generates the same BEM modifier class as `type` (e.g., `customType="restart"` produces `.danx-tooltip--restart`).
+
+```vue
+<DanxTooltip customType="restart" tooltip="Server will restart">
+  <template #trigger><button>Restart</button></template>
+</DanxTooltip>
+```
+
+Define the matching CSS tokens in your app:
+
+```css
+.danx-tooltip--restart {
+  --dx-tooltip-restart-bg: oklch(0.85 0.1 50);
+  --dx-tooltip-restart-text: oklch(0.3 0.1 50);
+
+  background: var(--dx-tooltip-restart-bg);
+  color: var(--dx-tooltip-restart-text);
+}
+```
+
+When both `type` and `customType` are set, `customType` takes precedence.

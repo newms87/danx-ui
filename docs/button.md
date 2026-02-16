@@ -215,6 +215,33 @@ const type: ButtonType = 'success';
 const size: ButtonSize = 'md';
 ```
 
+## Custom Types
+
+Use `customType` to define app-specific semantic types beyond the built-in set. When set, it generates the same BEM modifier class as `type` (e.g., `customType="restart"` produces `.danx-button--restart`).
+
+```vue
+<DanxButton customType="restart" icon="refresh">Restart</DanxButton>
+```
+
+Define the matching CSS tokens in your app:
+
+```css
+.danx-button--restart {
+  --dx-button-restart-bg: oklch(0.7 0.15 50);
+  --dx-button-restart-bg-hover: oklch(0.65 0.15 50);
+  --dx-button-restart-text: white;
+
+  background: var(--dx-button-restart-bg);
+  color: var(--dx-button-restart-text);
+
+  &:hover:not(:disabled) {
+    background: var(--dx-button-restart-bg-hover);
+  }
+}
+```
+
+When both `type` and `customType` are set, `customType` takes precedence.
+
 ## Accessibility
 
 - Uses native `<button>` element

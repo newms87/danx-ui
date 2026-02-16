@@ -321,6 +321,34 @@ describe("DanxButton", () => {
     });
   });
 
+  describe("Custom type", () => {
+    it("adds the correct BEM modifier class for customType", () => {
+      const wrapper = mount(DanxButton, {
+        props: { customType: "restart" },
+      });
+
+      expect(wrapper.classes()).toContain("danx-button--restart");
+    });
+
+    it("customType takes precedence over type", () => {
+      const wrapper = mount(DanxButton, {
+        props: { type: "danger", customType: "restart" },
+      });
+
+      expect(wrapper.classes()).toContain("danx-button--restart");
+      expect(wrapper.classes()).not.toContain("danx-button--danger");
+    });
+
+    it("no modifier class when neither type nor customType is set", () => {
+      const wrapper = mount(DanxButton);
+
+      const modifierClasses = wrapper
+        .classes()
+        .filter((c) => c.startsWith("danx-button--") && c !== "danx-button--md");
+      expect(modifierClasses).toHaveLength(0);
+    });
+  });
+
   describe("CSS classes", () => {
     it("has base class danx-button", () => {
       const wrapper = mount(DanxButton);

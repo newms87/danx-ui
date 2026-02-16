@@ -18,7 +18,8 @@
  * ## Props
  * | Prop      | Type       | Default | Description                           |
  * |-----------|------------|---------|---------------------------------------|
- * | type      | ChipType        | ""      | Semantic color type                   |
+ * | type       | ChipType        | ""      | Semantic color type                   |
+ * | customType | string          | ""      | App-defined type (overrides type)     |
  * | size      | ChipSize        | "md"    | Chip size                             |
  * | icon      | Component|string| -       | Icon (name, SVG, or component)        |
  * | label     | string          | -       | Text label (alternative to slot)      |
@@ -98,6 +99,7 @@ import type { DanxChipEmits, DanxChipProps, DanxChipSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxChipProps>(), {
   type: "",
+  customType: "",
   size: "md",
   autoColor: false,
   removable: false,
@@ -106,10 +108,12 @@ const props = withDefaults(defineProps<DanxChipProps>(), {
 const emit = defineEmits<DanxChipEmits>();
 defineSlots<DanxChipSlots>();
 
+const effectiveType = computed(() => props.customType || props.type);
+
 const chipClasses = computed(() => [
   "danx-chip",
   `danx-chip--${props.size}`,
-  props.type ? `danx-chip--${props.type}` : null,
+  effectiveType.value ? `danx-chip--${effectiveType.value}` : null,
 ]);
 
 const autoColorKey = computed(() => {

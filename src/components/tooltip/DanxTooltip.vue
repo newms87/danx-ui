@@ -9,6 +9,7 @@
  *
  * @props
  *   type?: TooltipType - Semantic color type for the panel (default: "")
+ *   customType?: string - App-defined type, overrides type for class generation (default: "")
  *   icon?: Component | IconName | string - Panel icon at top-left
  *   triggerIcon?: Component | IconName | string - Shortcut to render DanxIcon as trigger
  *   target?: string | HTMLElement - External trigger element (ID or ref)
@@ -64,6 +65,7 @@ import { useTooltipInteraction } from "./useTooltipInteraction";
 
 const props = withDefaults(defineProps<DanxTooltipProps>(), {
   type: "",
+  customType: "",
   placement: "top",
   interaction: "hover",
   disabled: false,
@@ -117,11 +119,13 @@ const { style: panelStyle } = usePopoverPositioning(
   isOpen
 );
 
+const effectiveType = computed(() => props.customType || props.type);
+
 /** CSS classes for the panel element */
 const panelClasses = computed(() => {
   const classes = ["danx-tooltip"];
-  if (props.type) {
-    classes.push(`danx-tooltip--${props.type}`);
+  if (effectiveType.value) {
+    classes.push(`danx-tooltip--${effectiveType.value}`);
   }
   return classes;
 });

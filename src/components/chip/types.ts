@@ -33,6 +33,15 @@ export interface DanxChipProps {
   type?: ChipType;
 
   /**
+   * App-defined semantic type. Generates the same BEM modifier class as `type`
+   * (e.g., `customType="restart"` → `.danx-chip--restart`) but accepts any string.
+   * The app must define the matching CSS tokens and modifier rules.
+   * When set, takes precedence over `type` for class generation.
+   * @default ""
+   */
+  customType?: string;
+
+  /**
    * Chip size affecting padding, icon size, and font size.
    * @default "md"
    */

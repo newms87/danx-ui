@@ -17,7 +17,8 @@
  * ## Props
  * | Prop     | Type        | Default  | Description                           |
  * |----------|-------------|----------|---------------------------------------|
- * | type     | ButtonType  | ""       | Semantic color type (blank = no bg)   |
+ * | type       | ButtonType  | ""       | Semantic color type (blank = no bg)   |
+ * | customType | string      | ""       | App-defined type (overrides type)     |
  * | size     | ButtonSize  | "md"     | Button size                           |
  * | icon     | Component | string | - | Icon (name, SVG string, or component) |
  * | disabled | boolean     | false    | Disables the button                   |
@@ -104,6 +105,7 @@ import type { DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types"
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
   type: "",
+  customType: "",
   size: "md",
   disabled: false,
   loading: false,
@@ -112,10 +114,12 @@ const props = withDefaults(defineProps<DanxButtonProps>(), {
 const emit = defineEmits<DanxButtonEmits>();
 defineSlots<DanxButtonSlots>();
 
+const effectiveType = computed(() => props.customType || props.type);
+
 const buttonClasses = computed(() => [
   "danx-button",
   `danx-button--${props.size}`,
-  props.type ? `danx-button--${props.type}` : null,
+  effectiveType.value ? `danx-button--${effectiveType.value}` : null,
   {
     "danx-button--loading": props.loading,
   },
