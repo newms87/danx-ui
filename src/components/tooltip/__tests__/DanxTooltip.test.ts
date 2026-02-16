@@ -54,13 +54,25 @@ describe("DanxTooltip", () => {
       expect(wrapper.find(".danx-icon").exists()).toBe(true);
     });
 
-    it("renders no inline trigger when target prop is used", () => {
+    it("renders no inline trigger when targetId prop is used", () => {
       const targetEl = document.createElement("div");
       targetEl.id = "tooltip-target";
       document.body.appendChild(targetEl);
 
       wrapper = mount(DanxTooltip, {
-        props: { tooltip: "Test", target: "tooltip-target" },
+        props: { tooltip: "Test", targetId: "tooltip-target" },
+        attachTo: document.body,
+      });
+      expect(wrapper.find(".danx-tooltip-trigger").exists()).toBe(false);
+      targetEl.remove();
+    });
+
+    it("renders no inline trigger when target prop is used", () => {
+      const targetEl = document.createElement("div");
+      document.body.appendChild(targetEl);
+
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "Test", target: targetEl },
         attachTo: document.body,
       });
       expect(wrapper.find(".danx-tooltip-trigger").exists()).toBe(false);
@@ -127,8 +139,19 @@ describe("DanxTooltip", () => {
       expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
     });
 
-    it("hides panel after 200ms delay on mouseleave", async () => {
+    it("hides panel immediately on mouseleave by default (non-enterable)", async () => {
       mountTooltip();
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
+
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseleave");
+      await vi.runAllTimersAsync();
+      expect(document.body.querySelector(".danx-tooltip")).toBeNull();
+    });
+
+    it("hides panel after 200ms delay on mouseleave when enterable", async () => {
+      mountTooltip({ enterable: true });
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
       expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
@@ -141,8 +164,8 @@ describe("DanxTooltip", () => {
       expect(document.body.querySelector(".danx-tooltip")).toBeNull();
     });
 
-    it("keeps panel open when mouse moves from trigger to panel", async () => {
-      mountTooltip();
+    it("keeps panel open when mouse moves from trigger to panel (enterable)", async () => {
+      mountTooltip({ enterable: true });
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
 
@@ -157,8 +180,24 @@ describe("DanxTooltip", () => {
       expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
     });
 
-    it("hides panel on mouseleave of panel", async () => {
+    it("does not keep panel open on panel mouseenter when non-enterable", async () => {
       mountTooltip();
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip")!;
+      // Panel mouseenter should be a no-op when non-enterable
+      panel.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      // Panel mouseleave should also be a no-op
+      panel.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+      await vi.runAllTimersAsync();
+
+      // Panel should still be open (panel hover handlers are no-ops)
+      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
+    });
+
+    it("hides panel on mouseleave of panel when enterable", async () => {
+      mountTooltip({ enterable: true });
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
 
@@ -177,8 +216,8 @@ describe("DanxTooltip", () => {
       expect(document.body.querySelector(".danx-tooltip")).toBeNull();
     });
 
-    it("stays open on rapid re-entry before delay elapses", async () => {
-      mountTooltip();
+    it("stays open on rapid re-entry before delay elapses (enterable)", async () => {
+      mountTooltip({ enterable: true });
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
       expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
@@ -300,14 +339,14 @@ describe("DanxTooltip", () => {
   // Target Prop
   // ==========================================================================
 
-  describe("target prop", () => {
+  describe("targetId prop", () => {
     it("binds to external element by ID string", async () => {
       const targetEl = document.createElement("button");
       targetEl.id = "ext-trigger";
       document.body.appendChild(targetEl);
 
       wrapper = mount(DanxTooltip, {
-        props: { tooltip: "External", target: "ext-trigger" },
+        props: { tooltip: "External", targetId: "ext-trigger" },
         attachTo: document.body,
       });
 
@@ -320,29 +359,13 @@ describe("DanxTooltip", () => {
       targetEl.remove();
     });
 
-    it("binds to HTMLElement ref", async () => {
-      const targetEl = document.createElement("button");
-      document.body.appendChild(targetEl);
-
-      wrapper = mount(DanxTooltip, {
-        props: { tooltip: "Ref target", target: targetEl },
-        attachTo: document.body,
-      });
-
-      targetEl.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
-      await vi.runAllTimersAsync();
-
-      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
-      targetEl.remove();
-    });
-
     it("cleans up listeners on unmount", async () => {
       const targetEl = document.createElement("button");
       targetEl.id = "cleanup-target";
       document.body.appendChild(targetEl);
 
       wrapper = mount(DanxTooltip, {
-        props: { tooltip: "Cleanup", target: "cleanup-target" },
+        props: { tooltip: "Cleanup", targetId: "cleanup-target" },
         attachTo: document.body,
       });
 
@@ -362,7 +385,7 @@ describe("DanxTooltip", () => {
       document.body.appendChild(targetEl);
 
       wrapper = mount(DanxTooltip, {
-        props: { tooltip: "Disabled", target: "disabled-target", disabled: true },
+        props: { tooltip: "Disabled", targetId: "disabled-target", disabled: true },
         attachTo: document.body,
       });
 
@@ -370,6 +393,85 @@ describe("DanxTooltip", () => {
       await vi.runAllTimersAsync();
 
       expect(document.body.querySelector(".danx-tooltip")).toBeNull();
+      targetEl.remove();
+    });
+
+    it("closes immediately on mouseleave when non-enterable (default)", async () => {
+      const targetEl = document.createElement("button");
+      targetEl.id = "non-enterable-target";
+      document.body.appendChild(targetEl);
+
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "Non-enterable", targetId: "non-enterable-target" },
+        attachTo: document.body,
+      });
+
+      targetEl.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await vi.runAllTimersAsync();
+      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
+
+      targetEl.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+      await vi.runAllTimersAsync();
+      expect(document.body.querySelector(".danx-tooltip")).toBeNull();
+
+      targetEl.remove();
+    });
+
+    it("uses delayed close on mouseleave when enterable", async () => {
+      const targetEl = document.createElement("button");
+      targetEl.id = "enterable-target";
+      document.body.appendChild(targetEl);
+
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "Enterable", targetId: "enterable-target", enterable: true },
+        attachTo: document.body,
+      });
+
+      targetEl.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await vi.runAllTimersAsync();
+      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
+
+      targetEl.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+      // Not hidden yet — delay hasn't elapsed
+      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
+
+      await vi.advanceTimersByTimeAsync(200);
+      expect(document.body.querySelector(".danx-tooltip")).toBeNull();
+
+      targetEl.remove();
+    });
+
+    it("handles nonexistent targetId gracefully", async () => {
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "Ghost", targetId: "does-not-exist" },
+        attachTo: document.body,
+      });
+
+      // No inline trigger should render
+      expect(wrapper.find(".danx-tooltip-trigger").exists()).toBe(false);
+      // No tooltip should be open
+      expect(document.body.querySelector(".danx-tooltip")).toBeNull();
+    });
+  });
+
+  // ==========================================================================
+  // Target Prop (HTMLElement)
+  // ==========================================================================
+
+  describe("target prop", () => {
+    it("binds to HTMLElement ref", async () => {
+      const targetEl = document.createElement("button");
+      document.body.appendChild(targetEl);
+
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "Ref target", target: targetEl },
+        attachTo: document.body,
+      });
+
+      targetEl.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await vi.runAllTimersAsync();
+
+      expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
       targetEl.remove();
     });
   });
@@ -542,7 +644,7 @@ describe("DanxTooltip", () => {
       document.body.appendChild(targetEl);
 
       wrapper = mount(DanxTooltip, {
-        props: { tooltip: "Click me", target: "click-target", interaction: "click" },
+        props: { tooltip: "Click me", targetId: "click-target", interaction: "click" },
         attachTo: document.body,
       });
 
@@ -569,7 +671,7 @@ describe("DanxTooltip", () => {
       document.body.appendChild(targetEl);
 
       wrapper = mount(DanxTooltip, {
-        props: { tooltip: "Focus me", target: "focus-target", interaction: "focus" },
+        props: { tooltip: "Focus me", targetId: "focus-target", interaction: "focus" },
         attachTo: document.body,
       });
 

@@ -29,9 +29,9 @@
      Global Tooltip Tokens
      ========================================================================== */
 
-  --dx-tooltip-bg: var(--color-surface-elevated);
+  --dx-tooltip-bg: var(--color-blue-50);
   --dx-tooltip-text: var(--color-text);
-  --dx-tooltip-border: var(--color-border);
+  --dx-tooltip-border: var(--color-blue-200);
   --dx-tooltip-border-radius: 0.375rem;
   --dx-tooltip-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
   --dx-tooltip-padding-x: var(--spacing-3);
@@ -77,4 +77,11 @@
 
   --dx-tooltip-muted-bg: var(--color-surface-sunken);
   --dx-tooltip-muted-text: var(--color-text-muted);
+}
+
+.dark {
+  --dx-tooltip-bg: var(--color-blue-900);
+  --dx-tooltip-text: var(--color-slate-100);
+  --dx-tooltip-border: var(--color-blue-400);
+  --dx-tooltip-shadow: 0 2px 12px rgb(59 130 246 / 0.2);
 }

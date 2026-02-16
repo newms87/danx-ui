@@ -5,8 +5,9 @@
  * inline and external trigger binding strategies. Returns isOpen state,
  * inline event handlers for template binding, and panel hover handlers.
  *
- * For hover mode, uses a 200ms close delay to allow users to move
- * their mouse from the trigger into the tooltip panel for interaction.
+ * For hover mode with enterable=true, uses a 200ms close delay to allow
+ * users to move their mouse into the tooltip panel. When enterable=false
+ * (default), mouseleave closes immediately.
  *
  * For click mode, integrates useClickOutside to close on outside clicks.
  *
@@ -24,6 +25,7 @@ const HOVER_DELAY = 200;
 
 export interface UseTooltipInteractionOptions {
   interaction: Ref<TooltipInteraction>;
+  enterable: Ref<boolean>;
   disabled: Ref<boolean>;
   resolvedTrigger: Ref<HTMLElement | null>;
   panelRef: Ref<HTMLElement | null>;
@@ -44,7 +46,8 @@ export interface UseTooltipInteractionReturn {
 export function useTooltipInteraction(
   options: UseTooltipInteractionOptions
 ): UseTooltipInteractionReturn {
-  const { interaction, disabled, resolvedTrigger, panelRef, hasExternalTarget } = options;
+  const { interaction, enterable, disabled, resolvedTrigger, panelRef, hasExternalTarget } =
+    options;
   const isOpen = ref(false);
 
   // --- Hover interaction ---
@@ -69,13 +72,13 @@ export function useTooltipInteraction(
   }
 
   function onPanelMouseenter() {
-    if (interaction.value === "hover") {
+    if (interaction.value === "hover" && enterable.value) {
       clearTimeout(hoverTimeout);
     }
   }
 
   function onPanelMouseleave() {
-    if (interaction.value === "hover") {
+    if (interaction.value === "hover" && enterable.value) {
       hideTooltipImmediate();
     }
   }
@@ -111,7 +114,13 @@ export function useTooltipInteraction(
   }
 
   function onInlineMouseleave() {
-    if (interaction.value === "hover") hideTooltipDelayed();
+    if (interaction.value === "hover") {
+      if (enterable.value) {
+        hideTooltipDelayed();
+      } else {
+        hideTooltipImmediate();
+      }
+    }
   }
 
   function onInlineClick() {
@@ -129,13 +138,22 @@ export function useTooltipInteraction(
   // --- External target event binding (imperative) ---
   let boundTarget: HTMLElement | null = null;
 
+  /** Single mouseleave handler for external targets — reads enterable at call time */
+  function onTargetMouseleave() {
+    if (enterable.value) {
+      hideTooltipDelayed();
+    } else {
+      hideTooltipImmediate();
+    }
+  }
+
   function bindTargetListeners(el: HTMLElement) {
     unbindTargetListeners();
     boundTarget = el;
 
     if (interaction.value === "hover") {
       el.addEventListener("mouseenter", showTooltip);
-      el.addEventListener("mouseleave", hideTooltipDelayed);
+      el.addEventListener("mouseleave", onTargetMouseleave);
     } else if (interaction.value === "click") {
       el.addEventListener("click", onTriggerClick);
     } else if (interaction.value === "focus") {
@@ -147,7 +165,7 @@ export function useTooltipInteraction(
   function unbindTargetListeners() {
     if (!boundTarget) return;
     boundTarget.removeEventListener("mouseenter", showTooltip);
-    boundTarget.removeEventListener("mouseleave", hideTooltipDelayed);
+    boundTarget.removeEventListener("mouseleave", onTargetMouseleave);
     boundTarget.removeEventListener("click", onTriggerClick);
     boundTarget.removeEventListener("focusin", onTriggerFocusin);
     boundTarget.removeEventListener("focusout", onTriggerFocusout);
@@ -166,6 +184,8 @@ export function useTooltipInteraction(
     { immediate: true }
   );
 
+  // Bind after mount — resolvedTrigger may be null during setup when using
+  // targetId (getElementById needs the DOM to be rendered first)
   onMounted(() => {
     if (hasExternalTarget.value) {
       const el = resolvedTrigger.value;

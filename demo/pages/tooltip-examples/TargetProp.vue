@@ -10,6 +10,6 @@ import { DanxTooltip } from "danx-ui";
     >
       External target
     </button>
-    <DanxTooltip target="external-target" tooltip="Anchored to the button via target prop" />
+    <DanxTooltip targetId="external-target" tooltip="Anchored to the button via target prop" />
   </div>
 </template>

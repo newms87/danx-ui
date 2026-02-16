@@ -52,11 +52,19 @@ export interface DanxTooltipProps {
   triggerIcon?: Component | IconName | string;
 
   /**
-   * External trigger element. When set, the tooltip renders no inline
-   * trigger — it only renders the floating panel anchored to this element.
-   * Accepts an ID string (looked up via document.getElementById) or an HTMLElement.
+   * External trigger element by ID string. When set, the tooltip renders no
+   * inline trigger — it only renders the floating panel anchored to this element.
+   * The element is looked up via document.getElementById after mount, so the
+   * target element does not need to exist at initial render time.
    */
-  target?: string | HTMLElement;
+  targetId?: string;
+
+  /**
+   * External trigger element as an HTMLElement reference. When set, the tooltip
+   * renders no inline trigger — it only renders the floating panel anchored to
+   * this element.
+   */
+  target?: HTMLElement;
 
   /**
    * Simple text content for the panel. Alternative to the default slot.
@@ -79,6 +87,15 @@ export interface DanxTooltipProps {
    * @default "hover"
    */
   interaction?: TooltipInteraction;
+
+  /**
+   * Whether the user can move their cursor into the tooltip panel without
+   * it closing. When false (default), mouseleave from the trigger closes
+   * the tooltip immediately. When true, there is a 200ms delay allowing
+   * the cursor to enter the panel.
+   * @default false
+   */
+  enterable?: boolean;
 
   /**
    * Prevents the tooltip from showing when true.

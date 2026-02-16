@@ -12,10 +12,12 @@
  *   customType?: string - App-defined type, overrides type for class generation (default: "")
  *   icon?: Component | IconName | string - Panel icon at top-left
  *   triggerIcon?: Component | IconName | string - Shortcut to render DanxIcon as trigger
- *   target?: string | HTMLElement - External trigger element (ID or ref)
+ *   targetId?: string - External trigger element by ID (looked up after mount)
+ *   target?: HTMLElement - External trigger element as HTMLElement reference
  *   tooltip?: string - Simple text content (alternative to default slot)
  *   placement?: PopoverPlacement - Panel placement direction (default: "top")
  *   interaction?: TooltipInteraction - Trigger interaction mode (default: "hover")
+ *   enterable?: boolean - Whether cursor can enter the tooltip panel (default: false)
  *   disabled?: boolean - Prevents tooltip from showing (default: false)
  *
  * @slots
@@ -50,14 +52,14 @@
  *   <DanxTooltip triggerIcon="info" type="info" tooltip="Helpful information" />
  *
  * @example
- *   <DanxTooltip target="my-element-id" placement="bottom">
+ *   <DanxTooltip targetId="my-element-id" placement="bottom">
  *     <p>Rich tooltip content</p>
  *   </DanxTooltip>
  */
 -->
 
 <script setup lang="ts">
-import { computed, ref, toRef, useSlots } from "vue";
+import { computed, onMounted, ref, toRef, useSlots, watch } from "vue";
 import { DanxIcon } from "../icon";
 import { usePopoverPositioning } from "../popover/usePopoverPositioning";
 import type { DanxTooltipProps, DanxTooltipSlots } from "./types";
@@ -68,6 +70,7 @@ const props = withDefaults(defineProps<DanxTooltipProps>(), {
   customType: "",
   placement: "top",
   interaction: "hover",
+  enterable: false,
   disabled: false,
 });
 
@@ -80,19 +83,28 @@ const slots = useSlots();
 const triggerRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 
-/** Resolve the actual trigger element from target prop, triggerRef, or nothing */
-const resolvedTrigger = computed<HTMLElement | null>(() => {
-  if (props.target) {
-    if (typeof props.target === "string") {
-      return document.getElementById(props.target);
-    }
-    return props.target;
+/**
+ * Resolve the actual trigger element. Uses a ref (not computed) so that
+ * targetId string lookups via getElementById happen after DOM renders.
+ */
+const resolvedTrigger = ref<HTMLElement | null>(null);
+
+function updateResolvedTrigger() {
+  if (props.targetId) {
+    resolvedTrigger.value = document.getElementById(props.targetId);
+  } else if (props.target) {
+    resolvedTrigger.value = props.target;
+  } else {
+    resolvedTrigger.value = triggerRef.value;
   }
-  return triggerRef.value;
-});
+}
+
+// Re-resolve when targetId, target, or triggerRef changes
+watch([() => props.targetId, () => props.target, triggerRef], updateResolvedTrigger);
+onMounted(updateResolvedTrigger);
 
 /** Whether the component renders an inline trigger element */
-const hasInlineTrigger = computed(() => !props.target);
+const hasInlineTrigger = computed(() => !props.target && !props.targetId);
 
 const {
   isOpen,
@@ -105,10 +117,11 @@ const {
   onPanelMouseleave,
 } = useTooltipInteraction({
   interaction: toRef(props, "interaction"),
+  enterable: toRef(props, "enterable"),
   disabled: toRef(props, "disabled"),
   resolvedTrigger,
   panelRef,
-  hasExternalTarget: computed(() => !!props.target),
+  hasExternalTarget: computed(() => !!props.target || !!props.targetId),
 });
 
 const placementRef = toRef(props, "placement");
@@ -153,24 +166,26 @@ const hasPanelIcon = computed(() => !!props.icon);
 
   <!-- Floating panel -->
   <Teleport to="body">
-    <div
-      v-if="isOpen && !disabled"
-      ref="panelRef"
-      :class="panelClasses"
-      :style="panelStyle"
-      v-bind="$attrs"
-      @mouseenter="onPanelMouseenter"
-      @mouseleave="onPanelMouseleave"
-    >
-      <span v-if="hasPanelIcon" class="danx-tooltip__icon">
-        <DanxIcon :icon="icon!" />
-      </span>
-      <div v-if="hasPanelIcon || slots.default" class="danx-tooltip__content">
-        <slot>{{ tooltip }}</slot>
+    <Transition name="danx-tooltip-fade">
+      <div
+        v-if="isOpen && !disabled"
+        ref="panelRef"
+        :class="panelClasses"
+        :style="panelStyle"
+        v-bind="$attrs"
+        @mouseenter="onPanelMouseenter"
+        @mouseleave="onPanelMouseleave"
+      >
+        <span v-if="hasPanelIcon" class="danx-tooltip__icon">
+          <DanxIcon :icon="icon!" />
+        </span>
+        <div v-if="hasPanelIcon || slots.default" class="danx-tooltip__content">
+          <slot>{{ tooltip }}</slot>
+        </div>
+        <template v-else>
+          <slot>{{ tooltip }}</slot>
+        </template>
       </div>
-      <template v-else>
-        <slot>{{ tooltip }}</slot>
-      </template>
-    </div>
+    </Transition>
   </Teleport>
 </template>

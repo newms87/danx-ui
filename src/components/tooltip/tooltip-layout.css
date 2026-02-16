@@ -34,40 +34,34 @@
   box-shadow: var(--dx-tooltip-shadow);
   font-size: var(--dx-tooltip-font-size);
 
-  /* Animation */
-  opacity: 1;
-  transform: translateY(0);
+  .danx-tooltip__icon {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    --dx-icon-size: var(--dx-tooltip-icon-size);
+  }
+
+  .danx-tooltip__content {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* ==========================================================================
+   Fade Transition (enter + leave)
+   ========================================================================== */
+
+.danx-tooltip-fade-enter-active,
+.danx-tooltip-fade-leave-active {
   transition:
     opacity var(--dx-tooltip-animation-duration) var(--ease-out),
     transform var(--dx-tooltip-animation-duration) var(--ease-out);
 }
 
-/* Entry animation */
-@starting-style {
-  .danx-tooltip {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-}
-
-/* ==========================================================================
-   Panel Icon
-   ========================================================================== */
-
-.danx-tooltip__icon {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  --dx-icon-size: var(--dx-tooltip-icon-size);
-}
-
-/* ==========================================================================
-   Panel Content
-   ========================================================================== */
-
-.danx-tooltip__content {
-  flex: 1;
-  min-width: 0;
+.danx-tooltip-fade-enter-from,
+.danx-tooltip-fade-leave-to {
+  opacity: 0;
+  transform: translateY(2px);
 }
 
 /* ==========================================================================
