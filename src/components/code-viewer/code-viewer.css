@@ -171,8 +171,6 @@
 
   /* Inline Annotations */
   .dx-annotation {
-    display: block;
-    position: relative;
     border-left: 3px solid transparent;
     padding-left: 4px;
     margin-left: -7px;

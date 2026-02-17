@@ -88,13 +88,12 @@ describe("mapAnnotationsToLines", () => {
       expect(result.size).toBe(1);
     });
 
-    it("handles key handler depth trimming with nested arrays", () => {
-      // Malformed JSON: missing closing braces forces key handler to pop stack
-      // and trim isArrayStack. Exercises lines 112-117.
+    it("does not match sibling keys as nested paths in malformed JSON", () => {
+      // Malformed JSON: "b" is at root indent (sibling of "a"), not a child of "a"
       const json = '{\n  "a": [\n    "x": {\n      "y": 1\n  "b": 2\n}';
       const result = mapAnnotationsToLines(json, "json", [ann("a.b")]);
-      // Stack depth management finds "b" under "a" after popping nested entries
-      expect(result.size).toBe(1);
+      // "b" is at indent 2 (depth 1), not inside "a" — should not match "a.b"
+      expect(result.size).toBe(0);
     });
 
     it("exercises closing brace and bracket code paths", () => {

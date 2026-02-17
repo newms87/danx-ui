@@ -274,6 +274,8 @@ watch(
           @input="editor.onContentEditableInput"
           @blur="editor.onContentEditableBlur"
           @keydown="editor.onKeyDown"
+          @mouseover="annotationTooltip.onCodeMouseOver"
+          @mouseout="annotationTooltip.onCodeMouseOut"
         ></pre>
 
         <!-- Annotation tooltip (independent of v-if chain above) -->

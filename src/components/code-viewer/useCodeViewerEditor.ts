@@ -147,6 +147,25 @@ export function useCodeViewerEditor(
     return displayContent.value?.length || 0;
   });
 
+  /**
+   * Apply syntax highlighting + inline annotations to the contenteditable codeRef.
+   * Used when the editor is in edit mode but the user isn't actively typing.
+   */
+  function applyHighlightingWithAnnotations(content: string, format: CodeFormat): string {
+    let html = applyHighlighting(codeRef, content, format);
+    const annotationList = annotations?.value;
+    if (annotationList?.length && (format === "json" || format === "yaml")) {
+      const lineMap = mapAnnotationsToLines(content, format, annotationList);
+      if (lineMap.size > 0) {
+        html = annotateHighlightedLines(html, lineMap);
+        if (codeRef.value) {
+          codeRef.value.innerHTML = html;
+        }
+      }
+    }
+    return html;
+  }
+
   function syncEditableFromProp(value: boolean): void {
     internalEditable.value = value;
   }
@@ -161,8 +180,7 @@ export function useCodeViewerEditor(
     if (isEditing.value) {
       editingContent.value = codeFormat.formattedContent.value;
       nextTick(() => {
-        cachedHighlightedContent.value = applyHighlighting(
-          codeRef,
+        cachedHighlightedContent.value = applyHighlightingWithAnnotations(
           editingContent.value,
           currentFormat.value
         );
@@ -206,7 +224,7 @@ export function useCodeViewerEditor(
       validationError.value = null;
       lastEmittedValue = undefined;
       nextTick(() => {
-        applyHighlighting(codeRef, editingContent.value, currentFormat.value);
+        applyHighlightingWithAnnotations(editingContent.value, currentFormat.value);
         if (codeRef.value) {
           codeRef.value.focus();
           const selection = window.getSelection();
@@ -242,7 +260,7 @@ export function useCodeViewerEditor(
     validationError.value = codeFormat.validateWithError(editingContent.value, currentFormat.value);
 
     emitCurrentValue();
-    applyHighlighting(codeRef, editingContent.value, currentFormat.value);
+    applyHighlightingWithAnnotations(editingContent.value, currentFormat.value);
   }
 
   const { onKeyDown } = createKeyboardHandlers({
@@ -263,7 +281,7 @@ export function useCodeViewerEditor(
   if (isEditing.value) {
     editingContent.value = codeFormat.formattedContent.value;
     nextTick(() => {
-      applyHighlighting(codeRef, editingContent.value, currentFormat.value);
+      applyHighlightingWithAnnotations(editingContent.value, currentFormat.value);
     });
   }
 
