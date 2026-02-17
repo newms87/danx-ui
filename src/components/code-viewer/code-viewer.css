@@ -169,9 +169,11 @@
     display: inline;
   }
 
-  /* Inline Annotations */
+  /* Inline Annotations — each span wraps all lines of a single annotation */
   .dx-annotation {
+    display: inline-block;
     border-left: 3px solid transparent;
+    border-radius: 3px;
     padding-left: 4px;
     margin-left: -7px;
   }
@@ -193,18 +195,6 @@
 
   .dx-annotation:hover {
     filter: brightness(1.2);
-  }
-
-  .dx-annotation-start {
-    border-radius: 3px 3px 0 0;
-  }
-
-  .dx-annotation-end {
-    border-radius: 0 0 3px 3px;
-  }
-
-  .dx-annotation-start.dx-annotation-end {
-    border-radius: 3px;
   }
 
   /* Annotation Tooltip */

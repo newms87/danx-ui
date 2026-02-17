@@ -11,12 +11,8 @@ import type { CodeAnnotation } from "./types";
 /**
  * Wraps annotated lines in the highlighted HTML with annotation markup.
  *
- * The highlighted HTML preserves newline boundaries (one \n per source line).
- * Lines covered by annotations get wrapped in a <span> with:
- * - Class: dx-annotation dx-annotation--{type}
- * - Data attributes: data-annotation-msg for tooltip text
- * - dx-annotation-start on the first line of a multi-line range
- * - dx-annotation-end on the last line of a multi-line range
+ * Consecutive annotated lines are merged into a single <span> so the background
+ * and left border render as one continuous block with no gaps between lines.
  */
 export function annotateHighlightedLines(
   html: string,
@@ -25,28 +21,51 @@ export function annotateHighlightedLines(
   if (!lineAnnotations.size) return html;
 
   const lines = html.split("\n");
-  const annotatedLines = lines.map((line, idx) => {
+  const result: string[] = [];
+  let groupLines: string[] = [];
+  let groupAnnotations: CodeAnnotation[] = [];
+
+  function flushGroup(): void {
+    if (!groupLines.length) return;
+
+    const type = groupAnnotations[0]!.type || "error";
+    const message = escapeAttr(groupAnnotations.map((a) => a.message).join("\n"));
+    const content = groupLines.join("\n");
+
+    result.push(
+      `<span class="dx-annotation dx-annotation--${type}" data-annotation-msg="${message}">${content}</span>`
+    );
+    groupLines = [];
+    groupAnnotations = [];
+  }
+
+  for (let idx = 0; idx < lines.length; idx++) {
     const annotations = lineAnnotations.get(idx);
-    if (!annotations?.length) return line;
 
-    // Use the first annotation's type for styling (multiple annotations on same line use first)
-    const annotation = annotations[0]!;
-    const type = annotation.type || "error";
-    const message = escapeAttr(annotations.map((a) => a.message).join("\n"));
+    if (!annotations?.length) {
+      flushGroup();
+      result.push(lines[idx]!);
+      continue;
+    }
 
-    // Determine if this is start/end of a multi-line range
-    const classes = [`dx-annotation`, `dx-annotation--${type}`];
+    // Check if this line continues the same annotation group
+    const sameGroup =
+      groupLines.length > 0 &&
+      groupAnnotations.length === annotations.length &&
+      groupAnnotations.every((a, i) => a === annotations[i]);
 
-    const hasPrev = lineAnnotations.has(idx - 1);
-    const hasNext = lineAnnotations.has(idx + 1);
+    if (sameGroup) {
+      groupLines.push(lines[idx]!);
+    } else {
+      // Different annotation — flush previous group first
+      flushGroup();
+      groupAnnotations = annotations;
+      groupLines.push(lines[idx]!);
+    }
+  }
 
-    if (!hasPrev) classes.push("dx-annotation-start");
-    if (!hasNext) classes.push("dx-annotation-end");
-
-    return `<span class="${classes.join(" ")}" data-annotation-msg="${message}">${line}</span>`;
-  });
-
-  return annotatedLines.join("\n");
+  flushGroup();
+  return result.join("\n");
 }
 
 /**
