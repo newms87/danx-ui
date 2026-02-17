@@ -203,6 +203,16 @@ export function useCodeViewerEditor(
     onEmitModelValue(parsed ?? content);
   }
 
+  /** Post-highlight hook: applies annotation markup to the codeRef innerHTML */
+  function applyAnnotationsToCodeRef(content: string, format: CodeFormat): void {
+    const annotationList = annotations?.value;
+    if (!annotationList?.length || (format !== "json" && format !== "yaml")) return;
+    const lineMap = mapAnnotationsToLines(content, format, annotationList);
+    if (lineMap.size > 0 && codeRef.value) {
+      codeRef.value.innerHTML = annotateHighlightedLines(codeRef.value.innerHTML, lineMap);
+    }
+  }
+
   const { debouncedEmit, debouncedValidate, debouncedHighlight, clearAllTimeouts } =
     createDebouncedOperations({
       codeRef,
@@ -213,6 +223,7 @@ export function useCodeViewerEditor(
       validateWithError: codeFormat.validateWithError,
       emitCurrentValue,
       debounceMs,
+      postHighlight: applyAnnotationsToCodeRef,
     });
 
   function toggleEdit(): void {

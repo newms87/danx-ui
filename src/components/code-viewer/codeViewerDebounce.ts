@@ -20,6 +20,8 @@ export interface DebounceDeps {
   validateWithError: (content: string, format: CodeFormat) => ValidationError | null;
   emitCurrentValue: () => void;
   debounceMs: number;
+  /** Optional post-highlight hook to apply annotations after syntax highlighting */
+  postHighlight?: (content: string, format: CodeFormat) => void;
 }
 
 export interface DebounceReturn {
@@ -40,6 +42,7 @@ export function createDebouncedOperations(deps: DebounceDeps): DebounceReturn {
     validateWithError,
     emitCurrentValue,
     debounceMs,
+    postHighlight,
   } = deps;
 
   let validationTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -96,6 +99,7 @@ export function createDebouncedOperations(deps: DebounceDeps): DebounceReturn {
 
       const cursorOffset = getCursorOffset(codeRef.value);
       applyHighlighting(codeRef, editingContent.value, currentFormat.value);
+      postHighlight?.(editingContent.value, currentFormat.value);
       setCursorOffset(codeRef.value, cursorOffset);
 
       if (hasFocus && document.activeElement !== codeRef.value) {
