@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import * as yaml from "yaml";
-import { useCodeFormat } from "../useCodeFormat";
+import { quoteYamlHashValues, useCodeFormat } from "../useCodeFormat";
 
 vi.mock("yaml", async () => {
   const actual = await vi.importActual<typeof yaml>("yaml");
@@ -8,6 +8,63 @@ vi.mock("yaml", async () => {
     ...actual,
     stringify: vi.fn(actual.stringify),
   };
+});
+
+describe("quoteYamlHashValues", () => {
+  it("quotes a simple hex color value", () => {
+    expect(quoteYamlHashValues("color: #ff00f3")).toBe('color: "#ff00f3"');
+  });
+
+  it("quotes a value with embedded hash", () => {
+    expect(quoteYamlHashValues("bg: red #ff0000")).toBe('bg: "red #ff0000"');
+  });
+
+  it("leaves already double-quoted values untouched", () => {
+    expect(quoteYamlHashValues('color: "#ff00f3"')).toBe('color: "#ff00f3"');
+  });
+
+  it("leaves already single-quoted values untouched", () => {
+    expect(quoteYamlHashValues("color: '#ff00f3'")).toBe("color: '#ff00f3'");
+  });
+
+  it("leaves comment-only lines untouched", () => {
+    expect(quoteYamlHashValues("# this is a comment")).toBe("# this is a comment");
+  });
+
+  it("leaves indented comment lines untouched", () => {
+    expect(quoteYamlHashValues("  # indented comment")).toBe("  # indented comment");
+  });
+
+  it("leaves blank lines untouched", () => {
+    expect(quoteYamlHashValues("")).toBe("");
+    expect(quoteYamlHashValues("   ")).toBe("   ");
+  });
+
+  it("handles indented YAML lines", () => {
+    expect(quoteYamlHashValues("  nested_color: #abc")).toBe('  nested_color: "#abc"');
+  });
+
+  it("leaves values without hash untouched", () => {
+    expect(quoteYamlHashValues("name: hello")).toBe("name: hello");
+  });
+
+  it("handles multiple lines", () => {
+    const input = "name: test\ncolor: #fff\n# comment\nbg: blue";
+    const expected = 'name: test\ncolor: "#fff"\n# comment\nbg: blue';
+    expect(quoteYamlHashValues(input)).toBe(expected);
+  });
+
+  it("escapes existing double quotes in values", () => {
+    expect(quoteYamlHashValues('label: say "hi" #tag')).toBe('label: "say \\"hi\\" #tag"');
+  });
+
+  it("escapes existing backslashes in values", () => {
+    expect(quoteYamlHashValues("path: C:\\dir #note")).toBe('path: "C:\\\\dir #note"');
+  });
+
+  it("leaves lines without key-value structure untouched", () => {
+    expect(quoteYamlHashValues("- #item")).toBe("- #item");
+  });
 });
 
 describe("useCodeFormat", () => {
@@ -292,6 +349,50 @@ describe("useCodeFormat", () => {
       const cf = useCodeFormat({ initialFormat: "json", initialValue: { a: 1 } });
       cf.setValue(null);
       expect(cf.rawContent.value).toBe("");
+    });
+  });
+
+  describe("noYamlComments option", () => {
+    it("parses YAML hex color values when noYamlComments is true", () => {
+      const cf = useCodeFormat({ noYamlComments: true });
+      const result = cf.parse("color: #ff00f3");
+      expect(result).toEqual({ color: "#ff00f3" });
+    });
+
+    it("loses hex color values when noYamlComments is false (default)", () => {
+      const cf = useCodeFormat();
+      const result = cf.parse("color: #ff00f3");
+      // Without quoting, YAML treats #ff00f3 as a comment → value is null
+      expect(result).toEqual({ color: null });
+    });
+
+    it("validates YAML with hex colors when noYamlComments is true", () => {
+      const cf = useCodeFormat({ noYamlComments: true });
+      expect(cf.validate("color: #ff00f3", "yaml")).toBe(true);
+    });
+
+    it("validateWithError returns null for hex colors when noYamlComments is true", () => {
+      const cf = useCodeFormat({ noYamlComments: true });
+      expect(cf.validateWithError("color: #ff00f3", "yaml")).toBeNull();
+    });
+
+    it("does not affect JSON parsing", () => {
+      const cf = useCodeFormat({ noYamlComments: true });
+      expect(cf.parse('{"color":"#ff00f3"}')).toEqual({ color: "#ff00f3" });
+    });
+
+    it("does not affect JSON validation", () => {
+      const cf = useCodeFormat({ noYamlComments: true });
+      expect(cf.validate("{bad", "json")).toBe(false);
+    });
+
+    it("initializes with hex color value correctly", () => {
+      const cf = useCodeFormat({
+        noYamlComments: true,
+        initialFormat: "yaml",
+        initialValue: { color: "#ff00f3" },
+      });
+      expect(cf.parsedValue.value).toEqual({ color: "#ff00f3" });
     });
   });
 

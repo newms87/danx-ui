@@ -82,6 +82,8 @@ export interface DanxCodeViewerProps {
   valid?: boolean;
   /** Inline annotations to highlight property paths with hover messages. */
   annotations?: CodeAnnotation[];
+  /** When true, auto-quotes unquoted YAML values containing # to prevent them being parsed as comments. Useful for CSS hex colors. */
+  noYamlComments?: boolean;
 }
 
 /**

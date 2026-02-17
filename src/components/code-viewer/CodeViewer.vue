@@ -90,6 +90,7 @@ const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
   hideFooter: false,
   debounceMs: 300,
   annotations: () => [],
+  noYamlComments: false,
 });
 
 const emit = defineEmits<DanxCodeViewerEmits>();
@@ -101,6 +102,7 @@ const annotationTooltip = useAnnotationTooltip();
 const codeFormat = useCodeFormat({
   initialFormat: props.format,
   initialValue: props.modelValue,
+  noYamlComments: props.noYamlComments,
 });
 
 const currentFormat = ref<CodeFormat>(props.format);

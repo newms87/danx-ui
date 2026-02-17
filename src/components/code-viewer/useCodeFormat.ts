@@ -15,6 +15,8 @@ import type { CodeFormat, ValidationError } from "./types";
 export interface UseCodeFormatOptions {
   initialFormat?: CodeFormat;
   initialValue?: object | string | null;
+  /** When true, auto-quotes unquoted YAML values containing # to prevent them being parsed as comments. */
+  noYamlComments?: boolean;
 }
 
 export interface UseCodeFormatReturn {
@@ -64,12 +66,45 @@ function parseMarkdownJSON(str: string): object | false {
 }
 
 /** Try to parse a string as YAML (stripping markdown fences first). Returns false on failure. */
-function parseMarkdownYAML(str: string): object | undefined | false {
+function parseMarkdownYAML(str: string, noComments = false): object | undefined | false {
   try {
-    return parseYAML(stripMarkdownCodeFence(str)) || undefined;
+    const cleaned = stripMarkdownCodeFence(str);
+    return parseYAML(noComments ? quoteYamlHashValues(cleaned) : cleaned) || undefined;
   } catch {
     return false;
   }
+}
+
+/**
+ * Wraps unquoted YAML values containing # in double quotes to prevent
+ * the YAML parser from treating hex colors (e.g. #ff00f3) as comments.
+ * Leaves already-quoted values, comment-only lines, and blank lines untouched.
+ */
+export function quoteYamlHashValues(str: string): string {
+  return str
+    .split("\n")
+    .map((line) => {
+      // Skip blank lines and comment-only lines (leading whitespace + #)
+      if (!line.trim() || /^\s*#/.test(line)) return line;
+
+      // Match a YAML key-value line: optional indent, key, colon, space, then value
+      const match = line.match(/^(\s*[\w][^:]*:\s)(.+)$/);
+      if (!match) return line;
+
+      const [, prefix, value] = match;
+      const trimmed = value.trim();
+
+      // Skip if value is already quoted (single or double)
+      if (/^["'].*["']$/.test(trimmed)) return line;
+
+      // Skip if no # present in the value
+      if (!trimmed.includes("#")) return line;
+
+      // Wrap the value in double quotes, escaping any existing double quotes
+      const escaped = trimmed.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+      return `${prefix}"${escaped}"`;
+    })
+    .join("\n");
 }
 
 function isStringFormat(fmt: CodeFormat): boolean {
@@ -79,6 +114,7 @@ function isStringFormat(fmt: CodeFormat): boolean {
 export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormatReturn {
   const format = ref<CodeFormat>(options.initialFormat ?? "yaml");
   const rawContent = ref("");
+  const noComments = options.noYamlComments ?? false;
 
   /** Parse any string (JSON or YAML) to object */
   function parseContent(content: string): object | null {
@@ -89,7 +125,7 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
       return jsonResult;
     }
 
-    const yamlResult = parseMarkdownYAML(content);
+    const yamlResult = parseMarkdownYAML(content, noComments);
     if (typeof yamlResult === "object" && yamlResult !== null && yamlResult !== undefined) {
       return yamlResult;
     }
@@ -132,7 +168,7 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
       if (targetFormat === "json") {
         JSON.parse(content);
       } else {
-        parseYAML(content);
+        parseYAML(noComments ? quoteYamlHashValues(content) : content);
       }
       return true;
     } catch {
@@ -152,7 +188,7 @@ export function useCodeFormat(options: UseCodeFormatOptions = {}): UseCodeFormat
       if (targetFormat === "json") {
         JSON.parse(content);
       } else {
-        parseYAML(content);
+        parseYAML(noComments ? quoteYamlHashValues(content) : content);
       }
       return null;
     } catch (e: unknown) {

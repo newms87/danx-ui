@@ -8,7 +8,7 @@
 
 export { default as CodeViewer } from "./CodeViewer.vue";
 
-export { useCodeFormat } from "./useCodeFormat";
+export { quoteYamlHashValues, useCodeFormat } from "./useCodeFormat";
 export type { UseCodeFormatOptions, UseCodeFormatReturn } from "./useCodeFormat";
 
 export { useCodeViewerEditor } from "./useCodeViewerEditor";
