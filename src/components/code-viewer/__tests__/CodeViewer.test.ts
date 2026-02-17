@@ -56,6 +56,15 @@ describe("CodeViewer", () => {
       // Clicking should not error — the handler delegates to nested JSON toggle
       await pre.trigger("click");
     });
+
+    it("handles mouseover and mouseout on readonly code content", async () => {
+      const wrapper = mountCodeViewer({ format: "json", modelValue: { a: 1 } });
+      const pre = wrapper.find("pre.code-content");
+      expect(pre.exists()).toBe(true);
+      // Trigger mouseover/mouseout — exercises the annotation tooltip handlers
+      await pre.trigger("mouseover");
+      await pre.trigger("mouseout");
+    });
   });
 
   describe("footer", () => {
@@ -79,6 +88,14 @@ describe("CodeViewer", () => {
       const wrapper = mountCodeViewer({ format: "markdown", modelValue: "# Hello" });
       const footer = wrapper.findComponent({ name: "CodeViewerFooter" });
       expect(footer.props("canEdit")).toBe(false);
+    });
+
+    it("passes footer-actions slot to CodeViewerFooter", () => {
+      const wrapper = mount(CodeViewer, {
+        props: { modelValue: { a: 1 }, format: "json" },
+        slots: { "footer-actions": "<button>Custom</button>" },
+      });
+      expect(wrapper.find("button").text()).toBe("Custom");
     });
   });
 

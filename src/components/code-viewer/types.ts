@@ -25,6 +25,19 @@ export type CodeFormat =
   | "vue";
 
 /**
+ * An inline annotation that highlights a property path in the code viewer
+ * and shows a message on hover. Used for validation errors, warnings, etc.
+ */
+export interface CodeAnnotation {
+  /** Dot-notation property path (e.g. "styles.body", "document[5].type") */
+  path: string;
+  /** Tooltip text shown on hover */
+  message: string;
+  /** Visual style — defaults to "error" */
+  type?: "error" | "warning" | "info";
+}
+
+/**
  * Validation error returned when content fails format-specific validation.
  * Only applicable to json and yaml formats.
  */
@@ -67,6 +80,8 @@ export interface DanxCodeViewerProps {
   debounceMs?: number;
   /** Current validation state via v-model:valid. True when content is valid for the current format. */
   valid?: boolean;
+  /** Inline annotations to highlight property paths with hover messages. */
+  annotations?: CodeAnnotation[];
 }
 
 /**

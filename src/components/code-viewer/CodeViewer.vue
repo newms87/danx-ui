@@ -30,6 +30,7 @@
  * | theme             | "dark"/"light"         | "dark"   | Color theme                                |
  * | hideFooter        | boolean                | false    | Hide the footer bar                        |
  * | debounceMs        | number                 | 300      | Debounce delay (ms) for v-model emit while editing (0 = immediate) |
+ * | annotations       | CodeAnnotation[]       | []       | Inline annotations highlighting property paths with hover messages |
  *
  * ## Events
  * - update:modelValue — edited value (object or string)
@@ -37,6 +38,9 @@
  * - update:editable — edit mode toggled
  * - exit — user pressed Ctrl+Enter to exit
  * - delete — user pressed Backspace/Delete on empty content
+ *
+ * ## Slots
+ * - footer-actions — Custom actions inserted into the footer bar (next to the edit button)
  *
  * ## Usage Examples
  *
@@ -69,6 +73,7 @@ import { DanxIcon } from "../icon";
 import LanguageBadge from "./LanguageBadge.vue";
 import MarkdownContent from "./MarkdownContent.vue";
 import type { CodeFormat, DanxCodeViewerEmits, DanxCodeViewerProps } from "./types";
+import { useAnnotationTooltip } from "./useAnnotationTooltip";
 import { useCodeFormat } from "./useCodeFormat";
 import { useCodeViewerCollapse } from "./useCodeViewerCollapse";
 import { useCodeViewerEditor } from "./useCodeViewerEditor";
@@ -84,11 +89,14 @@ const props = withDefaults(defineProps<DanxCodeViewerProps>(), {
   theme: "dark",
   hideFooter: false,
   debounceMs: 300,
+  annotations: () => [],
 });
 
 const emit = defineEmits<DanxCodeViewerEmits>();
 
 const valid = defineModel<boolean>("valid", { default: true });
+
+const annotationTooltip = useAnnotationTooltip();
 
 const codeFormat = useCodeFormat({
   initialFormat: props.format,
@@ -128,6 +136,7 @@ const editor = useCodeViewerEditor({
   onExit: () => emit("exit"),
   onDelete: () => emit("delete"),
   onOpenLanguageSearch: () => (languageSearchOpen.value = true),
+  annotations: toRef(props, "annotations"),
 });
 
 watch(currentFormat, (newFormat) => {
@@ -242,6 +251,8 @@ watch(
           class="code-content dx-scrollbar flex-1 min-h-0"
           :class="{ 'is-collapsible': collapsible }"
           @click="editor.onNestedJsonClick"
+          @mouseover="annotationTooltip.onCodeMouseOver"
+          @mouseout="annotationTooltip.onCodeMouseOut"
         ><code :class="'language-' + currentFormat" v-html="editor.highlightedContent.value"></code></pre>
 
         <!-- Markdown display - rendered HTML -->
@@ -265,6 +276,16 @@ watch(
           @keydown="editor.onKeyDown"
         ></pre>
 
+        <!-- Annotation tooltip (independent of v-if chain above) -->
+        <div
+          v-if="annotationTooltip.tooltipVisible.value"
+          class="dx-code-annotation-tooltip"
+          :class="'dx-code-annotation-tooltip--' + annotationTooltip.tooltipType.value"
+          :style="annotationTooltip.tooltipStyle.value"
+        >
+          {{ annotationTooltip.tooltipMessage.value }}
+        </div>
+
         <!-- Footer with char count and edit toggle -->
         <CodeViewerFooter
           v-if="!hideFooter"
@@ -273,7 +294,11 @@ watch(
           :can-edit="canEdit && currentFormat !== 'markdown'"
           :is-editing="editor.isEditing.value"
           @toggle-edit="editor.toggleEdit"
-        />
+        >
+          <template v-if="$slots['footer-actions']" #actions>
+            <slot name="footer-actions" />
+          </template>
+        </CodeViewerFooter>
       </div>
     </template>
   </div>

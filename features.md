@@ -60,7 +60,7 @@ specialized fields. Nine primitives replace the 28 field types in quasar-ui-danx
 | DanxFieldWrapper | BUILD | LabeledInput | Label, error, description, required indicator. Wraps ANY input. |
 | DanxInput | BUILD | TextField, NumberField, IntegerField | One component with `type` prop (text, number, password, email, search). Min/max/step for numbers. |
 | DanxTextarea | BUILD | (none existed) | Multi-line text. Separate because the DOM element is fundamentally different from input. |
-| DanxSelect | BUILD | SelectField, SelectWithChildrenField, SelectOrCreateField | Searchable, single/multi via props. Slots for custom option rendering and footer actions. |
+| DanxSelect | BUILD | SelectField, SelectWithChildrenField, SelectOrCreateField, Combobox | Searchable, single/multi via props. `allowCustom` prop enables combobox behavior (free-text input). Slots for custom option rendering and footer actions. |
 | DanxCheckbox | BUILD | BooleanField (partial) | Standard checkbox with label. |
 | DanxSwitch | BUILD | BooleanField (partial) | Toggle switch. Visually distinct from checkbox. |
 | DanxRadioGroup | BUILD | (none existed) | Single-select from visible options. |
@@ -226,26 +226,29 @@ for a credible v1.0 public release.
 | Component | Status | Notes |
 |-----------|--------|-------|
 | DanxTagInput | NEW | Add/remove tags with autocomplete. Uses DanxChip for display. |
-| DanxCombobox | NEW | Select with free-text input (select or type custom value). |
 | DanxColorPicker | NEW | Color selection with swatch palette and hex input. |
+
+**Design note:** Combobox (select with free-text) is handled by DanxSelect via
+an `allowCustom` prop. No separate component needed.
 
 #### 2.2 Data Display
 
 | Component | Status | Notes |
 |-----------|--------|-------|
+| DanxTable | NEW | Simple styled table for static data. Not DataTable — no sorting/actions, just rows and columns with consistent styling and tokens. |
 | DanxCard | NEW | Content container with header, body, footer slots |
 | DanxAvatar | NEW | User/entity image with fallback initials |
-| DanxKeyValue | BUILD | Label-value display pair (replaces LabelValueFormat) |
 | DanxProgressBar | NEW | Determinate/indeterminate progress |
 | DanxSkeleton | NEW | Loading placeholder matching content shape |
 | DanxEmptyState | NEW | Illustrated placeholder for no-data scenarios |
-| DanxLabelPill | BUILD | Status pill with color (replaces LabelPillWidget) |
+| MarkdownContent | BUILD | Lightweight render-only markdown display. Uses existing shared renderer, no editing UI. Distinct from MarkdownEditor which is a full editor. |
 
 #### 2.3 Feedback
 
 | Component | Status | Notes |
 |-----------|--------|-------|
 | DanxLoadingOverlay | NEW | Semi-transparent overlay with spinner |
+| DanxPopconfirm | NEW | Confirmation popover attached to a trigger. Lightweight alternative to a full confirm dialog for inline destructive actions. |
 
 #### 2.4 Navigation
 
@@ -254,22 +257,17 @@ for a credible v1.0 public release.
 | DanxBreadcrumbs | NEW | Path-based navigation trail |
 | DanxStepper | NEW | Multi-step workflow indicator |
 
-#### 2.5 Accessibility
+#### 2.5 Form Validation
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Focus trap | NEW | Trap focus inside modal dialogs |
-| ARIA live regions | NEW | Announce dynamic content changes to screen readers |
-| Keyboard nav audit | NEW | Standardize keyboard support across all components |
+| useFormValidation | NEW | Declarative validation rules (required, min, max, pattern, custom). Produces error state consumed by DanxFieldWrapper. |
 
-#### 2.6 Theming
+#### 2.6 Accessibility
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Three-tier tokens | DONE | Primitive, semantic, component tokens |
-| Dark mode | DONE | Via `.dark` class on semantic layer |
-| Theme presets | NEW | Pre-built color palettes |
-| Token reference docs | NEW | Complete documentation of all CSS tokens |
+| Focus trap | NEW | Trap focus inside DanxDialog. Should be a Tier 1 requirement but listed here if not already baked in. |
 
 ---
 
@@ -283,7 +281,6 @@ Post-v1.0 enhancements built based on user demand.
 |---------|--------|-------|
 | CodeViewer | DONE | Already shipped |
 | MarkdownEditor | DONE | Already shipped |
-| MarkdownContent | BUILD | Render-only markdown display (renderer already in shared utils) |
 | ImageCropper | NEW | Crop/resize images before upload |
 
 #### 3.2 Advanced Data
@@ -315,6 +312,12 @@ Post-v1.0 enhancements built based on user demand.
 |---------|--------|-------|
 | SSR support | NEW | Ensure all components work with Nuxt |
 | Figma tokens | NEW | Export CSS tokens to Figma variables |
+
+#### 3.6 Accessibility (Extended)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| ARIA live regions | NEW | Announce dynamic content to screen readers |
 
 ---
 
@@ -469,12 +472,20 @@ Layer 4: Toolkit UI (@danx/toolkit)
   ColumnSettings, ActionMenu
   AuditHistoryItem
 
-Layer 5: Standard & Nice-to-Have (danx-ui, post-MVP)
-  TagInput, Combobox, ColorPicker
-  Card, Avatar, Skeleton, EmptyState
-  Breadcrumbs, Stepper, LoadingOverlay
-  VirtualScroll, TreeView
-  Charts, SSR, accessibility hardening
+Layer 5: Standard (danx-ui, Tier 2)
+  Form: TagInput, ColorPicker, useFormValidation
+  Data display: DanxTable, Card, Avatar, ProgressBar, Skeleton, EmptyState
+  Content: MarkdownContent
+  Feedback: LoadingOverlay, Popconfirm
+  Navigation: Breadcrumbs, Stepper
+  Accessibility: Focus trap
+
+Layer 6: Nice-to-Have (danx-ui, Tier 3)
+  VirtualScroll, TreeView, InfiniteScroll
+  ResizablePanels, CommandPalette, useHotkeys
+  Sparkline, StatCard
+  ImageCropper
+  SSR, Figma tokens, ARIA live regions
 ```
 
 ---

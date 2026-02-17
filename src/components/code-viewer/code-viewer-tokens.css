@@ -78,6 +78,18 @@
   --dx-code-viewer-nested-toggle-color-hover: #d4d4d4;
   --dx-code-viewer-nested-border: rgba(255, 255, 255, 0.15);
 
+  /* Annotation highlights */
+  --dx-code-viewer-annotation-error-bg: rgba(239, 68, 68, 0.12);
+  --dx-code-viewer-annotation-error-border: #ef4444;
+  --dx-code-viewer-annotation-warning-bg: rgba(245, 158, 11, 0.12);
+  --dx-code-viewer-annotation-warning-border: #f59e0b;
+  --dx-code-viewer-annotation-info-bg: rgba(59, 130, 246, 0.12);
+  --dx-code-viewer-annotation-info-border: #3b82f6;
+  --dx-code-viewer-annotation-tooltip-error-bg: #3b1212;
+  --dx-code-viewer-annotation-tooltip-warning-bg: #3b2e12;
+  --dx-code-viewer-annotation-tooltip-info-bg: #12233b;
+  --dx-code-viewer-annotation-tooltip-text: #e5e7eb;
+
   /* Syntax highlighting - Dark theme */
   --dx-code-viewer-syntax-key: #9cdcfe;
   --dx-code-viewer-syntax-string: #9ae6b4;
@@ -160,6 +172,18 @@
   --dx-code-viewer-nested-toggle-color: #94a3b8;
   --dx-code-viewer-nested-toggle-color-hover: #1e293b;
   --dx-code-viewer-nested-border: rgba(0, 0, 0, 0.15);
+
+  /* Annotation highlights (light) */
+  --dx-code-viewer-annotation-error-bg: rgba(239, 68, 68, 0.1);
+  --dx-code-viewer-annotation-error-border: #ef4444;
+  --dx-code-viewer-annotation-warning-bg: rgba(245, 158, 11, 0.1);
+  --dx-code-viewer-annotation-warning-border: #f59e0b;
+  --dx-code-viewer-annotation-info-bg: rgba(59, 130, 246, 0.1);
+  --dx-code-viewer-annotation-info-border: #3b82f6;
+  --dx-code-viewer-annotation-tooltip-error-bg: #fef2f2;
+  --dx-code-viewer-annotation-tooltip-warning-bg: #fffbeb;
+  --dx-code-viewer-annotation-tooltip-info-bg: #eff6ff;
+  --dx-code-viewer-annotation-tooltip-text: #1e293b;
 
   /* Syntax highlighting - Light theme */
   --dx-code-viewer-syntax-key: #0369a1;

@@ -168,6 +168,79 @@
   .nested-json-raw {
     display: inline;
   }
+
+  /* Inline Annotations */
+  .dx-annotation {
+    display: block;
+    position: relative;
+    border-left: 3px solid transparent;
+    padding-left: 4px;
+    margin-left: -7px;
+  }
+
+  .dx-annotation--error {
+    background: var(--dx-code-viewer-annotation-error-bg);
+    border-left-color: var(--dx-code-viewer-annotation-error-border);
+  }
+
+  .dx-annotation--warning {
+    background: var(--dx-code-viewer-annotation-warning-bg);
+    border-left-color: var(--dx-code-viewer-annotation-warning-border);
+  }
+
+  .dx-annotation--info {
+    background: var(--dx-code-viewer-annotation-info-bg);
+    border-left-color: var(--dx-code-viewer-annotation-info-border);
+  }
+
+  .dx-annotation:hover {
+    filter: brightness(1.2);
+  }
+
+  .dx-annotation-start {
+    border-radius: 3px 3px 0 0;
+  }
+
+  .dx-annotation-end {
+    border-radius: 0 0 3px 3px;
+  }
+
+  .dx-annotation-start.dx-annotation-end {
+    border-radius: 3px;
+  }
+
+  /* Annotation Tooltip */
+  .dx-code-annotation-tooltip {
+    position: absolute;
+    max-width: 400px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+    z-index: 100;
+  }
+
+  .dx-code-annotation-tooltip--error {
+    background: var(--dx-code-viewer-annotation-tooltip-error-bg);
+    color: var(--dx-code-viewer-annotation-tooltip-text);
+    border: 1px solid var(--dx-code-viewer-annotation-error-border);
+  }
+
+  .dx-code-annotation-tooltip--warning {
+    background: var(--dx-code-viewer-annotation-tooltip-warning-bg);
+    color: var(--dx-code-viewer-annotation-tooltip-text);
+    border: 1px solid var(--dx-code-viewer-annotation-warning-border);
+  }
+
+  .dx-code-annotation-tooltip--info {
+    background: var(--dx-code-viewer-annotation-tooltip-info-bg);
+    color: var(--dx-code-viewer-annotation-tooltip-text);
+    border: 1px solid var(--dx-code-viewer-annotation-info-border);
+  }
 }
 
 /* ==========================================

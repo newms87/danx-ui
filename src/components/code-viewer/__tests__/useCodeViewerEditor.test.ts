@@ -3,7 +3,7 @@ import { defineComponent, ref, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import { useCodeViewerEditor } from "../useCodeViewerEditor";
 import { useCodeFormat } from "../useCodeFormat";
-import type { CodeFormat } from "../types";
+import type { CodeAnnotation, CodeFormat } from "../types";
 
 /** Create a minimal HTMLPreElement stub for testing */
 function createPreElement(content = ""): HTMLPreElement {
@@ -1016,6 +1016,40 @@ describe("useCodeViewerEditor", () => {
       });
       // Should not throw
       editor.onKeyDown(event);
+    });
+  });
+
+  describe("annotations integration", () => {
+    it("includes annotation markup in highlightedContent when annotations are provided", () => {
+      const annotations = ref<CodeAnnotation[]>([
+        { path: "name", message: "Name is required", type: "error" },
+      ]);
+      const { editor } = createEditor({
+        annotations,
+        currentFormat: ref<CodeFormat>("yaml"),
+      });
+
+      // The highlighted content should include annotation classes
+      expect(editor.highlightedContent.value).toContain("dx-annotation");
+      expect(editor.highlightedContent.value).toContain("Name is required");
+    });
+
+    it("does not include annotation markup for non-JSON/YAML formats", () => {
+      const annotations = ref<CodeAnnotation[]>([{ path: "name", message: "err", type: "error" }]);
+      const { editor } = createEditor({
+        annotations,
+        currentFormat: ref<CodeFormat>("html"),
+        codeFormat: useCodeFormat({ initialFormat: "html", initialValue: "<div>test</div>" }),
+      });
+
+      expect(editor.highlightedContent.value).not.toContain("dx-annotation");
+    });
+
+    it("does not include annotation markup when annotations array is empty", () => {
+      const annotations = ref<CodeAnnotation[]>([]);
+      const { editor } = createEditor({ annotations });
+
+      expect(editor.highlightedContent.value).not.toContain("dx-annotation");
     });
   });
 

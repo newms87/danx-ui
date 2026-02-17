@@ -20,7 +20,13 @@ export type {
   UseCodeViewerCollapseReturn,
 } from "./useCodeViewerCollapse";
 
+export { annotateHighlightedLines } from "./annotateHighlightedLines";
+export { mapAnnotationsToLines } from "./mapPathToLines";
+export { useAnnotationTooltip } from "./useAnnotationTooltip";
+export type { UseAnnotationTooltipReturn } from "./useAnnotationTooltip";
+
 export type {
+  CodeAnnotation,
   CodeFormat,
   CodeViewerCollapsedProps,
   CodeViewerFooterProps,

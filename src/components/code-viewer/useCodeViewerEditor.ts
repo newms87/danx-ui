@@ -11,10 +11,12 @@
 
 import { computed, nextTick, onUnmounted, Ref, ref, watch, watchEffect } from "vue";
 import { highlightSyntax } from "../../shared/syntax-highlighting";
+import { annotateHighlightedLines } from "./annotateHighlightedLines";
 import { createDebouncedOperations } from "./codeViewerDebounce";
 import { createKeyboardHandlers } from "./codeViewerKeyHandlers";
 import { applyHighlighting } from "./highlightUtils";
-import type { CodeFormat, ValidationError } from "./types";
+import { mapAnnotationsToLines } from "./mapPathToLines";
+import type { CodeAnnotation, CodeFormat, ValidationError } from "./types";
 import type { UseCodeFormatReturn } from "./useCodeFormat";
 import { useNestedJsonToggle } from "./useNestedJsonToggle";
 
@@ -36,6 +38,8 @@ export interface UseCodeViewerEditorOptions {
   onDelete?: () => void;
   /** Callback when user wants to open the language search panel (Ctrl+Alt+Shift+L) */
   onOpenLanguageSearch?: () => void;
+  /** Inline annotations to highlight property paths */
+  annotations?: Ref<CodeAnnotation[]>;
 }
 
 export interface UseCodeViewerEditorReturn {
@@ -77,6 +81,7 @@ export function useCodeViewerEditor(
     onExit,
     onDelete,
     onOpenLanguageSearch,
+    annotations,
   } = options;
 
   const internalEditable = ref(editable.value);
@@ -104,11 +109,21 @@ export function useCodeViewerEditor(
     }
     // Read toggleVersion to create reactive dependency for re-highlighting on toggle
     nestedJsonToggle.toggleVersion.value;
-    return highlightSyntax(displayContent.value, {
+    let html = highlightSyntax(displayContent.value, {
       format: currentFormat.value,
       nestedJson: { isExpanded: nestedJsonToggle.isExpanded },
       colorSwatches: true,
     });
+
+    // Apply inline annotations if present
+    const annotationList = annotations?.value;
+    const fmt = currentFormat.value;
+    if (annotationList?.length && (fmt === "json" || fmt === "yaml")) {
+      const lineMap = mapAnnotationsToLines(displayContent.value, fmt, annotationList);
+      html = annotateHighlightedLines(html, lineMap);
+    }
+
+    return html;
   });
 
   // Reset nested JSON toggle state when content changes (new data loaded)

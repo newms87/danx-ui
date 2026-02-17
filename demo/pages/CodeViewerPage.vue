@@ -15,6 +15,7 @@ import collapsiblePreviewCode from "./code-viewer-examples/CollapsiblePreview.vu
 import darkAndLightCode from "./code-viewer-examples/DarkAndLight.vue?raw";
 import nestedJsonCode from "./code-viewer-examples/NestedJson.vue?raw";
 import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
+import inlineAnnotationsCode from "./code-viewer-examples/InlineAnnotations.vue?raw";
 </script>
 
 <template>
@@ -56,6 +57,12 @@ import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
       title="Dark and Light Themes"
       description="Side-by-side comparison of the dark (default) and light themes."
       :code="darkAndLightCode"
+    />
+
+    <DemoSection
+      title="Inline Annotations"
+      description="Highlight property paths with error, warning, and info annotations. Hover over highlighted lines to see the tooltip message."
+      :code="inlineAnnotationsCode"
     />
 
     <DemoSection

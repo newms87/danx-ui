@@ -15,6 +15,9 @@
  * @emits
  *   toggle-edit - Fired when the edit pencil button is clicked
  *
+ * @slots
+ *   actions - Custom action buttons inserted next to the edit toggle button
+ *
  * @tokens
  *   --dx-code-viewer-footer-bg - Footer background color
  *   --dx-code-viewer-footer-error-bg - Background when a validation error is shown
@@ -61,14 +64,18 @@ const hasError = computed(() => props.validationError !== null);
       </template>
       <template v-else> {{ charCount.toLocaleString() }} chars </template>
     </div>
-    <!-- Edit toggle button -->
-    <DanxButton
-      v-if="canEdit"
-      icon="pencil"
-      size="xs"
-      class="text-gray-500 hover:text-gray-700"
-      :class="{ 'text-sky-500 hover:text-sky-600': isEditing }"
-      @click="$emit('toggle-edit')"
-    />
+    <div class="flex items-center gap-1">
+      <!-- Consumer-provided footer actions -->
+      <slot name="actions" />
+      <!-- Edit toggle button -->
+      <DanxButton
+        v-if="canEdit"
+        icon="pencil"
+        size="xs"
+        class="text-gray-500 hover:text-gray-700"
+        :class="{ 'text-sky-500 hover:text-sky-600': isEditing }"
+        @click="$emit('toggle-edit')"
+      />
+    </div>
   </div>
 </template>

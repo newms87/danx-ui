@@ -108,4 +108,15 @@ describe("CodeViewerFooter", () => {
     const btn = wrapper.findComponent({ name: "DanxButton" });
     expect(btn.find("svg").exists()).toBe(true);
   });
+
+  it("renders actions slot content", () => {
+    const wrapper = mount(CodeViewerFooter, {
+      props: defaultProps,
+      slots: {
+        actions: '<button class="custom-action">Action</button>',
+      },
+    });
+    expect(wrapper.find(".custom-action").exists()).toBe(true);
+    expect(wrapper.find(".custom-action").text()).toBe("Action");
+  });
 });
