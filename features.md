@@ -202,6 +202,8 @@ migrations — they are industry-standard primitives that round out the library.
 | DanxDivider | BUILD | Horizontal or vertical separator line. Tiny but used constantly. |
 | DanxAlert | BUILD | Persistent inline message bar (info, warning, error, success). Dismissable. Used for form validation summaries, permission warnings, status banners. |
 | DanxSpinner | BUILD | Standalone loading spinner. Multiple sizes. Used by dialogs, tables, overlays, inline loading states. Currently internal to DanxButton — extract as standalone primitive. |
+| useHotkeys | BUILD | General-purpose keyboard shortcut composable. Register/unregister hotkeys, scope management. Port from quasar-ui-danx. Foundation for CommandPalette, DataTable shortcuts, and app-level keybindings. |
+| useClipboard | BUILD | Copy-to-clipboard composable. CodeViewer already does this internally — extract as a shared utility. |
 
 **Relationships:** DanxDropdownMenu builds on DanxPopover (DONE) for positioning
 and DanxContextMenu patterns for keyboard navigation. DanxAccordion uses
@@ -289,35 +291,33 @@ Post-v1.0 enhancements built based on user demand.
 |---------|--------|-------|
 | VirtualScroll | NEW | Efficient rendering for large lists |
 | TreeView | NEW | Hierarchical data with expand/collapse |
-| InfiniteScroll | NEW | Load more data on scroll |
+| DanxCalendar | NEW | Full calendar view (month/week/day grid) |
+| DanxTimeline | NEW | Vertical timeline for activity logs, changelogs, event history |
 
 #### 3.3 Advanced Interactions
 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | ResizablePanels | NEW | Drag to resize adjacent panels |
-| CommandPalette | NEW | Keyboard-driven action search (Ctrl+K) |
-| useHotkeys | BUILD | Register and manage keyboard shortcuts |
+| CommandPalette | NEW | Keyboard-driven action search (Ctrl+K). Builds on useHotkeys (Tier 1). |
+| Sortable animation | NEW | FLIP animations for smooth repositioning after drag-and-drop reorder. Polish on top of Tier 1 DnD. |
 
-#### 3.4 Charts
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Sparkline | NEW | Tiny inline SVG chart, zero dependencies |
-| StatCard | NEW | Metric card with trend and sparkline |
-
-#### 3.5 Developer Experience
+#### 3.4 Developer Experience
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| SSR support | NEW | Ensure all components work with Nuxt |
 | Figma tokens | NEW | Export CSS tokens to Figma variables |
 
-#### 3.6 Accessibility (Extended)
+#### 3.5 Accessibility (Extended)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | ARIA live regions | NEW | Announce dynamic content to screen readers |
+
+**Design principle — SSR:** All components should avoid direct `window`/`document`
+access during setup from day one. This is not a Tier 3 feature to add later — it
+is a constraint respected during all development so SSR/Nuxt compatibility comes
+for free.
 
 ---
 
@@ -444,7 +444,7 @@ Layer 1: Core Primitives (danx-ui)
         DanxCheckbox, DanxSwitch, DanxRadioGroup, DanxSlider
         DanxDatePicker, DanxFileUpload
   Standard: DanxSpinner, DanxDivider, DanxAlert
-  Composables: useInlineEdit, useToast, useFileConfig
+  Composables: useInlineEdit, useToast, useFileConfig, useHotkeys, useClipboard
 
 Layer 2: Composite UI (danx-ui)
   Layout: DanxSidebar, DanxDrawer
@@ -481,11 +481,10 @@ Layer 5: Standard (danx-ui, Tier 2)
   Accessibility: Focus trap
 
 Layer 6: Nice-to-Have (danx-ui, Tier 3)
-  VirtualScroll, TreeView, InfiniteScroll
-  ResizablePanels, CommandPalette, useHotkeys
-  Sparkline, StatCard
+  VirtualScroll, TreeView, Calendar, Timeline
+  ResizablePanels, CommandPalette, Sortable animation
   ImageCropper
-  SSR, Figma tokens, ARIA live regions
+  Figma tokens, ARIA live regions
 ```
 
 ---
@@ -526,3 +525,61 @@ Layer 6: Nice-to-Have (danx-ui, Tier 3)
 | `<ConfirmDialog title="Delete?" />` | `<DanxDialog title="Delete?" :showConfirm="true" />` |
 | `<InfoDialog title="Details" />` | `<DanxDialog title="Details" />` |
 | `<FullScreenDialog />` | `<DanxDialog fullscreen />` |
+
+---
+
+## Recipes
+
+Documented patterns that show how to compose danx-ui primitives into common UI
+patterns. These are not components — they are copy-paste examples in the docs
+that demonstrate the library is capable of everything users expect. Each recipe
+lives in `docs/recipes/` and has a matching demo page.
+
+### Form Patterns
+
+| Recipe | Composes | Description |
+|--------|----------|-------------|
+| Confirm Password | DanxInput x2, DanxFieldWrapper | Two password fields with match validation |
+| Slider + Number | DanxSlider, DanxInput | Slider paired with numeric input, synced via v-model |
+| Inline Edit | useInlineEdit, DanxInput | Click text to edit in-place, save on blur or Enter |
+| Select with CRUD | DanxSelect, DanxDropdownMenu | Select dropdown with create/edit/delete actions in footer slot |
+| Multi-Keyword Input | DanxInput, DanxChip | Type keywords, press Enter to add as chips, click to remove |
+| Key-Value Display | Tailwind utilities | Label + value pair using flex layout. CSS-only, no component needed. |
+| Show/Hide Toggle | DanxButton, ref | Button that toggles content visibility with icon swap |
+
+### Layout Patterns
+
+| Recipe | Composes | Description |
+|--------|----------|-------------|
+| Panels Drawer | DanxDrawer, DanxTabs | Tabbed detail drawer for item inspection (replaces PanelsDrawer) |
+| Previous/Next Nav | DanxButton x2 | Navigate between items in a list with arrow buttons |
+| Sticky Header Table | DanxTable, CSS | Table with sticky header row using position: sticky |
+| Split Pane | CSS Grid | Two-panel layout with fixed sidebar and scrollable content |
+
+### Data Patterns
+
+| Recipe | Composes | Description |
+|--------|----------|-------------|
+| Infinite Scroll | useIntersectionObserver, ref | Sentinel element triggers load-more when scrolled into view |
+| Status Dot | Tailwind utilities | Small colored circle indicating state (online, saving, error). CSS-only. |
+| Label Pill | DanxChip | Pill-shaped status indicator. Just DanxChip with size="sm" and a semantic type. |
+| Stat Card | DanxCard, Tailwind | Card displaying a metric value with label and trend indicator |
+| Sortable List | useDragAndDrop, ListTransition | Drag-to-reorder list with animated repositioning |
+
+### Dialog Patterns
+
+| Recipe | Composes | Description |
+|--------|----------|-------------|
+| Confirm Dialog | DanxDialog | Dialog with confirm/cancel buttons, loading state on confirm |
+| Input Dialog | DanxDialog, DanxFieldWrapper, DanxInput | Dialog with single input field and submit |
+| Form Dialog | DanxDialog, DanxFieldWrapper, form fields | Multi-field form presented in a modal |
+| Fullscreen Dialog | DanxDialog | Dialog with fullscreen prop for immersive content |
+
+### Interaction Patterns
+
+| Recipe | Composes | Description |
+|--------|----------|-------------|
+| Copy to Clipboard | useClipboard, DanxButton | Button that copies text and shows "Copied!" feedback |
+| Keyboard Shortcut | useHotkeys | Register Ctrl+S to save, Escape to close, etc. |
+| Loading Button | DanxButton | Button that shows spinner and disables during async operation |
+| Debounced Search | DanxInput, watchDebounced | Text input that fires search after user stops typing |
