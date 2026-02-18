@@ -190,6 +190,9 @@ function handleConfirm() {
     ref="dialogRef"
     class="danx-dialog"
     @wheel.stop
+    @mousedown.stop
+    @mousemove.stop
+    @mouseup.stop
     @pointerdown.stop
     @pointermove.stop
     @pointerup.stop
