@@ -336,6 +336,22 @@ describe("CodeViewer", () => {
       await editablePre.trigger("keydown", { key: "a" });
       expect(editablePre.exists()).toBe(true);
     });
+
+    it("handles mouseover and mouseout on editable code content", async () => {
+      const wrapper = mountCodeViewer({
+        canEdit: true,
+        editable: true,
+        modelValue: "test",
+        format: "text",
+      });
+      await nextTick();
+      const editablePre = wrapper.find("pre[contenteditable]");
+      expect(editablePre.exists()).toBe(true);
+
+      // Trigger mouseover/mouseout — exercises annotation tooltip handlers on editable pre
+      await editablePre.trigger("mouseover");
+      await editablePre.trigger("mouseout");
+    });
   });
 
   describe("keydown on wrapper div", () => {

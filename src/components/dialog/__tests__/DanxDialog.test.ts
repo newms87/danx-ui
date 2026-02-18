@@ -201,6 +201,24 @@ describe("DanxDialog", () => {
       expect(wrapper.find(".danx-dialog__close-x").exists()).toBe(true);
     });
 
+    it("close X button is inside wrapper and outside box", async () => {
+      const wrapper = mount(DanxDialog, {
+        props: { modelValue: true, closeX: true },
+      });
+      await nextTick();
+
+      const wrapperEl = wrapper.find(".danx-dialog__wrapper");
+      expect(wrapperEl.exists()).toBe(true);
+
+      // Close-x is a direct child of wrapper, sibling to box
+      const closeX = wrapperEl.find(":scope > .danx-dialog__close-x");
+      expect(closeX.exists()).toBe(true);
+
+      // Close-x is NOT inside the box
+      const box = wrapperEl.find(".danx-dialog__box");
+      expect(box.find(".danx-dialog__close-x").exists()).toBe(false);
+    });
+
     it("close X button emits update:modelValue(false) when clicked", async () => {
       const wrapper = mount(DanxDialog, {
         props: { modelValue: true, closeX: true },

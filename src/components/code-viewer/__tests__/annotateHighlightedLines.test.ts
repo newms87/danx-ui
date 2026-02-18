@@ -56,7 +56,7 @@ describe("annotateHighlightedLines", () => {
     expect(result).toContain("Second msg");
   });
 
-  it("adds dx-annotation-start and dx-annotation-end classes for range boundaries", () => {
+  it("groups consecutive lines with same annotations into a single span", () => {
     const html = "line0\nline1\nline2\nline3";
     const annotations: CodeAnnotation[] = [{ path: "key", message: "err" }];
     const lineMap = new Map<number, CodeAnnotation[]>();
@@ -66,13 +66,13 @@ describe("annotateHighlightedLines", () => {
     const result = annotateHighlightedLines(html, lineMap);
     const lines = result.split("\n");
 
-    // Line 1 is the start (no previous annotation)
-    expect(lines[1]).toContain("dx-annotation-start");
-    expect(lines[1]).not.toContain("dx-annotation-end");
-
-    // Line 2 is the end (no next annotation)
-    expect(lines[2]).toContain("dx-annotation-end");
-    expect(lines[2]).not.toContain("dx-annotation-start");
+    // Lines 1 and 2 are merged into a single span — line 1 has the opening tag
+    expect(lines[0]).toBe("line0");
+    expect(lines[1]).toContain('class="dx-annotation dx-annotation--error"');
+    expect(lines[1]).toContain('data-annotation-msg="err"');
+    // Line 2 has the closing tag (end of the grouped span)
+    expect(lines[2]).toContain("</span>");
+    expect(lines[3]).toBe("line3");
   });
 
   it("escapes HTML entities in data-annotation-msg attribute", () => {
@@ -87,7 +87,7 @@ describe("annotateHighlightedLines", () => {
     expect(result).toContain("&quot;quotes&quot;");
   });
 
-  it("handles single-line annotations with both start and end classes", () => {
+  it("wraps single-line annotation in a span without start/end classes", () => {
     const html = "line0\nline1\nline2";
     const annotations: CodeAnnotation[] = [{ path: "key", message: "err" }];
     const lineMap = new Map<number, CodeAnnotation[]>();
@@ -96,8 +96,8 @@ describe("annotateHighlightedLines", () => {
     const result = annotateHighlightedLines(html, lineMap);
     const lines = result.split("\n");
 
-    expect(lines[1]).toContain("dx-annotation-start");
-    expect(lines[1]).toContain("dx-annotation-end");
+    expect(lines[1]).toContain('class="dx-annotation dx-annotation--error"');
+    expect(lines[1]).toContain(">line1</span>");
   });
 
   it("defaults to error type when annotation has no type", () => {

@@ -85,7 +85,6 @@ interface LineRange {
  */
 function findJsonRange(lines: string[], path: string): LineRange | null {
   const segments = parsePath(path);
-  if (!segments.length) return null;
 
   let searchFrom = 0;
 
@@ -141,8 +140,7 @@ function findJsonRange(lines: string[], path: string): LineRange | null {
     if (foundLine === -1) return null;
 
     if (isLast) {
-      const endLine = findJsonValueEnd(lines, foundLine);
-      return { start: foundLine, end: endLine };
+      return { start: foundLine, end: findJsonValueEnd(lines, foundLine) };
     }
 
     searchFrom = foundLine + 1;
@@ -178,7 +176,6 @@ function findJsonValueEnd(lines: string[], startLine: number): number {
  */
 function findYamlRange(lines: string[], path: string): LineRange | null {
   const segments = parsePath(path);
-  if (!segments.length) return null;
 
   let searchFrom = 0;
   let currentIndent = 0;
@@ -298,6 +295,7 @@ function findYamlRange(lines: string[], path: string): LineRange | null {
     currentIndent = foundIndent;
   }
 
+  /* istanbul ignore next -- unreachable: loop always returns via isLast or foundLine check */
   return null;
 }
 

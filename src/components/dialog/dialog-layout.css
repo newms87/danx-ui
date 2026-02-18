@@ -111,14 +111,28 @@
 }
 
 /* ==========================================================================
-   Close X Button (positioned over the dialog box; DanxButton handles styling)
+   Box Wrapper (relative container for close-x positioning outside box)
+   ========================================================================== */
+
+.danx-dialog__wrapper {
+  position: relative;
+}
+
+/* ==========================================================================
+   Close X Button (centered on the top-right corner of the dialog box)
    ========================================================================== */
 
 .danx-dialog__close-x {
   position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
+  top: 0;
+  right: 0;
   z-index: 10;
+  translate: 50% -50%;
+  border-radius: 9999px;
+  padding: var(--space-xs);
+  background: var(--dx-dialog-bg);
+  border: 1px solid var(--dx-dialog-border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ==========================================================================

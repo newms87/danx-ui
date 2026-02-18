@@ -21,7 +21,7 @@
  * | width          | number \| string  | undefined | Width (number=vw, string=as-is)        |
  * | height         | number \| string  | undefined | Height (number=vh, string=as-is)       |
  * | persistent     | boolean           | false     | Prevent ESC/backdrop close             |
- * | closeX         | boolean           | false     | Show X close button in top-right       |
+ * | closeX         | boolean           | false     | Circular X button centered on top-right corner |
  * | closeButton    | boolean \| string | false     | Show close button (true="Close")       |
  * | confirmButton  | boolean \| string | false     | Show confirm button (true="Confirm")   |
  * | isSaving       | boolean           | false     | Loading state for confirm button       |
@@ -59,6 +59,10 @@
  * | --dx-dialog-subtitle-color  | --color-text-muted       | Subtitle text color     |
  * | --dx-dialog-backdrop        | --color-backdrop         | Backdrop color          |
  * | --dx-dialog-backdrop-blur   | 4px                      | Backdrop blur radius    |
+ *
+ * The close-x button (when closeX=true) is positioned centered on the
+ * top-right corner of the dialog box (half outside). It uses --dx-dialog-bg
+ * and --dx-dialog-border-color for its circular background and border.
  *
  * ## Usage Examples
  *
@@ -189,9 +193,9 @@ function handleConfirm() {
     @cancel="handleCancel"
     @close="handleNativeClose"
   >
-    <!-- Visible dialog box -->
-    <div class="danx-dialog__box" :style="dialogStyle">
-      <!-- Close X Button -->
+    <!-- Box wrapper (relative container for close-x positioning) -->
+    <div class="danx-dialog__wrapper">
+      <!-- Close X Button (outside box to avoid overflow clipping) -->
       <DanxButton
         v-if="props.closeX"
         icon="close"
@@ -201,48 +205,51 @@ function handleConfirm() {
         @click="handleClose"
       />
 
-      <!-- Header -->
-      <header
-        v-if="title || subtitle || $slots.title || $slots.subtitle"
-        class="danx-dialog__header"
-      >
-        <div v-if="title || $slots.title" class="danx-dialog__title">
-          <slot name="title">{{ title }}</slot>
-        </div>
-        <div v-if="subtitle || $slots.subtitle" class="danx-dialog__subtitle">
-          <slot name="subtitle">{{ subtitle }}</slot>
-        </div>
-      </header>
+      <!-- Visible dialog box -->
+      <div class="danx-dialog__box" :style="dialogStyle">
+        <!-- Header -->
+        <header
+          v-if="title || subtitle || $slots.title || $slots.subtitle"
+          class="danx-dialog__header"
+        >
+          <div v-if="title || $slots.title" class="danx-dialog__title">
+            <slot name="title">{{ title }}</slot>
+          </div>
+          <div v-if="subtitle || $slots.subtitle" class="danx-dialog__subtitle">
+            <slot name="subtitle">{{ subtitle }}</slot>
+          </div>
+        </header>
 
-      <!-- Content -->
-      <div class="danx-dialog__content">
-        <slot />
+        <!-- Content -->
+        <div class="danx-dialog__content">
+          <slot />
+        </div>
+
+        <!-- Footer/Actions -->
+        <footer v-if="showFooter || $slots.actions" class="danx-dialog__footer">
+          <slot name="actions">
+            <!-- Close Button -->
+            <slot v-if="closeButton" name="close-button">
+              <DanxButton class="danx-dialog__button--secondary" @click="handleClose">
+                {{ closeButtonText }}
+              </DanxButton>
+            </slot>
+
+            <!-- Confirm Button -->
+            <slot v-if="confirmButton" name="confirm-button">
+              <DanxButton
+                type="info"
+                class="danx-dialog__button--primary"
+                :disabled="disabled"
+                :loading="isSaving"
+                @click="handleConfirm"
+              >
+                {{ confirmButtonText }}
+              </DanxButton>
+            </slot>
+          </slot>
+        </footer>
       </div>
-
-      <!-- Footer/Actions -->
-      <footer v-if="showFooter || $slots.actions" class="danx-dialog__footer">
-        <slot name="actions">
-          <!-- Close Button -->
-          <slot v-if="closeButton" name="close-button">
-            <DanxButton class="danx-dialog__button--secondary" @click="handleClose">
-              {{ closeButtonText }}
-            </DanxButton>
-          </slot>
-
-          <!-- Confirm Button -->
-          <slot v-if="confirmButton" name="confirm-button">
-            <DanxButton
-              type="info"
-              class="danx-dialog__button--primary"
-              :disabled="disabled"
-              :loading="isSaving"
-              @click="handleConfirm"
-            >
-              {{ confirmButtonText }}
-            </DanxButton>
-          </slot>
-        </slot>
-      </footer>
     </div>
   </dialog>
 </template>

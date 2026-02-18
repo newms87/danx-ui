@@ -1051,6 +1051,59 @@ describe("useCodeViewerEditor", () => {
 
       expect(editor.highlightedContent.value).not.toContain("dx-annotation");
     });
+
+    it("applies annotation markup to codeRef via postHighlight in editable mode", async () => {
+      vi.useFakeTimers();
+      preElement = createPreElement("name: test");
+
+      const annotations = ref<CodeAnnotation[]>([
+        { path: "name", message: "Name is required", type: "error" },
+      ]);
+      const { codeRef, editor, editable } = createEditor({
+        annotations,
+        currentFormat: ref<CodeFormat>("yaml"),
+        editable: ref(true),
+      });
+
+      // Attach a real DOM element
+      codeRef.value = preElement;
+      await nextTick();
+
+      // Simulate an input event to trigger debounced highlight
+      const inputEvent = new Event("input", { bubbles: true });
+      Object.defineProperty(inputEvent, "target", { value: preElement });
+      editor.onContentEditableInput(inputEvent);
+      // Advance past the 300ms debounce
+      vi.advanceTimersByTime(350);
+      await nextTick();
+
+      // The codeRef innerHTML should now contain annotation markup
+      expect(preElement.innerHTML).toContain("dx-annotation");
+
+      vi.useRealTimers();
+    });
+
+    it("applies annotations to codeRef innerHTML when entering edit mode", async () => {
+      preElement = createPreElement("");
+
+      const annotations = ref<CodeAnnotation[]>([
+        { path: "name", message: "Field error", type: "warning" },
+      ]);
+      const { codeRef, editor } = createEditor({
+        annotations,
+        currentFormat: ref<CodeFormat>("yaml"),
+      });
+
+      codeRef.value = preElement;
+      await nextTick();
+
+      // Toggle into edit mode — triggers applyHighlightingWithAnnotations
+      editor.toggleEdit();
+      await nextTick();
+
+      // The highlighted content in the codeRef should include annotation markup
+      expect(preElement.innerHTML).toContain("dx-annotation");
+    });
   });
 
   describe("onUnmounted cleanup", () => {
