@@ -185,21 +185,15 @@ function handleConfirm() {
 </script>
 
 <template>
-  <dialog
-    v-if="modelValue"
-    ref="dialogRef"
-    class="danx-dialog"
-    @wheel.stop
-    @mousedown.stop
-    @mousemove.stop
-    @mouseup.stop
-    @pointerdown.stop
-    @pointermove.stop
-    @pointerup.stop
-    @click.self="handleBackdropClick"
-    @cancel="handleCancel"
-    @close="handleNativeClose"
-  >
+  <Teleport to="body">
+    <dialog
+      v-if="modelValue"
+      ref="dialogRef"
+      class="danx-dialog"
+      @click.self="handleBackdropClick"
+      @cancel="handleCancel"
+      @close="handleNativeClose"
+    >
     <!-- Box wrapper (relative container for close-x positioning) -->
     <div class="danx-dialog__wrapper">
       <!-- Close X Button (outside box to avoid overflow clipping) -->
@@ -258,5 +252,6 @@ function handleConfirm() {
         </footer>
       </div>
     </div>
-  </dialog>
+    </dialog>
+  </Teleport>
 </template>
