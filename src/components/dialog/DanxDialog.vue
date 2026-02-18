@@ -189,6 +189,7 @@ function handleConfirm() {
     v-if="modelValue"
     ref="dialogRef"
     class="danx-dialog"
+    @wheel.stop
     @click.self="handleBackdropClick"
     @cancel="handleCancel"
     @close="handleNativeClose"
