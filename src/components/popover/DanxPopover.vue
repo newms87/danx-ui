@@ -124,7 +124,17 @@ onUnmounted(() => {
     <slot name="trigger" />
   </div>
   <Teleport to="body">
-    <div v-if="modelValue" ref="panelRef" class="danx-popover" :style="panelStyle" v-bind="$attrs" @wheel.stop>
+    <div
+      v-if="modelValue"
+      ref="panelRef"
+      class="danx-popover"
+      :style="panelStyle"
+      v-bind="$attrs"
+      @wheel.stop
+      @pointerdown.stop
+      @pointermove.stop
+      @pointerup.stop
+    >
       <slot />
     </div>
   </Teleport>

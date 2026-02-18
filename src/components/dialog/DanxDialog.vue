@@ -190,6 +190,9 @@ function handleConfirm() {
     ref="dialogRef"
     class="danx-dialog"
     @wheel.stop
+    @pointerdown.stop
+    @pointermove.stop
+    @pointerup.stop
     @click.self="handleBackdropClick"
     @cancel="handleCancel"
     @close="handleNativeClose"
