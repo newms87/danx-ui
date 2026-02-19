@@ -6,6 +6,7 @@ A trigger-anchored floating panel that positions itself relative to a trigger el
 
 - **Trigger Slot** - Wraps an inline anchor element for automatic positioning
 - **Explicit Position** - Optional `{ x, y }` coordinates for cursor-positioned panels (e.g. context menus)
+- **Trigger Modes** - Manual (v-model), hover (with close delay), and focus triggers
 - **v-model Control** - Controlled visibility, removed from DOM when hidden
 - **Placement** - Bottom, top, left, or right positioning relative to trigger
 - **Auto-flip** - Automatically flips placement when panel would overflow the viewport
@@ -44,6 +45,8 @@ const show = ref(false);
 | `modelValue` | `boolean` | `false` | Controls visibility via v-model |
 | `placement` | `PopoverPlacement` | `"bottom"` | Panel placement relative to trigger |
 | `position` | `PopoverPosition` | - | Explicit `{ x, y }` viewport coordinates |
+| `trigger` | `PopoverTrigger` | `"manual"` | How popover opens/closes |
+| `hoverDelay` | `number` | `200` | Close delay (ms) for hover mode |
 
 ### PopoverPlacement
 
@@ -52,6 +55,42 @@ const show = ref(false);
 ### PopoverPosition
 
 `{ x: number; y: number }` - Viewport pixel coordinates for the panel's top-left corner.
+
+### PopoverTrigger
+
+`"manual" | "hover" | "focus"`
+
+## Trigger Modes
+
+The `trigger` prop controls how the popover opens and closes automatically.
+
+### Manual (default)
+
+The parent manages visibility via v-model. This is the current behavior — no automatic open/close.
+
+### Hover
+
+Opens on `mouseenter` and closes on `mouseleave` with a configurable delay. Moving the cursor from the trigger to the panel keeps the popover open. The `hoverDelay` prop (default 200ms) controls the close delay, giving users time to cross the gap.
+
+```vue
+<DanxPopover v-model="show" trigger="hover" :hover-delay="300">
+  <template #trigger><button>Hover me</button></template>
+  <div style="padding: 0.75rem">Tooltip-style content</div>
+</DanxPopover>
+```
+
+### Focus
+
+Opens on `focusin` and closes when focus leaves both the trigger and panel. Useful for input hints or form field helpers.
+
+```vue
+<DanxPopover v-model="show" trigger="focus">
+  <template #trigger><input placeholder="Focus me" /></template>
+  <div style="padding: 0.75rem">Helper text</div>
+</DanxPopover>
+```
+
+Click-outside dismissal and Escape key work in all trigger modes as additive dismissal.
 
 ## Events
 

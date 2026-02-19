@@ -7,6 +7,9 @@
 /** Placement direction for the popover panel relative to the trigger */
 export type PopoverPlacement = "top" | "bottom" | "left" | "right";
 
+/** How the popover is triggered to open/close */
+export type PopoverTrigger = "manual" | "hover" | "focus";
+
 /** Explicit viewport coordinates for the popover panel */
 export interface PopoverPosition {
   x: number;
@@ -34,6 +37,21 @@ export interface DanxPopoverProps {
    * click-outside detection and show/hide toggling.
    */
   position?: PopoverPosition;
+
+  /**
+   * How the popover is triggered to open/close.
+   * - "manual": Parent controls v-model directly (default, current behavior)
+   * - "hover": Opens on mouseenter, closes on mouseleave with delay
+   * - "focus": Opens on focusin, closes on focusout
+   */
+  trigger?: PopoverTrigger;
+
+  /**
+   * Delay in milliseconds before closing on mouseleave in hover mode.
+   * Allows the user to move the cursor from trigger to panel without closing.
+   * Only applies when trigger is "hover".
+   */
+  hoverDelay?: number;
 }
 
 export interface DanxPopoverEmits {

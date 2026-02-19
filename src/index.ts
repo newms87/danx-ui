@@ -88,6 +88,7 @@ export type {
   DanxPopoverSlots,
   PopoverPlacement,
   PopoverPosition,
+  PopoverTrigger,
 } from "./components/popover";
 export type {
   TokenRenderer,

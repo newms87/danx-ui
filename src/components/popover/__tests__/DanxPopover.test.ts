@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
+import { nextTick } from "vue";
 import DanxPopover from "../DanxPopover.vue";
 
 describe("DanxPopover", () => {
@@ -165,6 +166,154 @@ describe("DanxPopover", () => {
       const keydownCalls = removeSpy.mock.calls.filter((c) => c[0] === "keydown");
       expect(keydownCalls.length).toBeGreaterThan(0);
       removeSpy.mockRestore();
+    });
+  });
+
+  describe("hover trigger", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("opens on mouseenter and closes on mouseleave", async () => {
+      mountPopover({ modelValue: false, trigger: "hover" });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+
+      trigger.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+      vi.advanceTimersByTime(200);
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).toBeNull();
+    });
+
+    it("respects hoverDelay prop", async () => {
+      mountPopover({ modelValue: false, trigger: "hover", hoverDelay: 500 });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await nextTick();
+      trigger.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+
+      vi.advanceTimersByTime(400);
+      await nextTick();
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+
+      vi.advanceTimersByTime(100);
+      await nextTick();
+      expect(document.body.querySelector(".danx-popover")).toBeNull();
+    });
+
+    it("panel hover keeps popover open", async () => {
+      mountPopover({ modelValue: false, trigger: "hover", hoverDelay: 100 });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await nextTick();
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+
+      // Leave trigger (starts timer)
+      trigger.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+
+      // Enter panel (cancels timer)
+      const panel = document.body.querySelector(".danx-popover")!;
+      panel.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+
+      vi.advanceTimersByTime(200);
+      await nextTick();
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+    });
+
+    it("click-outside still works in hover mode", async () => {
+      mountPopover({ modelValue: true, trigger: "hover" });
+      await nextTick();
+
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: outside });
+      document.dispatchEvent(event);
+
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+      outside.remove();
+    });
+
+    it("Escape still works in hover mode", async () => {
+      mountPopover({ modelValue: true, trigger: "hover" });
+      await nextTick();
+
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+    });
+  });
+
+  describe("focus trigger", () => {
+    it("opens on focusin and closes on focusout", async () => {
+      mountPopover({ modelValue: false, trigger: "focus" });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+      trigger.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: outside }));
+      await Promise.resolve();
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).toBeNull();
+      outside.remove();
+    });
+
+    it("stays open when focus moves from trigger to panel", async () => {
+      mountPopover({ modelValue: false, trigger: "focus" });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+      await nextTick();
+
+      const panel = document.body.querySelector(".danx-popover")!;
+      trigger.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: panel }));
+      await Promise.resolve();
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+    });
+
+    it("click-outside still works in focus mode", async () => {
+      mountPopover({ modelValue: true, trigger: "focus" });
+      await nextTick();
+
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: outside });
+      document.dispatchEvent(event);
+
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+      outside.remove();
+    });
+
+    it("Escape still works in focus mode", async () => {
+      mountPopover({ modelValue: true, trigger: "focus" });
+      await nextTick();
+
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
     });
   });
 });

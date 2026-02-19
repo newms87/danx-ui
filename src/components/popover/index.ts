@@ -10,6 +10,7 @@
 export { default as DanxPopover } from "./DanxPopover.vue";
 export { useClickOutside } from "./useClickOutside";
 export { usePopoverPositioning } from "./usePopoverPositioning";
+export { usePopoverTrigger } from "./usePopoverTrigger";
 export type { UsePopoverPositioningReturn } from "./usePopoverPositioning";
 export type {
   DanxPopoverEmits,
@@ -17,4 +18,5 @@ export type {
   DanxPopoverSlots,
   PopoverPlacement,
   PopoverPosition,
+  PopoverTrigger,
 } from "./types";

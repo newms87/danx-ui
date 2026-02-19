@@ -16,6 +16,8 @@ import confirmPopoverCode from "./popover-examples/ConfirmPopover.vue?raw";
 import placementsCode from "./popover-examples/OverlayVariants.vue?raw";
 import customStyleCode from "./popover-examples/CustomSlots.vue?raw";
 import positionPropCode from "./popover-examples/PositionProp.vue?raw";
+import hoverTriggerCode from "./popover-examples/HoverTrigger.vue?raw";
+import focusTriggerCode from "./popover-examples/FocusTrigger.vue?raw";
 </script>
 
 <template>
@@ -40,6 +42,18 @@ import positionPropCode from "./popover-examples/PositionProp.vue?raw";
       title="Placement Variants"
       description="Bottom, top, left, and right placement options."
       :code="placementsCode"
+    />
+
+    <DemoSection
+      title="Hover Trigger"
+      description="Opens on mouseenter with a configurable close delay. Move cursor to panel to keep it open."
+      :code="hoverTriggerCode"
+    />
+
+    <DemoSection
+      title="Focus Trigger"
+      description="Opens when the trigger receives focus. Closes when focus moves outside both trigger and panel."
+      :code="focusTriggerCode"
     />
 
     <DemoSection

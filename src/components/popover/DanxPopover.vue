@@ -24,6 +24,8 @@
  * | modelValue | boolean           | false    | Controls visibility via v-model   |
  * | placement  | PopoverPlacement  | "bottom" | Panel placement relative to trigger |
  * | position   | PopoverPosition   | -        | Explicit {x, y} viewport coordinates |
+ * | trigger    | PopoverTrigger    | "manual" | How popover opens: manual/hover/focus |
+ * | hoverDelay | number            | 200      | Close delay (ms) for hover mode   |
  *
  * ## Events
  * | Event             | Payload | Description                              |
@@ -76,10 +78,13 @@ import { onMounted, onUnmounted, ref, toRef } from "vue";
 import type { DanxPopoverProps, DanxPopoverSlots } from "./types";
 import { useClickOutside } from "./useClickOutside";
 import { usePopoverPositioning } from "./usePopoverPositioning";
+import { usePopoverTrigger } from "./usePopoverTrigger";
 
 const props = withDefaults(defineProps<DanxPopoverProps>(), {
   modelValue: false,
   placement: "bottom",
+  trigger: "manual",
+  hoverDelay: 200,
 });
 
 const modelValue = defineModel<boolean>({ default: false });
@@ -99,6 +104,14 @@ const { style: panelStyle } = usePopoverPositioning(
 );
 
 useClickOutside(triggerRef, panelRef, close, modelValue);
+
+usePopoverTrigger(
+  triggerRef,
+  panelRef,
+  modelValue,
+  toRef(() => props.trigger),
+  toRef(() => props.hoverDelay)
+);
 
 function close(): void {
   modelValue.value = false;
