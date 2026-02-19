@@ -1,0 +1,57 @@
+/**
+ * DanxFile Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize file thumbnail appearance.
+ *
+ * CSS Tokens:
+ * --dx-file-thumb-bg                Background color for thumbnail container
+ * --dx-file-thumb-border-radius     Corner radius
+ * --dx-file-thumb-overlay-bg        Background for hover overlay
+ * --dx-file-thumb-action-color      Color for action buttons (download, remove)
+ * --dx-file-thumb-play-size         Size of the play icon overlay on video thumbnails
+ * --dx-file-thumb-progress-bg       Progress bar fill color
+ * --dx-file-thumb-progress-track    Progress bar track/background color
+ * --dx-file-thumb-progress-text     Progress text color
+ * --dx-file-thumb-error-bg          Error overlay background
+ * --dx-file-thumb-error-color       Error text and icon color
+ * --dx-file-thumb-icon-color        File-type icon color for non-previewable files
+ */
+
+:root {
+  /* ==========================================================================
+     Thumbnail Container
+     ========================================================================== */
+
+  --dx-file-thumb-bg: var(--color-surface-sunken);
+  --dx-file-thumb-border-radius: var(--radius-component);
+  --dx-file-thumb-overlay-bg: rgb(0 0 0 / 0.5);
+
+  /* ==========================================================================
+     Action Buttons
+     ========================================================================== */
+
+  --dx-file-thumb-action-color: var(--color-text-inverted);
+  --dx-file-thumb-play-size: 2.5rem;
+
+  /* ==========================================================================
+     Progress Bar
+     ========================================================================== */
+
+  --dx-file-thumb-progress-bg: var(--color-interactive);
+  --dx-file-thumb-progress-track: rgb(0 0 0 / 0.3);
+  --dx-file-thumb-progress-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Error State
+     ========================================================================== */
+
+  --dx-file-thumb-error-bg: rgb(239 68 68 / 0.85);
+  --dx-file-thumb-error-color: var(--color-text-inverted);
+
+  /* ==========================================================================
+     File-Type Icon
+     ========================================================================== */
+
+  --dx-file-thumb-icon-color: var(--color-text-muted);
+}

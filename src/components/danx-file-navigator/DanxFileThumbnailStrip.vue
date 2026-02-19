@@ -1,0 +1,66 @@
+<!--
+/**
+ * DanxFileThumbnailStrip - Scrollable horizontal thumbnail row
+ *
+ * Internal subcomponent of DanxFileNavigator. Renders a horizontal strip
+ * of file thumbnails with the active file highlighted. Auto-scrolls to
+ * keep the active thumbnail visible. Only renders for 2+ files.
+ *
+ * @props
+ *   files: PreviewFile[] - Files to display as thumbnails
+ *   activeFileId: string - ID of the currently active file
+ *
+ * @emits
+ *   select(file) - Thumbnail clicked
+ *
+ * @tokens
+ *   --dx-file-strip-gap - Gap between thumbnails
+ *   --dx-file-strip-thumb-size - Thumbnail width and height
+ *   --dx-file-strip-active-border - Border for the active thumbnail
+ *   --dx-file-strip-bg - Strip background color
+ */
+-->
+
+<script setup lang="ts">
+import { ref, watch, nextTick } from "vue";
+import { DanxFile } from "../danx-file";
+import type { PreviewFile } from "../danx-file/types";
+
+const props = defineProps<{
+  files: PreviewFile[];
+  activeFileId: string;
+}>();
+
+const emit = defineEmits<{
+  select: [file: PreviewFile];
+}>();
+
+const stripRef = ref<HTMLElement | null>(null);
+
+// Auto-scroll to active thumbnail
+watch(
+  () => props.activeFileId,
+  async () => {
+    await nextTick();
+    if (!stripRef.value) return;
+    const active = stripRef.value.querySelector(".danx-file-strip__thumb--active");
+    if (active) {
+      active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }
+);
+</script>
+
+<template>
+  <div v-if="files.length >= 2" ref="stripRef" class="danx-file-strip">
+    <div
+      v-for="file in files"
+      :key="file.id"
+      class="danx-file-strip__thumb"
+      :class="{ 'danx-file-strip__thumb--active': file.id === activeFileId }"
+      @click="emit('select', file)"
+    >
+      <DanxFile :file="file" fit="cover" disabled />
+    </div>
+  </div>
+</template>

@@ -1,0 +1,332 @@
+import { mount } from "@vue/test-utils";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { nextTick } from "vue";
+import DanxFile from "../DanxFile.vue";
+import type { PreviewFile } from "../types";
+
+function makeFile(overrides: Partial<PreviewFile> = {}): PreviewFile {
+  return {
+    id: "1",
+    name: "photo.jpg",
+    size: 2048,
+    type: "image/jpeg",
+    url: "https://example.com/photo.jpg",
+    ...overrides,
+  };
+}
+
+function mountFile(props: Record<string, unknown> = {}) {
+  return mount(DanxFile, {
+    props: { file: makeFile(), ...props },
+  });
+}
+
+describe("DanxFile", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  describe("Image preview", () => {
+    it("renders an img element for image files with a URL", () => {
+      const wrapper = mountFile();
+      const img = wrapper.find(".danx-file__image");
+      expect(img.exists()).toBe(true);
+      expect(img.attributes("src")).toBe("https://example.com/photo.jpg");
+      expect(img.attributes("alt")).toBe("photo.jpg");
+    });
+
+    it("uses thumb URL when available", () => {
+      const wrapper = mountFile({
+        file: makeFile({ thumb: { url: "https://example.com/thumb.jpg" } }),
+      });
+      expect(wrapper.find(".danx-file__image").attributes("src")).toBe(
+        "https://example.com/thumb.jpg"
+      );
+    });
+
+    it("does not render img when image file has no URL", () => {
+      const wrapper = mountFile({ file: makeFile({ url: "" }) });
+      expect(wrapper.find(".danx-file__image").exists()).toBe(false);
+    });
+  });
+
+  describe("Video preview", () => {
+    it("renders img with play icon for video files", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
+      });
+      expect(wrapper.find(".danx-file__image").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(true);
+    });
+
+    it("does not show play icon when video has no thumb", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "video/mp4", url: "" }),
+      });
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
+    });
+
+    it("hides play icon when video has progress", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          type: "video/mp4",
+          thumb: { url: "https://example.com/thumb.jpg" },
+          progress: 50,
+        }),
+      });
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
+    });
+
+    it("hides play icon when video has error", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          type: "video/mp4",
+          thumb: { url: "https://example.com/thumb.jpg" },
+          error: "Upload failed",
+        }),
+      });
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
+    });
+  });
+
+  describe("File-type icon", () => {
+    it("shows file-type icon for non-previewable files", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          type: "application/pdf",
+          url: "https://example.com/doc.pdf",
+          name: "doc.pdf",
+        }),
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__type-icon-name").text()).toBe("doc.pdf");
+    });
+
+    it("shows file-type icon for image without URL", () => {
+      const wrapper = mountFile({
+        file: makeFile({ url: "" }),
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+    });
+  });
+
+  describe("Progress state", () => {
+    it("shows progress overlay when file has progress < 100", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: 45 }),
+      });
+      expect(wrapper.find(".danx-file__progress").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__progress-text").text()).toBe("Uploading... 45%");
+    });
+
+    it("shows custom status message when provided", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: 70, statusMessage: "Converting..." }),
+      });
+      expect(wrapper.find(".danx-file__progress-text").text()).toBe("Converting...");
+    });
+
+    it("sets progress bar width from file.progress", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: 60 }),
+      });
+      const fill = wrapper.find(".danx-file__progress-fill");
+      expect(fill.attributes("style")).toContain("width: 60%");
+    });
+
+    it("does not show progress when progress is null", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: null }),
+      });
+      expect(wrapper.find(".danx-file__progress").exists()).toBe(false);
+    });
+
+    it("does not show progress when progress is 100", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: 100 }),
+      });
+      expect(wrapper.find(".danx-file__progress").exists()).toBe(false);
+    });
+
+    it("does not show progress when error is set (error takes priority)", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: 50, error: "Upload failed" }),
+      });
+      expect(wrapper.find(".danx-file__progress").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__error").exists()).toBe(true);
+    });
+
+    it("shows progress at 0%", () => {
+      const wrapper = mountFile({
+        file: makeFile({ progress: 0 }),
+      });
+      expect(wrapper.find(".danx-file__progress").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__progress-text").text()).toBe("Uploading... 0%");
+    });
+  });
+
+  describe("Error state", () => {
+    it("shows error overlay when file has error", () => {
+      const wrapper = mountFile({
+        file: makeFile({ error: "Upload failed" }),
+      });
+      expect(wrapper.find(".danx-file__error").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__error-text").text()).toBe("Upload failed");
+    });
+
+    it("does not show error when no error", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file__error").exists()).toBe(false);
+    });
+  });
+
+  describe("Filename overlay", () => {
+    it("shows filename when showFilename is true", () => {
+      const wrapper = mountFile({ showFilename: true });
+      expect(wrapper.find(".danx-file__filename").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__filename").text()).toBe("photo.jpg");
+    });
+
+    it("hides filename by default", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file__filename").exists()).toBe(false);
+    });
+
+    it("hides filename when progress is showing", () => {
+      const wrapper = mountFile({
+        showFilename: true,
+        file: makeFile({ progress: 50 }),
+      });
+      expect(wrapper.find(".danx-file__filename").exists()).toBe(false);
+    });
+
+    it("hides filename when error is showing", () => {
+      const wrapper = mountFile({
+        showFilename: true,
+        file: makeFile({ error: "Failed" }),
+      });
+      expect(wrapper.find(".danx-file__filename").exists()).toBe(false);
+    });
+  });
+
+  describe("Click event", () => {
+    it("emits click with file when clicked", async () => {
+      const file = makeFile();
+      const wrapper = mountFile({ file });
+      await wrapper.find(".danx-file").trigger("click");
+      expect(wrapper.emitted("click")).toEqual([[file]]);
+    });
+
+    it("emits click on Enter keypress", async () => {
+      const file = makeFile();
+      const wrapper = mountFile({ file });
+      await wrapper.find(".danx-file").trigger("keydown.enter");
+      expect(wrapper.emitted("click")).toEqual([[file]]);
+    });
+
+    it("does not emit click when disabled", async () => {
+      const wrapper = mountFile({ disabled: true });
+      await wrapper.find(".danx-file").trigger("click");
+      expect(wrapper.emitted("click")).toBeUndefined();
+    });
+
+    it("applies disabled class when disabled", () => {
+      const wrapper = mountFile({ disabled: true });
+      expect(wrapper.find(".danx-file--disabled").exists()).toBe(true);
+    });
+
+    it("sets tabindex to -1 when disabled", () => {
+      const wrapper = mountFile({ disabled: true });
+      expect(wrapper.find(".danx-file").attributes("tabindex")).toBe("-1");
+    });
+  });
+
+  describe("Download action", () => {
+    it("shows download button when downloadable", () => {
+      const wrapper = mountFile({ downloadable: true });
+      const btn = wrapper.find(".danx-file__action-btn");
+      expect(btn.exists()).toBe(true);
+    });
+
+    it("hides actions when not downloadable or removable", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file__actions").exists()).toBe(false);
+    });
+
+    it("emits download event when download button clicked", async () => {
+      const file = makeFile();
+      const wrapper = mountFile({ file, downloadable: true });
+      const buttons = wrapper.findAll(".danx-file__action-btn");
+      await buttons[0]!.trigger("click");
+      expect(wrapper.emitted("download")).toEqual([[file]]);
+    });
+  });
+
+  describe("Remove confirmation", () => {
+    it("shows remove button when removable", () => {
+      const wrapper = mountFile({ removable: true });
+      const buttons = wrapper.findAll(".danx-file__action-btn");
+      expect(buttons.length).toBe(1);
+    });
+
+    it("arms on first click, confirms on second click", async () => {
+      const file = makeFile();
+      const wrapper = mountFile({ file, removable: true });
+      const btn = wrapper.find(".danx-file__action-btn");
+
+      // First click arms
+      await btn.trigger("click");
+      expect(wrapper.emitted("remove")).toBeUndefined();
+      expect(wrapper.find(".danx-file__action-btn--armed").exists()).toBe(true);
+
+      // Second click confirms
+      await btn.trigger("click");
+      expect(wrapper.emitted("remove")).toEqual([[file]]);
+      expect(wrapper.find(".danx-file__action-btn--armed").exists()).toBe(false);
+    });
+
+    it("disarms after 3 second timeout", async () => {
+      const wrapper = mountFile({ removable: true });
+      const btn = wrapper.find(".danx-file__action-btn");
+
+      await btn.trigger("click");
+      expect(wrapper.find(".danx-file__action-btn--armed").exists()).toBe(true);
+
+      vi.advanceTimersByTime(3000);
+      await nextTick();
+
+      expect(wrapper.find(".danx-file__action-btn--armed").exists()).toBe(false);
+    });
+  });
+
+  describe("Actions slot", () => {
+    it("renders custom actions in slot", () => {
+      const wrapper = mount(DanxFile, {
+        props: { file: makeFile() },
+        slots: { actions: "<button class='custom-action'>Custom</button>" },
+      });
+      expect(wrapper.find(".custom-action").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__actions").exists()).toBe(true);
+    });
+  });
+
+  describe("Fit prop", () => {
+    it("sets --dx-file-thumb-fit CSS variable from fit prop", () => {
+      const wrapper = mountFile({ fit: "contain" });
+      expect(wrapper.find(".danx-file").attributes("style")).toContain(
+        "--dx-file-thumb-fit: contain"
+      );
+    });
+
+    it("defaults to cover", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file").attributes("style")).toContain(
+        "--dx-file-thumb-fit: cover"
+      );
+    });
+  });
+});

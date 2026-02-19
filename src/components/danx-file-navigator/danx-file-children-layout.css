@@ -1,0 +1,47 @@
+/**
+ * DanxFileChildrenMenu Layout Styles
+ *
+ * Children list popover menu styles.
+ */
+
+.danx-file-children {
+  padding: 0.25rem;
+  min-width: 12rem;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.danx-file-children__loading {
+  padding: 0.5rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.danx-file-children__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem;
+  border-radius: var(--radius-button);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-sunken);
+  }
+}
+
+.danx-file-children__thumb {
+  width: var(--dx-file-children-thumb-size);
+  height: var(--dx-file-children-thumb-size);
+  flex-shrink: 0;
+  border-radius: var(--radius-button);
+  overflow: hidden;
+}
+
+.danx-file-children__name {
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

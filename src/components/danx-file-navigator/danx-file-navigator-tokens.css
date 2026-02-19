@@ -1,0 +1,72 @@
+/**
+ * DanxFileNavigator Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize file navigator appearance.
+ *
+ * CSS Tokens:
+ * --dx-file-nav-bg                   Viewer background color
+ * --dx-file-nav-header-bg            Header background color
+ * --dx-file-nav-header-color         Header text color
+ * --dx-file-nav-arrow-size           Navigation arrow icon size
+ * --dx-file-nav-arrow-color          Navigation arrow color
+ * --dx-file-nav-arrow-bg             Navigation arrow button background
+ * --dx-file-nav-counter-color        Slide counter text color
+ * --dx-file-strip-gap                Gap between strip thumbnails
+ * --dx-file-strip-thumb-size         Strip thumbnail width and height
+ * --dx-file-strip-active-border      Border for the active strip thumbnail
+ * --dx-file-strip-bg                 Strip background color
+ * --dx-file-meta-bg                  Metadata panel background
+ * --dx-file-meta-width               Metadata panel width (docked mode)
+ * --dx-file-meta-border-color        Metadata panel border
+ * --dx-file-children-bg              Children menu background
+ * --dx-file-children-thumb-size      Children menu thumbnail size
+ */
+
+:root {
+  /* ==========================================================================
+     Viewer
+     ========================================================================== */
+
+  --dx-file-nav-bg: var(--color-surface);
+  --dx-file-nav-header-bg: var(--color-surface-sunken);
+  --dx-file-nav-header-color: var(--color-text);
+
+  /* ==========================================================================
+     Navigation Arrows
+     ========================================================================== */
+
+  --dx-file-nav-arrow-size: 1.5rem;
+  --dx-file-nav-arrow-color: var(--color-text-inverted);
+  --dx-file-nav-arrow-bg: rgb(0 0 0 / 0.4);
+
+  /* ==========================================================================
+     Slide Counter
+     ========================================================================== */
+
+  --dx-file-nav-counter-color: var(--color-text-muted);
+
+  /* ==========================================================================
+     Thumbnail Strip
+     ========================================================================== */
+
+  --dx-file-strip-gap: 0.375rem;
+  --dx-file-strip-thumb-size: 3.5rem;
+  --dx-file-strip-active-border: 2px solid var(--color-interactive);
+  --dx-file-strip-bg: var(--color-surface-sunken);
+
+  /* ==========================================================================
+     Metadata Panel
+     ========================================================================== */
+
+  --dx-file-meta-bg: var(--color-surface);
+  --dx-file-meta-width: 20rem;
+  --dx-file-meta-border-color: var(--color-border);
+
+  /* ==========================================================================
+     Children Menu
+     ========================================================================== */
+
+  --dx-file-children-bg: var(--color-surface);
+  --dx-file-children-thumb-size: 2.5rem;
+}

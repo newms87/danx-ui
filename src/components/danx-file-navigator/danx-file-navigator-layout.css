@@ -1,0 +1,270 @@
+/**
+ * DanxFileNavigator Layout Styles
+ *
+ * Responsive file viewer styles including header, content area,
+ * navigation arrows, thumbnail strip, and container queries.
+ *
+ * BEM modifiers are top-level blocks (Lightning CSS limitation).
+ */
+
+/* ==========================================================================
+   Base Navigator
+   ========================================================================== */
+
+.danx-file-navigator {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: var(--dx-file-nav-bg);
+  container-type: inline-size;
+  overflow: hidden;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.danx-file-navigator__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--dx-file-nav-header-bg);
+  color: var(--dx-file-nav-header-color);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.danx-file-navigator__back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-button);
+  padding: 0;
+
+  &:hover {
+    background: var(--color-surface);
+  }
+
+  .danx-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.danx-file-navigator__filename {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.danx-file-navigator__counter {
+  font-size: 0.75rem;
+  color: var(--dx-file-nav-counter-color);
+  white-space: nowrap;
+}
+
+.danx-file-navigator__header-actions {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Body (content + docked metadata)
+   ========================================================================== */
+
+.danx-file-navigator__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Content Area
+   ========================================================================== */
+
+.danx-file-navigator__content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ==========================================================================
+   Navigation Arrows
+   ========================================================================== */
+
+.danx-file-navigator__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 9999px;
+  background: var(--dx-file-nav-arrow-bg);
+  color: var(--dx-file-nav-arrow-color);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgb(0 0 0 / 0.6);
+  }
+
+  .danx-icon {
+    width: var(--dx-file-nav-arrow-size);
+    height: var(--dx-file-nav-arrow-size);
+  }
+}
+
+.danx-file-navigator__arrow--prev {
+  left: 0.75rem;
+}
+
+.danx-file-navigator__arrow--next {
+  right: 0.75rem;
+}
+
+/* ==========================================================================
+   Preview
+   ========================================================================== */
+
+.danx-file-navigator__preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.danx-file-navigator__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.danx-file-navigator__video {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.danx-file-navigator__no-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--color-text-muted);
+  padding: 2rem;
+
+  .danx-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  span {
+    font-size: 0.875rem;
+    text-align: center;
+    word-break: break-all;
+  }
+}
+
+/* ==========================================================================
+   Thumbnail Strip
+   ========================================================================== */
+
+.danx-file-strip {
+  display: flex;
+  gap: var(--dx-file-strip-gap);
+  padding: 0.5rem;
+  background: var(--dx-file-strip-bg);
+  border-top: 1px solid var(--color-border);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.danx-file-strip__thumb {
+  width: var(--dx-file-strip-thumb-size);
+  height: var(--dx-file-strip-thumb-size);
+  flex-shrink: 0;
+  border-radius: var(--radius-button);
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-border-strong);
+  }
+}
+
+.danx-file-strip__thumb--active {
+  border: var(--dx-file-strip-active-border);
+}
+
+/* ==========================================================================
+   Responsive - Container Queries
+   ========================================================================== */
+
+@container (max-width: 480px) {
+  .danx-file-navigator__filename {
+    font-size: 0.75rem;
+  }
+
+  .danx-file-navigator__counter {
+    display: none;
+  }
+
+  .danx-file-strip {
+    display: none;
+  }
+
+  .danx-file-navigator__arrow {
+    width: 2rem;
+    height: 2rem;
+
+    .danx-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  .danx-file-metadata--docked {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border-left: none;
+  }
+}
+
+@container (min-width: 480px) and (max-width: 768px) {
+  .danx-file-navigator__filename {
+    font-size: 0.8125rem;
+  }
+}
+

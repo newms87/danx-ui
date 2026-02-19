@@ -1,0 +1,250 @@
+/**
+ * DanxFile Layout Styles
+ *
+ * Thumbnail component styles including preview states, progress bar,
+ * error overlay, action buttons, and remove confirmation.
+ *
+ * BEM modifiers are top-level blocks (Lightning CSS limitation).
+ */
+
+/* ==========================================================================
+   Base Thumbnail Container
+   ========================================================================== */
+
+.danx-file {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  background: var(--dx-file-thumb-bg);
+  border-radius: var(--dx-file-thumb-border-radius);
+  width: 100%;
+  aspect-ratio: 1;
+  cursor: pointer;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.danx-file--disabled {
+  cursor: default;
+}
+
+/* ==========================================================================
+   Preview Image
+   ========================================================================== */
+
+.danx-file__image {
+  width: 100%;
+  height: 100%;
+  object-fit: var(--dx-file-thumb-fit, cover);
+  display: block;
+}
+
+/* ==========================================================================
+   Video Play Icon Overlay
+   ========================================================================== */
+
+.danx-file__play-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+
+  .danx-icon {
+    width: var(--dx-file-thumb-play-size);
+    height: var(--dx-file-thumb-play-size);
+    color: var(--dx-file-thumb-action-color);
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.4));
+  }
+}
+
+/* ==========================================================================
+   File-Type Icon (non-previewable files)
+   ========================================================================== */
+
+.danx-file__type-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  color: var(--dx-file-thumb-icon-color);
+  padding: 0.75rem;
+
+  .danx-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.danx-file__type-icon-name {
+  font-size: 0.625rem;
+  line-height: 1.2;
+  text-align: center;
+  word-break: break-all;
+  max-height: 2.4em;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Filename Overlay
+   ========================================================================== */
+
+.danx-file__filename {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  background: rgb(0 0 0 / 0.6);
+  color: var(--dx-file-thumb-action-color);
+  font-size: 0.625rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   Hover Actions Overlay
+   ========================================================================== */
+
+.danx-file__actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  .danx-file:hover & {
+    opacity: 1;
+  }
+}
+
+.danx-file__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-button);
+  background: var(--dx-file-thumb-overlay-bg);
+  color: var(--dx-file-thumb-action-color);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgb(0 0 0 / 0.7);
+  }
+
+  .danx-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+}
+
+.danx-file__action-btn--armed {
+  background: var(--color-danger);
+
+  &:hover {
+    background: var(--color-danger-hover);
+  }
+}
+
+/* ==========================================================================
+   Progress Overlay
+   ========================================================================== */
+
+.danx-file__progress {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--dx-file-thumb-progress-track);
+  padding: 0.75rem;
+}
+
+.danx-file__progress-text {
+  color: var(--dx-file-thumb-progress-text);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.danx-file__progress-bar {
+  width: 80%;
+  height: 0.25rem;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.25);
+  overflow: hidden;
+}
+
+.danx-file__progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--dx-file-thumb-progress-bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 0.25rem,
+    rgb(255 255 255 / 0.15) 0.25rem,
+    rgb(255 255 255 / 0.15) 0.5rem
+  );
+  background-size: 1rem 1rem;
+  animation: danx-file-progress-stripe 0.6s linear infinite;
+  transition: width 0.3s ease;
+}
+
+@keyframes danx-file-progress-stripe {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 1rem 0;
+  }
+}
+
+/* ==========================================================================
+   Error Overlay
+   ========================================================================== */
+
+.danx-file__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--dx-file-thumb-error-bg);
+  color: var(--dx-file-thumb-error-color);
+  padding: 0.75rem;
+
+  .danx-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.danx-file__error-text {
+  font-size: 0.625rem;
+  line-height: 1.3;
+  text-align: center;
+  max-height: 2.6em;
+  overflow: hidden;
+}

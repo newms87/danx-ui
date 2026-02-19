@@ -1,0 +1,8 @@
+/**
+ * DanxFile Entry Styles
+ *
+ * Imports tokens and layout for the file thumbnail component.
+ */
+
+@import "./danx-file-tokens.css";
+@import "./danx-file-layout.css";
