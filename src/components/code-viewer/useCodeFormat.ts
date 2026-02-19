@@ -92,7 +92,7 @@ export function quoteYamlHashValues(str: string): string {
       if (!match) return line;
 
       const [, prefix, value] = match;
-      const trimmed = value.trim();
+      const trimmed = value!.trim();
 
       // Skip if value is already quoted (single or double)
       if (/^["'].*["']$/.test(trimmed)) return line;

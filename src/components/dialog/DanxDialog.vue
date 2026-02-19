@@ -191,74 +191,81 @@ function handleConfirm() {
       ref="dialogRef"
       class="danx-dialog"
       @wheel.stop
+      @keydown.stop
+      @keyup.stop
+      @keypress.stop
       @mousedown.stop
       @mousemove.stop
       @mouseup.stop
       @pointerdown.stop
       @pointermove.stop
       @pointerup.stop
+      @touchstart.stop
+      @touchmove.stop
+      @touchend.stop
+      @contextmenu.stop
       @click.self="handleBackdropClick"
       @cancel="handleCancel"
       @close="handleNativeClose"
     >
-    <!-- Box wrapper (relative container for close-x positioning) -->
-    <div class="danx-dialog__wrapper">
-      <!-- Close X Button (outside box to avoid overflow clipping) -->
-      <DanxButton
-        v-if="props.closeX"
-        icon="close"
-        size="xs"
-        class="danx-dialog__close-x"
-        aria-label="Close dialog"
-        @click="handleClose"
-      />
+      <!-- Box wrapper (relative container for close-x positioning) -->
+      <div class="danx-dialog__wrapper">
+        <!-- Close X Button (outside box to avoid overflow clipping) -->
+        <DanxButton
+          v-if="props.closeX"
+          icon="close"
+          size="xs"
+          class="danx-dialog__close-x"
+          aria-label="Close dialog"
+          @click="handleClose"
+        />
 
-      <!-- Visible dialog box -->
-      <div class="danx-dialog__box" :style="dialogStyle">
-        <!-- Header -->
-        <header
-          v-if="title || subtitle || $slots.title || $slots.subtitle"
-          class="danx-dialog__header"
-        >
-          <div v-if="title || $slots.title" class="danx-dialog__title">
-            <slot name="title">{{ title }}</slot>
-          </div>
-          <div v-if="subtitle || $slots.subtitle" class="danx-dialog__subtitle">
-            <slot name="subtitle">{{ subtitle }}</slot>
-          </div>
-        </header>
+        <!-- Visible dialog box -->
+        <div class="danx-dialog__box" :style="dialogStyle">
+          <!-- Header -->
+          <header
+            v-if="title || subtitle || $slots.title || $slots.subtitle"
+            class="danx-dialog__header"
+          >
+            <div v-if="title || $slots.title" class="danx-dialog__title">
+              <slot name="title">{{ title }}</slot>
+            </div>
+            <div v-if="subtitle || $slots.subtitle" class="danx-dialog__subtitle">
+              <slot name="subtitle">{{ subtitle }}</slot>
+            </div>
+          </header>
 
-        <!-- Content -->
-        <div class="danx-dialog__content">
-          <slot />
+          <!-- Content -->
+          <div class="danx-dialog__content">
+            <slot />
+          </div>
+
+          <!-- Footer/Actions -->
+          <footer v-if="showFooter || $slots.actions" class="danx-dialog__footer">
+            <slot name="actions">
+              <!-- Close Button -->
+              <slot v-if="closeButton" name="close-button">
+                <DanxButton class="danx-dialog__button--secondary" @click="handleClose">
+                  {{ closeButtonText }}
+                </DanxButton>
+              </slot>
+
+              <!-- Confirm Button -->
+              <slot v-if="confirmButton" name="confirm-button">
+                <DanxButton
+                  type="info"
+                  class="danx-dialog__button--primary"
+                  :disabled="disabled"
+                  :loading="isSaving"
+                  @click="handleConfirm"
+                >
+                  {{ confirmButtonText }}
+                </DanxButton>
+              </slot>
+            </slot>
+          </footer>
         </div>
-
-        <!-- Footer/Actions -->
-        <footer v-if="showFooter || $slots.actions" class="danx-dialog__footer">
-          <slot name="actions">
-            <!-- Close Button -->
-            <slot v-if="closeButton" name="close-button">
-              <DanxButton class="danx-dialog__button--secondary" @click="handleClose">
-                {{ closeButtonText }}
-              </DanxButton>
-            </slot>
-
-            <!-- Confirm Button -->
-            <slot v-if="confirmButton" name="confirm-button">
-              <DanxButton
-                type="info"
-                class="danx-dialog__button--primary"
-                :disabled="disabled"
-                :loading="isSaving"
-                @click="handleConfirm"
-              >
-                {{ confirmButtonText }}
-              </DanxButton>
-            </slot>
-          </slot>
-        </footer>
       </div>
-    </div>
     </dialog>
   </Teleport>
 </template>

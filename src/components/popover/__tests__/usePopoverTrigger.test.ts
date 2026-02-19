@@ -136,7 +136,7 @@ describe("usePopoverTrigger", () => {
     });
 
     it("cancels close timer when entering panel", async () => {
-      const { triggerRef, panelRef, isOpen, wrapper } = createTrigger("hover", 100);
+      const { triggerRef, panelRef, isOpen } = createTrigger("hover", 100);
       await nextTick();
 
       // Open

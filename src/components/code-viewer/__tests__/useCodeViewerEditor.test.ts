@@ -1059,7 +1059,7 @@ describe("useCodeViewerEditor", () => {
       const annotations = ref<CodeAnnotation[]>([
         { path: "name", message: "Name is required", type: "error" },
       ]);
-      const { codeRef, editor, editable } = createEditor({
+      const { codeRef, editor } = createEditor({
         annotations,
         currentFormat: ref<CodeFormat>("yaml"),
         editable: ref(true),
