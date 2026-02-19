@@ -50,6 +50,25 @@ import { MarkdownEditor } from "../../src/components/markdown-editor";
 import { DanxButtonGroup } from "../../src/components/buttonGroup";
 import { DanxTabs } from "../../src/components/tabs";
 import { DanxTooltip } from "../../src/components/tooltip";
+import { DanxFile } from "../../src/components/danx-file";
+import {
+  DanxFileNavigator,
+  useDanxFileNavigator,
+  useDanxFileMetadata,
+} from "../../src/components/danx-file-navigator";
+import {
+  resolveFileUrl,
+  resolveThumbUrl,
+  isImage,
+  isVideo,
+  isPdf,
+  isPreviewable,
+  isInProgress,
+  hasChildren,
+  fileTypeIcon,
+  formatFileSize,
+} from "../../src/components/danx-file";
+import { downloadFile } from "../../src/shared/download";
 import {
   fCurrency,
   fCurrencyNoCents,
@@ -107,6 +126,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButtonGroup,
   DanxTabs,
   DanxTooltip,
+  DanxFile,
+  DanxFileNavigator,
 };
 
 /**
@@ -184,6 +205,22 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useAutoColor,
   hashStringToIndex,
   AUTO_COLOR_PALETTE,
+  // DanxFile + DanxFileNavigator
+  DanxFile,
+  DanxFileNavigator,
+  resolveFileUrl,
+  resolveThumbUrl,
+  isImage,
+  isVideo,
+  isPdf,
+  isPreviewable,
+  isInProgress,
+  hasChildren,
+  fileTypeIcon,
+  formatFileSize,
+  downloadFile,
+  useDanxFileNavigator,
+  useDanxFileMetadata,
 };
 
 const DEBOUNCE_MS = 250;

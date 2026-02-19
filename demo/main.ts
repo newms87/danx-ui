@@ -16,6 +16,8 @@ import FormattersPage from "./pages/FormattersPage.vue";
 import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
 import TabsPage from "./pages/TabsPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
+import DanxFilePage from "./pages/DanxFilePage.vue";
+import DanxFileNavigatorPage from "./pages/DanxFileNavigatorPage.vue";
 
 // Import global styles
 import "../src/styles.css";
@@ -38,6 +40,8 @@ const router = createRouter({
     { path: "/button-group", name: "button-group", component: ButtonGroupPage },
     { path: "/tabs", name: "tabs", component: TabsPage },
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
+    { path: "/danx-file", name: "danx-file", component: DanxFilePage },
+    { path: "/danx-file-navigator", name: "danx-file-navigator", component: DanxFileNavigatorPage },
   ],
 });
 

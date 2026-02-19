@@ -17,6 +17,8 @@ export { MarkdownEditor } from "./components/markdown-editor";
 export { DanxTabs } from "./components/tabs";
 export { DanxButtonGroup } from "./components/buttonGroup";
 export { DanxTooltip } from "./components/tooltip";
+export { DanxFile } from "./components/danx-file";
+export { DanxFileNavigator } from "./components/danx-file-navigator";
 
 // Composables
 export {
@@ -27,6 +29,20 @@ export {
 export { calculateContextMenuPosition } from "./components/context-menu";
 export { useDialog } from "./components/dialog";
 export { useMarkdownEditor } from "./components/markdown-editor";
+export {
+  resolveFileUrl,
+  resolveThumbUrl,
+  isImage,
+  isVideo,
+  isPdf,
+  isPreviewable,
+  isInProgress,
+  hasChildren,
+  fileTypeIcon,
+  formatFileSize,
+} from "./components/danx-file";
+export { useDanxFileNavigator, useDanxFileMetadata } from "./components/danx-file-navigator";
+export { downloadFile } from "./shared/download";
 
 // Icons
 export * from "./components/icon/icons";
@@ -109,6 +125,19 @@ export type {
   TooltipInteraction,
   TooltipType,
 } from "./components/tooltip";
+export type {
+  PreviewFile,
+  ImageFit,
+  MetadataMode,
+  DanxFileProps,
+  DanxFileEmits,
+  DanxFileSlots,
+} from "./components/danx-file";
+export type {
+  UseDanxFileNavigatorOptions,
+  UseDanxFileNavigatorReturn,
+  UseDanxFileMetadataReturn,
+} from "./components/danx-file-navigator";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";

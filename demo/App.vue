@@ -98,6 +98,14 @@ watch(theme, (newTheme) => {
             <li>
               <RouterLink to="/tooltip" class="demo-sidebar__link">Tooltip</RouterLink>
             </li>
+            <li>
+              <RouterLink to="/danx-file" class="demo-sidebar__link">File</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/danx-file-navigator" class="demo-sidebar__link"
+                >File Navigator</RouterLink
+              >
+            </li>
           </ul>
         </li>
         <li>
