@@ -55,6 +55,7 @@ import {
   DanxFileNavigator,
   useDanxFileNavigator,
   useDanxFileMetadata,
+  useVirtualCarousel,
 } from "../../src/components/danx-file-navigator";
 import {
   resolveFileUrl,
@@ -221,6 +222,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   downloadFile,
   useDanxFileNavigator,
   useDanxFileMetadata,
+  useVirtualCarousel,
 };
 
 const DEBOUNCE_MS = 250;

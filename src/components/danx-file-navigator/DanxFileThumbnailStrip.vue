@@ -8,6 +8,9 @@
  * Inactive thumbnails have reduced opacity; the active thumbnail scales up.
  * Index badges appear on thumbnails when there are 3+ files.
  *
+ * Uses raw <img> elements for performance (avoids DanxFile overhead).
+ * Falls back to a document icon when no thumbnail URL is available.
+ *
  * @props
  *   files: PreviewFile[] - Files to display as thumbnails
  *   activeFileId: string - ID of the currently active file
@@ -27,7 +30,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from "vue";
-import { DanxFile } from "../danx-file";
+import { DanxIcon } from "../icon";
+import { resolveThumbUrl, isImage, isVideo } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 
 const props = defineProps<{
@@ -41,6 +45,15 @@ const emit = defineEmits<{
 
 const showBadges = computed(() => props.files.length >= 3);
 const stripRef = ref<HTMLElement | null>(null);
+
+/**
+ * Determine if a file has a displayable thumbnail URL.
+ * Only image and video files have meaningful thumbnails.
+ */
+function hasThumbUrl(file: PreviewFile): boolean {
+  if (!isImage(file) && !isVideo(file)) return false;
+  return !!resolveThumbUrl(file);
+}
 
 // Auto-scroll to active thumbnail
 watch(
@@ -65,7 +78,13 @@ watch(
       :class="{ 'danx-file-strip__thumb--active': file.id === activeFileId }"
       @click="emit('select', file)"
     >
-      <DanxFile :file="file" fit="cover" disabled />
+      <img
+        v-if="hasThumbUrl(file)"
+        class="danx-file-strip__img"
+        :src="resolveThumbUrl(file)"
+        :alt="file.name"
+      />
+      <DanxIcon v-else icon="document" class="danx-file-strip__fallback-icon" />
       <span v-if="showBadges" class="danx-file-strip__badge">{{ index + 1 }}</span>
     </div>
   </div>

@@ -33,7 +33,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem var(--dx-file-nav-header-padding);
   background: var(--dx-file-nav-header-bg);
   color: var(--dx-file-nav-header-color);
   border-bottom: 1px solid var(--color-border);
@@ -160,16 +160,75 @@
 }
 
 /* ==========================================================================
-   Preview
+   Standalone Close Button
    ========================================================================== */
 
-.danx-file-navigator__preview {
-  width: 100%;
-  height: 100%;
+.danx-file-navigator__close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 30;
+  width: var(--dx-file-nav-close-btn-size);
+  height: var(--dx-file-nav-close-btn-size);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--dx-file-nav-close-btn-bg-hover);
+  }
+
+  .danx-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
+
+/* ==========================================================================
+   Virtual Carousel Slides
+   ========================================================================== */
+
+.danx-file-navigator__slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dx-file-nav-slide-transition) ease;
+  z-index: 0;
+}
+
+.danx-file-navigator__slide--active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   Metadata Badge
+   ========================================================================== */
+
+.danx-file-navigator__meta-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.125rem 0.3rem;
+  border-radius: 9999px;
+  background: var(--color-interactive);
+  color: var(--color-text-inverted);
+  margin-left: 0.25rem;
+}
+
+/* ==========================================================================
+   Preview
+   ========================================================================== */
 
 .danx-file-navigator__image {
   max-width: 100%;
@@ -242,6 +301,19 @@
   transform: scale(var(--dx-file-strip-active-scale));
 }
 
+.danx-file-strip__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.danx-file-strip__fallback-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-text-muted);
+  margin: auto;
+}
+
 .danx-file-strip__badge {
   position: absolute;
   bottom: 0.125rem;
@@ -251,7 +323,7 @@
   line-height: 1;
   padding: 0.125rem 0.25rem;
   border-radius: 9999px;
-  background: rgb(0 0 0 / 0.5);
+  background: var(--dx-file-strip-badge-bg);
   color: white;
   pointer-events: none;
 }

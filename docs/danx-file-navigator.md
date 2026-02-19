@@ -4,10 +4,14 @@ A responsive standalone file viewer with carousel navigation, metadata panel, an
 
 ## Features
 
+- **Virtual carousel** - Renders current ±2 slides with opacity transitions for smooth navigation
 - **Responsive layout** - CSS container queries adapt to container size
 - **Carousel navigation** - Arrow buttons, keyboard (ArrowLeft/Right), thumbnail strip
-- **Metadata panel** - YAML-formatted metadata with overlay and docked modes
+- **Standalone close button** - 4rem absolute top-right button (z-30) when `closable` is true
+- **Metadata panel** - YAML-formatted metadata with overlay and docked modes (40% width, 300-600px range)
+- **Metadata badge** - Info count badge next to the metadata button
 - **Children menu** - Popover listing child files (transcodes, PDF pages)
+- **Raw image thumbnails** - Strip uses `<img>` directly for performance (no DanxFile overhead)
 - **Download** - Auto-downloads via browser utility and emits event
 - **Keyboard navigation** - ArrowLeft/Right on focused container
 - **Completely independent** - No dependency on DanxFile; parent wires them together
@@ -62,7 +66,7 @@ const mainFile: PreviewFile = {
 | `file` | `PreviewFile` | required | The main/anchor file |
 | `relatedFiles` | `PreviewFile[]` | `[]` | Related files for carousel |
 | `downloadable` | `boolean` | `false` | Show download button |
-| `closable` | `boolean` | `false` | Show close button |
+| `closable` | `boolean` | `false` | Show standalone close button (top-right) |
 
 ## Models
 
@@ -126,6 +130,16 @@ const {
 } = useDanxFileMetadata();
 ```
 
+### useVirtualCarousel
+
+Virtual slide buffer for smooth carousel transitions. Renders current ±2 slides.
+
+```typescript
+const { visibleSlides } = useVirtualCarousel(files, currentIndex);
+// visibleSlides: Ref<VirtualSlide[]>
+// Each slide: { file: PreviewFile, index: number, isActive: boolean }
+```
+
 ## CSS Tokens
 
 | Token | Default | Description |
@@ -134,6 +148,9 @@ const {
 | `--dx-file-nav-header-bg` | `var(--color-surface-sunken)` | Header background |
 | `--dx-file-nav-header-color` | `var(--color-text)` | Header text |
 | `--dx-file-nav-header-opacity` | `0.9` | Header resting opacity |
+| `--dx-file-nav-header-padding` | `1rem` | Header horizontal padding |
+| `--dx-file-nav-close-btn-size` | `4rem` | Standalone close button size |
+| `--dx-file-nav-slide-transition` | `300ms` | Slide opacity transition |
 | `--dx-file-nav-arrow-size` | `2rem` | Arrow icon size |
 | `--dx-file-nav-arrow-color` | `white` | Arrow icon color |
 | `--dx-file-nav-arrow-bg` | `rgb(0 0 0 / 0.4)` | Arrow background |
@@ -146,7 +163,9 @@ const {
 | `--dx-file-strip-inactive-opacity` | `0.6` | Inactive thumb opacity |
 | `--dx-file-strip-active-scale` | `1.1` | Active thumb scale |
 | `--dx-file-meta-bg` | `var(--color-surface-sunken)` | Metadata background |
-| `--dx-file-meta-width` | `20rem` | Docked metadata width |
+| `--dx-file-meta-width` | `40%` | Metadata panel width |
+| `--dx-file-meta-max-width` | `37.5rem` | Metadata max width |
+| `--dx-file-meta-min-width` | `18.75rem` | Metadata min width |
 | `--dx-file-meta-border-color` | `var(--color-border)` | Metadata border |
 | `--dx-file-children-bg` | `var(--color-surface-elevated)` | Children menu bg |
 | `--dx-file-children-thumb-size` | `2.5rem` | Children thumbnail size |

@@ -41,7 +41,11 @@ export {
   fileTypeIcon,
   formatFileSize,
 } from "./components/danx-file";
-export { useDanxFileNavigator, useDanxFileMetadata } from "./components/danx-file-navigator";
+export {
+  useDanxFileNavigator,
+  useDanxFileMetadata,
+  useVirtualCarousel,
+} from "./components/danx-file-navigator";
 export { downloadFile } from "./shared/download";
 
 // Icons
@@ -137,6 +141,7 @@ export type {
   UseDanxFileNavigatorOptions,
   UseDanxFileNavigatorReturn,
   UseDanxFileMetadataReturn,
+  VirtualSlide,
 } from "./components/danx-file-navigator";
 
 // Auto-color

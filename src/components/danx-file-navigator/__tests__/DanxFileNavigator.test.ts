@@ -43,23 +43,46 @@ describe("DanxFileNavigator", () => {
       expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
     });
 
-    it("renders image preview for image files", () => {
+    it("renders image preview inside active slide for image files", () => {
       const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator__image").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
+      expect(activeSlide.exists()).toBe(true);
+      expect(activeSlide.find(".danx-file-navigator__image").exists()).toBe(true);
     });
 
-    it("renders video preview for video files", () => {
+    it("renders video preview inside active slide for video files", () => {
       const wrapper = mountNavigator({
         file: makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
       });
-      expect(wrapper.find(".danx-file-navigator__video").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
+      expect(activeSlide.find(".danx-file-navigator__video").exists()).toBe(true);
     });
 
-    it("renders no-preview for non-previewable files", () => {
+    it("renders no-preview inside active slide for non-previewable files", () => {
       const wrapper = mountNavigator({
         file: makeFile("1", { type: "application/pdf" }),
       });
-      expect(wrapper.find(".danx-file-navigator__no-preview").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
+      expect(activeSlide.find(".danx-file-navigator__no-preview").exists()).toBe(true);
+    });
+  });
+
+  describe("Virtual carousel", () => {
+    it("renders multiple slides when navigating with related files", () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2"), makeFile("3")],
+      });
+      const slides = wrapper.findAll(".danx-file-navigator__slide");
+      // At index 0 with 3 files, buffer shows indices 0-2
+      expect(slides.length).toBe(3);
+    });
+
+    it("only one slide has --active class", () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2"), makeFile("3")],
+      });
+      const activeSlides = wrapper.findAll(".danx-file-navigator__slide--active");
+      expect(activeSlides.length).toBe(1);
     });
   });
 
@@ -151,30 +174,51 @@ describe("DanxFileNavigator", () => {
     });
   });
 
+  describe("Standalone close button", () => {
+    it("shows standalone close button when closable", () => {
+      const wrapper = mountNavigator({ closable: true });
+      expect(wrapper.find(".danx-file-navigator__close-btn").exists()).toBe(true);
+    });
+
+    it("does not show standalone close button when not closable", () => {
+      const wrapper = mountNavigator();
+      expect(wrapper.find(".danx-file-navigator__close-btn").exists()).toBe(false);
+    });
+
+    it("emits close when standalone close button clicked", async () => {
+      const wrapper = mountNavigator({ closable: true });
+      await wrapper.find(".danx-file-navigator__close-btn").trigger("click");
+      expect(wrapper.emitted("close")).toHaveLength(1);
+    });
+  });
+
   describe("Header actions", () => {
     it("shows download button when downloadable", () => {
       const wrapper = mountNavigator({ downloadable: true });
-      const btns = wrapper.findAll(".danx-file-navigator__header-actions .danx-button");
-      expect(btns.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it("shows close button when closable", () => {
-      const wrapper = mountNavigator({ closable: true });
-      const btns = wrapper.findAll(".danx-file-navigator__header-actions .danx-button");
-      expect(btns.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it("emits close when close button clicked", async () => {
-      const wrapper = mountNavigator({ closable: true });
-      const btns = wrapper.findAll(".danx-file-navigator__header-actions .danx-button");
-      await btns[btns.length - 1]!.trigger("click");
-      expect(wrapper.emitted("close")).toHaveLength(1);
+      const downloadBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Download");
+      expect(downloadBtn).toBeTruthy();
     });
 
     it("emits download when download button clicked", async () => {
       const wrapper = mountNavigator({ downloadable: true });
-      const btns = wrapper.findAll(".danx-file-navigator__header-actions .danx-button");
-      await btns[0]!.trigger("click");
+      const downloadBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Download")!;
+      await downloadBtn.trigger("click");
+      expect(wrapper.emitted("download")).toBeTruthy();
+    });
+
+    it("emits download even when file has no URL", async () => {
+      const wrapper = mountNavigator({
+        file: makeFile("1", { type: "application/pdf", url: "" }),
+        downloadable: true,
+      });
+      const downloadBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Download")!;
+      await downloadBtn.trigger("click");
       expect(wrapper.emitted("download")).toBeTruthy();
     });
   });
@@ -212,6 +256,15 @@ describe("DanxFileNavigator", () => {
     });
   });
 
+  describe("Children menu", () => {
+    it("shows children menu when file.children is undefined", () => {
+      const file = makeFile("1");
+      delete (file as unknown as Record<string, unknown>).children;
+      const wrapper = mountNavigator({ file });
+      expect(wrapper.findComponent({ name: "DanxFileChildrenMenu" }).exists()).toBe(true);
+    });
+  });
+
   describe("Metadata", () => {
     it("shows metadata button when file has meta", () => {
       const wrapper = mountNavigator({
@@ -239,6 +292,15 @@ describe("DanxFileNavigator", () => {
         .findAll(".danx-file-navigator__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata");
       expect(metaBtn).toBeTruthy();
+    });
+
+    it("shows metadata badge with info count", () => {
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800, height: 600 }, exif: { camera: "Canon" } }),
+      });
+      const badge = wrapper.find(".danx-file-navigator__meta-badge");
+      expect(badge.exists()).toBe(true);
+      expect(badge.text()).toBe("3");
     });
 
     it("toggles metadata panel when metadata button clicked", async () => {

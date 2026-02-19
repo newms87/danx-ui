@@ -3,13 +3,14 @@ import { describe, it, expect, afterEach } from "vitest";
 import DanxFileThumbnailStrip from "../DanxFileThumbnailStrip.vue";
 import type { PreviewFile } from "../../danx-file/types";
 
-function makeFile(id: string): PreviewFile {
+function makeFile(id: string, overrides: Partial<PreviewFile> = {}): PreviewFile {
   return {
     id,
     name: `file-${id}.jpg`,
     size: 1024,
     type: "image/jpeg",
     url: `https://example.com/${id}.jpg`,
+    ...overrides,
   };
 }
 
@@ -108,15 +109,58 @@ describe("DanxFileThumbnailStrip", () => {
     });
   });
 
-  describe("DanxFile integration", () => {
-    it("renders DanxFile inside each thumb with disabled and cover fit", () => {
+  describe("Raw image thumbnails", () => {
+    it("renders raw img elements for image files", () => {
       const wrapper = mountStrip();
-      const danxFiles = wrapper.findAll(".danx-file");
-      expect(danxFiles.length).toBe(2);
-      // All should have disabled class
-      for (const df of danxFiles) {
-        expect(df.classes()).toContain("danx-file--disabled");
-      }
+      const imgs = wrapper.findAll(".danx-file-strip__img");
+      expect(imgs.length).toBe(2);
+    });
+
+    it("sets correct src on img elements", () => {
+      const wrapper = mountStrip();
+      const img = wrapper.find(".danx-file-strip__img");
+      expect(img.attributes("src")).toBe("https://example.com/1.jpg");
+    });
+
+    it("renders fallback icon for non-previewable files", () => {
+      const wrapper = mountStrip({
+        files: [
+          makeFile("1", { type: "application/pdf", url: "https://example.com/doc.pdf" }),
+          makeFile("2"),
+        ],
+      });
+      const icons = wrapper.findAll(".danx-file-strip__fallback-icon");
+      expect(icons.length).toBe(1);
+    });
+
+    it("uses thumb URL when available", () => {
+      const wrapper = mountStrip({
+        files: [
+          makeFile("1", { thumb: { url: "https://example.com/thumb-1.jpg" } }),
+          makeFile("2"),
+        ],
+      });
+      const imgs = wrapper.findAll(".danx-file-strip__img");
+      expect(imgs[0]!.attributes("src")).toBe("https://example.com/thumb-1.jpg");
+    });
+
+    it("renders img for video file thumbnails", () => {
+      const wrapper = mountStrip({
+        files: [
+          makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
+          makeFile("2"),
+        ],
+      });
+      const imgs = wrapper.findAll(".danx-file-strip__img");
+      expect(imgs.length).toBe(2);
+    });
+
+    it("renders fallback icon for image file with no URL", () => {
+      const wrapper = mountStrip({
+        files: [makeFile("1", { url: "" }), makeFile("2")],
+      });
+      const icons = wrapper.findAll(".danx-file-strip__fallback-icon");
+      expect(icons.length).toBe(1);
     });
   });
 });

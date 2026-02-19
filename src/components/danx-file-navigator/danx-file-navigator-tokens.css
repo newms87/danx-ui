@@ -9,11 +9,14 @@
  * --dx-file-nav-header-bg            Header background color
  * --dx-file-nav-header-color         Header text color
  * --dx-file-nav-header-opacity       Header resting opacity (hover → 1)
+ * --dx-file-nav-header-padding       Header horizontal padding
  * --dx-file-nav-arrow-size           Navigation arrow icon size
  * --dx-file-nav-arrow-color          Navigation arrow color
  * --dx-file-nav-arrow-bg             Navigation arrow button background
  * --dx-file-nav-arrow-bg-hover       Navigation arrow hover background
  * --dx-file-nav-counter-color        Slide counter text color
+ * --dx-file-nav-close-btn-size       Standalone close button dimensions
+ * --dx-file-nav-slide-transition     Slide opacity transition duration
  * --dx-file-strip-gap                Gap between strip thumbnails
  * --dx-file-strip-thumb-size         Strip thumbnail width and height
  * --dx-file-strip-active-border      Border for the active strip thumbnail
@@ -22,6 +25,8 @@
  * --dx-file-strip-active-scale       Active thumbnail scale
  * --dx-file-meta-bg                  Metadata panel background
  * --dx-file-meta-width               Metadata panel width (docked mode)
+ * --dx-file-meta-max-width           Metadata panel maximum width
+ * --dx-file-meta-min-width           Metadata panel minimum width
  * --dx-file-meta-border-color        Metadata panel border
  * --dx-file-children-bg              Children menu background
  * --dx-file-children-thumb-size      Children menu thumbnail size
@@ -37,6 +42,7 @@
   --dx-file-nav-header-color: var(--color-text);
 
   --dx-file-nav-header-opacity: 0.9;
+  --dx-file-nav-header-padding: 1rem;
 
   /* ==========================================================================
      Navigation Arrows
@@ -54,6 +60,19 @@
   --dx-file-nav-counter-color: var(--color-text-muted);
 
   /* ==========================================================================
+     Close Button
+     ========================================================================== */
+
+  --dx-file-nav-close-btn-size: 4rem;
+  --dx-file-nav-close-btn-bg-hover: rgb(0 0 0 / 0.15);
+
+  /* ==========================================================================
+     Slide Transitions
+     ========================================================================== */
+
+  --dx-file-nav-slide-transition: 300ms;
+
+  /* ==========================================================================
      Thumbnail Strip
      ========================================================================== */
 
@@ -63,13 +82,16 @@
   --dx-file-strip-bg: var(--color-surface-sunken);
   --dx-file-strip-inactive-opacity: 0.6;
   --dx-file-strip-active-scale: 1.1;
+  --dx-file-strip-badge-bg: rgb(0 0 0 / 0.5);
 
   /* ==========================================================================
      Metadata Panel
      ========================================================================== */
 
   --dx-file-meta-bg: var(--color-surface);
-  --dx-file-meta-width: 20rem;
+  --dx-file-meta-width: 40%;
+  --dx-file-meta-max-width: 37.5rem;
+  --dx-file-meta-min-width: 18.75rem;
   --dx-file-meta-border-color: var(--color-border);
 
   /* ==========================================================================

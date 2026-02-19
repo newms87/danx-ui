@@ -1,11 +1,12 @@
 <!--
 /**
- * DanxFileNavigator - Responsive standalone file viewer
+ * DanxFileNavigator - Responsive standalone file viewer with virtual carousel
  *
  * A responsive file viewer that fills its container. Completely independent
  * from DanxFile. Can be embedded anywhere — in a dialog, sidebar, or page section.
  * Supports image and video preview, navigation between related files,
- * keyboard navigation, and download.
+ * keyboard navigation, and download. Uses a virtual carousel that renders
+ * current ±2 slides with opacity transitions for smooth navigation.
  *
  * @models
  *   fileInPreview: PreviewFile | null - Currently active file (emits on navigation)
@@ -14,7 +15,7 @@
  *   file: PreviewFile - The main/anchor file (required)
  *   relatedFiles?: PreviewFile[] - Related files for carousel navigation
  *   downloadable?: boolean - Show download button in header
- *   closable?: boolean - Show close button in header
+ *   closable?: boolean - Show close button (standalone, top-right)
  *
  * @emits
  *   update:fileInPreview(file | null) - Active file changed
@@ -30,11 +31,14 @@
  *   --dx-file-nav-header-bg - Header background
  *   --dx-file-nav-header-color - Header text color
  *   --dx-file-nav-header-opacity - Header resting opacity (hover → 1)
+ *   --dx-file-nav-header-padding - Header horizontal padding
  *   --dx-file-nav-arrow-size - Navigation arrow size
  *   --dx-file-nav-arrow-color - Navigation arrow color
  *   --dx-file-nav-arrow-bg - Navigation arrow background
  *   --dx-file-nav-arrow-bg-hover - Navigation arrow hover background
  *   --dx-file-nav-counter-color - Slide counter color
+ *   --dx-file-nav-close-btn-size - Standalone close button dimensions
+ *   --dx-file-nav-slide-transition - Slide opacity transition duration
  *   --dx-file-strip-gap - Thumbnail strip gap
  *   --dx-file-strip-thumb-size - Thumbnail strip thumb size
  *   --dx-file-strip-active-border - Active thumbnail border
@@ -63,6 +67,7 @@ import { resolveFileUrl, isImage, isVideo, hasChildren } from "../danx-file/file
 import type { PreviewFile } from "../danx-file/types";
 import { useDanxFileNavigator } from "./useDanxFileNavigator";
 import { useDanxFileMetadata } from "./useDanxFileMetadata";
+import { useVirtualCarousel } from "./useVirtualCarousel";
 import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
 import DanxFileMetadata from "./DanxFileMetadata.vue";
 import DanxFileChildrenMenu from "./DanxFileChildrenMenu.vue";
@@ -98,6 +103,7 @@ defineSlots<{
 
 const {
   currentFile,
+  currentIndex,
   allFiles,
   hasNext,
   hasPrev,
@@ -116,6 +122,9 @@ const {
   },
 });
 
+// Virtual carousel: renders current ±2 slides for smooth opacity transitions
+const { visibleSlides } = useVirtualCarousel(allFiles, currentIndex);
+
 // Sync fileInPreview on mount
 watch(
   currentFile,
@@ -126,9 +135,10 @@ watch(
 );
 
 // Metadata and children state
-const { mode: metadataMode, hasAnyInfo } = useDanxFileMetadata();
+const { mode: metadataMode, hasAnyInfo, metaCount, exifCount } = useDanxFileMetadata();
 const showMetadata = ref(false);
 const hasMetadata = computed(() => hasAnyInfo(currentFile.value));
+const infoCount = computed(() => metaCount(currentFile.value) + exifCount(currentFile.value));
 const showChildrenMenu = computed(
   () => hasChildren(currentFile.value) || !currentFile.value.children
 );
@@ -136,10 +146,6 @@ const showChildrenMenu = computed(
 function toggleMetadata() {
   showMetadata.value = !showMetadata.value;
 }
-
-const fileUrl = computed(() => resolveFileUrl(currentFile.value));
-const showImage = computed(() => isImage(currentFile.value) && !!fileUrl.value);
-const showVideo = computed(() => isVideo(currentFile.value) && !!fileUrl.value);
 
 function onDownload() {
   const url = resolveFileUrl(currentFile.value);
@@ -162,12 +168,24 @@ function onKeydown(e: KeyboardEvent) {
 
 <template>
   <div class="danx-file-navigator" tabindex="0" @keydown="onKeydown">
+    <!-- Standalone close button -->
+    <button
+      v-if="closable"
+      class="danx-file-navigator__close-btn"
+      title="Close"
+      aria-label="Close"
+      @click="emit('close')"
+    >
+      <DanxIcon icon="close" />
+    </button>
+
     <!-- Header -->
     <div class="danx-file-navigator__header">
       <button
         v-if="hasParent"
         class="danx-file-navigator__back-btn"
         title="Back"
+        aria-label="Back"
         @click="backFromChild"
       >
         <DanxIcon icon="back" />
@@ -194,7 +212,9 @@ function onKeydown(e: KeyboardEvent) {
           icon="info"
           title="Metadata"
           @click="toggleMetadata"
-        />
+        >
+          <span v-if="infoCount > 0" class="danx-file-navigator__meta-badge">{{ infoCount }}</span>
+        </DanxButton>
 
         <DanxButton
           v-if="downloadable"
@@ -203,15 +223,6 @@ function onKeydown(e: KeyboardEvent) {
           icon="download"
           title="Download"
           @click="onDownload"
-        />
-
-        <DanxButton
-          v-if="closable"
-          type="muted"
-          size="sm"
-          icon="close"
-          title="Close"
-          @click="emit('close')"
         />
       </div>
     </div>
@@ -224,29 +235,38 @@ function onKeydown(e: KeyboardEvent) {
           v-if="hasPrev"
           class="danx-file-navigator__arrow danx-file-navigator__arrow--prev"
           title="Previous"
+          aria-label="Previous"
           @click="prev"
         >
           <DanxIcon icon="chevron-left" />
         </button>
 
-        <!-- File preview -->
-        <div class="danx-file-navigator__preview">
+        <!-- Virtual carousel slides -->
+        <div
+          v-for="slide in visibleSlides"
+          :key="slide.file.id"
+          class="danx-file-navigator__slide"
+          :class="{ 'danx-file-navigator__slide--active': slide.isActive }"
+        >
           <img
-            v-if="showImage"
+            v-if="isImage(slide.file) && slide.url"
             class="danx-file-navigator__image"
-            :src="fileUrl"
-            :alt="currentFile.name"
+            :src="slide.url"
+            :alt="slide.file.name"
           />
           <video
-            v-else-if="showVideo"
+            v-else-if="slide.isActive && isVideo(slide.file) && slide.url"
             class="danx-file-navigator__video"
-            :src="fileUrl"
+            :src="slide.url"
             controls
-            :key="currentFile.id"
+            :key="slide.file.id"
           />
-          <div v-else class="danx-file-navigator__no-preview">
+          <div
+            v-else-if="slide.isActive && !isImage(slide.file)"
+            class="danx-file-navigator__no-preview"
+          >
             <DanxIcon icon="document" />
-            <span>{{ currentFile.name }}</span>
+            <span>{{ slide.file.name }}</span>
           </div>
         </div>
 
@@ -255,6 +275,7 @@ function onKeydown(e: KeyboardEvent) {
           v-if="hasNext"
           class="danx-file-navigator__arrow danx-file-navigator__arrow--next"
           title="Next"
+          aria-label="Next"
           @click="next"
         >
           <DanxIcon icon="chevron-right" />
