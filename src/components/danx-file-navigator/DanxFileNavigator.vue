@@ -29,14 +29,18 @@
  *   --dx-file-nav-bg - Viewer background
  *   --dx-file-nav-header-bg - Header background
  *   --dx-file-nav-header-color - Header text color
+ *   --dx-file-nav-header-opacity - Header resting opacity (hover → 1)
  *   --dx-file-nav-arrow-size - Navigation arrow size
  *   --dx-file-nav-arrow-color - Navigation arrow color
  *   --dx-file-nav-arrow-bg - Navigation arrow background
+ *   --dx-file-nav-arrow-bg-hover - Navigation arrow hover background
  *   --dx-file-nav-counter-color - Slide counter color
  *   --dx-file-strip-gap - Thumbnail strip gap
  *   --dx-file-strip-thumb-size - Thumbnail strip thumb size
  *   --dx-file-strip-active-border - Active thumbnail border
  *   --dx-file-strip-bg - Strip background
+ *   --dx-file-strip-inactive-opacity - Inactive thumbnail opacity
+ *   --dx-file-strip-active-scale - Active thumbnail scale transform
  *
  * @example
  *   <DanxFileNavigator
@@ -122,9 +126,9 @@ watch(
 );
 
 // Metadata and children state
-const { mode: metadataMode, metaCount } = useDanxFileMetadata();
+const { mode: metadataMode, hasAnyInfo } = useDanxFileMetadata();
 const showMetadata = ref(false);
-const hasMetadata = computed(() => metaCount(currentFile.value) > 0);
+const hasMetadata = computed(() => hasAnyInfo(currentFile.value));
 const showChildrenMenu = computed(
   () => hasChildren(currentFile.value) || !currentFile.value.children
 );

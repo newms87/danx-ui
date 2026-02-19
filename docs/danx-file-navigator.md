@@ -120,6 +120,9 @@ const {
   setMode,        // (mode: MetadataMode) => void
   formatMeta,     // (file: PreviewFile) => Record<string, unknown>
   metaCount,      // (file: PreviewFile) => number
+  formatExif,     // (file: PreviewFile) => Record<string, unknown>
+  exifCount,      // (file: PreviewFile) => number
+  hasAnyInfo,     // (file: PreviewFile) => boolean
 } = useDanxFileMetadata();
 ```
 
@@ -130,14 +133,18 @@ const {
 | `--dx-file-nav-bg` | `var(--color-surface)` | Viewer background |
 | `--dx-file-nav-header-bg` | `var(--color-surface-sunken)` | Header background |
 | `--dx-file-nav-header-color` | `var(--color-text)` | Header text |
-| `--dx-file-nav-arrow-size` | `2rem` | Arrow button size |
+| `--dx-file-nav-header-opacity` | `0.9` | Header resting opacity |
+| `--dx-file-nav-arrow-size` | `2rem` | Arrow icon size |
 | `--dx-file-nav-arrow-color` | `white` | Arrow icon color |
 | `--dx-file-nav-arrow-bg` | `rgb(0 0 0 / 0.4)` | Arrow background |
+| `--dx-file-nav-arrow-bg-hover` | `rgb(0 0 0 / 0.6)` | Arrow hover bg |
 | `--dx-file-nav-counter-color` | `var(--color-text-muted)` | Counter text |
 | `--dx-file-strip-gap` | `0.5rem` | Strip thumbnail gap |
-| `--dx-file-strip-thumb-size` | `3rem` | Strip thumbnail size |
+| `--dx-file-strip-thumb-size` | `4rem` | Strip thumbnail size |
 | `--dx-file-strip-active-border` | `var(--color-interactive)` | Active border |
 | `--dx-file-strip-bg` | `var(--color-surface-sunken)` | Strip background |
+| `--dx-file-strip-inactive-opacity` | `0.6` | Inactive thumb opacity |
+| `--dx-file-strip-active-scale` | `1.1` | Active thumb scale |
 | `--dx-file-meta-bg` | `var(--color-surface-sunken)` | Metadata background |
 | `--dx-file-meta-width` | `20rem` | Docked metadata width |
 | `--dx-file-meta-border-color` | `var(--color-border)` | Metadata border |

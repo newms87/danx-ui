@@ -223,12 +223,22 @@ describe("DanxFileNavigator", () => {
       expect(metaBtn).toBeTruthy();
     });
 
-    it("does not show metadata button when file has no meta", () => {
+    it("does not show metadata button when file has no meta or exif", () => {
       const wrapper = mountNavigator();
       const metaBtn = wrapper
         .findAll(".danx-file-navigator__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata");
       expect(metaBtn).toBeUndefined();
+    });
+
+    it("shows metadata button when file has only exif", () => {
+      const wrapper = mountNavigator({
+        file: makeFile("1", { exif: { camera: "Canon" } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata");
+      expect(metaBtn).toBeTruthy();
     });
 
     it("toggles metadata panel when metadata button clicked", async () => {
@@ -247,6 +257,37 @@ describe("DanxFileNavigator", () => {
 
       // Click again to hide
       await metaBtn.trigger("click");
+      expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
+    });
+
+    it("renders metadata in docked mode when localStorage is set", async () => {
+      localStorage.setItem("danx-file-metadata-mode", "docked");
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      // Docked mode renders as sibling to content, outside __content
+      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
+      localStorage.removeItem("danx-file-metadata-mode");
+    });
+
+    it("hides metadata panel when close event fires", async () => {
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      expect(wrapper.find(".danx-file-metadata").exists()).toBe(true);
+
+      // Emit close from metadata panel
+      const metadataPanel = wrapper.findComponent({ name: "DanxFileMetadata" });
+      metadataPanel.vm.$emit("close");
+      await wrapper.vm.$nextTick();
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
     });
   });

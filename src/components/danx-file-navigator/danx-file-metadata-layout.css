@@ -55,5 +55,21 @@
 .danx-file-metadata__content {
   flex: 1;
   overflow-y: auto;
-  padding: 0.5rem;
+  padding: 1rem;
+}
+
+.danx-file-metadata__section-title {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  padding: 0 0.25rem 0.25rem;
+}
+
+.danx-file-metadata__separator {
+  height: 1px;
+  background: var(--dx-file-meta-border-color);
+  margin: 0.5rem 0;
 }

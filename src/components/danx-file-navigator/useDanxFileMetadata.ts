@@ -21,6 +21,12 @@ export interface UseDanxFileMetadataReturn {
   formatMeta: (file: PreviewFile) => Record<string, unknown>;
   /** Count of displayable metadata entries */
   metaCount: (file: PreviewFile) => number;
+  /** Return a file's exif data as-is */
+  formatExif: (file: PreviewFile) => Record<string, unknown>;
+  /** Count of exif entries */
+  exifCount: (file: PreviewFile) => number;
+  /** True if either meta or exif has displayable entries */
+  hasAnyInfo: (file: PreviewFile) => boolean;
 }
 
 /** Keys filtered out from metadata display */
@@ -63,10 +69,26 @@ export function useDanxFileMetadata(): UseDanxFileMetadataReturn {
     return Object.keys(formatMeta(file)).length;
   }
 
+  function formatExif(file: PreviewFile): Record<string, unknown> {
+    if (!file.exif) return {};
+    return { ...file.exif };
+  }
+
+  function exifCount(file: PreviewFile): number {
+    return Object.keys(formatExif(file)).length;
+  }
+
+  function hasAnyInfo(file: PreviewFile): boolean {
+    return metaCount(file) > 0 || exifCount(file) > 0;
+  }
+
   return {
     mode,
     setMode,
     formatMeta,
     metaCount,
+    formatExif,
+    exifCount,
+    hasAnyInfo,
   };
 }

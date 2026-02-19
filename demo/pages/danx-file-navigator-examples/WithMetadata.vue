@@ -12,6 +12,10 @@ const file = ref({
   meta: {
     width: 4032,
     height: 3024,
+    format: "JPEG",
+    colorSpace: "sRGB",
+  },
+  exif: {
     camera: "Canon EOS R5",
     lens: "RF 24-70mm f/2.8L",
     iso: 400,
@@ -35,6 +39,6 @@ const file = ref({
     <DanxFileNavigator :file="file" downloadable />
   </div>
   <p style="margin-top: 0.5rem; color: var(--color-text-muted); font-size: 0.875rem">
-    Click the info button in the header to toggle metadata panel.
+    Click the info button in the header to toggle the metadata/EXIF panel.
   </p>
 </template>

@@ -90,6 +90,24 @@ describe("DanxFileThumbnailStrip", () => {
     });
   });
 
+  describe("Index badges", () => {
+    it("shows index badges when 3+ files", () => {
+      const wrapper = mountStrip({
+        files: [makeFile("1"), makeFile("2"), makeFile("3")],
+      });
+      const badges = wrapper.findAll(".danx-file-strip__badge");
+      expect(badges.length).toBe(3);
+      expect(badges[0]!.text()).toBe("1");
+      expect(badges[1]!.text()).toBe("2");
+      expect(badges[2]!.text()).toBe("3");
+    });
+
+    it("does not show index badges when only 2 files", () => {
+      const wrapper = mountStrip();
+      expect(wrapper.findAll(".danx-file-strip__badge").length).toBe(0);
+    });
+  });
+
   describe("DanxFile integration", () => {
     it("renders DanxFile inside each thumb with disabled and cover fit", () => {
       const wrapper = mountStrip();

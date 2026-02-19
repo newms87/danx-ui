@@ -37,8 +37,10 @@ export interface PreviewFile {
   optimized?: { url: string };
   /** Child variants (transcodes, PDF pages, etc.) */
   children?: PreviewFile[];
-  /** Arbitrary metadata for display */
+  /** Application/business metadata (dimensions, format, duration, codec) */
   meta?: Record<string, unknown>;
+  /** Raw EXIF/camera data (make, model, ISO, aperture, shutter speed, GPS) */
+  exif?: Record<string, unknown>;
   /** Override default progress text (default: "Uploading... X%") */
   statusMessage?: string;
   /** Error message (shows error state, takes priority over progress) */

@@ -71,7 +71,8 @@ interface PreviewFile {
   thumb?: { url: string };                 // Thumbnail URL
   optimized?: { url: string };             // Optimized version URL
   children?: PreviewFile[];                // Child variants (transcodes, PDF pages)
-  meta?: Record<string, unknown>;          // Arbitrary metadata
+  meta?: Record<string, unknown>;          // Application/business metadata
+  exif?: Record<string, unknown>;          // Raw EXIF/camera data
   statusMessage?: string;                  // Override progress text
   error?: string;                          // Error message (shows error state)
 }

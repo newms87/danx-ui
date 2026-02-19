@@ -46,14 +46,24 @@ describe("DanxFileMetadata", () => {
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
     });
 
-    it("displays Metadata title in header", () => {
+    it("renders when file has only exif", () => {
+      const wrapper = mount(DanxFileMetadata, {
+        props: {
+          file: makeFile({ exif: { camera: "Canon" } }),
+          mode: "overlay",
+        },
+      });
+      expect(wrapper.find(".danx-file-metadata").exists()).toBe(true);
+    });
+
+    it("displays Info title in header", () => {
       const wrapper = mount(DanxFileMetadata, {
         props: {
           file: makeFile({ meta: { width: 800 } }),
           mode: "overlay",
         },
       });
-      expect(wrapper.find(".danx-file-metadata__title").text()).toBe("Metadata");
+      expect(wrapper.find(".danx-file-metadata__title").text()).toBe("Info");
     });
 
     it("renders CodeViewer in content area", () => {
@@ -151,6 +161,66 @@ describe("DanxFileMetadata", () => {
       const gearBtn = wrapper.find(".danx-file-metadata__header-actions .danx-button");
       await gearBtn.trigger("click");
       expect(wrapper.emitted("update:mode")).toEqual([["overlay"]]);
+    });
+  });
+
+  describe("Dual sections", () => {
+    it("shows only Metadata section when file has meta but no exif", () => {
+      const wrapper = mount(DanxFileMetadata, {
+        props: {
+          file: makeFile({ meta: { width: 800 } }),
+          mode: "overlay",
+        },
+      });
+      const sections = wrapper.findAll(".danx-file-metadata__section");
+      expect(sections.length).toBe(1);
+      expect(sections[0]!.find(".danx-file-metadata__section-title").text()).toBe("Metadata");
+    });
+
+    it("shows only EXIF section when file has exif but no meta", () => {
+      const wrapper = mount(DanxFileMetadata, {
+        props: {
+          file: makeFile({ exif: { camera: "Canon" } }),
+          mode: "overlay",
+        },
+      });
+      const sections = wrapper.findAll(".danx-file-metadata__section");
+      expect(sections.length).toBe(1);
+      expect(sections[0]!.find(".danx-file-metadata__section-title").text()).toBe("EXIF");
+    });
+
+    it("shows both sections with separator when file has meta and exif", () => {
+      const wrapper = mount(DanxFileMetadata, {
+        props: {
+          file: makeFile({ meta: { width: 800 }, exif: { camera: "Canon" } }),
+          mode: "overlay",
+        },
+      });
+      const sections = wrapper.findAll(".danx-file-metadata__section");
+      expect(sections.length).toBe(2);
+      expect(sections[0]!.find(".danx-file-metadata__section-title").text()).toBe("Metadata");
+      expect(sections[1]!.find(".danx-file-metadata__section-title").text()).toBe("EXIF");
+      expect(wrapper.find(".danx-file-metadata__separator").exists()).toBe(true);
+    });
+
+    it("does not show separator when only one section exists", () => {
+      const wrapper = mount(DanxFileMetadata, {
+        props: {
+          file: makeFile({ meta: { width: 800 } }),
+          mode: "overlay",
+        },
+      });
+      expect(wrapper.find(".danx-file-metadata__separator").exists()).toBe(false);
+    });
+
+    it("renders two CodeViewers when both sections present", () => {
+      const wrapper = mount(DanxFileMetadata, {
+        props: {
+          file: makeFile({ meta: { width: 800 }, exif: { camera: "Canon" } }),
+          mode: "overlay",
+        },
+      });
+      expect(wrapper.findAll(".dx-code-viewer").length).toBe(2);
     });
   });
 
