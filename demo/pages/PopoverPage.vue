@@ -18,6 +18,7 @@ import customStyleCode from "./popover-examples/CustomSlots.vue?raw";
 import positionPropCode from "./popover-examples/PositionProp.vue?raw";
 import hoverTriggerCode from "./popover-examples/HoverTrigger.vue?raw";
 import focusTriggerCode from "./popover-examples/FocusTrigger.vue?raw";
+import clickTriggerCode from "./popover-examples/ClickTrigger.vue?raw";
 </script>
 
 <template>
@@ -42,6 +43,12 @@ import focusTriggerCode from "./popover-examples/FocusTrigger.vue?raw";
       title="Placement Variants"
       description="Bottom, top, left, and right placement options."
       :code="placementsCode"
+    />
+
+    <DemoSection
+      title="Click Trigger"
+      description="Toggles on click with no v-model required. Click outside or Escape to close."
+      :code="clickTriggerCode"
     />
 
     <DemoSection

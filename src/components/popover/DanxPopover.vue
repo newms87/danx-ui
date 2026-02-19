@@ -24,7 +24,7 @@
  * | modelValue | boolean           | false    | Controls visibility via v-model   |
  * | placement  | PopoverPlacement  | "bottom" | Panel placement relative to trigger |
  * | position   | PopoverPosition   | -        | Explicit {x, y} viewport coordinates |
- * | trigger    | PopoverTrigger    | "manual" | How popover opens: manual/hover/focus |
+ * | trigger    | PopoverTrigger    | "manual" | How popover opens: manual/click/hover/focus |
  * | hoverDelay | number            | 200      | Close delay (ms) for hover mode   |
  *
  * ## Events

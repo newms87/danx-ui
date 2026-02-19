@@ -5,6 +5,7 @@
  * panel elements based on the active trigger mode. Supports three modes:
  *
  * - "manual": No listeners (parent manages v-model directly)
+ * - "click": Toggles on click of the trigger element
  * - "hover": mouseenter/mouseleave with configurable close delay
  * - "focus": focusin/focusout with relatedTarget tracking
  *
@@ -105,6 +106,23 @@ export function usePopoverTrigger(
     }, hoverDelay.value);
   }
 
+  // --- Click mode ---
+
+  function setupClick(): () => void {
+    const el = triggerRef.value;
+    if (!el) return () => {};
+
+    function onClick(): void {
+      isOpen.value = !isOpen.value;
+    }
+
+    el.addEventListener("click", onClick);
+
+    return () => {
+      el.removeEventListener("click", onClick);
+    };
+  }
+
   // --- Hover mode ---
 
   function setupHover(): () => void {
@@ -173,7 +191,9 @@ export function usePopoverTrigger(
     }
 
     const mode = trigger.value;
-    if (mode === "hover") {
+    if (mode === "click") {
+      cleanupFn = setupClick();
+    } else if (mode === "hover") {
       cleanupFn = setupHover();
     } else if (mode === "focus") {
       cleanupFn = setupFocus();

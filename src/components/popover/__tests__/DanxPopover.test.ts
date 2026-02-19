@@ -169,6 +169,46 @@ describe("DanxPopover", () => {
     });
   });
 
+  describe("click trigger", () => {
+    it("toggles panel on click", async () => {
+      mountPopover({ modelValue: false, trigger: "click" });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).not.toBeNull();
+
+      trigger.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await nextTick();
+
+      expect(document.body.querySelector(".danx-popover")).toBeNull();
+    });
+
+    it("click-outside still works in click mode", async () => {
+      mountPopover({ modelValue: true, trigger: "click" });
+      await nextTick();
+
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: outside });
+      document.dispatchEvent(event);
+
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+      outside.remove();
+    });
+
+    it("Escape still works in click mode", async () => {
+      mountPopover({ modelValue: true, trigger: "click" });
+      await nextTick();
+
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      expect(wrapper.emitted("update:modelValue")).toEqual([[false]]);
+    });
+  });
+
   describe("hover trigger", () => {
     beforeEach(() => {
       vi.useFakeTimers();

@@ -66,6 +66,53 @@ describe("usePopoverTrigger", () => {
     });
   });
 
+  describe("click mode", () => {
+    it("toggles open on click", async () => {
+      const { triggerRef, isOpen } = createTrigger("click");
+      await nextTick();
+
+      triggerRef.value!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(isOpen.value).toBe(true);
+
+      triggerRef.value!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(isOpen.value).toBe(false);
+    });
+
+    it("handles null triggerRef gracefully", async () => {
+      const triggerRef = ref<HTMLElement | null>(null);
+      const panelRef = ref<HTMLElement | null>(null);
+      const isOpen = ref(false);
+      const trigger = ref<PopoverTrigger>("click");
+      const hoverDelay = ref(200);
+
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            usePopoverTrigger(triggerRef, panelRef, isOpen, trigger, hoverDelay);
+            return {};
+          },
+          template: "<div />",
+        }),
+        { attachTo: document.body }
+      );
+      mountedWrappers.push(wrapper);
+      await nextTick();
+      expect(isOpen.value).toBe(false);
+    });
+
+    it("removes click listener on dispose", async () => {
+      const { triggerRef, isOpen, wrapper } = createTrigger("click");
+      await nextTick();
+
+      const el = triggerRef.value!;
+      wrapper.unmount();
+      mountedWrappers.length = 0;
+
+      el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(isOpen.value).toBe(false);
+    });
+  });
+
   describe("hover mode", () => {
     it("opens on mouseenter on trigger", async () => {
       const { triggerRef, isOpen } = createTrigger("hover");

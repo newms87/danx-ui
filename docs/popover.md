@@ -58,7 +58,7 @@ const show = ref(false);
 
 ### PopoverTrigger
 
-`"manual" | "hover" | "focus"`
+`"manual" | "click" | "hover" | "focus"`
 
 ## Trigger Modes
 
@@ -67,6 +67,17 @@ The `trigger` prop controls how the popover opens and closes automatically.
 ### Manual (default)
 
 The parent manages visibility via v-model. This is the current behavior — no automatic open/close.
+
+### Click
+
+Toggles the popover on click of the trigger element. No v-model binding required — state is managed internally. If v-model is bound, external changes are respected.
+
+```vue
+<DanxPopover trigger="click">
+  <template #trigger><button>Toggle</button></template>
+  <div style="padding: 0.75rem">Click the button again to close</div>
+</DanxPopover>
+```
 
 ### Hover
 
