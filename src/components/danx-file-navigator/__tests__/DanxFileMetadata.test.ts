@@ -1,18 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
 import DanxFileMetadata from "../DanxFileMetadata.vue";
-import type { PreviewFile } from "../../danx-file/types";
-
-function makeFile(overrides: Partial<PreviewFile> = {}): PreviewFile {
-  return {
-    id: "1",
-    name: "test.jpg",
-    size: 1024,
-    type: "image/jpeg",
-    url: "https://example.com/test.jpg",
-    ...overrides,
-  };
-}
+import { makeFile } from "../../danx-file/__tests__/test-helpers";
 
 describe("DanxFileMetadata", () => {
   describe("Rendering", () => {

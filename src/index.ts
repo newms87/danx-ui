@@ -35,11 +35,14 @@ export {
   isImage,
   isVideo,
   isPdf,
+  isAudio,
   isPreviewable,
   isInProgress,
   hasChildren,
   fileTypeIcon,
   formatFileSize,
+  createDownloadEvent,
+  triggerFileDownload,
 } from "./components/danx-file";
 export {
   useDanxFileNavigator,
@@ -136,12 +139,16 @@ export type {
   DanxFileProps,
   DanxFileEmits,
   DanxFileSlots,
+  DanxFileDownloadEvent,
 } from "./components/danx-file";
 export type {
   UseDanxFileNavigatorOptions,
   UseDanxFileNavigatorReturn,
   UseDanxFileMetadataReturn,
   VirtualSlide,
+  DanxFileNavigatorProps,
+  DanxFileNavigatorEmits,
+  DanxFileNavigatorSlots,
 } from "./components/danx-file-navigator";
 
 // Auto-color

@@ -38,6 +38,7 @@
  *   --dx-file-nav-arrow-bg-hover - Navigation arrow hover background
  *   --dx-file-nav-counter-color - Slide counter color
  *   --dx-file-nav-close-btn-size - Standalone close button dimensions
+ *   --dx-file-nav-close-btn-bg-hover - Close button hover background
  *   --dx-file-nav-slide-transition - Slide opacity transition duration
  *   --dx-file-strip-gap - Thumbnail strip gap
  *   --dx-file-strip-thumb-size - Thumbnail strip thumb size
@@ -62,44 +63,42 @@
 import { computed, ref, toRef, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxIcon } from "../icon";
-import { downloadFile } from "../../shared/download";
-import { resolveFileUrl, isImage, isVideo, hasChildren } from "../danx-file/file-helpers";
+import {
+  isImage,
+  isVideo,
+  isAudio,
+  isPdf,
+  hasChildren,
+  createDownloadEvent,
+  triggerFileDownload,
+} from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
+import type {
+  DanxFileNavigatorEmits,
+  DanxFileNavigatorProps,
+  DanxFileNavigatorSlots,
+} from "./types";
 import { useDanxFileNavigator } from "./useDanxFileNavigator";
+import { hasAnyInfo, metaCount, exifCount } from "./file-metadata-helpers";
 import { useDanxFileMetadata } from "./useDanxFileMetadata";
 import { useVirtualCarousel } from "./useVirtualCarousel";
 import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
 import DanxFileMetadata from "./DanxFileMetadata.vue";
 import DanxFileChildrenMenu from "./DanxFileChildrenMenu.vue";
 
-const props = withDefaults(
-  defineProps<{
-    file: PreviewFile;
-    relatedFiles?: PreviewFile[];
-    downloadable?: boolean;
-    closable?: boolean;
-  }>(),
-  {
-    relatedFiles: () => [],
-    downloadable: false,
-    closable: false,
-  }
-);
+const props = withDefaults(defineProps<DanxFileNavigatorProps>(), {
+  relatedFiles: () => [],
+  downloadable: false,
+  closable: false,
+});
 
-const emit = defineEmits<{
-  "update:fileInPreview": [file: PreviewFile | null];
-  download: [file: PreviewFile];
-  loadChildren: [file: PreviewFile];
-  close: [];
-}>();
+const emit = defineEmits<DanxFileNavigatorEmits>();
 
 const fileInPreview = defineModel<PreviewFile | null>("fileInPreview", {
   default: null,
 });
 
-defineSlots<{
-  "header-actions"?(): unknown;
-}>();
+defineSlots<DanxFileNavigatorSlots>();
 
 const {
   currentFile,
@@ -135,10 +134,11 @@ watch(
 );
 
 // Metadata and children state
-const { mode: metadataMode, hasAnyInfo, metaCount, exifCount } = useDanxFileMetadata();
+const { mode: metadataMode } = useDanxFileMetadata();
 const showMetadata = ref(false);
 const hasMetadata = computed(() => hasAnyInfo(currentFile.value));
 const infoCount = computed(() => metaCount(currentFile.value) + exifCount(currentFile.value));
+// Show when children exist (to display them) OR when children haven't loaded yet (to trigger loading)
 const showChildrenMenu = computed(
   () => hasChildren(currentFile.value) || !currentFile.value.children
 );
@@ -148,11 +148,11 @@ function toggleMetadata() {
 }
 
 function onDownload() {
-  const url = resolveFileUrl(currentFile.value);
-  if (url) {
-    downloadFile(url, currentFile.value.name);
+  const event = createDownloadEvent(currentFile.value);
+  emit("download", event);
+  if (!event.prevented) {
+    triggerFileDownload(currentFile.value);
   }
-  emit("download", currentFile.value);
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -164,10 +164,44 @@ function onKeydown(e: KeyboardEvent) {
     next();
   }
 }
+
+// --- Touch/swipe gestures ---
+
+const SWIPE_THRESHOLD = 50;
+let touchStartX = 0;
+let touchStartY = 0;
+
+function onTouchStart(e: TouchEvent) {
+  const touch = e.touches[0];
+  if (touch) {
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const touch = e.changedTouches[0];
+  if (!touch) return;
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+  if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (deltaX < 0) {
+      next();
+    } else {
+      prev();
+    }
+  }
+}
 </script>
 
 <template>
-  <div class="danx-file-navigator" tabindex="0" @keydown="onKeydown">
+  <div
+    class="danx-file-navigator"
+    tabindex="0"
+    @keydown="onKeydown"
+    @touchstart.passive="onTouchStart"
+    @touchend.passive="onTouchEnd"
+  >
     <!-- Standalone close button -->
     <button
       v-if="closable"
@@ -261,6 +295,20 @@ function onKeydown(e: KeyboardEvent) {
             controls
             :key="slide.file.id"
           />
+          <audio
+            v-else-if="slide.isActive && isAudio(slide.file) && slide.url"
+            class="danx-file-navigator__audio"
+            controls
+            :src="slide.url"
+          />
+          <object
+            v-else-if="slide.isActive && isPdf(slide.file) && slide.url"
+            class="danx-file-navigator__pdf"
+            type="application/pdf"
+            :data="slide.url"
+          >
+            <a :href="slide.url" target="_blank">Download PDF</a>
+          </object>
           <div
             v-else-if="slide.isActive && !isImage(slide.file)"
             class="danx-file-navigator__no-preview"

@@ -8,7 +8,11 @@
 .danx-file-metadata {
   display: flex;
   flex-direction: column;
+  width: var(--dx-file-meta-width);
+  max-width: var(--dx-file-meta-max-width);
+  min-width: var(--dx-file-meta-min-width);
   background: var(--dx-file-meta-bg);
+  border-left: 1px solid var(--dx-file-meta-border-color);
   overflow: hidden;
 }
 
@@ -17,20 +21,12 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: var(--dx-file-meta-width);
-  max-width: var(--dx-file-meta-max-width);
-  min-width: var(--dx-file-meta-min-width);
   z-index: 3;
-  border-left: 1px solid var(--dx-file-meta-border-color);
   box-shadow: -2px 0 8px rgb(0 0 0 / 0.1);
 }
 
 .danx-file-metadata--docked {
-  width: var(--dx-file-meta-width);
-  max-width: var(--dx-file-meta-max-width);
-  min-width: var(--dx-file-meta-min-width);
   flex-shrink: 0;
-  border-left: 1px solid var(--dx-file-meta-border-color);
 }
 
 .danx-file-metadata__header {

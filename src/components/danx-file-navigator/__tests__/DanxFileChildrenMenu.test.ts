@@ -1,28 +1,13 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
 import DanxFileChildrenMenu from "../DanxFileChildrenMenu.vue";
-import type { PreviewFile } from "../../danx-file/types";
+import { makeFile, makeChild } from "../../danx-file/__tests__/test-helpers";
 
-function makeFile(overrides: Partial<PreviewFile> = {}): PreviewFile {
-  return {
-    id: "parent",
-    name: "parent-file.jpg",
-    size: 2048,
-    type: "image/jpeg",
-    url: "https://example.com/parent.jpg",
-    ...overrides,
-  };
-}
-
-function makeChild(id: string): PreviewFile {
-  return {
-    id,
-    name: `child-${id}.jpg`,
-    size: 512,
-    type: "image/jpeg",
-    url: `https://example.com/child-${id}.jpg`,
-  };
-}
+// NOTE: DanxPopover uses the native Popover API (popover="auto", showPopover/hidePopover)
+// which is not supported in JSDOM. This means popover content (children list, select events,
+// loading text) cannot be tested here. These behaviors are covered by the component's
+// integration within DanxFileNavigator. Only trigger visibility and loadChildren emission
+// can be tested in isolation.
 
 describe("DanxFileChildrenMenu", () => {
   describe("Visibility", () => {

@@ -27,8 +27,8 @@ export interface PreviewFile {
   url: string;
   /** Temporary blob URL during upload */
   blobUrl?: string;
-  /** Geolocation data */
-  location?: string | Record<string, unknown> | null;
+  /** Geolocation data (application-defined pass-through) */
+  location?: unknown;
   /** Upload progress 0-100. Non-null and < 100 = in progress. */
   progress?: number | null;
   /** Thumbnail image URL */
@@ -73,6 +73,21 @@ export interface DanxFileProps {
   removable?: boolean;
   /** Suppress click event (default: false) */
   disabled?: boolean;
+  /** Show a pulsing skeleton placeholder (default: false) */
+  loading?: boolean;
+}
+
+/**
+ * A preventable download event emitted by DanxFile and DanxFileNavigator.
+ * Call `preventDefault()` to suppress the automatic browser download.
+ */
+export interface DanxFileDownloadEvent {
+  /** The file being downloaded */
+  file: PreviewFile;
+  /** Whether preventDefault() has been called */
+  prevented: boolean;
+  /** Call to suppress automatic browser download */
+  preventDefault(): void;
 }
 
 /**
@@ -80,7 +95,7 @@ export interface DanxFileProps {
  */
 export interface DanxFileEmits {
   (e: "click", file: PreviewFile): void;
-  (e: "download", file: PreviewFile): void;
+  (e: "download", event: DanxFileDownloadEvent): void;
   (e: "remove", file: PreviewFile): void;
 }
 

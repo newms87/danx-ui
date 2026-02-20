@@ -31,7 +31,7 @@ import { computed } from "vue";
 import { CodeViewer } from "../code-viewer";
 import { DanxButton } from "../button";
 import type { PreviewFile, MetadataMode } from "../danx-file/types";
-import { useDanxFileMetadata } from "./useDanxFileMetadata";
+import { formatMeta, metaCount, formatExif, exifCount, hasAnyInfo } from "./file-metadata-helpers";
 
 const props = defineProps<{
   file: PreviewFile;
@@ -42,8 +42,6 @@ const emit = defineEmits<{
 }>();
 
 const mode = defineModel<MetadataMode>("mode", { required: true });
-
-const { formatMeta, metaCount, formatExif, exifCount, hasAnyInfo } = useDanxFileMetadata();
 
 const displayMeta = computed(() => formatMeta(props.file));
 const hasMeta = computed(() => metaCount(props.file) > 0);

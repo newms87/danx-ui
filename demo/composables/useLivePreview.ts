@@ -41,6 +41,8 @@ import {
   listIcon,
   gearIcon,
   handleIcon,
+  musicIcon,
+  filePdfIcon,
 } from "../../src/components/icon";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
@@ -63,11 +65,14 @@ import {
   isImage,
   isVideo,
   isPdf,
+  isAudio,
   isPreviewable,
   isInProgress,
   hasChildren,
   fileTypeIcon,
   formatFileSize,
+  createDownloadEvent,
+  triggerFileDownload,
 } from "../../src/components/danx-file";
 import { downloadFile } from "../../src/shared/download";
 import {
@@ -163,6 +168,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   listIcon,
   gearIcon,
   handleIcon,
+  musicIcon,
+  filePdfIcon,
   // Formatters - numbers
   fCurrency,
   fCurrencyNoCents,
@@ -214,11 +221,14 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   isImage,
   isVideo,
   isPdf,
+  isAudio,
   isPreviewable,
   isInProgress,
   hasChildren,
   fileTypeIcon,
   formatFileSize,
+  createDownloadEvent,
+  triggerFileDownload,
   downloadFile,
   useDanxFileNavigator,
   useDanxFileMetadata,

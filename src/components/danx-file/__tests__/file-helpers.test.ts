@@ -1,28 +1,25 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   resolveFileUrl,
   resolveThumbUrl,
   isImage,
   isVideo,
   isPdf,
+  isAudio,
   isPreviewable,
   isInProgress,
   hasChildren,
   fileTypeIcon,
   formatFileSize,
+  createDownloadEvent,
+  triggerFileDownload,
 } from "../file-helpers";
-import type { PreviewFile } from "../types";
+import { downloadFile } from "../../../shared/download";
+import { makeFile } from "./test-helpers";
 
-function makeFile(overrides: Partial<PreviewFile> = {}): PreviewFile {
-  return {
-    id: "1",
-    name: "test.jpg",
-    size: 1024,
-    type: "image/jpeg",
-    url: "https://example.com/test.jpg",
-    ...overrides,
-  };
-}
+vi.mock("../../../shared/download", () => ({
+  downloadFile: vi.fn(),
+}));
 
 describe("resolveFileUrl", () => {
   it("returns optimized URL when available", () => {
@@ -32,7 +29,7 @@ describe("resolveFileUrl", () => {
 
   it("returns url when no optimized", () => {
     const file = makeFile();
-    expect(resolveFileUrl(file)).toBe("https://example.com/test.jpg");
+    expect(resolveFileUrl(file)).toBe("https://example.com/1.jpg");
   });
 
   it("returns blobUrl when no url or optimized", () => {
@@ -54,7 +51,7 @@ describe("resolveThumbUrl", () => {
 
   it("falls back to resolveFileUrl when no thumb", () => {
     const file = makeFile();
-    expect(resolveThumbUrl(file)).toBe("https://example.com/test.jpg");
+    expect(resolveThumbUrl(file)).toBe("https://example.com/1.jpg");
   });
 
   it("returns optimized URL when no thumb but optimized exists", () => {
@@ -88,6 +85,19 @@ describe("isVideo", () => {
   });
 });
 
+describe("isAudio", () => {
+  it("returns true for audio MIME types", () => {
+    expect(isAudio(makeFile({ type: "audio/mpeg" }))).toBe(true);
+    expect(isAudio(makeFile({ type: "audio/wav" }))).toBe(true);
+    expect(isAudio(makeFile({ type: "audio/ogg" }))).toBe(true);
+  });
+
+  it("returns false for non-audio types", () => {
+    expect(isAudio(makeFile({ type: "image/jpeg" }))).toBe(false);
+    expect(isAudio(makeFile({ type: "video/mp4" }))).toBe(false);
+  });
+});
+
 describe("isPdf", () => {
   it("returns true for PDF MIME type", () => {
     expect(isPdf(makeFile({ type: "application/pdf" }))).toBe(true);
@@ -99,14 +109,16 @@ describe("isPdf", () => {
 });
 
 describe("isPreviewable", () => {
-  it("returns true for images and videos", () => {
+  it("returns true for images, videos, audio, and PDFs", () => {
     expect(isPreviewable(makeFile({ type: "image/jpeg" }))).toBe(true);
     expect(isPreviewable(makeFile({ type: "video/mp4" }))).toBe(true);
+    expect(isPreviewable(makeFile({ type: "audio/mpeg" }))).toBe(true);
+    expect(isPreviewable(makeFile({ type: "application/pdf" }))).toBe(true);
   });
 
   it("returns false for non-previewable types", () => {
-    expect(isPreviewable(makeFile({ type: "application/pdf" }))).toBe(false);
     expect(isPreviewable(makeFile({ type: "text/plain" }))).toBe(false);
+    expect(isPreviewable(makeFile({ type: "application/zip" }))).toBe(false);
   });
 });
 
@@ -156,8 +168,16 @@ describe("fileTypeIcon", () => {
     expect(fileTypeIcon(makeFile({ type: "application/x-7z-compressed" }))).toBe("folder");
   });
 
+  it("returns 'music' for audio files", () => {
+    expect(fileTypeIcon(makeFile({ type: "audio/mpeg" }))).toBe("music");
+    expect(fileTypeIcon(makeFile({ type: "audio/wav" }))).toBe("music");
+  });
+
+  it("returns 'file-pdf' for PDF files", () => {
+    expect(fileTypeIcon(makeFile({ type: "application/pdf" }))).toBe("file-pdf");
+  });
+
   it("returns 'document' for other types", () => {
-    expect(fileTypeIcon(makeFile({ type: "application/pdf" }))).toBe("document");
     expect(fileTypeIcon(makeFile({ type: "text/plain" }))).toBe("document");
     expect(fileTypeIcon(makeFile({ type: "image/jpeg" }))).toBe("document");
   });
@@ -185,5 +205,35 @@ describe("formatFileSize", () => {
 
   it("formats gigabytes", () => {
     expect(formatFileSize(1024 * 1024 * 1024)).toBe("1.0 GiB");
+  });
+});
+
+describe("createDownloadEvent", () => {
+  it("creates event with file and prevented=false", () => {
+    const file = makeFile();
+    const event = createDownloadEvent(file);
+    expect(event.file).toBe(file);
+    expect(event.prevented).toBe(false);
+  });
+
+  it("sets prevented to true when preventDefault is called", () => {
+    const event = createDownloadEvent(makeFile());
+    event.preventDefault();
+    expect(event.prevented).toBe(true);
+  });
+});
+
+describe("triggerFileDownload", () => {
+  it("calls downloadFile with resolved URL and filename", () => {
+    const file = makeFile({ url: "https://example.com/file.jpg", name: "photo.jpg" });
+    triggerFileDownload(file);
+    expect(downloadFile).toHaveBeenCalledWith("https://example.com/file.jpg", "photo.jpg");
+  });
+
+  it("does not call downloadFile when URL is empty", () => {
+    vi.mocked(downloadFile).mockClear();
+    const file = makeFile({ url: "" });
+    triggerFileDownload(file);
+    expect(downloadFile).not.toHaveBeenCalled();
   });
 });

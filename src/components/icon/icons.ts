@@ -55,6 +55,8 @@ import chevronLeftSvg from "danx-icon/src/fontawesome/solid/chevron-left.svg?raw
 import listSvg from "danx-icon/src/fontawesome/solid/list.svg?raw";
 import gearSvg from "danx-icon/src/fontawesome/solid/gear.svg?raw";
 import handleSvg from "danx-icon/src/fontawesome/solid/grip-vertical.svg?raw";
+import musicSvg from "danx-icon/src/fontawesome/solid/music.svg?raw";
+import filePdfSvg from "danx-icon/src/fontawesome/solid/file-pdf.svg?raw";
 
 // Destructive
 export const trashIcon = trashSvg;
@@ -104,6 +106,8 @@ export const chevronLeftIcon = chevronLeftSvg;
 export const listIcon = listSvg;
 export const gearIcon = gearSvg;
 export const handleIcon = handleSvg;
+export const musicIcon = musicSvg;
+export const filePdfIcon = filePdfSvg;
 
 /**
  * Lookup map from icon name to SVG string.
@@ -149,6 +153,8 @@ export const iconRegistry = {
   list: listIcon,
   gear: gearIcon,
   handle: handleIcon,
+  music: musicIcon,
+  "file-pdf": filePdfIcon,
 } satisfies Record<string, string>;
 
 /** Union of all built-in icon names available in the iconRegistry lookup map */

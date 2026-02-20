@@ -2,18 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { nextTick } from "vue";
 import DanxFile from "../DanxFile.vue";
-import type { PreviewFile } from "../types";
-
-function makeFile(overrides: Partial<PreviewFile> = {}): PreviewFile {
-  return {
-    id: "1",
-    name: "photo.jpg",
-    size: 2048,
-    type: "image/jpeg",
-    url: "https://example.com/photo.jpg",
-    ...overrides,
-  };
-}
+import { makeFile } from "./test-helpers";
 
 function mountFile(props: Record<string, unknown> = {}) {
   return mount(DanxFile, {
@@ -35,8 +24,8 @@ describe("DanxFile", () => {
       const wrapper = mountFile();
       const img = wrapper.find(".danx-file__image");
       expect(img.exists()).toBe(true);
-      expect(img.attributes("src")).toBe("https://example.com/photo.jpg");
-      expect(img.attributes("alt")).toBe("photo.jpg");
+      expect(img.attributes("src")).toBe("https://example.com/1.jpg");
+      expect(img.attributes("alt")).toBe("file-1.jpg");
     });
 
     it("uses thumb URL when available", () => {
@@ -97,13 +86,13 @@ describe("DanxFile", () => {
     it("shows file-type icon for non-previewable files", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "application/pdf",
-          url: "https://example.com/doc.pdf",
-          name: "doc.pdf",
+          type: "text/plain",
+          url: "https://example.com/readme.txt",
+          name: "readme.txt",
         }),
       });
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
-      expect(wrapper.find(".danx-file__type-icon-name").text()).toBe("doc.pdf");
+      expect(wrapper.find(".danx-file__type-icon-name").text()).toBe("readme.txt");
     });
 
     it("shows file-type icon for image without URL", () => {
@@ -188,7 +177,7 @@ describe("DanxFile", () => {
     it("shows filename when showFilename is true", () => {
       const wrapper = mountFile({ showFilename: true });
       expect(wrapper.find(".danx-file__filename").exists()).toBe(true);
-      expect(wrapper.find(".danx-file__filename").text()).toBe("photo.jpg");
+      expect(wrapper.find(".danx-file__filename").text()).toBe("file-1.jpg");
     });
 
     it("hides filename by default", () => {
@@ -262,7 +251,9 @@ describe("DanxFile", () => {
       const wrapper = mountFile({ file, downloadable: true });
       const buttons = wrapper.findAll(".danx-file__action-btn");
       await buttons[0]!.trigger("click");
-      expect(wrapper.emitted("download")).toEqual([[file]]);
+      const emitted = wrapper.emitted("download");
+      expect(emitted).toHaveLength(1);
+      expect(emitted![0]![0]).toMatchObject({ file, prevented: false });
     });
   });
 
@@ -327,6 +318,133 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file").attributes("style")).toContain(
         "--dx-file-thumb-fit: cover"
       );
+    });
+  });
+
+  describe("Audio preview", () => {
+    it("renders audio element for audio files", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          type: "audio/mpeg",
+          url: "https://example.com/song.mp3",
+          name: "song.mp3",
+        }),
+      });
+      const audio = wrapper.find(".danx-file__audio");
+      expect(audio.exists()).toBe(true);
+      expect(audio.attributes("src")).toBe("https://example.com/song.mp3");
+    });
+
+    it("does not render audio for non-audio files", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file__audio").exists()).toBe(false);
+    });
+  });
+
+  describe("Loading skeleton", () => {
+    it("renders skeleton when loading is true", () => {
+      const wrapper = mountFile({ loading: true });
+      expect(wrapper.find(".danx-file__skeleton").exists()).toBe(true);
+    });
+
+    it("does not render skeleton by default", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file__skeleton").exists()).toBe(false);
+    });
+
+    it("hides image preview when loading", () => {
+      const wrapper = mountFile({ loading: true });
+      expect(wrapper.find(".danx-file__image").exists()).toBe(false);
+    });
+
+    it("hides type icon when loading", () => {
+      const wrapper = mountFile({
+        loading: true,
+        file: makeFile({ type: "text/plain" }),
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
+    });
+  });
+
+  describe("Lazy loading", () => {
+    it("sets loading=lazy on image element", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file__image").attributes("loading")).toBe("lazy");
+    });
+  });
+
+  describe("Preventable download", () => {
+    it("does not trigger browser download when preventDefault is called", async () => {
+      const file = makeFile();
+      const wrapper = mount(DanxFile, {
+        props: {
+          file,
+          downloadable: true,
+          onDownload: (event: { preventDefault(): void }) => {
+            event.preventDefault();
+          },
+        },
+      });
+      const buttons = wrapper.findAll(".danx-file__action-btn");
+      // Should not throw — download is suppressed
+      await buttons[0]!.trigger("click");
+      const emitted = wrapper.emitted("download");
+      expect(emitted).toHaveLength(1);
+      expect(emitted![0]![0]).toMatchObject({ prevented: true });
+    });
+  });
+
+  describe("Timer cleanup on unmount", () => {
+    it("clears remove timer on unmount without errors", async () => {
+      const wrapper = mountFile({ removable: true });
+      const btn = wrapper.find(".danx-file__action-btn");
+
+      // Arm the remove button
+      await btn.trigger("click");
+      expect(wrapper.find(".danx-file__action-btn--armed").exists()).toBe(true);
+
+      // Unmount while timer is pending
+      wrapper.unmount();
+
+      // Advance past the timeout — should not throw
+      vi.advanceTimersByTime(5000);
+    });
+  });
+
+  describe("Enter key while disabled", () => {
+    it("does not emit click on Enter keypress when disabled", async () => {
+      const wrapper = mountFile({ disabled: true });
+      await wrapper.find(".danx-file").trigger("keydown.enter");
+      expect(wrapper.emitted("click")).toBeUndefined();
+    });
+  });
+
+  describe("Download with empty URL", () => {
+    it("emits download event even when file has no URL", async () => {
+      const wrapper = mountFile({
+        file: makeFile({ url: "" }),
+        downloadable: true,
+      });
+      const buttons = wrapper.findAll(".danx-file__action-btn");
+      await buttons[0]!.trigger("click");
+      expect(wrapper.emitted("download")).toHaveLength(1);
+    });
+  });
+
+  describe("Both downloadable and removable", () => {
+    it("renders both download and remove buttons simultaneously", () => {
+      const wrapper = mountFile({ downloadable: true, removable: true });
+      const buttons = wrapper.findAll(".danx-file__action-btn");
+      expect(buttons.length).toBe(2);
+    });
+  });
+
+  describe("Actions overlay click.stop", () => {
+    it("clicking download does not also emit click", async () => {
+      const wrapper = mountFile({ downloadable: true });
+      const buttons = wrapper.findAll(".danx-file__action-btn");
+      await buttons[0]!.trigger("click");
+      expect(wrapper.emitted("click")).toBeUndefined();
     });
   });
 });

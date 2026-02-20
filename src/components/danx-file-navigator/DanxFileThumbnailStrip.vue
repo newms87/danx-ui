@@ -51,8 +51,10 @@ const stripRef = ref<HTMLElement | null>(null);
  * Only image and video files have meaningful thumbnails.
  */
 function hasThumbUrl(file: PreviewFile): boolean {
-  if (!isImage(file) && !isVideo(file)) return false;
-  return !!resolveThumbUrl(file);
+  if (isImage(file)) return !!resolveThumbUrl(file);
+  // For video files, only use actual thumb/optimized URLs — not the raw video URL
+  if (isVideo(file)) return !!(file.thumb?.url || file.optimized?.url);
+  return false;
 }
 
 // Auto-scroll to active thumbnail
@@ -83,6 +85,7 @@ watch(
         class="danx-file-strip__img"
         :src="resolveThumbUrl(file)"
         :alt="file.name"
+        loading="lazy"
       />
       <DanxIcon v-else icon="document" class="danx-file-strip__fallback-icon" />
       <span v-if="showBadges" class="danx-file-strip__badge">{{ index + 1 }}</span>

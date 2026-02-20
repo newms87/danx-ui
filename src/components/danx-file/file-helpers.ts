@@ -5,7 +5,8 @@
  * and file state inspection. Used by both DanxFile and DanxFileNavigator.
  */
 
-import type { PreviewFile } from "./types";
+import { downloadFile } from "../../shared/download";
+import type { DanxFileDownloadEvent, PreviewFile } from "./types";
 
 /**
  * Resolve the best available URL for displaying a file.
@@ -38,9 +39,14 @@ export function isPdf(file: PreviewFile): boolean {
   return file.type === "application/pdf";
 }
 
-/** Check if file can be directly previewed (image or video) */
+/** Check if file has an audio MIME type */
+export function isAudio(file: PreviewFile): boolean {
+  return file.type.startsWith("audio/");
+}
+
+/** Check if file can be directly previewed (image, video, audio, or PDF) */
 export function isPreviewable(file: PreviewFile): boolean {
-  return isImage(file) || isVideo(file);
+  return isImage(file) || isVideo(file) || isAudio(file) || isPdf(file);
 }
 
 /** Check if file is currently uploading/processing (progress non-null and < 100) */
@@ -68,6 +74,8 @@ export function fileTypeIcon(file: PreviewFile): string {
   const { type } = file;
 
   if (type.startsWith("video/")) return "play";
+  if (type.startsWith("audio/")) return "music";
+  if (type === "application/pdf") return "file-pdf";
 
   if (
     type === "application/zip" ||
@@ -80,6 +88,32 @@ export function fileTypeIcon(file: PreviewFile): string {
   }
 
   return "document";
+}
+
+/**
+ * Create a preventable download event object.
+ */
+export function createDownloadEvent(file: PreviewFile): DanxFileDownloadEvent {
+  let prevented = false;
+  return {
+    file,
+    get prevented() {
+      return prevented;
+    },
+    preventDefault() {
+      prevented = true;
+    },
+  };
+}
+
+/**
+ * Trigger a browser download for a file. Resolves the best URL and downloads.
+ */
+export function triggerFileDownload(file: PreviewFile): void {
+  const url = resolveFileUrl(file);
+  if (url) {
+    downloadFile(url, file.name);
+  }
 }
 
 /**

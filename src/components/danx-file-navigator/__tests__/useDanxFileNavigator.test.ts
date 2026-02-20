@@ -1,17 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { ref } from "vue";
 import { useDanxFileNavigator } from "../useDanxFileNavigator";
-import type { PreviewFile } from "../../danx-file/types";
-
-function makeFile(id: string, name?: string): PreviewFile {
-  return {
-    id,
-    name: name || `file-${id}.jpg`,
-    size: 1024,
-    type: "image/jpeg",
-    url: `https://example.com/${id}.jpg`,
-  };
-}
+import { makeFile } from "../../danx-file/__tests__/test-helpers";
 
 describe("useDanxFileNavigator", () => {
   describe("initial state", () => {
@@ -249,7 +239,7 @@ describe("useDanxFileNavigator", () => {
   });
 
   describe("onNavigate callback", () => {
-    it("calls onNavigate when navigating", () => {
+    it("calls onNavigate when navigating with next()", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
       const onNavigate = vi.fn();
@@ -261,6 +251,63 @@ describe("useDanxFileNavigator", () => {
 
       next();
       expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "2" }));
+    });
+
+    it("calls onNavigate for goTo", () => {
+      const file = ref(makeFile("1"));
+      const file3 = makeFile("3");
+      const related = ref([makeFile("2"), file3]);
+      const onNavigate = vi.fn();
+      const { goTo } = useDanxFileNavigator({ file, relatedFiles: related, onNavigate });
+
+      goTo(file3);
+      expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "3" }));
+    });
+
+    it("calls onNavigate for diveIntoChild", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const onNavigate = vi.fn();
+      const { diveIntoChild } = useDanxFileNavigator({
+        file,
+        relatedFiles: ref([]),
+        onNavigate,
+      });
+
+      diveIntoChild(child);
+      expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "child" }));
+    });
+
+    it("calls onNavigate for backFromChild", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const onNavigate = vi.fn();
+      const { diveIntoChild, backFromChild } = useDanxFileNavigator({
+        file,
+        relatedFiles: ref([]),
+        onNavigate,
+      });
+
+      diveIntoChild(child);
+      onNavigate.mockClear();
+      backFromChild();
+      expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "1" }));
+    });
+
+    it("calls onNavigate for reset", () => {
+      const file = ref(makeFile("1"));
+      const related = ref([makeFile("2")]);
+      const onNavigate = vi.fn();
+      const { next, reset } = useDanxFileNavigator({
+        file,
+        relatedFiles: related,
+        onNavigate,
+      });
+
+      next();
+      onNavigate.mockClear();
+      reset();
+      expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "1" }));
     });
   });
 

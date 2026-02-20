@@ -19,5 +19,18 @@ export type {
 } from "./useDanxFileNavigator";
 export { useDanxFileMetadata } from "./useDanxFileMetadata";
 export type { UseDanxFileMetadataReturn } from "./useDanxFileMetadata";
+export {
+  formatMeta,
+  metaCount,
+  formatExif,
+  exifCount,
+  hasAnyInfo,
+  FILTERED_KEYS,
+} from "./file-metadata-helpers";
 export { useVirtualCarousel } from "./useVirtualCarousel";
-export type { VirtualSlide } from "./types";
+export type {
+  VirtualSlide,
+  DanxFileNavigatorProps,
+  DanxFileNavigatorEmits,
+  DanxFileNavigatorSlots,
+} from "./types";

@@ -2,18 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect, afterEach } from "vitest";
 import DanxFileNavigator from "../DanxFileNavigator.vue";
 import type { PreviewFile } from "../../danx-file/types";
-
-function makeFile(id: string, overrides: Partial<PreviewFile> = {}): PreviewFile {
-  return {
-    id,
-    name: `file-${id}.jpg`,
-    size: 1024,
-    type: "image/jpeg",
-    url: `https://example.com/${id}.jpg`,
-    children: [],
-    ...overrides,
-  };
-}
+import { makeFile } from "../../danx-file/__tests__/test-helpers";
 
 const wrappers: ReturnType<typeof mount>[] = [];
 
@@ -58,9 +47,17 @@ describe("DanxFileNavigator", () => {
       expect(activeSlide.find(".danx-file-navigator__video").exists()).toBe(true);
     });
 
-    it("renders no-preview inside active slide for non-previewable files", () => {
+    it("renders PDF preview inside active slide for PDF files", () => {
       const wrapper = mountNavigator({
         file: makeFile("1", { type: "application/pdf" }),
+      });
+      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
+      expect(activeSlide.find(".danx-file-navigator__pdf").exists()).toBe(true);
+    });
+
+    it("renders no-preview inside active slide for non-previewable files", () => {
+      const wrapper = mountNavigator({
+        file: makeFile("1", { type: "text/plain" }),
       });
       const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
       expect(activeSlide.find(".danx-file-navigator__no-preview").exists()).toBe(true);
@@ -262,6 +259,95 @@ describe("DanxFileNavigator", () => {
       delete (file as unknown as Record<string, unknown>).children;
       const wrapper = mountNavigator({ file });
       expect(wrapper.findComponent({ name: "DanxFileChildrenMenu" }).exists()).toBe(true);
+    });
+  });
+
+  describe("Audio preview", () => {
+    it("renders audio element in carousel for audio files", () => {
+      const wrapper = mountNavigator({
+        file: makeFile("1", { type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+      });
+      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
+      expect(activeSlide.find(".danx-file-navigator__audio").exists()).toBe(true);
+    });
+  });
+
+  describe("Previous arrow", () => {
+    it("navigates when previous arrow is clicked", async () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2")],
+      });
+      // Go to file 2 first
+      await wrapper.find(".danx-file-navigator__arrow--next").trigger("click");
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      // Now go back
+      await wrapper.find(".danx-file-navigator__arrow--prev").trigger("click");
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+    });
+  });
+
+  describe("Touch/swipe navigation", () => {
+    it("swipe left navigates to next", async () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2")],
+      });
+      const nav = wrapper.find(".danx-file-navigator");
+      await nav.trigger("touchstart", {
+        touches: [{ clientX: 200, clientY: 100 }],
+      });
+      await nav.trigger("touchend", {
+        changedTouches: [{ clientX: 100, clientY: 100 }],
+      });
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+    });
+
+    it("swipe right navigates to previous", async () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2")],
+      });
+      // First go to file 2
+      await wrapper.find(".danx-file-navigator__arrow--next").trigger("click");
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+
+      const nav = wrapper.find(".danx-file-navigator");
+      await nav.trigger("touchstart", {
+        touches: [{ clientX: 100, clientY: 100 }],
+      });
+      await nav.trigger("touchend", {
+        changedTouches: [{ clientX: 250, clientY: 100 }],
+      });
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+    });
+
+    it("ignores vertical swipes", async () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2")],
+      });
+      const nav = wrapper.find(".danx-file-navigator");
+      await nav.trigger("touchstart", {
+        touches: [{ clientX: 200, clientY: 100 }],
+      });
+      await nav.trigger("touchend", {
+        changedTouches: [{ clientX: 180, clientY: 300 }],
+      });
+      // Should not navigate — vertical swipe
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+    });
+  });
+
+  describe("Preventable download", () => {
+    it("emits download event with preventable interface", async () => {
+      const wrapper = mountNavigator({ downloadable: true });
+      const downloadBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Download")!;
+      await downloadBtn.trigger("click");
+      const emitted = wrapper.emitted("download");
+      expect(emitted).toHaveLength(1);
+      expect(emitted![0]![0]).toMatchObject({ prevented: false });
+      expect(typeof (emitted![0]![0] as { preventDefault: unknown }).preventDefault).toBe(
+        "function"
+      );
     });
   });
 

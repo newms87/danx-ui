@@ -1,21 +1,8 @@
 import { ref } from "vue";
 import { describe, it, expect } from "vitest";
-import type { PreviewFile } from "../../danx-file/types";
 import { useVirtualCarousel } from "../useVirtualCarousel";
-
-function makeFile(id: string): PreviewFile {
-  return {
-    id,
-    name: `file-${id}.jpg`,
-    size: 1024,
-    type: "image/jpeg",
-    url: `https://example.com/${id}.jpg`,
-  };
-}
-
-function makeFiles(count: number): PreviewFile[] {
-  return Array.from({ length: count }, (_, i) => makeFile(String(i + 1)));
-}
+import type { PreviewFile } from "../../danx-file/types";
+import { makeFiles } from "../../danx-file/__tests__/test-helpers";
 
 describe("useVirtualCarousel", () => {
   describe("visible slides", () => {

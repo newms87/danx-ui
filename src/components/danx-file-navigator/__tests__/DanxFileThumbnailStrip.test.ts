@@ -1,18 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, afterEach } from "vitest";
 import DanxFileThumbnailStrip from "../DanxFileThumbnailStrip.vue";
-import type { PreviewFile } from "../../danx-file/types";
-
-function makeFile(id: string, overrides: Partial<PreviewFile> = {}): PreviewFile {
-  return {
-    id,
-    name: `file-${id}.jpg`,
-    size: 1024,
-    type: "image/jpeg",
-    url: `https://example.com/${id}.jpg`,
-    ...overrides,
-  };
-}
+import { makeFile } from "../../danx-file/__tests__/test-helpers";
 
 const wrappers: ReturnType<typeof mount>[] = [];
 
@@ -144,15 +133,30 @@ describe("DanxFileThumbnailStrip", () => {
       expect(imgs[0]!.attributes("src")).toBe("https://example.com/thumb-1.jpg");
     });
 
-    it("renders img for video file thumbnails", () => {
+    it("renders img for video file thumbnails with thumb URL", () => {
+      const wrapper = mountStrip({
+        files: [
+          makeFile("1", {
+            type: "video/mp4",
+            url: "https://example.com/video.mp4",
+            thumb: { url: "https://example.com/video-thumb.jpg" },
+          }),
+          makeFile("2"),
+        ],
+      });
+      const imgs = wrapper.findAll(".danx-file-strip__img");
+      expect(imgs.length).toBe(2);
+    });
+
+    it("renders fallback icon for video file without thumb URL", () => {
       const wrapper = mountStrip({
         files: [
           makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
           makeFile("2"),
         ],
       });
-      const imgs = wrapper.findAll(".danx-file-strip__img");
-      expect(imgs.length).toBe(2);
+      const icons = wrapper.findAll(".danx-file-strip__fallback-icon");
+      expect(icons.length).toBe(1);
     });
 
     it("renders fallback icon for image file with no URL", () => {

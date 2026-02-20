@@ -83,6 +83,7 @@
   --dx-file-strip-inactive-opacity: 0.6;
   --dx-file-strip-active-scale: 1.1;
   --dx-file-strip-badge-bg: rgb(0 0 0 / 0.5);
+  --dx-file-strip-badge-color: var(--color-text-inverted);
 
   /* ==========================================================================
      Metadata Panel

@@ -23,10 +23,11 @@
  *   downloadable?: boolean - Show download button on hover (default: false)
  *   removable?: boolean - Show remove button on hover (default: false)
  *   disabled?: boolean - Suppress click event (default: false)
+ *   loading?: boolean - Show pulsing skeleton placeholder (default: false)
  *
  * @emits
  *   click(file) - Thumbnail clicked (parent uses this to open navigator, etc.)
- *   download(file) - Download button clicked (also auto-downloads via utility)
+ *   download(event) - Download button clicked (preventable via event.preventDefault())
  *   remove(file) - Remove confirmed after 2-step confirmation
  *
  * @slots
@@ -37,6 +38,7 @@
  *   --dx-file-thumb-border-radius - Corner radius (default: var(--radius-component))
  *   --dx-file-thumb-overlay-bg - Hover overlay background
  *   --dx-file-thumb-action-color - Action button color
+ *   --dx-file-thumb-action-bg-hover - Action button hover background
  *   --dx-file-thumb-play-size - Play icon size for video thumbs
  *   --dx-file-thumb-progress-bg - Progress bar fill color
  *   --dx-file-thumb-progress-track - Progress bar track color
@@ -45,6 +47,9 @@
  *   --dx-file-thumb-error-color - Error text/icon color
  *   --dx-file-thumb-icon-color - File-type icon color
  *   --dx-file-thumb-fit - Image object-fit (set via fit prop)
+ *   --dx-file-thumb-filename-bg - Filename overlay background
+ *   --dx-file-thumb-skeleton-bg - Skeleton placeholder background
+ *   --dx-file-thumb-skeleton-shine - Skeleton shimmer highlight color
  *
  * @example
  *   <DanxFile :file="photo" downloadable @click="openPreview" />
@@ -54,19 +59,21 @@
 -->
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 import { DanxIcon } from "../icon";
-import { downloadFile } from "../../shared/download";
 import {
   resolveFileUrl,
   resolveThumbUrl,
   isImage,
   isVideo,
+  isAudio,
   isPreviewable,
   isInProgress,
   fileTypeIcon,
+  createDownloadEvent,
+  triggerFileDownload,
 } from "./file-helpers";
-import type { DanxFileProps, DanxFileSlots, PreviewFile } from "./types";
+import type { DanxFileEmits, DanxFileProps, DanxFileSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxFileProps>(), {
   fit: "cover",
@@ -74,13 +81,10 @@ const props = withDefaults(defineProps<DanxFileProps>(), {
   downloadable: false,
   removable: false,
   disabled: false,
+  loading: false,
 });
 
-const emit = defineEmits<{
-  click: [file: PreviewFile];
-  download: [file: PreviewFile];
-  remove: [file: PreviewFile];
-}>();
+const emit = defineEmits<DanxFileEmits>();
 
 defineSlots<DanxFileSlots>();
 
@@ -90,7 +94,10 @@ const thumbUrl = computed(() => resolveThumbUrl(props.file));
 const hasThumb = computed(() => !!thumbUrl.value);
 const showImage = computed(() => isImage(props.file) && hasThumb.value);
 const showVideo = computed(() => isVideo(props.file) && hasThumb.value);
-const showTypeIcon = computed(() => !isPreviewable(props.file) || !hasThumb.value);
+const showAudio = computed(() => isAudio(props.file));
+const showTypeIcon = computed(
+  () => !showAudio.value && (!isPreviewable(props.file) || !hasThumb.value)
+);
 const showProgress = computed(() => !props.file.error && isInProgress(props.file));
 const showError = computed(() => !!props.file.error);
 const iconName = computed(() => fileTypeIcon(props.file));
@@ -106,15 +113,18 @@ const fitStyle = computed(() => ({
 
 // --- Remove confirmation ---
 
+const REMOVE_CONFIRM_TIMEOUT_MS = 3000;
+
 const removeArmed = ref(false);
 let removeTimer: ReturnType<typeof setTimeout> | undefined;
+onUnmounted(() => clearTimeout(removeTimer));
 
 function onRemoveClick() {
   if (!removeArmed.value) {
     removeArmed.value = true;
     removeTimer = setTimeout(() => {
       removeArmed.value = false;
-    }, 3000);
+    }, REMOVE_CONFIRM_TIMEOUT_MS);
     return;
   }
   clearTimeout(removeTimer);
@@ -131,11 +141,11 @@ function onClick() {
 }
 
 function onDownload() {
-  const url = resolveFileUrl(props.file);
-  if (url) {
-    downloadFile(url, props.file.name);
+  const event = createDownloadEvent(props.file);
+  emit("download", event);
+  if (!event.prevented) {
+    triggerFileDownload(props.file);
   }
-  emit("download", props.file);
 }
 </script>
 
@@ -149,8 +159,20 @@ function onDownload() {
     @click="onClick"
     @keydown.enter="onClick"
   >
+    <!-- Loading skeleton -->
+    <div v-if="loading" class="danx-file__skeleton" />
+
     <!-- Preview: Image -->
-    <img v-if="showImage || showVideo" class="danx-file__image" :src="thumbUrl" :alt="file.name" />
+    <img
+      v-else-if="showImage || showVideo"
+      class="danx-file__image"
+      :src="thumbUrl"
+      :alt="file.name"
+      loading="lazy"
+    />
+
+    <!-- Audio preview -->
+    <audio v-else-if="showAudio" class="danx-file__audio" controls :src="resolveFileUrl(file)" />
 
     <!-- Video play icon overlay -->
     <div v-if="showVideo && !showProgress && !showError" class="danx-file__play-icon">
@@ -158,7 +180,7 @@ function onDownload() {
     </div>
 
     <!-- File-type icon for non-previewable files -->
-    <div v-if="showTypeIcon && !showImage && !showVideo" class="danx-file__type-icon">
+    <div v-if="showTypeIcon && !showImage && !showVideo && !loading" class="danx-file__type-icon">
       <DanxIcon :icon="iconName" />
       <span class="danx-file__type-icon-name">{{ file.name }}</span>
     </div>

@@ -103,7 +103,7 @@
   left: 0;
   right: 0;
   padding: 0.25rem 0.5rem;
-  background: rgb(0 0 0 / 0.6);
+  background: var(--dx-file-thumb-filename-bg);
   color: var(--dx-file-thumb-action-color);
   font-size: 0.625rem;
   line-height: 1.3;
@@ -146,7 +146,7 @@
   transition: background-color 0.15s ease;
 
   &:hover {
-    background: rgb(0 0 0 / 0.7);
+    background: var(--dx-file-thumb-action-bg-hover);
   }
 
   .danx-icon {
@@ -247,4 +247,41 @@
   text-align: center;
   max-height: 2.6em;
   overflow: hidden;
+}
+
+/* ==========================================================================
+   Audio Preview
+   ========================================================================== */
+
+.danx-file__audio {
+  width: 100%;
+  margin: auto;
+  padding: 0.5rem;
+}
+
+/* ==========================================================================
+   Loading Skeleton
+   ========================================================================== */
+
+.danx-file__skeleton {
+  width: 100%;
+  height: 100%;
+  background: var(--dx-file-thumb-skeleton-bg);
+  background-image: linear-gradient(
+    90deg,
+    var(--dx-file-thumb-skeleton-bg) 0%,
+    var(--dx-file-thumb-skeleton-shine) 50%,
+    var(--dx-file-thumb-skeleton-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: danx-file-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes danx-file-skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

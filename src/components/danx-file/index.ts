@@ -14,11 +14,14 @@ export {
   isImage,
   isVideo,
   isPdf,
+  isAudio,
   isPreviewable,
   isInProgress,
   hasChildren,
   fileTypeIcon,
   formatFileSize,
+  createDownloadEvent,
+  triggerFileDownload,
 } from "./file-helpers";
 export type {
   PreviewFile,
@@ -27,4 +30,5 @@ export type {
   DanxFileProps,
   DanxFileEmits,
   DanxFileSlots,
+  DanxFileDownloadEvent,
 } from "./types";
