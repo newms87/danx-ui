@@ -513,4 +513,80 @@ describe("usePopoverPositioning", () => {
 
     expect(result!.style.top).toBeUndefined();
   });
+
+  describe("viewport padding clamping", () => {
+    it("clamps explicit position near top-left to 20px padding", async () => {
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(null);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("bottom");
+      const isOpen = ref(true);
+      const position = ref<PopoverPosition | undefined>({ x: 0, y: 0 });
+
+      scope = effectScope();
+      let result: ReturnType<typeof usePopoverPositioning>;
+      scope.run(() => {
+        result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen, position);
+      });
+
+      await nextTick();
+
+      expect(result!.style.top).toBe("20px");
+      expect(result!.style.left).toBe("20px");
+    });
+
+    it("clamps explicit position near bottom-right to 20px padding", async () => {
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(null);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("bottom");
+      const isOpen = ref(true);
+      const position = ref<PopoverPosition | undefined>({ x: 2000, y: 2000 });
+
+      scope = effectScope();
+      let result: ReturnType<typeof usePopoverPositioning>;
+      scope.run(() => {
+        result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen, position);
+      });
+
+      await nextTick();
+
+      // 1024 - 100 - 20 = 904, 768 - 50 - 20 = 698
+      expect(result!.style.top).toBe("698px");
+      expect(result!.style.left).toBe("904px");
+    });
+
+    it("clamps trigger-anchored position to 20px viewport padding", async () => {
+      // Trigger at very top-left, panel placed above would go negative
+      // After flip to bottom it would be at y=8, still within padding
+      // But a panel placed left of a trigger at x=5 would go to x=-103
+      // After flip to right: x = 65 + 8 = 73, within padding
+      const trigger = mockElement({
+        top: 5,
+        left: 5,
+        bottom: 35,
+        right: 65,
+        width: 60,
+        height: 30,
+      });
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(trigger);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("top");
+      const isOpen = ref(true);
+
+      scope = effectScope();
+      let result: ReturnType<typeof usePopoverPositioning>;
+      scope.run(() => {
+        result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+      });
+
+      await nextTick();
+
+      // Top would be -53 (5-50-8), flips to bottom: 35+8=43
+      // Left would be (5+30)-50 = -15, clamped to 20
+      expect(result!.style.top).toBe("43px");
+      expect(result!.style.left).toBe("20px");
+    });
+  });
 });

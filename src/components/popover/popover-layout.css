@@ -1,11 +1,12 @@
 /**
  * DanxPopover Layout
  *
- * Trigger wrapper and floating panel styles.
+ * Uses native HTML Popover API (top layer) and CSS anchor positioning.
+ * The trigger defines the anchor, the panel positions relative to it.
  */
 
 /* ==========================================================================
-   Trigger Wrapper (invisible to layout)
+   Trigger Wrapper (invisible to layout, defines anchor)
    ========================================================================== */
 
 .danx-popover-trigger {
@@ -13,12 +14,17 @@
 }
 
 /* ==========================================================================
-   Panel (floating positioned container)
+   Panel (native popover in top layer, JS-positioned)
    ========================================================================== */
 
 .danx-popover {
+  /* Reset UA popover defaults — JS sets top/left via inline style */
+  margin: 0;
+  padding: 0;
+  inset: auto;
   position: fixed;
-  z-index: 1000;
+
+  /* Visual styling */
   background: var(--dx-popover-bg);
   border: 1px solid var(--dx-popover-border);
   border-radius: var(--dx-popover-border-radius);
@@ -26,19 +32,4 @@
   display: flex;
   flex-direction: column;
   color: var(--dx-popover-text);
-
-  /* Animation */
-  opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity var(--dx-popover-animation-duration) var(--ease-out),
-    transform var(--dx-popover-animation-duration) var(--ease-out);
-}
-
-/* Entry animation */
-@starting-style {
-  .danx-popover {
-    opacity: 0;
-    transform: translateY(4px);
-  }
 }

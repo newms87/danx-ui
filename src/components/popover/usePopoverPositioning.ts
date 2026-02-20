@@ -22,6 +22,9 @@ import type { PopoverPlacement, PopoverPosition } from "./types";
 /** Default gap between trigger and panel in pixels */
 const DEFAULT_OFFSET = 8;
 
+/** Minimum distance from panel edge to viewport edge in pixels */
+const VIEWPORT_PADDING = 20;
+
 export interface UsePopoverPositioningReturn {
   style: CSSProperties;
 }
@@ -50,10 +53,21 @@ export function usePopoverPositioning(
   function updatePosition(): void {
     if (!panel.value) return;
 
-    // Explicit position bypasses trigger measurement
+    // Explicit position bypasses trigger measurement but still clamps to viewport
     if (position?.value) {
-      style.top = `${position.value.y}px`;
-      style.left = `${position.value.x}px`;
+      const panelRect = panel.value.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const top = Math.max(
+        VIEWPORT_PADDING,
+        Math.min(position.value.y, vh - panelRect.height - VIEWPORT_PADDING)
+      );
+      const left = Math.max(
+        VIEWPORT_PADDING,
+        Math.min(position.value.x, vw - panelRect.width - VIEWPORT_PADDING)
+      );
+      style.top = `${top}px`;
+      style.left = `${left}px`;
       return;
     }
 
@@ -145,9 +159,15 @@ function resolvePosition(
     left = flipped.left;
   }
 
-  // Clamp to viewport boundaries
-  top = Math.max(0, Math.min(top, viewportHeight - panelRect.height));
-  left = Math.max(0, Math.min(left, viewportWidth - panelRect.width));
+  // Clamp to viewport boundaries with padding
+  top = Math.max(
+    VIEWPORT_PADDING,
+    Math.min(top, viewportHeight - panelRect.height - VIEWPORT_PADDING)
+  );
+  left = Math.max(
+    VIEWPORT_PADDING,
+    Math.min(left, viewportWidth - panelRect.width - VIEWPORT_PADDING)
+  );
 
   return { top, left };
 }

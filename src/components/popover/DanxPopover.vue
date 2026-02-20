@@ -2,21 +2,18 @@
 /**
  * DanxPopover Component
  *
- * A trigger-anchored floating panel. Wraps a trigger element via #trigger slot
- * and renders a positioned panel anchored to it. The panel teleports to <body>
- * with position: fixed to escape overflow clipping.
+ * A trigger-anchored floating panel using the native HTML Popover API.
+ * The panel renders in the browser's top layer (above all stacking contexts,
+ * including dialog elements) and uses JS-based positioning for placement.
  *
  * ## Features
- * - v-model visibility control (v-if removes panel from DOM when hidden)
+ * - v-model visibility via v-if (completely removed from DOM when hidden)
+ * - Native top layer rendering via popover="auto" (above dialogs)
+ * - JS positioning with auto-flip and scroll/resize tracking
+ * - Light dismiss (click outside) via useClickOutside, Escape-to-close via keydown
  * - Trigger slot for inline anchor element
- * - Auto-positioning with placement prop (bottom/top/left/right)
- * - Auto-flip when panel would overflow viewport
- * - Click outside (not on trigger or panel) closes the popover
- * - Escape key closes the popover
- * - Panel teleported to <body> to escape stacking contexts
- * - CSS-only entry animations using @starting-style
+ * - Click/hover/focus/manual trigger modes
  * - Attrs forwarded to panel container (not trigger wrapper)
- * - Three-tier token system for styling (no styling props)
  *
  * ## Props
  * | Prop       | Type              | Default  | Description                       |
@@ -48,8 +45,6 @@
  * | --dx-popover-border-radius | 0.5rem                   | Corner radius      |
  * | --dx-popover-shadow        | rgb(0 0 0 / 0.5)        | Box shadow color   |
  * | --dx-popover-text          | --color-text             | Body text color    |
- * | --dx-popover-offset        | 0.5rem                   | Gap from trigger   |
- * | --dx-popover-animation-duration | --duration-200      | Animation duration |
  *
  * ## Usage Examples
  *
@@ -57,6 +52,12 @@
  *   <DanxPopover v-model="show">
  *     <template #trigger><button>Open</button></template>
  *     Popover content here
+ *   </DanxPopover>
+ *
+ * Click trigger (auto open/close):
+ *   <DanxPopover trigger="click">
+ *     <template #trigger><button>Click me</button></template>
+ *     Content
  *   </DanxPopover>
  *
  * Top placement:
@@ -74,14 +75,14 @@
 -->
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, toRef } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import type { DanxPopoverProps, DanxPopoverSlots } from "./types";
 import { useClickOutside } from "./useClickOutside";
+import { useEscapeKey } from "./useEscapeKey";
 import { usePopoverPositioning } from "./usePopoverPositioning";
 import { usePopoverTrigger } from "./usePopoverTrigger";
 
 const props = withDefaults(defineProps<DanxPopoverProps>(), {
-  modelValue: false,
   placement: "bottom",
   trigger: "manual",
   hoverDelay: 200,
@@ -95,16 +96,45 @@ defineOptions({ inheritAttrs: false });
 const triggerRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
 
+/** JS-based positioning: measures trigger, places panel with auto-flip */
 const { style: panelStyle } = usePopoverPositioning(
   triggerRef,
   panelRef,
   toRef(() => props.placement),
   modelValue,
-  toRef(() => props.position)
+  computed(() => props.position)
 );
 
-useClickOutside(triggerRef, panelRef, close, modelValue);
+/**
+ * When the panel element mounts (via v-if), call showPopover() to promote it
+ * to the top layer. Uses popover="manual" so we control dismiss ourselves.
+ */
+watch(
+  panelRef,
+  (el) => {
+    if (el && !el.matches(":popover-open")) {
+      el.showPopover();
+    }
+  },
+  { flush: "post" }
+);
 
+/** Click outside closes the popover (light dismiss replacement) */
+useClickOutside(
+  triggerRef,
+  panelRef,
+  () => {
+    modelValue.value = false;
+  },
+  modelValue
+);
+
+/** Escape key closes the popover */
+useEscapeKey(() => {
+  modelValue.value = false;
+}, modelValue);
+
+// Trigger mode (click/hover/focus)
 usePopoverTrigger(
   triggerRef,
   panelRef,
@@ -112,53 +142,21 @@ usePopoverTrigger(
   toRef(() => props.trigger),
   toRef(() => props.hoverDelay)
 );
-
-function close(): void {
-  modelValue.value = false;
-}
-
-function onKeydown(event: KeyboardEvent): void {
-  if (event.key === "Escape" && modelValue.value) {
-    close();
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("keydown", onKeydown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener("keydown", onKeydown);
-});
 </script>
 
 <template>
   <div ref="triggerRef" class="danx-popover-trigger">
     <slot name="trigger" />
   </div>
-  <Teleport to="body">
-    <div
-      v-if="modelValue"
-      ref="panelRef"
-      class="danx-popover"
-      :style="panelStyle"
-      v-bind="$attrs"
-      @wheel.stop
-      @keydown.stop
-      @keyup.stop
-      @keypress.stop
-      @mousedown.stop
-      @mousemove.stop
-      @mouseup.stop
-      @pointerdown.stop
-      @pointermove.stop
-      @pointerup.stop
-      @touchstart.stop
-      @touchmove.stop
-      @touchend.stop
-      @contextmenu.stop
-    >
-      <slot />
-    </div>
-  </Teleport>
+  <div
+    v-if="modelValue"
+    ref="panelRef"
+    popover="manual"
+    class="danx-popover"
+    :data-placement="placement"
+    :style="panelStyle"
+    v-bind="$attrs"
+  >
+    <slot />
+  </div>
 </template>

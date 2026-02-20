@@ -10,8 +10,6 @@
  * --dx-popover-border-radius      Panel corner radius
  * --dx-popover-shadow             Panel box shadow color
  * --dx-popover-text               Panel text color
- * --dx-popover-offset             Gap between trigger and panel
- * --dx-popover-animation-duration Animation duration
  */
 
 :root {
@@ -20,6 +18,4 @@
   --dx-popover-border-radius: 0.5rem;
   --dx-popover-shadow: rgb(0 0 0 / 0.5);
   --dx-popover-text: var(--color-text);
-  --dx-popover-offset: 0.5rem;
-  --dx-popover-animation-duration: var(--duration-200);
 }
