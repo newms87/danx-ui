@@ -41,25 +41,25 @@
      Interactive Colors
      ========================================================================== */
 
-  --color-interactive: var(--color-blue-600);
-  --color-interactive-hover: var(--color-blue-500);
-  --color-interactive-active: var(--color-blue-700);
+  --color-interactive: var(--color-blue-400);
+  --color-interactive-hover: var(--color-blue-300);
+  --color-interactive-active: var(--color-blue-500);
   --color-interactive-subtle: var(--color-blue-950);
 
   /* ==========================================================================
      Status Colors
      ========================================================================== */
 
-  --color-danger: var(--color-red-600);
-  --color-danger-hover: var(--color-red-500);
+  --color-danger: var(--color-red-400);
+  --color-danger-hover: var(--color-red-300);
   --color-danger-subtle: var(--color-red-950);
 
-  --color-success: var(--color-green-600);
-  --color-success-hover: var(--color-green-500);
+  --color-success: var(--color-green-400);
+  --color-success-hover: var(--color-green-300);
   --color-success-subtle: var(--color-green-950);
 
-  --color-warning: var(--color-amber-500);
-  --color-warning-hover: var(--color-amber-400);
+  --color-warning: var(--color-amber-200);
+  --color-warning-hover: var(--color-amber-100);
   --color-warning-subtle: var(--color-amber-950);
 
   /* ==========================================================================
