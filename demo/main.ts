@@ -18,6 +18,11 @@ import TabsPage from "./pages/TabsPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
 import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileNavigatorPage from "./pages/DanxFileNavigatorPage.vue";
+import ColorsPage from "./pages/design-system/ColorsPage.vue";
+import TypographyPage from "./pages/design-system/TypographyPage.vue";
+import SpacingPage from "./pages/design-system/SpacingPage.vue";
+import ShadowsPage from "./pages/design-system/ShadowsPage.vue";
+import ThemingGuidePage from "./pages/design-system/ThemingGuidePage.vue";
 
 // Import global styles
 import "../src/styles.css";
@@ -42,6 +47,11 @@ const router = createRouter({
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
     { path: "/danx-file", name: "danx-file", component: DanxFilePage },
     { path: "/danx-file-navigator", name: "danx-file-navigator", component: DanxFileNavigatorPage },
+    { path: "/design/colors", name: "design-colors", component: ColorsPage },
+    { path: "/design/typography", name: "design-typography", component: TypographyPage },
+    { path: "/design/spacing", name: "design-spacing", component: SpacingPage },
+    { path: "/design/shadows", name: "design-shadows", component: ShadowsPage },
+    { path: "/design/theming", name: "design-theming", component: ThemingGuidePage },
   ],
 });
 

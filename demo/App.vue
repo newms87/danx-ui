@@ -55,6 +55,30 @@ watch(theme, (newTheme) => {
           <RouterLink to="/" class="demo-sidebar__link">Home</RouterLink>
         </li>
         <li>
+          <span class="demo-sidebar__section">Design System</span>
+          <ul>
+            <li>
+              <RouterLink to="/design/colors" class="demo-sidebar__link">Colors</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/design/typography" class="demo-sidebar__link">Typography</RouterLink>
+            </li>
+            <li>
+              <RouterLink to="/design/spacing" class="demo-sidebar__link"
+                >Spacing &amp; Layout</RouterLink
+              >
+            </li>
+            <li>
+              <RouterLink to="/design/shadows" class="demo-sidebar__link"
+                >Shadows &amp; Effects</RouterLink
+              >
+            </li>
+            <li>
+              <RouterLink to="/design/theming" class="demo-sidebar__link">Theming Guide</RouterLink>
+            </li>
+          </ul>
+        </li>
+        <li>
           <span class="demo-sidebar__section">Components</span>
           <ul>
             <li>
