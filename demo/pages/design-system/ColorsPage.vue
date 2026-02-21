@@ -333,10 +333,12 @@ function isLightText(hex: string): boolean {
           <div class="color-palette__strip">
             <div class="color-swatch" style="background: #ffffff">
               <span class="color-swatch__shade" style="color: #000">white</span>
+              <code class="color-swatch__token" style="color: #666">--color-white</code>
               <span class="color-swatch__hex" style="color: #666">#ffffff</span>
             </div>
             <div class="color-swatch" style="background: #000000">
               <span class="color-swatch__shade" style="color: #fff">black</span>
+              <code class="color-swatch__token" style="color: #999">--color-black</code>
               <span class="color-swatch__hex" style="color: #999">#000000</span>
             </div>
           </div>
@@ -356,6 +358,13 @@ function isLightText(hex: string): boolean {
                 class="color-swatch__shade"
                 :style="{ color: isLightText(swatch.hex) ? '#fff' : '#000' }"
                 >{{ swatch.shade }}</span
+              >
+              <code
+                class="color-swatch__token"
+                :style="{
+                  color: isLightText(swatch.hex) ? 'rgb(255 255 255 / 0.6)' : 'rgb(0 0 0 / 0.4)',
+                }"
+                >--color-{{ palette.prefix }}-{{ swatch.shade }}</code
               >
               <span
                 class="color-swatch__hex"
@@ -382,6 +391,7 @@ function isLightText(hex: string): boolean {
             <div v-for="color in group.colors" :key="color.token" class="semantic-block">
               <div class="semantic-block__swatch" :style="{ background: `var(${color.token})` }" />
               <span class="semantic-block__label">{{ color.label }}</span>
+              <code class="semantic-block__token">{{ color.token }}</code>
               <code class="semantic-block__ref">{{ isDark ? color.dark : color.light }}</code>
             </div>
           </div>
@@ -433,6 +443,11 @@ function isLightText(hex: string): boolean {
     font-weight: 600;
   }
 
+  .color-swatch__token {
+    font-size: 0.4375rem;
+    font-family: var(--font-mono);
+  }
+
   .color-swatch__hex {
     font-size: 0.5625rem;
     font-family: var(--font-mono);
@@ -481,6 +496,12 @@ function isLightText(hex: string): boolean {
     font-size: 0.6875rem;
     font-weight: 600;
     color: var(--color-text);
+  }
+
+  .semantic-block__token {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
   }
 
   .semantic-block__ref {

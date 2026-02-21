@@ -134,6 +134,7 @@ const zIndexScale: ZIndex[] = [
               :style="{ width: `var(${s.token})` }"
             />
           </div>
+          <code class="spacing-row__token">{{ s.token }}</code>
           <code class="spacing-row__value">{{ s.references }}</code>
         </div>
       </div>
@@ -151,6 +152,7 @@ const zIndexScale: ZIndex[] = [
             <div v-for="r in primitiveRadii" :key="r.token" class="radius-block">
               <div class="radius-block__square" :style="{ borderRadius: `var(${r.token})` }" />
               <span class="radius-block__name">{{ r.name }}</span>
+              <code class="radius-block__token">{{ r.token }}</code>
               <code class="radius-block__value">{{ r.value }}</code>
             </div>
           </div>
@@ -161,6 +163,7 @@ const zIndexScale: ZIndex[] = [
             <div v-for="r in semanticRadii" :key="r.token" class="radius-block">
               <div class="radius-block__square" :style="{ borderRadius: `var(${r.token})` }" />
               <span class="radius-block__name">{{ r.name }}</span>
+              <code class="radius-block__token">{{ r.token }}</code>
               <code class="radius-block__value">{{ r.value }}</code>
             </div>
           </div>
@@ -300,6 +303,12 @@ const zIndexScale: ZIndex[] = [
     font-size: 0.6875rem;
     font-weight: 600;
     color: var(--color-text);
+  }
+
+  .radius-block__token {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
   }
 
   .radius-block__value {
