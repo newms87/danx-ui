@@ -106,7 +106,7 @@ const zIndexScale: ZIndex[] = [
     <!-- Primitive Spacing Scale -->
     <DemoSection
       title="Primitive Spacing Scale"
-      description="Horizontal bars sized by each spacing token. Shows the progression from 0 to 6rem."
+      description="Horizontal bars sized by each spacing token as --spacing-{N} (e.g. --spacing-4, --spacing-12). Shows the progression from 0 to 6rem."
     >
       <div class="spacing-scale">
         <div v-for="s in spacingScale" :key="s.token" class="spacing-row">
@@ -114,7 +114,6 @@ const zIndexScale: ZIndex[] = [
           <div class="spacing-row__bar-track">
             <div class="spacing-row__bar" :style="{ width: `var(${s.token})` }" />
           </div>
-          <code class="spacing-row__token">{{ s.token }}</code>
           <code class="spacing-row__value">{{ s.rem }}</code>
         </div>
       </div>
@@ -143,7 +142,7 @@ const zIndexScale: ZIndex[] = [
     <!-- Border Radii -->
     <DemoSection
       title="Border Radii"
-      description="Primitive radius tokens (top row) and semantic aliases (bottom row)."
+      description="Primitive radius tokens as --radius-{name} (top row) and semantic aliases (bottom row)."
     >
       <div class="radii-sections">
         <div class="radii-section">
@@ -152,7 +151,6 @@ const zIndexScale: ZIndex[] = [
             <div v-for="r in primitiveRadii" :key="r.token" class="radius-block">
               <div class="radius-block__square" :style="{ borderRadius: `var(${r.token})` }" />
               <span class="radius-block__name">{{ r.name }}</span>
-              <code class="radius-block__token">{{ r.token }}</code>
               <code class="radius-block__value">{{ r.value }}</code>
             </div>
           </div>

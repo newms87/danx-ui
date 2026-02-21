@@ -324,7 +324,7 @@ function isLightText(hex: string): boolean {
     <!-- Primitive Palettes -->
     <DemoSection
       title="Primitive Palettes"
-      description="Raw color values. Never use these directly in components — reference semantic tokens instead."
+      description="Raw color values referenced as --color-{family}-{shade} (e.g. --color-slate-400, --color-red-800). Never use these directly in components — reference semantic tokens instead."
     >
       <div class="color-palettes">
         <!-- White / Black -->
@@ -333,12 +333,10 @@ function isLightText(hex: string): boolean {
           <div class="color-palette__strip">
             <div class="color-swatch" style="background: #ffffff">
               <span class="color-swatch__shade" style="color: #000">white</span>
-              <code class="color-swatch__token" style="color: #666">--color-white</code>
               <span class="color-swatch__hex" style="color: #666">#ffffff</span>
             </div>
             <div class="color-swatch" style="background: #000000">
               <span class="color-swatch__shade" style="color: #fff">black</span>
-              <code class="color-swatch__token" style="color: #999">--color-black</code>
               <span class="color-swatch__hex" style="color: #999">#000000</span>
             </div>
           </div>
@@ -358,13 +356,6 @@ function isLightText(hex: string): boolean {
                 class="color-swatch__shade"
                 :style="{ color: isLightText(swatch.hex) ? '#fff' : '#000' }"
                 >{{ swatch.shade }}</span
-              >
-              <code
-                class="color-swatch__token"
-                :style="{
-                  color: isLightText(swatch.hex) ? 'rgb(255 255 255 / 0.6)' : 'rgb(0 0 0 / 0.4)',
-                }"
-                >--color-{{ palette.prefix }}-{{ swatch.shade }}</code
               >
               <span
                 class="color-swatch__hex"
@@ -441,11 +432,6 @@ function isLightText(hex: string): boolean {
   .color-swatch__shade {
     font-size: 0.6875rem;
     font-weight: 600;
-  }
-
-  .color-swatch__token {
-    font-size: 0.4375rem;
-    font-family: var(--font-mono);
   }
 
   .color-swatch__hex {
