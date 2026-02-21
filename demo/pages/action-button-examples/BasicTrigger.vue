@@ -17,6 +17,6 @@ const saveAction = reactive({
 </script>
 
 <template>
-  <DanxActionButton :action="saveAction" type="success" icon="save">Save</DanxActionButton>
+  <DanxActionButton :action="saveAction" variant="success" icon="save">Save</DanxActionButton>
   <span v-if="log" style="font-size: 0.875rem; color: gray; font-style: italic">{{ log }}</span>
 </template>

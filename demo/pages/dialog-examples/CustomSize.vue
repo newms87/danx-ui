@@ -5,7 +5,7 @@ const customSizeDialog = useDialog();
 </script>
 
 <template>
-  <DanxButton type="info" @click="customSizeDialog.open()">Open Sized Dialog</DanxButton>
+  <DanxButton variant="info" @click="customSizeDialog.open()">Open Sized Dialog</DanxButton>
   <DanxDialog
     v-model="customSizeDialog.isOpen.value"
     title="Custom Size"

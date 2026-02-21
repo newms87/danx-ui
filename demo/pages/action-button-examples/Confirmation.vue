@@ -19,7 +19,7 @@ const deleteAction = reactive({
 <template>
   <DanxActionButton
     :action="deleteAction"
-    type="danger"
+    variant="danger"
     icon="trash"
     confirm
     confirm-text="Are you sure you want to delete this item?"

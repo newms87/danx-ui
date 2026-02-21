@@ -5,7 +5,7 @@ const persistentDialog = useDialog();
 </script>
 
 <template>
-  <DanxButton type="info" @click="persistentDialog.open()">Open Persistent</DanxButton>
+  <DanxButton variant="info" @click="persistentDialog.open()">Open Persistent</DanxButton>
   <DanxDialog
     v-model="persistentDialog.isOpen.value"
     title="Persistent Dialog"

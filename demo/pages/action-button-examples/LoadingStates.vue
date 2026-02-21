@@ -44,7 +44,7 @@ const targetAction = reactive({
       <p style="font-size: 0.75rem; color: gray; font-family: monospace; margin: 0 0 0.5rem">
         saving prop
       </p>
-      <DanxActionButton :action="manualAction" :saving="savingManual" type="success" icon="save">
+      <DanxActionButton :action="manualAction" :saving="savingManual" variant="success" icon="save">
         Save
       </DanxActionButton>
     </div>
@@ -52,13 +52,15 @@ const targetAction = reactive({
       <p style="font-size: 0.75rem; color: gray; font-family: monospace; margin: 0 0 0.5rem">
         action.isApplying
       </p>
-      <DanxActionButton :action="applyingAction" type="info" icon="refresh">Apply</DanxActionButton>
+      <DanxActionButton :action="applyingAction" variant="info" icon="refresh"
+        >Apply</DanxActionButton
+      >
     </div>
     <div>
       <p style="font-size: 0.75rem; color: gray; font-family: monospace; margin: 0 0 0.5rem">
         target.isSaving
       </p>
-      <DanxActionButton :action="targetAction" :target="targetItem" type="warning" icon="save">
+      <DanxActionButton :action="targetAction" :target="targetItem" variant="warning" icon="save">
         Update
       </DanxActionButton>
     </div>

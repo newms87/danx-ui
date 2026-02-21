@@ -17,7 +17,7 @@ const show = ref(false);
     "
   >
     <template #trigger>
-      <DanxButton type="info" @click="show = !show">Custom Styled</DanxButton>
+      <DanxButton variant="info" @click="show = !show">Custom Styled</DanxButton>
     </template>
     <div style="padding: 1rem; max-width: 16rem">
       <p style="margin: 0; font-weight: 600">Custom Appearance</p>

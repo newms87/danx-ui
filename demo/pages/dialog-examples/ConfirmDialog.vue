@@ -14,7 +14,7 @@ async function handleConfirm() {
 </script>
 
 <template>
-  <DanxButton type="info" @click="confirmDialog.open()">Open Confirm Dialog</DanxButton>
+  <DanxButton variant="info" @click="confirmDialog.open()">Open Confirm Dialog</DanxButton>
   <DanxDialog
     v-model="confirmDialog.isOpen.value"
     title="Confirm Action"

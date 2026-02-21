@@ -79,13 +79,13 @@ function onCodeInput(event: Event) {
       </div>
 
       <div class="demo-section__toolbar">
-        <DanxButton size="sm" type="muted" @click="isCodeVisible = !isCodeVisible">
+        <DanxButton size="sm" variant="muted" @click="isCodeVisible = !isCodeVisible">
           {{ isCodeVisible ? "Hide Code" : "Show Code" }}
         </DanxButton>
         <DanxButton
           v-if="isCodeVisible && editableCode !== code"
           size="sm"
-          type="info"
+          variant="info"
           @click="resetCode"
         >
           Reset

@@ -5,7 +5,7 @@ const subtitleDialog = useDialog();
 </script>
 
 <template>
-  <DanxButton type="info" @click="subtitleDialog.open()">Open Dialog</DanxButton>
+  <DanxButton variant="info" @click="subtitleDialog.open()">Open Dialog</DanxButton>
   <DanxDialog
     v-model="subtitleDialog.isOpen.value"
     title="Important Notice"

@@ -14,7 +14,7 @@ function save() {
 <template>
   <DanxPopover v-model="show">
     <template #trigger>
-      <DanxButton type="info" @click="show = !show">Edit Settings</DanxButton>
+      <DanxButton variant="info" @click="show = !show">Edit Settings</DanxButton>
     </template>
     <div
       style="padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; min-width: 16rem"
@@ -40,7 +40,7 @@ function save() {
       </label>
       <div style="display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 0.25rem">
         <DanxButton size="sm" @click="show = false">Cancel</DanxButton>
-        <DanxButton size="sm" type="info" @click="save">Save</DanxButton>
+        <DanxButton size="sm" variant="info" @click="save">Save</DanxButton>
       </div>
     </div>
   </DanxPopover>

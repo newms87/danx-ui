@@ -6,8 +6,8 @@ const closeButtonCustom = useDialog();
 </script>
 
 <template>
-  <DanxButton type="info" @click="closeButtonBool.open()">Default Close</DanxButton>
-  <DanxButton type="info" @click="closeButtonCustom.open()">Custom Close</DanxButton>
+  <DanxButton variant="info" @click="closeButtonBool.open()">Default Close</DanxButton>
+  <DanxButton variant="info" @click="closeButtonCustom.open()">Custom Close</DanxButton>
 
   <DanxDialog v-model="closeButtonBool.isOpen.value" title="Close Button" close-button>
     <p>This dialog has a close button with default "Close" text.</p>

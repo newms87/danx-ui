@@ -40,7 +40,7 @@ function clearLog() {
     <div style="display: flex; gap: 0.75rem; align-items: center">
       <DanxActionButton
         :action="successAction"
-        type="success"
+        variant="success"
         icon="check"
         @success="onSuccess"
         @error="onError"
@@ -50,7 +50,7 @@ function clearLog() {
       </DanxActionButton>
       <DanxActionButton
         :action="failAction"
-        type="danger"
+        variant="danger"
         icon="close"
         @success="onSuccess"
         @error="onError"

@@ -12,7 +12,7 @@ const sizeMap = {
 </script>
 
 <template>
-  <DanxButton type="info" @click="animatedSizeDialog.open()">Open Animated Dialog</DanxButton>
+  <DanxButton variant="info" @click="animatedSizeDialog.open()">Open Animated Dialog</DanxButton>
   <DanxDialog
     v-model="animatedSizeDialog.isOpen.value"
     title="Animated Size"
@@ -22,21 +22,21 @@ const sizeMap = {
   >
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
       <DanxButton
-        :type="dialogSize === 'small' ? 'info' : 'muted'"
+        :variant="dialogSize === 'small' ? 'info' : 'muted'"
         size="sm"
         @click="dialogSize = 'small'"
       >
         Small
       </DanxButton>
       <DanxButton
-        :type="dialogSize === 'medium' ? 'info' : 'muted'"
+        :variant="dialogSize === 'medium' ? 'info' : 'muted'"
         size="sm"
         @click="dialogSize = 'medium'"
       >
         Medium
       </DanxButton>
       <DanxButton
-        :type="dialogSize === 'large' ? 'info' : 'muted'"
+        :variant="dialogSize === 'large' ? 'info' : 'muted'"
         size="sm"
         @click="dialogSize = 'large'"
       >
