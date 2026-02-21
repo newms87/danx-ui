@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { readFileSync } from "fs";
@@ -8,8 +8,16 @@ import MarkdownEditor from "../MarkdownEditor.vue";
 describe("MarkdownEditor", () => {
   let wrapper: VueWrapper;
 
+  // DanxDialog uses <dialog> element which requires showModal/close mocks
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+  });
+
   afterEach(() => {
     wrapper?.unmount();
+    // Clean up teleported content (DanxDialog teleports to body)
+    document.body.querySelectorAll(".danx-dialog").forEach((el) => el.remove());
   });
 
   function mountEditor(props: Record<string, unknown> = {}) {
@@ -135,24 +143,35 @@ describe("MarkdownEditor", () => {
   });
 
   describe("hotkey help popover", () => {
+    // HotkeyHelpPopover uses DanxDialog which teleports to document.body.
+    // The class="dx-hotkey-help-popover" on HotkeyHelpPopover's <DanxDialog> is
+    // not inherited (Teleport root drops attrs), so we query for the
+    // HotkeyHelpPopover Vue component instance instead.
+    function findHotkeyPopover() {
+      return wrapper.findComponent({ name: "HotkeyHelpPopover" });
+    }
+
     it("does not show hotkey help initially", () => {
       mountEditor();
-      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(false);
+      expect(findHotkeyPopover().exists()).toBe(false);
     });
 
     it("shows hotkey help when footer button is clicked", async () => {
       mountEditor();
       await wrapper.find(".hotkey-help-btn").trigger("click");
-      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(true);
+      await nextTick();
+      expect(findHotkeyPopover().exists()).toBe(true);
     });
 
     it("hides hotkey help when close is emitted", async () => {
       mountEditor();
       await wrapper.find(".hotkey-help-btn").trigger("click");
-      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(true);
+      await nextTick();
+      expect(findHotkeyPopover().exists()).toBe(true);
 
-      await wrapper.find(".danx-dialog__close-x").trigger("click");
-      expect(wrapper.find(".dx-hotkey-help-popover").exists()).toBe(false);
+      findHotkeyPopover().vm.$emit("close");
+      await nextTick();
+      expect(findHotkeyPopover().exists()).toBe(false);
     });
   });
 

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick, markRaw, defineComponent, h } from "vue";
 import DanxActionButton from "../DanxActionButton.vue";
 import type { ResourceAction, ActionTargetItem } from "../action-types";
@@ -343,12 +343,25 @@ describe("DanxActionButton", () => {
   });
 
   describe("Confirmation", () => {
+    // DanxDialog teleports to document.body, so dialog content must be
+    // queried via document.body, not wrapper.find()
+    const wrappers: VueWrapper[] = [];
+
+    function mountAction(props: Record<string, unknown> = {}) {
+      const wrapper = mount(DanxActionButton, { props });
+      wrappers.push(wrapper);
+      return wrapper;
+    }
+
+    afterEach(() => {
+      for (const w of wrappers) w.unmount();
+      wrappers.length = 0;
+      document.body.querySelectorAll("dialog").forEach((el) => el.remove());
+    });
+
     it("shows confirmation dialog instead of triggering action when confirm=true", async () => {
       const action = createMockAction();
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, confirm: true },
-      });
+      const wrapper = mountAction({ action, confirm: true });
 
       await wrapper.find("button").trigger("click");
       await nextTick();
@@ -356,36 +369,38 @@ describe("DanxActionButton", () => {
       // Action should NOT be triggered yet
       expect(action.trigger).not.toHaveBeenCalled();
 
-      // Confirmation dialog should be visible
-      expect(wrapper.find("dialog").exists()).toBe(true);
+      // Confirmation dialog should be visible in document.body
+      expect(document.body.querySelector("dialog.danx-dialog")).not.toBeNull();
     });
 
     it("displays custom confirmText in dialog", async () => {
-      const action = createMockAction();
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, confirm: true, confirmText: "Delete this item?" },
+      const wrapper = mountAction({
+        action: createMockAction(),
+        confirm: true,
+        confirmText: "Delete this item?",
       });
 
       await wrapper.find("button.danx-button").trigger("click");
       await nextTick();
 
-      expect(wrapper.find(".danx-dialog__content").text()).toBe("Delete this item?");
+      expect(document.body.querySelector(".danx-dialog__content")?.textContent).toBe(
+        "Delete this item?"
+      );
     });
 
     it("triggers action when confirmation is confirmed", async () => {
       const action = createMockAction();
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, confirm: true },
-      });
+      const wrapper = mountAction({ action, confirm: true });
 
       // Open confirmation
       await wrapper.find("button.danx-button").trigger("click");
       await nextTick();
 
-      // Click confirm button in dialog
-      await wrapper.find(".danx-dialog__button--primary").trigger("click");
+      // Click confirm button in teleported dialog
+      const confirmBtn = document.body.querySelector(
+        ".danx-dialog__button--primary"
+      ) as HTMLElement;
+      confirmBtn.click();
       await nextTick();
 
       expect(action.trigger).toHaveBeenCalled();
@@ -393,36 +408,36 @@ describe("DanxActionButton", () => {
 
     it("closes dialog after confirmation", async () => {
       const action = createMockAction();
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, confirm: true },
-      });
+      const wrapper = mountAction({ action, confirm: true });
 
       // Open confirmation
       await wrapper.find("button.danx-button").trigger("click");
       await nextTick();
-      expect(wrapper.find("dialog").exists()).toBe(true);
+      expect(document.body.querySelector("dialog.danx-dialog")).not.toBeNull();
 
       // Confirm
-      await wrapper.find(".danx-dialog__button--primary").trigger("click");
+      const confirmBtn = document.body.querySelector(
+        ".danx-dialog__button--primary"
+      ) as HTMLElement;
+      confirmBtn.click();
       await vi.waitFor(() => {
-        expect(wrapper.find("dialog").exists()).toBe(false);
+        expect(document.body.querySelector("dialog.danx-dialog")).toBeNull();
       });
     });
 
     it("does not trigger action when confirmation is cancelled", async () => {
       const action = createMockAction();
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, confirm: true },
-      });
+      const wrapper = mountAction({ action, confirm: true });
 
       // Open confirmation
       await wrapper.find("button.danx-button").trigger("click");
       await nextTick();
 
-      // Click close button in dialog
-      await wrapper.find(".danx-dialog__button--secondary").trigger("click");
+      // Click cancel button in teleported dialog
+      const cancelBtn = document.body.querySelector(
+        ".danx-dialog__button--secondary"
+      ) as HTMLElement;
+      cancelBtn.click();
       await nextTick();
 
       expect(action.trigger).not.toHaveBeenCalled();
@@ -432,41 +447,38 @@ describe("DanxActionButton", () => {
       const action = createMockAction();
       const target: ActionTargetItem = { isSaving: false };
       const input = { key: "value" };
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, target, input, confirm: true },
-      });
+      const wrapper = mountAction({ action, target, input, confirm: true });
 
       // Open confirmation
       await wrapper.find("button.danx-button").trigger("click");
       await nextTick();
 
       // Confirm
-      await wrapper.find(".danx-dialog__button--primary").trigger("click");
+      const confirmBtn = document.body.querySelector(
+        ".danx-dialog__button--primary"
+      ) as HTMLElement;
+      confirmBtn.click();
       await vi.waitFor(() => {
         expect(action.trigger).toHaveBeenCalledWith(target, input);
       });
     });
 
     it("does not render dialog when confirm is false", () => {
-      const wrapper = mount(DanxActionButton, {
-        props: { confirm: false },
-      });
+      mountAction({ confirm: false });
 
-      expect(wrapper.find("dialog").exists()).toBe(false);
+      expect(document.body.querySelector("dialog.danx-dialog")).toBeNull();
     });
 
     it("uses default confirmText when not specified", async () => {
       const action = createMockAction();
-
-      const wrapper = mount(DanxActionButton, {
-        props: { action, confirm: true },
-      });
+      const wrapper = mountAction({ action, confirm: true });
 
       await wrapper.find("button.danx-button").trigger("click");
       await nextTick();
 
-      expect(wrapper.find(".danx-dialog__content").text()).toBe("Are you sure?");
+      expect(document.body.querySelector(".danx-dialog__content")?.textContent).toBe(
+        "Are you sure?"
+      );
     });
   });
 });
