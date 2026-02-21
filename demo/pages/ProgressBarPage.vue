@@ -13,6 +13,7 @@ import progressBarDocs from "../../docs/progress-bar.md?raw";
 // Load SFC examples as raw strings for live-editable demos
 import basicUsageCode from "./progress-bar-examples/BasicUsage.vue?raw";
 import sizesCode from "./progress-bar-examples/Sizes.vue?raw";
+import variantsCode from "./progress-bar-examples/Variants.vue?raw";
 import typesCode from "./progress-bar-examples/Types.vue?raw";
 import effectsCode from "./progress-bar-examples/Effects.vue?raw";
 import textPositionsCode from "./progress-bar-examples/TextPositions.vue?raw";
@@ -38,6 +39,12 @@ import kitchenSinkCode from "./progress-bar-examples/KitchenSink.vue?raw";
       title="Sizes"
       description="Three sizes: sm, md (default), and lg."
       :code="sizesCode"
+    />
+
+    <DemoSection
+      title="Variants"
+      description="One progress bar per variant with different semantic types."
+      :code="variantsCode"
     />
 
     <DemoSection

@@ -11,6 +11,7 @@ import tooltipDocs from "../../docs/tooltip.md?raw";
 
 import basicUsageCode from "./tooltip-examples/BasicUsage.vue?raw";
 import triggerIconCode from "./tooltip-examples/TriggerIcon.vue?raw";
+import variantsCode from "./tooltip-examples/Variants.vue?raw";
 import placementCode from "./tooltip-examples/Placement.vue?raw";
 import semanticTypesCode from "./tooltip-examples/SemanticTypes.vue?raw";
 import panelIconCode from "./tooltip-examples/PanelIcon.vue?raw";
@@ -36,6 +37,12 @@ import disabledCode from "./tooltip-examples/Disabled.vue?raw";
       title="Trigger Icon Shortcut"
       description="Use the triggerIcon prop to render a DanxIcon as the trigger without a slot."
       :code="triggerIconCode"
+    />
+
+    <DemoSection
+      title="Variants"
+      description="One tooltip per variant with different semantic types."
+      :code="variantsCode"
     />
 
     <DemoSection

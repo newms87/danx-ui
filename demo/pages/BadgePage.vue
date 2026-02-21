@@ -13,6 +13,7 @@ import badgeDocs from "../../docs/badge.md?raw";
 // Load SFC examples as raw strings for live-editable demos
 import basicUsageCode from "./badge-examples/BasicUsage.vue?raw";
 import dotModeCode from "./badge-examples/DotMode.vue?raw";
+import variantsCode from "./badge-examples/Variants.vue?raw";
 import placementsCode from "./badge-examples/Placements.vue?raw";
 import typesCode from "./badge-examples/Types.vue?raw";
 </script>
@@ -33,6 +34,12 @@ import typesCode from "./badge-examples/Types.vue?raw";
       title="Dot Mode"
       description="Minimal status dot indicators with different semantic types."
       :code="dotModeCode"
+    />
+
+    <DemoSection
+      title="Variants"
+      description="One badge per variant with different semantic types."
+      :code="variantsCode"
     />
 
     <DemoSection

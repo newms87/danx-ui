@@ -1,10 +1,10 @@
 # Button Component
 
-A button component with semantic color types and decoupled icons.
+A button component with semantic color variants and decoupled icons.
 
 ## Features
 
-- **Semantic Types** - 6 color types: blank (default), danger, success, warning, info, muted
+- **Semantic Variants** - 6 color variants: blank (default), danger, success, warning, info, muted
 - **Built-in Icons** - 24 icons available by name (e.g. `icon="trash"`), no imports needed
 - **Five Sizes** - xxs, xs, sm, md, lg
 - **Text-Only Buttons** - Omit icon for text-only buttons
@@ -16,7 +16,7 @@ A button component with semantic color types and decoupled icons.
 
 ```vue
 <template>
-  <DanxButton type="success" icon="save" @click="handleSave">Save</DanxButton>
+  <DanxButton variant="success" icon="save" @click="handleSave">Save</DanxButton>
 </template>
 
 <script setup lang="ts">
@@ -32,7 +32,7 @@ function handleSave() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `ButtonType` | `""` | Semantic color type (blank = no bg) |
+| `variant` | `VariantType` | `""` | Semantic color variant (blank = no bg) |
 | `size` | `ButtonSize` | `"md"` | Button size |
 | `icon` | `Component \| string` | - | Icon name, raw SVG string, or component |
 | `disabled` | `boolean` | `false` | Disables the button |
@@ -53,10 +53,10 @@ function handleSave() {
 | `default` | Button text content |
 | `icon` | Override icon rendering |
 
-## Semantic Types
+## Semantic Variants
 
-| Type | Color | Use For |
-|------|-------|---------|
+| Variant | Color | Use For |
+|---------|-------|---------|
 | `""` (default) | Transparent | Unstyled buttons, inherit from context |
 | `danger` | Red | Destructive actions (delete, stop, close) |
 | `success` | Green | Constructive actions (save, create, confirm) |
@@ -71,9 +71,9 @@ function handleSave() {
 Use a built-in icon by name — no imports needed:
 
 ```vue
-<DanxButton type="danger" icon="trash">Delete</DanxButton>
-<DanxButton type="success" icon="save">Save</DanxButton>
-<DanxButton type="muted" icon="edit">Edit</DanxButton>
+<DanxButton variant="danger" icon="trash">Delete</DanxButton>
+<DanxButton variant="success" icon="save">Save</DanxButton>
+<DanxButton variant="muted" icon="edit">Edit</DanxButton>
 ```
 
 Available names: `trash`, `stop`, `close`, `save`, `create`, `confirm`, `check`, `pause`, `clock`, `view`, `document`, `users`, `database`, `folder`, `cancel`, `back`, `edit`, `copy`, `refresh`, `export`, `import`, `minus`, `merge`, `restart`, `play`.
@@ -91,18 +91,18 @@ import { trashIcon, saveIcon, editIcon } from 'danx-ui';
 Omit the `icon` prop for a text-only button:
 
 ```vue
-<DanxButton type="success">Save</DanxButton>
-<DanxButton type="danger">Delete</DanxButton>
+<DanxButton variant="success">Save</DanxButton>
+<DanxButton variant="danger">Delete</DanxButton>
 ```
 
 ## Sizes
 
 ```vue
-<DanxButton type="success" icon="save" size="xxs">XXS</DanxButton>
-<DanxButton type="success" icon="save" size="xs">XS</DanxButton>
-<DanxButton type="success" icon="save" size="sm">SM</DanxButton>
-<DanxButton type="success" icon="save" size="md">MD (default)</DanxButton>
-<DanxButton type="success" icon="save" size="lg">LG</DanxButton>
+<DanxButton variant="success" icon="save" size="xxs">XXS</DanxButton>
+<DanxButton variant="success" icon="save" size="xs">XS</DanxButton>
+<DanxButton variant="success" icon="save" size="sm">SM</DanxButton>
+<DanxButton variant="success" icon="save" size="md">MD (default)</DanxButton>
+<DanxButton variant="success" icon="save" size="lg">LG</DanxButton>
 ```
 
 ## Icon-Only Button
@@ -110,13 +110,13 @@ Omit the `icon` prop for a text-only button:
 Omit the default slot content for an icon-only button. Use `tooltip` for accessibility.
 
 ```vue
-<DanxButton type="danger" icon="trash" tooltip="Delete item" />
+<DanxButton variant="danger" icon="trash" tooltip="Delete item" />
 ```
 
 ## Loading State
 
 ```vue
-<DanxButton type="success" icon="save" :loading="isSaving" @click="save">
+<DanxButton variant="success" icon="save" :loading="isSaving" @click="save">
   Save
 </DanxButton>
 ```
@@ -137,14 +137,14 @@ import starIcon from 'danx-icon/src/fontawesome/solid/star.svg?raw';
 </script>
 
 <template>
-  <DanxButton type="success" :icon="starIcon">Star</DanxButton>
+  <DanxButton variant="success" :icon="starIcon">Star</DanxButton>
 </template>
 ```
 
 ### Via Slot
 
 ```vue
-<DanxButton type="success">
+<DanxButton variant="success">
   <template #icon>
     <MyCustomIcon />
   </template>
@@ -193,54 +193,27 @@ For each size (`xxs`, `xs`, `sm`, `md`, `lg`):
 | `--dx-button-{size}-font-size` | Font size |
 | `--dx-button-{size}-gap` | Icon-text gap |
 
-#### Type Tokens
+#### Variant Tokens
 
-For each named type (`danger`, `success`, `warning`, `info`, `muted`; blank has no tokens):
+For each named variant (`danger`, `success`, `warning`, `info`, `muted`; blank has no tokens):
 
 | Token Pattern | Description |
 |---------------|-------------|
-| `--dx-button-{type}-bg` | Background color |
-| `--dx-button-{type}-bg-hover` | Hover background |
-| `--dx-button-{type}-text` | Text/icon color |
+| `--dx-button-{variant}-bg` | Background color |
+| `--dx-button-{variant}-bg-hover` | Hover background |
+| `--dx-button-{variant}-text` | Text/icon color |
 
 ## TypeScript Types
 
 ```typescript
-import type { ButtonType, ButtonSize, DanxButtonProps } from 'danx-ui';
+import type { VariantType, ButtonSize, DanxButtonProps } from 'danx-ui';
 
-// ButtonType: "" | "danger" | "success" | "warning" | "info" | "muted"
-const type: ButtonType = 'success';
+// VariantType: "" | "danger" | "success" | "warning" | "info" | "muted"
+const variant: VariantType = 'success';
 
 // ButtonSize for sizing
 const size: ButtonSize = 'md';
 ```
-
-## Custom Types
-
-Use `customType` to define app-specific semantic types beyond the built-in set. When set, it generates the same BEM modifier class as `type` (e.g., `customType="restart"` produces `.danx-button--restart`).
-
-```vue
-<DanxButton customType="restart" icon="refresh">Restart</DanxButton>
-```
-
-Define the matching CSS tokens in your app:
-
-```css
-.danx-button--restart {
-  --dx-button-restart-bg: oklch(0.7 0.15 50);
-  --dx-button-restart-bg-hover: oklch(0.65 0.15 50);
-  --dx-button-restart-text: white;
-
-  background: var(--dx-button-restart-bg);
-  color: var(--dx-button-restart-text);
-
-  &:hover:not(:disabled) {
-    background: var(--dx-button-restart-bg-hover);
-  }
-}
-```
-
-When both `type` and `customType` are set, `customType` takes precedence.
 
 ## Accessibility
 

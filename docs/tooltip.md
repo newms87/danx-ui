@@ -6,7 +6,7 @@ A floating tooltip that anchors to a trigger element with auto-positioning, sema
 
 - **Three Trigger Modes** - Slot content, triggerIcon shortcut, or external target element
 - **Panel Icon** - Optional icon at the top-left of the tooltip content
-- **Semantic Types** - 6 color types: blank (default), danger, success, warning, info, muted
+- **Semantic Variants** - 6 color variants: blank (default), danger, success, warning, info, muted
 - **Interaction Modes** - Hover (default), click, or focus
 - **Auto-Positioning** - 4-direction placement with auto-flip and viewport clamping
 - **Interactive Hover** - 200ms close delay allows interacting with tooltip content
@@ -33,7 +33,7 @@ import { DanxTooltip } from 'danx-ui';
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `TooltipType` | `""` | Semantic color type |
+| `variant` | `VariantType` | `""` | Semantic color variant |
 | `icon` | `Component \| string` | - | Panel icon at top-left |
 | `triggerIcon` | `Component \| string` | - | Shortcut to render DanxIcon as trigger |
 | `target` | `string \| HTMLElement` | - | External trigger element (ID or ref) |
@@ -104,10 +104,10 @@ Shows on focusin, hides on focusout.
 </DanxTooltip>
 ```
 
-## Semantic Types
+## Semantic Variants
 
-| Type | Description |
-|------|-------------|
+| Variant | Description |
+|---------|-------------|
 | `""` | Default surface background |
 | `"danger"` | Destructive/error (red) |
 | `"success"` | Positive/complete (green) |
@@ -145,26 +145,3 @@ Override tokens on a parent or wrapper element:
 }
 ```
 
-## Custom Types
-
-Use `customType` to define app-specific semantic types beyond the built-in set. When set, it generates the same BEM modifier class as `type` (e.g., `customType="restart"` produces `.danx-tooltip--restart`).
-
-```vue
-<DanxTooltip customType="restart" tooltip="Server will restart">
-  <template #trigger><button>Restart</button></template>
-</DanxTooltip>
-```
-
-Define the matching CSS tokens in your app:
-
-```css
-.danx-tooltip--restart {
-  --dx-tooltip-restart-bg: oklch(0.85 0.1 50);
-  --dx-tooltip-restart-text: oklch(0.3 0.1 50);
-
-  background: var(--dx-tooltip-restart-bg);
-  color: var(--dx-tooltip-restart-text);
-}
-```
-
-When both `type` and `customType` are set, `customType` takes precedence.

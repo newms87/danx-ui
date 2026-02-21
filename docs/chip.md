@@ -1,10 +1,10 @@
 # Chip Component
 
-A pill-shaped label component with semantic color types and optional icons.
+A pill-shaped label component with semantic color variants and optional icons.
 
 ## Features
 
-- **Semantic Types** - 6 color types: blank (default), danger, success, warning, info, muted
+- **Semantic Variants** - 6 color variants: blank (default), danger, success, warning, info, muted
 - **Built-in Icons** - Same icon system as DanxButton (e.g. `icon="confirm"`)
 - **Six Sizes** - xxs, xs, sm, md, lg, xl
 - **Removable** - Optional X button that emits `remove` event
@@ -16,7 +16,7 @@ A pill-shaped label component with semantic color types and optional icons.
 
 ```vue
 <template>
-  <DanxChip type="success" icon="confirm">Approved</DanxChip>
+  <DanxChip variant="success" icon="confirm">Approved</DanxChip>
 </template>
 
 <script setup lang="ts">
@@ -28,7 +28,7 @@ import { DanxChip } from 'danx-ui';
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `ChipType` | `""` | Semantic color type |
+| `variant` | `VariantType` | `""` | Semantic color variant |
 | `size` | `ChipSize` | `"md"` | Chip size |
 | `icon` | `Component \| string` | - | Icon name, raw SVG string, or component |
 | `label` | `string` | - | Text label (alternative to slot) |
@@ -58,17 +58,17 @@ All six sizes are available: `xxs`, `xs`, `sm`, `md` (default), `lg`, `xl`.
 <DanxChip size="lg">Large</DanxChip>
 ```
 
-## Types
+## Variants
 
-Six semantic color types control the chip's background and text color:
+Six semantic color variants control the chip's background and text color:
 
 ```vue
 <DanxChip>Default</DanxChip>
-<DanxChip type="danger">Error</DanxChip>
-<DanxChip type="success">Complete</DanxChip>
-<DanxChip type="warning">Pending</DanxChip>
-<DanxChip type="info">Draft</DanxChip>
-<DanxChip type="muted">Archived</DanxChip>
+<DanxChip variant="danger">Error</DanxChip>
+<DanxChip variant="success">Complete</DanxChip>
+<DanxChip variant="warning">Pending</DanxChip>
+<DanxChip variant="info">Draft</DanxChip>
+<DanxChip variant="muted">Archived</DanxChip>
 ```
 
 ## Icons
@@ -120,14 +120,14 @@ Per size (`xxs`, `xs`, `sm`, `md`, `lg`, `xl`):
 | `--dx-chip-{size}-font-size` | Font size |
 | `--dx-chip-{size}-gap` | Icon-text gap |
 
-### Type Tokens
+### Variant Tokens
 
-Per type (`danger`, `success`, `warning`, `info`, `muted`):
+Per variant (`danger`, `success`, `warning`, `info`, `muted`):
 
 | Token | Description |
 |-------|-------------|
-| `--dx-chip-{type}-bg` | Background color |
-| `--dx-chip-{type}-text` | Text/icon color |
+| `--dx-chip-{variant}-bg` | Background color |
+| `--dx-chip-{variant}-text` | Text/icon color |
 
 ### Remove Button Tokens
 
@@ -145,27 +145,6 @@ Per type (`danger`, `success`, `warning`, `info`, `muted`):
 }
 ```
 
-## Custom Types
-
-Use `customType` to define app-specific semantic types beyond the built-in set. When set, it generates the same BEM modifier class as `type` (e.g., `customType="restart"` produces `.danx-chip--restart`).
-
-```vue
-<DanxChip customType="restart">Restarting</DanxChip>
-```
-
-Define the matching CSS tokens in your app:
-
-```css
-.danx-chip--restart {
-  --dx-chip-restart-bg: oklch(0.85 0.1 50);
-  --dx-chip-restart-text: oklch(0.3 0.1 50);
-
-  background: var(--dx-chip-restart-bg);
-  color: var(--dx-chip-restart-text);
-}
-```
-
-When both `type` and `customType` are set, `customType` takes precedence.
 
 ## Accessibility
 

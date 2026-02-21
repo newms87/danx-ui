@@ -5,7 +5,7 @@ A wrapper component that overlays a small indicator (count, dot, or label) on an
 ## Features
 
 - **Three Display Modes** - Count (number), dot (circle), label (text like "NEW")
-- **Semantic Types** - 6 color types: danger (default), success, warning, info, muted, blank
+- **Semantic Variants** - 6 color variants: danger (default), success, warning, info, muted, blank
 - **Four Placements** - top-right (default), top-left, bottom-right, bottom-left
 - **Auto-hide** - Hides when value is 0 (configurable via `showZero`)
 - **Max Overflow** - Shows "99+" when exceeding threshold
@@ -30,8 +30,7 @@ import { DanxBadge, DanxButton } from 'danx-ui';
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `BadgeType` | `"danger"` | Semantic color type |
-| `customType` | `string` | `""` | App-defined type (overrides type) |
+| `variant` | `VariantType` | `"danger"` | Semantic color variant |
 | `value` | `number \| string` | - | Count or label text |
 | `max` | `number` | `99` | Overflow threshold |
 | `dot` | `boolean` | `false` | Dot-only mode |
@@ -68,7 +67,7 @@ Pass a number to `value`. Automatically hides at 0 (use `showZero` to override).
 Minimal status indicator with no text. Ignores `value` and `max`.
 
 ```vue
-<DanxBadge dot type="success">
+<DanxBadge dot variant="success">
   <DanxIcon icon="mail" />
 </DanxBadge>
 ```
@@ -78,15 +77,15 @@ Minimal status indicator with no text. Ignores `value` and `max`.
 Pass a string to `value` for arbitrary text.
 
 ```vue
-<DanxBadge value="NEW" type="info">
+<DanxBadge value="NEW" variant="info">
   <span>Feature</span>
 </DanxBadge>
 ```
 
-## Semantic Types
+## Semantic Variants
 
-| Type | Description |
-|------|-------------|
+| Variant | Description |
+|---------|-------------|
 | `"danger"` | Error/notification (default) |
 | `"success"` | Positive/complete |
 | `"warning"` | Cautionary |
@@ -122,4 +121,4 @@ Control which corner the badge anchors to:
 | `--dx-badge-offset-y` | `0px` | Vertical offset |
 | `--dx-badge-border` | `none` | Outline border |
 
-Type-specific tokens follow the pattern `--dx-badge-{type}-bg` and `--dx-badge-{type}-text`.
+Variant-specific tokens follow the pattern `--dx-badge-{variant}-bg` and `--dx-badge-{variant}-text`.

@@ -14,7 +14,7 @@ A wrapper around DanxButton that integrates with the action system. Handles trig
 
 ```vue
 <template>
-  <DanxActionButton :action="deleteAction" :target="item" type="danger" icon="trash">
+  <DanxActionButton :action="deleteAction" :target="item" variant="danger" icon="trash">
     Delete
   </DanxActionButton>
 </template>
@@ -37,7 +37,7 @@ const deleteAction: ResourceAction = {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `type` | `ButtonType` | `""` | Semantic color type (blank, danger, success, warning, info, muted) |
+| `variant` | `VariantType` | `""` | Semantic color variant (blank, danger, success, warning, info, muted) |
 | `size` | `ButtonSize` | `"md"` | Button size (xxs, xs, sm, md, lg) |
 | `icon` | `Component \| string` | - | Icon name, raw SVG string, or component |
 | `disabled` | `boolean` | `false` | Disables the button |
@@ -111,7 +111,7 @@ When `confirm` is set, clicking the button opens a confirmation dialog instead o
   :target="item"
   confirm
   confirm-text="Permanently delete this record?"
-  type="danger"
+  variant="danger"
   icon="trash"
 >
   Delete

@@ -6,7 +6,7 @@ A progress bar component with visual effects, icon support, and token-based them
 
 - **Determinate & Indeterminate** - Fixed percentage or animated loading indicator
 - **Buffer Bar** - Secondary fill for buffered loading (e.g. video playback)
-- **Semantic Types** - 6 color types: blank (default), danger, success, warning, info, muted
+- **Semantic Variants** - 6 color variants: blank (default), danger, success, warning, info, muted
 - **Three Sizes** - sm (0.5rem), md (1rem), lg (2rem)
 - **Five Visual Effects** - Striped, animated stripes, glow, shimmer, gradient (combinable)
 - **Text Positions** - Inside fill, above track, or beside track
@@ -35,8 +35,7 @@ import { DanxProgressBar } from 'danx-ui';
 | `max` | `number` | `100` | Maximum value (100%) |
 | `buffer` | `number` | `0` | Buffer bar value |
 | `indeterminate` | `boolean` | `false` | Animated sliding bar mode |
-| `type` | `ProgressBarType` | `""` | Semantic color type |
-| `customType` | `string` | `""` | App-defined type (overrides type) |
+| `variant` | `VariantType` | `""` | Semantic color variant |
 | `size` | `ProgressBarSize` | `"md"` | Bar size: sm, md, lg |
 | `icon` | `Component \| string` | - | Icon in fill area |
 | `striped` | `boolean` | `false` | Striped overlay effect |
@@ -57,14 +56,14 @@ import { DanxProgressBar } from 'danx-ui';
 | `default` | `{ value, max, percent }` | Custom text content |
 | `icon` | - | Override icon rendering |
 
-## Types
+## Variants
 
 ```vue
-<DanxProgressBar :value="50" type="danger" />
-<DanxProgressBar :value="50" type="success" />
-<DanxProgressBar :value="50" type="warning" />
-<DanxProgressBar :value="50" type="info" />
-<DanxProgressBar :value="50" type="muted" />
+<DanxProgressBar :value="50" variant="danger" />
+<DanxProgressBar :value="50" variant="success" />
+<DanxProgressBar :value="50" variant="warning" />
+<DanxProgressBar :value="50" variant="info" />
+<DanxProgressBar :value="50" variant="muted" />
 ```
 
 ## Sizes
@@ -99,7 +98,7 @@ For unknown progress duration:
 
 ```vue
 <DanxProgressBar indeterminate />
-<DanxProgressBar indeterminate type="info" />
+<DanxProgressBar indeterminate variant="info" />
 ```
 
 ## Buffer Bar
@@ -175,12 +174,12 @@ Override these tokens to customize appearance:
 | `--dx-progress-bar-{size}-font-size` | Text font size |
 | `--dx-progress-bar-{size}-text-padding` | Text padding |
 
-### Type Tokens
+### Variant Tokens
 
 | Token | Description |
 |-------|-------------|
-| `--dx-progress-bar-{type}-fill` | Fill color |
-| `--dx-progress-bar-{type}-glow` | Glow color |
+| `--dx-progress-bar-{variant}-fill` | Fill color |
+| `--dx-progress-bar-{variant}-glow` | Glow color |
 
 ## Accessibility
 
