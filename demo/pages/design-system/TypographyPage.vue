@@ -70,7 +70,8 @@ const multilineText =
       description="Two font stacks: sans-serif for UI text and monospace for code."
     >
       <template #hint>
-        Pattern: <code>--font-{type}</code> — <code>--font-sans</code> and <code>--font-mono</code>.
+        <span class="pattern">--font-{type}</span>
+        <code>--font-sans</code> and <code>--font-mono</code>.
       </template>
       <div class="font-families">
         <div class="font-specimen">
@@ -96,7 +97,8 @@ const multilineText =
       description="Seven sizes from xs to 3xl, defined in rem for accessibility."
     >
       <template #hint>
-        Pattern: <code>--text-{size}</code> (e.g. <code>--text-sm</code>, <code>--text-2xl</code>).
+        <span class="pattern">--text-{size}</span>
+        e.g. <code>--text-sm</code>, <code>--text-2xl</code>.
       </template>
       <div class="type-scale">
         <div v-for="size in typeSizes" :key="size.token" class="type-row">
@@ -118,8 +120,8 @@ const multilineText =
       description="Four weight levels from normal (400) to bold (700)."
     >
       <template #hint>
-        Pattern: <code>--font-{weight}</code> (e.g. <code>--font-semibold</code>,
-        <code>--font-bold</code>).
+        <span class="pattern">--font-{weight}</span>
+        e.g. <code>--font-semibold</code>, <code>--font-bold</code>.
       </template>
       <div class="weight-specimens">
         <div v-for="weight in fontWeights" :key="weight.token" class="weight-row">
@@ -141,8 +143,8 @@ const multilineText =
       description="Five line-height values. Multi-line text shows the density differences."
     >
       <template #hint>
-        Pattern: <code>--leading-{density}</code> (e.g. <code>--leading-tight</code>,
-        <code>--leading-relaxed</code>).
+        <span class="pattern">--leading-{density}</span>
+        e.g. <code>--leading-tight</code>, <code>--leading-relaxed</code>.
       </template>
       <div class="leading-specimens">
         <div v-for="lh in lineHeights" :key="lh.token" class="leading-block">
@@ -175,14 +177,14 @@ const multilineText =
 
 .font-specimen__label {
   margin: 0 0 0.5rem;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-muted);
 
   code {
     font-weight: 400;
     color: var(--color-text-subtle);
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
   }
 }
 
@@ -202,7 +204,7 @@ const multilineText =
 
 .font-specimen__stack {
   margin: 0;
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
   font-family: var(--font-mono);
 }
@@ -235,19 +237,19 @@ const multilineText =
 }
 
 .type-row__name {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text-muted);
   min-width: 2.5rem;
 }
 
 .type-row__token {
-  font-size: 0.625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
 }
 
 .type-row__value {
-  font-size: 0.625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
   font-family: var(--font-mono);
 }
@@ -278,19 +280,19 @@ const multilineText =
 }
 
 .weight-row__name {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text-muted);
   min-width: 5rem;
 }
 
 .weight-row__token {
-  font-size: 0.625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
 }
 
 .weight-row__value {
-  font-size: 0.625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
   font-family: var(--font-mono);
 }
@@ -317,25 +319,25 @@ const multilineText =
 }
 
 .leading-block__name {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .leading-block__token {
-  font-size: 0.5625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
 }
 
 .leading-block__value {
-  font-size: 0.5625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
   font-family: var(--font-mono);
 }
 
 .leading-block__sample {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-text);
   padding: 0.75rem;
   background: var(--color-surface-sunken);

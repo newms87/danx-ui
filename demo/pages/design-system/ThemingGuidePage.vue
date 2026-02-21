@@ -233,14 +233,14 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 
 .arch-tier__label {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .arch-tier__desc {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
 }
 
@@ -250,7 +250,7 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
   gap: 0.25rem;
 
   code {
-    font-size: 0.625rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
     background: rgb(0 0 0 / 0.05);
     padding: 0.125rem 0.375rem;
@@ -262,7 +262,7 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 .arch-tier__callout {
   margin-top: 0.25rem;
   padding: 0.375rem 0.5rem;
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-blue-700);
   background: var(--color-blue-100);
@@ -286,7 +286,7 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 }
 
 .arch-arrow__text {
-  font-size: 0.5625rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
   white-space: nowrap;
 }
@@ -307,7 +307,7 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 
 .dark-mode-diagram__label {
   margin: 0 0 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -328,14 +328,14 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
   gap: 0.125rem;
 
   code {
-    font-size: 0.5625rem;
+    font-size: 0.875rem;
     color: inherit;
     opacity: 0.7;
   }
 }
 
 .dm-tier__name {
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   font-weight: 700;
   margin-bottom: 0.125rem;
 }
@@ -386,7 +386,7 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .guide-step__content {
@@ -395,12 +395,12 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 
 .guide-step__title {
   margin: 0 0 0.25rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text);
 
   code {
-    font-size: 0.75rem;
+    font-size: 1rem;
     padding: 0.125rem 0.25rem;
     background: var(--color-surface-sunken);
     border-radius: var(--radius-sm);
@@ -409,12 +409,12 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 
 .guide-step__text {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   line-height: 1.5;
 
   code {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     padding: 0.125rem 0.25rem;
     background: var(--color-surface-sunken);
     border-radius: var(--radius-sm);

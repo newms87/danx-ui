@@ -327,9 +327,9 @@ function isLightText(hex: string): boolean {
       description="Raw color values across 8 families plus white and black."
     >
       <template #hint>
-        Pattern: <code>--color-{family}-{shade}</code> (e.g. <code>--color-slate-400</code>,
-        <code>--color-red-800</code>). <strong>Never use directly in components</strong> — reference
-        semantic tokens instead.
+        <span class="pattern">--color-{family}-{shade}</span>
+        e.g. <code>--color-slate-400</code>, <code>--color-red-800</code>.
+        <strong>Never use directly</strong> — reference semantic tokens instead.
       </template>
       <div class="color-palettes">
         <!-- White / Black -->
@@ -381,9 +381,9 @@ function isLightText(hex: string): boolean {
       description="Purpose-driven tokens that reference primitives. Toggle the theme to see how each token shifts."
     >
       <template #hint>
-        Pattern: <code>--color-{role}</code> (e.g. <code>--color-surface</code>,
-        <code>--color-text-muted</code>). Each references a primitive and swaps automatically in
-        dark mode.
+        <span class="pattern">--color-{role}</span>
+        e.g. <code>--color-surface</code>, <code>--color-text-muted</code>. References a primitive
+        and swaps automatically in dark mode.
       </template>
       <div class="semantic-groups">
         <div v-for="group in semanticGroups" :key="group.name" class="semantic-group">
@@ -418,7 +418,7 @@ function isLightText(hex: string): boolean {
 .color-palette {
   .color-palette__name {
     margin: 0 0 0.5rem;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text-muted);
   }
@@ -440,12 +440,12 @@ function isLightText(hex: string): boolean {
   min-width: 0;
 
   .color-swatch__shade {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     font-weight: 600;
   }
 
   .color-swatch__hex {
-    font-size: 0.5625rem;
+    font-size: 0.875rem;
     font-family: var(--font-mono);
   }
 }
@@ -461,7 +461,7 @@ function isLightText(hex: string): boolean {
 .semantic-group {
   .semantic-group__name {
     margin: 0 0 0.75rem;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text-muted);
     text-transform: uppercase;
@@ -489,19 +489,19 @@ function isLightText(hex: string): boolean {
   }
 
   .semantic-block__label {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text);
   }
 
   .semantic-block__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
     font-family: var(--font-mono);
   }
 
   .semantic-block__ref {
-    font-size: 0.5625rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
     font-family: var(--font-mono);
   }

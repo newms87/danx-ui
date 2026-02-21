@@ -109,8 +109,8 @@ const zIndexScale: ZIndex[] = [
       description="Horizontal bars showing the progression from 0 to 6rem."
     >
       <template #hint>
-        Pattern: <code>--spacing-{N}</code> (e.g. <code>--spacing-4</code>,
-        <code>--spacing-12</code>).
+        <span class="pattern">--spacing-{N}</span>
+        e.g. <code>--spacing-4</code>, <code>--spacing-12</code>.
       </template>
       <div class="spacing-scale">
         <div v-for="s in spacingScale" :key="s.token" class="spacing-row">
@@ -126,8 +126,9 @@ const zIndexScale: ZIndex[] = [
     <!-- Semantic Spacing -->
     <DemoSection title="Semantic Spacing" description="Named spacing tokens for common use cases.">
       <template #hint>
-        Pattern: <code>--space-{size}</code> (e.g. <code>--space-sm</code>,
-        <code>--space-xl</code>). Each references a primitive <code>--spacing-{N}</code> value.
+        <span class="pattern">--space-{size}</span>
+        e.g. <code>--space-sm</code>, <code>--space-xl</code>. Each references a primitive
+        <code>--spacing-{N}</code> value.
       </template>
       <div class="spacing-scale">
         <div v-for="s in semanticSpacing" :key="s.token" class="spacing-row">
@@ -150,9 +151,9 @@ const zIndexScale: ZIndex[] = [
       description="Primitive values (top row) and semantic aliases (bottom row)."
     >
       <template #hint>
-        Pattern: <code>--radius-{name}</code> (e.g. <code>--radius-lg</code>,
-        <code>--radius-full</code>). Semantic tokens like <code>--radius-button</code> and
-        <code>--radius-dialog</code> reference primitives.
+        <span class="pattern">--radius-{name}</span>
+        e.g. <code>--radius-lg</code>, <code>--radius-full</code>. Semantic tokens like
+        <code>--radius-button</code> and <code>--radius-dialog</code> reference primitives.
       </template>
       <div class="radii-sections">
         <div class="radii-section">
@@ -185,7 +186,8 @@ const zIndexScale: ZIndex[] = [
       description="Stacking layers from 0 to 50. Each rectangle overlaps the previous to visualize layering."
     >
       <template #hint>
-        Pattern: <code>--z-{N}</code> (e.g. <code>--z-10</code>, <code>--z-50</code>).
+        <span class="pattern">--z-{N}</span>
+        e.g. <code>--z-10</code>, <code>--z-50</code>.
       </template>
       <div class="z-index-demo">
         <div
@@ -225,7 +227,7 @@ const zIndexScale: ZIndex[] = [
   gap: 0.75rem;
 
   .spacing-row__name {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text-muted);
     min-width: 2rem;
@@ -250,13 +252,13 @@ const zIndexScale: ZIndex[] = [
   }
 
   .spacing-row__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
     min-width: 8rem;
   }
 
   .spacing-row__value {
-    font-size: 0.5625rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
     min-width: 4rem;
   }
@@ -283,7 +285,7 @@ const zIndexScale: ZIndex[] = [
 
   .radii-section__label {
     margin: 0 0 0.75rem;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text-muted);
     text-transform: uppercase;
@@ -311,19 +313,19 @@ const zIndexScale: ZIndex[] = [
   }
 
   .radius-block__name {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text);
   }
 
   .radius-block__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
     font-family: var(--font-mono);
   }
 
   .radius-block__value {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
   }
 }
@@ -356,7 +358,7 @@ const zIndexScale: ZIndex[] = [
   }
 
   .z-layer__token {
-    font-size: 0.5625rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
   }
 }

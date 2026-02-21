@@ -149,25 +149,9 @@ function onCodeInput(event: Event) {
   border-left: 3px solid var(--color-interactive);
   background: var(--color-surface-accent);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  font-size: 0.8125rem;
   line-height: 1.6;
-  color: var(--color-text);
-
-  :deep(code) {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.1em 0.35em;
-    background: var(--color-surface-sunken);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-text-accent);
-  }
-
-  :deep(strong) {
-    font-weight: 600;
-    color: var(--color-text);
-  }
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
 }
 
 .demo-section__content {
@@ -199,5 +183,36 @@ function onCodeInput(event: Event) {
   border: 1px solid rgb(239 68 68 / 0.3);
   border-radius: var(--radius-md);
   white-space: pre-wrap;
+}
+</style>
+
+<style>
+/* Unscoped — targets slotted content inside .demo-section__hint */
+.demo-section__hint .pattern {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-interactive);
+  margin-bottom: 0.375rem;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.demo-section__hint code {
+  font-family: var(--font-mono);
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0.1em 0.3em;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-accent);
+}
+
+.demo-section__hint strong {
+  font-weight: 600;
+  color: var(--color-text);
 }
 </style>

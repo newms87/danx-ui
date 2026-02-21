@@ -88,8 +88,8 @@ const transitions: Transition[] = [
       description="Progressive elevation from subtle to dramatic. Used for cards, dropdowns, and modals."
     >
       <template #hint>
-        Pattern: <code>--shadow-{size}</code> (e.g. <code>--shadow-sm</code>,
-        <code>--shadow-2xl</code>).
+        <span class="pattern">--shadow-{size}</span>
+        e.g. <code>--shadow-sm</code>, <code>--shadow-2xl</code>.
       </template>
       <div class="shadow-row">
         <div
@@ -110,8 +110,8 @@ const transitions: Transition[] = [
       description="Layered depth and inset shadows for recessed elements."
     >
       <template #hint>
-        Pattern: <code>--shadow-{type}</code> (e.g. <code>--shadow-layered</code>,
-        <code>--shadow-inner</code>).
+        <span class="pattern">--shadow-{type}</span>
+        e.g. <code>--shadow-layered</code>, <code>--shadow-inner</code>.
       </template>
       <div class="shadow-row">
         <div
@@ -132,8 +132,8 @@ const transitions: Transition[] = [
       description="Color glow effects, typically used in dark mode for accent highlights."
     >
       <template #hint>
-        Pattern: <code>--shadow-glow-{color}</code> (e.g. <code>--shadow-glow-blue</code>,
-        <code>--shadow-glow-cyan</code>).
+        <span class="pattern">--shadow-glow-{color}</span>
+        e.g. <code>--shadow-glow-blue</code>, <code>--shadow-glow-cyan</code>.
       </template>
       <div class="glow-bg">
         <div
@@ -154,9 +154,9 @@ const transitions: Transition[] = [
       description="Purpose-driven shadow tokens. Toggle the theme to see how they shift (e.g., glow only activates in dark mode)."
     >
       <template #hint>
-        Pattern: <code>--shadow-{role}</code> (e.g. <code>--shadow-component</code>,
-        <code>--shadow-dialog</code>). Toggle the theme to see shifts — glow only activates in dark
-        mode.
+        <span class="pattern">--shadow-{role}</span>
+        e.g. <code>--shadow-component</code>, <code>--shadow-dialog</code>. Glow only activates in
+        dark mode.
       </template>
       <div class="semantic-shadow-grid">
         <div
@@ -178,8 +178,8 @@ const transitions: Transition[] = [
       description="Three gradient tokens. Toggle the theme to see how they shift."
     >
       <template #hint>
-        Pattern: <code>--gradient-{type}</code> (e.g. <code>--gradient-surface</code>,
-        <code>--gradient-accent</code>).
+        <span class="pattern">--gradient-{type}</span>
+        e.g. <code>--gradient-surface</code>, <code>--gradient-accent</code>.
       </template>
       <div class="gradient-strips">
         <div v-for="g in gradients" :key="g.token" class="gradient-strip">
@@ -196,8 +196,8 @@ const transitions: Transition[] = [
       description="Hover over each card to feel the speed difference between fast, normal, and slow transitions."
     >
       <template #hint>
-        Pattern: <code>--transition-{speed}</code> (e.g. <code>--transition-fast</code>,
-        <code>--transition-slow</code>).
+        <span class="pattern">--transition-{speed}</span>
+        e.g. <code>--transition-fast</code>, <code>--transition-slow</code>.
       </template>
       <div class="transition-row">
         <div
@@ -240,13 +240,13 @@ const transitions: Transition[] = [
   gap: 0.25rem;
 
   .shadow-card__name {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--color-text);
   }
 
   .shadow-card__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
   }
 }
@@ -274,13 +274,13 @@ const transitions: Transition[] = [
   gap: 0.25rem;
 
   .glow-card__name {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--color-slate-100);
   }
 
   .glow-card__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-slate-400);
   }
 }
@@ -301,18 +301,18 @@ const transitions: Transition[] = [
   gap: 0.125rem;
 
   .semantic-shadow-card__name {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
     color: var(--color-text);
   }
 
   .semantic-shadow-card__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
   }
 
   .semantic-shadow-card__desc {
-    font-size: 0.625rem;
+    font-size: 0.875rem;
     color: var(--color-text-muted);
   }
 }
@@ -336,13 +336,13 @@ const transitions: Transition[] = [
   }
 
   .gradient-strip__name {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--color-text);
   }
 
   .gradient-strip__token {
-    font-size: 0.5rem;
+    font-size: 0.875rem;
     color: var(--color-text-subtle);
   }
 }
@@ -386,7 +386,7 @@ const transitions: Transition[] = [
 }
 
 .transition-card__token {
-  font-size: 0.5rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
 
   .transition-card:hover & {
@@ -395,7 +395,7 @@ const transitions: Transition[] = [
 }
 
 .transition-card__value {
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   color: var(--color-text-subtle);
 
   .transition-card:hover & {
