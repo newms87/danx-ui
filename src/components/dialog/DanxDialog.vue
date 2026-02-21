@@ -26,6 +26,8 @@
  * | confirmButton  | boolean \| string | false     | Show confirm button (true="Confirm")   |
  * | isSaving       | boolean           | false     | Loading state for confirm button       |
  * | disabled       | boolean           | false     | Disable confirm button                 |
+ * | independent    | boolean           | false     | Opt out of dialog stacking             |
+ * | returnOnClose  | boolean           | true      | Reveal previous dialog on close        |
  *
  * ## Events
  * | Event             | Payload | Description                              |
@@ -90,15 +92,19 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { DanxButton } from "../button";
+import DialogBreadcrumbs from "./DialogBreadcrumbs.vue";
 import type { DanxDialogEmits, DanxDialogProps, DanxDialogSlots } from "./types";
+import { useDialogStack } from "./useDialogStack";
 
 const props = withDefaults(defineProps<DanxDialogProps>(), {
   persistent: false,
   closeX: false,
   isSaving: false,
   disabled: false,
+  independent: false,
+  returnOnClose: true,
 });
 
 const emit = defineEmits<DanxDialogEmits>();
@@ -133,6 +139,36 @@ const confirmButtonText = computed(() =>
 // Show footer if any button is enabled or actions slot is used
 const showFooter = computed(() => props.closeButton || props.confirmButton);
 
+// --- Dialog Stack Integration ---
+const { stack, register, unregister, isTopOfStack, stackSize } = useDialogStack();
+
+/** Whether this dialog participates in the stack (has a title and is not independent) */
+const isStackable = computed(() => !props.independent && !!props.title);
+
+/** Current stack registration id (null when not registered) */
+const stackId = ref<string | null>(null);
+
+/** Whether this dialog is registered but not the topmost in the stack */
+const isStacked = computed(() => {
+  if (!stackId.value) return false;
+  return !isTopOfStack(stackId.value);
+});
+
+/** Whether to show breadcrumbs (top of stack and stack has multiple entries) */
+const showBreadcrumbs = computed(() => {
+  if (!stackId.value) return false;
+  return isTopOfStack(stackId.value) && stackSize.value > 1;
+});
+
+/** Clear this dialog's stack registration (used on close and unmount) */
+function unregisterFromStack() {
+  if (stackId.value) {
+    const id = stackId.value;
+    stackId.value = null;
+    unregister(id);
+  }
+}
+
 // Show modal when modelValue becomes true
 // nextTick ensures the dialog element exists after v-if renders it
 watch(
@@ -141,14 +177,39 @@ watch(
     if (isOpen) {
       await nextTick();
       dialogRef.value?.showModal();
+
+      // Register with stack if this dialog is stackable
+      if (isStackable.value && !stackId.value) {
+        stackId.value = register(
+          () => props.title!,
+          () => {
+            modelValue.value = false;
+          }
+        );
+      }
+    } else {
+      unregisterFromStack();
     }
   },
   { immediate: true }
 );
 
+// Safety net: unregister if the component is unmounted while still open
+onBeforeUnmount(unregisterFromStack);
+
 // Handle internal close (ESC key, backdrop click, close button)
 function handleClose() {
   emit("close");
+
+  // When returnOnClose is false and we're in a stack, tear down the entire stack
+  if (!props.returnOnClose && stackId.value) {
+    const entries = [...stack.value].reverse();
+    for (const entry of entries) {
+      entry.close();
+    }
+    return;
+  }
+
   modelValue.value = false;
 }
 
@@ -189,7 +250,7 @@ function handleConfirm() {
     <dialog
       v-if="modelValue"
       ref="dialogRef"
-      class="danx-dialog"
+      :class="['danx-dialog', { 'danx-dialog--stacked': isStacked }]"
       @wheel.stop
       @keydown.stop
       @keyup.stop
@@ -224,9 +285,10 @@ function handleConfirm() {
         <div class="danx-dialog__box" :style="dialogStyle">
           <!-- Header -->
           <header
-            v-if="title || subtitle || $slots.title || $slots.subtitle"
+            v-if="title || subtitle || $slots.title || $slots.subtitle || showBreadcrumbs"
             class="danx-dialog__header"
           >
+            <DialogBreadcrumbs v-if="showBreadcrumbs" />
             <div v-if="title || $slots.title" class="danx-dialog__title">
               <slot name="title">{{ title }}</slot>
             </div>

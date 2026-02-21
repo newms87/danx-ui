@@ -18,6 +18,7 @@ import confirmDialogCode from "./dialog-examples/ConfirmDialog.vue?raw";
 import customSizeCode from "./dialog-examples/CustomSize.vue?raw";
 import persistentDialogCode from "./dialog-examples/PersistentDialog.vue?raw";
 import slotCustomizationCode from "./dialog-examples/SlotCustomization.vue?raw";
+import stackedDialogsCode from "./dialog-examples/StackedDialogs.vue?raw";
 import subtitleDialogCode from "./dialog-examples/SubtitleDialog.vue?raw";
 </script>
 
@@ -73,6 +74,12 @@ import subtitleDialogCode from "./dialog-examples/SubtitleDialog.vue?raw";
       title="Slot Customization"
       description="Using slots for custom content."
       :code="slotCustomizationCode"
+    />
+
+    <DemoSection
+      title="Stacked Dialogs"
+      description="Dialogs that open other dialogs form a navigation stack with breadcrumbs."
+      :code="stackedDialogsCode"
     />
   </DemoPage>
 </template>

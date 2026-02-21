@@ -72,6 +72,20 @@ export interface DanxDialogProps {
    * When true, disables the confirm button.
    */
   disabled?: boolean;
+
+  /**
+   * When true, this dialog opts out of the navigation stack entirely.
+   * It renders as a normal standalone dialog even when other dialogs are open.
+   * Dialogs without a title are automatically treated as independent.
+   */
+  independent?: boolean;
+
+  /**
+   * Controls close behavior when this dialog is part of a stack.
+   * - true (default): Closing this dialog reveals the previous dialog in the stack.
+   * - false: Closing this dialog tears down the entire stack.
+   */
+  returnOnClose?: boolean;
 }
 
 export interface DanxDialogEmits {

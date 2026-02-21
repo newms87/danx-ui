@@ -49,4 +49,9 @@
   --dx-dialog-backdrop: var(--color-backdrop);
   --dx-dialog-backdrop-blur: 4px;
   --dx-dialog-animation-duration: var(--duration-300);
+
+  --dx-dialog-breadcrumb-color: var(--color-text-muted);
+  --dx-dialog-breadcrumb-active-color: var(--color-text);
+  --dx-dialog-breadcrumb-hover-color: var(--color-text);
+  --dx-dialog-breadcrumb-separator-color: var(--color-text-muted);
 }

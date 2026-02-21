@@ -207,3 +207,17 @@
     gap: var(--space-sm);
   }
 }
+
+/* ==========================================================================
+   Stacked State (hidden background dialogs in navigation stack)
+   ========================================================================== */
+
+.danx-dialog--stacked {
+  visibility: hidden;
+  pointer-events: none;
+
+  &::backdrop {
+    opacity: 0;
+    pointer-events: none;
+  }
+}

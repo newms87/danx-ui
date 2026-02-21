@@ -45,6 +45,8 @@ const show = ref(false);
 | `confirmButton` | `boolean \| string` | `false` | Show confirm button |
 | `isSaving` | `boolean` | `false` | Loading state for confirm |
 | `disabled` | `boolean` | `false` | Disable confirm button |
+| `independent` | `boolean` | `false` | Opt out of dialog stacking |
+| `returnOnClose` | `boolean` | `true` | Reveal previous dialog on close |
 
 ## Events
 
@@ -230,3 +232,71 @@ const { isOpen, open, close, toggle } = useDialog();
 ```
 
 The composable can also be used with native `<dialog>` elements for custom implementations.
+
+## Dialog Navigation Stack
+
+When content inside a dialog needs to open another dialog, stacking dialogs creates UX problems (multiple backdrops, different sizes, z-index wars). DanxDialog includes a built-in navigation stack that reuses the same visual space with breadcrumb navigation.
+
+### How It Works
+
+1. When a titled DanxDialog opens while another is already open, it registers on a global stack
+2. Only the top-of-stack dialog is visible; others are hidden (preserving scroll position and form state)
+3. Breadcrumbs appear in the header showing all stacked dialog titles
+4. Clicking a breadcrumb navigates to that dialog, closing all above it
+5. Closing the active dialog reveals the previous one
+
+### Basic Stacking
+
+```vue
+<template>
+  <DanxDialog v-model="showFirst" title="First Dialog">
+    <p>Content here</p>
+    <button @click="showSecond = true">Open Second</button>
+  </DanxDialog>
+
+  <DanxDialog v-model="showSecond" title="Second Dialog">
+    <p>Breadcrumbs automatically appear showing: First Dialog / Second Dialog</p>
+  </DanxDialog>
+</template>
+```
+
+### Independent Dialogs
+
+Use `independent` to opt a dialog out of the stack entirely:
+
+```vue
+<DanxDialog v-model="show" title="Not Stacked" independent>
+  <p>This dialog won't participate in the navigation stack.</p>
+</DanxDialog>
+```
+
+Dialogs without a `title` prop are automatically independent (no breadcrumb label possible).
+
+### Close Behavior
+
+By default, closing a stacked dialog reveals the previous one. Set `return-on-close` to `false` to tear down the entire stack when closing:
+
+```vue
+<DanxDialog v-model="show" title="Final Step" :return-on-close="false">
+  <p>Closing this dialog closes all stacked dialogs.</p>
+</DanxDialog>
+```
+
+### useDialogStack Composable
+
+For programmatic access to the stack:
+
+```typescript
+import { useDialogStack } from 'danx-ui';
+
+const { stack, stackSize, navigateTo, reset } = useDialogStack();
+```
+
+### Breadcrumb Styling
+
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--dx-dialog-breadcrumb-color` | `--color-text-muted` | Inactive breadcrumb text |
+| `--dx-dialog-breadcrumb-active-color` | `--color-text` | Active breadcrumb text |
+| `--dx-dialog-breadcrumb-hover-color` | `--color-text` | Hover state |
+| `--dx-dialog-breadcrumb-separator-color` | `--color-text-muted` | Separator color |

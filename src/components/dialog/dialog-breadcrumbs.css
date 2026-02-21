@@ -1,0 +1,54 @@
+/**
+ * DialogBreadcrumbs Layout
+ *
+ * Breadcrumb bar for stacked dialog navigation.
+ *
+ * CSS Tokens:
+ * --dx-dialog-breadcrumb-color           Inactive breadcrumb text
+ * --dx-dialog-breadcrumb-active-color    Active (current) breadcrumb text
+ * --dx-dialog-breadcrumb-hover-color     Hover state
+ * --dx-dialog-breadcrumb-separator-color Separator character color
+ */
+
+.dialog-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+}
+
+.dialog-breadcrumbs__item {
+  padding: var(--space-2xs) var(--space-xs);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--dx-dialog-breadcrumb-color);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: color var(--duration-150) var(--ease-out),
+    background-color var(--duration-150) var(--ease-out);
+
+  &:hover {
+    color: var(--dx-dialog-breadcrumb-hover-color);
+    background: var(--color-surface-hover);
+  }
+}
+
+.dialog-breadcrumbs__item--active {
+  color: var(--dx-dialog-breadcrumb-active-color);
+  font-weight: var(--font-semibold);
+  cursor: default;
+
+  &:hover {
+    color: var(--dx-dialog-breadcrumb-active-color);
+    background: none;
+  }
+}
+
+.dialog-breadcrumbs__separator {
+  color: var(--dx-dialog-breadcrumb-separator-color);
+  user-select: none;
+}

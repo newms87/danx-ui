@@ -46,7 +46,12 @@ import {
 } from "../../src/components/icon";
 import { CodeViewer } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
-import { DanxDialog, useDialog } from "../../src/components/dialog";
+import {
+  DanxDialog,
+  DialogBreadcrumbs,
+  useDialog,
+  useDialogStack,
+} from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
 import { DanxButtonGroup } from "../../src/components/buttonGroup";
@@ -127,6 +132,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   CodeViewer,
   DanxContextMenu,
   DanxDialog,
+  DialogBreadcrumbs,
   DanxPopover,
   MarkdownEditor,
   DanxButtonGroup,
@@ -154,8 +160,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   CodeViewer,
   DanxContextMenu,
   DanxDialog,
+  DialogBreadcrumbs,
   DanxPopover,
   useDialog,
+  useDialogStack,
   MarkdownEditor,
   DanxButtonGroup,
   DanxTabs,

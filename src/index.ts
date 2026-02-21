@@ -11,7 +11,7 @@ export { DanxChip } from "./components/chip";
 export { DanxIcon } from "./components/icon";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
-export { DanxDialog } from "./components/dialog";
+export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
 export { DanxPopover } from "./components/popover";
 export { MarkdownEditor } from "./components/markdown-editor";
 export { DanxTabs } from "./components/tabs";
@@ -27,7 +27,7 @@ export {
   useCodeViewerEditor,
 } from "./components/code-viewer";
 export { calculateContextMenuPosition } from "./components/context-menu";
-export { useDialog } from "./components/dialog";
+export { useDialog, useDialogStack } from "./components/dialog";
 export { useMarkdownEditor } from "./components/markdown-editor";
 export {
   resolveFileUrl,
@@ -103,7 +103,9 @@ export type {
   DanxDialogEmits,
   DanxDialogProps,
   DanxDialogSlots,
+  DialogStackEntry,
   UseDialogReturn,
+  UseDialogStackReturn,
 } from "./components/dialog";
 export type {
   DanxPopoverEmits,
