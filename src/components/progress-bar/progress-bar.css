@@ -90,6 +90,10 @@
    ========================================================================== */
 
 .danx-progress-bar__text--inside {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
   color: var(--dx-progress-bar-text-color);
   white-space: nowrap;
   flex: 1;
@@ -117,6 +121,15 @@
   width: var(--dx-progress-bar-icon-size);
   height: var(--dx-progress-bar-icon-size);
   color: var(--dx-progress-bar-text-color);
+}
+
+/* ==========================================================================
+   Text Position: Above — switch to column layout
+   ========================================================================== */
+
+.danx-progress-bar--text-above {
+  flex-direction: column;
+  align-items: stretch;
 }
 
 /* ==========================================================================
@@ -269,6 +282,15 @@
   }
 }
 
+/* Both animate-stripes and glow: compose animations */
+.danx-progress-bar--animate-stripes.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    animation:
+      danx-progress-bar-stripes 1s linear infinite,
+      danx-progress-bar-glow 2s ease-in-out infinite;
+  }
+}
+
 @keyframes danx-progress-bar-glow {
   0%,
   100% {
@@ -313,11 +335,57 @@
 
 .danx-progress-bar--gradient {
   .danx-progress-bar__fill {
-    background: linear-gradient(
+    background-image: linear-gradient(
       90deg,
       var(--dx-progress-bar-gradient-from),
       var(--dx-progress-bar-gradient-to)
     );
+  }
+}
+
+/* Striped + Gradient: layer stripes over gradient */
+.danx-progress-bar--striped.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    background-image:
+      repeating-linear-gradient(
+        var(--dx-progress-bar-stripe-angle),
+        var(--dx-progress-bar-stripe-color) 0,
+        var(--dx-progress-bar-stripe-color) var(--dx-progress-bar-stripe-width),
+        transparent var(--dx-progress-bar-stripe-width),
+        transparent calc(var(--dx-progress-bar-stripe-width) * 2)
+      ),
+      linear-gradient(
+        90deg,
+        var(--dx-progress-bar-gradient-from),
+        var(--dx-progress-bar-gradient-to)
+      );
+    background-size:
+      calc(var(--dx-progress-bar-stripe-width) * 2.828) 100%,
+      100% 100%;
+  }
+}
+
+/* Animated stripes + Gradient: pin gradient layer position while animating stripes */
+.danx-progress-bar--animate-stripes.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    animation: danx-progress-bar-stripes-gradient 1s linear infinite;
+  }
+}
+
+.danx-progress-bar--animate-stripes.danx-progress-bar--gradient.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    animation:
+      danx-progress-bar-stripes-gradient 1s linear infinite,
+      danx-progress-bar-glow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes danx-progress-bar-stripes-gradient {
+  from {
+    background-position: calc(var(--dx-progress-bar-stripe-width) * 2.828) 0, 0 0;
+  }
+  to {
+    background-position: 0 0, 0 0;
   }
 }
 
@@ -352,5 +420,44 @@
 .danx-progress-bar--muted.danx-progress-bar--glow {
   .danx-progress-bar__fill {
     --dx-progress-bar-glow-color: var(--dx-progress-bar-muted-glow);
+  }
+}
+
+/* ==========================================================================
+   Type + Gradient Color Overrides
+   ========================================================================== */
+
+.danx-progress-bar--danger.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-gradient-from: var(--dx-progress-bar-danger-gradient-from);
+    --dx-progress-bar-gradient-to: var(--dx-progress-bar-danger-gradient-to);
+  }
+}
+
+.danx-progress-bar--success.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-gradient-from: var(--dx-progress-bar-success-gradient-from);
+    --dx-progress-bar-gradient-to: var(--dx-progress-bar-success-gradient-to);
+  }
+}
+
+.danx-progress-bar--warning.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-gradient-from: var(--dx-progress-bar-warning-gradient-from);
+    --dx-progress-bar-gradient-to: var(--dx-progress-bar-warning-gradient-to);
+  }
+}
+
+.danx-progress-bar--info.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-gradient-from: var(--dx-progress-bar-info-gradient-from);
+    --dx-progress-bar-gradient-to: var(--dx-progress-bar-info-gradient-to);
+  }
+}
+
+.danx-progress-bar--muted.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-gradient-from: var(--dx-progress-bar-muted-gradient-from);
+    --dx-progress-bar-gradient-to: var(--dx-progress-bar-muted-gradient-to);
   }
 }

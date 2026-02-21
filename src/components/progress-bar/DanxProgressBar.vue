@@ -122,6 +122,7 @@ const barClasses = computed(() => [
   "danx-progress-bar",
   `danx-progress-bar--${props.size}`,
   `danx-progress-bar--text-${props.textAlign}`,
+  `danx-progress-bar--text-${effectiveTextPosition.value}`,
   effectiveType.value ? `danx-progress-bar--${effectiveType.value}` : null,
   {
     "danx-progress-bar--striped": props.striped,
@@ -168,19 +169,24 @@ const slotProps = computed(() => ({
 
         <!-- Fill -->
         <div class="danx-progress-bar__fill" :style="{ width: `${percent}%` }">
-          <!-- Icon -->
-          <span v-if="$slots.icon || icon" class="danx-progress-bar__icon">
-            <slot name="icon">
-              <DanxIcon :icon="icon!" />
-            </slot>
-          </span>
-
-          <!-- Text inside -->
+          <!-- Text inside (with optional icon) -->
           <span
             v-if="showText && effectiveTextPosition === 'inside'"
             class="danx-progress-bar__text--inside"
           >
+            <span v-if="$slots.icon || icon" class="danx-progress-bar__icon">
+              <slot name="icon">
+                <DanxIcon :icon="icon!" />
+              </slot>
+            </span>
             <slot v-bind="slotProps">{{ displayText }}</slot>
+          </span>
+
+          <!-- Icon only (when text is not inside) -->
+          <span v-else-if="$slots.icon || icon" class="danx-progress-bar__icon">
+            <slot name="icon">
+              <DanxIcon :icon="icon!" />
+            </slot>
           </span>
         </div>
       </template>

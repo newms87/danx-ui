@@ -6,7 +6,7 @@ const value = ref(65);
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 400px">
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
     <DanxProgressBar :value="value" />
 
     <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem">

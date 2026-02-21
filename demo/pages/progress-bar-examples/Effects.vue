@@ -3,7 +3,7 @@ import { DanxProgressBar } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 400px">
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
     <div>
       <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Striped</div>
       <DanxProgressBar :value="60" size="lg" striped />
@@ -21,8 +21,16 @@ import { DanxProgressBar } from "danx-ui";
       <DanxProgressBar :value="75" size="lg" shimmer />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient</div>
+      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient (default)</div>
       <DanxProgressBar :value="80" size="lg" gradient />
+    </div>
+    <div>
+      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Type</div>
+      <DanxProgressBar :value="75" type="danger" size="lg" gradient />
+    </div>
+    <div>
+      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Striped</div>
+      <DanxProgressBar :value="70" type="success" size="lg" gradient striped />
     </div>
     <div>
       <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">

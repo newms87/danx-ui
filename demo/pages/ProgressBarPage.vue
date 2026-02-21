@@ -19,6 +19,7 @@ import textPositionsCode from "./progress-bar-examples/TextPositions.vue?raw";
 import indeterminateModeCode from "./progress-bar-examples/IndeterminateMode.vue?raw";
 import bufferBarCode from "./progress-bar-examples/BufferBar.vue?raw";
 import withIconCode from "./progress-bar-examples/WithIcon.vue?raw";
+import kitchenSinkCode from "./progress-bar-examples/KitchenSink.vue?raw";
 </script>
 
 <template>
@@ -73,6 +74,12 @@ import withIconCode from "./progress-bar-examples/WithIcon.vue?raw";
       title="With Icon"
       description="Icon displayed inside the fill area."
       :code="withIconCode"
+    />
+
+    <DemoSection
+      title="Kitchen Sink"
+      description="All features active: danger type, gradient, striped, animated stripes, glow, shimmer, and icon."
+      :code="kitchenSinkCode"
     />
   </DemoPage>
 </template>
