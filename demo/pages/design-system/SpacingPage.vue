@@ -106,8 +106,12 @@ const zIndexScale: ZIndex[] = [
     <!-- Primitive Spacing Scale -->
     <DemoSection
       title="Primitive Spacing Scale"
-      description="Horizontal bars sized by each spacing token as --spacing-{N} (e.g. --spacing-4, --spacing-12). Shows the progression from 0 to 6rem."
+      description="Horizontal bars showing the progression from 0 to 6rem."
     >
+      <template #hint>
+        Pattern: <code>--spacing-{N}</code> (e.g. <code>--spacing-4</code>,
+        <code>--spacing-12</code>).
+      </template>
       <div class="spacing-scale">
         <div v-for="s in spacingScale" :key="s.token" class="spacing-row">
           <span class="spacing-row__name">{{ s.name }}</span>
@@ -120,10 +124,11 @@ const zIndexScale: ZIndex[] = [
     </DemoSection>
 
     <!-- Semantic Spacing -->
-    <DemoSection
-      title="Semantic Spacing"
-      description="Named spacing tokens for common use cases. Each references a primitive."
-    >
+    <DemoSection title="Semantic Spacing" description="Named spacing tokens for common use cases.">
+      <template #hint>
+        Pattern: <code>--space-{size}</code> (e.g. <code>--space-sm</code>,
+        <code>--space-xl</code>). Each references a primitive <code>--spacing-{N}</code> value.
+      </template>
       <div class="spacing-scale">
         <div v-for="s in semanticSpacing" :key="s.token" class="spacing-row">
           <span class="spacing-row__name spacing-row__name--semantic">{{ s.name }}</span>
@@ -142,8 +147,13 @@ const zIndexScale: ZIndex[] = [
     <!-- Border Radii -->
     <DemoSection
       title="Border Radii"
-      description="Primitive radius tokens as --radius-{name} (top row) and semantic aliases (bottom row)."
+      description="Primitive values (top row) and semantic aliases (bottom row)."
     >
+      <template #hint>
+        Pattern: <code>--radius-{name}</code> (e.g. <code>--radius-lg</code>,
+        <code>--radius-full</code>). Semantic tokens like <code>--radius-button</code> and
+        <code>--radius-dialog</code> reference primitives.
+      </template>
       <div class="radii-sections">
         <div class="radii-section">
           <h4 class="radii-section__label">Primitives</h4>
@@ -174,6 +184,9 @@ const zIndexScale: ZIndex[] = [
       title="Z-Index Scale"
       description="Stacking layers from 0 to 50. Each rectangle overlaps the previous to visualize layering."
     >
+      <template #hint>
+        Pattern: <code>--z-{N}</code> (e.g. <code>--z-10</code>, <code>--z-50</code>).
+      </template>
       <div class="z-index-demo">
         <div
           v-for="(z, i) in zIndexScale"

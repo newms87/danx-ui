@@ -87,6 +87,10 @@ const transitions: Transition[] = [
       title="Elevation Shadows"
       description="Progressive elevation from subtle to dramatic. Used for cards, dropdowns, and modals."
     >
+      <template #hint>
+        Pattern: <code>--shadow-{size}</code> (e.g. <code>--shadow-sm</code>,
+        <code>--shadow-2xl</code>).
+      </template>
       <div class="shadow-row">
         <div
           v-for="s in elevationShadows"
@@ -105,6 +109,10 @@ const transitions: Transition[] = [
       title="Special Shadows"
       description="Layered depth and inset shadows for recessed elements."
     >
+      <template #hint>
+        Pattern: <code>--shadow-{type}</code> (e.g. <code>--shadow-layered</code>,
+        <code>--shadow-inner</code>).
+      </template>
       <div class="shadow-row">
         <div
           v-for="s in specialShadows"
@@ -123,6 +131,10 @@ const transitions: Transition[] = [
       title="Glow Shadows"
       description="Color glow effects, typically used in dark mode for accent highlights."
     >
+      <template #hint>
+        Pattern: <code>--shadow-glow-{color}</code> (e.g. <code>--shadow-glow-blue</code>,
+        <code>--shadow-glow-cyan</code>).
+      </template>
       <div class="glow-bg">
         <div
           v-for="s in glowShadows"
@@ -141,6 +153,11 @@ const transitions: Transition[] = [
       title="Semantic Shadows"
       description="Purpose-driven shadow tokens. Toggle the theme to see how they shift (e.g., glow only activates in dark mode)."
     >
+      <template #hint>
+        Pattern: <code>--shadow-{role}</code> (e.g. <code>--shadow-component</code>,
+        <code>--shadow-dialog</code>). Toggle the theme to see shifts — glow only activates in dark
+        mode.
+      </template>
       <div class="semantic-shadow-grid">
         <div
           v-for="s in semanticShadows"
@@ -160,6 +177,10 @@ const transitions: Transition[] = [
       title="Gradients"
       description="Three gradient tokens. Toggle the theme to see how they shift."
     >
+      <template #hint>
+        Pattern: <code>--gradient-{type}</code> (e.g. <code>--gradient-surface</code>,
+        <code>--gradient-accent</code>).
+      </template>
       <div class="gradient-strips">
         <div v-for="g in gradients" :key="g.token" class="gradient-strip">
           <div class="gradient-strip__bar" :style="{ background: `var(${g.token})` }" />
@@ -174,6 +195,10 @@ const transitions: Transition[] = [
       title="Transitions"
       description="Hover over each card to feel the speed difference between fast, normal, and slow transitions."
     >
+      <template #hint>
+        Pattern: <code>--transition-{speed}</code> (e.g. <code>--transition-fast</code>,
+        <code>--transition-slow</code>).
+      </template>
       <div class="transition-row">
         <div
           v-for="t in transitions"

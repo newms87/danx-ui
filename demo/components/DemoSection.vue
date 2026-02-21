@@ -13,6 +13,8 @@
  *   code?: string - Optional Vue template string for live editable preview
  *
  * @slots
+ *   hint - Optional callout block between description and content for token patterns/usage guidance.
+ *          Provides styled treatment for <code> and <strong> elements.
  *   default - Fallback content when no code prop is provided
  */
 import { type Component, type Ref, ref, shallowRef, watch } from "vue";
@@ -65,6 +67,10 @@ function onCodeInput(event: Event) {
   <div class="demo-section">
     <h3 class="demo-section__title">{{ title }}</h3>
     <p v-if="description" class="demo-section__description">{{ description }}</p>
+
+    <div v-if="$slots.hint" class="demo-section__hint">
+      <slot name="hint" />
+    </div>
 
     <!-- Live preview mode (when code prop is provided) -->
     <template v-if="code !== undefined">
@@ -135,6 +141,33 @@ function onCodeInput(event: Event) {
   color: var(--color-text-muted);
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+.demo-section__hint {
+  margin: 0 0 1rem;
+  padding: 0.625rem 0.875rem;
+  border-left: 3px solid var(--color-interactive);
+  background: var(--color-surface-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-text);
+
+  :deep(code) {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.1em 0.35em;
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-accent);
+  }
+
+  :deep(strong) {
+    font-weight: 600;
+    color: var(--color-text);
+  }
 }
 
 .demo-section__content {

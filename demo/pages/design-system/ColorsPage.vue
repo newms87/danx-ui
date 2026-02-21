@@ -324,8 +324,13 @@ function isLightText(hex: string): boolean {
     <!-- Primitive Palettes -->
     <DemoSection
       title="Primitive Palettes"
-      description="Raw color values referenced as --color-{family}-{shade} (e.g. --color-slate-400, --color-red-800). Never use these directly in components — reference semantic tokens instead."
+      description="Raw color values across 8 families plus white and black."
     >
+      <template #hint>
+        Pattern: <code>--color-{family}-{shade}</code> (e.g. <code>--color-slate-400</code>,
+        <code>--color-red-800</code>). <strong>Never use directly in components</strong> — reference
+        semantic tokens instead.
+      </template>
       <div class="color-palettes">
         <!-- White / Black -->
         <div class="color-palette">
@@ -375,6 +380,11 @@ function isLightText(hex: string): boolean {
       title="Semantic Color Roles"
       description="Purpose-driven tokens that reference primitives. Toggle the theme to see how each token shifts."
     >
+      <template #hint>
+        Pattern: <code>--color-{role}</code> (e.g. <code>--color-surface</code>,
+        <code>--color-text-muted</code>). Each references a primitive and swaps automatically in
+        dark mode.
+      </template>
       <div class="semantic-groups">
         <div v-for="group in semanticGroups" :key="group.name" class="semantic-group">
           <h4 class="semantic-group__name">{{ group.name }}</h4>

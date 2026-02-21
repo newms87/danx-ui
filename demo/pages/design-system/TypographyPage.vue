@@ -69,6 +69,9 @@ const multilineText =
       title="Font Families"
       description="Two font stacks: sans-serif for UI text and monospace for code."
     >
+      <template #hint>
+        Pattern: <code>--font-{type}</code> — <code>--font-sans</code> and <code>--font-mono</code>.
+      </template>
       <div class="font-families">
         <div class="font-specimen">
           <h4 class="font-specimen__label">Sans <code>--font-sans</code></h4>
@@ -92,6 +95,9 @@ const multilineText =
       title="Type Scale"
       description="Seven sizes from xs to 3xl, defined in rem for accessibility."
     >
+      <template #hint>
+        Pattern: <code>--text-{size}</code> (e.g. <code>--text-sm</code>, <code>--text-2xl</code>).
+      </template>
       <div class="type-scale">
         <div v-for="size in typeSizes" :key="size.token" class="type-row">
           <div class="type-row__meta">
@@ -111,6 +117,10 @@ const multilineText =
       title="Font Weights"
       description="Four weight levels from normal (400) to bold (700)."
     >
+      <template #hint>
+        Pattern: <code>--font-{weight}</code> (e.g. <code>--font-semibold</code>,
+        <code>--font-bold</code>).
+      </template>
       <div class="weight-specimens">
         <div v-for="weight in fontWeights" :key="weight.token" class="weight-row">
           <div class="weight-row__meta">
@@ -130,6 +140,10 @@ const multilineText =
       title="Line Heights"
       description="Five line-height values. Multi-line text shows the density differences."
     >
+      <template #hint>
+        Pattern: <code>--leading-{density}</code> (e.g. <code>--leading-tight</code>,
+        <code>--leading-relaxed</code>).
+      </template>
       <div class="leading-specimens">
         <div v-for="lh in lineHeights" :key="lh.token" class="leading-block">
           <div class="leading-block__meta">
