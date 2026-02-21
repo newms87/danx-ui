@@ -13,7 +13,7 @@ import basicUsageCode from "./tooltip-examples/BasicUsage.vue?raw";
 import triggerIconCode from "./tooltip-examples/TriggerIcon.vue?raw";
 import variantsCode from "./tooltip-examples/Variants.vue?raw";
 import placementCode from "./tooltip-examples/Placement.vue?raw";
-import semanticTypesCode from "./tooltip-examples/SemanticTypes.vue?raw";
+
 import panelIconCode from "./tooltip-examples/PanelIcon.vue?raw";
 import clickAndFocusCode from "./tooltip-examples/ClickAndFocus.vue?raw";
 import richContentCode from "./tooltip-examples/RichContent.vue?raw";
@@ -41,7 +41,7 @@ import disabledCode from "./tooltip-examples/Disabled.vue?raw";
 
     <DemoSection
       title="Variants"
-      description="One tooltip per variant with different semantic types."
+      description="One tooltip per variant with different semantic colors."
       :code="variantsCode"
     />
 
@@ -49,12 +49,6 @@ import disabledCode from "./tooltip-examples/Disabled.vue?raw";
       title="Placement"
       description="Control tooltip placement with the placement prop. Auto-flips when near viewport edges."
       :code="placementCode"
-    />
-
-    <DemoSection
-      title="Semantic Types"
-      description="Six semantic color types matching DanxChip: blank (default), danger, success, warning, info, muted."
-      :code="semanticTypesCode"
     />
 
     <DemoSection

@@ -20,7 +20,7 @@
       A complete theme replacement using red brand colors.
     </p>
     <div style="display: flex; gap: 0.5rem">
-      <DanxButton type="primary" label="Brand Action" />
+      <DanxButton label="Brand Action" />
       <DanxButton label="Secondary" />
     </div>
   </div>

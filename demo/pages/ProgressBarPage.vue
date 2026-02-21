@@ -14,7 +14,7 @@ import progressBarDocs from "../../docs/progress-bar.md?raw";
 import basicUsageCode from "./progress-bar-examples/BasicUsage.vue?raw";
 import sizesCode from "./progress-bar-examples/Sizes.vue?raw";
 import variantsCode from "./progress-bar-examples/Variants.vue?raw";
-import typesCode from "./progress-bar-examples/Types.vue?raw";
+
 import effectsCode from "./progress-bar-examples/Effects.vue?raw";
 import textPositionsCode from "./progress-bar-examples/TextPositions.vue?raw";
 import indeterminateModeCode from "./progress-bar-examples/IndeterminateMode.vue?raw";
@@ -43,14 +43,8 @@ import kitchenSinkCode from "./progress-bar-examples/KitchenSink.vue?raw";
 
     <DemoSection
       title="Variants"
-      description="One progress bar per variant with different semantic types."
+      description="One progress bar per variant with different semantic colors."
       :code="variantsCode"
-    />
-
-    <DemoSection
-      title="Types"
-      description="Semantic color types for different contexts."
-      :code="typesCode"
     />
 
     <DemoSection
@@ -85,7 +79,7 @@ import kitchenSinkCode from "./progress-bar-examples/KitchenSink.vue?raw";
 
     <DemoSection
       title="Kitchen Sink"
-      description="All features active: danger type, gradient, striped, animated stripes, glow, shimmer, and icon."
+      description="All features active: danger variant, gradient, striped, animated stripes, glow, shimmer, and icon."
       :code="kitchenSinkCode"
     />
   </DemoPage>

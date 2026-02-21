@@ -12,8 +12,8 @@
       All components inside this wrapper inherit purple interactive colors:
     </p>
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-      <DanxButton type="primary" label="Primary" />
-      <DanxButton type="primary" label="Another" />
+      <DanxButton label="Primary" />
+      <DanxButton label="Another" />
       <DanxBadge :count="5">
         <DanxButton label="With Badge" />
       </DanxBadge>

@@ -24,7 +24,7 @@ import { DanxButton } from "danx-ui";
     </p>
     <div class="button-group">
       <DanxButton variant="brand" class="custom-brand-button">Brand</DanxButton>
-      <DanxButton variant="brand" icon="star" class="custom-brand-button"
+      <DanxButton variant="brand" icon="gear" class="custom-brand-button"
         >Brand with Icon</DanxButton
       >
     </div>

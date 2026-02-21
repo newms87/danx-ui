@@ -15,7 +15,6 @@ import basicUsageCode from "./badge-examples/BasicUsage.vue?raw";
 import dotModeCode from "./badge-examples/DotMode.vue?raw";
 import variantsCode from "./badge-examples/Variants.vue?raw";
 import placementsCode from "./badge-examples/Placements.vue?raw";
-import typesCode from "./badge-examples/Types.vue?raw";
 </script>
 
 <template>
@@ -32,13 +31,13 @@ import typesCode from "./badge-examples/Types.vue?raw";
 
     <DemoSection
       title="Dot Mode"
-      description="Minimal status dot indicators with different semantic types."
+      description="Minimal status dot indicators with different semantic colors."
       :code="dotModeCode"
     />
 
     <DemoSection
       title="Variants"
-      description="One badge per variant with different semantic types."
+      description="One badge per variant with different semantic colors."
       :code="variantsCode"
     />
 
@@ -46,12 +45,6 @@ import typesCode from "./badge-examples/Types.vue?raw";
       title="Placements"
       description="Badge indicators on all four corners."
       :code="placementsCode"
-    />
-
-    <DemoSection
-      title="Semantic Types"
-      description="All color types including a label badge."
-      :code="typesCode"
     />
   </DemoPage>
 </template>
