@@ -12,7 +12,6 @@
  */
 import DemoSection from "../../components/DemoSection.vue";
 import DemoPage from "../../components/DemoPage.vue";
-import ThemeComparisonGrid from "../../components/ThemeComparisonGrid.vue";
 
 interface Shadow {
   token: string;
@@ -140,60 +139,33 @@ const transitions: Transition[] = [
     <!-- Semantic Shadows -->
     <DemoSection
       title="Semantic Shadows"
-      description="Purpose-driven shadow tokens. The glow shadow only activates in dark mode."
+      description="Purpose-driven shadow tokens. Toggle the theme to see how they shift (e.g., glow only activates in dark mode)."
     >
-      <ThemeComparisonGrid>
-        <template #light>
-          <div class="semantic-shadow-grid">
-            <div
-              v-for="s in semanticShadows"
-              :key="s.token"
-              class="semantic-shadow-card"
-              :style="{ boxShadow: `var(${s.token})` }"
-            >
-              <span class="semantic-shadow-card__name">{{ s.name }}</span>
-              <span class="semantic-shadow-card__desc">{{ s.description }}</span>
-            </div>
-          </div>
-        </template>
-        <template #dark>
-          <div class="semantic-shadow-grid">
-            <div
-              v-for="s in semanticShadows"
-              :key="s.token"
-              class="semantic-shadow-card"
-              :style="{ boxShadow: `var(${s.token})` }"
-            >
-              <span class="semantic-shadow-card__name">{{ s.name }}</span>
-              <span class="semantic-shadow-card__desc">{{ s.description }}</span>
-            </div>
-          </div>
-        </template>
-      </ThemeComparisonGrid>
+      <div class="semantic-shadow-grid">
+        <div
+          v-for="s in semanticShadows"
+          :key="s.token"
+          class="semantic-shadow-card"
+          :style="{ boxShadow: `var(${s.token})` }"
+        >
+          <span class="semantic-shadow-card__name">{{ s.name }}</span>
+          <span class="semantic-shadow-card__desc">{{ s.description }}</span>
+        </div>
+      </div>
     </DemoSection>
 
     <!-- Gradients -->
-    <DemoSection title="Gradients" description="Three gradient tokens with light/dark comparison.">
-      <ThemeComparisonGrid>
-        <template #light>
-          <div class="gradient-strips">
-            <div v-for="g in gradients" :key="g.token" class="gradient-strip">
-              <div class="gradient-strip__bar" :style="{ background: `var(${g.token})` }" />
-              <span class="gradient-strip__name">{{ g.name }}</span>
-              <code class="gradient-strip__token">{{ g.token }}</code>
-            </div>
-          </div>
-        </template>
-        <template #dark>
-          <div class="gradient-strips">
-            <div v-for="g in gradients" :key="g.token" class="gradient-strip">
-              <div class="gradient-strip__bar" :style="{ background: `var(${g.token})` }" />
-              <span class="gradient-strip__name">{{ g.name }}</span>
-              <code class="gradient-strip__token">{{ g.token }}</code>
-            </div>
-          </div>
-        </template>
-      </ThemeComparisonGrid>
+    <DemoSection
+      title="Gradients"
+      description="Three gradient tokens. Toggle the theme to see how they shift."
+    >
+      <div class="gradient-strips">
+        <div v-for="g in gradients" :key="g.token" class="gradient-strip">
+          <div class="gradient-strip__bar" :style="{ background: `var(${g.token})` }" />
+          <span class="gradient-strip__name">{{ g.name }}</span>
+          <code class="gradient-strip__token">{{ g.token }}</code>
+        </div>
+      </div>
     </DemoSection>
 
     <!-- Transitions -->

@@ -10,7 +10,6 @@
  */
 import DemoSection from "../../components/DemoSection.vue";
 import DemoPage from "../../components/DemoPage.vue";
-import ThemeComparisonGrid from "../../components/ThemeComparisonGrid.vue";
 
 import themingDocs from "../../../docs/theming.md?raw";
 
@@ -72,10 +71,11 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
     <!-- How Dark Mode Works -->
     <DemoSection
       title="How Dark Mode Works"
-      description="The same three tiers, two themes. Only the semantic box changes between light and dark."
+      description="Only the semantic tier changes between themes. Primitives and component tokens stay the same."
     >
-      <ThemeComparisonGrid>
-        <template #light>
+      <div class="dark-mode-diagrams">
+        <div class="dark-mode-diagram">
+          <h4 class="dark-mode-diagram__label">Light Theme</h4>
           <div class="dark-mode-tiers">
             <div class="dm-tier dm-tier--prim">
               <span class="dm-tier__name">Primitives</span>
@@ -93,8 +93,9 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
               <code>dx-button-bg: interactive</code>
             </div>
           </div>
-        </template>
-        <template #dark>
+        </div>
+        <div class="dark-mode-diagram">
+          <h4 class="dark-mode-diagram__label">Dark Theme</h4>
           <div class="dark-mode-tiers">
             <div class="dm-tier dm-tier--prim">
               <span class="dm-tier__name">Primitives</span>
@@ -112,8 +113,8 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
               <code>dx-button-bg: interactive</code>
             </div>
           </div>
-        </template>
-      </ThemeComparisonGrid>
+        </div>
+      </div>
     </DemoSection>
 
     <!-- Customization: Tweak -->
@@ -288,6 +289,29 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
   font-size: 0.5625rem;
   color: var(--color-text-subtle);
   white-space: nowrap;
+}
+
+.dark-mode-diagrams {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.dark-mode-diagram {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-sunken);
+}
+
+.dark-mode-diagram__label {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
 }
 
 .dark-mode-tiers {

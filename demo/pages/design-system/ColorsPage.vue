@@ -9,7 +9,6 @@
  */
 import DemoSection from "../../components/DemoSection.vue";
 import DemoPage from "../../components/DemoPage.vue";
-import ThemeComparisonGrid from "../../components/ThemeComparisonGrid.vue";
 
 interface Swatch {
   shade: string;
@@ -299,7 +298,7 @@ function isLightText(hex: string): boolean {
     <!-- Semantic Color Roles -->
     <DemoSection
       title="Semantic Color Roles"
-      description="Purpose-driven tokens that reference primitives. These shift automatically between light and dark themes."
+      description="Purpose-driven tokens that reference primitives. Toggle the theme to see how each token shifts."
     >
       <div class="semantic-groups">
         <div v-for="group in semanticGroups" :key="group.name" class="semantic-group">
@@ -313,43 +312,6 @@ function isLightText(hex: string): boolean {
           </div>
         </div>
       </div>
-    </DemoSection>
-
-    <!-- Light vs Dark Comparison -->
-    <DemoSection
-      title="Light vs Dark Comparison"
-      description="Same semantic tokens, different themes. The semantic layer is the only thing that changes."
-    >
-      <ThemeComparisonGrid>
-        <template #light>
-          <div class="theme-card">
-            <h5 class="theme-card__title">Card Title</h5>
-            <p class="theme-card__text">
-              Body text using <code>--color-text</code> on <code>--color-surface</code>.
-            </p>
-            <p class="theme-card__muted">Muted text for secondary information.</p>
-            <div class="theme-card__actions">
-              <button class="theme-card__button">Interactive</button>
-              <button class="theme-card__button theme-card__button--danger">Danger</button>
-              <button class="theme-card__button theme-card__button--success">Success</button>
-            </div>
-          </div>
-        </template>
-        <template #dark>
-          <div class="theme-card">
-            <h5 class="theme-card__title">Card Title</h5>
-            <p class="theme-card__text">
-              Body text using <code>--color-text</code> on <code>--color-surface</code>.
-            </p>
-            <p class="theme-card__muted">Muted text for secondary information.</p>
-            <div class="theme-card__actions">
-              <button class="theme-card__button">Interactive</button>
-              <button class="theme-card__button theme-card__button--danger">Danger</button>
-              <button class="theme-card__button theme-card__button--success">Success</button>
-            </div>
-          </div>
-        </template>
-      </ThemeComparisonGrid>
     </DemoSection>
   </DemoPage>
 </template>
@@ -447,75 +409,5 @@ function isLightText(hex: string): boolean {
   font-size: 0.5625rem;
   color: var(--color-text-subtle);
   font-family: var(--font-mono);
-}
-
-.theme-card {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-}
-
-.theme-card__title {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.theme-card__text {
-  margin: 0 0 0.25rem;
-  font-size: 0.8125rem;
-  color: var(--color-text);
-
-  code {
-    font-size: 0.6875rem;
-    padding: 0.125rem 0.25rem;
-    background: var(--color-surface-sunken);
-    border-radius: var(--radius-sm);
-    color: var(--color-text-accent);
-  }
-}
-
-.theme-card__muted {
-  margin: 0 0 0.75rem;
-  font-size: 0.8125rem;
-  color: var(--color-text-muted);
-}
-
-.theme-card__actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.theme-card__button {
-  padding: 0.375rem 0.75rem;
-  border: none;
-  border-radius: var(--radius-button);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--color-text-inverted);
-  background: var(--color-interactive);
-
-  &:hover {
-    background: var(--color-interactive-hover);
-  }
-}
-
-.theme-card__button--danger {
-  background: var(--color-danger);
-
-  &:hover {
-    background: var(--color-danger-hover);
-  }
-}
-
-.theme-card__button--success {
-  background: var(--color-success);
-
-  &:hover {
-    background: var(--color-success-hover);
-  }
 }
 </style>
