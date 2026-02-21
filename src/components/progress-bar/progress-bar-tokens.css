@@ -33,11 +33,7 @@
  * --dx-progress-bar-{size}-font-size   Text font size
  * --dx-progress-bar-{size}-text-padding Text padding
  *
- * Type tokens (danger, success, warning, info, muted):
- * --dx-progress-bar-{type}-fill          Fill color
- * --dx-progress-bar-{type}-glow          Glow color
- * --dx-progress-bar-{type}-gradient-from Gradient start color
- * --dx-progress-bar-{type}-gradient-to   Gradient end color
+ * Variant colors are applied via inline styles from the useVariant composable.
  */
 
 :root {
@@ -95,48 +91,4 @@
   --dx-progress-bar-lg-font-size: 1rem;
   --dx-progress-bar-lg-text-padding: 0.25rem 0.75rem;
 
-  /* ==========================================================================
-     Type Tokens - Danger
-     ========================================================================== */
-
-  --dx-progress-bar-danger-fill: var(--color-danger);
-  --dx-progress-bar-danger-glow: var(--color-danger);
-  --dx-progress-bar-danger-gradient-from: var(--color-danger);
-  --dx-progress-bar-danger-gradient-to: var(--color-warning);
-
-  /* ==========================================================================
-     Type Tokens - Success
-     ========================================================================== */
-
-  --dx-progress-bar-success-fill: var(--color-success);
-  --dx-progress-bar-success-glow: var(--color-success);
-  --dx-progress-bar-success-gradient-from: var(--color-success);
-  --dx-progress-bar-success-gradient-to: var(--color-interactive);
-
-  /* ==========================================================================
-     Type Tokens - Warning
-     ========================================================================== */
-
-  --dx-progress-bar-warning-fill: var(--color-warning);
-  --dx-progress-bar-warning-glow: var(--color-warning);
-  --dx-progress-bar-warning-gradient-from: var(--color-warning);
-  --dx-progress-bar-warning-gradient-to: var(--color-danger);
-
-  /* ==========================================================================
-     Type Tokens - Info
-     ========================================================================== */
-
-  --dx-progress-bar-info-fill: var(--color-interactive);
-  --dx-progress-bar-info-glow: var(--color-interactive);
-  --dx-progress-bar-info-gradient-from: var(--color-interactive);
-  --dx-progress-bar-info-gradient-to: var(--color-success);
-
-  /* ==========================================================================
-     Type Tokens - Muted
-     ========================================================================== */
-
-  --dx-progress-bar-muted-fill: var(--color-surface-sunken);
-  --dx-progress-bar-muted-glow: var(--color-surface-sunken);
-  --dx-progress-bar-muted-gradient-from: var(--color-surface-sunken);
-  --dx-progress-bar-muted-gradient-to: var(--color-surface);
 }

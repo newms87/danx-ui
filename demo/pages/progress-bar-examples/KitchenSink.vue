@@ -4,7 +4,7 @@ import { DanxProgressBar, DanxButtonGroup, DanxPopover, DanxIcon } from "danx-ui
 
 const value = ref(75);
 const buffer = ref(90);
-const type = ref("danger");
+const variant = ref("danger");
 const size = ref("lg");
 const textPosition = ref("inside");
 const textAlign = ref("center");
@@ -19,7 +19,7 @@ const label = ref("");
 const selectedIcon = ref("check");
 const iconPopoverOpen = ref(false);
 
-const typeButtons = [
+const variantButtons = [
   { value: "", label: "Default", activeColor: "var(--color-interactive)" },
   { value: "danger", label: "Danger", activeColor: "var(--color-danger)" },
   { value: "success", label: "Success", activeColor: "var(--color-success)" },
@@ -84,7 +84,7 @@ const sectionLabel =
     <DanxProgressBar
       :value="value"
       :buffer="buffer"
-      :type="type"
+      :variant="variant"
       :size="size"
       :icon="selectedIcon || undefined"
       :striped="striped"
@@ -111,10 +111,10 @@ const sectionLabel =
       </label>
     </div>
 
-    <!-- Type -->
+    <!-- Variant -->
     <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start">
-      <span :style="sectionLabel">Type</span>
-      <DanxButtonGroup v-model="type" :buttons="typeButtons" />
+      <span :style="sectionLabel">Variant</span>
+      <DanxButtonGroup v-model="variant" :buttons="variantButtons" />
     </div>
 
     <!-- Size, Text Position & Align -->

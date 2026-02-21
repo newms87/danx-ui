@@ -3,7 +3,7 @@ import { DanxTooltip } from "danx-ui";
 </script>
 
 <template>
-  <DanxTooltip icon="info" type="info">
+  <DanxTooltip icon="info" variant="info">
     <template #trigger>
       <span style="text-decoration: underline; cursor: help">Rich content tooltip</span>
     </template>

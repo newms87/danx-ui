@@ -4,7 +4,7 @@ import { DanxProgressBar } from "danx-ui";
 
 <template>
   <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
-    <DanxProgressBar :value="85" icon="check" type="success" size="lg" />
-    <DanxProgressBar :value="45" icon="clock" type="warning" size="lg" label="Rating" />
+    <DanxProgressBar :value="85" icon="check" variant="success" size="lg" />
+    <DanxProgressBar :value="45" icon="clock" variant="warning" size="lg" label="Rating" />
   </div>
 </template>

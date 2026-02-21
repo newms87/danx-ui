@@ -5,6 +5,7 @@
  */
 
 export type * from "./types";
+export * from "./composables/useVariant";
 export * from "./syntax-highlighting";
 export * from "./markdown";
 export * from "./formatters";

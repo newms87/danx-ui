@@ -7,4 +7,4 @@
  */
 
 export { default as DanxBadge } from "./DanxBadge.vue";
-export type { BadgePlacement, BadgeType, DanxBadgeProps, DanxBadgeSlots } from "./types";
+export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./types";

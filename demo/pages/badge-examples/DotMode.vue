@@ -7,15 +7,15 @@ import { DanxBadge, DanxButton } from "danx-ui";
     <DanxButton>Default</DanxButton>
   </DanxBadge>
 
-  <DanxBadge dot type="success">
+  <DanxBadge dot variant="success">
     <DanxButton>Online</DanxButton>
   </DanxBadge>
 
-  <DanxBadge dot type="warning">
+  <DanxBadge dot variant="warning">
     <DanxButton>Away</DanxButton>
   </DanxBadge>
 
-  <DanxBadge dot type="muted">
+  <DanxBadge dot variant="muted">
     <DanxButton>Offline</DanxButton>
   </DanxBadge>
 </template>

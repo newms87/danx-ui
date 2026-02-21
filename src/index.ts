@@ -60,7 +60,6 @@ export type {
   ActionTarget,
   ActionTargetItem,
   ButtonSize,
-  ButtonType,
   DanxActionButtonEmits,
   DanxActionButtonProps,
   DanxButtonEmits,
@@ -69,14 +68,8 @@ export type {
   ResourceAction,
 } from "./components/button";
 export type { DanxIconProps } from "./components/icon";
-export type { BadgePlacement, BadgeType, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
-export type {
-  ChipSize,
-  ChipType,
-  DanxChipEmits,
-  DanxChipProps,
-  DanxChipSlots,
-} from "./components/chip";
+export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
+export type { ChipSize, DanxChipEmits, DanxChipProps, DanxChipSlots } from "./components/chip";
 export type {
   CodeFormat,
   CodeViewerCollapsedProps,
@@ -129,19 +122,13 @@ export type {
   DanxButtonGroupItem,
   DanxButtonGroupProps,
 } from "./components/buttonGroup";
-export type {
-  DanxTooltipProps,
-  DanxTooltipSlots,
-  TooltipInteraction,
-  TooltipType,
-} from "./components/tooltip";
+export type { DanxTooltipProps, DanxTooltipSlots, TooltipInteraction } from "./components/tooltip";
 export type {
   DanxProgressBarProps,
   DanxProgressBarSlots,
   ProgressBarSize,
   ProgressBarTextAlign,
   ProgressBarTextPosition,
-  ProgressBarType,
 } from "./components/progress-bar";
 export type {
   PreviewFile,
@@ -165,6 +152,11 @@ export type {
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";
 export type { AutoColorEntry } from "./shared/autoColor";
+
+// Variant system
+export { useVariant } from "./shared/composables/useVariant";
+export type { VariantTokenMap } from "./shared/composables/useVariant";
+export type { VariantType } from "./shared/types";
 
 // Shared utilities
 export {

@@ -10,13 +10,12 @@
  * - Automatic loading state from action.isApplying or target.isSaving
  * - Optional confirmation dialog before triggering
  * - Success/error/always event callbacks
- * - Full DanxButton prop passthrough (type, customType, size, icon, disabled, tooltip)
+ * - Full DanxButton prop passthrough (variant, size, icon, disabled, tooltip)
  *
  * ## Props
  * | Prop        | Type             | Default         | Description                          |
  * |-------------|------------------|-----------------|--------------------------------------|
- * | type        | ButtonType       | ""              | Semantic color type                  |
- * | customType  | string           | ""              | App-defined type (overrides type)    |
+ * | variant     | VariantType      | ""              | Visual variant (danger, success, etc)|
  * | size        | ButtonSize       | "md"            | Button size                          |
  * | icon        | Component|string | -               | Icon (name, SVG string, or component)|
  * | disabled    | boolean          | false           | Disables the button                  |
@@ -47,7 +46,7 @@
  * ## Usage Examples
  *
  * Basic action button:
- *   <DanxActionButton :action="deleteAction" :target="item" type="danger" icon="trash">
+ *   <DanxActionButton :action="deleteAction" :target="item" variant="danger" icon="trash">
  *     Delete
  *   </DanxActionButton>
  *
@@ -70,8 +69,7 @@ import { DanxDialog } from "../dialog";
 import type { DanxActionButtonEmits, DanxActionButtonProps } from "./action-types";
 
 const props = withDefaults(defineProps<DanxActionButtonProps>(), {
-  type: "",
-  customType: "",
+  variant: "",
   size: "md",
   disabled: false,
   confirm: false,
@@ -123,8 +121,7 @@ function handleConfirm() {
 <template>
   <DanxButton
     v-bind="$attrs"
-    :type="type"
-    :custom-type="customType"
+    :variant="variant"
     :size="size"
     :icon="icon"
     :disabled="disabled"

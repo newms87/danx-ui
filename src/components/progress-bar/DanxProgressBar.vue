@@ -9,7 +9,7 @@
  * ## Features
  * - Determinate (0–100%) and indeterminate modes
  * - Buffer bar for secondary progress indication
- * - Six color types: blank (default), danger, success, warning, info, muted
+ * - Variant-based coloring via shared variant system (danger, success, warning, info, muted)
  * - Three sizes: sm, md, lg
  * - Five visual effects: striped, animated stripes, glow, shimmer, gradient
  * - Three text positions: inside, above, beside
@@ -26,8 +26,7 @@
  * | max            | number                  | 100      | Maximum value (100%)              |
  * | buffer         | number                  | 0        | Buffer bar value                  |
  * | indeterminate  | boolean                 | false    | Indeterminate animation mode      |
- * | type           | ProgressBarType         | ""       | Semantic color type               |
- * | customType     | string                  | ""       | App-defined type (overrides type) |
+ * | variant        | VariantType             | ""       | Visual variant (danger, etc)      |
  * | size           | ProgressBarSize         | "md"     | Bar size (sm, md, lg)             |
  * | icon           | Component | string      | -        | Icon in fill area                 |
  * | striped        | boolean                 | false    | Striped overlay effect            |
@@ -56,10 +55,10 @@
  *   <DanxProgressBar :value="65" />
  *
  * With type and effects:
- *   <DanxProgressBar :value="75" type="success" striped shimmer />
+ *   <DanxProgressBar :value="75" variant="success" striped shimmer />
  *
  * Indeterminate loading:
- *   <DanxProgressBar indeterminate type="info" />
+ *   <DanxProgressBar indeterminate variant="info" />
  *
  * Custom label:
  *   <DanxProgressBar :value="3" :max="10" label="3 of 10 files" />
@@ -72,7 +71,8 @@
 -->
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, toRef } from "vue";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
 import type { DanxProgressBarProps, DanxProgressBarSlots } from "./types";
 
@@ -81,8 +81,7 @@ const props = withDefaults(defineProps<DanxProgressBarProps>(), {
   max: 100,
   buffer: 0,
   indeterminate: false,
-  type: "",
-  customType: "",
+  variant: "",
   size: "md",
   striped: false,
   animateStripes: false,
@@ -96,7 +95,18 @@ const props = withDefaults(defineProps<DanxProgressBarProps>(), {
 
 defineSlots<DanxProgressBarSlots>();
 
-const effectiveType = computed(() => props.customType || props.type);
+const PROGRESS_BAR_VARIANT_TOKENS = {
+  "--dx-progress-bar-fill-bg": "bg",
+  "--dx-progress-bar-glow-color": "bg",
+  "--dx-progress-bar-gradient-from": "bg",
+  "--dx-progress-bar-gradient-to": "gradient-to",
+};
+
+const variantStyle = useVariant(
+  toRef(props, "variant"),
+  "progress-bar",
+  PROGRESS_BAR_VARIANT_TOKENS
+);
 
 const percent = computed(() => {
   if (props.max <= 0) return 0;
@@ -123,7 +133,6 @@ const barClasses = computed(() => [
   `danx-progress-bar--${props.size}`,
   `danx-progress-bar--text-${props.textAlign}`,
   `danx-progress-bar--text-${effectiveTextPosition.value}`,
-  effectiveType.value ? `danx-progress-bar--${effectiveType.value}` : null,
   {
     "danx-progress-bar--striped": props.striped,
     "danx-progress-bar--animate-stripes": props.animateStripes,
@@ -143,6 +152,7 @@ const slotProps = computed(() => ({
 <template>
   <div
     :class="barClasses"
+    :style="variantStyle"
     role="progressbar"
     :aria-valuenow="indeterminate ? undefined : value"
     :aria-valuemin="0"

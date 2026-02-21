@@ -19,9 +19,7 @@
  * --dx-tooltip-gap                  Gap between panel icon and content
  * --dx-tooltip-animation-duration   Entry animation duration
  *
- * Type tokens (danger, success, warning, info, muted):
- * --dx-tooltip-{type}-bg            Background color
- * --dx-tooltip-{type}-text          Text/icon color
+ * Variant colors are applied via inline styles from the useVariant composable.
  */
 
 :root {
@@ -43,40 +41,6 @@
   --dx-tooltip-gap: var(--spacing-2);
   --dx-tooltip-animation-duration: var(--duration-150);
 
-  /* ==========================================================================
-     Type Tokens - Danger
-     ========================================================================== */
-
-  --dx-tooltip-danger-bg: var(--color-danger);
-  --dx-tooltip-danger-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Success
-     ========================================================================== */
-
-  --dx-tooltip-success-bg: var(--color-success);
-  --dx-tooltip-success-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Warning
-     ========================================================================== */
-
-  --dx-tooltip-warning-bg: var(--color-warning);
-  --dx-tooltip-warning-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Info
-     ========================================================================== */
-
-  --dx-tooltip-info-bg: var(--color-interactive);
-  --dx-tooltip-info-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Muted
-     ========================================================================== */
-
-  --dx-tooltip-muted-bg: var(--color-surface-sunken);
-  --dx-tooltip-muted-text: var(--color-text-muted);
 }
 
 .dark {

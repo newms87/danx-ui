@@ -4,12 +4,15 @@
  * Component tokens (Tier 3) that reference semantic tokens.
  * Override these to customize button appearance.
  *
+ * Variant colors are handled by the shared variant system (useVariant composable
+ * + variant-tokens.css). See docs/theming.md for custom variant definitions.
+ *
  * CSS Tokens:
  * --dx-button-font-family          Font family
  * --dx-button-border-radius        Corner radius
  * --dx-button-transition           Transition timing
  * --dx-button-disabled-opacity     Opacity when disabled
- * --dx-button-hover-bg             Hover background for default (blank) type
+ * --dx-button-hover-bg             Hover background for default (blank) variant
  *
  * Size tokens (for each size: xxs, xs, sm, md, lg, xl):
  * --dx-button-{size}-padding-x     Horizontal padding
@@ -17,11 +20,6 @@
  * --dx-button-{size}-icon-size     Icon dimensions
  * --dx-button-{size}-font-size     Font size
  * --dx-button-{size}-gap           Gap between icon and text
- *
- * Type tokens (danger, success, warning, info, muted; blank has no tokens):
- * --dx-button-{type}-bg            Background color
- * --dx-button-{type}-bg-hover      Background on hover
- * --dx-button-{type}-text          Text/icon color
  */
 
 :root {
@@ -95,43 +93,4 @@
   --dx-button-xl-font-size: var(--text-lg);
   --dx-button-xl-gap: var(--spacing-2-5);
 
-  /* ==========================================================================
-     Type Tokens - Danger
-     ========================================================================== */
-
-  --dx-button-danger-bg: var(--color-danger);
-  --dx-button-danger-bg-hover: var(--color-danger-hover);
-  --dx-button-danger-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Success
-     ========================================================================== */
-
-  --dx-button-success-bg: var(--color-success);
-  --dx-button-success-bg-hover: var(--color-success-hover);
-  --dx-button-success-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Warning
-     ========================================================================== */
-
-  --dx-button-warning-bg: var(--color-warning);
-  --dx-button-warning-bg-hover: var(--color-warning-hover);
-  --dx-button-warning-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Info
-     ========================================================================== */
-
-  --dx-button-info-bg: var(--color-interactive);
-  --dx-button-info-bg-hover: var(--color-interactive-hover);
-  --dx-button-info-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Muted
-     ========================================================================== */
-
-  --dx-button-muted-bg: var(--color-surface-sunken);
-  --dx-button-muted-bg-hover: var(--color-border);
-  --dx-button-muted-text: var(--color-text-muted);
 }

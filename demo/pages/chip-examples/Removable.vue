@@ -10,7 +10,7 @@ function removeTag(index) {
 </script>
 
 <template>
-  <DanxChip v-for="(tag, i) in tags" :key="tag" type="info" removable @remove="removeTag(i)">
+  <DanxChip v-for="(tag, i) in tags" :key="tag" variant="info" removable @remove="removeTag(i)">
     {{ tag }}
   </DanxChip>
   <span v-if="tags.length === 0" style="color: var(--color-text-muted)">All tags removed</span>

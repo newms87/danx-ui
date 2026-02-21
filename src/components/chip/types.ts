@@ -1,22 +1,10 @@
 import type { Component } from "vue";
+import type { VariantType } from "../../shared/types";
 import type { IconName } from "../icon/icons";
 
 /**
  * DanxChip Type Definitions
  */
-
-/**
- * Semantic chip type that controls color only.
- *
- * Each type maps to a color category:
- * - "" (blank): Default surface background with text color
- * - danger: Destructive/error labels (red)
- * - success: Positive/complete labels (green)
- * - warning: Cautionary labels (amber)
- * - info: Informational labels (blue)
- * - muted: Neutral/secondary labels (gray)
- */
-export type ChipType = "" | "danger" | "success" | "warning" | "info" | "muted";
 
 /**
  * Chip sizes.
@@ -26,20 +14,12 @@ export type ChipSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface DanxChipProps {
   /**
-   * Semantic color type. Controls background and text color only.
-   * Blank string or omitted means default surface background.
+   * Visual variant controlling background and text color.
+   * Built-in: "danger", "success", "warning", "info", "muted".
+   * Custom variants use --dx-variant-{name}-* CSS tokens.
    * @default ""
    */
-  type?: ChipType;
-
-  /**
-   * App-defined semantic type. Generates the same BEM modifier class as `type`
-   * (e.g., `customType="restart"` → `.danx-chip--restart`) but accepts any string.
-   * The app must define the matching CSS tokens and modifier rules.
-   * When set, takes precedence over `type` for class generation.
-   * @default ""
-   */
-  customType?: string;
+  variant?: VariantType;
 
   /**
    * Chip size affecting padding, icon size, and font size.
@@ -67,7 +47,7 @@ export interface DanxChipProps {
    * When `true`, hashes the `label` prop to pick a color from the 7-color palette.
    * When a string, hashes that string instead (useful when display text differs
    * from the grouping key). When falsy (default), no auto-color is applied.
-   * Overrides `type` colors when both are set (inline style wins over class).
+   * Overrides `variant` colors when both are set (inline style wins over class).
    * @default false
    */
   autoColor?: boolean | string;

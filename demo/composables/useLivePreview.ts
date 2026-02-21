@@ -81,6 +81,7 @@ import {
   triggerFileDownload,
 } from "../../src/components/danx-file";
 import { downloadFile } from "../../src/shared/download";
+import { useVariant } from "../../src/shared/composables/useVariant";
 import {
   fCurrency,
   fCurrencyNoCents,
@@ -170,6 +171,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxButtonGroup,
   DanxTabs,
   DanxTooltip,
+  useVariant,
   starIcon,
   iconRegistry,
   infoIcon,

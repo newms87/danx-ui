@@ -11,7 +11,7 @@
  *
  * ## Features
  * - Three display modes: count (number), dot (minimal circle), label (text)
- * - Six color types: danger (default), success, warning, info, muted, blank
+ * - Variant-based coloring via shared variant system (danger default, success, warning, info, muted)
  * - Four corner placements: top-right (default), top-left, bottom-right, bottom-left
  * - Auto-hide when value is 0 (configurable via showZero)
  * - Max overflow display (e.g. "99+")
@@ -22,8 +22,7 @@
  * ## Props
  * | Prop       | Type             | Default     | Description                     |
  * |------------|------------------|-------------|---------------------------------|
- * | type       | BadgeType        | "danger"    | Semantic color type             |
- * | customType | string           | ""          | App-defined type (overrides)    |
+ * | variant    | VariantType      | "danger"    | Visual variant (danger, etc)    |
  * | value      | number | string  | -           | Count or label text             |
  * | max        | number           | 99          | Overflow threshold for counts   |
  * | dot        | boolean          | false       | Dot-only mode (no text)         |
@@ -53,11 +52,9 @@
  * | --dx-badge-offset-y     | 0px                | Vertical offset          |
  * | --dx-badge-border       | none               | Outline border           |
  *
- * Type tokens (danger, success, warning, info, muted):
- * | Token                   | Description        |
- * |-------------------------|--------------------|
- * | --dx-badge-{type}-bg    | Background color   |
- * | --dx-badge-{type}-text  | Text color         |
+ * Variant tokens (set via --dx-variant-{name}-bg, --dx-variant-{name}-text):
+ * Variants are applied automatically via inline styles from the useVariant composable.
+ * Define custom variants with --dx-variant-{name}-bg and --dx-variant-{name}-text tokens.
  *
  * ## Usage Examples
  *
@@ -67,12 +64,12 @@
  *   </DanxBadge>
  *
  * Dot indicator on an icon:
- *   <DanxBadge dot type="success">
+ *   <DanxBadge dot variant="success">
  *     <DanxIcon icon="mail" />
  *   </DanxBadge>
  *
  * Label badge:
- *   <DanxBadge value="NEW" type="info">
+ *   <DanxBadge value="NEW" variant="info">
  *     <span>Feature</span>
  *   </DanxBadge>
  *
@@ -84,13 +81,13 @@
 -->
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, toRef } from "vue";
 import { useAutoColor } from "../../shared/autoColor";
+import { useVariant } from "../../shared/composables/useVariant";
 import type { DanxBadgeProps, DanxBadgeSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxBadgeProps>(), {
-  type: "danger",
-  customType: "",
+  variant: "danger",
   max: 99,
   dot: false,
   showZero: false,
@@ -101,7 +98,12 @@ const props = withDefaults(defineProps<DanxBadgeProps>(), {
 
 defineSlots<DanxBadgeSlots>();
 
-const effectiveType = computed(() => props.customType || props.type);
+const BADGE_VARIANT_TOKENS = {
+  "--dx-badge-bg": "bg",
+  "--dx-badge-text": "text",
+};
+
+const variantStyle = useVariant(toRef(props, "variant"), "badge", BADGE_VARIANT_TOKENS);
 
 const isVisible = computed(() => {
   if (props.hidden) return false;
@@ -122,7 +124,6 @@ const indicatorClasses = computed(() => [
   "danx-badge__indicator",
   `danx-badge__indicator--${props.placement}`,
   props.dot ? "danx-badge__indicator--dot" : null,
-  effectiveType.value ? `danx-badge__indicator--${effectiveType.value}` : null,
 ]);
 
 const autoColorKey = computed(() =>
@@ -137,7 +138,10 @@ const autoColorKey = computed(() =>
 
 const { style: autoColorStyle } = useAutoColor(autoColorKey, "--dx-badge");
 
-const indicatorStyle = computed(() => (props.autoColor ? autoColorStyle.value : undefined));
+/** autoColor takes precedence over variant */
+const indicatorStyle = computed(() =>
+  props.autoColor ? autoColorStyle.value : variantStyle.value
+);
 </script>
 
 <template>

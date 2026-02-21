@@ -1,19 +1,8 @@
+import type { VariantType } from "../../shared/types";
+
 /**
  * DanxBadge Type Definitions
  */
-
-/**
- * Semantic badge type that controls color only.
- *
- * Each type maps to a color category:
- * - "" (blank): Default surface background with text color
- * - danger: Error/notification indicators (red) — default for badges
- * - success: Positive/complete indicators (green)
- * - warning: Cautionary indicators (amber)
- * - info: Informational indicators (blue)
- * - muted: Neutral/secondary indicators (gray)
- */
-export type BadgeType = "" | "danger" | "success" | "warning" | "info" | "muted";
 
 /**
  * Badge placement relative to the wrapped content.
@@ -23,19 +12,12 @@ export type BadgePlacement = "top-right" | "top-left" | "bottom-right" | "bottom
 
 export interface DanxBadgeProps {
   /**
-   * Semantic color type. Controls background and text color.
+   * Visual variant controlling background and text color.
+   * Built-in: "danger" (default), "success", "warning", "info", "muted".
+   * Custom variants use --dx-variant-{name}-* CSS tokens.
    * @default "danger"
    */
-  type?: BadgeType;
-
-  /**
-   * App-defined semantic type. Generates the same BEM modifier class as `type`
-   * (e.g., `customType="live"` -> `.danx-badge__indicator--live`) but accepts any string.
-   * The app must define the matching CSS tokens and modifier rules.
-   * When set, takes precedence over `type` for class generation.
-   * @default ""
-   */
-  customType?: string;
+  variant?: VariantType;
 
   /**
    * Badge content value. Numbers display as counts (capped by `max`).
@@ -81,7 +63,7 @@ export interface DanxBadgeProps {
    * Automatically assigns a deterministic color based on a hashed string.
    * When `true`, hashes the string value to pick a color from the palette.
    * When a string, hashes that string instead. When falsy, no auto-color.
-   * Overrides `type` colors when set (inline style wins over class).
+   * Overrides `variant` colors when set (inline style wins over class).
    * @default false
    */
   autoColor?: boolean | string;

@@ -2,11 +2,13 @@
 /**
  * DanxButton Component
  *
- * A button component with semantic color types and decoupled icons.
- * The `type` prop controls color only. Icons are provided via `icon` prop or slot.
+ * A button component with variant-based color theming and decoupled icons.
+ * The `variant` prop controls color via the shared variant token system.
+ * Icons are provided via `icon` prop or slot.
  *
  * ## Features
- * - Six color types: blank (default), danger, success, warning, info, muted
+ * - Built-in variants: blank (default), danger, success, warning, info, muted
+ * - Custom variants via --dx-variant-{name}-* CSS tokens
  * - Six sizes (xxs, xs, sm, md, lg, xl)
  * - Loading state with spinner
  * - Icons via prop (name string, SVG string, or Component) or slot
@@ -15,16 +17,15 @@
  * - Zero external dependencies (inline SVG icons)
  *
  * ## Props
- * | Prop     | Type        | Default  | Description                           |
- * |----------|-------------|----------|---------------------------------------|
- * | type       | ButtonType  | ""       | Semantic color type (blank = no bg)   |
- * | customType | string      | ""       | App-defined type (overrides type)     |
- * | size     | ButtonSize  | "md"     | Button size                           |
- * | icon     | Component | string | - | Icon (name, SVG string, or component) |
- * | disabled | boolean     | false    | Disables the button                   |
- * | loading  | boolean     | false    | Shows spinner, prevents clicks        |
- * | tooltip  | string      | -        | Native title attribute                |
- * | label    | string      | -        | Text label (alternative to slot)      |
+ * | Prop    | Type         | Default | Description                       |
+ * |---------|--------------|---------|-----------------------------------|
+ * | variant | VariantType  | ""      | Visual variant (blank = no bg)    |
+ * | size    | ButtonSize   | "md"    | Button size                       |
+ * | icon    | Component|string | -   | Icon (name, SVG, or component)    |
+ * | disabled| boolean      | false   | Disables the button               |
+ * | loading | boolean      | false   | Shows spinner, prevents clicks    |
+ * | tooltip | string       | -       | Native title attribute            |
+ * | label   | string       | -       | Text label (alternative to slot)  |
  *
  * ## Events
  * | Event | Payload    | Description                              |
@@ -41,33 +42,29 @@
  * Override these tokens to customize appearance:
  *
  * Global tokens:
- * | Token                     | Default           | Description          |
- * |---------------------------|-------------------|----------------------|
- * | --dx-button-font-family      | --font-sans       | Font family          |
- * | --dx-button-border-radius    | --radius-button   | Corner radius        |
- * | --dx-button-transition       | --transition-fast | Transition timing    |
- * | --dx-button-disabled-opacity | 0.5               | Disabled opacity     |
+ * | Token                        | Default           | Description       |
+ * |------------------------------|-------------------|-------------------|
+ * | --dx-button-font-family      | --font-sans       | Font family       |
+ * | --dx-button-border-radius    | --radius-button   | Corner radius     |
+ * | --dx-button-transition       | --transition-fast | Transition timing |
+ * | --dx-button-disabled-opacity | 0.5               | Disabled opacity  |
  *
  * Size tokens (per size: xxs, xs, sm, md, lg, xl):
- * | Token                     | Description       |
- * |---------------------------|-------------------|
- * | --dx-button-{size}-padding-x | Horizontal padding|
- * | --dx-button-{size}-padding-y | Vertical padding  |
- * | --dx-button-{size}-icon-size | Icon dimensions   |
- * | --dx-button-{size}-font-size | Font size         |
- * | --dx-button-{size}-gap       | Icon-text gap     |
+ * | Token                        | Description        |
+ * |------------------------------|--------------------|
+ * | --dx-button-{size}-padding-x | Horizontal padding |
+ * | --dx-button-{size}-padding-y | Vertical padding   |
+ * | --dx-button-{size}-icon-size | Icon dimensions    |
+ * | --dx-button-{size}-font-size | Font size          |
+ * | --dx-button-{size}-gap       | Icon-text gap      |
  *
  * Note: Each size modifier sets `line-height` to match `--dx-button-{size}-icon-size`.
  * This ensures consistent button height regardless of content. The loading spinner
  * uses `1lh` for its dimensions, so it automatically matches the icon size.
- * Overriding `--dx-button-{size}-icon-size` also changes text line-height and spinner size.
  *
- * Type tokens (danger, success, warning, info, muted; blank has no tokens):
- * | Token                   | Description        |
- * |-------------------------|--------------------|
- * | --dx-button-{type}-bg      | Background color   |
- * | --dx-button-{type}-bg-hover| Hover background   |
- * | --dx-button-{type}-text    | Text/icon color    |
+ * Variant colors are provided by the shared variant system. Define custom variants:
+ *   :root { --dx-variant-myvariant-bg: purple; --dx-variant-myvariant-text: white; }
+ *   <DanxButton variant="myvariant">Custom</DanxButton>
  *
  * ## Usage Examples
  *
@@ -75,23 +72,23 @@
  *   <DanxButton icon="edit">Edit</DanxButton>
  *
  * Colored button with icon by name:
- *   <DanxButton type="danger" icon="trash">Delete</DanxButton>
+ *   <DanxButton variant="danger" icon="trash">Delete</DanxButton>
  *
  * Text-only button:
- *   <DanxButton type="success">Save</DanxButton>
+ *   <DanxButton variant="success">Save</DanxButton>
  *
  * Icon-only button:
- *   <DanxButton type="danger" icon="trash" tooltip="Delete item" />
+ *   <DanxButton variant="danger" icon="trash" tooltip="Delete item" />
  *
  * Different sizes:
- *   <DanxButton type="muted" icon="edit" size="xs">Edit</DanxButton>
- *   <DanxButton type="muted" icon="edit" size="lg">Edit</DanxButton>
+ *   <DanxButton variant="muted" icon="edit" size="xs">Edit</DanxButton>
+ *   <DanxButton variant="muted" icon="edit" size="lg">Edit</DanxButton>
  *
  * Loading state:
- *   <DanxButton type="success" icon="save" :loading="isSaving">Save</DanxButton>
+ *   <DanxButton variant="success" icon="save" :loading="isSaving">Save</DanxButton>
  *
  * Custom icon via slot:
- *   <DanxButton type="success">
+ *   <DanxButton variant="success">
  *     <template #icon><MyIcon /></template>
  *     Save
  *   </DanxButton>
@@ -99,27 +96,33 @@
 -->
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, toRef } from "vue";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
 import type { DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
-  type: "",
-  customType: "",
+  variant: "",
   size: "md",
   disabled: false,
   loading: false,
 });
 
 const emit = defineEmits<DanxButtonEmits>();
+
 defineSlots<DanxButtonSlots>();
 
-const effectiveType = computed(() => props.customType || props.type);
+const BUTTON_VARIANT_TOKENS = {
+  "--dx-button-bg": "bg",
+  "--dx-button-hover-bg": "bg-hover",
+  "--dx-button-text": "text",
+};
+
+const variantStyle = useVariant(toRef(props, "variant"), "button", BUTTON_VARIANT_TOKENS);
 
 const buttonClasses = computed(() => [
   "danx-button",
   `danx-button--${props.size}`,
-  effectiveType.value ? `danx-button--${effectiveType.value}` : null,
   {
     "danx-button--loading": props.loading,
   },
@@ -136,6 +139,7 @@ function handleClick(event: MouseEvent) {
   <button
     type="button"
     :class="buttonClasses"
+    :style="variantStyle"
     :disabled="isDisabled"
     :title="tooltip"
     @click="handleClick"

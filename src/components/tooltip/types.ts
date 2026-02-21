@@ -1,4 +1,5 @@
 import type { Component } from "vue";
+import type { VariantType } from "../../shared/types";
 import type { IconName } from "../icon/icons";
 import type { PopoverPlacement } from "../popover/types";
 
@@ -6,37 +7,17 @@ import type { PopoverPlacement } from "../popover/types";
  * DanxTooltip Type Definitions
  */
 
-/**
- * Semantic tooltip type that controls panel color.
- *
- * Each type maps to a color category:
- * - "" (blank): Default surface background
- * - danger: Destructive/error (red)
- * - success: Positive/complete (green)
- * - warning: Cautionary (amber)
- * - info: Informational (blue)
- * - muted: Neutral/secondary (gray)
- */
-export type TooltipType = "" | "danger" | "success" | "warning" | "info" | "muted";
-
 /** How the tooltip is triggered */
 export type TooltipInteraction = "hover" | "click" | "focus";
 
 export interface DanxTooltipProps {
   /**
-   * Semantic color type for the panel.
+   * Visual variant controlling panel background, text, and border color.
+   * Built-in: "danger", "success", "warning", "info", "muted".
+   * Custom variants use --dx-variant-{name}-* CSS tokens.
    * @default ""
    */
-  type?: TooltipType;
-
-  /**
-   * App-defined semantic type. Generates the same BEM modifier class as `type`
-   * (e.g., `customType="restart"` → `.danx-tooltip--restart`) but accepts any string.
-   * The app must define the matching CSS tokens and modifier rules.
-   * When set, takes precedence over `type` for class generation.
-   * @default ""
-   */
-  customType?: string;
+  variant?: VariantType;
 
   /**
    * Icon displayed at the top-left of the panel content.

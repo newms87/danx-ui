@@ -1,22 +1,10 @@
 import type { Component } from "vue";
+import type { VariantType } from "../../shared/types";
 import type { IconName } from "./icons";
 
 /**
  * DanxButton Type Definitions
  */
-
-/**
- * Semantic button type that controls color only.
- *
- * Each type maps to a color category:
- * - "" (blank): No background color, inherits text color (default)
- * - danger: Destructive actions (red)
- * - success: Constructive actions (green)
- * - warning: Cautionary actions (amber)
- * - info: Informational actions (blue)
- * - muted: Neutral/secondary actions (gray)
- */
-export type ButtonType = "" | "danger" | "success" | "warning" | "info" | "muted";
 
 /**
  * Button sizes.
@@ -26,20 +14,12 @@ export type ButtonSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface DanxButtonProps {
   /**
-   * Semantic color type. Controls background and text color only.
-   * Blank string or omitted means no background color.
+   * Visual variant controlling background, hover, and text color.
+   * Built-in: "danger", "success", "warning", "info", "muted".
+   * Custom variants use --dx-variant-{name}-* CSS tokens.
    * @default ""
    */
-  type?: ButtonType;
-
-  /**
-   * App-defined semantic type. Generates the same BEM modifier class as `type`
-   * (e.g., `customType="restart"` → `.danx-button--restart`) but accepts any string.
-   * The app must define the matching CSS tokens and modifier rules.
-   * When set, takes precedence over `type` for class generation.
-   * @default ""
-   */
-  customType?: string;
+  variant?: VariantType;
 
   /**
    * Button size affecting padding, icon size, and font size.

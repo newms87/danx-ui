@@ -9,8 +9,8 @@ import { DanxChip } from "danx-ui";
       :key="size"
       class="flex items-center gap-2"
     >
-      <DanxChip type="success" icon="confirm" :size="size">{{ size.toUpperCase() }}</DanxChip>
-      <DanxChip type="info" :size="size">{{ size.toUpperCase() }}</DanxChip>
+      <DanxChip variant="success" icon="confirm" :size="size">{{ size.toUpperCase() }}</DanxChip>
+      <DanxChip variant="info" :size="size">{{ size.toUpperCase() }}</DanxChip>
     </div>
   </div>
 </template>

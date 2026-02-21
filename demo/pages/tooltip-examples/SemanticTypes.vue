@@ -4,16 +4,16 @@ import { DanxTooltip } from "danx-ui";
 
 <template>
   <div style="display: flex; gap: 2rem; align-items: center">
-    <DanxTooltip type="" tooltip="Default tooltip" triggerIcon="info" />
-    <DanxTooltip type="danger" icon="stop" tooltip="Danger tooltip" triggerIcon="info" />
-    <DanxTooltip type="success" icon="confirm" tooltip="Success tooltip" triggerIcon="info" />
+    <DanxTooltip variant="" tooltip="Default tooltip" triggerIcon="info" />
+    <DanxTooltip variant="danger" icon="stop" tooltip="Danger tooltip" triggerIcon="info" />
+    <DanxTooltip variant="success" icon="confirm" tooltip="Success tooltip" triggerIcon="info" />
     <DanxTooltip
-      type="warning"
+      variant="warning"
       icon="warning-triangle"
       tooltip="Warning tooltip"
       triggerIcon="info"
     />
-    <DanxTooltip type="info" icon="info" tooltip="Info tooltip" triggerIcon="question" />
-    <DanxTooltip type="muted" tooltip="Muted tooltip" triggerIcon="info" />
+    <DanxTooltip variant="info" icon="info" tooltip="Info tooltip" triggerIcon="question" />
+    <DanxTooltip variant="muted" tooltip="Muted tooltip" triggerIcon="info" />
   </div>
 </template>

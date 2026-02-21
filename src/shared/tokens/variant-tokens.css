@@ -1,0 +1,80 @@
+/**
+ * Shared Variant Tokens
+ *
+ * Defines built-in variants in the --dx-variant-{name}-* namespace.
+ * These are the shared fallback tokens used by all colorable components.
+ * Components reference these via useVariant() composable inline styles.
+ *
+ * Built-in variant tokens:
+ *   --dx-variant-{name}-bg          Background color
+ *   --dx-variant-{name}-bg-hover    Hover background color
+ *   --dx-variant-{name}-text        Text/icon color
+ *   --dx-variant-{name}-border      Border color (used by tooltip)
+ *
+ * Progress-bar-specific variant tokens:
+ *   --dx-variant-progress-bar-{name}-gradient-to   Gradient end color
+ *
+ * To define a custom variant (e.g. "artifact-output"), set:
+ *   :root {
+ *     --dx-variant-artifact-output-bg: var(--color-purple-500);
+ *     --dx-variant-artifact-output-bg-hover: var(--color-purple-600);
+ *     --dx-variant-artifact-output-text: var(--color-text-inverted);
+ *   }
+ */
+
+:root {
+  /* ==========================================================================
+     Variant: Danger
+     ========================================================================== */
+
+  --dx-variant-danger-bg: var(--color-danger);
+  --dx-variant-danger-bg-hover: var(--color-danger-hover);
+  --dx-variant-danger-text: var(--color-text-inverted);
+  --dx-variant-danger-border: var(--color-danger);
+
+  /* ==========================================================================
+     Variant: Success
+     ========================================================================== */
+
+  --dx-variant-success-bg: var(--color-success);
+  --dx-variant-success-bg-hover: var(--color-success-hover);
+  --dx-variant-success-text: var(--color-text-inverted);
+  --dx-variant-success-border: var(--color-success);
+
+  /* ==========================================================================
+     Variant: Warning
+     ========================================================================== */
+
+  --dx-variant-warning-bg: var(--color-warning);
+  --dx-variant-warning-bg-hover: var(--color-warning-hover);
+  --dx-variant-warning-text: var(--color-text-inverted);
+  --dx-variant-warning-border: var(--color-warning);
+
+  /* ==========================================================================
+     Variant: Info
+     ========================================================================== */
+
+  --dx-variant-info-bg: var(--color-interactive);
+  --dx-variant-info-bg-hover: var(--color-interactive-hover);
+  --dx-variant-info-text: var(--color-text-inverted);
+  --dx-variant-info-border: var(--color-interactive);
+
+  /* ==========================================================================
+     Variant: Muted
+     ========================================================================== */
+
+  --dx-variant-muted-bg: var(--color-surface-sunken);
+  --dx-variant-muted-bg-hover: var(--color-border);
+  --dx-variant-muted-text: var(--color-text-muted);
+  --dx-variant-muted-border: var(--color-surface-sunken);
+
+  /* ==========================================================================
+     Progress Bar - Variant-Specific Gradient Endpoints
+     ========================================================================== */
+
+  --dx-variant-progress-bar-danger-gradient-to: var(--color-warning);
+  --dx-variant-progress-bar-success-gradient-to: var(--color-interactive);
+  --dx-variant-progress-bar-warning-gradient-to: var(--color-danger);
+  --dx-variant-progress-bar-info-gradient-to: var(--color-success);
+  --dx-variant-progress-bar-muted-gradient-to: var(--color-surface);
+}

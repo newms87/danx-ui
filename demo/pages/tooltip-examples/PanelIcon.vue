@@ -7,7 +7,7 @@ import { DanxTooltip } from "danx-ui";
     <DanxTooltip icon="info" tooltip="Panel with info icon" triggerIcon="info" />
     <DanxTooltip
       icon="warning-triangle"
-      type="warning"
+      variant="warning"
       tooltip="Panel with warning icon"
       triggerIcon="info"
     />

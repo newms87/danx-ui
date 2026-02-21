@@ -13,7 +13,7 @@ import chipDocs from "../../docs/chip.md?raw";
 // Load SFC examples as raw strings for live-editable demos
 import basicUsageCode from "./chip-examples/BasicUsage.vue?raw";
 import sizesCode from "./chip-examples/Sizes.vue?raw";
-import semanticTypesCode from "./chip-examples/SemanticTypes.vue?raw";
+import variantsCode from "./chip-examples/Variants.vue?raw";
 import withIconsCode from "./chip-examples/WithIcons.vue?raw";
 import removableCode from "./chip-examples/Removable.vue?raw";
 import autoColorCode from "./chip-examples/AutoColor.vue?raw";
@@ -32,9 +32,9 @@ import autoColorCode from "./chip-examples/AutoColor.vue?raw";
     />
 
     <DemoSection
-      title="Semantic Types"
-      description="One chip per type. Default (blank) has a subtle surface background."
-      :code="semanticTypesCode"
+      title="Variants"
+      description="One chip per variant. Default (blank) has a subtle surface background."
+      :code="variantsCode"
     />
 
     <DemoSection title="Chip Sizes" description="Chips in all six sizes." :code="sizesCode" />

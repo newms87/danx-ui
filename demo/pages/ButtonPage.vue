@@ -17,7 +17,7 @@ import danxIconCode from "./button-examples/DanxIcon.vue?raw";
 import disabledCode from "./button-examples/Disabled.vue?raw";
 import iconOnlyCode from "./button-examples/IconOnly.vue?raw";
 import loadingCode from "./button-examples/Loading.vue?raw";
-import semanticTypesCode from "./button-examples/SemanticTypes.vue?raw";
+import variantsCode from "./button-examples/Variants.vue?raw";
 import sizesCode from "./button-examples/Sizes.vue?raw";
 import labelPropCode from "./button-examples/LabelProp.vue?raw";
 import textOnlyCode from "./button-examples/TextOnly.vue?raw";
@@ -30,9 +30,9 @@ import textOnlyCode from "./button-examples/TextOnly.vue?raw";
     :docs="buttonDocs"
   >
     <DemoSection
-      title="Semantic Types"
-      description="One button per type. Default (blank) has no background color."
-      :code="semanticTypesCode"
+      title="Variants"
+      description="One button per variant. Default (blank) has no background color."
+      :code="variantsCode"
     />
 
     <DemoSection

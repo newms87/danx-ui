@@ -12,7 +12,7 @@ async function handleLoadingClick() {
 </script>
 
 <template>
-  <DanxButton type="success" icon="save" :loading="isLoading" @click="handleLoadingClick">
+  <DanxButton variant="success" icon="save" :loading="isLoading" @click="handleLoadingClick">
     {{ isLoading ? "Saving..." : "Save" }}
   </DanxButton>
 </template>

@@ -3,10 +3,11 @@ import { mount } from "@vue/test-utils";
 import { h, defineComponent, markRaw } from "vue";
 import DanxButton from "../DanxButton.vue";
 import { saveIcon } from "../../icon/icons";
-import type { ButtonType, ButtonSize } from "../types";
+import type { ButtonSize } from "../types";
+import type { VariantType } from "../../../shared/types";
 
-// All semantic button types (excluding blank default)
-const colorTypes: ButtonType[] = ["danger", "success", "warning", "info", "muted"];
+// All semantic button variants (excluding blank default)
+const colorTypes: VariantType[] = ["danger", "success", "warning", "info", "muted"];
 
 // All button sizes
 const allSizes: ButtonSize[] = ["xxs", "xs", "sm", "md", "lg", "xl"];
@@ -60,40 +61,38 @@ describe("DanxButton", () => {
     });
   });
 
-  describe("Types", () => {
-    it.each(colorTypes)("renders type %s with correct class", (type) => {
+  describe("Variants", () => {
+    it.each(colorTypes)("renders variant %s with inline styles", (variant) => {
       const wrapper = mount(DanxButton, {
-        props: { type },
+        props: { variant },
       });
 
-      expect(wrapper.classes()).toContain(`danx-button--${type}`);
+      const styleAttr = wrapper.attributes("style");
+      expect(styleAttr).toContain("--dx-button-bg:");
+      expect(styleAttr).toContain(`--dx-variant-${variant}-`);
     });
 
-    it("defaults to blank type with no type modifier class", () => {
+    it("defaults to blank variant with no inline styles", () => {
       const wrapper = mount(DanxButton);
 
       expect(wrapper.classes()).toContain("danx-button");
       expect(wrapper.classes()).toContain("danx-button--md");
-      for (const t of colorTypes) {
-        expect(wrapper.classes()).not.toContain(`danx-button--${t}`);
-      }
+      expect(wrapper.attributes("style")).toBeUndefined();
     });
 
-    it("blank type via type='' has no type modifier class", () => {
+    it("blank variant via variant='' has no inline styles", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "" },
+        props: { variant: "" },
       });
 
-      for (const t of colorTypes) {
-        expect(wrapper.classes()).not.toContain(`danx-button--${t}`);
-      }
+      expect(wrapper.attributes("style")).toBeUndefined();
     });
   });
 
   describe("Sizes", () => {
     it.each(allSizes)("renders size %s with correct class", (size) => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", size },
+        props: { variant: "success", size },
       });
 
       expect(wrapper.classes()).toContain(`danx-button--${size}`);
@@ -109,7 +108,7 @@ describe("DanxButton", () => {
   describe("Icon rendering", () => {
     it("does not render icon area when no icon prop and no icon slot", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success" },
+        props: { variant: "success" },
         slots: { default: "Save" },
       });
 
@@ -156,7 +155,7 @@ describe("DanxButton", () => {
       );
 
       const wrapper = mount(DanxButton, {
-        props: { type: "success", icon: CustomIcon },
+        props: { variant: "success", icon: CustomIcon },
       });
 
       expect(wrapper.find(".custom-icon").exists()).toBe(true);
@@ -164,7 +163,7 @@ describe("DanxButton", () => {
 
     it("renders icon slot content when provided", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success" },
+        props: { variant: "success" },
         slots: { icon: '<span class="slot-icon">Custom</span>' },
       });
 
@@ -181,7 +180,7 @@ describe("DanxButton", () => {
       );
 
       const wrapper = mount(DanxButton, {
-        props: { type: "success", icon: CustomIcon },
+        props: { variant: "success", icon: CustomIcon },
         slots: { icon: '<span class="slot-icon">Slot</span>' },
       });
 
@@ -193,7 +192,7 @@ describe("DanxButton", () => {
   describe("Disabled state", () => {
     it("has disabled attribute when disabled=true", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", disabled: true },
+        props: { variant: "success", disabled: true },
       });
 
       expect(wrapper.find("button").attributes("disabled")).toBeDefined();
@@ -201,7 +200,7 @@ describe("DanxButton", () => {
 
     it("does not have disabled attribute when disabled=false", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", disabled: false },
+        props: { variant: "success", disabled: false },
       });
 
       expect(wrapper.find("button").attributes("disabled")).toBeUndefined();
@@ -209,7 +208,7 @@ describe("DanxButton", () => {
 
     it("does not emit click when disabled", async () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", disabled: true },
+        props: { variant: "success", disabled: true },
       });
 
       await wrapper.find("button").trigger("click");
@@ -221,7 +220,7 @@ describe("DanxButton", () => {
   describe("Loading state", () => {
     it("has disabled attribute when loading=true", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", loading: true },
+        props: { variant: "success", loading: true },
       });
 
       expect(wrapper.find("button").attributes("disabled")).toBeDefined();
@@ -229,7 +228,7 @@ describe("DanxButton", () => {
 
     it("shows spinner when loading=true", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", loading: true },
+        props: { variant: "success", loading: true },
       });
 
       expect(wrapper.find(".danx-button__spinner").exists()).toBe(true);
@@ -237,7 +236,7 @@ describe("DanxButton", () => {
 
     it("hides icon when loading=true", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", icon: saveIcon, loading: true },
+        props: { variant: "success", icon: saveIcon, loading: true },
       });
 
       expect(wrapper.find(".danx-button__icon").exists()).toBe(false);
@@ -245,7 +244,7 @@ describe("DanxButton", () => {
 
     it("hides icon slot content when loading=true", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", loading: true },
+        props: { variant: "success", loading: true },
         slots: { icon: '<span class="slot-icon">Icon</span>' },
       });
 
@@ -262,7 +261,7 @@ describe("DanxButton", () => {
 
     it("adds loading class when loading=true", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", loading: true },
+        props: { variant: "success", loading: true },
       });
 
       expect(wrapper.classes()).toContain("danx-button--loading");
@@ -270,7 +269,7 @@ describe("DanxButton", () => {
 
     it("does not emit click when loading", async () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", loading: true },
+        props: { variant: "success", loading: true },
       });
 
       await wrapper.find("button").trigger("click");
@@ -282,7 +281,7 @@ describe("DanxButton", () => {
   describe("Tooltip", () => {
     it("renders title attribute when tooltip provided", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "danger", tooltip: "Delete item" },
+        props: { variant: "danger", tooltip: "Delete item" },
       });
 
       expect(wrapper.find("button").attributes("title")).toBe("Delete item");
@@ -290,7 +289,7 @@ describe("DanxButton", () => {
 
     it("does not render title attribute when tooltip not provided", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "danger" },
+        props: { variant: "danger" },
       });
 
       expect(wrapper.find("button").attributes("title")).toBeUndefined();
@@ -300,7 +299,7 @@ describe("DanxButton", () => {
   describe("Click event", () => {
     it("emits click event when clicked", async () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success" },
+        props: { variant: "success" },
       });
 
       await wrapper.find("button").trigger("click");
@@ -310,7 +309,7 @@ describe("DanxButton", () => {
 
     it("passes MouseEvent to click handler", async () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success" },
+        props: { variant: "success" },
       });
 
       await wrapper.find("button").trigger("click");
@@ -321,31 +320,15 @@ describe("DanxButton", () => {
     });
   });
 
-  describe("Custom type", () => {
-    it("adds the correct BEM modifier class for customType", () => {
+  describe("Custom variant", () => {
+    it("applies inline styles for custom variant", () => {
       const wrapper = mount(DanxButton, {
-        props: { customType: "restart" },
+        props: { variant: "restart" },
       });
 
-      expect(wrapper.classes()).toContain("danx-button--restart");
-    });
-
-    it("customType takes precedence over type", () => {
-      const wrapper = mount(DanxButton, {
-        props: { type: "danger", customType: "restart" },
-      });
-
-      expect(wrapper.classes()).toContain("danx-button--restart");
-      expect(wrapper.classes()).not.toContain("danx-button--danger");
-    });
-
-    it("no modifier class when neither type nor customType is set", () => {
-      const wrapper = mount(DanxButton);
-
-      const modifierClasses = wrapper
-        .classes()
-        .filter((c) => c.startsWith("danx-button--") && c !== "danx-button--md");
-      expect(modifierClasses).toHaveLength(0);
+      const styleAttr = wrapper.attributes("style");
+      expect(styleAttr).toContain("--dx-button-bg:");
+      expect(styleAttr).toContain("--dx-variant-restart-");
     });
   });
 
@@ -356,21 +339,23 @@ describe("DanxButton", () => {
       expect(wrapper.classes()).toContain("danx-button");
     });
 
-    it("combines type and size classes", () => {
+    it("combines variant styles and size classes", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "danger", size: "lg" },
+        props: { variant: "danger", size: "lg" },
       });
 
       expect(wrapper.classes()).toContain("danx-button");
-      expect(wrapper.classes()).toContain("danx-button--danger");
       expect(wrapper.classes()).toContain("danx-button--lg");
+      const styleAttr = wrapper.attributes("style");
+      expect(styleAttr).toContain("--dx-button-bg:");
+      expect(styleAttr).toContain("--dx-variant-danger-");
     });
   });
 
   describe("Combined disabled and loading", () => {
     it("disabled takes effect even with loading=false", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", disabled: true, loading: false },
+        props: { variant: "success", disabled: true, loading: false },
       });
 
       expect(wrapper.find("button").attributes("disabled")).toBeDefined();
@@ -379,7 +364,7 @@ describe("DanxButton", () => {
 
     it("loading takes effect even with disabled=false", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", disabled: false, loading: true },
+        props: { variant: "success", disabled: false, loading: true },
       });
 
       expect(wrapper.find("button").attributes("disabled")).toBeDefined();
@@ -388,7 +373,7 @@ describe("DanxButton", () => {
 
     it("both disabled and loading set disables button", () => {
       const wrapper = mount(DanxButton, {
-        props: { type: "success", disabled: true, loading: true },
+        props: { variant: "success", disabled: true, loading: true },
       });
 
       expect(wrapper.find("button").attributes("disabled")).toBeDefined();

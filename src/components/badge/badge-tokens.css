@@ -18,9 +18,7 @@
  * --dx-badge-offset-y           Vertical offset from corner
  * --dx-badge-border             Optional outline border for contrast
  *
- * Type tokens (danger, success, warning, info, muted):
- * --dx-badge-{type}-bg          Background color
- * --dx-badge-{type}-text        Text color
+ * Variant colors are applied via inline styles from the useVariant composable.
  */
 
 :root {
@@ -41,38 +39,4 @@
   --dx-badge-offset-y: 0px;
   --dx-badge-border: none;
 
-  /* ==========================================================================
-     Type Tokens - Danger (default)
-     ========================================================================== */
-
-  --dx-badge-danger-bg: var(--color-danger);
-  --dx-badge-danger-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Success
-     ========================================================================== */
-
-  --dx-badge-success-bg: var(--color-success);
-  --dx-badge-success-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Warning
-     ========================================================================== */
-
-  --dx-badge-warning-bg: var(--color-warning);
-  --dx-badge-warning-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Info
-     ========================================================================== */
-
-  --dx-badge-info-bg: var(--color-interactive);
-  --dx-badge-info-text: var(--color-text-inverted);
-
-  /* ==========================================================================
-     Type Tokens - Muted
-     ========================================================================== */
-
-  --dx-badge-muted-bg: var(--color-surface-sunken);
-  --dx-badge-muted-text: var(--color-text-muted);
 }

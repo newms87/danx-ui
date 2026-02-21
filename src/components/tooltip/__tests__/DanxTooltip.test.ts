@@ -511,70 +511,49 @@ describe("DanxTooltip", () => {
   });
 
   // ==========================================================================
-  // Semantic Types
+  // Semantic Variants
   // ==========================================================================
 
-  describe("semantic types", () => {
-    const types = ["danger", "success", "warning", "info", "muted"] as const;
+  describe("semantic variants", () => {
+    const variants = ["danger", "success", "warning", "info", "muted"] as const;
 
-    for (const type of types) {
-      it(`applies danx-tooltip--${type} class for type="${type}"`, async () => {
-        mountTooltip({ type });
+    for (const variant of variants) {
+      it(`applies inline style for variant="${variant}"`, async () => {
+        mountTooltip({ variant });
         await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
         await vi.runAllTimersAsync();
 
         const panel = document.body.querySelector(".danx-tooltip");
-        expect(panel?.classList.contains(`danx-tooltip--${type}`)).toBe(true);
+        const style = panel?.getAttribute("style") ?? "";
+        expect(style).toContain("--dx-tooltip-bg");
       });
     }
 
-    it("has no modifier class for default (blank) type", async () => {
-      mountTooltip({ type: "" });
+    it("has no inline style for default (blank) variant", async () => {
+      mountTooltip({ variant: "" });
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
 
       const panel = document.body.querySelector(".danx-tooltip");
-      const modifierClasses = Array.from(panel?.classList ?? []).filter((c) =>
-        c.startsWith("danx-tooltip--")
-      );
-      expect(modifierClasses).toHaveLength(0);
+      const style = panel?.getAttribute("style") ?? "";
+      // Should not have variant-specific tokens (may have positioning)
+      expect(style).not.toContain("--dx-tooltip-bg");
     });
   });
 
   // ==========================================================================
-  // Custom Type
+  // Custom Variant
   // ==========================================================================
 
-  describe("custom type", () => {
-    it("adds the correct BEM modifier class for customType", async () => {
-      mountTooltip({ customType: "restart" });
+  describe("custom variant", () => {
+    it("applies inline style for custom variant", async () => {
+      mountTooltip({ variant: "restart" });
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
 
       const panel = document.body.querySelector(".danx-tooltip");
-      expect(panel?.classList.contains("danx-tooltip--restart")).toBe(true);
-    });
-
-    it("customType takes precedence over type", async () => {
-      mountTooltip({ type: "danger", customType: "restart" });
-      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
-      await vi.runAllTimersAsync();
-
-      const panel = document.body.querySelector(".danx-tooltip");
-      expect(panel?.classList.contains("danx-tooltip--restart")).toBe(true);
-      expect(panel?.classList.contains("danx-tooltip--danger")).toBe(false);
-    });
-
-    it("no modifier class when neither type nor customType is set", async () => {
-      mountTooltip({ type: "" });
-      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
-      await vi.runAllTimersAsync();
-
-      const panel = document.body.querySelector(".danx-tooltip");
-      const modifierClasses = Array.from(panel?.classList ?? []).filter((c) =>
-        c.startsWith("danx-tooltip--")
-      );
-      expect(modifierClasses).toHaveLength(0);
+      const style = panel?.getAttribute("style") ?? "";
+      expect(style).toContain("--dx-tooltip-bg");
     });
   });
 

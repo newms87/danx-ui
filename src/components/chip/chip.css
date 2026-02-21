@@ -2,7 +2,7 @@
  * DanxChip Styles
  *
  * Main entry point that imports tokens and defines chip layout,
- * size modifiers, type modifiers, icon, and remove button.
+ * size modifiers, icon, and remove button.
  *
  * Note: BEM modifiers (.danx-chip--md) are top-level blocks because
  * Lightning CSS does not support &--suffix concatenation.
@@ -104,35 +104,6 @@
     width: var(--dx-chip-xl-icon-size);
     height: var(--dx-chip-xl-icon-size);
   }
-}
-
-/* ==========================================================================
-   Type Modifiers
-   ========================================================================== */
-
-.danx-chip--danger {
-  background: var(--dx-chip-danger-bg);
-  color: var(--dx-chip-danger-text);
-}
-
-.danx-chip--success {
-  background: var(--dx-chip-success-bg);
-  color: var(--dx-chip-success-text);
-}
-
-.danx-chip--warning {
-  background: var(--dx-chip-warning-bg);
-  color: var(--dx-chip-warning-text);
-}
-
-.danx-chip--info {
-  background: var(--dx-chip-info-bg);
-  color: var(--dx-chip-info-text);
-}
-
-.danx-chip--muted {
-  background: var(--dx-chip-muted-bg);
-  color: var(--dx-chip-muted-text);
 }
 
 /* ==========================================================================

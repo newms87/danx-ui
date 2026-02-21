@@ -14,7 +14,7 @@ import { DanxProgressBar } from "danx-ui";
     </div>
     <div>
       <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Glow</div>
-      <DanxProgressBar :value="60" type="success" size="lg" glow />
+      <DanxProgressBar :value="60" variant="success" size="lg" glow />
     </div>
     <div>
       <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Shimmer</div>
@@ -25,18 +25,18 @@ import { DanxProgressBar } from "danx-ui";
       <DanxProgressBar :value="80" size="lg" gradient />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Type</div>
-      <DanxProgressBar :value="75" type="danger" size="lg" gradient />
+      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Variant</div>
+      <DanxProgressBar :value="75" variant="danger" size="lg" gradient />
     </div>
     <div>
       <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Striped</div>
-      <DanxProgressBar :value="70" type="success" size="lg" gradient striped />
+      <DanxProgressBar :value="70" variant="success" size="lg" gradient striped />
     </div>
     <div>
       <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">
         Combined: Striped + Glow + Shimmer
       </div>
-      <DanxProgressBar :value="70" type="danger" size="lg" striped animateStripes glow shimmer />
+      <DanxProgressBar :value="70" variant="danger" size="lg" striped animateStripes glow shimmer />
     </div>
   </div>
 </template>

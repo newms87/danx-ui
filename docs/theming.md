@@ -151,6 +151,72 @@ Override the built-in dark semantics:
 | `--dx-dialog-subtitle-color` | `--color-text-muted` | Subtitle color |
 | `--dx-dialog-backdrop` | `--color-backdrop` | Backdrop color |
 
+## Variants
+
+Variants are named visual identities (color, border, etc.) defined once and usable across all colorable components (Button, Chip, Badge, ProgressBar, Tooltip).
+
+### Built-in Variants
+
+Five built-in variants ship with the library: `danger`, `success`, `warning`, `info`, and `muted`.
+
+```vue
+<DanxButton variant="danger">Delete</DanxButton>
+<DanxChip variant="success">Active</DanxChip>
+<DanxBadge variant="info" :value="3"><DanxIcon icon="mail" /></DanxBadge>
+<DanxProgressBar :value="75" variant="warning" />
+<DanxTooltip variant="info" tooltip="Helpful tip" />
+```
+
+### Custom Variants
+
+Define a custom variant by setting `--dx-variant-{name}-*` CSS tokens:
+
+```css
+:root {
+  --dx-variant-brand-bg: var(--color-brand-600);
+  --dx-variant-brand-bg-hover: var(--color-brand-700);
+  --dx-variant-brand-text: white;
+}
+```
+
+Then use it on any component:
+
+```vue
+<DanxButton variant="brand">Brand Action</DanxButton>
+<DanxChip variant="brand">Brand Tag</DanxChip>
+```
+
+### Component-Specific Overrides
+
+Override a variant for a specific component using the longer token name:
+
+```css
+:root {
+  /* Make "danger" tooltips use a darker background than other danger components */
+  --dx-variant-tooltip-danger-bg: var(--color-red-900);
+}
+```
+
+### Variant Token Reference
+
+| Token | Description |
+|-------|-------------|
+| `--dx-variant-{name}-bg` | Background color |
+| `--dx-variant-{name}-bg-hover` | Hover background |
+| `--dx-variant-{name}-text` | Text/icon color |
+| `--dx-variant-{name}-border` | Border color |
+| `--dx-variant-{name}-gradient-to` | Gradient end color (ProgressBar) |
+
+### How It Works
+
+CSS cannot do dynamic variable name resolution. The `useVariant` composable generates inline styles that map component tokens to variant tokens at runtime:
+
+```
+--dx-button-bg → var(--dx-variant-button-{v}-bg, var(--dx-variant-{v}-bg))
+```
+
+The fallback chain is: component-specific variant token → shared variant token → component base default. This means shared variants work everywhere automatically, while component-specific overrides are possible via the longer token name.
+
 ## Importing Tokens Only
 
 To use the token system without any component styles:

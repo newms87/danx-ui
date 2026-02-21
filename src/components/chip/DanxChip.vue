@@ -7,7 +7,7 @@
  * disabled/loading states. Native clicks pass through via Vue fallthrough attrs.
  *
  * ## Features
- * - Six color types: blank (default), danger, success, warning, info, muted
+ * - Variant-based coloring via shared variant system (danger, success, warning, info, muted)
  * - Six sizes (xxs, xs, sm, md, lg, xl)
  * - Icons via prop (name string, SVG string, or Component) or slot
  * - Removable with X button that emits remove event
@@ -18,8 +18,7 @@
  * ## Props
  * | Prop      | Type       | Default | Description                           |
  * |-----------|------------|---------|---------------------------------------|
- * | type       | ChipType        | ""      | Semantic color type                   |
- * | customType | string          | ""      | App-defined type (overrides type)     |
+ * | variant    | VariantType     | ""      | Visual variant (danger, success, etc) |
  * | size      | ChipSize        | "md"    | Chip size                             |
  * | icon      | Component|string| -       | Icon (name, SVG, or component)        |
  * | label     | string          | -       | Text label (alternative to slot)      |
@@ -59,11 +58,9 @@
  * | --dx-chip-{size}-font-size  | Font size          |
  * | --dx-chip-{size}-gap        | Icon-text gap      |
  *
- * Type tokens (danger, success, warning, info, muted):
- * | Token                  | Description       |
- * |------------------------|-------------------|
- * | --dx-chip-{type}-bg    | Background color  |
- * | --dx-chip-{type}-text  | Text/icon color   |
+ * Variant tokens (set via --dx-variant-{name}-bg, --dx-variant-{name}-text):
+ * Variants are applied automatically via inline styles from the useVariant composable.
+ * Define custom variants with --dx-variant-{name}-bg and --dx-variant-{name}-text tokens.
  *
  * Remove button tokens:
  * | Token                      | Default           | Description          |
@@ -77,7 +74,7 @@
  *   <DanxChip>Active</DanxChip>
  *
  * Colored chip with icon:
- *   <DanxChip type="success" icon="confirm">Approved</DanxChip>
+ *   <DanxChip variant="success" icon="confirm">Approved</DanxChip>
  *
  * Removable chip:
  *   <DanxChip removable @remove="handleRemove">Tag</DanxChip>
@@ -87,34 +84,36 @@
  *   <DanxChip size="lg">Large</DanxChip>
  *
  * Using label prop:
- *   <DanxChip type="info" icon="document" label="Draft" />
+ *   <DanxChip variant="info" icon="document" label="Draft" />
  */
 -->
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, toRef } from "vue";
 import { useAutoColor } from "../../shared/autoColor";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
 import type { DanxChipEmits, DanxChipProps, DanxChipSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxChipProps>(), {
-  type: "",
-  customType: "",
+  variant: "",
   size: "md",
   autoColor: false,
   removable: false,
 });
 
 const emit = defineEmits<DanxChipEmits>();
+
 defineSlots<DanxChipSlots>();
 
-const effectiveType = computed(() => props.customType || props.type);
+const CHIP_VARIANT_TOKENS = {
+  "--dx-chip-bg": "bg",
+  "--dx-chip-text": "text",
+};
 
-const chipClasses = computed(() => [
-  "danx-chip",
-  `danx-chip--${props.size}`,
-  effectiveType.value ? `danx-chip--${effectiveType.value}` : null,
-]);
+const variantStyle = useVariant(toRef(props, "variant"), "chip", CHIP_VARIANT_TOKENS);
+
+const chipClasses = computed(() => ["danx-chip", `danx-chip--${props.size}`]);
 
 const autoColorKey = computed(() =>
   !props.autoColor
@@ -126,7 +125,8 @@ const autoColorKey = computed(() =>
 
 const { style: autoColorStyle } = useAutoColor(autoColorKey);
 
-const chipStyle = computed(() => (props.autoColor ? autoColorStyle.value : undefined));
+/** autoColor takes precedence over variant (inline styles override the same tokens) */
+const chipStyle = computed(() => (props.autoColor ? autoColorStyle.value : variantStyle.value));
 
 function handleRemove() {
   emit("remove");

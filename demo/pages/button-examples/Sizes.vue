@@ -9,9 +9,9 @@ import { DanxButton } from "danx-ui";
       :key="size"
       class="flex items-center gap-2"
     >
-      <DanxButton type="success" :size="size">{{ size.toUpperCase() }}</DanxButton>
-      <DanxButton type="success" icon="save" :size="size">{{ size.toUpperCase() }}</DanxButton>
-      <DanxButton type="success" :loading="true" :size="size">{{ size.toUpperCase() }}</DanxButton>
+      <DanxButton variant="success" :size="size">{{ size.toUpperCase() }}</DanxButton>
+      <DanxButton variant="success" icon="save" :size="size">{{ size.toUpperCase() }}</DanxButton>
+      <DanxButton variant="success" :loading="true" :size="size">{{ size.toUpperCase() }}</DanxButton>
     </div>
   </div>
 </template>

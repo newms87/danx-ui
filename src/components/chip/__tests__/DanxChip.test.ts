@@ -3,10 +3,11 @@ import { mount } from "@vue/test-utils";
 import { h, defineComponent, markRaw } from "vue";
 import DanxChip from "../DanxChip.vue";
 import { saveIcon } from "../../icon/icons";
-import type { ChipType, ChipSize } from "../types";
+import type { ChipSize } from "../types";
+import type { VariantType } from "../../../shared/types";
 
-// All semantic chip types (excluding blank default)
-const colorTypes: ChipType[] = ["danger", "success", "warning", "info", "muted"];
+// All semantic chip variants (excluding blank default)
+const colorVariants: VariantType[] = ["danger", "success", "warning", "info", "muted"];
 
 // All chip sizes
 const allSizes: ChipSize[] = ["xxs", "xs", "sm", "md", "lg", "xl"];
@@ -47,33 +48,29 @@ describe("DanxChip", () => {
     });
   });
 
-  describe("Types", () => {
-    it.each(colorTypes)("renders type %s with correct class", (type) => {
+  describe("Variants", () => {
+    it.each(colorVariants)("renders variant %s with correct inline style", (variant) => {
       const wrapper = mount(DanxChip, {
-        props: { type },
+        props: { variant },
       });
 
-      expect(wrapper.classes()).toContain(`danx-chip--${type}`);
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-chip-bg");
+      expect(style).toContain("--dx-chip-text");
     });
 
-    it("defaults to blank type with no type modifier class", () => {
+    it("defaults to blank variant with no inline style", () => {
       const wrapper = mount(DanxChip);
 
-      expect(wrapper.classes()).toContain("danx-chip");
-      expect(wrapper.classes()).toContain("danx-chip--md");
-      for (const t of colorTypes) {
-        expect(wrapper.classes()).not.toContain(`danx-chip--${t}`);
-      }
+      expect(wrapper.attributes("style")).toBeUndefined();
     });
 
-    it("blank type via type='' has no type modifier class", () => {
+    it("blank variant via variant='' has no inline style", () => {
       const wrapper = mount(DanxChip, {
-        props: { type: "" },
+        props: { variant: "" },
       });
 
-      for (const t of colorTypes) {
-        expect(wrapper.classes()).not.toContain(`danx-chip--${t}`);
-      }
+      expect(wrapper.attributes("style")).toBeUndefined();
     });
   });
 
@@ -345,33 +342,28 @@ describe("DanxChip", () => {
 
       expect(wrapper.attributes("style")).toBeUndefined();
     });
+
+    it("autoColor takes precedence over variant", () => {
+      const wrapper = mount(DanxChip, {
+        props: { variant: "danger", autoColor: "test-key", label: "Test" },
+      });
+      const style = wrapper.attributes("style") ?? "";
+      // autoColor should win - style should NOT contain variant tokens
+      expect(style).not.toContain("--dx-variant-danger-");
+      // autoColor sets --dx-chip-bg directly
+      expect(style).toContain("--dx-chip-bg:");
+    });
   });
 
-  describe("Custom type", () => {
-    it("adds the correct BEM modifier class for customType", () => {
+  describe("Custom variant", () => {
+    it("applies inline style for custom variant", () => {
       const wrapper = mount(DanxChip, {
-        props: { customType: "restart" },
+        props: { variant: "restart" },
       });
 
-      expect(wrapper.classes()).toContain("danx-chip--restart");
-    });
-
-    it("customType takes precedence over type", () => {
-      const wrapper = mount(DanxChip, {
-        props: { type: "danger", customType: "restart" },
-      });
-
-      expect(wrapper.classes()).toContain("danx-chip--restart");
-      expect(wrapper.classes()).not.toContain("danx-chip--danger");
-    });
-
-    it("no modifier class when neither type nor customType is set", () => {
-      const wrapper = mount(DanxChip);
-
-      const modifierClasses = wrapper
-        .classes()
-        .filter((c) => c.startsWith("danx-chip--") && c !== "danx-chip--md");
-      expect(modifierClasses).toHaveLength(0);
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-chip-bg");
+      expect(style).toContain("--dx-chip-text");
     });
   });
 
@@ -382,14 +374,15 @@ describe("DanxChip", () => {
       expect(wrapper.classes()).toContain("danx-chip");
     });
 
-    it("combines type and size classes", () => {
+    it("combines variant and size classes", () => {
       const wrapper = mount(DanxChip, {
-        props: { type: "danger", size: "lg" },
+        props: { variant: "danger", size: "lg" },
       });
 
       expect(wrapper.classes()).toContain("danx-chip");
-      expect(wrapper.classes()).toContain("danx-chip--danger");
       expect(wrapper.classes()).toContain("danx-chip--lg");
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-chip-bg");
     });
   });
 });

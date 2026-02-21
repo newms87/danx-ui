@@ -2,7 +2,7 @@
  * DanxProgressBar Styles
  *
  * Main entry point that imports tokens and defines layout,
- * size modifiers, type modifiers, effect modifiers, and animations.
+ * size modifiers, effect modifiers, and animations.
  *
  * Note: BEM modifiers (.danx-progress-bar--sm) are top-level blocks because
  * Lightning CSS does not support &--suffix concatenation.
@@ -200,45 +200,6 @@
 }
 
 /* ==========================================================================
-   Type Modifiers
-   ========================================================================== */
-
-.danx-progress-bar--danger {
-  .danx-progress-bar__fill,
-  .danx-progress-bar__indeterminate {
-    background: var(--dx-progress-bar-danger-fill);
-  }
-}
-
-.danx-progress-bar--success {
-  .danx-progress-bar__fill,
-  .danx-progress-bar__indeterminate {
-    background: var(--dx-progress-bar-success-fill);
-  }
-}
-
-.danx-progress-bar--warning {
-  .danx-progress-bar__fill,
-  .danx-progress-bar__indeterminate {
-    background: var(--dx-progress-bar-warning-fill);
-  }
-}
-
-.danx-progress-bar--info {
-  .danx-progress-bar__fill,
-  .danx-progress-bar__indeterminate {
-    background: var(--dx-progress-bar-info-fill);
-  }
-}
-
-.danx-progress-bar--muted {
-  .danx-progress-bar__fill,
-  .danx-progress-bar__indeterminate {
-    background: var(--dx-progress-bar-muted-fill);
-  }
-}
-
-/* ==========================================================================
    Effect: Striped
    ========================================================================== */
 
@@ -394,75 +355,3 @@
   }
 }
 
-/* ==========================================================================
-   Type + Glow Color Overrides
-   ========================================================================== */
-
-.danx-progress-bar--danger.danx-progress-bar--glow {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-glow-color: var(--dx-progress-bar-danger-glow);
-  }
-}
-
-.danx-progress-bar--success.danx-progress-bar--glow {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-glow-color: var(--dx-progress-bar-success-glow);
-  }
-}
-
-.danx-progress-bar--warning.danx-progress-bar--glow {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-glow-color: var(--dx-progress-bar-warning-glow);
-  }
-}
-
-.danx-progress-bar--info.danx-progress-bar--glow {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-glow-color: var(--dx-progress-bar-info-glow);
-  }
-}
-
-.danx-progress-bar--muted.danx-progress-bar--glow {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-glow-color: var(--dx-progress-bar-muted-glow);
-  }
-}
-
-/* ==========================================================================
-   Type + Gradient Color Overrides
-   ========================================================================== */
-
-.danx-progress-bar--danger.danx-progress-bar--gradient {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-gradient-from: var(--dx-progress-bar-danger-gradient-from);
-    --dx-progress-bar-gradient-to: var(--dx-progress-bar-danger-gradient-to);
-  }
-}
-
-.danx-progress-bar--success.danx-progress-bar--gradient {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-gradient-from: var(--dx-progress-bar-success-gradient-from);
-    --dx-progress-bar-gradient-to: var(--dx-progress-bar-success-gradient-to);
-  }
-}
-
-.danx-progress-bar--warning.danx-progress-bar--gradient {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-gradient-from: var(--dx-progress-bar-warning-gradient-from);
-    --dx-progress-bar-gradient-to: var(--dx-progress-bar-warning-gradient-to);
-  }
-}
-
-.danx-progress-bar--info.danx-progress-bar--gradient {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-gradient-from: var(--dx-progress-bar-info-gradient-from);
-    --dx-progress-bar-gradient-to: var(--dx-progress-bar-info-gradient-to);
-  }
-}
-
-.danx-progress-bar--muted.danx-progress-bar--gradient {
-  .danx-progress-bar__fill {
-    --dx-progress-bar-gradient-from: var(--dx-progress-bar-muted-gradient-from);
-    --dx-progress-bar-gradient-to: var(--dx-progress-bar-muted-gradient-to);
-  }
-}

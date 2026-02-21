@@ -4,9 +4,9 @@ import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 </script>
 
 <template>
-  <DanxChip type="success" icon="confirm">By Name</DanxChip>
-  <DanxChip type="warning" :icon="starIcon">By Import</DanxChip>
-  <DanxChip type="info">
+  <DanxChip variant="success" icon="confirm">By Name</DanxChip>
+  <DanxChip variant="warning" :icon="starIcon">By Import</DanxChip>
+  <DanxChip variant="info">
     <template #icon>
       <svg viewBox="0 0 24 24" fill="currentColor">
         <circle cx="12" cy="12" r="10" />

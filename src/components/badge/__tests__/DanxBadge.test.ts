@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import DanxBadge from "../DanxBadge.vue";
-import type { BadgeType, BadgePlacement } from "../types";
+import type { BadgePlacement } from "../types";
+import type { VariantType } from "../../../shared/types";
 
-// All semantic badge types (excluding blank default)
-const colorTypes: BadgeType[] = ["danger", "success", "warning", "info", "muted"];
+// All semantic badge variants (excluding blank default)
+const colorVariants: VariantType[] = ["danger", "success", "warning", "info", "muted"];
 
 // All placement options
 const allPlacements: BadgePlacement[] = ["top-right", "top-left", "bottom-right", "bottom-left"];
@@ -202,46 +203,34 @@ describe("DanxBadge", () => {
     });
   });
 
-  describe("Types", () => {
-    it.each(colorTypes)("applies correct class for type %s", (type) => {
+  describe("Variants", () => {
+    it.each(colorVariants)("applies correct inline style for variant %s", (variant) => {
       const wrapper = mount(DanxBadge, {
-        props: { value: 1, type },
+        props: { value: 1, variant },
       });
 
-      expect(wrapper.find(".danx-badge__indicator").classes()).toContain(
-        `danx-badge__indicator--${type}`
-      );
+      const style = wrapper.find(".danx-badge__indicator").attributes("style") ?? "";
+      expect(style).toContain("--dx-badge-bg");
+      expect(style).toContain("--dx-badge-text");
     });
 
-    it("applies danger class by default", () => {
+    it("applies danger variant by default", () => {
       const wrapper = mount(DanxBadge, {
         props: { value: 1 },
       });
 
-      expect(wrapper.find(".danx-badge__indicator").classes()).toContain(
-        "danx-badge__indicator--danger"
-      );
+      const indicator = wrapper.find(".danx-badge__indicator");
+      const style = indicator.attributes("style") ?? "";
+      expect(style).toContain("--dx-variant-danger-");
+      expect(style).toContain("--dx-badge-bg:");
     });
 
-    it("applies no type class when type is blank", () => {
+    it("applies no inline style when variant is blank", () => {
       const wrapper = mount(DanxBadge, {
-        props: { value: 1, type: "" },
+        props: { value: 1, variant: "" },
       });
 
-      const classes = wrapper.find(".danx-badge__indicator").classes();
-      for (const t of colorTypes) {
-        expect(classes).not.toContain(`danx-badge__indicator--${t}`);
-      }
-    });
-
-    it("customType overrides type for class generation", () => {
-      const wrapper = mount(DanxBadge, {
-        props: { value: 1, type: "danger", customType: "live" },
-      });
-
-      const classes = wrapper.find(".danx-badge__indicator").classes();
-      expect(classes).toContain("danx-badge__indicator--live");
-      expect(classes).not.toContain("danx-badge__indicator--danger");
+      expect(wrapper.find(".danx-badge__indicator").attributes("style")).toBeUndefined();
     });
   });
 
@@ -301,13 +290,26 @@ describe("DanxBadge", () => {
       expect(style).toContain("--dx-badge-bg");
     });
 
-    it("does not apply inline style when autoColor is false", () => {
+    it("applies default danger variant style when autoColor is false", () => {
       const wrapper = mount(DanxBadge, {
         props: { value: 5 },
       });
 
-      const style = wrapper.find(".danx-badge__indicator").attributes("style");
-      expect(style).toBeUndefined();
+      const style = wrapper.find(".danx-badge__indicator").attributes("style") ?? "";
+      // Badge defaults to danger variant, so style will be present
+      expect(style).toContain("--dx-badge-bg");
+    });
+
+    it("autoColor takes precedence over variant", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { variant: "success", value: 5, autoColor: "test-key" },
+      });
+      const indicator = wrapper.find(".danx-badge__indicator");
+      const style = indicator.attributes("style") ?? "";
+      // autoColor should win - style should NOT contain variant tokens
+      expect(style).not.toContain("--dx-variant-success-");
+      // autoColor sets --dx-badge-bg directly
+      expect(style).toContain("--dx-badge-bg:");
     });
   });
 

@@ -8,8 +8,7 @@
  * with auto-flip and viewport clamping.
  *
  * @props
- *   type?: TooltipType - Semantic color type for the panel (default: "")
- *   customType?: string - App-defined type, overrides type for class generation (default: "")
+ *   variant?: VariantType - Visual variant for the panel (default: "")
  *   icon?: Component | IconName | string - Panel icon at top-left
  *   triggerIcon?: Component | IconName | string - Shortcut to render DanxIcon as trigger
  *   targetId?: string - External trigger element by ID (looked up after mount)
@@ -38,8 +37,7 @@
  *   --dx-tooltip-trigger-icon-size - Trigger icon size
  *   --dx-tooltip-gap - Gap between panel icon and content
  *   --dx-tooltip-animation-duration - Entry animation duration
- *   --dx-tooltip-{type}-bg - Per-type background color
- *   --dx-tooltip-{type}-text - Per-type text color
+ *   Variants are applied via --dx-variant-{name}-bg, --dx-variant-{name}-text, --dx-variant-{name}-border
  *
  * @example
  *   <DanxTooltip tooltip="Delete this item">
@@ -49,7 +47,7 @@
  *   </DanxTooltip>
  *
  * @example
- *   <DanxTooltip triggerIcon="info" type="info" tooltip="Helpful information" />
+ *   <DanxTooltip triggerIcon="info" variant="info" tooltip="Helpful information" />
  *
  * @example
  *   <DanxTooltip targetId="my-element-id" placement="bottom">
@@ -60,14 +58,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef, useSlots, watch } from "vue";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
 import { usePopoverPositioning } from "../popover/usePopoverPositioning";
 import type { DanxTooltipProps, DanxTooltipSlots } from "./types";
 import { useTooltipInteraction } from "./useTooltipInteraction";
 
 const props = withDefaults(defineProps<DanxTooltipProps>(), {
-  type: "",
-  customType: "",
+  variant: "",
   placement: "top",
   interaction: "hover",
   enterable: false,
@@ -132,16 +130,13 @@ const { style: panelStyle } = usePopoverPositioning(
   isOpen
 );
 
-const effectiveType = computed(() => props.customType || props.type);
+const TOOLTIP_VARIANT_TOKENS = {
+  "--dx-tooltip-bg": "bg",
+  "--dx-tooltip-text": "text",
+  "--dx-tooltip-border": "border",
+};
 
-/** CSS classes for the panel element */
-const panelClasses = computed(() => {
-  const classes = ["danx-tooltip"];
-  if (effectiveType.value) {
-    classes.push(`danx-tooltip--${effectiveType.value}`);
-  }
-  return classes;
-});
+const variantStyle = useVariant(toRef(props, "variant"), "tooltip", TOOLTIP_VARIANT_TOKENS);
 
 /** Whether the panel has icon + content flex layout */
 const hasPanelIcon = computed(() => !!props.icon);
@@ -170,8 +165,8 @@ const hasPanelIcon = computed(() => !!props.icon);
       <div
         v-if="isOpen && !disabled"
         ref="panelRef"
-        :class="panelClasses"
-        :style="panelStyle"
+        class="danx-tooltip"
+        :style="[panelStyle, variantStyle]"
         v-bind="$attrs"
         @mouseenter="onPanelMouseenter"
         @mouseleave="onPanelMouseleave"

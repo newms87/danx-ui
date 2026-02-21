@@ -2,7 +2,7 @@
  * DanxButton Styles
  *
  * Main entry point that imports tokens and defines button layout,
- * size modifiers, type modifiers, states, and spinner.
+ * size modifiers, states, and spinner.
  *
  * Note: BEM modifiers (.danx-button--md) are top-level blocks because
  * Lightning CSS does not support &--suffix concatenation.
@@ -23,8 +23,8 @@
   font-family: var(--dx-button-font-family);
   font-weight: var(--font-medium);
   line-height: var(--leading-none);
-  background: transparent;
-  color: var(--color-text);
+  background: var(--dx-button-bg, transparent);
+  color: var(--dx-button-text, var(--color-text));
   border: none;
   border-radius: var(--dx-button-border-radius);
   cursor: pointer;
@@ -126,55 +126,6 @@
   .danx-button__icon {
     width: var(--dx-button-xl-icon-size);
     height: var(--dx-button-xl-icon-size);
-  }
-}
-
-/* ==========================================================================
-   Type Modifiers
-   ========================================================================== */
-
-.danx-button--danger {
-  background: var(--dx-button-danger-bg);
-  color: var(--dx-button-danger-text);
-
-  &:hover:not(:disabled) {
-    background: var(--dx-button-danger-bg-hover);
-  }
-}
-
-.danx-button--success {
-  background: var(--dx-button-success-bg);
-  color: var(--dx-button-success-text);
-
-  &:hover:not(:disabled) {
-    background: var(--dx-button-success-bg-hover);
-  }
-}
-
-.danx-button--warning {
-  background: var(--dx-button-warning-bg);
-  color: var(--dx-button-warning-text);
-
-  &:hover:not(:disabled) {
-    background: var(--dx-button-warning-bg-hover);
-  }
-}
-
-.danx-button--info {
-  background: var(--dx-button-info-bg);
-  color: var(--dx-button-info-text);
-
-  &:hover:not(:disabled) {
-    background: var(--dx-button-info-bg-hover);
-  }
-}
-
-.danx-button--muted {
-  background: var(--dx-button-muted-bg);
-  color: var(--dx-button-muted-text);
-
-  &:hover:not(:disabled) {
-    background: var(--dx-button-muted-bg-hover);
   }
 }
 

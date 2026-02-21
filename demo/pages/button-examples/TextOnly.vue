@@ -4,9 +4,9 @@ import { DanxButton } from "danx-ui";
 
 <template>
   <DanxButton>Default</DanxButton>
-  <DanxButton type="danger">Danger</DanxButton>
-  <DanxButton type="success">Success</DanxButton>
-  <DanxButton type="warning">Warning</DanxButton>
-  <DanxButton type="info">Info</DanxButton>
-  <DanxButton type="muted">Muted</DanxButton>
+  <DanxButton variant="danger">Danger</DanxButton>
+  <DanxButton variant="success">Success</DanxButton>
+  <DanxButton variant="warning">Warning</DanxButton>
+  <DanxButton variant="info">Info</DanxButton>
+  <DanxButton variant="muted">Muted</DanxButton>
 </template>

@@ -2,10 +2,11 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import { defineComponent, markRaw } from "vue";
 import DanxProgressBar from "../DanxProgressBar.vue";
-import type { ProgressBarType, ProgressBarSize, ProgressBarTextPosition } from "../types";
+import type { ProgressBarSize, ProgressBarTextPosition } from "../types";
+import type { VariantType } from "../../../shared/types";
 import { saveIcon } from "../../icon/icons";
 
-const allTypes: ProgressBarType[] = ["danger", "success", "warning", "info", "muted"];
+const allVariants: VariantType[] = ["danger", "success", "warning", "info", "muted"];
 const allSizes: ProgressBarSize[] = ["sm", "md", "lg"];
 const allTextPositions: ProgressBarTextPosition[] = ["inside", "above", "beside"];
 
@@ -142,41 +143,25 @@ describe("DanxProgressBar", () => {
     });
   });
 
-  describe("Types", () => {
-    it.each(allTypes)("applies type modifier class for type '%s'", (type) => {
+  describe("Variants", () => {
+    it.each(allVariants)("applies variant inline style for variant '%s'", (variant) => {
       const wrapper = mount(DanxProgressBar, {
-        props: { type },
+        props: { variant },
       });
 
-      expect(wrapper.classes()).toContain(`danx-progress-bar--${type}`);
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-progress-bar-fill-bg:");
+      expect(style).toContain("--dx-progress-bar-glow-color:");
+      expect(style).toContain("--dx-progress-bar-gradient-from:");
+      expect(style).toContain("--dx-progress-bar-gradient-to:");
     });
 
-    it("does not add type modifier for blank type", () => {
+    it("does not add variant style for blank variant", () => {
       const wrapper = mount(DanxProgressBar, {
-        props: { type: "" },
+        props: { variant: "" },
       });
 
-      const classes = wrapper.classes();
-      for (const type of allTypes) {
-        expect(classes).not.toContain(`danx-progress-bar--${type}`);
-      }
-    });
-
-    it("customType takes precedence over type", () => {
-      const wrapper = mount(DanxProgressBar, {
-        props: { type: "danger", customType: "upload" },
-      });
-
-      expect(wrapper.classes()).toContain("danx-progress-bar--upload");
-      expect(wrapper.classes()).not.toContain("danx-progress-bar--danger");
-    });
-
-    it("customType works without explicit type prop", () => {
-      const wrapper = mount(DanxProgressBar, {
-        props: { customType: "upload" },
-      });
-
-      expect(wrapper.classes()).toContain("danx-progress-bar--upload");
+      expect(wrapper.attributes("style")).toBeUndefined();
     });
   });
 

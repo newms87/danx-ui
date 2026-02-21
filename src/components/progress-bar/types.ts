@@ -1,22 +1,10 @@
 import type { Component } from "vue";
+import type { VariantType } from "../../shared/types";
 import type { IconName } from "../icon/icons";
 
 /**
  * DanxProgressBar Type Definitions
  */
-
-/**
- * Semantic progress bar type that controls fill color.
- *
- * Each type maps to a color category:
- * - "" (blank): Uses default interactive color
- * - danger: Error/failure states (red)
- * - success: Completion/positive states (green)
- * - warning: Cautionary states (amber)
- * - info: Informational states (blue)
- * - muted: Neutral/secondary states (gray)
- */
-export type ProgressBarType = "" | "danger" | "success" | "warning" | "info" | "muted";
 
 /**
  * Progress bar sizes.
@@ -65,18 +53,12 @@ export interface DanxProgressBarProps {
   indeterminate?: boolean;
 
   /**
-   * Semantic color type. Controls fill background color.
+   * Visual variant controlling fill color, glow, and gradient colors.
+   * Built-in: "danger", "success", "warning", "info", "muted".
+   * Custom variants use --dx-variant-{name}-* CSS tokens.
    * @default ""
    */
-  type?: ProgressBarType;
-
-  /**
-   * App-defined semantic type. Generates the same BEM modifier class as `type`
-   * (e.g., `customType="upload"` → `.danx-progress-bar--upload`) but accepts any string.
-   * When set, takes precedence over `type` for class generation.
-   * @default ""
-   */
-  customType?: string;
+  variant?: VariantType;
 
   /**
    * Progress bar size affecting height and font size.

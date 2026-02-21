@@ -27,29 +27,14 @@ describe("DanxActionButton", () => {
       expect(wrapper.find("button.danx-button").exists()).toBe(true);
     });
 
-    it("passes through type prop", () => {
+    it("passes through variant prop", () => {
       const wrapper = mount(DanxActionButton, {
-        props: { type: "danger" },
+        props: { variant: "danger" },
       });
 
-      expect(wrapper.find("button").classes()).toContain("danx-button--danger");
-    });
-
-    it("passes through customType prop", () => {
-      const wrapper = mount(DanxActionButton, {
-        props: { customType: "restart" },
-      });
-
-      expect(wrapper.find("button").classes()).toContain("danx-button--restart");
-    });
-
-    it("customType takes precedence over type in DanxButton", () => {
-      const wrapper = mount(DanxActionButton, {
-        props: { type: "danger", customType: "restart" },
-      });
-
-      expect(wrapper.find("button").classes()).toContain("danx-button--restart");
-      expect(wrapper.find("button").classes()).not.toContain("danx-button--danger");
+      const styleAttr = wrapper.find("button").attributes("style");
+      expect(styleAttr).toContain("--dx-button-bg:");
+      expect(styleAttr).toContain("--dx-variant-danger-");
     });
 
     it("passes through size prop", () => {

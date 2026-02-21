@@ -4,7 +4,7 @@ import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 </script>
 
 <template>
-  <DanxButton type="success" :icon="starIcon">Star</DanxButton>
-  <DanxButton type="info" :icon="starIcon">Info Star</DanxButton>
-  <DanxButton type="danger" :icon="starIcon">Danger Star</DanxButton>
+  <DanxButton variant="success" :icon="starIcon">Star</DanxButton>
+  <DanxButton variant="info" :icon="starIcon">Info Star</DanxButton>
+  <DanxButton variant="danger" :icon="starIcon">Danger Star</DanxButton>
 </template>

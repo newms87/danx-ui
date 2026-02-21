@@ -64,36 +64,3 @@
   transform: translateY(2px);
 }
 
-/* ==========================================================================
-   Type Modifiers
-   ========================================================================== */
-
-.danx-tooltip--danger {
-  background: var(--dx-tooltip-danger-bg);
-  color: var(--dx-tooltip-danger-text);
-  border-color: var(--dx-tooltip-danger-bg);
-}
-
-.danx-tooltip--success {
-  background: var(--dx-tooltip-success-bg);
-  color: var(--dx-tooltip-success-text);
-  border-color: var(--dx-tooltip-success-bg);
-}
-
-.danx-tooltip--warning {
-  background: var(--dx-tooltip-warning-bg);
-  color: var(--dx-tooltip-warning-text);
-  border-color: var(--dx-tooltip-warning-bg);
-}
-
-.danx-tooltip--info {
-  background: var(--dx-tooltip-info-bg);
-  color: var(--dx-tooltip-info-text);
-  border-color: var(--dx-tooltip-info-bg);
-}
-
-.danx-tooltip--muted {
-  background: var(--dx-tooltip-muted-bg);
-  color: var(--dx-tooltip-muted-text);
-  border-color: var(--dx-tooltip-muted-bg);
-}

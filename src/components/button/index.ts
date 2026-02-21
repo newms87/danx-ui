@@ -11,13 +11,7 @@
 export { default as DanxButton } from "./DanxButton.vue";
 export { default as DanxActionButton } from "./DanxActionButton.vue";
 export * from "./icons";
-export type {
-  ButtonSize,
-  ButtonType,
-  DanxButtonEmits,
-  DanxButtonProps,
-  DanxButtonSlots,
-} from "./types";
+export type { ButtonSize, DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types";
 export type {
   ActionTarget,
   ActionTargetItem,

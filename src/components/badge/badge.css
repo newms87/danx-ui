@@ -2,7 +2,7 @@
  * DanxBadge Styles
  *
  * Main entry point that imports tokens and defines badge wrapper,
- * indicator layout, placement modifiers, dot mode, and type modifiers.
+ * indicator layout, placement modifiers, and dot mode.
  *
  * Note: BEM modifiers are top-level blocks because Lightning CSS
  * does not support &--suffix concatenation.
@@ -83,31 +83,3 @@
   padding: 0;
 }
 
-/* ==========================================================================
-   Type Modifiers
-   ========================================================================== */
-
-.danx-badge__indicator--danger {
-  background: var(--dx-badge-danger-bg);
-  color: var(--dx-badge-danger-text);
-}
-
-.danx-badge__indicator--success {
-  background: var(--dx-badge-success-bg);
-  color: var(--dx-badge-success-text);
-}
-
-.danx-badge__indicator--warning {
-  background: var(--dx-badge-warning-bg);
-  color: var(--dx-badge-warning-text);
-}
-
-.danx-badge__indicator--info {
-  background: var(--dx-badge-info-bg);
-  color: var(--dx-badge-info-text);
-}
-
-.danx-badge__indicator--muted {
-  background: var(--dx-badge-muted-bg);
-  color: var(--dx-badge-muted-text);
-}

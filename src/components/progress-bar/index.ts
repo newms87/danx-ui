@@ -13,5 +13,4 @@ export type {
   ProgressBarSize,
   ProgressBarTextAlign,
   ProgressBarTextPosition,
-  ProgressBarType,
 } from "./types";
