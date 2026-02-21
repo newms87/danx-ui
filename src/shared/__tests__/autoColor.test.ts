@@ -55,21 +55,21 @@ describe("AUTO_COLOR_PALETTE", () => {
     expect(AUTO_COLOR_PALETTE).toHaveLength(14);
   });
 
-  it("each entry has bg, text, darkBg, darkText", () => {
+  it("each entry has bg, text, darkBg, darkText as var() references", () => {
     for (const entry of AUTO_COLOR_PALETTE) {
-      expect(entry.bg).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(entry.text).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(entry.darkBg).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(entry.darkText).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(entry.bg).toMatch(/^var\(--color-.+-\d+\)$/);
+      expect(entry.text).toMatch(/^var\(--color-.+-\d+\)$/);
+      expect(entry.darkBg).toMatch(/^var\(--color-.+-\d+\)$/);
+      expect(entry.darkText).toMatch(/^var\(--color-.+-\d+\)$/);
     }
   });
 
-  it("each entry has inactiveBg, inactiveText, darkInactiveBg, darkInactiveText", () => {
+  it("each entry has inactiveBg, inactiveText, darkInactiveBg, darkInactiveText as var() references", () => {
     for (const entry of AUTO_COLOR_PALETTE) {
-      expect(entry.inactiveBg).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(entry.inactiveText).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(entry.darkInactiveBg).toMatch(/^#[0-9a-f]{6}$/i);
-      expect(entry.darkInactiveText).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(entry.inactiveBg).toMatch(/^var\(--color-.+-\d+\)$/);
+      expect(entry.inactiveText).toMatch(/^var\(--color-.+-\d+\)$/);
+      expect(entry.darkInactiveBg).toMatch(/^var\(--color-.+-\d+\)$/);
+      expect(entry.darkInactiveText).toMatch(/^var\(--color-.+-\d+\)$/);
     }
   });
 });

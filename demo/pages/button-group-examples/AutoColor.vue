@@ -15,8 +15,6 @@ const buttons = [
   { value: "Cancelled", label: "Cancelled" },
   { value: "On Hold", label: "On Hold" },
   { value: "Active", label: "Active" },
-  { value: "Completed", label: "Completed" },
-  { value: "Scheduled", label: "Scheduled" },
 ];
 </script>
 

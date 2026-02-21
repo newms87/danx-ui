@@ -14,8 +14,6 @@ import { DanxChip } from "danx-ui";
     <DanxChip auto-color label="Cancelled" />
     <DanxChip auto-color label="On Hold" />
     <DanxChip auto-color label="Active" />
-    <DanxChip auto-color label="Completed" />
-    <DanxChip auto-color label="Scheduled" />
   </div>
 
   <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem">

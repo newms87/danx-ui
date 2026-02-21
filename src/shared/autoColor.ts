@@ -5,9 +5,9 @@
  * palette index. The same string always maps to the same color, giving
  * visually distinct colors to different tags/statuses without manual mapping.
  *
- * The palette uses hex values from 14 chromatic Tailwind families
+ * The palette references primitive CSS tokens from 14 chromatic Tailwind families
  * (sky, blue, indigo, purple, violet, fuchsia, rose, orange, amber,
- * lime, green, emerald, teal, cyan) with light/dark pairs.
+ * lime, green, emerald, teal, cyan) via var() so colors adapt to theme overrides.
  */
 
 import { computed, type CSSProperties, type MaybeRefOrGetter, toValue } from "vue";
@@ -15,186 +15,67 @@ import { computed, type CSSProperties, type MaybeRefOrGetter, toValue } from "vu
 /**
  * A single palette entry with light-mode and dark-mode color pairs,
  * plus inactive variants for toggle/button-group states.
+ * All values are var() references to primitive CSS tokens.
  */
 export interface AutoColorEntry {
   /** Light-mode background (shade-100) */
   bg: string;
   /** Light-mode text (shade-700) */
   text: string;
-  /** Dark-mode background (shade-500) */
+  /** Dark-mode background (shade-400) */
   darkBg: string;
-  /** Dark-mode text (shade-50) */
+  /** Dark-mode text (shade-900) */
   darkText: string;
   /** Light-mode inactive background (shade-50) */
   inactiveBg: string;
   /** Light-mode inactive text (shade-400) */
   inactiveText: string;
-  /** Dark-mode inactive background (near-black tinted) */
+  /** Dark-mode inactive background (shade-950) */
   darkInactiveBg: string;
   /** Dark-mode inactive text (shade-500) */
   darkInactiveText: string;
 }
 
 /**
+ * Helper to build a palette entry from a color family name.
+ * Maps consistent shade numbers to each role across all families.
+ */
+function colorFamily(name: string): AutoColorEntry {
+  return {
+    bg: `var(--color-${name}-100)`,
+    text: `var(--color-${name}-700)`,
+    darkBg: `var(--color-${name}-400)`,
+    darkText: `var(--color-${name}-900)`,
+    inactiveBg: `var(--color-${name}-50)`,
+    inactiveText: `var(--color-${name}-400)`,
+    darkInactiveBg: `var(--color-${name}-950)`,
+    darkInactiveText: `var(--color-${name}-500)`,
+  };
+}
+
+/**
  * 14-color palette derived from Tailwind chromatic families.
- * Each entry provides light and dark mode background/text pairs
- * using shade-100/700 for light mode and shade-500/50 for dark mode.
+ * Each entry references primitive CSS tokens via var(), so colors
+ * automatically adapt when the theme's primitives are customized.
+ *
+ * Light mode: shade-100 background, shade-700 text.
+ * Dark mode: shade-400 background, shade-900 text.
  */
 export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
-  // sky
-  {
-    bg: "#e0f2fe",
-    text: "#0369a1",
-    darkBg: "#0ea5e9",
-    darkText: "#f0f9ff",
-    inactiveBg: "#f0f9ff",
-    inactiveText: "#38bdf8",
-    darkInactiveBg: "#041a2b",
-    darkInactiveText: "#0ea5e9",
-  },
-  // blue
-  {
-    bg: "#dbeafe",
-    text: "#1d4ed8",
-    darkBg: "#3b82f6",
-    darkText: "#eff6ff",
-    inactiveBg: "#eff6ff",
-    inactiveText: "#60a5fa",
-    darkInactiveBg: "#0b1530",
-    darkInactiveText: "#3b82f6",
-  },
-  // indigo
-  {
-    bg: "#e0e7ff",
-    text: "#4338ca",
-    darkBg: "#6366f1",
-    darkText: "#eef2ff",
-    inactiveBg: "#eef2ff",
-    inactiveText: "#818cf8",
-    darkInactiveBg: "#0f0d28",
-    darkInactiveText: "#6366f1",
-  },
-  // purple
-  {
-    bg: "#f3e8ff",
-    text: "#7c3aed",
-    darkBg: "#a855f7",
-    darkText: "#faf5ff",
-    inactiveBg: "#faf5ff",
-    inactiveText: "#a78bfa",
-    darkInactiveBg: "#1e0436",
-    darkInactiveText: "#8b5cf6",
-  },
-  // violet
-  {
-    bg: "#ede9fe",
-    text: "#6d28d9",
-    darkBg: "#8b5cf6",
-    darkText: "#f5f3ff",
-    inactiveBg: "#f5f3ff",
-    inactiveText: "#a78bfa",
-    darkInactiveBg: "#170836",
-    darkInactiveText: "#8b5cf6",
-  },
-  // fuchsia
-  {
-    bg: "#fae8ff",
-    text: "#a21caf",
-    darkBg: "#d946ef",
-    darkText: "#fdf4ff",
-    inactiveBg: "#fdf4ff",
-    inactiveText: "#e879f9",
-    darkInactiveBg: "#260228",
-    darkInactiveText: "#d946ef",
-  },
-  // rose
-  {
-    bg: "#ffe4e6",
-    text: "#be123c",
-    darkBg: "#f43f5e",
-    darkText: "#fff1f2",
-    inactiveBg: "#fff1f2",
-    inactiveText: "#fb7185",
-    darkInactiveBg: "#28030d",
-    darkInactiveText: "#f43f5e",
-  },
-  // orange
-  {
-    bg: "#ffedd5",
-    text: "#c2410c",
-    darkBg: "#f97316",
-    darkText: "#fff7ed",
-    inactiveBg: "#fff7ed",
-    inactiveText: "#fb923c",
-    darkInactiveBg: "#220a04",
-    darkInactiveText: "#f97316",
-  },
-  // amber
-  {
-    bg: "#fef3c7",
-    text: "#b45309",
-    darkBg: "#f59e0b",
-    darkText: "#fffbeb",
-    inactiveBg: "#fffbeb",
-    inactiveText: "#fbbf24",
-    darkInactiveBg: "#230d02",
-    darkInactiveText: "#f59e0b",
-  },
-  // lime
-  {
-    bg: "#ecfccb",
-    text: "#4d7c0f",
-    darkBg: "#84cc16",
-    darkText: "#f7fee7",
-    inactiveBg: "#f7fee7",
-    inactiveText: "#a3e635",
-    darkInactiveBg: "#0d1703",
-    darkInactiveText: "#84cc16",
-  },
-  // green
-  {
-    bg: "#dcfce7",
-    text: "#15803d",
-    darkBg: "#22c55e",
-    darkText: "#f0fdf4",
-    inactiveBg: "#f0fdf4",
-    inactiveText: "#4ade80",
-    darkInactiveBg: "#03170b",
-    darkInactiveText: "#22c55e",
-  },
-  // emerald
-  {
-    bg: "#d1fae5",
-    text: "#047857",
-    darkBg: "#10b981",
-    darkText: "#ecfdf5",
-    inactiveBg: "#ecfdf5",
-    inactiveText: "#34d399",
-    darkInactiveBg: "#011611",
-    darkInactiveText: "#10b981",
-  },
-  // teal
-  {
-    bg: "#ccfbf1",
-    text: "#0f766e",
-    darkBg: "#14b8a6",
-    darkText: "#f0fdfa",
-    inactiveBg: "#f0fdfa",
-    inactiveText: "#2dd4bf",
-    darkInactiveBg: "#021817",
-    darkInactiveText: "#14b8a6",
-  },
-  // cyan
-  {
-    bg: "#cffafe",
-    text: "#0e7490",
-    darkBg: "#06b6d4",
-    darkText: "#ecfeff",
-    inactiveBg: "#ecfeff",
-    inactiveText: "#22d3ee",
-    darkInactiveBg: "#041a24",
-    darkInactiveText: "#06b6d4",
-  },
+  colorFamily("sky"),
+  colorFamily("blue"),
+  colorFamily("indigo"),
+  colorFamily("purple"),
+  colorFamily("violet"),
+  colorFamily("fuchsia"),
+  colorFamily("rose"),
+  colorFamily("orange"),
+  colorFamily("amber"),
+  colorFamily("lime"),
+  colorFamily("green"),
+  colorFamily("emerald"),
+  colorFamily("teal"),
+  colorFamily("cyan"),
 ];
 
 /**
