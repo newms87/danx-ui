@@ -57,6 +57,7 @@ import { MarkdownEditor } from "../../src/components/markdown-editor";
 import { DanxButtonGroup } from "../../src/components/buttonGroup";
 import { DanxTabs } from "../../src/components/tabs";
 import { DanxTooltip } from "../../src/components/tooltip";
+import { DanxProgressBar } from "../../src/components/progress-bar";
 import { DanxFile } from "../../src/components/danx-file";
 import {
   DanxFileNavigator,
@@ -140,6 +141,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxTooltip,
   DanxFile,
   DanxFileNavigator,
+  DanxProgressBar,
 };
 
 /**
@@ -221,6 +223,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useAutoColor,
   hashStringToIndex,
   AUTO_COLOR_PALETTE,
+  // DanxProgressBar
+  DanxProgressBar,
   // DanxFile + DanxFileNavigator
   DanxFile,
   DanxFileNavigator,

@@ -1,0 +1,130 @@
+/**
+ * DanxProgressBar Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize progress bar appearance.
+ *
+ * CSS Tokens:
+ * --dx-progress-bar-width              Track width
+ * --dx-progress-bar-border-radius      Corner radius (pill by default)
+ * --dx-progress-bar-transition         Fill width transition
+ * --dx-progress-bar-track-bg           Track background color
+ * --dx-progress-bar-fill-bg            Fill background color
+ * --dx-progress-bar-buffer-bg          Buffer bar background color
+ * --dx-progress-bar-text-color         Text color when inside fill
+ * --dx-progress-bar-text-color-outside Text color when above or beside
+ * --dx-progress-bar-font-family        Font family
+ * --dx-progress-bar-font-weight        Font weight
+ * --dx-progress-bar-icon-size          Icon dimensions
+ *
+ * Effect tokens:
+ * --dx-progress-bar-glow-color         Glow effect color
+ * --dx-progress-bar-glow-spread        Glow spread radius
+ * --dx-progress-bar-stripe-color       Stripe overlay color
+ * --dx-progress-bar-stripe-angle       Stripe angle
+ * --dx-progress-bar-stripe-width       Stripe width
+ * --dx-progress-bar-shimmer-color      Shimmer highlight color
+ * --dx-progress-bar-shimmer-duration   Shimmer animation duration
+ * --dx-progress-bar-gradient-from      Gradient start color
+ * --dx-progress-bar-gradient-to        Gradient end color
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-progress-bar-{size}-height      Track height
+ * --dx-progress-bar-{size}-font-size   Text font size
+ * --dx-progress-bar-{size}-text-padding Text padding
+ *
+ * Type tokens (danger, success, warning, info, muted):
+ * --dx-progress-bar-{type}-fill        Fill color
+ * --dx-progress-bar-{type}-glow        Glow color
+ */
+
+:root {
+  /* ==========================================================================
+     Global Tokens
+     ========================================================================== */
+
+  --dx-progress-bar-width: 100%;
+  --dx-progress-bar-border-radius: 9999px;
+  --dx-progress-bar-transition: width 0.4s ease;
+  --dx-progress-bar-track-bg: var(--color-surface-sunken);
+  --dx-progress-bar-fill-bg: var(--color-interactive);
+  --dx-progress-bar-buffer-bg: var(--color-interactive-subtle);
+  --dx-progress-bar-text-color: var(--color-text-inverted);
+  --dx-progress-bar-text-color-outside: var(--color-text);
+  --dx-progress-bar-font-family: var(--font-sans);
+  --dx-progress-bar-font-weight: var(--font-semibold);
+  --dx-progress-bar-icon-size: 0.875em;
+
+  /* ==========================================================================
+     Effect Tokens
+     ========================================================================== */
+
+  --dx-progress-bar-glow-color: var(--color-interactive);
+  --dx-progress-bar-glow-spread: 8px;
+  --dx-progress-bar-stripe-color: rgb(255 255 255 / 0.2);
+  --dx-progress-bar-stripe-angle: 45deg;
+  --dx-progress-bar-stripe-width: 1rem;
+  --dx-progress-bar-shimmer-color: rgb(255 255 255 / 0.35);
+  --dx-progress-bar-shimmer-duration: 2s;
+  --dx-progress-bar-gradient-from: var(--color-interactive);
+  --dx-progress-bar-gradient-to: var(--color-success);
+
+  /* ==========================================================================
+     Size Tokens - Small
+     ========================================================================== */
+
+  --dx-progress-bar-sm-height: 0.5rem;
+  --dx-progress-bar-sm-font-size: 0.625rem;
+  --dx-progress-bar-sm-text-padding: 0.25rem 0.5rem;
+
+  /* ==========================================================================
+     Size Tokens - Medium (default)
+     ========================================================================== */
+
+  --dx-progress-bar-md-height: 1rem;
+  --dx-progress-bar-md-font-size: 0.75rem;
+  --dx-progress-bar-md-text-padding: 0.125rem 0.5rem;
+
+  /* ==========================================================================
+     Size Tokens - Large
+     ========================================================================== */
+
+  --dx-progress-bar-lg-height: 2rem;
+  --dx-progress-bar-lg-font-size: 1rem;
+  --dx-progress-bar-lg-text-padding: 0.25rem 0.75rem;
+
+  /* ==========================================================================
+     Type Tokens - Danger
+     ========================================================================== */
+
+  --dx-progress-bar-danger-fill: var(--color-danger);
+  --dx-progress-bar-danger-glow: var(--color-danger);
+
+  /* ==========================================================================
+     Type Tokens - Success
+     ========================================================================== */
+
+  --dx-progress-bar-success-fill: var(--color-success);
+  --dx-progress-bar-success-glow: var(--color-success);
+
+  /* ==========================================================================
+     Type Tokens - Warning
+     ========================================================================== */
+
+  --dx-progress-bar-warning-fill: var(--color-warning);
+  --dx-progress-bar-warning-glow: var(--color-warning);
+
+  /* ==========================================================================
+     Type Tokens - Info
+     ========================================================================== */
+
+  --dx-progress-bar-info-fill: var(--color-interactive);
+  --dx-progress-bar-info-glow: var(--color-interactive);
+
+  /* ==========================================================================
+     Type Tokens - Muted
+     ========================================================================== */
+
+  --dx-progress-bar-muted-fill: var(--color-surface-sunken);
+  --dx-progress-bar-muted-glow: var(--color-surface-sunken);
+}

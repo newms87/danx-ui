@@ -17,6 +17,7 @@ export { MarkdownEditor } from "./components/markdown-editor";
 export { DanxTabs } from "./components/tabs";
 export { DanxButtonGroup } from "./components/buttonGroup";
 export { DanxTooltip } from "./components/tooltip";
+export { DanxProgressBar } from "./components/progress-bar";
 export { DanxFile } from "./components/danx-file";
 export { DanxFileNavigator } from "./components/danx-file-navigator";
 
@@ -134,6 +135,14 @@ export type {
   TooltipInteraction,
   TooltipType,
 } from "./components/tooltip";
+export type {
+  DanxProgressBarProps,
+  DanxProgressBarSlots,
+  ProgressBarSize,
+  ProgressBarTextAlign,
+  ProgressBarTextPosition,
+  ProgressBarType,
+} from "./components/progress-bar";
 export type {
   PreviewFile,
   ImageFit,

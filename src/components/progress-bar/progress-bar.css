@@ -1,0 +1,356 @@
+/**
+ * DanxProgressBar Styles
+ *
+ * Main entry point that imports tokens and defines layout,
+ * size modifiers, type modifiers, effect modifiers, and animations.
+ *
+ * Note: BEM modifiers (.danx-progress-bar--sm) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ * Pseudo-classes and descendant selectors are still nested.
+ */
+
+@import "./progress-bar-tokens.css";
+
+/* ==========================================================================
+   Base Progress Bar
+   ========================================================================== */
+
+.danx-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: var(--dx-progress-bar-width);
+  font-family: var(--dx-progress-bar-font-family);
+  font-weight: var(--dx-progress-bar-font-weight);
+}
+
+/* ==========================================================================
+   Track - The background container
+   ========================================================================== */
+
+.danx-progress-bar__track {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--dx-progress-bar-border-radius);
+  background: var(--dx-progress-bar-track-bg);
+}
+
+/* ==========================================================================
+   Buffer Bar
+   ========================================================================== */
+
+.danx-progress-bar__buffer {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background: var(--dx-progress-bar-buffer-bg);
+  transition: var(--dx-progress-bar-transition);
+}
+
+/* ==========================================================================
+   Fill Bar
+   ========================================================================== */
+
+.danx-progress-bar__fill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 0;
+  height: 100%;
+  background: var(--dx-progress-bar-fill-bg);
+  border-radius: var(--dx-progress-bar-border-radius);
+  transition: var(--dx-progress-bar-transition);
+}
+
+/* ==========================================================================
+   Indeterminate Bar
+   ========================================================================== */
+
+.danx-progress-bar__indeterminate {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: var(--dx-progress-bar-fill-bg);
+  border-radius: var(--dx-progress-bar-border-radius);
+  animation: danx-progress-bar-indeterminate 1.8s ease-in-out infinite;
+}
+
+@keyframes danx-progress-bar-indeterminate {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ==========================================================================
+   Text Variants
+   ========================================================================== */
+
+.danx-progress-bar__text--inside {
+  color: var(--dx-progress-bar-text-color);
+  white-space: nowrap;
+  flex: 1;
+}
+
+.danx-progress-bar__text--above {
+  color: var(--dx-progress-bar-text-color-outside);
+  white-space: nowrap;
+}
+
+.danx-progress-bar__text--beside {
+  color: var(--dx-progress-bar-text-color-outside);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Icon
+   ========================================================================== */
+
+.danx-progress-bar__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--dx-progress-bar-icon-size);
+  height: var(--dx-progress-bar-icon-size);
+  color: var(--dx-progress-bar-text-color);
+}
+
+/* ==========================================================================
+   Text Alignment Modifiers
+   ========================================================================== */
+
+.danx-progress-bar--text-left {
+  .danx-progress-bar__text--inside {
+    text-align: left;
+  }
+}
+
+.danx-progress-bar--text-center {
+  .danx-progress-bar__text--inside {
+    text-align: center;
+  }
+}
+
+.danx-progress-bar--text-right {
+  .danx-progress-bar__text--inside {
+    text-align: right;
+  }
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-progress-bar--sm {
+  .danx-progress-bar__track {
+    height: var(--dx-progress-bar-sm-height);
+  }
+
+  .danx-progress-bar__text--inside,
+  .danx-progress-bar__text--above,
+  .danx-progress-bar__text--beside {
+    font-size: var(--dx-progress-bar-sm-font-size);
+    padding: var(--dx-progress-bar-sm-text-padding);
+  }
+}
+
+.danx-progress-bar--md {
+  .danx-progress-bar__track {
+    height: var(--dx-progress-bar-md-height);
+  }
+
+  .danx-progress-bar__text--inside,
+  .danx-progress-bar__text--above,
+  .danx-progress-bar__text--beside {
+    font-size: var(--dx-progress-bar-md-font-size);
+    padding: var(--dx-progress-bar-md-text-padding);
+  }
+}
+
+.danx-progress-bar--lg {
+  .danx-progress-bar__track {
+    height: var(--dx-progress-bar-lg-height);
+  }
+
+  .danx-progress-bar__text--inside,
+  .danx-progress-bar__text--above,
+  .danx-progress-bar__text--beside {
+    font-size: var(--dx-progress-bar-lg-font-size);
+    padding: var(--dx-progress-bar-lg-text-padding);
+  }
+}
+
+/* ==========================================================================
+   Type Modifiers
+   ========================================================================== */
+
+.danx-progress-bar--danger {
+  .danx-progress-bar__fill,
+  .danx-progress-bar__indeterminate {
+    background: var(--dx-progress-bar-danger-fill);
+  }
+}
+
+.danx-progress-bar--success {
+  .danx-progress-bar__fill,
+  .danx-progress-bar__indeterminate {
+    background: var(--dx-progress-bar-success-fill);
+  }
+}
+
+.danx-progress-bar--warning {
+  .danx-progress-bar__fill,
+  .danx-progress-bar__indeterminate {
+    background: var(--dx-progress-bar-warning-fill);
+  }
+}
+
+.danx-progress-bar--info {
+  .danx-progress-bar__fill,
+  .danx-progress-bar__indeterminate {
+    background: var(--dx-progress-bar-info-fill);
+  }
+}
+
+.danx-progress-bar--muted {
+  .danx-progress-bar__fill,
+  .danx-progress-bar__indeterminate {
+    background: var(--dx-progress-bar-muted-fill);
+  }
+}
+
+/* ==========================================================================
+   Effect: Striped
+   ========================================================================== */
+
+.danx-progress-bar--striped {
+  .danx-progress-bar__fill {
+    background-image: repeating-linear-gradient(
+      var(--dx-progress-bar-stripe-angle),
+      var(--dx-progress-bar-stripe-color) 0,
+      var(--dx-progress-bar-stripe-color) var(--dx-progress-bar-stripe-width),
+      transparent var(--dx-progress-bar-stripe-width),
+      transparent calc(var(--dx-progress-bar-stripe-width) * 2)
+    );
+    background-size: calc(var(--dx-progress-bar-stripe-width) * 2.828) 100%;
+  }
+}
+
+/* ==========================================================================
+   Effect: Animate Stripes
+   ========================================================================== */
+
+.danx-progress-bar--animate-stripes {
+  .danx-progress-bar__fill {
+    animation: danx-progress-bar-stripes 1s linear infinite;
+  }
+}
+
+@keyframes danx-progress-bar-stripes {
+  from {
+    background-position: calc(var(--dx-progress-bar-stripe-width) * 2.828) 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* ==========================================================================
+   Effect: Glow
+   ========================================================================== */
+
+.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    animation: danx-progress-bar-glow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes danx-progress-bar-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 var(--dx-progress-bar-glow-spread) var(--dx-progress-bar-glow-color);
+  }
+  50% {
+    box-shadow: 0 0 calc(var(--dx-progress-bar-glow-spread) * 2) var(--dx-progress-bar-glow-color);
+  }
+}
+
+/* ==========================================================================
+   Effect: Shimmer
+   ========================================================================== */
+
+.danx-progress-bar--shimmer {
+  .danx-progress-bar__fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--dx-progress-bar-shimmer-color) 50%,
+      transparent 100%
+    );
+    animation: danx-progress-bar-shimmer var(--dx-progress-bar-shimmer-duration) ease-in-out infinite;
+  }
+}
+
+@keyframes danx-progress-bar-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ==========================================================================
+   Effect: Gradient
+   ========================================================================== */
+
+.danx-progress-bar--gradient {
+  .danx-progress-bar__fill {
+    background: linear-gradient(
+      90deg,
+      var(--dx-progress-bar-gradient-from),
+      var(--dx-progress-bar-gradient-to)
+    );
+  }
+}
+
+/* ==========================================================================
+   Type + Glow Color Overrides
+   ========================================================================== */
+
+.danx-progress-bar--danger.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-glow-color: var(--dx-progress-bar-danger-glow);
+  }
+}
+
+.danx-progress-bar--success.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-glow-color: var(--dx-progress-bar-success-glow);
+  }
+}
+
+.danx-progress-bar--warning.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-glow-color: var(--dx-progress-bar-warning-glow);
+  }
+}
+
+.danx-progress-bar--info.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-glow-color: var(--dx-progress-bar-info-glow);
+  }
+}
+
+.danx-progress-bar--muted.danx-progress-bar--glow {
+  .danx-progress-bar__fill {
+    --dx-progress-bar-glow-color: var(--dx-progress-bar-muted-glow);
+  }
+}
