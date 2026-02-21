@@ -56,6 +56,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
+  overflow: hidden;
   width: 0;
   height: 100%;
   background: var(--dx-progress-bar-fill-bg);
@@ -138,19 +140,19 @@
 
 .danx-progress-bar--text-left {
   .danx-progress-bar__text--inside {
-    text-align: left;
+    justify-content: flex-start;
   }
 }
 
 .danx-progress-bar--text-center {
   .danx-progress-bar__text--inside {
-    text-align: center;
+    justify-content: center;
   }
 }
 
 .danx-progress-bar--text-right {
   .danx-progress-bar__text--inside {
-    text-align: right;
+    justify-content: flex-end;
   }
 }
 
@@ -309,7 +311,10 @@
   .danx-progress-bar__fill::after {
     content: "";
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: -40%;
+    width: 40%;
     background: linear-gradient(
       90deg,
       transparent 0%,
@@ -322,10 +327,10 @@
 
 @keyframes danx-progress-bar-shimmer {
   from {
-    transform: translateX(-100%);
+    left: -40%;
   }
   to {
-    transform: translateX(100%);
+    left: 100%;
   }
 }
 
