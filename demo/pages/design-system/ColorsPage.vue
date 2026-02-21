@@ -9,6 +9,9 @@
  */
 import DemoSection from "../../components/DemoSection.vue";
 import DemoPage from "../../components/DemoPage.vue";
+import { useIsDark } from "../../composables/useIsDark";
+
+const { isDark } = useIsDark();
 
 interface Swatch {
   shade: string;
@@ -163,6 +166,8 @@ const palettes: Palette[] = [
 interface SemanticColor {
   token: string;
   label: string;
+  light: string;
+  dark: string;
 }
 
 interface SemanticGroup {
@@ -174,60 +179,130 @@ const semanticGroups: SemanticGroup[] = [
   {
     name: "Surfaces",
     colors: [
-      { token: "--color-surface", label: "surface" },
-      { token: "--color-surface-elevated", label: "surface-elevated" },
-      { token: "--color-surface-sunken", label: "surface-sunken" },
-      { token: "--color-surface-overlay", label: "surface-overlay" },
-      { token: "--color-surface-accent", label: "surface-accent" },
+      { token: "--color-surface", label: "surface", light: "white", dark: "slate-900" },
+      {
+        token: "--color-surface-elevated",
+        label: "surface-elevated",
+        light: "white",
+        dark: "slate-800",
+      },
+      {
+        token: "--color-surface-sunken",
+        label: "surface-sunken",
+        light: "slate-50",
+        dark: "slate-950",
+      },
+      {
+        token: "--color-surface-overlay",
+        label: "surface-overlay",
+        light: "slate-900",
+        dark: "slate-950",
+      },
+      {
+        token: "--color-surface-accent",
+        label: "surface-accent",
+        light: "blue-50",
+        dark: "blue-950",
+      },
     ],
   },
   {
     name: "Text",
     colors: [
-      { token: "--color-text", label: "text" },
-      { token: "--color-text-muted", label: "text-muted" },
-      { token: "--color-text-subtle", label: "text-subtle" },
-      { token: "--color-text-inverted", label: "text-inverted" },
-      { token: "--color-text-accent", label: "text-accent" },
+      { token: "--color-text", label: "text", light: "slate-900", dark: "slate-100" },
+      { token: "--color-text-muted", label: "text-muted", light: "slate-600", dark: "slate-400" },
+      { token: "--color-text-subtle", label: "text-subtle", light: "slate-400", dark: "slate-500" },
+      { token: "--color-text-inverted", label: "text-inverted", light: "white", dark: "slate-900" },
+      { token: "--color-text-accent", label: "text-accent", light: "blue-600", dark: "blue-400" },
     ],
   },
   {
     name: "Borders",
     colors: [
-      { token: "--color-border", label: "border" },
-      { token: "--color-border-strong", label: "border-strong" },
-      { token: "--color-border-subtle", label: "border-subtle" },
-      { token: "--color-border-accent", label: "border-accent" },
+      { token: "--color-border", label: "border", light: "slate-200", dark: "slate-700" },
+      {
+        token: "--color-border-strong",
+        label: "border-strong",
+        light: "slate-300",
+        dark: "slate-600",
+      },
+      {
+        token: "--color-border-subtle",
+        label: "border-subtle",
+        light: "slate-100",
+        dark: "slate-800",
+      },
+      {
+        token: "--color-border-accent",
+        label: "border-accent",
+        light: "blue-200",
+        dark: "blue-800",
+      },
     ],
   },
   {
     name: "Interactive",
     colors: [
-      { token: "--color-interactive", label: "interactive" },
-      { token: "--color-interactive-hover", label: "interactive-hover" },
-      { token: "--color-interactive-active", label: "interactive-active" },
-      { token: "--color-interactive-subtle", label: "interactive-subtle" },
+      { token: "--color-interactive", label: "interactive", light: "blue-500", dark: "blue-600" },
+      {
+        token: "--color-interactive-hover",
+        label: "interactive-hover",
+        light: "blue-600",
+        dark: "blue-500",
+      },
+      {
+        token: "--color-interactive-active",
+        label: "interactive-active",
+        light: "blue-700",
+        dark: "blue-700",
+      },
+      {
+        token: "--color-interactive-subtle",
+        label: "interactive-subtle",
+        light: "blue-50",
+        dark: "blue-950",
+      },
     ],
   },
   {
     name: "Status",
     colors: [
-      { token: "--color-danger", label: "danger" },
-      { token: "--color-danger-hover", label: "danger-hover" },
-      { token: "--color-danger-subtle", label: "danger-subtle" },
-      { token: "--color-success", label: "success" },
-      { token: "--color-success-hover", label: "success-hover" },
-      { token: "--color-success-subtle", label: "success-subtle" },
-      { token: "--color-warning", label: "warning" },
-      { token: "--color-warning-hover", label: "warning-hover" },
-      { token: "--color-warning-subtle", label: "warning-subtle" },
+      { token: "--color-danger", label: "danger", light: "red-500", dark: "red-600" },
+      { token: "--color-danger-hover", label: "danger-hover", light: "red-600", dark: "red-500" },
+      { token: "--color-danger-subtle", label: "danger-subtle", light: "red-50", dark: "red-950" },
+      { token: "--color-success", label: "success", light: "green-500", dark: "green-600" },
+      {
+        token: "--color-success-hover",
+        label: "success-hover",
+        light: "green-600",
+        dark: "green-500",
+      },
+      {
+        token: "--color-success-subtle",
+        label: "success-subtle",
+        light: "green-50",
+        dark: "green-950",
+      },
+      { token: "--color-warning", label: "warning", light: "amber-400", dark: "amber-500" },
+      {
+        token: "--color-warning-hover",
+        label: "warning-hover",
+        light: "amber-500",
+        dark: "amber-400",
+      },
+      {
+        token: "--color-warning-subtle",
+        label: "warning-subtle",
+        light: "amber-50",
+        dark: "amber-950",
+      },
     ],
   },
   {
     name: "Focus & Selection",
     colors: [
-      { token: "--color-focus-ring", label: "focus-ring" },
-      { token: "--color-selection", label: "selection" },
+      { token: "--color-focus-ring", label: "focus-ring", light: "blue-500", dark: "blue-400" },
+      { token: "--color-selection", label: "selection", light: "blue-100", dark: "blue-900" },
     ],
   },
 ];
@@ -307,7 +382,7 @@ function isLightText(hex: string): boolean {
             <div v-for="color in group.colors" :key="color.token" class="semantic-block">
               <div class="semantic-block__swatch" :style="{ background: `var(${color.token})` }" />
               <span class="semantic-block__label">{{ color.label }}</span>
-              <code class="semantic-block__token">{{ color.token }}</code>
+              <code class="semantic-block__ref">{{ isDark ? color.dark : color.light }}</code>
             </div>
           </div>
         </div>
@@ -318,7 +393,7 @@ function isLightText(hex: string): boolean {
 
 <style scoped>
 .demo-page {
-  max-width: 1100px;
+  --demo-page-max-width: 1100px;
 }
 
 /* Palette layout */
@@ -329,17 +404,19 @@ function isLightText(hex: string): boolean {
   width: 100%;
 }
 
-.color-palette__name {
-  margin: 0 0 0.5rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-}
+.color-palette {
+  .color-palette__name {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
 
-.color-palette__strip {
-  display: flex;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  .color-palette__strip {
+    display: flex;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
 }
 
 .color-swatch {
@@ -350,16 +427,16 @@ function isLightText(hex: string): boolean {
   align-items: center;
   gap: 0.125rem;
   min-width: 0;
-}
 
-.color-swatch__shade {
-  font-size: 0.6875rem;
-  font-weight: 600;
-}
+  .color-swatch__shade {
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
 
-.color-swatch__hex {
-  font-size: 0.5625rem;
-  font-family: var(--font-mono);
+  .color-swatch__hex {
+    font-size: 0.5625rem;
+    font-family: var(--font-mono);
+  }
 }
 
 /* Semantic groups */
@@ -370,19 +447,21 @@ function isLightText(hex: string): boolean {
   width: 100%;
 }
 
-.semantic-group__name {
-  margin: 0 0 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+.semantic-group {
+  .semantic-group__name {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-.semantic-group__grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  .semantic-group__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
 }
 
 .semantic-block {
@@ -390,24 +469,24 @@ function isLightText(hex: string): boolean {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-}
 
-.semantic-block__swatch {
-  width: 4rem;
-  height: 3rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-}
+  .semantic-block__swatch {
+    width: 4rem;
+    height: 3rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+  }
 
-.semantic-block__label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
+  .semantic-block__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 
-.semantic-block__token {
-  font-size: 0.5625rem;
-  color: var(--color-text-subtle);
-  font-family: var(--font-mono);
+  .semantic-block__ref {
+    font-size: 0.5625rem;
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
+  }
 }
 </style>

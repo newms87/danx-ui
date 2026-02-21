@@ -149,6 +149,7 @@ const transitions: Transition[] = [
           :style="{ boxShadow: `var(${s.token})` }"
         >
           <span class="semantic-shadow-card__name">{{ s.name }}</span>
+          <code class="semantic-shadow-card__token">{{ s.token }}</code>
           <span class="semantic-shadow-card__desc">{{ s.description }}</span>
         </div>
       </div>
@@ -181,6 +182,7 @@ const transitions: Transition[] = [
           :style="{ transition: `all var(${t.token})` }"
         >
           <span class="transition-card__name">{{ t.name }}</span>
+          <code class="transition-card__token">{{ t.token }}</code>
           <code class="transition-card__value">{{ t.value }}</code>
         </div>
       </div>
@@ -190,7 +192,7 @@ const transitions: Transition[] = [
 
 <style scoped>
 .demo-page {
-  max-width: 1100px;
+  --demo-page-max-width: 1100px;
 }
 
 /* Shadow cards */
@@ -211,17 +213,17 @@ const transitions: Transition[] = [
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-}
 
-.shadow-card__name {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
+  .shadow-card__name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
 
-.shadow-card__token {
-  font-size: 0.5rem;
-  color: var(--color-text-subtle);
+  .shadow-card__token {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+  }
 }
 
 /* Glow section */
@@ -245,17 +247,17 @@ const transitions: Transition[] = [
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-}
 
-.glow-card__name {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-slate-100);
-}
+  .glow-card__name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-slate-100);
+  }
 
-.glow-card__token {
-  font-size: 0.5rem;
-  color: var(--color-slate-400);
+  .glow-card__token {
+    font-size: 0.5rem;
+    color: var(--color-slate-400);
+  }
 }
 
 /* Semantic shadow comparison */
@@ -272,17 +274,22 @@ const transitions: Transition[] = [
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-}
 
-.semantic-shadow-card__name {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
+  .semantic-shadow-card__name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
 
-.semantic-shadow-card__desc {
-  font-size: 0.625rem;
-  color: var(--color-text-muted);
+  .semantic-shadow-card__token {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+  }
+
+  .semantic-shadow-card__desc {
+    font-size: 0.625rem;
+    color: var(--color-text-muted);
+  }
 }
 
 /* Gradients */
@@ -296,23 +303,23 @@ const transitions: Transition[] = [
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-}
 
-.gradient-strip__bar {
-  height: 2.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-}
+  .gradient-strip__bar {
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+  }
 
-.gradient-strip__name {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
+  .gradient-strip__name {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 
-.gradient-strip__token {
-  font-size: 0.5rem;
-  color: var(--color-text-subtle);
+  .gradient-strip__token {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+  }
 }
 
 /* Transitions */
@@ -350,6 +357,15 @@ const transitions: Transition[] = [
 
   .transition-card:hover & {
     color: var(--color-text-inverted);
+  }
+}
+
+.transition-card__token {
+  font-size: 0.5rem;
+  color: var(--color-text-subtle);
+
+  .transition-card:hover & {
+    color: rgb(255 255 255 / 0.7);
   }
 }
 

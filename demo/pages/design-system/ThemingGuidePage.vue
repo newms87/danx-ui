@@ -195,7 +195,7 @@ import replaceCode from "./theming-examples/ReplaceExample.vue?raw";
 
 <style scoped>
 .demo-page {
-  max-width: 1100px;
+  --demo-page-max-width: 1100px;
 }
 
 /* Architecture diagram */

@@ -25,7 +25,7 @@
   --color-text: var(--color-slate-100);
   --color-text-muted: var(--color-slate-400);
   --color-text-subtle: var(--color-slate-500);
-  --color-text-inverted: var(--color-white);
+  --color-text-inverted: var(--color-slate-900);
   --color-text-accent: var(--color-blue-400);
 
   /* ==========================================================================

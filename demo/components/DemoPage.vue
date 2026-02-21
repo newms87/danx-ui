@@ -21,8 +21,9 @@
  *     <DemoSection title="Basic" :code="basicCode" />
  *   </DemoPage>
  */
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, computed } from "vue";
 import { MarkdownEditor } from "danx-ui";
+import { useIsDark } from "../composables/useIsDark";
 
 const props = withDefaults(
   defineProps<{
@@ -38,23 +39,7 @@ const activeTab = ref<Tab>("examples");
 
 const hasDocs = computed(() => props.docs.length > 0);
 
-const isDark = ref(document.documentElement.classList.contains("dark"));
-let observer: MutationObserver | null = null;
-
-onMounted(() => {
-  observer = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains("dark");
-  });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
-});
-
-onUnmounted(() => {
-  observer?.disconnect();
-});
-
+const { isDark } = useIsDark();
 const isLightTheme = computed(() => !isDark.value);
 </script>
 
@@ -97,7 +82,7 @@ const isLightTheme = computed(() => !isDark.value);
 
 <style scoped>
 .demo-page {
-  max-width: 900px;
+  max-width: var(--demo-page-max-width, 900px);
 }
 
 .demo-page h1 {

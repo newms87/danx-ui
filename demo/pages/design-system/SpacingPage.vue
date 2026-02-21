@@ -114,6 +114,7 @@ const zIndexScale: ZIndex[] = [
           <div class="spacing-row__bar-track">
             <div class="spacing-row__bar" :style="{ width: `var(${s.token})` }" />
           </div>
+          <code class="spacing-row__token">{{ s.token }}</code>
           <code class="spacing-row__value">{{ s.rem }}</code>
         </div>
       </div>
@@ -193,7 +194,7 @@ const zIndexScale: ZIndex[] = [
 
 <style scoped>
 .demo-page {
-  max-width: 1100px;
+  --demo-page-max-width: 1100px;
 }
 
 /* Spacing scale */
@@ -208,17 +209,46 @@ const zIndexScale: ZIndex[] = [
   display: flex;
   align-items: center;
   gap: 0.75rem;
+
+  .spacing-row__name {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    min-width: 2rem;
+    text-align: right;
+    font-family: var(--font-mono);
+  }
+
+  .spacing-row__bar-track {
+    flex: 1;
+    height: 1.25rem;
+    background: var(--color-surface-sunken);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .spacing-row__bar {
+    height: 100%;
+    min-width: 1px;
+    background: var(--color-interactive);
+    border-radius: var(--radius-sm);
+    transition: width 0.2s ease;
+  }
+
+  .spacing-row__token {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+    min-width: 8rem;
+  }
+
+  .spacing-row__value {
+    font-size: 0.5625rem;
+    color: var(--color-text-subtle);
+    min-width: 4rem;
+  }
 }
 
-.spacing-row__name {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  min-width: 2rem;
-  text-align: right;
-  font-family: var(--font-mono);
-}
-
+/* BEM modifiers — top-level per project rules */
 .spacing-row__name--semantic {
   min-width: 2rem;
   font-family: var(--font-sans);
@@ -226,30 +256,8 @@ const zIndexScale: ZIndex[] = [
   color: var(--color-interactive);
 }
 
-.spacing-row__bar-track {
-  flex: 1;
-  height: 1.25rem;
-  background: var(--color-surface-sunken);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.spacing-row__bar {
-  height: 100%;
-  min-width: 1px;
-  background: var(--color-interactive);
-  border-radius: var(--radius-sm);
-  transition: width 0.2s ease;
-}
-
 .spacing-row__bar--semantic {
   background: var(--color-interactive-hover);
-}
-
-.spacing-row__value {
-  font-size: 0.5625rem;
-  color: var(--color-text-subtle);
-  min-width: 10rem;
 }
 
 /* Border radii */
@@ -258,21 +266,21 @@ const zIndexScale: ZIndex[] = [
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
-}
 
-.radii-section__label {
-  margin: 0 0 0.75rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+  .radii-section__label {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-.radii-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  .radii-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
 }
 
 .radius-block {
@@ -280,24 +288,24 @@ const zIndexScale: ZIndex[] = [
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-}
 
-.radius-block__square {
-  width: 3.5rem;
-  height: 3.5rem;
-  background: var(--color-interactive);
-  opacity: 0.8;
-}
+  .radius-block__square {
+    width: 3.5rem;
+    height: 3.5rem;
+    background: var(--color-interactive);
+    opacity: 0.8;
+  }
 
-.radius-block__name {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
+  .radius-block__name {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 
-.radius-block__value {
-  font-size: 0.5rem;
-  color: var(--color-text-subtle);
+  .radius-block__value {
+    font-size: 0.5rem;
+    color: var(--color-text-subtle);
+  }
 }
 
 /* Z-index */
@@ -320,16 +328,16 @@ const zIndexScale: ZIndex[] = [
   justify-content: center;
   gap: 0.125rem;
   box-shadow: var(--shadow-md);
-}
 
-.z-layer__label {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-interactive);
-}
+  .z-layer__label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-interactive);
+  }
 
-.z-layer__token {
-  font-size: 0.5625rem;
-  color: var(--color-text-subtle);
+  .z-layer__token {
+    font-size: 0.5625rem;
+    color: var(--color-text-subtle);
+  }
 }
 </style>

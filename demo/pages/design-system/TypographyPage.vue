@@ -148,7 +148,7 @@ const multilineText =
 
 <style scoped>
 .demo-page {
-  max-width: 1100px;
+  --demo-page-max-width: 1100px;
 }
 
 /* Font families */
