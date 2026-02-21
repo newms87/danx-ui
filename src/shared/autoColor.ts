@@ -21,7 +21,7 @@ export interface AutoColorEntry {
   bg: string;
   /** Light-mode text (shade-700) */
   text: string;
-  /** Dark-mode background (shade-600) */
+  /** Dark-mode background (shade-500) */
   darkBg: string;
   /** Dark-mode text (shade-50) */
   darkText: string;
@@ -38,14 +38,14 @@ export interface AutoColorEntry {
 /**
  * 14-color palette derived from Tailwind chromatic families.
  * Each entry provides light and dark mode background/text pairs
- * using shade-100/700 for light mode and shade-600/50 for dark mode.
+ * using shade-100/700 for light mode and shade-500/50 for dark mode.
  */
 export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   // sky
   {
     bg: "#e0f2fe",
     text: "#0369a1",
-    darkBg: "#0284c7",
+    darkBg: "#0ea5e9",
     darkText: "#f0f9ff",
     inactiveBg: "#f0f9ff",
     inactiveText: "#38bdf8",
@@ -56,7 +56,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#dbeafe",
     text: "#1d4ed8",
-    darkBg: "#2563eb",
+    darkBg: "#3b82f6",
     darkText: "#eff6ff",
     inactiveBg: "#eff6ff",
     inactiveText: "#60a5fa",
@@ -67,7 +67,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#e0e7ff",
     text: "#4338ca",
-    darkBg: "#4f46e5",
+    darkBg: "#6366f1",
     darkText: "#eef2ff",
     inactiveBg: "#eef2ff",
     inactiveText: "#818cf8",
@@ -78,7 +78,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#f3e8ff",
     text: "#7c3aed",
-    darkBg: "#9333ea",
+    darkBg: "#a855f7",
     darkText: "#faf5ff",
     inactiveBg: "#faf5ff",
     inactiveText: "#a78bfa",
@@ -89,7 +89,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#ede9fe",
     text: "#6d28d9",
-    darkBg: "#7c3aed",
+    darkBg: "#8b5cf6",
     darkText: "#f5f3ff",
     inactiveBg: "#f5f3ff",
     inactiveText: "#a78bfa",
@@ -100,7 +100,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#fae8ff",
     text: "#a21caf",
-    darkBg: "#c026d3",
+    darkBg: "#d946ef",
     darkText: "#fdf4ff",
     inactiveBg: "#fdf4ff",
     inactiveText: "#e879f9",
@@ -111,7 +111,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#ffe4e6",
     text: "#be123c",
-    darkBg: "#e11d48",
+    darkBg: "#f43f5e",
     darkText: "#fff1f2",
     inactiveBg: "#fff1f2",
     inactiveText: "#fb7185",
@@ -122,7 +122,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#ffedd5",
     text: "#c2410c",
-    darkBg: "#ea580c",
+    darkBg: "#f97316",
     darkText: "#fff7ed",
     inactiveBg: "#fff7ed",
     inactiveText: "#fb923c",
@@ -133,7 +133,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#fef3c7",
     text: "#b45309",
-    darkBg: "#d97706",
+    darkBg: "#f59e0b",
     darkText: "#fffbeb",
     inactiveBg: "#fffbeb",
     inactiveText: "#fbbf24",
@@ -144,7 +144,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#ecfccb",
     text: "#4d7c0f",
-    darkBg: "#65a30d",
+    darkBg: "#84cc16",
     darkText: "#f7fee7",
     inactiveBg: "#f7fee7",
     inactiveText: "#a3e635",
@@ -155,7 +155,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#dcfce7",
     text: "#15803d",
-    darkBg: "#16a34a",
+    darkBg: "#22c55e",
     darkText: "#f0fdf4",
     inactiveBg: "#f0fdf4",
     inactiveText: "#4ade80",
@@ -166,7 +166,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#d1fae5",
     text: "#047857",
-    darkBg: "#059669",
+    darkBg: "#10b981",
     darkText: "#ecfdf5",
     inactiveBg: "#ecfdf5",
     inactiveText: "#34d399",
@@ -177,7 +177,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#ccfbf1",
     text: "#0f766e",
-    darkBg: "#0d9488",
+    darkBg: "#14b8a6",
     darkText: "#f0fdfa",
     inactiveBg: "#f0fdfa",
     inactiveText: "#2dd4bf",
@@ -188,7 +188,7 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   {
     bg: "#cffafe",
     text: "#0e7490",
-    darkBg: "#0891b2",
+    darkBg: "#06b6d4",
     darkText: "#ecfeff",
     inactiveBg: "#ecfeff",
     inactiveText: "#22d3ee",

@@ -9,6 +9,14 @@ const buttons = [
   { value: "Approved", label: "Approved" },
   { value: "Rejected", label: "Rejected" },
   { value: "In Review", label: "In Review" },
+  { value: "Draft", label: "Draft" },
+  { value: "Published", label: "Published" },
+  { value: "Archived", label: "Archived" },
+  { value: "Cancelled", label: "Cancelled" },
+  { value: "On Hold", label: "On Hold" },
+  { value: "Active", label: "Active" },
+  { value: "Completed", label: "Completed" },
+  { value: "Scheduled", label: "Scheduled" },
 ];
 </script>
 
