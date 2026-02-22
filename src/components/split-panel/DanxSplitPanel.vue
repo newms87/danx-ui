@@ -77,7 +77,7 @@ const { panelStates, togglePanel, isActive, startResize, isResizing } = useSplit
 </script>
 
 <template>
-  <div>
+  <div class="danx-split-panel-root">
     <slot name="toggles" :panels="panels" :is-active="isActive" :toggle="togglePanel" />
 
     <div
