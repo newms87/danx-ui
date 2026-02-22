@@ -76,6 +76,9 @@ watch(theme, (newTheme) => {
             <li>
               <RouterLink to="/design/theming" class="demo-sidebar__link">Theming Guide</RouterLink>
             </li>
+            <li>
+              <RouterLink to="/design/variants" class="demo-sidebar__link">Variants</RouterLink>
+            </li>
           </ul>
         </li>
         <li>

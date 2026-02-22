@@ -24,6 +24,7 @@ import TypographyPage from "./pages/design-system/TypographyPage.vue";
 import SpacingPage from "./pages/design-system/SpacingPage.vue";
 import ShadowsPage from "./pages/design-system/ShadowsPage.vue";
 import ThemingGuidePage from "./pages/design-system/ThemingGuidePage.vue";
+import VariantsPage from "./pages/design-system/VariantsPage.vue";
 
 // Import global styles
 import "../src/styles.css";
@@ -54,6 +55,7 @@ const router = createRouter({
     { path: "/design/spacing", name: "design-spacing", component: SpacingPage },
     { path: "/design/shadows", name: "design-shadows", component: ShadowsPage },
     { path: "/design/theming", name: "design-theming", component: ThemingGuidePage },
+    { path: "/design/variants", name: "design-variants", component: VariantsPage },
   ],
 });
 
