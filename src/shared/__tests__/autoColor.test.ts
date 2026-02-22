@@ -24,9 +24,9 @@ describe("hashStringToIndex", () => {
     }
   });
 
-  it("returns 0 for empty string", () => {
-    // 0 % count = 0
-    expect(hashStringToIndex("", 14)).toBe(0);
+  it("returns deterministic index for empty string", () => {
+    // FNV-1a offset basis through murmur3 finalizer, mod 14
+    expect(hashStringToIndex("", 14)).toBe(11);
   });
 
   it("produces different indices for different strings", () => {
@@ -47,6 +47,399 @@ describe("hashStringToIndex", () => {
 
   it("works with count of 1", () => {
     expect(hashStringToIndex("anything", 1)).toBe(0);
+  });
+});
+
+describe("hashStringToIndex distribution", () => {
+  /**
+   * Generate a large corpus of realistic words/phrases and verify that
+   * hashStringToIndex distributes them evenly across all 14 palette buckets.
+   * Tolerance: no bucket may deviate more than ±10% from the median count.
+   *
+   * Uses combinatorial word lists (adjective+noun, verb+noun, name+status, etc.)
+   * to produce 10,000 distinct strings that mimic real-world auto-color inputs.
+   */
+  it("distributes 10,000 words evenly across all 14 buckets (±10% tolerance from median)", () => {
+    // Word pools for generating diverse combinations
+    const adjectives = [
+      "big",
+      "small",
+      "fast",
+      "slow",
+      "new",
+      "old",
+      "hot",
+      "cold",
+      "red",
+      "blue",
+      "dark",
+      "light",
+      "good",
+      "bad",
+      "long",
+      "short",
+      "wide",
+      "thin",
+      "deep",
+      "flat",
+      "soft",
+      "hard",
+      "dry",
+      "wet",
+      "raw",
+      "rich",
+      "poor",
+      "safe",
+      "wild",
+      "calm",
+      "bold",
+      "bright",
+      "clean",
+      "crisp",
+      "dull",
+      "eager",
+      "fair",
+      "fresh",
+      "grand",
+      "keen",
+    ]; // 40
+
+    const nouns = [
+      "cat",
+      "dog",
+      "car",
+      "box",
+      "cup",
+      "key",
+      "map",
+      "pen",
+      "bag",
+      "hat",
+      "book",
+      "door",
+      "fish",
+      "lamp",
+      "moon",
+      "ring",
+      "ship",
+      "tree",
+      "wall",
+      "bell",
+      "bird",
+      "cake",
+      "coin",
+      "drum",
+      "flag",
+      "gift",
+      "hill",
+      "iron",
+      "jade",
+      "knot",
+      "lake",
+      "mask",
+      "nest",
+      "opal",
+      "pool",
+      "quiz",
+      "rope",
+      "seed",
+      "tile",
+      "vine",
+    ]; // 40
+
+    const verbs = [
+      "run",
+      "jump",
+      "swim",
+      "walk",
+      "fly",
+      "climb",
+      "push",
+      "pull",
+      "read",
+      "write",
+      "sing",
+      "dance",
+      "cook",
+      "draw",
+      "play",
+      "build",
+      "break",
+      "shake",
+      "throw",
+      "catch",
+      "spin",
+      "lift",
+      "drop",
+      "fold",
+      "pour",
+      "mix",
+      "chop",
+      "wrap",
+      "peel",
+      "slice",
+    ]; // 30
+
+    const statuses = [
+      "Pending",
+      "Approved",
+      "Rejected",
+      "Draft",
+      "Published",
+      "Archived",
+      "In Review",
+      "Completed",
+      "Cancelled",
+      "On Hold",
+      "Active",
+      "Inactive",
+      "New",
+      "Open",
+      "Closed",
+      "Resolved",
+      "Blocked",
+      "Deferred",
+      "Scheduled",
+      "Running",
+      "Paused",
+      "Failed",
+      "Success",
+      "Warning",
+      "Error",
+      "Critical",
+      "Low",
+      "Medium",
+      "High",
+      "Urgent",
+      "None",
+      "Default",
+      "Custom",
+      "Ready",
+    ]; // 34
+
+    const names = [
+      "Alice",
+      "Bob",
+      "Charlie",
+      "Diana",
+      "Eve",
+      "Frank",
+      "Grace",
+      "Henry",
+      "Iris",
+      "Jack",
+      "Kate",
+      "Leo",
+      "Mia",
+      "Noah",
+      "Olivia",
+      "Peter",
+      "Quinn",
+      "Rosa",
+      "Sam",
+      "Tina",
+      "Uma",
+      "Victor",
+      "Wendy",
+      "Xander",
+      "Yara",
+      "Zoe",
+      "Adam",
+      "Beth",
+      "Carl",
+      "Dora",
+      "Eric",
+      "Fiona",
+      "Gwen",
+      "Hugo",
+      "Isla",
+      "Joel",
+      "Kira",
+      "Luke",
+      "Nora",
+      "Owen",
+    ]; // 40
+
+    const categories = [
+      "Technology",
+      "Science",
+      "Art",
+      "Music",
+      "Sports",
+      "Health",
+      "Finance",
+      "Education",
+      "Travel",
+      "Food",
+      "Fashion",
+      "Nature",
+      "History",
+      "Culture",
+      "Politics",
+      "Business",
+      "Entertainment",
+      "Gaming",
+      "Photography",
+      "Design",
+      "Engineering",
+      "Marketing",
+      "Sales",
+      "Support",
+      "Legal",
+      "HR",
+      "Operations",
+      "Research",
+      "Analytics",
+      "Security",
+      "DevOps",
+      "Testing",
+      "Billing",
+      "Shipping",
+    ]; // 34
+
+    const colors = [
+      "red",
+      "orange",
+      "yellow",
+      "green",
+      "blue",
+      "indigo",
+      "violet",
+      "pink",
+      "brown",
+      "gray",
+      "white",
+      "black",
+      "gold",
+      "silver",
+      "teal",
+      "coral",
+      "navy",
+      "maroon",
+      "olive",
+      "cyan",
+      "magenta",
+      "tan",
+      "plum",
+      "mint",
+    ]; // 24
+
+    const places = [
+      "Tokyo",
+      "Paris",
+      "London",
+      "Berlin",
+      "Sydney",
+      "Cairo",
+      "Lima",
+      "Oslo",
+      "Rome",
+      "Delhi",
+      "Seoul",
+      "Lisbon",
+      "Prague",
+      "Dublin",
+      "Vienna",
+      "Zurich",
+      "Milan",
+      "Athens",
+      "Warsaw",
+      "Boston",
+      "Denver",
+      "Austin",
+      "Portland",
+      "Memphis",
+    ]; // 24
+
+    const words = new Set<string>();
+
+    // Standalone words from every pool (~266)
+    for (const pool of [adjectives, nouns, verbs, statuses, names, categories, colors, places]) {
+      for (const w of pool) words.add(w);
+    }
+
+    // adjective + noun (40×40 = 1,600)
+    for (const adj of adjectives) {
+      for (const noun of nouns) words.add(`${adj} ${noun}`);
+    }
+
+    // verb + noun (30×40 = 1,200)
+    for (const verb of verbs) {
+      for (const noun of nouns) words.add(`${verb} ${noun}`);
+    }
+
+    // name + status (40×34 = 1,360)
+    for (const name of names) {
+      for (const status of statuses) words.add(`${name} ${status}`);
+    }
+
+    // category + color (34×24 = 816)
+    for (const cat of categories) {
+      for (const color of colors) words.add(`${cat} ${color}`);
+    }
+
+    // place + category (24×34 = 816)
+    for (const place of places) {
+      for (const cat of categories) words.add(`${place} ${cat}`);
+    }
+
+    // color + noun (24×40 = 960)
+    for (const color of colors) {
+      for (const noun of nouns) words.add(`${color} ${noun}`);
+    }
+
+    // adjective + noun + verb — three-word phrases (40×40×10 = partial slice for variety)
+    for (const adj of adjectives) {
+      for (const noun of nouns) {
+        for (const verb of verbs.slice(0, 10)) words.add(`${adj} ${noun} ${verb}`);
+      }
+    }
+
+    // Take exactly 10,000 unique strings
+    const uniqueWords = [...words].slice(0, 10_000);
+    expect(uniqueWords.length).toBe(10_000);
+
+    // Count how many strings land in each bucket
+    const bucketCount = AUTO_COLOR_PALETTE.length; // 14
+    const buckets = new Array(bucketCount).fill(0) as number[];
+
+    for (const word of uniqueWords) {
+      const idx = hashStringToIndex(word, bucketCount);
+      buckets[idx]++;
+    }
+
+    // Calculate median
+    const sorted = [...buckets].sort((a, b) => a - b);
+    const median =
+      sorted.length % 2 === 0
+        ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
+        : sorted[Math.floor(sorted.length / 2)]!;
+
+    // Every bucket must be within ±10% of the median
+    const tolerance = 0.1;
+    const lowerBound = median * (1 - tolerance);
+    const upperBound = median * (1 + tolerance);
+
+    const distribution = buckets.map((count, i) => ({
+      bucket: i,
+      count,
+      pctFromMedian: (((count - median) / median) * 100).toFixed(1) + "%",
+    }));
+
+    for (const { bucket, count, pctFromMedian } of distribution) {
+      expect(
+        count,
+        `Bucket ${bucket} has ${count} items (${pctFromMedian} from median ${median}). ` +
+          `Expected ${lowerBound.toFixed(1)}–${upperBound.toFixed(1)}. ` +
+          `Full distribution: ${buckets.join(", ")}`
+      ).toBeGreaterThanOrEqual(lowerBound);
+      expect(
+        count,
+        `Bucket ${bucket} has ${count} items (${pctFromMedian} from median ${median}). ` +
+          `Expected ${lowerBound.toFixed(1)}–${upperBound.toFixed(1)}. ` +
+          `Full distribution: ${buckets.join(", ")}`
+      ).toBeLessThanOrEqual(upperBound);
+    }
   });
 });
 
@@ -104,7 +497,7 @@ describe("useAutoColor", () => {
 
   it("different values produce different styles", () => {
     const a = useAutoColor("Pending");
-    const b = useAutoColor("Rejected");
+    const b = useAutoColor("Approved");
     // These hash to different indices, so styles differ
     expect(a.colorIndex.value).not.toBe(b.colorIndex.value);
     expect(a.style.value).not.toEqual(b.style.value);
@@ -144,9 +537,9 @@ describe("useAutoColor", () => {
     const { colorIndex: idxA } = useAutoColor(label);
     const firstIndex = idxA.value;
 
-    label.value = "Rejected";
+    label.value = "Draft";
     // After changing the ref, colorIndex should update
-    expect(idxA.value).toBe(hashStringToIndex("Rejected", AUTO_COLOR_PALETTE.length));
+    expect(idxA.value).toBe(hashStringToIndex("Draft", AUTO_COLOR_PALETTE.length));
     // Ensure it actually changed (these strings hash differently)
     expect(idxA.value).not.toBe(firstIndex);
   });

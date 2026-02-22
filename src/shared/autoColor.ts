@@ -80,14 +80,24 @@ export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
 
 /**
  * Hash a string to an index in range [0, count).
- * Sums character codes and returns modulo count. Pure function.
+ * Uses FNV-1a with a murmur3 finalizer for even distribution. Pure function.
  */
 export function hashStringToIndex(value: string, count: number): number {
-  let sum = 0;
+  // FNV-1a core
+  let h = 0x811c9dc5;
   for (let i = 0; i < value.length; i++) {
-    sum += value.charCodeAt(i);
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
   }
-  return sum % count;
+  // Mix in length to break symmetry for anagram-like inputs
+  h ^= value.length;
+  // Murmur3 32-bit finalizer — avalanche all bits
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+  return (h >>> 0) % count;
 }
 
 /**
