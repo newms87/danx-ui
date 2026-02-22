@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from "vue";
+
 const panels = [
   { id: "left", label: "Left", defaultWidth: 50 },
   { id: "right", label: "Right", defaultWidth: 50 },

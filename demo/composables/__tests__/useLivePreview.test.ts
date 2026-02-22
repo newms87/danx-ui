@@ -172,6 +172,26 @@ const label = "hello";`;
     const { bindings } = parseScript(script);
     expect(bindings).toHaveProperty("MarkdownEditor");
   });
+
+  it("handles multi-line imports", () => {
+    const script = `import {
+  ref,
+  computed
+} from "vue";
+const count = ref(0);`;
+    const { bindings, body } = parseScript(script);
+    expect(bindings).toHaveProperty("ref");
+    expect(bindings).toHaveProperty("computed");
+    expect(body).toBe("const count = ref(0);");
+  });
+
+  it("ignores unknown default imports gracefully", () => {
+    const script = `import unknownDefault from "unknown-module";
+const x = 1;`;
+    const { bindings, body } = parseScript(script);
+    expect(bindings).not.toHaveProperty("unknownDefault");
+    expect(body).toBe("const x = 1;");
+  });
 });
 
 describe("findDeclaredNames", () => {
