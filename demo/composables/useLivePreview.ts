@@ -4,9 +4,11 @@
  * Uses Vue 3's runtime template compiler (requires vue/dist/vue.esm-bundler.js)
  * to turn user-edited SFC strings into rendered components in real-time.
  *
- * Supports full SFC format with both <template> and <script setup> blocks.
+ * Supports full SFC format with <template>, <script setup>, and <style> blocks.
  * Template edits update the rendered output. Script edits re-evaluate bindings
- * (reactive state, functions, imports) via dynamic evaluation.
+ * (reactive state, functions, imports) via dynamic evaluation. Style blocks are
+ * injected into the document head as global CSS (scoped attribute is stripped
+ * since runtime-compiled components can't use Vue's scoping mechanism).
  *
  * Imports are resolved from AVAILABLE_VALUES — a flat registry of everything
  * the demo environment provides (Vue APIs, components, assets).
@@ -23,6 +25,7 @@ import {
   type Ref,
   computed,
   defineComponent,
+  onScopeDispose,
   reactive,
   ref,
   shallowRef,
@@ -270,6 +273,17 @@ export function extractScript(source: string): string | null {
 }
 
 /**
+ * Extract the inner content of all <style> blocks from an SFC string.
+ * Strips the `scoped` attribute since runtime-compiled components can't
+ * use Vue's scoping mechanism. Returns null if no style blocks are found.
+ */
+export function extractStyle(source: string): string | null {
+  const matches = [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)];
+  if (matches.length === 0) return null;
+  return matches.map((m) => m[1]!.trim()).join("\n\n");
+}
+
+/**
  * Parse import statements from a script block.
  * Resolves imported names from AVAILABLE_VALUES and returns
  * the resolved bindings plus the remaining script body.
@@ -366,19 +380,38 @@ export function buildSetup(script: string): (() => Record<string, unknown>) | nu
   }
 }
 
+/** Counter for generating unique style element IDs */
+let styleIdCounter = 0;
+
 export function useLivePreview(code: Ref<string>): {
   component: Ref<Component | null>;
   error: Ref<string | null>;
 } {
   const component = shallowRef<Component | null>(null);
   const error = shallowRef<string | null>(null);
+  const styleId = `danx-live-preview-${++styleIdCounter}`;
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function injectStyle(css: string | null) {
+    let el = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!css) {
+      el?.remove();
+      return;
+    }
+    if (!el) {
+      el = document.createElement("style");
+      el.id = styleId;
+      document.head.appendChild(el);
+    }
+    el.textContent = css;
+  }
 
   function compile(source: string) {
     try {
       const template = extractTemplate(source);
       const script = extractScript(source);
+      const style = extractStyle(source);
 
       let setup: (() => Record<string, unknown>) | undefined;
       if (script) {
@@ -392,6 +425,7 @@ export function useLivePreview(code: Ref<string>): {
       });
       component.value = compiled;
       error.value = null;
+      injectStyle(style);
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
     }
@@ -404,6 +438,12 @@ export function useLivePreview(code: Ref<string>): {
   watch(code, (newCode) => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => compile(newCode), DEBOUNCE_MS);
+  });
+
+  // Clean up injected style on scope disposal
+  onScopeDispose(() => {
+    clearTimeout(debounceTimer);
+    document.getElementById(styleId)?.remove();
   });
 
   return { component, error };

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildSetup,
   extractScript,
+  extractStyle,
   extractTemplate,
   findDeclaredNames,
   parseScript,
@@ -63,6 +64,55 @@ const count = ref(0);
   it("handles script with attributes", () => {
     const source = `<script setup>const x = 1;</script>`;
     expect(extractScript(source)).toBe("const x = 1;");
+  });
+});
+
+describe("extractStyle", () => {
+  it("returns CSS content inside <style> tags", () => {
+    const source = `<template><div /></template>
+<style>.foo { color: red; }</style>`;
+    expect(extractStyle(source)).toBe(".foo { color: red; }");
+  });
+
+  it("returns null when no <style> block found", () => {
+    expect(extractStyle("<template><div /></template>")).toBeNull();
+  });
+
+  it("handles <style scoped>", () => {
+    const source = `<template><div /></template>
+<style scoped>.foo { color: red; }</style>`;
+    expect(extractStyle(source)).toBe(".foo { color: red; }");
+  });
+
+  it("concatenates multiple style blocks", () => {
+    const source = `<template><div /></template>
+<style>:root { --x: 1; }</style>
+<style>.foo { color: red; }</style>`;
+    const result = extractStyle(source)!;
+    expect(result).toContain(":root { --x: 1; }");
+    expect(result).toContain(".foo { color: red; }");
+  });
+
+  it("trims whitespace from style content", () => {
+    const source = `<style>
+  .foo { color: red; }
+</style>`;
+    expect(extractStyle(source)).toBe(".foo { color: red; }");
+  });
+
+  it("handles compound attributes on style tag", () => {
+    const source = `<style scoped lang="css">.foo { color: red; }</style>`;
+    expect(extractStyle(source)).toBe(".foo { color: red; }");
+  });
+
+  it("returns empty string for empty style block", () => {
+    const source = `<style>   </style>`;
+    expect(extractStyle(source)).toBe("");
+  });
+
+  it("handles CSS child combinator selectors", () => {
+    const source = `<style>.parent > .child { color: red; }</style>`;
+    expect(extractStyle(source)).toBe(".parent > .child { color: red; }");
   });
 });
 

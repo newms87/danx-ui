@@ -3,28 +3,6 @@ import { ref } from "vue";
 import { DanxButton, DanxChip, DanxBadge } from "danx-ui";
 
 var isDark = ref(false);
-
-/* Approach A: Reference semantic tokens.
-   --color-interactive already has light/dark definitions,
-   so the variant inherits dark mode for free. */
-var oceanTokens = {
-  "--dx-variant-ocean-bg": "var(--color-interactive)",
-  "--dx-variant-ocean-bg-hover": "var(--color-interactive-hover)",
-  "--dx-variant-ocean-text": "var(--color-text-inverted)",
-};
-
-/* Approach B: Explicit light and dark values.
-   We toggle between two token sets based on isDark. */
-var sunsetLightTokens = {
-  "--dx-variant-sunset-bg": "oklch(0.65 0.2 30)",
-  "--dx-variant-sunset-bg-hover": "oklch(0.6 0.22 30)",
-  "--dx-variant-sunset-text": "white",
-};
-var sunsetDarkTokens = {
-  "--dx-variant-sunset-bg": "oklch(0.5 0.15 50)",
-  "--dx-variant-sunset-bg-hover": "oklch(0.55 0.17 50)",
-  "--dx-variant-sunset-text": "oklch(0.95 0.02 80)",
-};
 </script>
 
 <template>
@@ -52,11 +30,7 @@ var sunsetDarkTokens = {
       <span class="mode-label">{{ isDark ? "Dark Mode" : "Light Mode" }}</span>
     </div>
 
-    <div
-      class="preview-wrapper"
-      :class="{ dark: isDark }"
-      :style="{ ...oceanTokens, ...(isDark ? sunsetDarkTokens : sunsetLightTokens) }"
-    >
+    <div class="preview-wrapper" :class="{ dark: isDark }">
       <div class="preview-row">
         <span class="preview-label">ocean (Approach A)</span>
         <DanxButton variant="ocean">Ocean</DanxButton>
@@ -78,7 +52,30 @@ var sunsetDarkTokens = {
   </div>
 </template>
 
-<style scoped>
+<style>
+/* Approach A: Semantic token references.
+   --color-interactive already has light/dark definitions,
+   so the variant inherits dark mode for free. */
+:root {
+  --dx-variant-ocean-bg: var(--color-interactive);
+  --dx-variant-ocean-bg-hover: var(--color-interactive-hover);
+  --dx-variant-ocean-text: var(--color-text-inverted);
+}
+
+/* Approach B: Explicit light and dark definitions.
+   Warm coral in light mode, deep amber in dark mode. */
+:root {
+  --dx-variant-sunset-bg: oklch(0.65 0.2 30);
+  --dx-variant-sunset-bg-hover: oklch(0.6 0.22 30);
+  --dx-variant-sunset-text: white;
+}
+
+.dark {
+  --dx-variant-sunset-bg: oklch(0.5 0.15 50);
+  --dx-variant-sunset-bg-hover: oklch(0.55 0.17 50);
+  --dx-variant-sunset-text: oklch(0.95 0.02 80);
+}
+
 .dark-mode-demo {
   display: flex;
   flex-direction: column;

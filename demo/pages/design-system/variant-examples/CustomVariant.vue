@@ -1,26 +1,9 @@
 <script setup lang="ts">
 import { DanxButton, DanxChip, DanxBadge } from "danx-ui";
-
-/* Define custom variant tokens as inline styles.
-   In your app, you'd put these in a :root CSS block:
-     :root {
-       --dx-variant-brand-bg: oklch(0.55 0.2 280);
-       --dx-variant-brand-bg-hover: oklch(0.5 0.22 280);
-       --dx-variant-brand-text: white;
-     }
-*/
-var brandTokens = {
-  /* Background color for the variant */
-  "--dx-variant-brand-bg": "oklch(0.55 0.2 280)",
-  /* Hover state — slightly lighter or darker */
-  "--dx-variant-brand-bg-hover": "oklch(0.5 0.22 280)",
-  /* Text color — ensure contrast against the background */
-  "--dx-variant-brand-text": "white",
-};
 </script>
 
 <template>
-  <div class="custom-variant-demo" :style="brandTokens">
+  <div class="custom-variant-demo">
     <p class="step-intro">
       Define a custom <code>"brand"</code> variant by setting three CSS tokens. Then use
       <code>variant="brand"</code> on any component:
@@ -36,7 +19,25 @@ var brandTokens = {
   </div>
 </template>
 
-<style scoped>
+<style>
+/* Step 1: Define your custom variant tokens.
+   Use the --dx-variant-{name}-* pattern.
+   These three tokens are the minimum needed: */
+:root {
+  /* Background color for the variant */
+  --dx-variant-brand-bg: oklch(0.55 0.2 280);
+
+  /* Hover state — slightly lighter or darker */
+  --dx-variant-brand-bg-hover: oklch(0.5 0.22 280);
+
+  /* Text color — ensure contrast against the background */
+  --dx-variant-brand-text: white;
+}
+
+/* Step 2: That's it! Use variant="brand" on any component.
+   The tokens above apply to Button, Chip, Badge, ProgressBar,
+   and Tooltip automatically. */
+
 .custom-variant-demo {
   display: flex;
   flex-direction: column;

@@ -31,6 +31,15 @@ The demo's live-editable code examples use `demo/composables/useLivePreview.ts` 
 - Adding a new composable/function → add to `AVAILABLE_VALUES`
 - Adding a new constant/icon → add to `AVAILABLE_VALUES`
 
+## Style Blocks Are Supported
+
+`useLivePreview` extracts `<style>` blocks and injects them into the document head as global CSS. The `scoped` attribute is stripped since runtime-compiled components can't use Vue's scoping mechanism.
+
+- Use `<style>` (not `<style scoped>`) in demo examples for clarity — scoped has no effect in live preview
+- `:root` selectors work for defining CSS custom properties (e.g., variant tokens)
+- Styles are cleaned up when the component unmounts or the code changes
+- Each live preview instance gets a unique style element ID to avoid conflicts
+
 ## CRITICAL: No TypeScript in Demo Example Scripts
 
 `useLivePreview` evaluates `<script>` blocks with `new Function()` — **plain JavaScript only**. TypeScript syntax (type annotations, generics, `as` casts) causes a silent syntax error: `buildSetup` returns `null`, template bindings become undefined, and the example breaks with no obvious error.
