@@ -1,0 +1,74 @@
+/**
+ * SplitPanel Layout Styles
+ *
+ * Flex-based layout for resizable split panels with drag handles.
+ * Supports both vertical (side-by-side columns) and horizontal (stacked rows) orientations.
+ */
+
+@import "./split-panel-tokens.css";
+
+.danx-split-panel {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+
+  &.danx-split-panel--horizontal {
+    flex-direction: column;
+  }
+
+  /* Disable transitions during resize for immediate feedback */
+  &.is-resizing {
+    user-select: none;
+
+    .danx-split-panel__panel {
+      transition: none;
+    }
+  }
+}
+
+.danx-split-panel__panel {
+  flex-grow: 0;
+  flex-shrink: 0;
+  overflow: auto;
+  transition: flex-basis var(--dx-split-panel-transition);
+}
+
+/* Handle — vertical (default: column layout, cursor col-resize) */
+.danx-split-panel-handle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-split-panel-handle-size);
+  cursor: col-resize;
+  touch-action: none;
+
+  .danx-split-panel-handle__grip {
+    width: 2px;
+    height: 24px;
+    border-radius: 1px;
+    background: var(--dx-split-panel-handle-color);
+    transition: background-color 0.15s ease;
+  }
+
+  &:hover .danx-split-panel-handle__grip {
+    background: var(--dx-split-panel-handle-hover);
+  }
+
+  &:active .danx-split-panel-handle__grip {
+    background: var(--dx-split-panel-handle-active);
+  }
+}
+
+/* Handle — horizontal (row layout, cursor row-resize) */
+.danx-split-panel-handle--horizontal {
+  width: 100%;
+  height: var(--dx-split-panel-handle-size);
+  cursor: row-resize;
+
+  .danx-split-panel-handle__grip {
+    width: 24px;
+    height: 2px;
+  }
+}

@@ -1,0 +1,17 @@
+/**
+ * SplitPanel Component Tokens (Tier 3)
+ *
+ * Component-specific CSS custom properties for DanxSplitPanel.
+ * Override these on any ancestor element to customize appearance.
+ */
+
+.danx-split-panel-handle {
+  --dx-split-panel-handle-size: 8px;
+  --dx-split-panel-handle-color: var(--color-border);
+  --dx-split-panel-handle-hover: var(--color-interactive);
+  --dx-split-panel-handle-active: var(--color-interactive);
+}
+
+.danx-split-panel {
+  --dx-split-panel-transition: 200ms ease;
+}

@@ -17,6 +17,7 @@ import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
 import TabsPage from "./pages/TabsPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
 import ProgressBarPage from "./pages/ProgressBarPage.vue";
+import SplitPanelPage from "./pages/SplitPanelPage.vue";
 import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileNavigatorPage from "./pages/DanxFileNavigatorPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
@@ -48,6 +49,7 @@ const router = createRouter({
     { path: "/tabs", name: "tabs", component: TabsPage },
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
     { path: "/progress-bar", name: "progress-bar", component: ProgressBarPage },
+    { path: "/split-panel", name: "split-panel", component: SplitPanelPage },
     { path: "/danx-file", name: "danx-file", component: DanxFilePage },
     { path: "/danx-file-navigator", name: "danx-file-navigator", component: DanxFileNavigatorPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },

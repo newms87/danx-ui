@@ -126,6 +126,9 @@ watch(theme, (newTheme) => {
               <RouterLink to="/progress-bar" class="demo-sidebar__link">Progress Bar</RouterLink>
             </li>
             <li>
+              <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
+            </li>
+            <li>
               <RouterLink to="/tooltip" class="demo-sidebar__link">Tooltip</RouterLink>
             </li>
             <li>

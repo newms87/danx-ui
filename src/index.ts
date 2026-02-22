@@ -14,6 +14,7 @@ export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
 export { DanxPopover } from "./components/popover";
 export { MarkdownEditor } from "./components/markdown-editor";
+export { DanxSplitPanel, SplitPanelHandle } from "./components/split-panel";
 export { DanxTabs } from "./components/tabs";
 export { DanxButtonGroup } from "./components/buttonGroup";
 export { DanxTooltip } from "./components/tooltip";
@@ -29,6 +30,7 @@ export {
 } from "./components/code-viewer";
 export { calculateContextMenuPosition } from "./components/context-menu";
 export { useDialog, useDialogStack } from "./components/dialog";
+export { useSplitPanel } from "./components/split-panel";
 export { useMarkdownEditor } from "./components/markdown-editor";
 export {
   resolveFileUrl,
@@ -115,6 +117,16 @@ export type {
   UseMarkdownEditorOptions,
   UseMarkdownEditorReturn,
 } from "./components/markdown-editor";
+export type {
+  SplitPanelConfig,
+  SplitPanelState,
+  DanxSplitPanelProps,
+  DanxSplitPanelEmits,
+  DanxSplitPanelSlots,
+  SplitPanelStorageState,
+  UseSplitPanelOptions,
+  UseSplitPanelReturn,
+} from "./components/split-panel";
 export type { DanxTab, DanxTabsProps } from "./components/tabs";
 export type {
   AutoColorMode,
