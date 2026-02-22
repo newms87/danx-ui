@@ -12,7 +12,7 @@ import { DanxButton, DanxChip, DanxBadge } from "danx-ui";
     <div class="component-row">
       <DanxButton variant="brand" icon="gear">Brand Action</DanxButton>
       <DanxChip variant="brand">Brand</DanxChip>
-      <DanxBadge variant="brand" :count="7">
+      <DanxBadge variant="brand" :value="7">
         <DanxButton>Notifications</DanxButton>
       </DanxBadge>
     </div>

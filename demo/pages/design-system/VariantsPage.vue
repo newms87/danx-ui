@@ -66,11 +66,9 @@ import componentOverridesCode from "./variant-examples/ComponentOverrides.vue?ra
       :code="customVariantCode"
     >
       <template #hint>
-        <div class="hint-box">
-          The minimum tokens are <code>--dx-variant-{name}-bg</code>,
-          <code>--dx-variant-{name}-bg-hover</code>, and <code>--dx-variant-{name}-text</code>.
-          Additional tokens like <code>border</code> and <code>gradient-to</code> are optional.
-        </div>
+        The minimum tokens are <code>--dx-variant-{name}-bg</code>,
+        <code>--dx-variant-{name}-bg-hover</code>, and <code>--dx-variant-{name}-text</code>.
+        Additional tokens like <code>border</code> and <code>gradient-to</code> are optional.
       </template>
     </DemoSection>
 
@@ -81,11 +79,9 @@ import componentOverridesCode from "./variant-examples/ComponentOverrides.vue?ra
       :code="darkModeVariantCode"
     >
       <template #hint>
-        <div class="hint-box">
-          <strong>Approach A</strong> is recommended because your variant inherits dark mode from
-          the semantic token layer with zero extra work. Use <strong>Approach B</strong> only when
-          you need completely different colors per theme.
-        </div>
+        <strong>Approach A</strong> is recommended because your variant inherits dark mode from the
+        semantic token layer with zero extra work. Use <strong>Approach B</strong> only when you
+        need completely different colors per theme.
       </template>
     </DemoSection>
 
@@ -215,24 +211,6 @@ import componentOverridesCode from "./variant-examples/ComponentOverrides.vue?ra
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text);
-}
-
-/* Hint box */
-.hint-box {
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-sunken);
-  border-left: 3px solid var(--color-interactive);
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-
-  code {
-    background: rgb(0 0 0 / 0.06);
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    font-size: 0.875em;
-  }
 }
 
 /* Under the hood section */

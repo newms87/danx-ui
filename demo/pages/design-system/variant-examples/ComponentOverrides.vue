@@ -16,10 +16,8 @@ import { DanxButton, DanxChip, DanxTooltip } from "danx-ui";
       <DanxTooltip
         variant="royal"
         tooltip="This tooltip has a darker purple background"
-        position="right"
-      >
-        <span class="hover-target">Royal Tooltip (hover me)</span>
-      </DanxTooltip>
+        triggerIcon="info"
+      />
     </div>
 
     <div class="callout">
@@ -72,13 +70,6 @@ import { DanxButton, DanxChip, DanxTooltip } from "danx-ui";
   gap: 0.75rem;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.hover-target {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  cursor: help;
-  text-decoration: underline dotted;
 }
 
 .callout {

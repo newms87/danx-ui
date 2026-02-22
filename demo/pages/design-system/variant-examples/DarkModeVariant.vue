@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { DanxButton, DanxChip, DanxBadge } from "danx-ui";
 
-var isDark = ref(false);
+const isDark = ref(false);
 </script>
 
 <template>
@@ -35,7 +35,7 @@ var isDark = ref(false);
         <span class="preview-label">ocean (Approach A)</span>
         <DanxButton variant="ocean">Ocean</DanxButton>
         <DanxChip variant="ocean">Ocean</DanxChip>
-        <DanxBadge variant="ocean" :count="2">
+        <DanxBadge variant="ocean" :value="2">
           <DanxButton>Items</DanxButton>
         </DanxBadge>
       </div>
@@ -44,7 +44,7 @@ var isDark = ref(false);
         <span class="preview-label">sunset (Approach B)</span>
         <DanxButton variant="sunset">Sunset</DanxButton>
         <DanxChip variant="sunset">Sunset</DanxChip>
-        <DanxBadge variant="sunset" :count="4">
+        <DanxBadge variant="sunset" :value="4">
           <DanxButton>Items</DanxButton>
         </DanxBadge>
       </div>
