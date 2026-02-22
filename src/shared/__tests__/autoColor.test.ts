@@ -427,7 +427,7 @@ describe("hashStringToIndex distribution", () => {
 
     for (const word of uniqueWords) {
       const idx = hashStringToIndex(word, bucketCount);
-      buckets[idx]++;
+      buckets[idx] = (buckets[idx] ?? 0) + 1;
     }
 
     // Calculate median
