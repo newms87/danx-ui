@@ -4,8 +4,8 @@ import { hashStringToIndex, useAutoColor, AUTO_COLOR_PALETTE } from "../autoColo
 
 describe("hashStringToIndex", () => {
   it("returns consistent index for same input", () => {
-    const a = hashStringToIndex("Pending", 14);
-    const b = hashStringToIndex("Pending", 14);
+    const a = hashStringToIndex("Pending", 28);
+    const b = hashStringToIndex("Pending", 28);
     expect(a).toBe(b);
   });
 
@@ -18,15 +18,15 @@ describe("hashStringToIndex", () => {
       "x",
       "A very long string value here",
     ]) {
-      const idx = hashStringToIndex(str, 14);
+      const idx = hashStringToIndex(str, 28);
       expect(idx).toBeGreaterThanOrEqual(0);
-      expect(idx).toBeLessThan(14);
+      expect(idx).toBeLessThan(28);
     }
   });
 
   it("returns deterministic index for empty string", () => {
-    // FNV-1a offset basis through murmur3 finalizer, mod 14
-    expect(hashStringToIndex("", 14)).toBe(11);
+    // FNV-1a offset basis through murmur3 finalizer, mod 28
+    expect(hashStringToIndex("", 28)).toBe(11);
   });
 
   it("produces different indices for different strings", () => {
@@ -39,9 +39,9 @@ describe("hashStringToIndex", () => {
       "Archived",
       "In Review",
     ];
-    const indices = strings.map((s) => hashStringToIndex(s, 14));
+    const indices = strings.map((s) => hashStringToIndex(s, 28));
     const unique = new Set(indices);
-    // With 7 strings and 14 buckets, we expect at least 3 distinct values
+    // With 7 strings and 28 buckets, we expect at least 3 distinct values
     expect(unique.size).toBeGreaterThanOrEqual(3);
   });
 
@@ -53,13 +53,14 @@ describe("hashStringToIndex", () => {
 describe("hashStringToIndex distribution", () => {
   /**
    * Generate a large corpus of realistic words/phrases and verify that
-   * hashStringToIndex distributes them evenly across all 14 palette buckets.
-   * Tolerance: no bucket may deviate more than ±10% from the median count.
+   * hashStringToIndex distributes them evenly across all 28 palette buckets.
+   * Tolerance: no bucket may deviate more than ±5% from the median count.
    *
    * Uses combinatorial word lists (adjective+noun, verb+noun, name+status, etc.)
-   * to produce 10,000 distinct strings that mimic real-world auto-color inputs.
+   * to produce 150,000+ distinct strings that mimic real-world auto-color inputs.
+   * The large corpus ensures statistical fluctuation stays within ±5%.
    */
-  it("distributes 10,000 words evenly across all 14 buckets (±10% tolerance from median)", () => {
+  it("distributes 150,000 words evenly across all 28 buckets (±5% tolerance from median)", () => {
     // Word pools for generating diverse combinations
     const adjectives = [
       "big",
@@ -388,19 +389,40 @@ describe("hashStringToIndex distribution", () => {
       for (const noun of nouns) words.add(`${color} ${noun}`);
     }
 
-    // adjective + noun + verb — three-word phrases (40×40×10 = partial slice for variety)
+    // adjective + noun + verb — three-word phrases (40×40×30 = 48,000)
     for (const adj of adjectives) {
       for (const noun of nouns) {
-        for (const verb of verbs.slice(0, 10)) words.add(`${adj} ${noun} ${verb}`);
+        for (const verb of verbs) words.add(`${adj} ${noun} ${verb}`);
       }
     }
 
-    // Take exactly 10,000 unique strings
-    const uniqueWords = [...words].slice(0, 10_000);
-    expect(uniqueWords.length).toBe(10_000);
+    // verb + adjective + noun — different word order (30×40×40 = 48,000)
+    for (const verb of verbs) {
+      for (const adj of adjectives) {
+        for (const noun of nouns) words.add(`${verb} ${adj} ${noun}`);
+      }
+    }
+
+    // name + category + color (40×34×24 = 32,640)
+    for (const name of names) {
+      for (const cat of categories) {
+        for (const color of colors) words.add(`${name} ${cat} ${color}`);
+      }
+    }
+
+    // place + name + status (24×40×34 = 32,640)
+    for (const place of places) {
+      for (const name of names) {
+        for (const status of statuses) words.add(`${place} ${name} ${status}`);
+      }
+    }
+
+    // Use all generated unique strings (150K+)
+    const uniqueWords = [...words];
+    expect(uniqueWords.length).toBeGreaterThanOrEqual(150_000);
 
     // Count how many strings land in each bucket
-    const bucketCount = AUTO_COLOR_PALETTE.length; // 14
+    const bucketCount = AUTO_COLOR_PALETTE.length; // 28
     const buckets = new Array(bucketCount).fill(0) as number[];
 
     for (const word of uniqueWords) {
@@ -415,8 +437,8 @@ describe("hashStringToIndex distribution", () => {
         ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
         : sorted[Math.floor(sorted.length / 2)]!;
 
-    // Every bucket must be within ±10% of the median
-    const tolerance = 0.1;
+    // Every bucket must be within ±5% of the median
+    const tolerance = 0.05;
     const lowerBound = median * (1 - tolerance);
     const upperBound = median * (1 + tolerance);
 
@@ -444,8 +466,8 @@ describe("hashStringToIndex distribution", () => {
 });
 
 describe("AUTO_COLOR_PALETTE", () => {
-  it("has 14 entries", () => {
-    expect(AUTO_COLOR_PALETTE).toHaveLength(14);
+  it("has 28 entries (14 standard + 14 deep)", () => {
+    expect(AUTO_COLOR_PALETTE).toHaveLength(28);
   });
 
   it("each entry has bg, text, darkBg, darkText as var() references", () => {
@@ -463,6 +485,58 @@ describe("AUTO_COLOR_PALETTE", () => {
       expect(entry.inactiveText).toMatch(/^var\(--color-.+-\d+\)$/);
       expect(entry.darkInactiveBg).toMatch(/^var\(--color-.+-\d+\)$/);
       expect(entry.darkInactiveText).toMatch(/^var\(--color-.+-\d+\)$/);
+    }
+  });
+
+  it("standard entries (even indices) use shade-100 bg and shade-700 text", () => {
+    for (let i = 0; i < AUTO_COLOR_PALETTE.length; i += 2) {
+      const entry = AUTO_COLOR_PALETTE[i]!;
+      expect(entry.bg).toMatch(/-100\)$/);
+      expect(entry.text).toMatch(/-700\)$/);
+      expect(entry.darkBg).toMatch(/-400\)$/);
+      expect(entry.darkText).toMatch(/-900\)$/);
+    }
+  });
+
+  it("deep entries (odd indices) use shade-300 bg and shade-900 text", () => {
+    for (let i = 1; i < AUTO_COLOR_PALETTE.length; i += 2) {
+      const entry = AUTO_COLOR_PALETTE[i]!;
+      expect(entry.bg).toMatch(/-300\)$/);
+      expect(entry.text).toMatch(/-900\)$/);
+      expect(entry.darkBg).toMatch(/-500\)$/);
+      expect(entry.darkText).toMatch(/-950\)$/);
+    }
+  });
+
+  it("standard entries (even indices) use correct inactive shades", () => {
+    for (let i = 0; i < AUTO_COLOR_PALETTE.length; i += 2) {
+      const entry = AUTO_COLOR_PALETTE[i]!;
+      expect(entry.inactiveBg).toMatch(/-50\)$/);
+      expect(entry.inactiveText).toMatch(/-400\)$/);
+      expect(entry.darkInactiveBg).toMatch(/-950\)$/);
+      expect(entry.darkInactiveText).toMatch(/-500\)$/);
+    }
+  });
+
+  it("deep entries (odd indices) use correct inactive shades", () => {
+    for (let i = 1; i < AUTO_COLOR_PALETTE.length; i += 2) {
+      const entry = AUTO_COLOR_PALETTE[i]!;
+      expect(entry.inactiveBg).toMatch(/-200\)$/);
+      expect(entry.inactiveText).toMatch(/-600\)$/);
+      expect(entry.darkInactiveBg).toMatch(/-900\)$/);
+      expect(entry.darkInactiveText).toMatch(/-600\)$/);
+    }
+  });
+
+  it("standard and deep entries for same family share the color name", () => {
+    for (let i = 0; i < AUTO_COLOR_PALETTE.length; i += 2) {
+      const standard = AUTO_COLOR_PALETTE[i]!;
+      const deep = AUTO_COLOR_PALETTE[i + 1]!;
+      // Extract color name from bg var (e.g., "sky" from "var(--color-sky-100)")
+      const standardName = standard.bg.match(/--color-(.+)-\d+/)?.[1];
+      const deepName = deep.bg.match(/--color-(.+)-\d+/)?.[1];
+      expect(standardName).toBeTruthy();
+      expect(standardName).toBe(deepName);
     }
   });
 });
@@ -503,11 +577,11 @@ describe("useAutoColor", () => {
     expect(a.style.value).not.toEqual(b.style.value);
   });
 
-  it("colorIndex is in range 0..13", () => {
+  it("colorIndex is in range 0..27", () => {
     for (const label of ["Pending", "Approved", "Rejected", "Draft", ""]) {
       const { colorIndex } = useAutoColor(label);
       expect(colorIndex.value).toBeGreaterThanOrEqual(0);
-      expect(colorIndex.value).toBeLessThanOrEqual(13);
+      expect(colorIndex.value).toBeLessThanOrEqual(27);
     }
   });
 

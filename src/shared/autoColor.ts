@@ -8,6 +8,7 @@
  * The palette references primitive CSS tokens from 14 chromatic Tailwind families
  * (sky, blue, indigo, purple, violet, fuchsia, rose, orange, amber,
  * lime, green, emerald, teal, cyan) via var() so colors adapt to theme overrides.
+ * Each family has a standard (light) and deep (saturated) variant, giving 28 entries.
  */
 
 import { computed, type CSSProperties, type MaybeRefOrGetter, toValue } from "vue";
@@ -16,29 +17,31 @@ import { computed, type CSSProperties, type MaybeRefOrGetter, toValue } from "vu
  * A single palette entry with light-mode and dark-mode color pairs,
  * plus inactive variants for toggle/button-group states.
  * All values are var() references to primitive CSS tokens.
+ * Exact shade numbers vary by variant (standard vs deep).
  */
 export interface AutoColorEntry {
-  /** Light-mode background (shade-100) */
+  /** Light-mode background */
   bg: string;
-  /** Light-mode text (shade-700) */
+  /** Light-mode text */
   text: string;
-  /** Dark-mode background (shade-400) */
+  /** Dark-mode background */
   darkBg: string;
-  /** Dark-mode text (shade-900) */
+  /** Dark-mode text */
   darkText: string;
-  /** Light-mode inactive background (shade-50) */
+  /** Light-mode inactive background */
   inactiveBg: string;
-  /** Light-mode inactive text (shade-400) */
+  /** Light-mode inactive text */
   inactiveText: string;
-  /** Dark-mode inactive background (shade-950) */
+  /** Dark-mode inactive background */
   darkInactiveBg: string;
-  /** Dark-mode inactive text (shade-500) */
+  /** Dark-mode inactive text */
   darkInactiveText: string;
 }
 
 /**
  * Helper to build a palette entry from a color family name.
  * Maps consistent shade numbers to each role across all families.
+ * Uses lighter shades (100/700) for subtle, pastel-like backgrounds.
  */
 function colorFamily(name: string): AutoColorEntry {
   return {
@@ -54,28 +57,60 @@ function colorFamily(name: string): AutoColorEntry {
 }
 
 /**
- * 14-color palette derived from Tailwind chromatic families.
- * Each entry references primitive CSS tokens via var(), so colors
- * automatically adapt when the theme's primitives are customized.
+ * Helper to build a "deep" palette entry from a color family name.
+ * Uses darker/more saturated shades (300/900) for stronger contrast,
+ * giving visual variety when interleaved with the standard entries.
+ */
+function colorFamilyDeep(name: string): AutoColorEntry {
+  return {
+    bg: `var(--color-${name}-300)`,
+    text: `var(--color-${name}-900)`,
+    darkBg: `var(--color-${name}-500)`,
+    darkText: `var(--color-${name}-950)`,
+    inactiveBg: `var(--color-${name}-200)`,
+    inactiveText: `var(--color-${name}-600)`,
+    darkInactiveBg: `var(--color-${name}-900)`,
+    darkInactiveText: `var(--color-${name}-600)`,
+  };
+}
+
+/**
+ * 28-color palette derived from Tailwind chromatic families.
+ * Each of the 14 families has a standard entry (light shades) and a deep
+ * entry (more saturated shades), interleaved for maximum visual separation.
  *
- * Light mode: shade-100 background, shade-700 text.
- * Dark mode: shade-400 background, shade-900 text.
+ * Standard: shade-100 bg / shade-700 text (light), shade-400 bg / shade-900 text (dark).
+ * Deep:     shade-300 bg / shade-900 text (light), shade-500 bg / shade-950 text (dark).
  */
 export const AUTO_COLOR_PALETTE: readonly AutoColorEntry[] = [
   colorFamily("sky"),
+  colorFamilyDeep("sky"),
   colorFamily("blue"),
+  colorFamilyDeep("blue"),
   colorFamily("indigo"),
+  colorFamilyDeep("indigo"),
   colorFamily("purple"),
+  colorFamilyDeep("purple"),
   colorFamily("violet"),
+  colorFamilyDeep("violet"),
   colorFamily("fuchsia"),
+  colorFamilyDeep("fuchsia"),
   colorFamily("rose"),
+  colorFamilyDeep("rose"),
   colorFamily("orange"),
+  colorFamilyDeep("orange"),
   colorFamily("amber"),
+  colorFamilyDeep("amber"),
   colorFamily("lime"),
+  colorFamilyDeep("lime"),
   colorFamily("green"),
+  colorFamilyDeep("green"),
   colorFamily("emerald"),
+  colorFamilyDeep("emerald"),
   colorFamily("teal"),
+  colorFamilyDeep("teal"),
   colorFamily("cyan"),
+  colorFamilyDeep("cyan"),
 ];
 
 /**
@@ -103,7 +138,7 @@ export function hashStringToIndex(value: string, count: number): number {
 /**
  * Composable that returns reactive auto-color styles for a given string value.
  *
- * Hashes the string to deterministically pick a color from the 14-color palette.
+ * Hashes the string to deterministically pick a color from the 28-color palette.
  * Detects dark mode via `document.documentElement.classList.contains("dark")`.
  *
  * The returned `style` sets `{prefix}-bg` and `{prefix}-text` CSS custom

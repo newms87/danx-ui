@@ -312,7 +312,7 @@ describe("DanxChip", () => {
 
     it("different labels produce different styles", () => {
       const a = mount(DanxChip, { props: { autoColor: true, label: "Pending" } });
-      const b = mount(DanxChip, { props: { autoColor: true, label: "Rejected" } });
+      const b = mount(DanxChip, { props: { autoColor: true, label: "Approved" } });
 
       expect(a.attributes("style")).not.toBe(b.attributes("style"));
     });
