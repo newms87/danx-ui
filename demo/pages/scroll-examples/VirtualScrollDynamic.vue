@@ -9,8 +9,7 @@ const canLoadMore = ref(true);
 function loadMore() {
   loading.value = true;
   setTimeout(() => {
-    const newItems = Array.from({ length: 50 }, (_, i) => `Item ${items.value.length + i + 1}`);
-    items.value.push(...newItems);
+    items.value.push(...Array.from({ length: 50 }, (_, i) => `Item ${items.value.length + i + 1}`));
     loading.value = false;
     if (items.value.length >= 500) {
       canLoadMore.value = false;
