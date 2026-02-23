@@ -9,6 +9,7 @@ const items = ref(Array.from({ length: 10000 }, (_, i) => `Item ${i + 1}`));
   <DanxVirtualScroll
     :items="items"
     :default-item-height="36"
+    :totalItems="10000"
     class="w-full h-[300px] border border-border rounded-lg"
   >
     <template #item="{ item, index }">

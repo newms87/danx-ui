@@ -325,6 +325,14 @@ const {
 });
 ```
 
+## Auto-Scroll on Drag Beyond Bounds
+
+When dragging the scrollbar thumb, if the cursor moves beyond the container edge, scrolling continues automatically at a speed proportional to the distance past the edge. The farther the cursor is from the container, the faster it scrolls. Releasing the mouse stops auto-scroll immediately.
+
+When the cursor returns to within the container bounds, scrolling transitions smoothly back to normal drag behavior — the drag origin is continuously rebased during auto-scroll to prevent jarring jumps.
+
+This works for both vertical and horizontal scrollbars. The speed constant is `0.15` pixels per frame per pixel of overshoot (at 60fps, 50px overshoot scrolls ~450px/s).
+
 ## Accessibility
 
 - The scrollbar is decorative overlay; native scroll behavior is preserved

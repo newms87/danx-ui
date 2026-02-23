@@ -49,6 +49,7 @@ export interface UseDanxScrollReturn {
 
 const AUTO_HIDE_DELAY = 1200;
 const MIN_THUMB_PX = 24;
+const AUTO_SCROLL_SPEED = 0.15;
 
 /**
  * Compute thumb size and position for one axis.
@@ -100,6 +101,11 @@ export function useDanxScroll(
 
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
   let isDragging = false;
+
+  // Auto-scroll state for drag beyond bounds
+  let currentMouseX = 0;
+  let currentMouseY = 0;
+  let autoScrollRafId: number | null = null;
 
   function updateVisibility() {
     const visible = persistent || isScrolling.value || isHoveringTrack.value || isDragging;
@@ -158,6 +164,8 @@ export function useDanxScroll(
       axis === "vertical"
         ? (containerEl.value?.scrollTop ?? 0)
         : (containerEl.value?.scrollLeft ?? 0);
+    currentMouseX = e.clientX;
+    currentMouseY = e.clientY;
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("mouseup", onDragEnd);
     updateVisibility();
@@ -173,6 +181,8 @@ export function useDanxScroll(
 
   function onDragMove(e: MouseEvent) {
     const el = containerEl.value;
+    currentMouseX = e.clientX;
+    currentMouseY = e.clientY;
     if (!el) return;
 
     if (dragAxis === "vertical") {
@@ -184,10 +194,68 @@ export function useDanxScroll(
       const ratio = el.scrollWidth / el.clientWidth;
       el.scrollLeft = dragStartScroll + delta * ratio;
     }
+
+    maybeStartAutoScroll();
+  }
+
+  function computeOvershoot(rect: DOMRect): number {
+    if (dragAxis === "vertical") {
+      if (currentMouseY < rect.top) return currentMouseY - rect.top;
+      if (currentMouseY > rect.bottom) return currentMouseY - rect.bottom;
+    } else {
+      if (currentMouseX < rect.left) return currentMouseX - rect.left;
+      if (currentMouseX > rect.right) return currentMouseX - rect.right;
+    }
+    return 0;
+  }
+
+  function maybeStartAutoScroll() {
+    const el = containerEl.value;
+    if (!el || autoScrollRafId !== null) return;
+
+    if (computeOvershoot(el.getBoundingClientRect()) !== 0) {
+      autoScrollRafId = requestAnimationFrame(autoScrollTick);
+    }
+  }
+
+  function autoScrollTick() {
+    const el = containerEl.value;
+    if (!isDragging || !el) {
+      autoScrollRafId = null;
+      return;
+    }
+
+    const overshoot = computeOvershoot(el.getBoundingClientRect());
+
+    if (overshoot !== 0) {
+      const scrollDelta = overshoot * AUTO_SCROLL_SPEED;
+
+      if (dragAxis === "vertical") {
+        el.scrollTop += scrollDelta;
+        dragStartScroll = el.scrollTop;
+        dragStartPos = currentMouseY;
+      } else {
+        el.scrollLeft += scrollDelta;
+        dragStartScroll = el.scrollLeft;
+        dragStartPos = currentMouseX;
+      }
+
+      autoScrollRafId = requestAnimationFrame(autoScrollTick);
+    } else {
+      autoScrollRafId = null;
+    }
+  }
+
+  function cancelAutoScroll() {
+    if (autoScrollRafId !== null) {
+      cancelAnimationFrame(autoScrollRafId);
+      autoScrollRafId = null;
+    }
   }
 
   function onDragEnd() {
     isDragging = false;
+    cancelAutoScroll();
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);
     scheduleHide();
@@ -252,6 +320,7 @@ export function useDanxScroll(
     resizeObserver?.disconnect();
     resizeObserver = null;
     if (hideTimeout) clearTimeout(hideTimeout);
+    cancelAutoScroll();
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);
   }

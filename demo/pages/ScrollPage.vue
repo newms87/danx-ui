@@ -11,6 +11,7 @@ import variantsCode from "./scroll-examples/Variants.vue?raw";
 import infiniteScrollCode from "./scroll-examples/InfiniteScroll.vue?raw";
 import virtualScrollLocalCode from "./scroll-examples/VirtualScrollLocal.vue?raw";
 import virtualScrollRemoteCode from "./scroll-examples/VirtualScrollRemote.vue?raw";
+import virtualScrollDynamicCode from "./scroll-examples/VirtualScrollDynamic.vue?raw";
 import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer.vue?raw";
 </script>
 
@@ -64,6 +65,11 @@ import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer
       title="Virtual Scroll — Remote"
       description="Virtual scroll with infinite scroll integration. Items load on demand and only the visible window renders."
       :code="virtualScrollRemoteCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — Dynamic"
+      description="Virtual scroll with infinite scroll but no totalItems. The scrollbar grows as items load — useful when total count is unknown."
+      :code="virtualScrollDynamicCode"
     />
     <DemoSection
       title="Virtual Scroll — Log Viewer"

@@ -381,23 +381,17 @@ describe("useDanxScroll", () => {
       containerEl.value = el;
       await nextTick();
 
-      const mousedownEvent = new MouseEvent("mousedown", { clientY: 100 });
-      Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-      Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
-
-      result.onVerticalThumbMouseDown(mousedownEvent);
+      startVerticalDrag(result, 100);
 
       // Scrollbar stays visible during drag
       expect(result.isVerticalVisible.value).toBe(true);
 
       // Simulate mouse move
-      const mousemoveEvent = new MouseEvent("mousemove", { clientY: 130 });
-      document.dispatchEvent(mousemoveEvent);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 130 }));
 
       // scrollTop = 0 + 30 * (1000/300) = 100
       expect(el.scrollTop).toBeCloseTo(100, 0);
 
-      // Simulate mouse up
       document.dispatchEvent(new MouseEvent("mouseup"));
     });
   });
@@ -417,14 +411,9 @@ describe("useDanxScroll", () => {
       containerEl.value = el;
       await nextTick();
 
-      const mousedownEvent = new MouseEvent("mousedown", { clientX: 100 });
-      Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-      Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
+      startHorizontalDrag(result, 100);
 
-      result.onHorizontalThumbMouseDown(mousedownEvent);
-
-      const mousemoveEvent = new MouseEvent("mousemove", { clientX: 130 });
-      document.dispatchEvent(mousemoveEvent);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 130 }));
 
       // scrollLeft = 0 + 30 * (1000/300) = 100
       expect(el.scrollLeft).toBeCloseTo(100, 0);
@@ -541,11 +530,7 @@ describe("useDanxScroll", () => {
 
       await nextTick();
 
-      const mousedownEvent = new MouseEvent("mousedown", { clientY: 100 });
-      Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-      Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
-
-      result.onVerticalThumbMouseDown(mousedownEvent);
+      startVerticalDrag(result, 100);
       expect(result.isVerticalVisible.value).toBe(true);
 
       document.dispatchEvent(new MouseEvent("mouseup"));
@@ -613,11 +598,7 @@ describe("useDanxScroll", () => {
       const containerEl = ref<HTMLElement | null>(null);
       const result = createComposable(containerEl);
 
-      const mousedownEvent = new MouseEvent("mousedown", { clientY: 100 });
-      Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-      Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
-
-      result.onVerticalThumbMouseDown(mousedownEvent);
+      startVerticalDrag(result, 100);
 
       // Should not throw
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 130 }));
@@ -628,14 +609,467 @@ describe("useDanxScroll", () => {
       const containerEl = ref<HTMLElement | null>(null);
       const result = createComposable(containerEl);
 
-      const mousedownEvent = new MouseEvent("mousedown", { clientX: 100 });
-      Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-      Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
-
-      result.onHorizontalThumbMouseDown(mousedownEvent);
+      startHorizontalDrag(result, 100);
 
       // Should not throw — covers horizontal branch in onDragMove with null container
       document.dispatchEvent(new MouseEvent("mousemove", { clientX: 130 }));
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+  });
+
+  function startVerticalDrag(result: UseDanxScrollReturn, clientY: number) {
+    const mousedownEvent = new MouseEvent("mousedown", { clientY });
+    Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
+    Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
+    result.onVerticalThumbMouseDown(mousedownEvent);
+  }
+
+  function startHorizontalDrag(result: UseDanxScrollReturn, clientX: number) {
+    const mousedownEvent = new MouseEvent("mousedown", { clientX });
+    Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
+    Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
+    result.onHorizontalThumbMouseDown(mousedownEvent);
+  }
+
+  function mockBoundingRect(el: HTMLElement, rect: Partial<DOMRect>) {
+    vi.spyOn(el, "getBoundingClientRect").mockReturnValue({
+      top: 0,
+      bottom: 300,
+      left: 0,
+      right: 300,
+      height: 300,
+      width: 300,
+      x: 0,
+      y: 0,
+      toJSON: vi.fn(),
+      ...rect,
+    });
+  }
+
+  describe("Auto-scroll on drag beyond bounds", () => {
+    it("auto-scrolls down when cursor is below container during vertical drag", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ === 0) cb(0);
+        return tickCount;
+      });
+
+      startVerticalDrag(result, 150);
+
+      // Move cursor 50px below the container bottom (300)
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+
+      // rAF should have been called and scrollTop should have increased
+      expect(rafSpy).toHaveBeenCalled();
+      // overshoot = 350 - 300 = 50, scrollDelta = 50 * 0.15 = 7.5
+      expect(el.scrollTop).toBeGreaterThan(0);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("auto-scrolls up when cursor is above container during vertical drag", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 500 });
+      mockBoundingRect(el, { top: 100, bottom: 400 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ === 0) cb(0);
+        return tickCount;
+      });
+
+      startVerticalDrag(result, 200);
+
+      // Move cursor 50px above container top (100)
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 50 }));
+
+      expect(rafSpy).toHaveBeenCalled();
+      // overshoot = 50 - 100 = -50, scrollDelta = -50 * 0.15 = -7.5
+      expect(el.scrollTop).toBeLessThan(500);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("speed scales with overshoot distance", async () => {
+      const el = createMockElement({ scrollHeight: 2000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        // Only run first tick to measure delta
+        if (tickCount === 0) {
+          tickCount++;
+          cb(0);
+        }
+        return tickCount;
+      });
+
+      startVerticalDrag(result, 150);
+
+      // Small overshoot: 20px
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 320 }));
+      const scrollAfterSmall = el.scrollTop;
+
+      // Reset
+      Object.defineProperty(el, "scrollTop", { value: 0, writable: true, configurable: true });
+      tickCount = 0;
+
+      // Large overshoot: 200px
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 500 }));
+      const scrollAfterLarge = el.scrollTop;
+
+      expect(scrollAfterLarge).toBeGreaterThan(scrollAfterSmall);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("stops auto-scroll when cursor returns to bounds", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let rafCallbacks: FrameRequestCallback[] = [];
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        rafCallbacks.push(cb);
+        return rafCallbacks.length;
+      });
+
+      startVerticalDrag(result, 150);
+
+      // Move beyond bounds
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+      expect(rafCallbacks.length).toBe(1);
+
+      // Execute the first tick — it should schedule another because cursor is still beyond
+      rafCallbacks[0]!(0);
+      expect(rafCallbacks.length).toBe(2);
+
+      // Move cursor back within bounds
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 200 }));
+
+      // Execute the second tick — it should NOT schedule another (overshoot is 0)
+      rafCallbacks[1]!(0);
+      expect(rafCallbacks.length).toBe(2); // No new rAF scheduled
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("stops auto-scroll on mouseup (cancelAnimationFrame called)", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      const cancelSpy = vi.spyOn(window, "cancelAnimationFrame");
+      vi.spyOn(window, "requestAnimationFrame").mockReturnValue(42);
+
+      startVerticalDrag(result, 150);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+
+      // mouseup should cancel the animation frame
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      expect(cancelSpy).toHaveBeenCalledWith(42);
+
+      cancelSpy.mockRestore();
+    });
+
+    it("horizontal auto-scroll works (cursor beyond right edge)", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 0,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      mockBoundingRect(el, { left: 0, right: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ === 0) cb(0);
+        return tickCount;
+      });
+
+      startHorizontalDrag(result, 150);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 350 }));
+
+      expect(rafSpy).toHaveBeenCalled();
+      // overshoot = 350 - 300 = 50, scrollDelta = 50 * 0.15 = 7.5
+      expect(el.scrollLeft).toBeGreaterThan(0);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("horizontal auto-scroll works (cursor beyond left edge)", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 500,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      mockBoundingRect(el, { left: 100, right: 400 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ === 0) cb(0);
+        return tickCount;
+      });
+
+      startHorizontalDrag(result, 200);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 50 }));
+
+      expect(rafSpy).toHaveBeenCalled();
+      expect(el.scrollLeft).toBeLessThan(500);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("rebases drag origin so no jarring jump when returning to bounds", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ === 0) cb(0);
+        return tickCount;
+      });
+
+      startVerticalDrag(result, 150);
+
+      // Move beyond bounds — auto-scroll runs one tick and rebases drag origin
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+      const scrollAfterAutoScroll = el.scrollTop;
+      expect(scrollAfterAutoScroll).toBeGreaterThan(0);
+
+      // Now move back to where we started (within bounds)
+      // Without rebase, this would cause scrollTop to jump back toward 0
+      // With rebase, scrollTop should stay approximately where auto-scroll left it
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 150 }));
+
+      // After rebase: dragStartPos = 350 (currentMouseY), dragStartScroll = scrollAfterAutoScroll
+      // Moving to 150: delta = 150 - 350 = -200, ratio = 1000/300 ≈ 3.33
+      // scrollTop = scrollAfterAutoScroll + (-200 * 3.33)
+      const expectedScroll = scrollAfterAutoScroll + -200 * (1000 / 300);
+      expect(el.scrollTop).toBeCloseTo(expectedScroll, 0);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("does not start auto-scroll when cursor is within bounds", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame");
+
+      startVerticalDrag(result, 150);
+
+      // Move cursor within bounds — no auto-scroll should start
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 200 }));
+
+      expect(rafSpy).not.toHaveBeenCalled();
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("does not start auto-scroll for horizontal drag within bounds", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 0,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      mockBoundingRect(el, { left: 0, right: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame");
+
+      startHorizontalDrag(result, 150);
+
+      // Move cursor within bounds — no auto-scroll should start
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 200 }));
+
+      expect(rafSpy).not.toHaveBeenCalled();
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("autoScrollTick exits early when isDragging is false", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      const rafCallbacks: FrameRequestCallback[] = [];
+      vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        rafCallbacks.push(cb);
+        return rafCallbacks.length;
+      });
+
+      startVerticalDrag(result, 150);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+      expect(rafCallbacks.length).toBe(1);
+
+      // End drag (sets isDragging = false) — cancelAutoScroll is called but
+      // simulate the race where the callback was already queued
+      document.dispatchEvent(new MouseEvent("mouseup"));
+
+      // Manually invoke the queued callback after drag ended
+      const scrollBefore = el.scrollTop;
+      rafCallbacks[0]!(0);
+
+      // Should not scroll further and should not schedule another rAF
+      expect(el.scrollTop).toBe(scrollBefore);
+      expect(rafCallbacks.length).toBe(1);
+    });
+
+    it("rapid mousemove events do not double-schedule rAF", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockReturnValue(42);
+
+      startVerticalDrag(result, 150);
+
+      // Two rapid mousemove events beyond bounds without rAF executing between them
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 400 }));
+
+      // Should only schedule one rAF (guard: autoScrollRafId !== null)
+      expect(rafSpy).toHaveBeenCalledTimes(1);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("horizontal auto-scroll rebases drag origin correctly", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 0,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      mockBoundingRect(el, { left: 0, right: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ === 0) cb(0);
+        return tickCount;
+      });
+
+      startHorizontalDrag(result, 150);
+
+      // Move beyond right edge — auto-scroll one tick
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 350 }));
+      const scrollAfterAutoScroll = el.scrollLeft;
+      expect(scrollAfterAutoScroll).toBeGreaterThan(0);
+
+      // Return within bounds — rebase prevents jarring jump
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 150 }));
+
+      // After rebase: dragStartPos = 350, dragStartScroll = scrollAfterAutoScroll
+      // delta = 150 - 350 = -200, ratio = 1000/300
+      const expectedScroll = scrollAfterAutoScroll + -200 * (1000 / 300);
+      expect(el.scrollLeft).toBeCloseTo(expectedScroll, 0);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("unmount during active auto-scroll cancels rAF", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      const cancelSpy = vi.spyOn(window, "cancelAnimationFrame");
+      vi.spyOn(window, "requestAnimationFrame").mockReturnValue(99);
+
+      startVerticalDrag(result, 150);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+
+      // Unmount the component while auto-scroll is active
+      mountedWrappers[0]!.unmount();
+      mountedWrappers.length = 0;
+
+      expect(cancelSpy).toHaveBeenCalledWith(99);
+      cancelSpy.mockRestore();
+    });
+
+    it("handles null container during active auto-scroll tick", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let rafCallbacks: FrameRequestCallback[] = [];
+      vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        rafCallbacks.push(cb);
+        return rafCallbacks.length;
+      });
+
+      startVerticalDrag(result, 150);
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
+
+      expect(rafCallbacks.length).toBe(1);
+
+      // Set container to null before rAF tick fires
+      containerEl.value = null;
+      await nextTick();
+
+      // Should not throw
+      rafCallbacks[0]!(0);
+
+      // No new rAF should be scheduled
+      expect(rafCallbacks.length).toBe(1);
+
       document.dispatchEvent(new MouseEvent("mouseup"));
     });
   });
