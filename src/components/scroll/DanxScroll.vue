@@ -6,6 +6,12 @@
  * Scrollbars auto-hide with fade after idle, support drag interaction, and adapt
  * to content overflow. Infinite scroll is available as an opt-in feature.
  *
+ * ## Architecture
+ * Uses a wrapper/viewport pattern: the outer element is a non-scrolling wrapper
+ * with position:relative, and a nested viewport div handles actual scrolling.
+ * Track elements are siblings of the viewport, positioned absolutely on the
+ * wrapper — so they stay fixed while content scrolls.
+ *
  * ## Features
  * - Custom overlay scrollbars that don't push content
  * - Auto-hide with configurable fade transition
@@ -94,7 +100,7 @@ const SCROLL_VARIANT_TOKENS = {
   "--dx-scroll-thumb-hover-bg": "bg-hover",
 };
 
-const containerRef = ref<HTMLElement | null>(null);
+const viewportRef = ref<HTMLElement | null>(null);
 
 const variantStyle = useVariant(toRef(props, "variant"), "scroll", SCROLL_VARIANT_TOKENS);
 
@@ -111,11 +117,11 @@ const {
   onHorizontalTrackClick,
   onTrackMouseEnter,
   onTrackMouseLeave,
-} = useDanxScroll(containerRef, { persistent: props.persistent });
+} = useDanxScroll(viewportRef, { persistent: props.persistent });
 
 // Opt-in infinite scroll
 if (props.infiniteScroll) {
-  useScrollInfinite(containerRef, {
+  useScrollInfinite(viewportRef, {
     distance: props.distance,
     direction: props.infiniteDirection,
     canLoadMore: toRef(props, "canLoadMore"),
@@ -136,7 +142,7 @@ const isBeforeContent = computed(
   () => props.infiniteDirection === "top" || props.infiniteDirection === "left"
 );
 
-const containerClasses = computed(() => [
+const wrapperClasses = computed(() => [
   "danx-scroll",
   `danx-scroll--${props.direction}`,
   `danx-scroll--${props.size}`,
@@ -144,31 +150,34 @@ const containerClasses = computed(() => [
 </script>
 
 <template>
-  <component :is="tag" ref="containerRef" :class="containerClasses" :style="variantStyle">
-    <slot />
+  <component :is="tag" :class="wrapperClasses" :style="variantStyle">
+    <!-- Scrollable viewport -->
+    <div ref="viewportRef" class="danx-scroll__viewport">
+      <slot />
 
-    <!-- Infinite scroll indicators (CSS order: -1 positions before content for top/left) -->
-    <template v-if="infiniteScroll">
-      <div
-        v-if="loading"
-        :class="['danx-scroll__loading', { 'is-before-content': isBeforeContent }]"
-      >
-        <slot name="loading">
-          <span>Loading...</span>
-        </slot>
-      </div>
+      <!-- Infinite scroll indicators (CSS order: -1 positions before content for top/left) -->
+      <template v-if="infiniteScroll">
+        <div
+          v-if="loading"
+          :class="['danx-scroll__loading', { 'is-before-content': isBeforeContent }]"
+        >
+          <slot name="loading">
+            <span>Loading...</span>
+          </slot>
+        </div>
 
-      <div
-        v-if="!canLoadMore"
-        :class="['danx-scroll__done', { 'is-before-content': isBeforeContent }]"
-      >
-        <slot name="done">
-          <span>No more items</span>
-        </slot>
-      </div>
-    </template>
+        <div
+          v-if="!canLoadMore"
+          :class="['danx-scroll__done', { 'is-before-content': isBeforeContent }]"
+        >
+          <slot name="done">
+            <span>No more items</span>
+          </slot>
+        </div>
+      </template>
+    </div>
 
-    <!-- Vertical scrollbar track -->
+    <!-- Vertical scrollbar track (outside viewport, stays fixed) -->
     <div
       v-if="showVerticalTrack"
       :class="['danx-scroll__track--vertical', { 'is-visible': isVerticalVisible }]"
@@ -183,7 +192,7 @@ const containerClasses = computed(() => [
       />
     </div>
 
-    <!-- Horizontal scrollbar track -->
+    <!-- Horizontal scrollbar track (outside viewport, stays fixed) -->
     <div
       v-if="showHorizontalTrack"
       :class="['danx-scroll__track--horizontal', { 'is-visible': isHorizontalVisible }]"

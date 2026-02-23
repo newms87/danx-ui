@@ -1,17 +1,27 @@
 /**
  * DanxScroll Styles
  *
- * Custom overlay scrollbar styles. The scrollbar tracks are positioned
- * absolutely over content (no content push), with native scrollbar hidden.
+ * Uses a wrapper/viewport pattern: the outer .danx-scroll wrapper is non-scrolling
+ * with position:relative. The inner .danx-scroll__viewport handles actual scrolling.
+ * Track elements are siblings of the viewport, absolutely positioned on the wrapper,
+ * so they stay fixed while content scrolls.
  */
 
 @import "./scroll-tokens.css";
 
+/* Outer wrapper — non-scrolling, positions tracks */
 .danx-scroll {
   position: relative;
+  overflow: hidden;
+}
+
+/* Inner viewport — handles actual scrolling */
+.danx-scroll__viewport {
   display: flex;
   flex-direction: column;
   gap: var(--dx-scroll-gap);
+  height: 100%;
+  width: 100%;
 
   /* Hide native scrollbar */
   scrollbar-width: none;
@@ -38,17 +48,18 @@
   }
 }
 
-.danx-scroll--vertical {
+/* Direction modifiers — applied to viewport via wrapper class */
+.danx-scroll--vertical .danx-scroll__viewport {
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.danx-scroll--horizontal {
+.danx-scroll--horizontal .danx-scroll__viewport {
   overflow-x: auto;
   overflow-y: hidden;
 }
 
-.danx-scroll--both {
+.danx-scroll--both .danx-scroll__viewport {
   overflow: auto;
 }
 

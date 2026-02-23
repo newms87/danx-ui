@@ -83,9 +83,14 @@ describe("DanxScroll", () => {
       expect(wrapper.element.tagName).toBe("SECTION");
     });
 
-    it("applies danx-scroll class", () => {
+    it("applies danx-scroll class to wrapper", () => {
       const wrapper = mountComponent();
       expect(wrapper.classes()).toContain("danx-scroll");
+    });
+
+    it("renders viewport inside wrapper", () => {
+      const wrapper = mountComponent();
+      expect(wrapper.find(".danx-scroll__viewport").exists()).toBe(true);
     });
 
     it("applies direction modifier class", () => {
@@ -108,9 +113,9 @@ describe("DanxScroll", () => {
       expect(wrapper.classes()).toContain("danx-scroll--md");
     });
 
-    it("renders slot content", () => {
+    it("renders slot content inside viewport", () => {
       const wrapper = mountComponent({}, { default: "<p>Hello</p>" });
-      expect(wrapper.find("p").text()).toBe("Hello");
+      expect(wrapper.find(".danx-scroll__viewport p").text()).toBe("Hello");
     });
   });
 
@@ -141,14 +146,19 @@ describe("DanxScroll", () => {
   });
 
   describe("Scrollbar tracks", () => {
-    it("renders vertical track when direction=vertical and has overflow", () => {
+    it("renders vertical track as sibling of viewport when direction=vertical and has overflow", () => {
       mockUseDanxScroll.mockReturnValue(
         createScrollReturn({ hasVerticalOverflow: ref(true), isVerticalVisible: ref(true) })
       );
       const wrapper = mountComponent({ direction: "vertical" });
 
-      expect(wrapper.find(".danx-scroll__track--vertical").exists()).toBe(true);
-      expect(wrapper.find(".danx-scroll__track--vertical .danx-scroll__thumb").exists()).toBe(true);
+      const track = wrapper.find(".danx-scroll__track--vertical");
+      expect(track.exists()).toBe(true);
+      // Track is outside viewport (sibling, not descendant)
+      expect(wrapper.find(".danx-scroll__viewport .danx-scroll__track--vertical").exists()).toBe(
+        false
+      );
+      expect(track.find(".danx-scroll__thumb").exists()).toBe(true);
     });
 
     it("does not render vertical track when no overflow", () => {
@@ -172,16 +182,18 @@ describe("DanxScroll", () => {
       expect(wrapper.find(".danx-scroll__track--horizontal").exists()).toBe(false);
     });
 
-    it("renders horizontal track when direction=horizontal and has overflow", () => {
+    it("renders horizontal track as sibling of viewport when direction=horizontal and has overflow", () => {
       mockUseDanxScroll.mockReturnValue(
         createScrollReturn({ hasHorizontalOverflow: ref(true), isHorizontalVisible: ref(true) })
       );
       const wrapper = mountComponent({ direction: "horizontal" });
 
-      expect(wrapper.find(".danx-scroll__track--horizontal").exists()).toBe(true);
-      expect(wrapper.find(".danx-scroll__track--horizontal .danx-scroll__thumb").exists()).toBe(
-        true
+      const track = wrapper.find(".danx-scroll__track--horizontal");
+      expect(track.exists()).toBe(true);
+      expect(wrapper.find(".danx-scroll__viewport .danx-scroll__track--horizontal").exists()).toBe(
+        false
       );
+      expect(track.find(".danx-scroll__thumb").exists()).toBe(true);
     });
 
     it("does not render horizontal track when no overflow", () => {
@@ -294,7 +306,6 @@ describe("DanxScroll", () => {
       const wrapper = mountComponent({ direction: "vertical" });
 
       const track = wrapper.find(".danx-scroll__track--vertical");
-      // Trigger click directly on the track element (self modifier)
       await track.trigger("click");
       expect(onVerticalTrackClick).toHaveBeenCalled();
     });
@@ -373,15 +384,15 @@ describe("DanxScroll", () => {
   });
 
   describe("Infinite scroll enabled", () => {
-    it("shows loading indicator when loading is true", () => {
+    it("shows loading indicator inside viewport when loading is true", () => {
       const wrapper = mountComponent({ infiniteScroll: true, loading: true });
-      expect(wrapper.find(".danx-scroll__loading").exists()).toBe(true);
+      expect(wrapper.find(".danx-scroll__viewport .danx-scroll__loading").exists()).toBe(true);
       expect(wrapper.find(".danx-scroll__loading span").text()).toBe("Loading...");
     });
 
-    it("shows done indicator when canLoadMore is false", () => {
+    it("shows done indicator inside viewport when canLoadMore is false", () => {
       const wrapper = mountComponent({ infiniteScroll: true, canLoadMore: false });
-      expect(wrapper.find(".danx-scroll__done").exists()).toBe(true);
+      expect(wrapper.find(".danx-scroll__viewport .danx-scroll__done").exists()).toBe(true);
       expect(wrapper.find(".danx-scroll__done span").text()).toBe("No more items");
     });
 
