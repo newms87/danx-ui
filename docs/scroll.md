@@ -208,6 +208,118 @@ const {
 | `--dx-scroll-{size}-thumb-thickness` | varies | Thumb thickness per size |
 | `--dx-scroll-{size}-track-padding` | varies | Track padding per size |
 
+## Virtual Scroll
+
+`DanxVirtualScroll` renders only the items visible in the viewport (plus an overscan buffer), using spacer divs to maintain correct scroll height. Built on top of `DanxScroll` for custom overlay scrollbars.
+
+### DanxVirtualScroll Props
+
+All `DanxScroll` props are supported, plus:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `T[]` | required | Array of items to render |
+| `defaultItemHeight` | `number` | `40` | Estimated height for unmeasured items |
+| `overscan` | `number` | `3` | Extra items above/below viewport |
+| `keyFn` | `(item, index) => string \| number` | index | Unique key for height caching |
+
+### DanxVirtualScroll Slots
+
+| Slot | Props | Description |
+|------|-------|-------------|
+| `item` | `{ item: T, index: number }` | Scoped slot for each visible item |
+| `loading` | — | Passed through to DanxScroll |
+| `done` | — | Passed through to DanxScroll |
+
+### Local Mode
+
+Pass all items upfront. Only the visible window renders:
+
+```vue
+<script setup>
+import { ref } from "vue";
+import { DanxVirtualScroll } from "danx-ui";
+
+const items = ref(Array.from({ length: 10000 }, (_, i) => `Item ${i}`));
+</script>
+
+<template>
+  <DanxVirtualScroll :items="items" class="h-96">
+    <template #item="{ item, index }">
+      <div>{{ index }}: {{ item }}</div>
+    </template>
+  </DanxVirtualScroll>
+</template>
+```
+
+### Remote Mode
+
+Combine with infinite scroll to load items on demand:
+
+```vue
+<DanxVirtualScroll
+  :items="items"
+  infiniteScroll
+  :loading="loading"
+  :canLoadMore="hasMore"
+  class="h-96"
+  @loadMore="fetchMore"
+>
+  <template #item="{ item }">
+    <div>{{ item.name }}</div>
+  </template>
+</DanxVirtualScroll>
+```
+
+### Log Viewer Pattern
+
+For variable-height items (like log entries with multi-line messages), provide a `keyFn` so cached heights survive reordering:
+
+```vue
+<DanxVirtualScroll
+  :items="logs"
+  :key-fn="(log) => log.id"
+  :default-item-height="28"
+  :overscan="5"
+  size="sm"
+  class="h-[400px] font-mono text-xs"
+>
+  <template #item="{ item }">
+    <div class="whitespace-pre-wrap">
+      {{ item.timestamp }} {{ item.level }} {{ item.message }}
+    </div>
+  </template>
+</DanxVirtualScroll>
+```
+
+### Composable: useScrollWindow
+
+For building custom virtual scroll layouts:
+
+```typescript
+import { ref } from "vue";
+import { useScrollWindow } from "danx-ui";
+
+const viewportEl = ref<HTMLElement | null>(null);
+const items = ref([...]);
+
+const {
+  visibleItems,   // Computed: slice of items in viewport
+  startIndex,     // Ref: first rendered index
+  endIndex,       // Ref: last rendered index
+  topSpacerHeight,    // Ref: pixels for top spacer
+  bottomSpacerHeight, // Ref: pixels for bottom spacer
+  measureItem,    // (key, el) => void — cache item height
+  scrollToIndex,  // (index) => void — scroll to item
+  totalHeight,    // Computed: sum of all heights
+} = useScrollWindow(viewportEl, {
+  items,
+  defaultItemHeight: 40,
+  overscan: 3,
+  keyFn: (item) => item.id,
+});
+```
+
 ## Accessibility
 
 - The scrollbar is decorative overlay; native scroll behavior is preserved

@@ -9,6 +9,9 @@ import bothAxesCode from "./scroll-examples/BothAxes.vue?raw";
 import sizesCode from "./scroll-examples/Sizes.vue?raw";
 import variantsCode from "./scroll-examples/Variants.vue?raw";
 import infiniteScrollCode from "./scroll-examples/InfiniteScroll.vue?raw";
+import virtualScrollLocalCode from "./scroll-examples/VirtualScrollLocal.vue?raw";
+import virtualScrollRemoteCode from "./scroll-examples/VirtualScrollRemote.vue?raw";
+import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer.vue?raw";
 </script>
 
 <template>
@@ -51,6 +54,21 @@ import infiniteScrollCode from "./scroll-examples/InfiniteScroll.vue?raw";
       title="Infinite Scroll"
       description="Opt-in infinite scroll with loading and done indicators."
       :code="infiniteScrollCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — Local"
+      description="Windowed rendering for 10,000 items. Only visible items are in the DOM."
+      :code="virtualScrollLocalCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — Remote"
+      description="Virtual scroll with infinite scroll integration. Items load on demand and only the visible window renders."
+      :code="virtualScrollRemoteCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — Log Viewer"
+      description="Log viewer with variable-height entries and custom rendering. 5,000 log lines with only the visible window rendered."
+      :code="virtualScrollLogViewerCode"
     />
   </DemoPage>
 </template>
