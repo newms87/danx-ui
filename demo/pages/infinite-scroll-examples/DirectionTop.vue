@@ -6,30 +6,41 @@ const scrollContainer = ref(null);
 const messages = ref(Array.from({ length: 20 }, (_, i) => `Message ${20 - i}`));
 const loading = ref(false);
 const canLoadMore = ref(true);
+const savedScrollHeight = ref(0);
 
-function prependMessages(count, maxTotal) {
-  messages.value = Array.from(
-    { length: count },
-    (_, i) => "Message " + (messages.value.length + count - i)
-  ).concat(messages.value);
-  if (messages.value.length >= maxTotal) canLoadMore.value = false;
+function getScrollEl() {
+  return scrollContainer.value && scrollContainer.value.$el;
+}
+
+function scrollToBottom() {
+  nextTick(() => {
+    if (getScrollEl()) getScrollEl().scrollTop = getScrollEl().scrollHeight;
+  });
+}
+
+function restoreScrollPosition() {
+  nextTick(() => {
+    if (getScrollEl()) {
+      getScrollEl().scrollTop += getScrollEl().scrollHeight - savedScrollHeight.value;
+    }
+  });
 }
 
 function loadOlder() {
   loading.value = true;
   setTimeout(() => {
-    prependMessages(10, 80);
+    savedScrollHeight.value = getScrollEl() ? getScrollEl().scrollHeight : 0;
+    messages.value = Array.from(
+      { length: 10 },
+      (_, i) => "Message " + (messages.value.length + 10 - i)
+    ).concat(messages.value);
+    if (messages.value.length >= 80) canLoadMore.value = false;
+    restoreScrollPosition();
     loading.value = false;
   }, 600);
 }
 
-onMounted(() => {
-  nextTick(() => {
-    if (scrollContainer.value) {
-      scrollContainer.value.$el.scrollTop = scrollContainer.value.$el.scrollHeight;
-    }
-  });
-});
+onMounted(scrollToBottom);
 </script>
 
 <template>
