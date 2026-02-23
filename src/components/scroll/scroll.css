@@ -71,12 +71,10 @@
   background: var(--dx-scroll-track-bg);
   opacity: 0;
   transition: opacity var(--dx-scroll-fade-duration);
-  pointer-events: none;
   cursor: pointer;
 
   &.is-visible {
     opacity: 1;
-    pointer-events: auto;
   }
 }
 
