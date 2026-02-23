@@ -11,7 +11,9 @@
  * 3. Find startIndex/endIndex for the visible + overscan range
  * 4. Compute top/bottom spacer heights for correct scroll position
  * 5. After items are measured, recalculate (batched via microtask) to keep
- *    spacers consistent with actual heights and prevent oscillation
+ *    spacers consistent with actual heights. Compensate scrollTop by the
+ *    spacer delta and suppress the resulting scroll event to prevent
+ *    oscillation and content jumping.
  *
  * @param viewportEl - Ref to the scrollable viewport element
  * @param options - Configuration: items array, defaultItemHeight, overscan, keyFn
@@ -40,6 +42,9 @@ export function useScrollWindow<T>(
 
   /** Whether measurement-triggered recalculate is batched via microtask. */
   let measureBatchPending = false;
+
+  /** Skip next scroll event (set after programmatic scrollTop adjustment). */
+  let skipNextScroll = false;
 
   function getItemHeight(item: T, index: number): number {
     const key = keyFn(item, index);
@@ -110,6 +115,10 @@ export function useScrollWindow<T>(
   }
 
   function onScroll() {
+    if (skipNextScroll) {
+      skipNextScroll = false;
+      return;
+    }
     if (rafPending) return;
     rafPending = true;
     requestAnimationFrame(() => {
@@ -160,7 +169,19 @@ export function useScrollWindow<T>(
         measureBatchPending = true;
         queueMicrotask(() => {
           measureBatchPending = false;
+          const viewport = viewportEl.value;
+          const prevTopSpacer = topSpacerHeight.value;
           recalculate();
+          // Compensate scrollTop when topSpacer changes due to measured
+          // heights differing from estimates. Without this, the spacer
+          // change shifts content, causing the scrollbar to glitch.
+          // Deep scroll positions can even reset to top if the cumulative
+          // error makes total height < scrollTop.
+          const delta = topSpacerHeight.value - prevTopSpacer;
+          if (delta !== 0 && viewport && viewport.scrollTop > 0) {
+            skipNextScroll = true;
+            viewport.scrollTop += delta;
+          }
         });
       }
     }
