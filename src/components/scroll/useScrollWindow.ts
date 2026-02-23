@@ -188,6 +188,14 @@ export function useScrollWindow<T>(
   }
 
   /**
+   * Tracks the last scrollTop that triggered a recalculate so we can
+   * distinguish scroll-driven recalculates from measurement-driven ones.
+   * When measurements trigger a recalculate but scrollTop hasn't changed,
+   * startIndex is kept stable to prevent oscillation from variable heights.
+   */
+  let lastScrollTop = -1;
+
+  /**
    * Recalculate visible range and positioning from current scroll position.
    */
   function recalculate() {
@@ -205,8 +213,12 @@ export function useScrollWindow<T>(
       totalHeight.value = totalItems != null ? totalItems * defaultItemHeight : 0;
       startOffset.value = 0;
       placeholdersAfter.value = 0;
+      lastScrollTop = scrollTop;
       return;
     }
+
+    const scrollChanged = scrollTop !== lastScrollTop;
+    lastScrollTop = scrollTop;
 
     const result =
       totalItems != null
@@ -230,9 +242,15 @@ export function useScrollWindow<T>(
             getItemHeight
           );
 
-    startIndex.value = result.newStart;
+    // Only update startIndex when scrollTop actually changed. Measurement-
+    // triggered recalculates (same scrollTop) can oscillate startIndex ±1
+    // with variable heights, causing visible jitter. Keep startIndex stable
+    // and only update totalHeight/endIndex for scrollbar accuracy.
+    if (scrollChanged) {
+      startIndex.value = result.newStart;
+      startOffset.value = result.offset;
+    }
     endIndex.value = result.newEnd;
-    startOffset.value = result.offset;
     totalHeight.value = result.totalHeight;
     placeholdersAfter.value = result.placeholdersAfter;
   }

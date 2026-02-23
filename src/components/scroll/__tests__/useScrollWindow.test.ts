@@ -130,13 +130,15 @@ describe("useScrollWindow", () => {
       result.measureItem(i, mockEl);
     }
 
-    // Re-trigger with scroll
+    // Change scrollTop so the scroll event triggers a full recalculate
+    // (same scrollTop is treated as measurement-only and keeps startIndex stable)
+    (el as any).scrollTop = 201;
     el.dispatchEvent(new Event("scroll"));
     await nextTick();
 
     // First 3 items = 240px (cached at 80px), rest = 40px default
-    // scrollTop=200: items 0-1 = 160px before viewport, item 2 starts at 160px
-    // startIndex=2, so topSpacer = items 0+1 = 160px
+    // scrollTop=201: items 0-1 = 160px, item 2 starts at 160px (within viewport)
+    // startIndex=2, so startOffset = items 0+1 = 160px
     expect(result.startOffset.value).toBe(160);
     expect(result.totalHeight.value).toBe(3 * 80 + 17 * 40);
   });
@@ -313,6 +315,65 @@ describe("useScrollWindow", () => {
     // With 80px items, only ~2-3 fit in 200px viewport (endIndex should decrease)
     expect(result.endIndex.value).toBeLessThan(4);
     expect(result.visibleItems.value.length).toBeLessThanOrEqual(3);
+  });
+
+  it("measurement-triggered recalculate keeps startIndex stable", async () => {
+    const el = createMockViewport({ clientHeight: 200, scrollTop: 200 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+
+    // Initial: scrollTop=200, 40px items → startIndex=5
+    const initialStart = result.startIndex.value;
+    const initialOffset = result.startOffset.value;
+    expect(initialStart).toBe(5);
+
+    // Measure items 0-4 as 80px each. This would shift walk-from-zero:
+    // items 0-4 = 400px, so scrollTop=200 falls inside item 2 (at 160px).
+    // Without the stabilization fix, startIndex would jump to 2.
+    for (let i = 0; i < 5; i++) {
+      const mockEl = document.createElement("div");
+      Object.defineProperty(mockEl, "offsetHeight", { value: 80, configurable: true });
+      result.measureItem(i, mockEl);
+    }
+    await nextTick();
+
+    // startIndex and startOffset stay stable (scrollTop didn't change)
+    expect(result.startIndex.value).toBe(initialStart);
+    expect(result.startOffset.value).toBe(initialOffset);
+    // But endIndex and totalHeight DO update from the new measurements
+    expect(result.totalHeight.value).toBe(5 * 80 + 45 * 40);
+  });
+
+  it("consecutive measurement batches at same scrollTop keep startIndex stable", async () => {
+    const el = createMockViewport({ clientHeight: 200, scrollTop: 200 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+
+    const initialStart = result.startIndex.value;
+
+    // First measurement batch
+    for (let i = 0; i < 3; i++) {
+      const mockEl = document.createElement("div");
+      Object.defineProperty(mockEl, "offsetHeight", { value: 80, configurable: true });
+      result.measureItem(i, mockEl);
+    }
+    await nextTick();
+    expect(result.startIndex.value).toBe(initialStart);
+
+    // Second measurement batch (different items)
+    for (let i = 3; i < 6; i++) {
+      const mockEl = document.createElement("div");
+      Object.defineProperty(mockEl, "offsetHeight", { value: 60, configurable: true });
+      result.measureItem(i, mockEl);
+    }
+    await nextTick();
+
+    // startIndex still stable through both batches
+    expect(result.startIndex.value).toBe(initialStart);
   });
 
   it("measureItem does not recalculate when height is unchanged", async () => {

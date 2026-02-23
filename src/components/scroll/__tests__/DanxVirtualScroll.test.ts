@@ -629,6 +629,58 @@ describe("DanxVirtualScroll", () => {
       expect(viewport.scrollTop).toBe(400);
     });
 
+    it("debug prop logs scroll-to-model sync", async () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        scrollPosition: 0,
+        debug: true,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // Scroll to trigger startIndex change → [scroll→model] log
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 400,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const logMessages = consoleSpy.mock.calls.map((c) => c[0]);
+      expect(logMessages.some((m: string) => m.includes("[scroll"))).toBe(true);
+
+      consoleSpy.mockRestore();
+    });
+
+    it("debug prop logs model-to-scroll sync and fromScrollEvent skip", async () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        scrollPosition: 0,
+        debug: true,
+      });
+
+      mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // Set scrollPosition from parent → [model→scroll] log
+      consoleSpy.mockClear();
+      await wrapper.setProps({ scrollPosition: 10 });
+      await nextTick();
+
+      const modelLogs = consoleSpy.mock.calls.map((c) => c[0]);
+      expect(modelLogs.some((m: string) => m.includes("[model"))).toBe(true);
+
+      consoleSpy.mockRestore();
+    });
+
     it("re-enables scroll-driven emissions after guard clears", async () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({

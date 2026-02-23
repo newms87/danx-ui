@@ -79,7 +79,7 @@ import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer
     />
     <DemoSection
       title="Virtual Scroll — Log Viewer"
-      description="Log viewer with variable-height entries and custom rendering. 5,000 log lines with only the visible window rendered."
+      description="Live log viewer with auto-scroll. New lines appear every 1-5 seconds. Scroll up to pause, scroll back to bottom to resume."
       :code="virtualScrollLogViewerCode"
     />
   </DemoPage>

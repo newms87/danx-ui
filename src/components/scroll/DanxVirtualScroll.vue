@@ -29,6 +29,7 @@
  *   infiniteDirection?: InfiniteScrollEdge - Edge for loading (default: "bottom")
  *   scrollPosition?: number - v-model for current top item index (default: 0).
  *     Updates on scroll; setting from parent scrolls to that index.
+ *   debug?: boolean - Enable debug console logging for this instance (default: false)
  *   ...DanxScrollProps - Non-infinite-scroll DanxScroll props pass through
  *
  * @emits
@@ -75,6 +76,7 @@ import type { DanxVirtualScrollProps, DanxVirtualScrollSlots } from "./virtual-s
 const props = withDefaults(defineProps<DanxVirtualScrollProps<T>>(), {
   defaultItemHeight: 40,
   overscan: 3,
+  canLoadMore: true,
 });
 
 const emit = defineEmits<{
@@ -103,6 +105,7 @@ const scrollProps = computed(() => {
     canLoadMore: _c,
     distance: _dist,
     infiniteDirection: _dir,
+    debug: _dbg,
     ...rest
   } = props;
   return rest;
@@ -155,20 +158,34 @@ if (props.infiniteScroll) {
 }
 
 // Bidirectional sync between scrollPosition model and startIndex.
-// Guard flag prevents circular updates: scroll→model→scrollToIndex→scroll…
+// Two guard flags prevent circular updates and jitter:
+// - scrollPositionUpdating: parent set scrollPosition → suppress startIndex echo
+// - fromScrollEvent: startIndex updated scrollPosition → suppress scrollToIndex
 let scrollPositionUpdating = false;
+let fromScrollEvent = false;
 
 watch(startIndex, (index) => {
   if (!scrollPositionUpdating && index !== scrollPosition.value) {
+    if (props.debug)
+      console.log(`[scroll→model] startIndex=${index} scrollPosition=${scrollPosition.value}`);
+    fromScrollEvent = true;
     scrollPosition.value = index;
   }
 });
 
 watch(scrollPosition, (index) => {
+  if (fromScrollEvent) {
+    if (props.debug) console.log(`[model skip] fromScrollEvent, index=${index}`);
+    fromScrollEvent = false;
+    return;
+  }
   if (index !== startIndex.value) {
+    if (props.debug)
+      console.log(
+        `[model→scroll] scrollPosition=${index} startIndex=${startIndex.value} → scrollToIndex`
+      );
     scrollPositionUpdating = true;
     scrollToIndex(index);
-    // Clear guard after the rAF-throttled recalculate has had time to fire
     requestAnimationFrame(() => {
       scrollPositionUpdating = false;
     });

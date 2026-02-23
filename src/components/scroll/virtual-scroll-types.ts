@@ -108,6 +108,9 @@ export interface DanxVirtualScrollProps<T = unknown> extends DanxScrollProps {
    * @default 0
    */
   scrollPosition?: number;
+
+  /** Enable debug console logging for this instance. @default false */
+  debug?: boolean;
 }
 
 /**

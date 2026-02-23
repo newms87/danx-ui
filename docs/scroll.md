@@ -224,6 +224,7 @@ All `DanxScroll` props are supported, plus:
 | `keyFn` | `(item, index) => string \| number` | index | Unique key for height caching |
 | `totalItems` | `number` | — | Total items in full dataset (stabilizes scrollbar) |
 | `scrollPosition` | `number` | `0` | v-model: current top item index. Updates on scroll; set from parent to jump. |
+| `debug` | `boolean` | `false` | Enable debug console logging for this instance |
 
 ### DanxVirtualScroll Emits
 
