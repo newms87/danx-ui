@@ -255,8 +255,8 @@ describe("useScrollWindow", () => {
 
     const result = createComposable(viewportEl, items);
 
-    // Should not crash — startIndex and endIndex default to 0,
-    // so visibleItems returns items.slice(0, 1) as a safe default
+    // Should not crash — both startIndex and endIndex default to 0,
+    // so visibleItems returns items.slice(0, 1) which includes the first item
     expect(result.startIndex.value).toBe(0);
     expect(result.endIndex.value).toBe(0);
     expect(result.visibleItems.value).toEqual(["a"]);
@@ -291,6 +291,54 @@ describe("useScrollWindow", () => {
     // Should not throw
     result.measureItem("key", null);
     expect(result.totalHeight.value).toBe(40); // Still uses default
+  });
+
+  it("measureItem triggers recalculate when height changes", async () => {
+    const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+
+    // Initial: 200px / 40px = 5 items (0-4), endIndex=4
+    expect(result.visibleItems.value.length).toBe(5);
+    expect(result.endIndex.value).toBe(4);
+
+    // Measure first 5 items as 80px each (double the default)
+    for (let i = 0; i < 5; i++) {
+      const mockEl = document.createElement("div");
+      Object.defineProperty(mockEl, "offsetHeight", { value: 80, configurable: true });
+      result.measureItem(i, mockEl);
+    }
+
+    // Measurement batches via microtask — flush it
+    await nextTick();
+
+    // With 80px items, only ~2-3 fit in 200px viewport (endIndex should decrease)
+    expect(result.endIndex.value).toBeLessThan(4);
+    expect(result.visibleItems.value.length).toBeLessThanOrEqual(3);
+  });
+
+  it("measureItem does not recalculate when height is unchanged", async () => {
+    const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+
+    // Measure item 0 at 60px (different from default)
+    const mockEl = document.createElement("div");
+    Object.defineProperty(mockEl, "offsetHeight", { value: 60, configurable: true });
+    result.measureItem(0, mockEl);
+    await nextTick();
+
+    const totalAfterFirst = result.totalHeight.value;
+    expect(totalAfterFirst).toBe(60 + 9 * 40); // 420
+
+    // Measure same item at same height — should not trigger recalculate
+    result.measureItem(0, mockEl);
+    await nextTick();
+    expect(result.totalHeight.value).toBe(totalAfterFirst);
   });
 
   it("measureItem ignores zero-height elements", () => {
@@ -412,6 +460,64 @@ describe("useScrollWindow", () => {
     await nextTick();
 
     expect(removeSpy).toHaveBeenCalledWith("scroll", expect.any(Function));
+  });
+
+  it("scrollToIndex uses cached measured heights", () => {
+    const el = createMockViewport({ clientHeight: 200 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+
+    // Measure first 3 items at 60px each
+    for (let i = 0; i < 3; i++) {
+      const mockEl = document.createElement("div");
+      Object.defineProperty(mockEl, "offsetHeight", { value: 60, configurable: true });
+      result.measureItem(i, mockEl);
+    }
+
+    // scrollToIndex(5) should sum: 3*60 + 2*40 = 260
+    result.scrollToIndex(5);
+    expect(el.scrollTop).toBe(260);
+  });
+
+  it("adjusts when items array shrinks", async () => {
+    const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+
+    expect(result.visibleItems.value.length).toBe(5); // 200/40 = 5
+    expect(result.totalHeight.value).toBe(800); // 20 * 40
+
+    // Shrink to 3 items
+    items.value = ["item-0", "item-1", "item-2"];
+    await nextTick();
+
+    expect(result.visibleItems.value.length).toBe(3);
+    expect(result.totalHeight.value).toBe(120); // 3 * 40
+    expect(result.bottomSpacerHeight.value).toBe(0);
+  });
+
+  it("resets to start when scrolling back to top", async () => {
+    const el = createMockViewport({ clientHeight: 200, scrollTop: 400 });
+    const viewportEl = ref<HTMLElement | null>(el);
+    const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+
+    // Initially scrolled down
+    expect(result.startIndex.value).toBe(10);
+    expect(result.topSpacerHeight.value).toBe(400);
+
+    // Scroll back to top
+    Object.defineProperty(el, "scrollTop", { value: 0, writable: true, configurable: true });
+    el.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    expect(result.startIndex.value).toBe(0);
+    expect(result.topSpacerHeight.value).toBe(0);
   });
 
   it("unmount with null viewport does not throw", () => {

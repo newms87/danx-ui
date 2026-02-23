@@ -10,6 +10,8 @@
  * 2. Walk items from index 0, accumulating heights (cached or estimated)
  * 3. Find startIndex/endIndex for the visible + overscan range
  * 4. Compute top/bottom spacer heights for correct scroll position
+ * 5. After items are measured, recalculate (batched via microtask) to keep
+ *    spacers consistent with actual heights and prevent oscillation
  *
  * @param viewportEl - Ref to the scrollable viewport element
  * @param options - Configuration: items array, defaultItemHeight, overscan, keyFn
@@ -35,6 +37,9 @@ export function useScrollWindow<T>(
 
   /** Whether a rAF update is already scheduled. */
   let rafPending = false;
+
+  /** Whether measurement-triggered recalculate is batched via microtask. */
+  let measureBatchPending = false;
 
   function getItemHeight(item: T, index: number): number {
     const key = keyFn(item, index);
@@ -71,11 +76,13 @@ export function useScrollWindow<T>(
     let newStart = 0;
     let newEnd = count - 1;
     let foundStart = false;
+    let topHeight = 0;
 
     for (let i = 0; i < count; i++) {
       const h = getItemHeight(itemList[i]!, i);
       if (!foundStart && accumulated + h > viewTop) {
         newStart = i;
+        topHeight = accumulated;
         foundStart = true;
       }
       accumulated += h;
@@ -90,13 +97,7 @@ export function useScrollWindow<T>(
       newEnd = count - 1;
     }
 
-    // Compute top spacer: sum of heights for items before startIndex
-    let topHeight = 0;
-    for (let i = 0; i < newStart; i++) {
-      topHeight += getItemHeight(itemList[i]!, i);
-    }
-
-    // Compute bottom spacer: sum of heights for items after endIndex
+    // Bottom spacer: total height minus what's above and including the visible range
     let bottomHeight = 0;
     for (let i = newEnd + 1; i < count; i++) {
       bottomHeight += getItemHeight(itemList[i]!, i);
@@ -150,8 +151,18 @@ export function useScrollWindow<T>(
   function measureItem(key: string | number, el: HTMLElement | null) {
     if (!el) return;
     const height = el.offsetHeight;
-    if (height > 0) {
+    if (height > 0 && heightCache.get(key) !== height) {
       heightCache.set(key, height);
+      // Batch measurement-triggered recalculates via microtask so all items
+      // measured in a single render cycle produce one recalculate, keeping
+      // spacer heights consistent with cached measurements.
+      if (!measureBatchPending) {
+        measureBatchPending = true;
+        queueMicrotask(() => {
+          measureBatchPending = false;
+          recalculate();
+        });
+      }
     }
   }
 
