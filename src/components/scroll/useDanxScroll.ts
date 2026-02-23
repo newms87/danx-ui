@@ -48,6 +48,35 @@ export interface UseDanxScrollReturn {
 }
 
 const AUTO_HIDE_DELAY = 1200;
+const MIN_THUMB_PX = 24;
+
+/**
+ * Compute thumb size and position for one axis.
+ * Clamps thumb to MIN_THUMB_PX minimum and uses scroll-ratio positioning
+ * so the thumb stays within track bounds even when clamped.
+ */
+function computeThumbStyle(
+  clientSize: number,
+  scrollSize: number,
+  scrollPos: number,
+  axis: "X" | "Y"
+): CSSProperties {
+  let thumbPct = (clientSize / scrollSize) * 100;
+
+  if ((thumbPct / 100) * clientSize < MIN_THUMB_PX) {
+    thumbPct = (MIN_THUMB_PX / clientSize) * 100;
+  }
+
+  const scrollRatio = scrollPos / (scrollSize - clientSize);
+  const maxTranslatePct = ((100 - thumbPct) / thumbPct) * 100;
+  const sizeProp = axis === "Y" ? "height" : "width";
+  const transformFn = axis === "Y" ? "translateY" : "translateX";
+
+  return {
+    [sizeProp]: `${thumbPct}%`,
+    transform: `${transformFn}(${scrollRatio * maxTranslatePct}%)`,
+  };
+}
 
 export function useDanxScroll(
   containerEl: Ref<HTMLElement | null>,
@@ -98,22 +127,12 @@ export function useDanxScroll(
 
     // Vertical thumb
     if (hasVerticalOverflow.value) {
-      const thumbHeightPct = (clientHeight / scrollHeight) * 100;
-      const thumbTopPct = (scrollTop / scrollHeight) * 100;
-      verticalThumbStyle.value = {
-        height: `${thumbHeightPct}%`,
-        transform: `translateY(${scrollTop === 0 ? 0 : (thumbTopPct / thumbHeightPct) * 100}%)`,
-      };
+      verticalThumbStyle.value = computeThumbStyle(clientHeight, scrollHeight, scrollTop, "Y");
     }
 
     // Horizontal thumb
     if (hasHorizontalOverflow.value) {
-      const thumbWidthPct = (clientWidth / scrollWidth) * 100;
-      const thumbLeftPct = (scrollLeft / scrollWidth) * 100;
-      horizontalThumbStyle.value = {
-        width: `${thumbWidthPct}%`,
-        transform: `translateX(${scrollLeft === 0 ? 0 : (thumbLeftPct / thumbWidthPct) * 100}%)`,
-      };
+      horizontalThumbStyle.value = computeThumbStyle(clientWidth, scrollWidth, scrollLeft, "X");
     }
   }
 

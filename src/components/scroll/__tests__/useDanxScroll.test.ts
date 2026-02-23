@@ -163,6 +163,8 @@ describe("useDanxScroll", () => {
       containerEl.value = el;
       await nextTick();
 
+      // thumbHeightPct = 300/1000 * 100 = 30%
+      // scrollRatio = 0 / (1000-300) = 0, maxTranslate = (70/30)*100 = 233.33%
       expect(result.verticalThumbStyle.value).toEqual({
         height: "30%",
         transform: "translateY(0%)",
@@ -178,8 +180,9 @@ describe("useDanxScroll", () => {
       await nextTick();
 
       // thumbHeightPct = 300/1000 * 100 = 30%
-      // thumbTopPct = 350/1000 * 100 = 35%
-      // translateY = (35/30) * 100 = 116.666...%
+      // scrollRatio = 350 / (1000-300) = 0.5
+      // maxTranslate = ((100-30)/30) * 100 = 233.333...%
+      // translateY = 0.5 * 233.333... = 116.666...%
       const style = result.verticalThumbStyle.value as Record<string, string>;
       expect(style.height).toBe("30%");
       expect(style.transform).toBe("translateY(116.66666666666667%)");
@@ -220,11 +223,68 @@ describe("useDanxScroll", () => {
       await nextTick();
 
       // thumbWidthPct = 300/1000 * 100 = 30%
-      // thumbLeftPct = 350/1000 * 100 = 35%
-      // translateX = (35/30) * 100 = 116.666...%
+      // scrollRatio = 350 / (1000-300) = 0.5
+      // maxTranslate = ((100-30)/30) * 100 = 233.333...%
+      // translateX = 0.5 * 233.333... = 116.666...%
       const style = result.horizontalThumbStyle.value as Record<string, string>;
       expect(style.width).toBe("30%");
       expect(style.transform).toBe("translateX(116.66666666666667%)");
+    });
+
+    it("clamps vertical thumb to minimum 24px", async () => {
+      // scrollHeight=100000, clientHeight=300 → raw pct = 0.3%, which is 0.9px < 24px
+      const el = createMockElement({ scrollHeight: 100000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const style = result.verticalThumbStyle.value as Record<string, string>;
+      // Clamped: 24/300 * 100 = 8%
+      expect(style.height).toBe("8%");
+    });
+
+    it("clamps horizontal thumb to minimum 24px", async () => {
+      const el = createMockElement({
+        scrollWidth: 100000,
+        clientWidth: 300,
+        scrollLeft: 0,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const style = result.horizontalThumbStyle.value as Record<string, string>;
+      // Clamped: 24/300 * 100 = 8%
+      expect(style.width).toBe("8%");
+    });
+
+    it("keeps clamped thumb within track bounds when scrolled to end", async () => {
+      // scrollHeight=100000, clientHeight=300, scrollTop at max
+      const maxScrollTop = 100000 - 300;
+      const el = createMockElement({
+        scrollHeight: 100000,
+        clientHeight: 300,
+        scrollTop: maxScrollTop,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const style = result.verticalThumbStyle.value as Record<string, string>;
+      // scrollRatio = 1.0, thumbHeightPct = 8%
+      // maxTranslate = ((100-8)/8) * 100 = 1150%
+      // translateY = 1 * 1150 = 1150%
+      // Thumb bottom = 8% + 8% * 1150/100 = 8% + 92% = 100% → exactly at track bottom
+      expect(style.height).toBe("8%");
+      expect(style.transform).toBe("translateY(1150%)");
     });
   });
 
@@ -516,9 +576,11 @@ describe("useDanxScroll", () => {
       // Trigger the ResizeObserver callback
       resizeCallback!();
 
-      // Thumb height should reflect new ratio: 300/2000 = 15%
+      // Thumb height should reflect new ratio: 300/2000 * 100 = 15%
       const style = result.verticalThumbStyle.value as Record<string, string>;
       expect(style.height).toBe("15%");
+      // scrollTop=0, scrollRatio=0, so translateY=0
+      expect(style.transform).toBe("translateY(0%)");
     });
   });
 
@@ -547,7 +609,7 @@ describe("useDanxScroll", () => {
       result.onHorizontalTrackClick(clickEvent);
     });
 
-    it("handles drag move when container is null", () => {
+    it("handles vertical drag move when container is null", () => {
       const containerEl = ref<HTMLElement | null>(null);
       const result = createComposable(containerEl);
 
@@ -559,6 +621,21 @@ describe("useDanxScroll", () => {
 
       // Should not throw
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 130 }));
+      document.dispatchEvent(new MouseEvent("mouseup"));
+    });
+
+    it("handles horizontal drag move when container is null", () => {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      const mousedownEvent = new MouseEvent("mousedown", { clientX: 100 });
+      Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
+      Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
+
+      result.onHorizontalThumbMouseDown(mousedownEvent);
+
+      // Should not throw — covers horizontal branch in onDragMove with null container
+      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 130 }));
       document.dispatchEvent(new MouseEvent("mouseup"));
     });
   });

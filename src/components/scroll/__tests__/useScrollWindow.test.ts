@@ -30,6 +30,7 @@ describe("useScrollWindow", () => {
       defaultItemHeight?: number;
       overscan?: number;
       keyFn?: (item: string, i: number) => string | number;
+      totalItems?: number;
     } = {}
   ) {
     let result!: ScrollWindowReturn<string>;
@@ -514,6 +515,106 @@ describe("useScrollWindow", () => {
 
     expect(result.startIndex.value).toBe(0);
     expect(result.startOffset.value).toBe(0);
+  });
+
+  describe("totalItems", () => {
+    it("uses fixed totalHeight when totalItems is provided", () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 500,
+      });
+
+      // totalHeight = 500 * 40 = 20000, regardless of loaded items count
+      expect(result.totalHeight.value).toBe(20000);
+    });
+
+    it("totalHeight stays fixed even after height measurements", async () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 500,
+      });
+
+      // Measure some items at different heights
+      for (let i = 0; i < 5; i++) {
+        const mockEl = document.createElement("div");
+        Object.defineProperty(mockEl, "offsetHeight", { value: 80, configurable: true });
+        result.measureItem(i, mockEl);
+      }
+      await nextTick();
+
+      // totalHeight should still be fixed at totalItems * defaultItemHeight
+      expect(result.totalHeight.value).toBe(20000);
+    });
+
+    it("totalHeight stays fixed when items grow", async () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 500,
+      });
+
+      expect(result.totalHeight.value).toBe(20000);
+
+      // Add more items
+      items.value = [...items.value, ...Array.from({ length: 20 }, (_, i) => `item-${10 + i}`)];
+      await nextTick();
+
+      // Still fixed
+      expect(result.totalHeight.value).toBe(20000);
+    });
+
+    it("empty items with totalItems still produces fixed totalHeight", () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref<string[]>([]);
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 100,
+      });
+
+      expect(result.totalHeight.value).toBe(4000);
+    });
+
+    it("visible range still uses measured heights even with totalItems", async () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 1000,
+      });
+
+      // Measure first 5 items as 80px
+      for (let i = 0; i < 5; i++) {
+        const mockEl = document.createElement("div");
+        Object.defineProperty(mockEl, "offsetHeight", { value: 80, configurable: true });
+        result.measureItem(i, mockEl);
+      }
+      await nextTick();
+
+      // With 80px items, only ~2-3 fit in 200px viewport
+      expect(result.endIndex.value).toBeLessThan(4);
+      // But totalHeight is still fixed
+      expect(result.totalHeight.value).toBe(40000);
+    });
   });
 
   it("unmount with null viewport does not throw", () => {

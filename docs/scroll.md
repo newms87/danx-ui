@@ -210,7 +210,7 @@ const {
 
 ## Virtual Scroll
 
-`DanxVirtualScroll` renders only the items visible in the viewport (plus an overscan buffer), using spacer divs to maintain correct scroll height. Built on top of `DanxScroll` for custom overlay scrollbars.
+`DanxVirtualScroll` renders only the items visible in the viewport (plus an overscan buffer), using absolute positioning within a fixed-height container. Built on top of `DanxScroll` for custom overlay scrollbars. The scrollbar thumb has a minimum size of 24px so it remains visible and grabbable even with very large lists.
 
 ### DanxVirtualScroll Props
 
@@ -222,14 +222,15 @@ All `DanxScroll` props are supported, plus:
 | `defaultItemHeight` | `number` | `40` | Estimated height for unmeasured items |
 | `overscan` | `number` | `3` | Extra items above/below viewport |
 | `keyFn` | `(item, index) => string \| number` | index | Unique key for height caching |
+| `totalItems` | `number` | — | Total items in full dataset (stabilizes scrollbar) |
 
 ### DanxVirtualScroll Slots
 
 | Slot | Props | Description |
 |------|-------|-------------|
 | `item` | `{ item: T, index: number }` | Scoped slot for each visible item |
-| `loading` | — | Passed through to DanxScroll |
-| `done` | — | Passed through to DanxScroll |
+| `loading` | — | Loading indicator (at end of visible items) |
+| `done` | — | Done indicator (at end of visible items) |
 
 ### Local Mode
 
@@ -259,6 +260,7 @@ Combine with infinite scroll to load items on demand:
 ```vue
 <DanxVirtualScroll
   :items="items"
+  :totalItems="totalCount"
   infiniteScroll
   :loading="loading"
   :canLoadMore="hasMore"
@@ -270,6 +272,8 @@ Combine with infinite scroll to load items on demand:
   </template>
 </DanxVirtualScroll>
 ```
+
+The `totalItems` prop makes the scrollbar proportional to the full dataset. Without it, the scrollbar only represents loaded items. With it, dragging the scrollbar to 50% scrolls to approximately the middle of the full dataset.
 
 ### Log Viewer Pattern
 
@@ -307,16 +311,17 @@ const {
   visibleItems,   // Computed: slice of items in viewport
   startIndex,     // Ref: first rendered index
   endIndex,       // Ref: last rendered index
-  topSpacerHeight,    // Ref: pixels for top spacer
-  bottomSpacerHeight, // Ref: pixels for bottom spacer
+  startOffset,    // Ref: absolute top offset for first visible item
+  totalHeight,    // Ref: container height (fixed when totalItems set)
   measureItem,    // (key, el) => void — cache item height
   scrollToIndex,  // (index) => void — scroll to item
-  totalHeight,    // Computed: sum of all heights
+  keyFn,          // Resolved key extractor function
 } = useScrollWindow(viewportEl, {
   items,
   defaultItemHeight: 40,
   overscan: 3,
   keyFn: (item) => item.id,
+  totalItems: 10000, // Optional: stabilizes scrollbar for remote datasets
 });
 ```
 

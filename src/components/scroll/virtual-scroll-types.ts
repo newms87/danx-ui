@@ -26,6 +26,14 @@ export interface ScrollWindowOptions<T> {
    * heights survive reordering. Defaults to the item's array index.
    */
   keyFn?: (item: T, index: number) => string | number;
+
+  /**
+   * Total number of items in the full dataset (including unloaded items in remote mode).
+   * When provided, totalHeight is fixed at totalItems * defaultItemHeight, making the
+   * scrollbar stable and proportional to the full dataset. Without this, totalHeight
+   * is computed from loaded items only.
+   */
+  totalItems?: number;
 }
 
 /**
@@ -84,6 +92,12 @@ export interface DanxVirtualScrollProps<T = unknown> extends DanxScrollProps {
    * Defaults to array index.
    */
   keyFn?: (item: T, index: number) => string | number;
+
+  /**
+   * Total number of items in the full dataset (remote mode).
+   * Makes scrollbar proportional to full dataset size.
+   */
+  totalItems?: number;
 }
 
 /**
@@ -93,9 +107,9 @@ export interface DanxVirtualScrollSlots<T = unknown> {
   /** Scoped slot for each visible item. */
   item?(props: { item: T; index: number }): unknown;
 
-  /** Loading indicator (passed through to DanxScroll). */
+  /** Loading indicator (rendered at end of visible items when loading=true). */
   loading?(): unknown;
 
-  /** Done indicator (passed through to DanxScroll). */
+  /** Done indicator (rendered at end of visible items when canLoadMore=false). */
   done?(): unknown;
 }

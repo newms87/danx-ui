@@ -29,7 +29,7 @@ export function useScrollWindow<T>(
   viewportEl: Ref<HTMLElement | null>,
   options: ScrollWindowOptions<T>
 ): ScrollWindowReturn<T> {
-  const { items, defaultItemHeight = 40, overscan = 3 } = options;
+  const { items, defaultItemHeight = 40, overscan = 3, totalItems } = options;
   const keyFn = options.keyFn ?? ((_item: T, index: number) => index);
 
   const startIndex = ref(0);
@@ -76,7 +76,7 @@ export function useScrollWindow<T>(
     if (count === 0) {
       startIndex.value = 0;
       endIndex.value = 0;
-      totalHeight.value = 0;
+      totalHeight.value = totalItems != null ? totalItems * defaultItemHeight : 0;
       startOffset.value = 0;
       return;
     }
@@ -112,16 +112,21 @@ export function useScrollWindow<T>(
       newEnd = count - 1;
     }
 
-    // Total height: continue accumulating for remaining items after the break
-    let total = accumulated;
-    for (let i = newEnd + 1; i < count; i++) {
-      total += getItemHeight(itemList[i]!, i);
-    }
-
     startIndex.value = newStart;
     endIndex.value = newEnd;
-    totalHeight.value = total;
     startOffset.value = offset;
+
+    // When totalItems is provided, use a fixed totalHeight for stable scrollbar
+    if (totalItems != null) {
+      totalHeight.value = totalItems * defaultItemHeight;
+    } else {
+      // Compute from loaded items (continue accumulating for remaining items)
+      let total = accumulated;
+      for (let i = newEnd + 1; i < count; i++) {
+        total += getItemHeight(itemList[i]!, i);
+      }
+      totalHeight.value = total;
+    }
   }
 
   function onScroll() {

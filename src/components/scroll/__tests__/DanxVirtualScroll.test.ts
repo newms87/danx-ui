@@ -136,7 +136,7 @@ describe("DanxVirtualScroll", () => {
     expect(scrollWrapper.classes()).toContain("danx-scroll--lg");
   });
 
-  it("emits loadMore when infinite scroll triggers", async () => {
+  it("does not pass infinite scroll props to DanxScroll", () => {
     const wrapper = mountVirtualScroll({
       items: Array.from({ length: 10 }, (_, i) => `item-${i}`),
       infiniteScroll: true,
@@ -144,12 +144,30 @@ describe("DanxVirtualScroll", () => {
       loading: false,
     });
 
-    // DanxScroll's loadMore should bubble through
+    // DanxScroll should not receive infinite scroll props
     const danxScroll = wrapper.findComponent({ name: "DanxScroll" });
-    danxScroll.vm.$emit("loadMore");
+    // DanxScroll should receive its default (false), not the true we passed to DanxVirtualScroll
+    expect(danxScroll.props("infiniteScroll")).toBe(false);
+  });
+
+  it("does not show indicators when infiniteScroll is false", async () => {
+    const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
+    const wrapper = mountVirtualScroll({
+      items,
+      infiniteScroll: false,
+      loading: true,
+      canLoadMore: false,
+      defaultItemHeight: 40,
+      overscan: 0,
+    });
+
+    mockViewportDimensions(wrapper, { clientHeight: 400 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
     await nextTick();
 
-    expect(wrapper.emitted("loadMore")).toBeTruthy();
+    // No indicators even though loading=true and canLoadMore=false
+    expect(wrapper.find(".danx-scroll__loading").exists()).toBe(false);
+    expect(wrapper.find(".danx-scroll__done").exists()).toBe(false);
   });
 
   it("updates when items array changes reactively", async () => {
@@ -209,34 +227,127 @@ describe("DanxVirtualScroll", () => {
     expect(renderedItems[0]!.text()).toBe("Alpha");
   });
 
-  it("passes through loading slot", () => {
+  it("renders loading indicator at end of visible items", async () => {
+    const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
     const wrapper = mountVirtualScroll(
       {
-        items: ["a"],
+        items,
         infiniteScroll: true,
         loading: true,
+        defaultItemHeight: 40,
+        overscan: 0,
       },
       {
         loading: '<span class="custom-loader">Loading items...</span>',
       }
     );
 
+    // Mock viewport so all items are visible (endIndex >= items.length - 1)
+    mockViewportDimensions(wrapper, { clientHeight: 400 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
     expect(wrapper.find(".custom-loader").exists()).toBe(true);
   });
 
-  it("passes through done slot", () => {
+  it("renders done indicator at end of visible items", async () => {
+    const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
     const wrapper = mountVirtualScroll(
       {
-        items: ["a"],
+        items,
         infiniteScroll: true,
         canLoadMore: false,
+        defaultItemHeight: 40,
+        overscan: 0,
       },
       {
         done: '<span class="custom-done">All loaded!</span>',
       }
     );
 
+    mockViewportDimensions(wrapper, { clientHeight: 400 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
     expect(wrapper.find(".custom-done").exists()).toBe(true);
+  });
+
+  it("hides indicators when not scrolled to end of loaded items", async () => {
+    const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+    const wrapper = mountVirtualScroll(
+      {
+        items,
+        infiniteScroll: true,
+        loading: true,
+        defaultItemHeight: 40,
+        overscan: 0,
+      },
+      {
+        loading: '<span class="custom-loader">Loading items...</span>',
+      }
+    );
+
+    // Small viewport — only first few items visible, not at end
+    mockViewportDimensions(wrapper, { clientHeight: 200 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    expect(wrapper.find(".custom-loader").exists()).toBe(false);
+  });
+
+  it("renders default loading text when no loading slot provided", async () => {
+    const items = Array.from({ length: 3 }, (_, i) => `item-${i}`);
+    const wrapper = mountVirtualScroll({
+      items,
+      infiniteScroll: true,
+      loading: true,
+      defaultItemHeight: 40,
+      overscan: 0,
+    });
+
+    mockViewportDimensions(wrapper, { clientHeight: 400 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    expect(wrapper.find(".danx-scroll__loading").exists()).toBe(true);
+    expect(wrapper.find(".danx-scroll__loading").text()).toBe("Loading...");
+  });
+
+  it("renders default done text when no done slot provided", async () => {
+    const items = Array.from({ length: 3 }, (_, i) => `item-${i}`);
+    const wrapper = mountVirtualScroll({
+      items,
+      infiniteScroll: true,
+      canLoadMore: false,
+      defaultItemHeight: 40,
+      overscan: 0,
+    });
+
+    mockViewportDimensions(wrapper, { clientHeight: 400 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    expect(wrapper.find(".danx-scroll__done").exists()).toBe(true);
+    expect(wrapper.find(".danx-scroll__done").text()).toBe("No more items");
+  });
+
+  it("totalItems prop produces stable totalHeight in container", async () => {
+    const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+    const wrapper = mountVirtualScroll({
+      items,
+      defaultItemHeight: 40,
+      totalItems: 500,
+      overscan: 0,
+    });
+
+    mockViewportDimensions(wrapper, { clientHeight: 200 });
+    wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    // Container height should be totalItems * defaultItemHeight = 20000px
+    const viewport = wrapper.find(".danx-scroll__viewport");
+    const container = viewport.element.children[0] as HTMLElement;
+    expect(container.style.height).toBe("20000px");
   });
 
   it("wraps DanxScroll component", () => {

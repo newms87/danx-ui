@@ -12,7 +12,7 @@
  *
  * Supports two modes:
  * - Local: All items passed upfront, only visible window rendered
- * - Remote: Items grow via infinite scroll (DanxScroll handles load-more trigger)
+ * - Remote: Items grow via infinite scroll (DanxVirtualScroll handles load-more directly)
  *
  * Items can have variable heights — measured after render via ref callbacks.
  *
@@ -21,15 +21,21 @@
  *   defaultItemHeight?: number - Estimated height for unmeasured items (default: 40)
  *   overscan?: number - Extra items above/below viewport (default: 3)
  *   keyFn?: (item: T, index: number) => string | number - Unique key extractor (default: index)
- *   ...DanxScrollProps - All DanxScroll props pass through
+ *   totalItems?: number - Total items in full dataset (for stable scrollbar in remote mode)
+ *   infiniteScroll?: boolean - Enable infinite scroll (read once at mount, not reactive) (default: false)
+ *   loading?: boolean - Load in progress (default: false)
+ *   canLoadMore?: boolean - Whether more items exist (default: true)
+ *   distance?: number - Pixel threshold for infinite trigger (default: 200)
+ *   infiniteDirection?: InfiniteScrollEdge - Edge for loading (default: "bottom")
+ *   ...DanxScrollProps - Non-infinite-scroll DanxScroll props pass through
  *
  * @emits
- *   loadMore - Passed through to DanxScroll (only when infiniteScroll=true)
+ *   loadMore - Fired when scroll threshold crossed (only when infiniteScroll=true)
  *
  * @slots
  *   item - Scoped slot receiving { item, index } for each visible item
- *   loading - Passed through to DanxScroll
- *   done - Passed through to DanxScroll
+ *   loading - Loading indicator (shown at end of visible items when loading=true)
+ *   done - Done indicator (shown at end of visible items when canLoadMore=false)
  *
  * @tokens
  *   Inherits all DanxScroll CSS tokens
@@ -56,6 +62,7 @@
  */
 import { type ComponentPublicInstance, computed, onMounted, ref, toRef } from "vue";
 import DanxScroll from "./DanxScroll.vue";
+import { useScrollInfinite } from "./useScrollInfinite";
 import { useScrollWindow } from "./useScrollWindow";
 import type { DanxVirtualScrollProps, DanxVirtualScrollSlots } from "./virtual-scroll-types";
 
@@ -71,11 +78,25 @@ const emit = defineEmits<{
 defineSlots<DanxVirtualScrollSlots<T>>();
 
 /**
- * DanxScroll passthrough props — all props except virtual-scroll-specific ones.
- * DanxScroll applies its own defaults, so we only forward what was explicitly set.
+ * DanxScroll passthrough props — virtual-scroll-specific and infinite scroll props
+ * are filtered out. DanxVirtualScroll handles infinite scroll directly so that
+ * loading/done indicators render inside the positioned wrapper instead of at the
+ * bottom of the viewport where absolute positioning would misplace them.
  */
 const scrollProps = computed(() => {
-  const { items: _, defaultItemHeight: _d, overscan: _o, keyFn: _k, ...rest } = props;
+  const {
+    items: _,
+    defaultItemHeight: _d,
+    overscan: _o,
+    keyFn: _k,
+    totalItems: _t,
+    infiniteScroll: _is,
+    loading: _l,
+    canLoadMore: _c,
+    distance: _dist,
+    infiniteDirection: _dir,
+    ...rest
+  } = props;
   return rest;
 });
 
@@ -90,13 +111,29 @@ onMounted(() => {
   }
 });
 
-const { visibleItems, startIndex, totalHeight, startOffset, measureItem, keyFn } =
+const { visibleItems, startIndex, endIndex, totalHeight, startOffset, measureItem, keyFn } =
   useScrollWindow<T>(viewportEl, {
     items: toRef(props, "items"),
     defaultItemHeight: props.defaultItemHeight,
     overscan: props.overscan,
     keyFn: props.keyFn,
+    totalItems: props.totalItems,
   });
+
+// DanxVirtualScroll handles infinite scroll directly so indicators render
+// inside the positioned wrapper (not at the bottom of DanxScroll's viewport)
+if (props.infiniteScroll) {
+  useScrollInfinite(viewportEl, {
+    distance: props.distance,
+    direction: props.infiniteDirection,
+    canLoadMore: toRef(props, "canLoadMore"),
+    loading: toRef(props, "loading"),
+    onLoadMore: () => emit("loadMore"),
+  });
+}
+
+/** Whether the user has scrolled to the end of loaded items */
+const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);
 
 function itemRef(index: number) {
   return (el: Element | ComponentPublicInstance | null) => {
@@ -110,7 +147,7 @@ function itemRef(index: number) {
 </script>
 
 <template>
-  <DanxScroll ref="scrollRef" v-bind="scrollProps" @load-more="emit('loadMore')">
+  <DanxScroll ref="scrollRef" v-bind="scrollProps">
     <!-- Container sized to total content height for correct scrollbar -->
     <div :style="{ height: totalHeight + 'px', position: 'relative' }">
       <!--
@@ -127,15 +164,22 @@ function itemRef(index: number) {
         >
           <slot name="item" :item="item" :index="startIndex + i" />
         </div>
+
+        <!-- Infinite scroll indicators — rendered at the end of visible items -->
+        <template v-if="infiniteScroll && isAtEnd">
+          <div v-if="loading" class="danx-scroll__loading">
+            <slot name="loading">
+              <span>Loading...</span>
+            </slot>
+          </div>
+
+          <div v-if="!canLoadMore" class="danx-scroll__done">
+            <slot name="done">
+              <span>No more items</span>
+            </slot>
+          </div>
+        </template>
       </div>
     </div>
-
-    <template v-if="$slots.loading" #loading>
-      <slot name="loading" />
-    </template>
-
-    <template v-if="$slots.done" #done>
-      <slot name="done" />
-    </template>
   </DanxScroll>
 </template>
