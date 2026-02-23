@@ -46,6 +46,7 @@ import { DanxScroll } from "danx-ui";
 | `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"md"` | Thumb thickness |
 | `variant` | `VariantType` | `""` | Color variant |
 | `persistent` | `boolean` | `false` | Always show scrollbar |
+| `hoverThreshold` | `number` | `20` | Proximity (px) to reveal scrollbar on hover |
 | `infiniteScroll` | `boolean` | `false` | Enable infinite scroll |
 | `distance` | `number` | `200` | Trigger threshold (px) |
 | `infiniteDirection` | `"top" \| "bottom" \| "left" \| "right"` | `"bottom"` | Loading edge |

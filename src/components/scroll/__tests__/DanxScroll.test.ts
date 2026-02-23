@@ -120,9 +120,11 @@ describe("DanxScroll", () => {
   });
 
   describe("Variant styles", () => {
-    it("applies no inline style when variant is empty", () => {
+    it("applies only hover threshold when variant is empty", () => {
       const wrapper = mountComponent({ variant: "" });
-      expect(wrapper.attributes("style")).toBeUndefined();
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-scroll-hover-threshold: 20px");
+      expect(style).not.toContain("--dx-scroll-thumb-bg");
     });
 
     it("applies variant inline styles when variant is set", () => {
@@ -130,6 +132,20 @@ describe("DanxScroll", () => {
       const style = wrapper.attributes("style") ?? "";
       expect(style).toContain("--dx-scroll-thumb-bg");
       expect(style).toContain("danger");
+    });
+  });
+
+  describe("Hover threshold", () => {
+    it("sets default hover threshold CSS variable", () => {
+      const wrapper = mountComponent();
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-scroll-hover-threshold: 20px");
+    });
+
+    it("sets custom hover threshold CSS variable", () => {
+      const wrapper = mountComponent({ hoverThreshold: 40 });
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-scroll-hover-threshold: 40px");
     });
   });
 

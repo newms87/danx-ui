@@ -78,22 +78,24 @@
   }
 }
 
-/* Vertical track — right edge */
+/* Vertical track — right edge, with hover threshold extending leftward */
 .danx-scroll__track--vertical {
   top: 0;
   right: 0;
   bottom: 0;
-  width: calc(var(--_thumb-thickness) + var(--_track-padding) * 2);
+  width: calc(var(--_thumb-thickness) + var(--_track-padding) * 2 + var(--dx-scroll-hover-threshold, 20px));
   padding: var(--_track-padding);
+  padding-left: calc(var(--_track-padding) + var(--dx-scroll-hover-threshold, 20px));
 }
 
-/* Horizontal track — bottom edge */
+/* Horizontal track — bottom edge, with hover threshold extending upward */
 .danx-scroll__track--horizontal {
   left: 0;
   right: 0;
   bottom: 0;
-  height: calc(var(--_thumb-thickness) + var(--_track-padding) * 2);
+  height: calc(var(--_thumb-thickness) + var(--_track-padding) * 2 + var(--dx-scroll-hover-threshold, 20px));
   padding: var(--_track-padding);
+  padding-top: calc(var(--_track-padding) + var(--dx-scroll-hover-threshold, 20px));
 }
 
 /* Thumb */

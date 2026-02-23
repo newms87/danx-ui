@@ -82,6 +82,7 @@ const props = withDefaults(defineProps<DanxScrollProps>(), {
   size: "md",
   variant: "",
   persistent: false,
+  hoverThreshold: 20,
   infiniteScroll: false,
   distance: 200,
   infiniteDirection: "bottom",
@@ -147,10 +148,15 @@ const wrapperClasses = computed(() => [
   `danx-scroll--${props.direction}`,
   `danx-scroll--${props.size}`,
 ]);
+
+const wrapperStyle = computed(() => ({
+  ...variantStyle.value,
+  "--dx-scroll-hover-threshold": `${props.hoverThreshold}px`,
+}));
 </script>
 
 <template>
-  <component :is="tag" :class="wrapperClasses" :style="variantStyle">
+  <component :is="tag" :class="wrapperClasses" :style="wrapperStyle">
     <!-- Scrollable viewport -->
     <div ref="viewportRef" class="danx-scroll__viewport">
       <slot />

@@ -43,6 +43,9 @@ export interface DanxScrollProps {
   /** Keep scrollbar always visible (no auto-hide). @default false */
   persistent?: boolean;
 
+  /** Hover proximity threshold in pixels — scrollbar appears when the cursor is within this distance of the track edge. @default 20 */
+  hoverThreshold?: number;
+
   /** Enable infinite scroll behavior. @default false */
   infiniteScroll?: boolean;
 
