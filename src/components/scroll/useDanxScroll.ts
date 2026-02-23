@@ -185,17 +185,32 @@ export function useDanxScroll(
     currentMouseY = e.clientY;
     if (!el) return;
 
-    if (dragAxis === "vertical") {
-      const delta = e.clientY - dragStartPos;
-      const ratio = el.scrollHeight / el.clientHeight;
-      el.scrollTop = dragStartScroll + delta * ratio;
-    } else {
-      const delta = e.clientX - dragStartPos;
-      const ratio = el.scrollWidth / el.clientWidth;
-      el.scrollLeft = dragStartScroll + delta * ratio;
-    }
+    const rect = el.getBoundingClientRect();
+    const overshoot = computeOvershoot(rect);
 
-    maybeStartAutoScroll();
+    if (overshoot !== 0) {
+      // Cursor is beyond bounds — auto-scroll handles scrolling.
+      // Rebase drag origin so returning to bounds resumes smoothly.
+      if (dragAxis === "vertical") {
+        dragStartScroll = el.scrollTop;
+        dragStartPos = currentMouseY;
+      } else {
+        dragStartScroll = el.scrollLeft;
+        dragStartPos = currentMouseX;
+      }
+      maybeStartAutoScroll();
+    } else {
+      // Normal drag — cursor is within bounds
+      if (dragAxis === "vertical") {
+        const delta = e.clientY - dragStartPos;
+        const ratio = el.scrollHeight / el.clientHeight;
+        el.scrollTop = dragStartScroll + delta * ratio;
+      } else {
+        const delta = e.clientX - dragStartPos;
+        const ratio = el.scrollWidth / el.clientWidth;
+        el.scrollLeft = dragStartScroll + delta * ratio;
+      }
+    }
   }
 
   function computeOvershoot(rect: DOMRect): number {
@@ -232,12 +247,8 @@ export function useDanxScroll(
 
       if (dragAxis === "vertical") {
         el.scrollTop += scrollDelta;
-        dragStartScroll = el.scrollTop;
-        dragStartPos = currentMouseY;
       } else {
         el.scrollLeft += scrollDelta;
-        dragStartScroll = el.scrollLeft;
-        dragStartPos = currentMouseX;
       }
 
       autoScrollRafId = requestAnimationFrame(autoScrollTick);

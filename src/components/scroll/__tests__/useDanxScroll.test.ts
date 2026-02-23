@@ -375,6 +375,7 @@ describe("useDanxScroll", () => {
   describe("Vertical thumb drag", () => {
     it("updates scrollTop on vertical drag", async () => {
       const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
       const containerEl = ref<HTMLElement | null>(null);
       const result = createComposable(containerEl);
 
@@ -386,7 +387,7 @@ describe("useDanxScroll", () => {
       // Scrollbar stays visible during drag
       expect(result.isVerticalVisible.value).toBe(true);
 
-      // Simulate mouse move
+      // Simulate mouse move (within bounds)
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 130 }));
 
       // scrollTop = 0 + 30 * (1000/300) = 100
@@ -405,6 +406,7 @@ describe("useDanxScroll", () => {
         scrollHeight: 300,
         clientHeight: 300,
       });
+      mockBoundingRect(el, { left: 0, right: 300 });
       const containerEl = ref<HTMLElement | null>(null);
       const result = createComposable(containerEl);
 
@@ -701,39 +703,40 @@ describe("useDanxScroll", () => {
     });
 
     it("speed scales with overshoot distance", async () => {
-      const el = createMockElement({ scrollHeight: 2000, clientHeight: 300, scrollTop: 0 });
-      mockBoundingRect(el, { top: 0, bottom: 300 });
-      const containerEl = ref<HTMLElement | null>(el);
+      // Test with two separate drag sessions to isolate each overshoot
+      const el1 = createMockElement({ scrollHeight: 2000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el1, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el1);
       const result = createComposable(containerEl);
       await nextTick();
 
       let tickCount = 0;
       const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
-        // Only run first tick to measure delta
-        if (tickCount === 0) {
-          tickCount++;
-          cb(0);
-        }
+        if (tickCount++ === 0) cb(0);
         return tickCount;
       });
 
+      // Small overshoot: 20px beyond bottom
       startVerticalDrag(result, 150);
-
-      // Small overshoot: 20px
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 320 }));
-      const scrollAfterSmall = el.scrollTop;
+      const scrollAfterSmall = el1.scrollTop;
+      // overshoot = 20, scrollDelta = 20 * 0.15 = 3
+      expect(scrollAfterSmall).toBeCloseTo(3, 0);
+      document.dispatchEvent(new MouseEvent("mouseup"));
 
-      // Reset
-      Object.defineProperty(el, "scrollTop", { value: 0, writable: true, configurable: true });
+      // Reset for second drag
+      Object.defineProperty(el1, "scrollTop", { value: 0, writable: true, configurable: true });
       tickCount = 0;
 
-      // Large overshoot: 200px
+      // Large overshoot: 200px beyond bottom
+      startVerticalDrag(result, 150);
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 500 }));
-      const scrollAfterLarge = el.scrollTop;
+      const scrollAfterLarge = el1.scrollTop;
+      // overshoot = 200, scrollDelta = 200 * 0.15 = 30
+      expect(scrollAfterLarge).toBeCloseTo(30, 0);
+      document.dispatchEvent(new MouseEvent("mouseup"));
 
       expect(scrollAfterLarge).toBeGreaterThan(scrollAfterSmall);
-
-      document.dispatchEvent(new MouseEvent("mouseup"));
       rafSpy.mockRestore();
     });
 
@@ -865,21 +868,51 @@ describe("useDanxScroll", () => {
 
       startVerticalDrag(result, 150);
 
-      // Move beyond bounds — auto-scroll runs one tick and rebases drag origin
+      // Move beyond bounds — onDragMove rebases (dragStartPos=350, dragStartScroll=0)
+      // then auto-scroll tick fires: scrollTop += 50 * 0.15 = 7.5
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 350 }));
-      const scrollAfterAutoScroll = el.scrollTop;
-      expect(scrollAfterAutoScroll).toBeGreaterThan(0);
+      expect(el.scrollTop).toBeGreaterThan(0);
 
-      // Now move back to where we started (within bounds)
-      // Without rebase, this would cause scrollTop to jump back toward 0
-      // With rebase, scrollTop should stay approximately where auto-scroll left it
+      // Move back within bounds — normal drag resumes from rebased origin
+      // dragStartPos=350, dragStartScroll=0 (rebase captured scrollTop before tick)
+      // delta = 150 - 350 = -200, ratio = 1000/300 ≈ 3.33
+      // scrollTop = 0 + (-200 * 3.33) = -666.67
       document.dispatchEvent(new MouseEvent("mousemove", { clientY: 150 }));
 
-      // After rebase: dragStartPos = 350 (currentMouseY), dragStartScroll = scrollAfterAutoScroll
-      // Moving to 150: delta = 150 - 350 = -200, ratio = 1000/300 ≈ 3.33
-      // scrollTop = scrollAfterAutoScroll + (-200 * 3.33)
-      const expectedScroll = scrollAfterAutoScroll + -200 * (1000 / 300);
+      const expectedScroll = 0 + -200 * (1000 / 300);
       expect(el.scrollTop).toBeCloseTo(expectedScroll, 0);
+
+      document.dispatchEvent(new MouseEvent("mouseup"));
+      rafSpy.mockRestore();
+    });
+
+    it("never reverses scroll when cursor moves closer but stays beyond bounds", async () => {
+      const el = createMockElement({ scrollHeight: 5000, clientHeight: 300, scrollTop: 0 });
+      mockBoundingRect(el, { top: 0, bottom: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+      await nextTick();
+
+      let tickCount = 0;
+      const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+        if (tickCount++ < 5) cb(0);
+        return tickCount;
+      });
+
+      startVerticalDrag(result, 150);
+
+      // Move far below — scrolls down
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 500 }));
+      const scrollAfterFar = el.scrollTop;
+      expect(scrollAfterFar).toBeGreaterThan(0);
+
+      // Move closer to bounds but still below (400 > bottom 300)
+      // Should NOT scroll up — only slow down
+      tickCount = 0;
+      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 400 }));
+      const scrollAfterCloser = el.scrollTop;
+
+      expect(scrollAfterCloser).toBeGreaterThanOrEqual(scrollAfterFar);
 
       document.dispatchEvent(new MouseEvent("mouseup"));
       rafSpy.mockRestore();
@@ -1004,17 +1037,16 @@ describe("useDanxScroll", () => {
 
       startHorizontalDrag(result, 150);
 
-      // Move beyond right edge — auto-scroll one tick
+      // Move beyond right edge — onDragMove rebases (dragStartPos=350, dragStartScroll=0)
+      // then auto-scroll tick fires: scrollLeft += 50 * 0.15 = 7.5
       document.dispatchEvent(new MouseEvent("mousemove", { clientX: 350 }));
-      const scrollAfterAutoScroll = el.scrollLeft;
-      expect(scrollAfterAutoScroll).toBeGreaterThan(0);
+      expect(el.scrollLeft).toBeGreaterThan(0);
 
-      // Return within bounds — rebase prevents jarring jump
+      // Return within bounds — normal drag from rebased origin
+      // dragStartPos=350, dragStartScroll=0, delta=150-350=-200, ratio=1000/300
       document.dispatchEvent(new MouseEvent("mousemove", { clientX: 150 }));
 
-      // After rebase: dragStartPos = 350, dragStartScroll = scrollAfterAutoScroll
-      // delta = 150 - 350 = -200, ratio = 1000/300
-      const expectedScroll = scrollAfterAutoScroll + -200 * (1000 / 300);
+      const expectedScroll = 0 + -200 * (1000 / 300);
       expect(el.scrollLeft).toBeCloseTo(expectedScroll, 0);
 
       document.dispatchEvent(new MouseEvent("mouseup"));
