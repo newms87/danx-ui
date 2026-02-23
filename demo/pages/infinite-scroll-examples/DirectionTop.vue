@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { DanxInfiniteScroll } from "danx-ui";
 
+const scrollContainer = ref(null);
 const messages = ref(Array.from({ length: 20 }, (_, i) => `Message ${20 - i}`));
 const loading = ref(false);
 const canLoadMore = ref(true);
@@ -21,27 +22,26 @@ function loadOlder() {
     loading.value = false;
   }, 600);
 }
+
+onMounted(() => {
+  nextTick(() => {
+    if (scrollContainer.value) {
+      scrollContainer.value.$el.scrollTop = scrollContainer.value.$el.scrollHeight;
+    }
+  });
+});
 </script>
 
 <template>
   <DanxInfiniteScroll
+    ref="scrollContainer"
     direction="top"
-    style="
-      width: 100%;
-      height: 300px;
-      border: 1px solid var(--color-border);
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-    "
+    class="w-full h-[300px] border border-border rounded-lg p-2"
     :loading="loading"
     :canLoadMore="canLoadMore"
     @loadMore="loadOlder"
   >
-    <div
-      v-for="(msg, idx) in messages"
-      :key="idx"
-      style="padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--color-border)"
-    >
+    <div v-for="(msg, idx) in messages" :key="idx" class="py-2 px-3 border-b border-border">
       💬 {{ msg }}
     </div>
   </DanxInfiniteScroll>

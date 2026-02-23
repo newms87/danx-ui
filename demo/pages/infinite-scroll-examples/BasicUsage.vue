@@ -24,22 +24,12 @@ function loadMore() {
 
 <template>
   <DanxInfiniteScroll
-    style="
-      width: 100%;
-      height: 300px;
-      border: 1px solid var(--color-border);
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-    "
+    class="w-full h-[300px] border border-border rounded-lg p-2"
     :loading="loading"
     :canLoadMore="canLoadMore"
     @loadMore="loadMore"
   >
-    <div
-      v-for="item in items"
-      :key="item"
-      style="padding: 0.75rem; border-bottom: 1px solid var(--color-border)"
-    >
+    <div v-for="item in items" :key="item" class="py-3 px-3 border-b border-border">
       {{ item }}
     </div>
   </DanxInfiniteScroll>

@@ -24,31 +24,21 @@ function loadMore() {
 
 <template>
   <DanxInfiniteScroll
-    style="
-      width: 100%;
-      height: 250px;
-      border: 1px solid var(--color-border);
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-    "
+    class="w-full h-[250px] border border-border rounded-lg p-2"
     :loading="loading"
     :canLoadMore="canLoadMore"
     @loadMore="loadMore"
   >
-    <div v-for="item in items" :key="item" style="padding: 0.5rem">
+    <div v-for="item in items" :key="item" class="p-2">
       {{ item }}
     </div>
 
     <template #loading>
-      <div style="text-align: center; padding: 1rem; color: var(--color-interactive)">
-        ⏳ Fetching more data...
-      </div>
+      <div class="text-center p-4 text-interactive">⏳ Fetching more data...</div>
     </template>
 
     <template #done>
-      <div style="text-align: center; padding: 1rem; color: var(--color-success); font-weight: 600">
-        ✅ You've reached the end!
-      </div>
+      <div class="text-center p-4 text-success font-semibold">✅ You've reached the end!</div>
     </template>
   </DanxInfiniteScroll>
 </template>
