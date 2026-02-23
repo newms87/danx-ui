@@ -36,6 +36,11 @@
   --dx-scroll-loading-color: var(--color-text-muted);
   --dx-scroll-done-color: var(--color-text-subtle);
   --dx-scroll-gap: 1rem;
+}
+
+.dark {
+  --dx-scroll-thumb-bg: rgb(255 255 255 / 0.35);
+  --dx-scroll-thumb-hover-bg: rgb(255 255 255 / 0.55);
 
   --dx-scroll-xs-thumb-thickness: 4px;
   --dx-scroll-xs-track-padding: 1px;
