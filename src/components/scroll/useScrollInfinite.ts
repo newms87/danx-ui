@@ -1,5 +1,5 @@
 /**
- * useDanxInfiniteScroll - Composable for infinite scroll behavior
+ * useScrollInfinite - Composable for infinite scroll behavior
  *
  * Thin wrapper around VueUse's useInfiniteScroll that adds
  * loading guarding and a simpler callback interface.
@@ -12,13 +12,13 @@
  */
 import { type Ref, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-import type { InfiniteScrollDirection } from "./types";
+import type { InfiniteScrollEdge } from "./types";
 
-export interface UseDanxInfiniteScrollOptions {
+export interface UseScrollInfiniteOptions {
   /** Distance in pixels from scroll edge to trigger loading. Read once at initialization. */
   distance?: number;
-  /** Scroll direction to observe. Read once at initialization. */
-  direction?: InfiniteScrollDirection;
+  /** Scroll edge to observe. Read once at initialization. */
+  direction?: InfiniteScrollEdge;
   /** Reactive ref — whether more items can be loaded */
   canLoadMore?: Ref<boolean>;
   /** Reactive ref — whether a load is in progress */
@@ -27,10 +27,7 @@ export interface UseDanxInfiniteScrollOptions {
   onLoadMore: () => void;
 }
 
-export function useDanxInfiniteScroll(
-  el: Ref<HTMLElement | null>,
-  options: UseDanxInfiniteScrollOptions
-) {
+export function useScrollInfinite(el: Ref<HTMLElement | null>, options: UseScrollInfiniteOptions) {
   const { distance = 200, direction = "bottom", canLoadMore, loading, onLoadMore } = options;
 
   const { reset, isLoading } = useInfiniteScroll(

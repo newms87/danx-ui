@@ -64,8 +64,7 @@ import { DanxTabs } from "../../src/components/tabs";
 import { DanxTooltip } from "../../src/components/tooltip";
 import { DanxProgressBar } from "../../src/components/progress-bar";
 import { DanxSplitPanel, SplitPanelHandle, useSplitPanel } from "../../src/components/split-panel";
-import { DanxInfiniteScroll } from "../../src/components/infinite-scroll";
-import { useDanxInfiniteScroll } from "../../src/components/infinite-scroll";
+import { DanxScroll, useDanxScroll, useScrollInfinite } from "../../src/components/scroll";
 import { DanxFile } from "../../src/components/danx-file";
 import {
   DanxFileNavigator,
@@ -153,7 +152,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxProgressBar,
   DanxSplitPanel,
   SplitPanelHandle,
-  DanxInfiniteScroll,
+  DanxScroll,
 };
 
 /**
@@ -264,9 +263,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxSplitPanel,
   SplitPanelHandle,
   useSplitPanel,
-  // InfiniteScroll
-  DanxInfiniteScroll,
-  useDanxInfiniteScroll,
+  // Scroll
+  DanxScroll,
+  useDanxScroll,
+  useScrollInfinite,
 };
 
 const DEBOUNCE_MS = 250;

@@ -21,7 +21,7 @@ export { DanxTooltip } from "./components/tooltip";
 export { DanxProgressBar } from "./components/progress-bar";
 export { DanxFile } from "./components/danx-file";
 export { DanxFileNavigator } from "./components/danx-file-navigator";
-export { DanxInfiniteScroll } from "./components/infinite-scroll";
+export { DanxScroll } from "./components/scroll";
 
 // Composables
 export {
@@ -53,7 +53,7 @@ export {
   useDanxFileMetadata,
   useVirtualCarousel,
 } from "./components/danx-file-navigator";
-export { useDanxInfiniteScroll } from "./components/infinite-scroll";
+export { useDanxScroll, useScrollInfinite } from "./components/scroll";
 export { downloadFile } from "./shared/download";
 
 // Icons
@@ -154,12 +154,16 @@ export type {
   DanxFileDownloadEvent,
 } from "./components/danx-file";
 export type {
-  DanxInfiniteScrollEmits,
-  DanxInfiniteScrollProps,
-  DanxInfiniteScrollSlots,
-  InfiniteScrollDirection,
-  UseDanxInfiniteScrollOptions,
-} from "./components/infinite-scroll";
+  DanxScrollEmits,
+  DanxScrollProps,
+  DanxScrollSlots,
+  InfiniteScrollEdge,
+  ScrollbarSize,
+  ScrollDirection,
+  UseDanxScrollOptions,
+  UseDanxScrollReturn,
+  UseScrollInfiniteOptions,
+} from "./components/scroll";
 export type {
   UseDanxFileNavigatorOptions,
   UseDanxFileNavigatorReturn,

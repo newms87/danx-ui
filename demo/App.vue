@@ -140,9 +140,7 @@ watch(theme, (newTheme) => {
               >
             </li>
             <li>
-              <RouterLink to="/infinite-scroll" class="demo-sidebar__link"
-                >Infinite Scroll</RouterLink
-              >
+              <RouterLink to="/scroll" class="demo-sidebar__link">Scroll</RouterLink>
             </li>
           </ul>
         </li>

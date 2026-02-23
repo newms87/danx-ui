@@ -1,0 +1,50 @@
+/**
+ * DanxScroll Tokens
+ *
+ * Component tokens (Tier 3) for the custom scrollbar container.
+ * Override these to customize scrollbar appearance.
+ *
+ * CSS Tokens:
+ * --dx-scroll-thumb-bg          Thumb background color
+ * --dx-scroll-thumb-hover-bg    Thumb background on hover
+ * --dx-scroll-track-bg          Track background color
+ * --dx-scroll-border-radius     Thumb border radius
+ * --dx-scroll-fade-duration     Fade in/out transition duration
+ * --dx-scroll-loading-color     Loading indicator text color
+ * --dx-scroll-done-color        Done indicator text color
+ * --dx-scroll-gap               Gap between content and indicators
+ *
+ * Size tokens (per size preset):
+ * --dx-scroll-xs-thumb-thickness   4px
+ * --dx-scroll-xs-track-padding     1px
+ * --dx-scroll-sm-thumb-thickness   6px
+ * --dx-scroll-sm-track-padding     1px
+ * --dx-scroll-md-thumb-thickness   8px
+ * --dx-scroll-md-track-padding     2px
+ * --dx-scroll-lg-thumb-thickness   10px
+ * --dx-scroll-lg-track-padding     2px
+ * --dx-scroll-xl-thumb-thickness   12px
+ * --dx-scroll-xl-track-padding     3px
+ */
+
+:root {
+  --dx-scroll-thumb-bg: rgb(0 0 0 / 0.3);
+  --dx-scroll-thumb-hover-bg: rgb(0 0 0 / 0.5);
+  --dx-scroll-track-bg: transparent;
+  --dx-scroll-border-radius: 9999px;
+  --dx-scroll-fade-duration: 0.3s;
+  --dx-scroll-loading-color: var(--color-text-muted);
+  --dx-scroll-done-color: var(--color-text-subtle);
+  --dx-scroll-gap: 1rem;
+
+  --dx-scroll-xs-thumb-thickness: 4px;
+  --dx-scroll-xs-track-padding: 1px;
+  --dx-scroll-sm-thumb-thickness: 6px;
+  --dx-scroll-sm-track-padding: 1px;
+  --dx-scroll-md-thumb-thickness: 8px;
+  --dx-scroll-md-track-padding: 2px;
+  --dx-scroll-lg-thumb-thickness: 10px;
+  --dx-scroll-lg-track-padding: 2px;
+  --dx-scroll-xl-thumb-thickness: 12px;
+  --dx-scroll-xl-track-padding: 3px;
+}

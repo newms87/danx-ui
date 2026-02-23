@@ -1,0 +1,136 @@
+/**
+ * DanxScroll Styles
+ *
+ * Custom overlay scrollbar styles. The scrollbar tracks are positioned
+ * absolutely over content (no content push), with native scrollbar hidden.
+ */
+
+@import "./scroll-tokens.css";
+
+.danx-scroll {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-scroll-gap);
+
+  /* Hide native scrollbar */
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .danx-scroll__loading {
+    text-align: center;
+    color: var(--dx-scroll-loading-color);
+    padding: 0.5rem;
+  }
+
+  .danx-scroll__done {
+    text-align: center;
+    color: var(--dx-scroll-done-color);
+    padding: 0.5rem;
+  }
+
+  .danx-scroll__loading.is-before-content,
+  .danx-scroll__done.is-before-content {
+    order: -1;
+  }
+}
+
+.danx-scroll--vertical {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.danx-scroll--horizontal {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.danx-scroll--both {
+  overflow: auto;
+}
+
+/* Shared track base */
+.danx-scroll__track--vertical,
+.danx-scroll__track--horizontal {
+  position: absolute;
+  z-index: 10;
+  background: var(--dx-scroll-track-bg);
+  opacity: 0;
+  transition: opacity var(--dx-scroll-fade-duration);
+  pointer-events: none;
+  cursor: pointer;
+
+  &.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Vertical track — right edge */
+.danx-scroll__track--vertical {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: calc(var(--_thumb-thickness) + var(--_track-padding) * 2);
+  padding: var(--_track-padding);
+}
+
+/* Horizontal track — bottom edge */
+.danx-scroll__track--horizontal {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--_thumb-thickness) + var(--_track-padding) * 2);
+  padding: var(--_track-padding);
+}
+
+/* Thumb */
+.danx-scroll__thumb {
+  background: var(--dx-scroll-thumb-bg);
+  border-radius: var(--dx-scroll-border-radius);
+  transition: background 0.15s;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--dx-scroll-thumb-hover-bg);
+  }
+}
+
+/* Vertical thumb fills track width */
+.danx-scroll__track--vertical .danx-scroll__thumb {
+  width: 100%;
+}
+
+/* Horizontal thumb fills track height */
+.danx-scroll__track--horizontal .danx-scroll__thumb {
+  height: 100%;
+}
+
+/* Size presets — each sets local variables consumed by track rules above */
+.danx-scroll--xs {
+  --_thumb-thickness: var(--dx-scroll-xs-thumb-thickness);
+  --_track-padding: var(--dx-scroll-xs-track-padding);
+}
+
+.danx-scroll--sm {
+  --_thumb-thickness: var(--dx-scroll-sm-thumb-thickness);
+  --_track-padding: var(--dx-scroll-sm-track-padding);
+}
+
+.danx-scroll--md {
+  --_thumb-thickness: var(--dx-scroll-md-thumb-thickness);
+  --_track-padding: var(--dx-scroll-md-track-padding);
+}
+
+.danx-scroll--lg {
+  --_thumb-thickness: var(--dx-scroll-lg-thumb-thickness);
+  --_track-padding: var(--dx-scroll-lg-track-padding);
+}
+
+.danx-scroll--xl {
+  --_thumb-thickness: var(--dx-scroll-xl-thumb-thickness);
+  --_track-padding: var(--dx-scroll-xl-track-padding);
+}
