@@ -72,7 +72,7 @@
  */
 import { computed, ref, toRef } from "vue";
 import { useDanxScroll } from "./useDanxScroll";
-import { useScrollInfinite } from "./useScrollInfinite";
+import { setupScrollInfinite } from "./useScrollInfinite";
 import { useVariant } from "../../shared/composables/useVariant";
 import type { DanxScrollProps, DanxScrollSlots } from "./types";
 
@@ -121,15 +121,7 @@ const {
 } = useDanxScroll(viewportRef, { persistent: props.persistent });
 
 // Opt-in infinite scroll
-if (props.infiniteScroll) {
-  useScrollInfinite(viewportRef, {
-    distance: props.distance,
-    direction: props.infiniteDirection,
-    canLoadMore: toRef(props, "canLoadMore"),
-    loading: toRef(props, "loading"),
-    onLoadMore: () => emit("loadMore"),
-  });
-}
+setupScrollInfinite(viewportRef, props, emit);
 
 const showVerticalTrack = computed(
   () => hasVerticalOverflow.value && (props.direction === "vertical" || props.direction === "both")

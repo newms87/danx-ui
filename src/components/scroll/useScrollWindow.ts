@@ -50,9 +50,14 @@ function recalculateProportional<T>(
 ) {
   const overscanPx = overscan * defaultItemHeight;
   const fixedTotal = totalItemsCount * defaultItemHeight;
-  const maxScroll = Math.max(1, fixedTotal - clientHeight);
-  const scrollRatio = Math.min(1, Math.max(0, scrollTop / maxScroll));
-  const targetIndex = Math.floor(scrollRatio * Math.max(0, totalItemsCount - 1));
+
+  // Convert scroll position directly to item index. Since totalHeight uses
+  // defaultItemHeight uniformly, scrollTop / defaultItemHeight gives the exact
+  // item index at the viewport top — no ratio drift at large scroll positions.
+  const targetIndex = Math.max(
+    0,
+    Math.min(Math.floor(scrollTop / defaultItemHeight), totalItemsCount - 1)
+  );
 
   // Clamp newStart to loaded item range so visibleItems slice is valid
   let newStart = Math.min(Math.max(0, targetIndex - overscan), Math.max(0, count - 1));
@@ -271,10 +276,9 @@ export function useScrollWindow<T>(
     if (!el) return;
 
     if (totalItems != null) {
-      const fixedTotal = totalItems * defaultItemHeight;
-      const maxScroll = Math.max(1, fixedTotal - el.clientHeight);
-      const ratio = totalItems <= 1 ? 0 : index / (totalItems - 1);
-      el.scrollTop = Math.min(maxScroll, Math.max(0, ratio * maxScroll));
+      // Direct conversion: index * defaultItemHeight is the scroll position,
+      // matching how recalculateProportional derives index from scrollTop.
+      el.scrollTop = index * defaultItemHeight;
     } else {
       const itemList = items.value;
       let targetTop = 0;

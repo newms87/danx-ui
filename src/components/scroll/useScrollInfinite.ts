@@ -10,9 +10,9 @@
  * @param options - Configuration options
  * @returns { reset, isLoading } from VueUse's useInfiniteScroll
  */
-import { type Ref, watch } from "vue";
+import { type Ref, toRef, watch } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
-import type { InfiniteScrollEdge } from "./types";
+import type { DanxScrollProps, InfiniteScrollEdge } from "./types";
 
 export interface UseScrollInfiniteOptions {
   /** Distance in pixels from scroll edge to trigger loading. Read once at initialization. */
@@ -53,4 +53,24 @@ export function useScrollInfinite(el: Ref<HTMLElement | null>, options: UseScrol
   }
 
   return { reset, isLoading };
+}
+
+/**
+ * Setup helper that wires infinite scroll props to the composable.
+ * Used by both DanxScroll and DanxVirtualScroll to avoid duplicating
+ * the prop-to-option mapping.
+ */
+export function setupScrollInfinite(
+  viewportEl: Ref<HTMLElement | null>,
+  props: DanxScrollProps,
+  emit: (event: "loadMore") => void
+) {
+  if (!props.infiniteScroll) return;
+  useScrollInfinite(viewportEl, {
+    distance: props.distance,
+    direction: props.infiniteDirection,
+    canLoadMore: toRef(props, "canLoadMore") as Ref<boolean>,
+    loading: toRef(props, "loading") as Ref<boolean>,
+    onLoadMore: () => emit("loadMore"),
+  });
 }

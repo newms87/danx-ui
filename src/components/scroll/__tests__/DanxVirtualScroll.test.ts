@@ -115,6 +115,7 @@ describe("DanxVirtualScroll", () => {
     const container = viewport.element.children[0] as HTMLElement;
     expect(container.style.height).toMatch(/\d+px/);
     expect(container.style.position).toBe("relative");
+    expect(container.style.flexShrink).toBe("0");
 
     // Inside the container is a wrapper div with position:absolute and top offset
     const positionedWrapper = container.children[0] as HTMLElement;

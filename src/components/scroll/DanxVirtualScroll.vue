@@ -62,7 +62,7 @@
  */
 import { type ComponentPublicInstance, computed, onMounted, ref, toRef } from "vue";
 import DanxScroll from "./DanxScroll.vue";
-import { useScrollInfinite } from "./useScrollInfinite";
+import { setupScrollInfinite } from "./useScrollInfinite";
 import { useScrollWindow } from "./useScrollWindow";
 import type { DanxVirtualScrollProps, DanxVirtualScrollSlots } from "./virtual-scroll-types";
 
@@ -122,15 +122,7 @@ const { visibleItems, startIndex, endIndex, totalHeight, startOffset, measureIte
 
 // DanxVirtualScroll handles infinite scroll directly so indicators render
 // inside the positioned wrapper (not at the bottom of DanxScroll's viewport)
-if (props.infiniteScroll) {
-  useScrollInfinite(viewportEl, {
-    distance: props.distance,
-    direction: props.infiniteDirection,
-    canLoadMore: toRef(props, "canLoadMore"),
-    loading: toRef(props, "loading"),
-    onLoadMore: () => emit("loadMore"),
-  });
-}
+setupScrollInfinite(viewportEl, props, emit);
 
 /** Whether the user has scrolled to the end of loaded items */
 const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);
@@ -149,7 +141,7 @@ function itemRef(index: number) {
 <template>
   <DanxScroll ref="scrollRef" v-bind="scrollProps">
     <!-- Container sized to total content height for correct scrollbar -->
-    <div :style="{ height: totalHeight + 'px', position: 'relative' }">
+    <div :style="{ height: totalHeight + 'px', position: 'relative', flexShrink: 0 }">
       <!--
         Single absolutely-positioned wrapper at startOffset.
         Visible items flow naturally (static positioning) inside it,

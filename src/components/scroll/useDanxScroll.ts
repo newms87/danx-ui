@@ -13,7 +13,7 @@
  * @param options - Configuration for persistent mode
  * @returns Reactive state and event handlers for scrollbar tracks/thumbs
  */
-import { type CSSProperties, onMounted, onUnmounted, type Ref, ref, watch } from "vue";
+import { type CSSProperties, onUnmounted, type Ref, ref, watch } from "vue";
 
 export interface UseDanxScrollOptions {
   /** Keep scrollbar always visible (no auto-hide). */
@@ -49,7 +49,6 @@ export interface UseDanxScrollReturn {
 
 const AUTO_HIDE_DELAY = 1200;
 const MIN_THUMB_PX = 24;
-const AUTO_SCROLL_SPEED = 0.15;
 
 /**
  * Compute thumb size and position for one axis.
@@ -101,11 +100,6 @@ export function useDanxScroll(
 
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
   let isDragging = false;
-
-  // Auto-scroll state for drag beyond bounds
-  let currentMouseX = 0;
-  let currentMouseY = 0;
-  let autoScrollRafId: number | null = null;
 
   function updateVisibility() {
     const visible = persistent || isScrolling.value || isHoveringTrack.value || isDragging;
@@ -164,8 +158,6 @@ export function useDanxScroll(
       axis === "vertical"
         ? (containerEl.value?.scrollTop ?? 0)
         : (containerEl.value?.scrollLeft ?? 0);
-    currentMouseX = e.clientX;
-    currentMouseY = e.clientY;
     document.addEventListener("mousemove", onDragMove);
     document.addEventListener("mouseup", onDragEnd);
     updateVisibility();
@@ -181,92 +173,23 @@ export function useDanxScroll(
 
   function onDragMove(e: MouseEvent) {
     const el = containerEl.value;
-    currentMouseX = e.clientX;
-    currentMouseY = e.clientY;
     if (!el) return;
 
-    const rect = el.getBoundingClientRect();
-    const overshoot = computeOvershoot(rect);
-
-    if (overshoot !== 0) {
-      // Cursor is beyond bounds — auto-scroll handles scrolling.
-      // Rebase drag origin so returning to bounds resumes smoothly.
-      if (dragAxis === "vertical") {
-        dragStartScroll = el.scrollTop;
-        dragStartPos = currentMouseY;
-      } else {
-        dragStartScroll = el.scrollLeft;
-        dragStartPos = currentMouseX;
-      }
-      maybeStartAutoScroll();
-    } else {
-      // Normal drag — cursor is within bounds
-      if (dragAxis === "vertical") {
-        const delta = e.clientY - dragStartPos;
-        const ratio = el.scrollHeight / el.clientHeight;
-        el.scrollTop = dragStartScroll + delta * ratio;
-      } else {
-        const delta = e.clientX - dragStartPos;
-        const ratio = el.scrollWidth / el.clientWidth;
-        el.scrollLeft = dragStartScroll + delta * ratio;
-      }
-    }
-  }
-
-  function computeOvershoot(rect: DOMRect): number {
+    // delta * ratio maps the full track length to the full scroll range,
+    // so the thumb covers all content even when the cursor goes beyond bounds.
     if (dragAxis === "vertical") {
-      if (currentMouseY < rect.top) return currentMouseY - rect.top;
-      if (currentMouseY > rect.bottom) return currentMouseY - rect.bottom;
+      const delta = e.clientY - dragStartPos;
+      const ratio = el.scrollHeight / el.clientHeight;
+      el.scrollTop = dragStartScroll + delta * ratio;
     } else {
-      if (currentMouseX < rect.left) return currentMouseX - rect.left;
-      if (currentMouseX > rect.right) return currentMouseX - rect.right;
-    }
-    return 0;
-  }
-
-  function maybeStartAutoScroll() {
-    const el = containerEl.value;
-    if (!el || autoScrollRafId !== null) return;
-
-    if (computeOvershoot(el.getBoundingClientRect()) !== 0) {
-      autoScrollRafId = requestAnimationFrame(autoScrollTick);
-    }
-  }
-
-  function autoScrollTick() {
-    const el = containerEl.value;
-    if (!isDragging || !el) {
-      autoScrollRafId = null;
-      return;
-    }
-
-    const overshoot = computeOvershoot(el.getBoundingClientRect());
-
-    if (overshoot !== 0) {
-      const scrollDelta = overshoot * AUTO_SCROLL_SPEED;
-
-      if (dragAxis === "vertical") {
-        el.scrollTop += scrollDelta;
-      } else {
-        el.scrollLeft += scrollDelta;
-      }
-
-      autoScrollRafId = requestAnimationFrame(autoScrollTick);
-    } else {
-      autoScrollRafId = null;
-    }
-  }
-
-  function cancelAutoScroll() {
-    if (autoScrollRafId !== null) {
-      cancelAnimationFrame(autoScrollRafId);
-      autoScrollRafId = null;
+      const delta = e.clientX - dragStartPos;
+      const ratio = el.scrollWidth / el.clientWidth;
+      el.scrollLeft = dragStartScroll + delta * ratio;
     }
   }
 
   function onDragEnd() {
     isDragging = false;
-    cancelAutoScroll();
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);
     scheduleHide();
@@ -331,20 +254,19 @@ export function useDanxScroll(
     resizeObserver?.disconnect();
     resizeObserver = null;
     if (hideTimeout) clearTimeout(hideTimeout);
-    cancelAutoScroll();
     document.removeEventListener("mousemove", onDragMove);
     document.removeEventListener("mouseup", onDragEnd);
   }
 
-  // Watch for container element becoming available
-  watch(containerEl, (newEl, oldEl) => {
-    if (oldEl) cleanup(oldEl);
-    if (newEl) setupObserver();
-  });
-
-  onMounted(() => {
-    if (containerEl.value) setupObserver();
-  });
+  // Watch for container element becoming available (immediate handles onMounted case)
+  watch(
+    containerEl,
+    (newEl, oldEl) => {
+      if (oldEl) cleanup(oldEl);
+      if (newEl) setupObserver();
+    },
+    { immediate: true }
+  );
 
   onUnmounted(() => {
     cleanup();
