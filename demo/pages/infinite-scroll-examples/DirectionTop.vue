@@ -27,6 +27,7 @@ function loadOlder() {
   <DanxInfiniteScroll
     direction="top"
     style="
+      width: 100%;
       height: 300px;
       border: 1px solid var(--color-border);
       border-radius: 0.5rem;
