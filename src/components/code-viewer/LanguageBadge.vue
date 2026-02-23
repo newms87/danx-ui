@@ -44,6 +44,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { DanxIcon } from "../icon";
+import { DanxScroll } from "../scroll";
 import type { LanguageBadgeProps } from "./types";
 import { useLanguageSearch } from "./useLanguageSearch";
 
@@ -147,21 +148,23 @@ function onMouseLeave() {
           @keydown.enter.prevent="selectCurrentItem"
           @keydown.escape="closeSearchPanel"
         />
-        <div ref="searchListRef" class="dx-language-search-list">
-          <div
-            v-for="(lang, index) in filteredLanguages"
-            :key="lang"
-            class="dx-language-search-item"
-            :class="{ 'is-selected': index === selectedIndex }"
-            @click="selectLanguage(lang)"
-            @mouseenter="selectedIndex = index"
-          >
-            {{ lang.toUpperCase() }}
+        <DanxScroll class="dx-language-search-list" size="xs">
+          <div ref="searchListRef">
+            <div
+              v-for="(lang, index) in filteredLanguages"
+              :key="lang"
+              class="dx-language-search-item"
+              :class="{ 'is-selected': index === selectedIndex }"
+              @click="selectLanguage(lang)"
+              @mouseenter="selectedIndex = index"
+            >
+              {{ lang.toUpperCase() }}
+            </div>
+            <div v-if="filteredLanguages.length === 0" class="dx-language-search-empty">
+              No languages found
+            </div>
           </div>
-          <div v-if="filteredLanguages.length === 0" class="dx-language-search-empty">
-            No languages found
-          </div>
-        </div>
+        </DanxScroll>
       </div>
     </transition>
   </div>

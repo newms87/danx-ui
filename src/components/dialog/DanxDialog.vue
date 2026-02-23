@@ -94,6 +94,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { DanxButton } from "../button";
+import { DanxScroll } from "../scroll";
 import DialogBreadcrumbs from "./DialogBreadcrumbs.vue";
 import type { DanxDialogEmits, DanxDialogProps, DanxDialogSlots } from "./types";
 import { useDialogStack } from "./useDialogStack";
@@ -298,9 +299,9 @@ function handleConfirm() {
           </header>
 
           <!-- Content -->
-          <div class="danx-dialog__content">
+          <DanxScroll class="danx-dialog__content" size="sm">
             <slot />
-          </div>
+          </DanxScroll>
 
           <!-- Footer/Actions -->
           <footer v-if="showFooter || $slots.actions" class="danx-dialog__footer">

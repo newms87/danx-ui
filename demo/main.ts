@@ -21,6 +21,7 @@ import SplitPanelPage from "./pages/SplitPanelPage.vue";
 import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileNavigatorPage from "./pages/DanxFileNavigatorPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
+import SkeletonPage from "./pages/SkeletonPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
 import TypographyPage from "./pages/design-system/TypographyPage.vue";
 import SpacingPage from "./pages/design-system/SpacingPage.vue";
@@ -54,6 +55,7 @@ const router = createRouter({
     { path: "/danx-file", name: "danx-file", component: DanxFilePage },
     { path: "/danx-file-navigator", name: "danx-file-navigator", component: DanxFileNavigatorPage },
     { path: "/scroll", name: "scroll", component: ScrollPage },
+    { path: "/skeleton", name: "skeleton", component: SkeletonPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },
     { path: "/design/typography", name: "design-typography", component: TypographyPage },
     { path: "/design/spacing", name: "design-spacing", component: SpacingPage },

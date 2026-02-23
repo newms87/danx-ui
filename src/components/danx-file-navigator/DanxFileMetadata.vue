@@ -30,6 +30,7 @@
 import { computed } from "vue";
 import { CodeViewer } from "../code-viewer";
 import { DanxButton } from "../button";
+import { DanxScroll } from "../scroll";
 import type { PreviewFile, MetadataMode } from "../danx-file/types";
 import { formatMeta, metaCount, formatExif, exifCount, hasAnyInfo } from "./file-metadata-helpers";
 
@@ -70,7 +71,7 @@ function toggleMode() {
         />
       </div>
     </div>
-    <div class="danx-file-metadata__content">
+    <DanxScroll class="danx-file-metadata__content" size="xs">
       <div v-if="hasMeta" class="danx-file-metadata__section">
         <span class="danx-file-metadata__section-title">Metadata</span>
         <CodeViewer :model-value="displayMeta" format="yaml" theme="light" hide-footer />
@@ -80,6 +81,6 @@ function toggleMode() {
         <span class="danx-file-metadata__section-title">EXIF</span>
         <CodeViewer :model-value="displayExif" format="yaml" theme="light" hide-footer />
       </div>
-    </div>
+    </DanxScroll>
   </div>
 </template>

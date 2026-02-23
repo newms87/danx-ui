@@ -17,6 +17,7 @@
   --color-surface-sunken: var(--color-slate-950);
   --color-surface-overlay: var(--color-slate-950);
   --color-surface-accent: var(--color-blue-950);
+  --color-surface-placeholder: var(--color-slate-700);
 
   /* ==========================================================================
      Text Colors

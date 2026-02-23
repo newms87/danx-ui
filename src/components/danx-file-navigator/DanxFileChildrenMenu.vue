@@ -23,6 +23,7 @@
 import { computed, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxPopover } from "../popover";
+import { DanxScroll } from "../scroll";
 import { DanxFile } from "../danx-file";
 import { hasChildren } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
@@ -56,7 +57,7 @@ watch(
       <DanxButton type="muted" size="sm" icon="list" title="Children" />
     </template>
 
-    <div class="danx-file-children">
+    <DanxScroll class="danx-file-children" size="xs">
       <div v-if="!file.children" class="danx-file-children__loading">Loading...</div>
       <div
         v-for="child in file.children"
@@ -69,6 +70,6 @@ watch(
         </div>
         <span class="danx-file-children__name">{{ child.name }}</span>
       </div>
-    </div>
+    </DanxScroll>
   </DanxPopover>
 </template>

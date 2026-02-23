@@ -41,6 +41,7 @@ import { useFocusTracking } from "./useFocusTracking";
 import { useLinkPopover, useTablePopover } from "./usePopoverManager";
 import { useMarkdownEditor } from "./useMarkdownEditor";
 import { TokenRenderer } from "./types";
+import { DanxScroll } from "../scroll";
 import DanxContextMenu from "../context-menu/DanxContextMenu.vue";
 import HotkeyHelpPopover from "./HotkeyHelpPopover.vue";
 import LinkPopover from "./LinkPopover.vue";
@@ -122,15 +123,17 @@ watch(modelValue, (newValue) => {
 <template>
   <div class="dx-markdown-editor" :class="{ 'is-readonly': readonly }">
     <div class="dx-markdown-editor-body" @contextmenu="contextMenu.show">
-      <MarkdownEditorContent
-        :html="editor.renderedHtml.value"
-        :readonly="readonly"
-        :placeholder="placeholder"
-        @input="editor.onInput"
-        @keydown="editor.onKeyDown"
-        @blur="editor.onBlur"
-        @container-mounted="(el: HTMLElement) => (contentElementRef = el)"
-      />
+      <DanxScroll class="dx-markdown-editor-scroll" size="sm">
+        <MarkdownEditorContent
+          :html="editor.renderedHtml.value"
+          :readonly="readonly"
+          :placeholder="placeholder"
+          @input="editor.onInput"
+          @keydown="editor.onKeyDown"
+          @blur="editor.onBlur"
+          @container-mounted="(el: HTMLElement) => (contentElementRef = el)"
+        />
+      </DanxScroll>
 
       <!-- Badge slot for overlaying content (share button, etc.) -->
       <div v-if="$slots.badge" class="dx-editor-badge">
@@ -197,8 +200,8 @@ watch(modelValue, (newValue) => {
     overflow: visible;
   }
 
-  /* Apply min/max height to content area */
-  .dx-markdown-editor-content {
+  /* Apply min/max height to scroll wrapper around content */
+  .dx-markdown-editor-scroll {
     flex: 1;
     min-height: var(--dx-mde-min-height, 100px);
     max-height: var(--dx-mde-max-height, none);

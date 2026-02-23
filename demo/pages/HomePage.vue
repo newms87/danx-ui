@@ -4,6 +4,7 @@
  *
  * Landing page with getting started information.
  */
+import { DanxScroll } from "../../src";
 </script>
 
 <template>
@@ -15,15 +16,19 @@
 
     <section class="home-page__section">
       <h2>Getting Started</h2>
-      <pre class="home-page__code">npm install danx-ui</pre>
+      <DanxScroll direction="horizontal" size="xs" class="home-page__code">
+        <pre>npm install danx-ui</pre>
+      </DanxScroll>
     </section>
 
     <section class="home-page__section">
       <h2>Usage</h2>
-      <pre class="home-page__code">
+      <DanxScroll direction="horizontal" size="xs" class="home-page__code">
+        <pre>
 import { DanxDialog, useDialog } from 'danx-ui';
 import 'danx-ui/styles';</pre
-      >
+        >
+      </DanxScroll>
     </section>
 
     <section class="home-page__section">
@@ -89,13 +94,16 @@ import 'danx-ui/styles';</pre
   padding: 1rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  overflow-x: auto;
   font-family: var(--font-mono);
   font-size: 0.875rem;
   color: var(--color-text);
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease;
+}
+
+.home-page__code pre {
+  margin: 0;
 }
 
 .home-page__features,

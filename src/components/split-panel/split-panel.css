@@ -39,7 +39,6 @@
 .danx-split-panel__panel {
   flex-grow: 0;
   flex-shrink: 0;
-  overflow: auto;
   transition: flex-basis var(--dx-split-panel-transition);
 }
 

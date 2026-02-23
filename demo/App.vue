@@ -7,6 +7,7 @@
  */
 import { ref, onMounted, watch } from "vue";
 import { RouterLink, RouterView } from "vue-router";
+import { DanxScroll } from "../src";
 import { version } from "../package.json";
 
 type Theme = "light" | "dark";
@@ -50,109 +51,120 @@ watch(theme, (newTheme) => {
         <span class="demo-sidebar__version">v{{ version }}</span>
       </div>
 
-      <ul class="demo-sidebar__nav">
-        <li>
-          <RouterLink to="/" class="demo-sidebar__link">Home</RouterLink>
-        </li>
-        <li>
-          <span class="demo-sidebar__section">Design System</span>
-          <ul>
-            <li>
-              <RouterLink to="/design/colors" class="demo-sidebar__link">Colors</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/design/typography" class="demo-sidebar__link">Typography</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/design/spacing" class="demo-sidebar__link"
-                >Spacing &amp; Layout</RouterLink
-              >
-            </li>
-            <li>
-              <RouterLink to="/design/shadows" class="demo-sidebar__link"
-                >Shadows &amp; Effects</RouterLink
-              >
-            </li>
-            <li>
-              <RouterLink to="/design/theming" class="demo-sidebar__link">Theming Guide</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/design/variants" class="demo-sidebar__link">Variants</RouterLink>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <span class="demo-sidebar__section">Components</span>
-          <ul>
-            <li>
-              <RouterLink to="/badge" class="demo-sidebar__link">Badge</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/button" class="demo-sidebar__link">Button</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/action-button" class="demo-sidebar__link">Action Button</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/button-group" class="demo-sidebar__link">Button Group</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/chip" class="demo-sidebar__link">Chip</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/code-viewer" class="demo-sidebar__link">Code Viewer</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/context-menu" class="demo-sidebar__link">Context Menu</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/dialog" class="demo-sidebar__link">Dialog</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/icon" class="demo-sidebar__link">Icon</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/popover" class="demo-sidebar__link">Popover</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/markdown-editor" class="demo-sidebar__link"
-                >Markdown Editor</RouterLink
-              >
-            </li>
-            <li>
-              <RouterLink to="/tabs" class="demo-sidebar__link">Tabs</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/progress-bar" class="demo-sidebar__link">Progress Bar</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/tooltip" class="demo-sidebar__link">Tooltip</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/danx-file" class="demo-sidebar__link">File</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/danx-file-navigator" class="demo-sidebar__link"
-                >File Navigator</RouterLink
-              >
-            </li>
-            <li>
-              <RouterLink to="/scroll" class="demo-sidebar__link">Scroll</RouterLink>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <span class="demo-sidebar__section">Utilities</span>
-          <ul>
-            <li>
-              <RouterLink to="/formatters" class="demo-sidebar__link">Formatters</RouterLink>
-            </li>
-          </ul>
-        </li>
-      </ul>
+      <DanxScroll class="demo-sidebar__scroll">
+        <ul class="demo-sidebar__nav">
+          <li>
+            <RouterLink to="/" class="demo-sidebar__link">Home</RouterLink>
+          </li>
+          <li>
+            <span class="demo-sidebar__section">Design System</span>
+            <ul>
+              <li>
+                <RouterLink to="/design/colors" class="demo-sidebar__link">Colors</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/design/typography" class="demo-sidebar__link"
+                  >Typography</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/design/spacing" class="demo-sidebar__link"
+                  >Spacing &amp; Layout</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/design/shadows" class="demo-sidebar__link"
+                  >Shadows &amp; Effects</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/design/theming" class="demo-sidebar__link"
+                  >Theming Guide</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/design/variants" class="demo-sidebar__link">Variants</RouterLink>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <span class="demo-sidebar__section">Components</span>
+            <ul>
+              <li>
+                <RouterLink to="/badge" class="demo-sidebar__link">Badge</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/button" class="demo-sidebar__link">Button</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/action-button" class="demo-sidebar__link"
+                  >Action Button</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/button-group" class="demo-sidebar__link">Button Group</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/chip" class="demo-sidebar__link">Chip</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/code-viewer" class="demo-sidebar__link">Code Viewer</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/context-menu" class="demo-sidebar__link">Context Menu</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/dialog" class="demo-sidebar__link">Dialog</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/icon" class="demo-sidebar__link">Icon</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/popover" class="demo-sidebar__link">Popover</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/markdown-editor" class="demo-sidebar__link"
+                  >Markdown Editor</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/tabs" class="demo-sidebar__link">Tabs</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/progress-bar" class="demo-sidebar__link">Progress Bar</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/tooltip" class="demo-sidebar__link">Tooltip</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/danx-file" class="demo-sidebar__link">File</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/danx-file-navigator" class="demo-sidebar__link"
+                  >File Navigator</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/scroll" class="demo-sidebar__link">Scroll</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/skeleton" class="demo-sidebar__link">Skeleton</RouterLink>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <span class="demo-sidebar__section">Utilities</span>
+            <ul>
+              <li>
+                <RouterLink to="/formatters" class="demo-sidebar__link">Formatters</RouterLink>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </DanxScroll>
 
       <div class="demo-sidebar__footer">
         <label class="demo-theme-selector">
@@ -166,9 +178,9 @@ watch(theme, (newTheme) => {
     </nav>
 
     <!-- Main Content -->
-    <main class="demo-main">
+    <DanxScroll tag="main" class="demo-main">
       <RouterView />
-    </main>
+    </DanxScroll>
   </div>
 </template>
 
@@ -176,7 +188,7 @@ watch(theme, (newTheme) => {
 /* Demo App Layout */
 .demo-app {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   font-family:
     system-ui,
     -apple-system,
@@ -199,7 +211,6 @@ watch(theme, (newTheme) => {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  overflow-y: auto;
   flex-shrink: 0;
   transition:
     background-color 0.2s ease,
@@ -226,11 +237,15 @@ watch(theme, (newTheme) => {
   margin-left: 0.25rem;
 }
 
+.demo-sidebar__scroll {
+  flex: 1;
+  min-height: 0;
+}
+
 .demo-sidebar__nav {
   list-style: none;
   padding: 0;
   margin: 0;
-  flex: 1;
 }
 
 .demo-sidebar__nav ul {
@@ -327,8 +342,8 @@ watch(theme, (newTheme) => {
 /* Main Content */
 .demo-main {
   flex: 1;
+  min-height: 0;
   padding: 2rem;
-  overflow: auto;
   background: var(--color-surface);
 }
 

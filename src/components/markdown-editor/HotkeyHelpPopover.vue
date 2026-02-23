@@ -153,7 +153,6 @@ function formatKey(key: string): string {
 
   .danx-dialog__content {
     padding: 1rem 1.25rem;
-    overflow-y: auto;
   }
 
   .hotkey-groups-grid {

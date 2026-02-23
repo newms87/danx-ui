@@ -15,7 +15,6 @@
   background-color: var(--dx-mde-bg);
   color: var(--dx-mde-color);
   transition: border-color 0.2s ease;
-  overflow: auto;
   caret-color: var(--dx-mde-caret);
 
   &:focus {

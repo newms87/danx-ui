@@ -1,0 +1,143 @@
+/**
+ * DanxSkeleton Styles
+ *
+ * Main entry point that imports tokens and defines skeleton layout,
+ * shape modifiers, animation modifiers, and keyframes.
+ *
+ * Note: BEM modifiers (.danx-skeleton--circle) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ * Pseudo-classes and descendant selectors are still nested.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./skeleton-tokens.css";
+
+/* ==========================================================================
+   Base Skeleton
+   ========================================================================== */
+
+.danx-skeleton {
+  display: block;
+  width: var(--dx-skeleton-width);
+  height: var(--dx-skeleton-height);
+  background: var(--dx-skeleton-bg);
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==========================================================================
+   SR-Only Utility (local to skeleton)
+   ========================================================================== */
+
+.danx-skeleton__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ==========================================================================
+   Shape: Circle
+   ========================================================================== */
+
+.danx-skeleton--circle {
+  width: var(--dx-skeleton-circle-size);
+  height: var(--dx-skeleton-circle-size);
+  border-radius: 9999px;
+}
+
+/* ==========================================================================
+   Shape: Rounded
+   ========================================================================== */
+
+.danx-skeleton--rounded {
+  border-radius: var(--dx-skeleton-border-radius);
+}
+
+/* ==========================================================================
+   Shape: Text
+   ========================================================================== */
+
+.danx-skeleton--text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-skeleton-text-gap);
+  width: var(--dx-skeleton-width);
+  height: auto;
+  background: none;
+  overflow: visible;
+}
+
+.danx-skeleton__line {
+  height: var(--dx-skeleton-text-line-height);
+  width: 100%;
+  background: var(--dx-skeleton-bg);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+
+  &:last-child {
+    width: var(--dx-skeleton-text-last-width);
+  }
+}
+
+/* ==========================================================================
+   Animation: Pulse
+   ========================================================================== */
+
+.danx-skeleton--pulse {
+  animation: danx-skeleton-pulse var(--dx-skeleton-pulse-duration) ease-in-out infinite;
+}
+
+.danx-skeleton--text.danx-skeleton--pulse {
+  animation: none;
+
+  .danx-skeleton__line {
+    animation: danx-skeleton-pulse var(--dx-skeleton-pulse-duration) ease-in-out infinite;
+  }
+}
+
+@keyframes danx-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ==========================================================================
+   Animation: Wave
+   ========================================================================== */
+
+.danx-skeleton--wave::after,
+.danx-skeleton--text.danx-skeleton--wave .danx-skeleton__line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--dx-skeleton-highlight) 50%,
+    transparent 100%
+  );
+  animation: danx-skeleton-wave var(--dx-skeleton-wave-duration) ease-in-out infinite;
+}
+
+@keyframes danx-skeleton-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}

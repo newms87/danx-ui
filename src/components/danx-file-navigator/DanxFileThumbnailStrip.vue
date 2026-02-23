@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from "vue";
 import { DanxIcon } from "../icon";
+import { DanxScroll } from "../scroll";
 import { resolveThumbUrl, isImage, isVideo } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 
@@ -72,23 +73,25 @@ watch(
 </script>
 
 <template>
-  <div v-if="files.length >= 2" ref="stripRef" class="danx-file-strip">
-    <div
-      v-for="(file, index) in files"
-      :key="file.id"
-      class="danx-file-strip__thumb"
-      :class="{ 'danx-file-strip__thumb--active': file.id === activeFileId }"
-      @click="emit('select', file)"
-    >
-      <img
-        v-if="hasThumbUrl(file)"
-        class="danx-file-strip__img"
-        :src="resolveThumbUrl(file)"
-        :alt="file.name"
-        loading="lazy"
-      />
-      <DanxIcon v-else icon="document" class="danx-file-strip__fallback-icon" />
-      <span v-if="showBadges" class="danx-file-strip__badge">{{ index + 1 }}</span>
+  <DanxScroll v-if="files.length >= 2" direction="horizontal" size="xs" class="danx-file-strip">
+    <div ref="stripRef" class="danx-file-strip__inner">
+      <div
+        v-for="(file, index) in files"
+        :key="file.id"
+        class="danx-file-strip__thumb"
+        :class="{ 'danx-file-strip__thumb--active': file.id === activeFileId }"
+        @click="emit('select', file)"
+      >
+        <img
+          v-if="hasThumbUrl(file)"
+          class="danx-file-strip__img"
+          :src="resolveThumbUrl(file)"
+          :alt="file.name"
+          loading="lazy"
+        />
+        <DanxIcon v-else icon="document" class="danx-file-strip__fallback-icon" />
+        <span v-if="showBadges" class="danx-file-strip__badge">{{ index + 1 }}</span>
+      </div>
     </div>
-  </div>
+  </DanxScroll>
 </template>

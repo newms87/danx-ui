@@ -1,0 +1,33 @@
+/**
+ * DanxSkeleton Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize skeleton appearance.
+ *
+ * CSS Tokens:
+ * --dx-skeleton-bg                  Background color
+ * --dx-skeleton-highlight           Wave gradient highlight color
+ * --dx-skeleton-border-radius       Radius for "rounded" shape
+ * --dx-skeleton-width               Element width
+ * --dx-skeleton-height              Element height
+ * --dx-skeleton-circle-size         Circle diameter (width + height)
+ * --dx-skeleton-text-line-height    Each text line height
+ * --dx-skeleton-text-gap            Gap between text lines
+ * --dx-skeleton-text-last-width     Last text line width
+ * --dx-skeleton-pulse-duration      Pulse cycle duration
+ * --dx-skeleton-wave-duration       Wave sweep duration
+ */
+
+:root {
+  --dx-skeleton-bg: var(--color-surface-placeholder);
+  --dx-skeleton-highlight: rgb(255 255 255 / 0.4);
+  --dx-skeleton-border-radius: var(--radius-component);
+  --dx-skeleton-width: 100%;
+  --dx-skeleton-height: 1rem;
+  --dx-skeleton-circle-size: 3rem;
+  --dx-skeleton-text-line-height: 0.75rem;
+  --dx-skeleton-text-gap: var(--space-sm);
+  --dx-skeleton-text-last-width: 60%;
+  --dx-skeleton-pulse-duration: 1.5s;
+  --dx-skeleton-wave-duration: 1.8s;
+}

@@ -66,7 +66,6 @@
     line-height: var(--dx-code-viewer-line-height);
     border-radius: var(--dx-code-viewer-border-radius) var(--dx-code-viewer-border-radius) 0 0;
     padding: var(--dx-code-viewer-padding);
-    overflow: auto;
     margin: 0;
     box-sizing: border-box;
 
@@ -335,24 +334,6 @@
 
 .dx-language-search-list {
   max-height: 200px;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--dx-code-viewer-search-scrollbar-track);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--dx-code-viewer-search-scrollbar-thumb);
-    border-radius: 3px;
-
-    &:hover {
-      background: var(--dx-code-viewer-search-scrollbar-thumb-hover);
-    }
-  }
 }
 
 .dx-language-search-item {

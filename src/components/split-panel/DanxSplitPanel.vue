@@ -43,6 +43,7 @@
  *   </DanxSplitPanel>
  */
 import { ref, toRef, type Ref } from "vue";
+import { DanxScroll } from "../scroll";
 import type { DanxSplitPanelProps } from "./types";
 import { useSplitPanel } from "./useSplitPanel";
 import SplitPanelHandle from "./SplitPanelHandle.vue";
@@ -89,9 +90,12 @@ const { panelStates, togglePanel, isActive, startResize, isResizing } = useSplit
       }"
     >
       <template v-for="(state, index) in panelStates" :key="state.id">
-        <div class="danx-split-panel__panel" :style="{ flexBasis: state.computedWidth + '%' }">
+        <DanxScroll
+          class="danx-split-panel__panel"
+          :style="{ flexBasis: state.computedWidth + '%' }"
+        >
           <slot :name="state.id" />
-        </div>
+        </DanxScroll>
 
         <SplitPanelHandle
           v-if="index < panelStates.length - 1"

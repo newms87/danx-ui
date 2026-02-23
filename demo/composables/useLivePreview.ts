@@ -71,6 +71,7 @@ import {
   useScrollInfinite,
   useScrollWindow,
 } from "../../src/components/scroll";
+import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxFile } from "../../src/components/danx-file";
 import {
   DanxFileNavigator,
@@ -160,6 +161,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   SplitPanelHandle,
   DanxScroll,
   DanxVirtualScroll,
+  DanxSkeleton,
 };
 
 /**
@@ -276,6 +278,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useDanxScroll,
   useScrollInfinite,
   useScrollWindow,
+  // Skeleton
+  DanxSkeleton,
 };
 
 const DEBOUNCE_MS = 250;

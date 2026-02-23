@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
+import { DanxScroll } from "../scroll";
 import CodeViewerCollapsed from "./CodeViewerCollapsed.vue";
 import CodeViewerFooter from "./CodeViewerFooter.vue";
 import { getAvailableFormats } from "./formatUtils";
@@ -248,37 +249,50 @@ watch(
         <div v-if="collapsible" class="collapse-header" @click="toggleCollapse" />
 
         <!-- Code display - readonly with syntax highlighting (non-markdown formats) -->
-        <pre
+        <DanxScroll
           v-if="!editor.isEditing.value && currentFormat !== 'markdown'"
-          class="code-content dx-scrollbar flex-1 min-h-0"
-          :class="{ 'is-collapsible': collapsible }"
-          @click="editor.onNestedJsonClick"
-          @mouseover="annotationTooltip.onCodeMouseOver"
-          @mouseout="annotationTooltip.onCodeMouseOut"
-        ><code :class="'language-' + currentFormat" v-html="editor.highlightedContent.value"></code></pre>
+          direction="both"
+          size="xs"
+          class="flex-1 min-h-0"
+        >
+          <pre
+            class="code-content"
+            :class="{ 'is-collapsible': collapsible }"
+            @click="editor.onNestedJsonClick"
+            @mouseover="annotationTooltip.onCodeMouseOver"
+            @mouseout="annotationTooltip.onCodeMouseOut"
+          ><code :class="'language-' + currentFormat" v-html="editor.highlightedContent.value"></code></pre>
+        </DanxScroll>
 
         <!-- Markdown display - rendered HTML -->
-        <MarkdownContent
+        <DanxScroll
           v-else-if="currentFormat === 'markdown' && !editor.isEditing.value"
-          :content="markdownSource"
-          :default-code-format="defaultCodeFormat"
-          class="code-content dx-scrollbar flex-1 min-h-0"
-          :class="{ 'is-collapsible': collapsible }"
-        />
+          direction="both"
+          size="xs"
+          class="flex-1 min-h-0"
+        >
+          <MarkdownContent
+            :content="markdownSource"
+            :default-code-format="defaultCodeFormat"
+            class="code-content"
+            :class="{ 'is-collapsible': collapsible }"
+          />
+        </DanxScroll>
 
         <!-- Code editor - contenteditable -->
-        <pre
-          v-else
-          ref="codeRef"
-          class="code-content dx-scrollbar flex-1 min-h-0 is-editable"
-          :class="['language-' + currentFormat, { 'is-collapsible': collapsible }]"
-          contenteditable="true"
-          @input="editor.onContentEditableInput"
-          @blur="editor.onContentEditableBlur"
-          @keydown="editor.onKeyDown"
-          @mouseover="annotationTooltip.onCodeMouseOver"
-          @mouseout="annotationTooltip.onCodeMouseOut"
-        ></pre>
+        <DanxScroll v-else direction="both" size="xs" class="flex-1 min-h-0">
+          <pre
+            ref="codeRef"
+            class="code-content is-editable"
+            :class="['language-' + currentFormat, { 'is-collapsible': collapsible }]"
+            contenteditable="true"
+            @input="editor.onContentEditableInput"
+            @blur="editor.onContentEditableBlur"
+            @keydown="editor.onKeyDown"
+            @mouseover="annotationTooltip.onCodeMouseOver"
+            @mouseout="annotationTooltip.onCodeMouseOut"
+          ></pre>
+        </DanxScroll>
 
         <!-- Annotation tooltip (independent of v-if chain above) -->
         <div

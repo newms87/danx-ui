@@ -22,6 +22,7 @@ export { DanxProgressBar } from "./components/progress-bar";
 export { DanxFile } from "./components/danx-file";
 export { DanxFileNavigator } from "./components/danx-file-navigator";
 export { DanxScroll, DanxVirtualScroll } from "./components/scroll";
+export { DanxSkeleton } from "./components/skeleton";
 
 // Composables
 export {
@@ -177,6 +178,7 @@ export type {
   DanxFileNavigatorEmits,
   DanxFileNavigatorSlots,
 } from "./components/danx-file-navigator";
+export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";
