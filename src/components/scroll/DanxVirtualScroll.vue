@@ -3,8 +3,12 @@
  * DanxVirtualScroll - Windowed rendering for large lists
  *
  * Renders only the items visible in the viewport (plus an overscan buffer),
- * using spacer divs to maintain correct scroll height. Built on top of
+ * using absolute positioning within a fixed-height container. Built on top of
  * DanxScroll for custom overlay scrollbars.
+ *
+ * Uses absolute positioning instead of spacer divs: a single container div
+ * with height=totalHeight holds the visible items at their computed offsets.
+ * This keeps scrollHeight stable and prevents scrollbar oscillation.
  *
  * Supports two modes:
  * - Local: All items passed upfront, only visible window rendered
@@ -66,8 +70,6 @@ const emit = defineEmits<{
 
 defineSlots<DanxVirtualScrollSlots<T>>();
 
-const keyFn = props.keyFn ?? ((_item: T, index: number) => index);
-
 /**
  * DanxScroll passthrough props — all props except virtual-scroll-specific ones.
  * DanxScroll applies its own defaults, so we only forward what was explicitly set.
@@ -88,7 +90,7 @@ onMounted(() => {
   }
 });
 
-const { visibleItems, startIndex, topSpacerHeight, bottomSpacerHeight, measureItem } =
+const { visibleItems, startIndex, totalHeight, startOffset, measureItem, keyFn } =
   useScrollWindow<T>(viewportEl, {
     items: toRef(props, "items"),
     defaultItemHeight: props.defaultItemHeight,
@@ -109,20 +111,24 @@ function itemRef(index: number) {
 
 <template>
   <DanxScroll ref="scrollRef" v-bind="scrollProps" @load-more="emit('loadMore')">
-    <!-- Top spacer -->
-    <div :style="{ height: topSpacerHeight + 'px' }" />
-
-    <!-- Visible items -->
-    <div
-      v-for="(item, i) in visibleItems"
-      :key="keyFn(item, startIndex + i)"
-      :ref="itemRef(startIndex + i)"
-    >
-      <slot name="item" :item="item" :index="startIndex + i" />
+    <!-- Container sized to total content height for correct scrollbar -->
+    <div :style="{ height: totalHeight + 'px', position: 'relative' }">
+      <!--
+        Single absolutely-positioned wrapper at startOffset.
+        Visible items flow naturally (static positioning) inside it,
+        so each item stacks below the previous one without needing
+        individual top offsets.
+      -->
+      <div :style="{ position: 'absolute', top: startOffset + 'px', width: '100%' }">
+        <div
+          v-for="(item, i) in visibleItems"
+          :key="keyFn(item, startIndex + i)"
+          :ref="itemRef(startIndex + i)"
+        >
+          <slot name="item" :item="item" :index="startIndex + i" />
+        </div>
+      </div>
     </div>
-
-    <!-- Bottom spacer -->
-    <div :style="{ height: bottomSpacerHeight + 'px' }" />
 
     <template v-if="$slots.loading" #loading>
       <slot name="loading" />

@@ -74,8 +74,7 @@ describe("useScrollWindow", () => {
     expect(result.startIndex.value).toBe(0);
     // endIndex depends on viewport + overscan buffer
     expect(result.endIndex.value).toBeGreaterThanOrEqual(7);
-    expect(result.topSpacerHeight.value).toBe(0);
-    expect(result.bottomSpacerHeight.value).toBeGreaterThan(0);
+    expect(result.startOffset.value).toBe(0);
   });
 
   it("shifts range on scroll down", async () => {
@@ -91,7 +90,7 @@ describe("useScrollWindow", () => {
     await nextTick();
 
     expect(result.startIndex.value).toBe(10);
-    expect(result.topSpacerHeight.value).toBe(400); // 10 items * 40px
+    expect(result.startOffset.value).toBe(400); // 10 items * 40px
   });
 
   it("uses cached heights after measureItem", async () => {
@@ -138,7 +137,7 @@ describe("useScrollWindow", () => {
     // First 3 items = 240px (cached at 80px), rest = 40px default
     // scrollTop=200: items 0-1 = 160px before viewport, item 2 starts at 160px
     // startIndex=2, so topSpacer = items 0+1 = 160px
-    expect(result.topSpacerHeight.value).toBe(160);
+    expect(result.startOffset.value).toBe(160);
     expect(result.totalHeight.value).toBe(3 * 80 + 17 * 40);
   });
 
@@ -157,7 +156,6 @@ describe("useScrollWindow", () => {
     await nextTick();
 
     expect(result.totalHeight.value).toBe(800); // 20 * 40
-    expect(result.bottomSpacerHeight.value).toBeGreaterThan(0);
   });
 
   it("respects overscan count", () => {
@@ -244,8 +242,7 @@ describe("useScrollWindow", () => {
     expect(result.visibleItems.value).toEqual([]);
     expect(result.startIndex.value).toBe(0);
     expect(result.endIndex.value).toBe(0);
-    expect(result.topSpacerHeight.value).toBe(0);
-    expect(result.bottomSpacerHeight.value).toBe(0);
+    expect(result.startOffset.value).toBe(0);
     expect(result.totalHeight.value).toBe(0);
   });
 
@@ -255,11 +252,10 @@ describe("useScrollWindow", () => {
 
     const result = createComposable(viewportEl, items);
 
-    // Should not crash — both startIndex and endIndex default to 0,
-    // so visibleItems returns items.slice(0, 1) which includes the first item
+    // With no viewport, visibleItems returns empty (no rendering without a viewport)
     expect(result.startIndex.value).toBe(0);
     expect(result.endIndex.value).toBe(0);
-    expect(result.visibleItems.value).toEqual(["a"]);
+    expect(result.visibleItems.value).toEqual([]);
   });
 
   it("reattaches listener when viewport element changes", async () => {
@@ -319,64 +315,6 @@ describe("useScrollWindow", () => {
     expect(result.visibleItems.value.length).toBeLessThanOrEqual(3);
   });
 
-  it("measureItem compensates scrollTop when topSpacer changes", async () => {
-    // Simulate being scrolled deep into the list with estimated heights
-    const el = createMockViewport({ clientHeight: 200, scrollTop: 400 });
-    const viewportEl = ref<HTMLElement | null>(el);
-    const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
-
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
-
-    // Initial: scrollTop=400 → startIndex=10, topSpacer=400
-    expect(result.startIndex.value).toBe(10);
-    expect(result.topSpacerHeight.value).toBe(400);
-
-    // Measure items 0-9 as 30px each (smaller than default 40px).
-    // This simulates cached heights being learned over time.
-    for (let i = 0; i < 10; i++) {
-      const mockEl = document.createElement("div");
-      Object.defineProperty(mockEl, "offsetHeight", { value: 30, configurable: true });
-      result.measureItem(i, mockEl);
-    }
-
-    await nextTick();
-
-    // Items 0-9 at 30px = 300px, but startIndex shifts because items are
-    // shorter: items 0-9 (300px) + items 10-11 (2*40=80px) = 380px > 400.
-    // So startIndex=12, topSpacer=380. Delta = 380-400 = -20.
-    // scrollTop compensated: 400 + (-20) = 380.
-    expect(result.topSpacerHeight.value).toBe(380);
-    expect(el.scrollTop).toBe(380);
-  });
-
-  it("measurement skips scroll event after scrollTop compensation", async () => {
-    const el = createMockViewport({ clientHeight: 200, scrollTop: 200 });
-    const viewportEl = ref<HTMLElement | null>(el);
-    const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
-
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
-
-    // Measure items 0-4 at 30px. topSpacer: items 0-4 (150px) + item 5 (40px)
-    // = 190px (startIndex=6). Delta = 190-200 = -10. scrollTop = 200-10 = 190.
-    for (let i = 0; i < 5; i++) {
-      const mockEl = document.createElement("div");
-      Object.defineProperty(mockEl, "offsetHeight", { value: 30, configurable: true });
-      result.measureItem(i, mockEl);
-    }
-    await nextTick();
-
-    expect(el.scrollTop).toBe(190);
-
-    // Fire a scroll event (simulating the browser responding to our scrollTop change).
-    // The composable should skip it to prevent re-entry.
-    const startBefore = result.startIndex.value;
-    el.dispatchEvent(new Event("scroll"));
-    await nextTick();
-
-    // startIndex should not have changed — the scroll was skipped
-    expect(result.startIndex.value).toBe(startBefore);
-  });
-
   it("measureItem does not recalculate when height is unchanged", async () => {
     const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
     const viewportEl = ref<HTMLElement | null>(el);
@@ -434,7 +372,7 @@ describe("useScrollWindow", () => {
     expect(el.scrollTop).toBe(200); // 5 * 40px (capped at all items)
   });
 
-  it("uses default keyFn (index) when none provided", () => {
+  it("uses default keyFn (index) when none provided", async () => {
     const el = createMockViewport({ clientHeight: 200 });
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(["a", "b", "c"]);
@@ -445,6 +383,7 @@ describe("useScrollWindow", () => {
     const mockEl = document.createElement("div");
     Object.defineProperty(mockEl, "offsetHeight", { value: 80, configurable: true });
     result.measureItem(0, mockEl);
+    await nextTick(); // flush microtask-batched recalculate
 
     expect(result.totalHeight.value).toBe(80 + 40 + 40); // first measured, rest default
   });
@@ -555,7 +494,6 @@ describe("useScrollWindow", () => {
 
     expect(result.visibleItems.value.length).toBe(3);
     expect(result.totalHeight.value).toBe(120); // 3 * 40
-    expect(result.bottomSpacerHeight.value).toBe(0);
   });
 
   it("resets to start when scrolling back to top", async () => {
@@ -567,7 +505,7 @@ describe("useScrollWindow", () => {
 
     // Initially scrolled down
     expect(result.startIndex.value).toBe(10);
-    expect(result.topSpacerHeight.value).toBe(400);
+    expect(result.startOffset.value).toBe(400);
 
     // Scroll back to top
     Object.defineProperty(el, "scrollTop", { value: 0, writable: true, configurable: true });
@@ -575,7 +513,7 @@ describe("useScrollWindow", () => {
     await nextTick();
 
     expect(result.startIndex.value).toBe(0);
-    expect(result.topSpacerHeight.value).toBe(0);
+    expect(result.startOffset.value).toBe(0);
   });
 
   it("unmount with null viewport does not throw", () => {

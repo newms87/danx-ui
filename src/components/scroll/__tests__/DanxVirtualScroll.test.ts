@@ -78,9 +78,8 @@ describe("DanxVirtualScroll", () => {
     await nextTick();
 
     const renderedItems = wrapper.findAll(".test-item");
-    // Should render far fewer than 1000 items
-    expect(renderedItems.length).toBeLessThan(20);
-    expect(renderedItems.length).toBeGreaterThan(0);
+    // 200px viewport / 40px items = exactly 5 visible items (overscan=0)
+    expect(renderedItems.length).toBe(5);
   });
 
   it("scoped slot receives correct item and index", async () => {
@@ -102,7 +101,7 @@ describe("DanxVirtualScroll", () => {
     expect(renderedItems[4]!.text()).toBe("4: epsilon");
   });
 
-  it("renders top and bottom spacer divs", async () => {
+  it("renders container with totalHeight and positioned wrapper", async () => {
     const wrapper = mountVirtualScroll({
       items: Array.from({ length: 50 }, (_, i) => `item-${i}`),
     });
@@ -111,17 +110,17 @@ describe("DanxVirtualScroll", () => {
     wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
     await nextTick();
 
-    // The viewport's first and last children (excluding scroll indicators) should be spacers
+    // The viewport contains a container div with height=totalHeight and position:relative
     const viewport = wrapper.find(".danx-scroll__viewport");
-    const children = viewport.element.children;
+    const container = viewport.element.children[0] as HTMLElement;
+    expect(container.style.height).toMatch(/\d+px/);
+    expect(container.style.position).toBe("relative");
 
-    // First child is top spacer — should have a pixel height value
-    const topSpacer = children[0] as HTMLElement;
-    expect(topSpacer.style.height).toMatch(/\d+px/);
-
-    // Last child is bottom spacer (before any infinite scroll indicators)
-    const lastChild = children[children.length - 1] as HTMLElement;
-    expect(lastChild.style.height).toMatch(/\d+px/);
+    // Inside the container is a wrapper div with position:absolute and top offset
+    const positionedWrapper = container.children[0] as HTMLElement;
+    expect(positionedWrapper.style.position).toBe("absolute");
+    expect(positionedWrapper.style.top).toMatch(/\d+px/);
+    expect(positionedWrapper.style.width).toBe("100%");
   });
 
   it("passes through DanxScroll props", () => {

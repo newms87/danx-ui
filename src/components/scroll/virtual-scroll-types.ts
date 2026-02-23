@@ -41,11 +41,11 @@ export interface ScrollWindowReturn<T> {
   /** Index of the last rendered item (inclusive) in the items array. */
   endIndex: Ref<number>;
 
-  /** Pixel height for the spacer div above visible items. */
-  topSpacerHeight: Ref<number>;
+  /** Sum of all item heights (cached or estimated). Container div height. */
+  totalHeight: Ref<number>;
 
-  /** Pixel height for the spacer div below visible items. */
-  bottomSpacerHeight: Ref<number>;
+  /** Absolute top offset (px) for the first visible item. */
+  startOffset: Ref<number>;
 
   /**
    * Measure a rendered item's height and cache it.
@@ -58,8 +58,11 @@ export interface ScrollWindowReturn<T> {
    */
   scrollToIndex: (index: number) => void;
 
-  /** Sum of all item heights (cached or estimated). */
-  totalHeight: ComputedRef<number>;
+  /**
+   * Resolved key extractor (user-provided or default index-based).
+   * Exposed so consumers can use the same function for v-for :key bindings.
+   */
+  keyFn: (item: T, index: number) => string | number;
 }
 
 /**
