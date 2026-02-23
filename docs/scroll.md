@@ -223,6 +223,14 @@ All `DanxScroll` props are supported, plus:
 | `overscan` | `number` | `3` | Extra items above/below viewport |
 | `keyFn` | `(item, index) => string \| number` | index | Unique key for height caching |
 | `totalItems` | `number` | — | Total items in full dataset (stabilizes scrollbar) |
+| `scrollPosition` | `number` | `0` | v-model: current top item index. Updates on scroll; set from parent to jump. |
+
+### DanxVirtualScroll Emits
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `update:scrollPosition` | `number` | First visible item index changed |
+| `loadMore` | — | Scroll threshold crossed (infiniteScroll mode) |
 
 ### DanxVirtualScroll Slots
 
@@ -308,6 +316,40 @@ For variable-height items (like log entries with multi-line messages), provide a
     </div>
   </template>
 </DanxVirtualScroll>
+```
+
+### Scroll Position (v-model)
+
+Track or control the scroll position via `v-model:scrollPosition`. The value is the index of the first visible item. Setting it from the parent scrolls to that index.
+
+```vue
+<script setup>
+import { ref } from "vue";
+import { DanxVirtualScroll } from "danx-ui";
+
+const items = ref(Array.from({ length: 10000 }, (_, i) => `Item ${i}`));
+const position = ref(0);
+
+function jumpToMiddle() {
+  position.value = 5000;
+}
+</script>
+
+<template>
+  <p>Currently viewing item #{{ position }}</p>
+  <button @click="jumpToMiddle">Jump to middle</button>
+
+  <DanxVirtualScroll
+    v-model:scrollPosition="position"
+    :items="items"
+    :totalItems="10000"
+    class="h-96"
+  >
+    <template #item="{ item, index }">
+      <div>{{ index }}: {{ item }}</div>
+    </template>
+  </DanxVirtualScroll>
+</template>
 ```
 
 ### Composable: useScrollWindow

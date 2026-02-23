@@ -27,9 +27,12 @@
  *   canLoadMore?: boolean - Whether more items exist (default: true)
  *   distance?: number - Pixel threshold for infinite trigger (default: 200)
  *   infiniteDirection?: InfiniteScrollEdge - Edge for loading (default: "bottom")
+ *   scrollPosition?: number - v-model for current top item index (default: 0).
+ *     Updates on scroll; setting from parent scrolls to that index.
  *   ...DanxScrollProps - Non-infinite-scroll DanxScroll props pass through
  *
  * @emits
+ *   update:scrollPosition - Emitted when the first visible item index changes
  *   loadMore - Fired when scroll threshold crossed (only when infiniteScroll=true)
  *
  * @slots
@@ -78,6 +81,8 @@ const emit = defineEmits<{
   loadMore: [];
 }>();
 
+const scrollPosition = defineModel<number>("scrollPosition", { default: 0 });
+
 defineSlots<DanxVirtualScrollSlots<T>>();
 
 /**
@@ -122,6 +127,7 @@ const {
   startOffset,
   placeholdersAfter,
   measureItem,
+  scrollToIndex,
   keyFn,
 } = useScrollWindow<T>(viewportEl, {
   items: toRef(props, "items"),
@@ -147,6 +153,27 @@ if (props.infiniteScroll) {
     setupScrollInfinite(viewportEl, props, emit);
   }
 }
+
+// Bidirectional sync between scrollPosition model and startIndex.
+// Guard flag prevents circular updates: scroll→model→scrollToIndex→scroll…
+let scrollPositionUpdating = false;
+
+watch(startIndex, (index) => {
+  if (!scrollPositionUpdating && index !== scrollPosition.value) {
+    scrollPosition.value = index;
+  }
+});
+
+watch(scrollPosition, (index) => {
+  if (index !== startIndex.value) {
+    scrollPositionUpdating = true;
+    scrollToIndex(index);
+    // Clear guard after the rAF-throttled recalculate has had time to fire
+    requestAnimationFrame(() => {
+      scrollPositionUpdating = false;
+    });
+  }
+});
 
 /** Whether the user has scrolled to the end of loaded items */
 const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);

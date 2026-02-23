@@ -474,4 +474,189 @@ describe("DanxVirtualScroll", () => {
       expect(placeholders[0]!.attributes("style")).toContain("height: 50px");
     });
   });
+
+  describe("scrollPosition model", () => {
+    it("emits update:scrollPosition with startIndex on scroll", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 400 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      // scrollTop 400 / 40px per item = startIndex 10 (walk-from-zero mode)
+      const emitted = wrapper.emitted("update:scrollPosition");
+      expect(emitted).toBeTruthy();
+      expect(emitted![emitted!.length - 1]).toEqual([10]);
+    });
+
+    it("does not emit when startIndex stays at 0 (no change)", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      // startIndex stays 0 → watch doesn't fire → no emission
+      expect(wrapper.emitted("update:scrollPosition")).toBeUndefined();
+    });
+
+    it("scrolls viewport when scrollPosition prop changes", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        scrollPosition: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // Change scrollPosition to index 10
+      await wrapper.setProps({ scrollPosition: 10 });
+      await nextTick();
+
+      // scrollToIndex(10) should set scrollTop = 10 * 40 = 400 (walk-from-zero mode)
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it("works with totalItems proportional mode", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 1000,
+        overscan: 0,
+        scrollPosition: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // Jump to index 50
+      await wrapper.setProps({ scrollPosition: 50 });
+      await nextTick();
+
+      // Proportional mode: scrollTop = index * defaultItemHeight = 50 * 40 = 2000
+      expect(viewport.scrollTop).toBe(2000);
+    });
+
+    it("defaults to 0 and emits on first scroll away", async () => {
+      const items = Array.from({ length: 50 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // No emission at initial position (startIndex stays 0)
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+      expect(wrapper.emitted("update:scrollPosition")).toBeUndefined();
+
+      // Scroll to a different position — now it emits
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 200,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const emitted = wrapper.emitted("update:scrollPosition");
+      expect(emitted).toBeTruthy();
+      expect(emitted![emitted!.length - 1]).toEqual([5]);
+    });
+
+    it("does not re-emit when parent sets scrollPosition (circular guard)", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        scrollPosition: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // Parent sets scrollPosition to 10 — this triggers scrollToIndex which fires
+      // a scroll event and recalculate. The guard should prevent re-emission.
+      await wrapper.setProps({ scrollPosition: 10 });
+      await nextTick();
+
+      // Simulate the scroll event that scrollToIndex causes
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 400,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      // Should NOT have emitted update:scrollPosition back (guard is active)
+      expect(wrapper.emitted("update:scrollPosition")).toBeUndefined();
+    });
+
+    it("does not scroll when scrollPosition matches current startIndex (no-op)", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        scrollPosition: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 400 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      // startIndex is now 10, scrollTop is 400
+      // Set scrollPosition to 10 (same as startIndex) — should be a no-op
+      await wrapper.setProps({ scrollPosition: 10 });
+      await nextTick();
+
+      // scrollTop should remain 400 (scrollToIndex was not called)
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it("re-enables scroll-driven emissions after guard clears", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        scrollPosition: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+
+      // Parent sets scrollPosition (guard activates)
+      await wrapper.setProps({ scrollPosition: 10 });
+      await nextTick();
+
+      // Guard clears after rAF (mocked to fire synchronously)
+      // Now a user-initiated scroll should emit normally
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 800,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const emitted = wrapper.emitted("update:scrollPosition");
+      expect(emitted).toBeTruthy();
+      expect(emitted![emitted!.length - 1]).toEqual([20]);
+    });
+  });
 });

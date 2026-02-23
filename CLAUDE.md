@@ -59,7 +59,7 @@ Every `.vue` file MUST have comprehensive comment block:
 | **Documentation** | Component comment block + `docs/*.md` if user-facing |
 | **Demo** | Live example in `demo/pages/` showing the feature |
 
-A feature is NOT complete until all three are done.
+A feature is NOT complete until all three are done. **`/flow-verify` enforces this gate automatically before every commit.**
 
 ## Testing Requirements
 
@@ -93,6 +93,7 @@ A feature is NOT complete until all three are done.
 | **NEVER use defineExpose** | Use v-model instead |
 | **ALWAYS run yarn test:coverage** | Run as final verification for ANY task. Failing thresholds = blocking. |
 | **ALWAYS register demo exports** | New exports from `src/index.ts` must be added to `AVAILABLE_VALUES` in `demo/composables/useLivePreview.ts` |
+| **ALWAYS run `/flow-verify`** | Mandatory pre-commit gate that checks tests, docs, and demos are complete |
 
 ## Project Structure
 

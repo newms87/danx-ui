@@ -10,6 +10,7 @@ import sizesCode from "./scroll-examples/Sizes.vue?raw";
 import variantsCode from "./scroll-examples/Variants.vue?raw";
 import infiniteScrollCode from "./scroll-examples/InfiniteScroll.vue?raw";
 import virtualScrollLocalCode from "./scroll-examples/VirtualScrollLocal.vue?raw";
+import virtualScrollPositionCode from "./scroll-examples/VirtualScrollPosition.vue?raw";
 import virtualScrollRemoteCode from "./scroll-examples/VirtualScrollRemote.vue?raw";
 import virtualScrollDynamicCode from "./scroll-examples/VirtualScrollDynamic.vue?raw";
 import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer.vue?raw";
@@ -60,6 +61,11 @@ import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer
       title="Virtual Scroll — Local"
       description="Windowed rendering for 10,000 items. Only visible items are in the DOM."
       :code="virtualScrollLocalCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — Scroll Position"
+      description="Track and control scroll position via v-model:scrollPosition. The value is the first visible item index."
+      :code="virtualScrollPositionCode"
     />
     <DemoSection
       title="Virtual Scroll — Remote"

@@ -101,6 +101,13 @@ export interface DanxVirtualScrollProps<T = unknown> extends DanxScrollProps {
    * Makes scrollbar proportional to full dataset size.
    */
   totalItems?: number;
+
+  /**
+   * Current scroll position as the first visible item index (v-model via defineModel).
+   * Updates on scroll; setting from parent scrolls to that index.
+   * @default 0
+   */
+  scrollPosition?: number;
 }
 
 /**
