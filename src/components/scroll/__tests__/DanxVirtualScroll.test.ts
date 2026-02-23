@@ -356,4 +356,122 @@ describe("DanxVirtualScroll", () => {
     expect(wrapper.find(".danx-scroll").exists()).toBe(true);
     expect(wrapper.find(".danx-scroll__viewport").exists()).toBe(true);
   });
+
+  describe("placeholder rendering", () => {
+    it("renders exact number of placeholder skeletons when scrolled past loaded items", async () => {
+      const items = Array.from({ length: 20 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 1000,
+        overscan: 0,
+      });
+
+      // scrollTop=800 → targetIndex=20, fullStart=20, fill 200px = 5 items → fullEnd=24
+      // placeholdersAfter = 24 - 19 = 5
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 800 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const placeholders = wrapper.findAll(".danx-virtual-scroll__placeholder");
+      expect(placeholders.length).toBe(5);
+    });
+
+    it("does not render placeholders when all visible items are loaded", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 100,
+        overscan: 0,
+      });
+
+      mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+      wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      expect(wrapper.findAll(".danx-virtual-scroll__placeholder").length).toBe(0);
+    });
+
+    it("does not render placeholders without totalItems", async () => {
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+      });
+
+      mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 0 });
+      wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      expect(wrapper.findAll(".danx-virtual-scroll__placeholder").length).toBe(0);
+    });
+
+    it("renders default skeleton content in placeholder", async () => {
+      const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 1000,
+        overscan: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 200 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const skeletons = wrapper.findAll(".danx-virtual-scroll__skeleton");
+      expect(skeletons.length).toBeGreaterThan(0);
+    });
+
+    it("renders custom placeholder slot with correct index values", async () => {
+      const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll(
+        {
+          items,
+          defaultItemHeight: 40,
+          totalItems: 1000,
+          overscan: 0,
+        },
+        {
+          placeholder:
+            '<template #placeholder="{ index }"><span class="custom-placeholder">Loading {{ index }}</span></template>',
+        }
+      );
+
+      // scrollTop=200 → targetIndex=5, fullStart=5, fill 200px = 5 items → fullEnd=9
+      // endIndex clamped to 4, placeholdersAfter = 9 - 4 = 5
+      // Placeholder indices: endIndex + 1..5 = 5,6,7,8,9
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 200 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const customPlaceholders = wrapper.findAll(".custom-placeholder");
+      expect(customPlaceholders.length).toBe(5);
+      // Verify index prop values: endIndex(4) + p(1..5) = 5,6,7,8,9
+      expect(customPlaceholders[0]!.text()).toBe("Loading 5");
+      expect(customPlaceholders[4]!.text()).toBe("Loading 9");
+      // Should not have default skeletons
+      expect(wrapper.findAll(".danx-virtual-scroll__skeleton").length).toBe(0);
+    });
+
+    it("placeholder height matches defaultItemHeight", async () => {
+      const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 50,
+        totalItems: 1000,
+        overscan: 0,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, { clientHeight: 200, scrollTop: 200 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const placeholders = wrapper.findAll(".danx-virtual-scroll__placeholder");
+      expect(placeholders.length).toBeGreaterThan(0);
+      expect(placeholders[0]!.attributes("style")).toContain("height: 50px");
+    });
+  });
 });

@@ -229,6 +229,7 @@ All `DanxScroll` props are supported, plus:
 | Slot | Props | Description |
 |------|-------|-------------|
 | `item` | `{ item: T, index: number }` | Scoped slot for each visible item |
+| `placeholder` | `{ index: number }` | Skeleton row for unloaded items (totalItems mode) |
 | `loading` | — | Loading indicator (at end of visible items) |
 | `done` | — | Done indicator (at end of visible items) |
 
@@ -274,6 +275,19 @@ Combine with infinite scroll to load items on demand:
 ```
 
 The `totalItems` prop makes the scrollbar proportional to the full dataset. Without it, the scrollbar only represents loaded items. With it, dragging the scrollbar to 50% scrolls to approximately the middle of the full dataset.
+
+When `totalItems` is set and the user scrolls past loaded items, placeholder skeleton rows are rendered automatically. Customize them with the `#placeholder` slot:
+
+```vue
+<DanxVirtualScroll :items="items" :totalItems="500" ...>
+  <template #item="{ item }">
+    <div>{{ item.name }}</div>
+  </template>
+  <template #placeholder="{ index }">
+    <div class="animate-pulse bg-gray-200 h-8 rounded" />
+  </template>
+</DanxVirtualScroll>
+```
 
 ### Log Viewer Pattern
 

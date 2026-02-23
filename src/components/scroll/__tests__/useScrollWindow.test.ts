@@ -818,6 +818,126 @@ describe("useScrollWindow", () => {
       expect(result.endIndex.value).toBe(0);
     });
 
+    it("placeholdersAfter is zero when all visible items are loaded", () => {
+      const el = createMockViewport({ clientHeight: 400, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 500,
+      });
+
+      expect(result.placeholdersAfter.value).toBe(0);
+    });
+
+    it("placeholdersAfter is exact when scrolled past loaded items", () => {
+      // 1000 total items, only 20 loaded
+      // scrollTop=19960, defaultItemHeight=40 → targetIndex = floor(19960/40) = 499
+      // fullStart=499, walk fills 400px: 400/40 = 10 items → fullEnd=508
+      // placeholdersAfter = 508 - max(0, 19) = 489
+      const el = createMockViewport({ clientHeight: 400, scrollTop: 19960 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 1000,
+      });
+
+      expect(result.placeholdersAfter.value).toBe(489);
+    });
+
+    it("placeholdersAfter grows as user scrolls further past loaded items", () => {
+      const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+      // scrollTop=800 → targetIndex=20, fullStart=20
+      // Walk fills 400px: 10 items → fullEnd=29
+      // placeholdersAfter = 29 - 19 = 10
+      const viewportEl1 = ref<HTMLElement | null>(
+        createMockViewport({ clientHeight: 400, scrollTop: 800 })
+      );
+      const result1 = createComposable(viewportEl1, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 1000,
+      });
+
+      // scrollTop=2000 → targetIndex=50, fullStart=50
+      // Walk fills 400px: 10 items → fullEnd=59
+      // placeholdersAfter = 59 - 19 = 40
+      const viewportEl2 = ref<HTMLElement | null>(
+        createMockViewport({ clientHeight: 400, scrollTop: 2000 })
+      );
+      const result2 = createComposable(viewportEl2, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 1000,
+      });
+
+      expect(result1.placeholdersAfter.value).toBe(10);
+      expect(result2.placeholdersAfter.value).toBe(40);
+      expect(result2.placeholdersAfter.value).toBeGreaterThan(result1.placeholdersAfter.value);
+    });
+
+    it("placeholdersAfter is zero when not using totalItems", () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+      });
+
+      expect(result.placeholdersAfter.value).toBe(0);
+    });
+
+    it("empty items with totalItems has zero placeholders", () => {
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref<string[]>([]);
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        totalItems: 100,
+      });
+
+      // Empty items hits the early return — no placeholders
+      expect(result.placeholdersAfter.value).toBe(0);
+    });
+
+    it("placeholdersAfter transitions from zero to positive at loaded boundary", () => {
+      const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+      // scrollTop=760 → targetIndex = floor(760/40) = 19 (last loaded item)
+      // fullStart=19, walk fills 400px: 10 items → fullEnd=28
+      // placeholdersAfter = 28 - 19 = 9
+      const elPast = createMockViewport({ clientHeight: 400, scrollTop: 760 });
+      const viewportPast = ref<HTMLElement | null>(elPast);
+      const resultPast = createComposable(viewportPast, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 1000,
+      });
+
+      // scrollTop=400 → targetIndex = 10, well within loaded range
+      // fullStart=10, walk fills 400px: 10 items → fullEnd=19 (all loaded)
+      // placeholdersAfter = max(0, 19 - 19) = 0
+      const elWithin = createMockViewport({ clientHeight: 400, scrollTop: 400 });
+      const viewportWithin = ref<HTMLElement | null>(elWithin);
+      const resultWithin = createComposable(viewportWithin, items, {
+        defaultItemHeight: 40,
+        overscan: 0,
+        totalItems: 1000,
+      });
+
+      expect(resultWithin.placeholdersAfter.value).toBe(0);
+      expect(resultPast.placeholdersAfter.value).toBe(9);
+    });
+
     it("measured heights affect visible range but not scroll mapping", async () => {
       // 100 total items at 40px = 4000, viewport 400, maxScroll = 3600
       // scrollTop=0 → targetIndex=0

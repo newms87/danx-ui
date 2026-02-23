@@ -59,21 +59,36 @@ function recalculateProportional<T>(
     Math.min(Math.floor(scrollTop / defaultItemHeight), totalItemsCount - 1)
   );
 
-  // Clamp newStart to loaded item range so visibleItems slice is valid
-  let newStart = Math.min(Math.max(0, targetIndex - overscan), Math.max(0, count - 1));
-  const offset = newStart * defaultItemHeight;
+  // Compute full proportional range (may extend beyond loaded items)
+  const fullStart = Math.max(0, targetIndex - overscan);
+  const offset = fullStart * defaultItemHeight;
 
-  // Walk forward from newStart using measured heights to fill viewport + overscan
+  // Walk forward from fullStart using measured/default heights to fill viewport + overscan
   const fillHeight = clientHeight + 2 * overscanPx;
-  let newEnd = count - 1; // Fallback if loop doesn't fill
+  let fullEnd = fullStart;
   let filled = 0;
-  for (let i = newStart; i < count; i++) {
-    newEnd = i;
-    filled += getItemHeight(itemList[i]!, i);
+  for (let i = fullStart; i < totalItemsCount; i++) {
+    fullEnd = i;
+    // Use measured height for loaded items, default for unloaded
+    const h = i < count ? getItemHeight(itemList[i]!, i) : defaultItemHeight;
+    filled += h;
     if (filled >= fillHeight) break;
   }
 
-  return { newStart, newEnd, offset, totalHeight: fixedTotal };
+  // Clamp visible (loaded) range to items that actually exist
+  const newStart = Math.min(fullStart, Math.max(0, count - 1));
+  const newEnd = Math.min(fullEnd, Math.max(0, count - 1));
+
+  // Placeholders: indices in the full range that fall outside loaded items
+  const placeholdersAfter = Math.max(0, fullEnd - Math.max(0, count - 1));
+
+  return {
+    newStart,
+    newEnd,
+    offset,
+    totalHeight: fixedTotal,
+    placeholdersAfter,
+  };
 }
 
 /** Walk-from-zero recalculation when totalItems is not known. */
@@ -121,7 +136,13 @@ function recalculateWalkFromZero<T>(
     total += getItemHeight(itemList[i]!, i);
   }
 
-  return { newStart, newEnd, offset, totalHeight: total };
+  return {
+    newStart,
+    newEnd,
+    offset,
+    totalHeight: total,
+    placeholdersAfter: 0,
+  };
 }
 
 export function useScrollWindow<T>(
@@ -145,6 +166,12 @@ export function useScrollWindow<T>(
    * Each subsequent item is positioned at startOffset + sum of preceding visible heights.
    */
   const startOffset = ref(0);
+
+  /**
+   * Number of skeleton placeholder rows needed after loaded items when scrolled
+   * past the loaded range (totalItems mode only). Zero when all visible items are loaded.
+   */
+  const placeholdersAfter = ref(0);
 
   /** Height cache keyed by item key. Permanent per key. */
   const heightCache = new Map<string | number, number>();
@@ -177,6 +204,7 @@ export function useScrollWindow<T>(
       endIndex.value = 0;
       totalHeight.value = totalItems != null ? totalItems * defaultItemHeight : 0;
       startOffset.value = 0;
+      placeholdersAfter.value = 0;
       return;
     }
 
@@ -206,6 +234,7 @@ export function useScrollWindow<T>(
     endIndex.value = result.newEnd;
     startOffset.value = result.offset;
     totalHeight.value = result.totalHeight;
+    placeholdersAfter.value = result.placeholdersAfter;
   }
 
   function onScroll() {
@@ -302,6 +331,7 @@ export function useScrollWindow<T>(
     endIndex,
     totalHeight,
     startOffset,
+    placeholdersAfter,
     measureItem,
     scrollToIndex,
     keyFn,

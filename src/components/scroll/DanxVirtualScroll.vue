@@ -34,11 +34,17 @@
  *
  * @slots
  *   item - Scoped slot receiving { item, index } for each visible item
+ *   placeholder - Skeleton row for unloaded items (totalItems mode). Receives { index }. Default: gray pulse bar.
  *   loading - Loading indicator (shown at end of visible items when loading=true)
  *   done - Done indicator (shown at end of visible items when canLoadMore=false)
  *
  * @tokens
  *   Inherits all DanxScroll CSS tokens
+ *   --dx-virtual-scroll-skeleton-padding - Placeholder cell padding (default: 0 0.75rem)
+ *   --dx-virtual-scroll-skeleton-width - Skeleton bar width (default: 60%)
+ *   --dx-virtual-scroll-skeleton-height - Skeleton bar height (default: 40%)
+ *   --dx-virtual-scroll-skeleton-radius - Skeleton bar border radius (default: 0.25rem)
+ *   --dx-virtual-scroll-skeleton-bg - Skeleton bar background (default: oklch(0.8 0 0 / 0.3))
  *
  * @example
  *   <DanxVirtualScroll :items="items" class="h-96">
@@ -60,7 +66,7 @@
  *     </template>
  *   </DanxVirtualScroll>
  */
-import { type ComponentPublicInstance, computed, onMounted, ref, toRef } from "vue";
+import { type ComponentPublicInstance, computed, onMounted, ref, toRef, watch } from "vue";
 import DanxScroll from "./DanxScroll.vue";
 import { setupScrollInfinite } from "./useScrollInfinite";
 import { useScrollWindow } from "./useScrollWindow";
@@ -111,18 +117,39 @@ onMounted(() => {
   }
 });
 
-const { visibleItems, startIndex, endIndex, totalHeight, startOffset, measureItem, keyFn } =
-  useScrollWindow<T>(viewportEl, {
-    items: toRef(props, "items"),
-    defaultItemHeight: props.defaultItemHeight,
-    overscan: props.overscan,
-    keyFn: props.keyFn,
-    totalItems: props.totalItems,
-  });
+const {
+  visibleItems,
+  startIndex,
+  endIndex,
+  totalHeight,
+  startOffset,
+  placeholdersAfter,
+  measureItem,
+  keyFn,
+} = useScrollWindow<T>(viewportEl, {
+  items: toRef(props, "items"),
+  defaultItemHeight: props.defaultItemHeight,
+  overscan: props.overscan,
+  keyFn: props.keyFn,
+  totalItems: props.totalItems,
+});
 
 // DanxVirtualScroll handles infinite scroll directly so indicators render
-// inside the positioned wrapper (not at the bottom of DanxScroll's viewport)
-setupScrollInfinite(viewportEl, props, emit);
+// inside the positioned wrapper (not at the bottom of DanxScroll's viewport).
+// When totalItems is set, the scroll container is sized for the full dataset
+// so distance-based triggering (useScrollInfinite) never fires — instead we
+// watch endIndex to trigger when the visible window reaches loaded items.
+if (props.infiniteScroll) {
+  if (props.totalItems != null) {
+    watch(endIndex, (end) => {
+      if (end >= props.items.length - 1 && !props.loading && props.canLoadMore) {
+        emit("loadMore");
+      }
+    });
+  } else {
+    setupScrollInfinite(viewportEl, props, emit);
+  }
+}
 
 /** Whether the user has scrolled to the end of loaded items */
 const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);
@@ -157,6 +184,18 @@ function itemRef(index: number) {
           <slot name="item" :item="item" :index="startIndex + i" />
         </div>
 
+        <!-- Placeholder skeleton rows for unloaded items (totalItems mode) -->
+        <div
+          v-for="p in placeholdersAfter"
+          :key="'placeholder-' + (endIndex + p)"
+          :style="{ height: defaultItemHeight + 'px' }"
+          class="danx-virtual-scroll__placeholder"
+        >
+          <slot name="placeholder" :index="endIndex + p">
+            <div class="danx-virtual-scroll__skeleton" />
+          </slot>
+        </div>
+
         <!-- Infinite scroll indicators — rendered at the end of visible items -->
         <template v-if="infiniteScroll && isAtEnd">
           <div v-if="loading" class="danx-scroll__loading">
@@ -175,3 +214,29 @@ function itemRef(index: number) {
     </div>
   </DanxScroll>
 </template>
+
+<style>
+.danx-virtual-scroll__placeholder {
+  display: flex;
+  align-items: center;
+  padding: var(--dx-virtual-scroll-skeleton-padding, 0 0.75rem);
+
+  .danx-virtual-scroll__skeleton {
+    width: var(--dx-virtual-scroll-skeleton-width, 60%);
+    height: var(--dx-virtual-scroll-skeleton-height, 40%);
+    border-radius: var(--dx-virtual-scroll-skeleton-radius, 0.25rem);
+    background: var(--dx-virtual-scroll-skeleton-bg, oklch(0.8 0 0 / 0.3));
+    animation: danx-skeleton-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes danx-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+</style>

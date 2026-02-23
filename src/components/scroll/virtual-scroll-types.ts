@@ -55,6 +55,9 @@ export interface ScrollWindowReturn<T> {
   /** Absolute top offset (px) for the first visible item. */
   startOffset: Ref<number>;
 
+  /** Number of skeleton placeholder rows needed after loaded items when scrolled past the loaded range (totalItems mode only). */
+  placeholdersAfter: Ref<number>;
+
   /**
    * Measure a rendered item's height and cache it.
    * Call from a template ref callback on each item wrapper.
@@ -106,6 +109,9 @@ export interface DanxVirtualScrollProps<T = unknown> extends DanxScrollProps {
 export interface DanxVirtualScrollSlots<T = unknown> {
   /** Scoped slot for each visible item. */
   item?(props: { item: T; index: number }): unknown;
+
+  /** Placeholder for unloaded items when scrolled past loaded range (totalItems mode). Receives the absolute item index. */
+  placeholder?(props: { index: number }): unknown;
 
   /** Loading indicator (rendered at end of visible items when loading=true). */
   loading?(): unknown;
