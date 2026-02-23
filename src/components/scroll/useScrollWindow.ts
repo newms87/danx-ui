@@ -10,20 +10,114 @@
  * visible items. scrollHeight is stable (only changes when heights are
  * measured), so the scrollbar never glitches.
  *
- * Algorithm:
+ * Two recalculation strategies:
+ *
+ * A. Proportional mapping (when totalItems is provided):
+ *    Scroll position maps proportionally to item index. totalHeight is fixed
+ *    at totalItems * defaultItemHeight for a stable scrollbar. Dragging to 50%
+ *    shows items near the dataset midpoint. startOffset uses defaultItemHeight
+ *    for consistency with the proportional totalHeight (measured heights only
+ *    affect the visible window's internal layout, not scroll mapping).
+ *
+ * B. Walk-from-zero (when totalItems is not provided):
+ *    Walks items from index 0 accumulating heights (cached or estimated) to
+ *    find the visible range. totalHeight is computed from all loaded items.
+ *
+ * Common steps:
  * 1. On scroll (throttled via requestAnimationFrame), read scrollTop and clientHeight
- * 2. Walk items from index 0, accumulating heights (cached or estimated)
- * 3. Find startIndex/endIndex for the visible + overscan range
- * 4. Compute absolute top offset for each visible item
- * 5. After items are measured, recalculate (batched via microtask) to keep
+ * 2. Find startIndex/endIndex via strategy A or B
+ * 3. Compute absolute top offset for first visible item
+ * 4. After items are measured, recalculate (batched via microtask) to keep
  *    positions consistent with actual heights
  *
  * @param viewportEl - Ref to the scrollable viewport element
- * @param options - Configuration: items array, defaultItemHeight, overscan, keyFn
+ * @param options - Configuration: items, defaultItemHeight, overscan, keyFn, totalItems
  * @returns Visible items, positions, measurement function, scrollToIndex, totalHeight
  */
 import { type Ref, computed, onUnmounted, ref, watch } from "vue";
 import type { ScrollWindowOptions, ScrollWindowReturn } from "./virtual-scroll-types";
+
+/** Proportional recalculation when totalItems is known. */
+function recalculateProportional<T>(
+  itemList: T[],
+  count: number,
+  clientHeight: number,
+  scrollTop: number,
+  overscan: number,
+  defaultItemHeight: number,
+  totalItemsCount: number,
+  getItemHeight: (item: T, index: number) => number
+) {
+  const overscanPx = overscan * defaultItemHeight;
+  const fixedTotal = totalItemsCount * defaultItemHeight;
+  const maxScroll = Math.max(1, fixedTotal - clientHeight);
+  const scrollRatio = Math.min(1, Math.max(0, scrollTop / maxScroll));
+  const targetIndex = Math.floor(scrollRatio * Math.max(0, totalItemsCount - 1));
+
+  // Clamp newStart to loaded item range so visibleItems slice is valid
+  let newStart = Math.min(Math.max(0, targetIndex - overscan), Math.max(0, count - 1));
+  const offset = newStart * defaultItemHeight;
+
+  // Walk forward from newStart using measured heights to fill viewport + overscan
+  const fillHeight = clientHeight + 2 * overscanPx;
+  let newEnd = count - 1; // Fallback if loop doesn't fill
+  let filled = 0;
+  for (let i = newStart; i < count; i++) {
+    newEnd = i;
+    filled += getItemHeight(itemList[i]!, i);
+    if (filled >= fillHeight) break;
+  }
+
+  return { newStart, newEnd, offset, totalHeight: fixedTotal };
+}
+
+/** Walk-from-zero recalculation when totalItems is not known. */
+function recalculateWalkFromZero<T>(
+  itemList: T[],
+  count: number,
+  clientHeight: number,
+  scrollTop: number,
+  overscan: number,
+  defaultItemHeight: number,
+  getItemHeight: (item: T, index: number) => number
+) {
+  const overscanPx = overscan * defaultItemHeight;
+  const viewTop = Math.max(0, scrollTop - overscanPx);
+  const viewBottom = scrollTop + clientHeight + overscanPx;
+
+  let accumulated = 0;
+  let newStart = 0;
+  let newEnd = count - 1;
+  let foundStart = false;
+  let offset = 0;
+
+  for (let i = 0; i < count; i++) {
+    const h = getItemHeight(itemList[i]!, i);
+    if (!foundStart && accumulated + h > viewTop) {
+      newStart = i;
+      offset = accumulated;
+      foundStart = true;
+    }
+    accumulated += h;
+    if (foundStart && accumulated >= viewBottom) {
+      newEnd = i;
+      break;
+    }
+  }
+
+  if (!foundStart) {
+    newStart = Math.max(0, count - 1);
+    newEnd = count - 1;
+  }
+
+  // Compute totalHeight from all loaded items
+  let total = accumulated;
+  for (let i = newEnd + 1; i < count; i++) {
+    total += getItemHeight(itemList[i]!, i);
+  }
+
+  return { newStart, newEnd, offset, totalHeight: total };
+}
 
 export function useScrollWindow<T>(
   viewportEl: Ref<HTMLElement | null>,
@@ -81,52 +175,32 @@ export function useScrollWindow<T>(
       return;
     }
 
-    // Overscan buffer in pixels
-    const overscanPx = overscan * defaultItemHeight;
+    const result =
+      totalItems != null
+        ? recalculateProportional(
+            itemList,
+            count,
+            clientHeight,
+            scrollTop,
+            overscan,
+            defaultItemHeight,
+            totalItems,
+            getItemHeight
+          )
+        : recalculateWalkFromZero(
+            itemList,
+            count,
+            clientHeight,
+            scrollTop,
+            overscan,
+            defaultItemHeight,
+            getItemHeight
+          );
 
-    const viewTop = Math.max(0, scrollTop - overscanPx);
-    const viewBottom = scrollTop + clientHeight + overscanPx;
-
-    let accumulated = 0;
-    let newStart = 0;
-    let newEnd = count - 1;
-    let foundStart = false;
-    let offset = 0;
-
-    for (let i = 0; i < count; i++) {
-      const h = getItemHeight(itemList[i]!, i);
-      if (!foundStart && accumulated + h > viewTop) {
-        newStart = i;
-        offset = accumulated;
-        foundStart = true;
-      }
-      accumulated += h;
-      if (foundStart && accumulated >= viewBottom) {
-        newEnd = i;
-        break;
-      }
-    }
-
-    if (!foundStart) {
-      newStart = Math.max(0, count - 1);
-      newEnd = count - 1;
-    }
-
-    startIndex.value = newStart;
-    endIndex.value = newEnd;
-    startOffset.value = offset;
-
-    // When totalItems is provided, use a fixed totalHeight for stable scrollbar
-    if (totalItems != null) {
-      totalHeight.value = totalItems * defaultItemHeight;
-    } else {
-      // Compute from loaded items (continue accumulating for remaining items)
-      let total = accumulated;
-      for (let i = newEnd + 1; i < count; i++) {
-        total += getItemHeight(itemList[i]!, i);
-      }
-      totalHeight.value = total;
-    }
+    startIndex.value = result.newStart;
+    endIndex.value = result.newEnd;
+    startOffset.value = result.offset;
+    totalHeight.value = result.totalHeight;
   }
 
   function onScroll() {
@@ -186,15 +260,29 @@ export function useScrollWindow<T>(
     }
   }
 
+  /**
+   * Scroll the viewport to bring the given item index into view.
+   * When totalItems is provided, uses proportional scroll mapping so that
+   * scrollToIndex(N) produces the same scroll position as dragging the
+   * scrollbar to index N. Without totalItems, walks accumulated heights.
+   */
   function scrollToIndex(index: number) {
     const el = viewportEl.value;
     if (!el) return;
-    const itemList = items.value;
-    let targetTop = 0;
-    for (let i = 0; i < Math.min(index, itemList.length); i++) {
-      targetTop += getItemHeight(itemList[i]!, i);
+
+    if (totalItems != null) {
+      const fixedTotal = totalItems * defaultItemHeight;
+      const maxScroll = Math.max(1, fixedTotal - el.clientHeight);
+      const ratio = totalItems <= 1 ? 0 : index / (totalItems - 1);
+      el.scrollTop = Math.min(maxScroll, Math.max(0, ratio * maxScroll));
+    } else {
+      const itemList = items.value;
+      let targetTop = 0;
+      for (let i = 0; i < Math.min(index, itemList.length); i++) {
+        targetTop += getItemHeight(itemList[i]!, i);
+      }
+      el.scrollTop = targetTop;
     }
-    el.scrollTop = targetTop;
   }
 
   const visibleItems = computed(() => {
