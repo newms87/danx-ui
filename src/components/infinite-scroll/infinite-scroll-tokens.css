@@ -1,0 +1,17 @@
+/**
+ * DanxInfiniteScroll Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize infinite scroll appearance.
+ *
+ * CSS Tokens:
+ * --dx-infinite-scroll-loading-color  Text color for the loading indicator
+ * --dx-infinite-scroll-done-color     Text color for the "no more items" indicator
+ * --dx-infinite-scroll-gap            Gap between content and status indicators
+ */
+
+:root {
+  --dx-infinite-scroll-loading-color: var(--color-text-muted);
+  --dx-infinite-scroll-done-color: var(--color-text-subtle);
+  --dx-infinite-scroll-gap: 1rem;
+}

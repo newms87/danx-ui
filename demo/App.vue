@@ -139,6 +139,11 @@ watch(theme, (newTheme) => {
                 >File Navigator</RouterLink
               >
             </li>
+            <li>
+              <RouterLink to="/infinite-scroll" class="demo-sidebar__link"
+                >Infinite Scroll</RouterLink
+              >
+            </li>
           </ul>
         </li>
         <li>

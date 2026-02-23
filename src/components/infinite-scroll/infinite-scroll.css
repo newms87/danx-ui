@@ -1,0 +1,27 @@
+/**
+ * DanxInfiniteScroll Styles
+ *
+ * Layout styles for the infinite scroll container.
+ * The component is a simple scrollable box with status indicators.
+ */
+
+@import "./infinite-scroll-tokens.css";
+
+.danx-infinite-scroll {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-infinite-scroll-gap);
+
+  .danx-infinite-scroll__loading {
+    text-align: center;
+    color: var(--dx-infinite-scroll-loading-color);
+    padding: 0.5rem;
+  }
+
+  .danx-infinite-scroll__done {
+    text-align: center;
+    color: var(--dx-infinite-scroll-done-color);
+    padding: 0.5rem;
+  }
+}
