@@ -5,7 +5,7 @@ import { makeFile, makeChild } from "../../danx-file/__tests__/test-helpers";
 
 // NOTE: DanxPopover uses the native Popover API (popover="auto", showPopover/hidePopover)
 // which is not supported in JSDOM. This means popover content (children list, select events,
-// loading text) cannot be tested here. These behaviors are covered by the component's
+// loading skeletons) cannot be tested here. These behaviors are covered by the component's
 // integration within DanxFileNavigator. Only trigger visibility and loadChildren emission
 // can be tested in isolation.
 

@@ -24,6 +24,7 @@ import { computed, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxPopover } from "../popover";
 import { DanxScroll } from "../scroll";
+import { DanxSkeleton } from "../skeleton";
 import { DanxFile } from "../danx-file";
 import { hasChildren } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
@@ -58,7 +59,21 @@ watch(
     </template>
 
     <DanxScroll class="danx-file-children" size="xs">
-      <div v-if="!file.children" class="danx-file-children__loading">Loading...</div>
+      <div v-if="!file.children" class="danx-file-children__loading" aria-label="Loading children">
+        <div v-for="n in 3" :key="n" class="danx-file-children__skeleton-row">
+          <DanxSkeleton
+            shape="rounded"
+            style="
+              --dx-skeleton-width: var(--dx-file-children-thumb-size);
+              --dx-skeleton-height: var(--dx-file-children-thumb-size);
+            "
+          />
+          <DanxSkeleton
+            shape="rounded"
+            style="--dx-skeleton-height: 0.75rem; --dx-skeleton-width: 70%"
+          />
+        </div>
+      </div>
       <div
         v-for="child in file.children"
         :key="child.id"

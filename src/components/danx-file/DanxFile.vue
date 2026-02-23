@@ -48,8 +48,6 @@
  *   --dx-file-thumb-icon-color - File-type icon color
  *   --dx-file-thumb-fit - Image object-fit (set via fit prop)
  *   --dx-file-thumb-filename-bg - Filename overlay background
- *   --dx-file-thumb-skeleton-bg - Skeleton placeholder background
- *   --dx-file-thumb-skeleton-shine - Skeleton shimmer highlight color
  *
  * @example
  *   <DanxFile :file="photo" downloadable @click="openPreview" />
@@ -61,6 +59,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { DanxIcon } from "../icon";
+import { DanxSkeleton } from "../skeleton";
 import {
   resolveFileUrl,
   resolveThumbUrl,
@@ -160,7 +159,12 @@ function onDownload() {
     @keydown.enter="onClick"
   >
     <!-- Loading skeleton -->
-    <div v-if="loading" class="danx-file__skeleton" />
+    <DanxSkeleton
+      v-if="loading"
+      animation="wave"
+      aria-label="Loading file"
+      style="--dx-skeleton-height: 100%"
+    />
 
     <!-- Preview: Image -->
     <img

@@ -259,29 +259,3 @@
   padding: 0.5rem;
 }
 
-/* ==========================================================================
-   Loading Skeleton
-   ========================================================================== */
-
-.danx-file__skeleton {
-  width: 100%;
-  height: 100%;
-  background: var(--dx-file-thumb-skeleton-bg);
-  background-image: linear-gradient(
-    90deg,
-    var(--dx-file-thumb-skeleton-bg) 0%,
-    var(--dx-file-thumb-skeleton-shine) 50%,
-    var(--dx-file-thumb-skeleton-bg) 100%
-  );
-  background-size: 200% 100%;
-  animation: danx-file-skeleton-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes danx-file-skeleton-pulse {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}

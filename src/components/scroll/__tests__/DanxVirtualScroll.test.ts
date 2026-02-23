@@ -421,7 +421,7 @@ describe("DanxVirtualScroll", () => {
       viewport.dispatchEvent(new Event("scroll"));
       await nextTick();
 
-      const skeletons = wrapper.findAll(".danx-virtual-scroll__skeleton");
+      const skeletons = wrapper.findAll(".danx-skeleton");
       expect(skeletons.length).toBeGreaterThan(0);
     });
 
@@ -453,7 +453,7 @@ describe("DanxVirtualScroll", () => {
       expect(customPlaceholders[0]!.text()).toBe("Loading 5");
       expect(customPlaceholders[4]!.text()).toBe("Loading 9");
       // Should not have default skeletons
-      expect(wrapper.findAll(".danx-virtual-scroll__skeleton").length).toBe(0);
+      expect(wrapper.findAll(".danx-skeleton").length).toBe(0);
     });
 
     it("placeholder height matches defaultItemHeight", async () => {

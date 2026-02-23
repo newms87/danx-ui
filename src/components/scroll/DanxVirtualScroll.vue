@@ -34,17 +34,13 @@
  *
  * @slots
  *   item - Scoped slot receiving { item, index } for each visible item
- *   placeholder - Skeleton row for unloaded items (totalItems mode). Receives { index }. Default: gray pulse bar.
+ *   placeholder - Skeleton row for unloaded items (totalItems mode). Receives { index }. Default: DanxSkeleton rounded bar.
  *   loading - Loading indicator (shown at end of visible items when loading=true)
  *   done - Done indicator (shown at end of visible items when canLoadMore=false)
  *
  * @tokens
  *   Inherits all DanxScroll CSS tokens
  *   --dx-virtual-scroll-skeleton-padding - Placeholder cell padding (default: 0 0.75rem)
- *   --dx-virtual-scroll-skeleton-width - Skeleton bar width (default: 60%)
- *   --dx-virtual-scroll-skeleton-height - Skeleton bar height (default: 40%)
- *   --dx-virtual-scroll-skeleton-radius - Skeleton bar border radius (default: 0.25rem)
- *   --dx-virtual-scroll-skeleton-bg - Skeleton bar background (default: oklch(0.8 0 0 / 0.3))
  *
  * @example
  *   <DanxVirtualScroll :items="items" class="h-96">
@@ -67,6 +63,7 @@
  *   </DanxVirtualScroll>
  */
 import { type ComponentPublicInstance, computed, onMounted, ref, toRef, watch } from "vue";
+import { DanxSkeleton } from "../skeleton";
 import DanxScroll from "./DanxScroll.vue";
 import { setupScrollInfinite } from "./useScrollInfinite";
 import { useScrollWindow } from "./useScrollWindow";
@@ -192,7 +189,10 @@ function itemRef(index: number) {
           class="danx-virtual-scroll__placeholder"
         >
           <slot name="placeholder" :index="endIndex + p">
-            <div class="danx-virtual-scroll__skeleton" />
+            <DanxSkeleton
+              shape="rounded"
+              style="--dx-skeleton-width: 60%; --dx-skeleton-height: 40%"
+            />
           </slot>
         </div>
 
@@ -220,23 +220,5 @@ function itemRef(index: number) {
   display: flex;
   align-items: center;
   padding: var(--dx-virtual-scroll-skeleton-padding, 0 0.75rem);
-
-  .danx-virtual-scroll__skeleton {
-    width: var(--dx-virtual-scroll-skeleton-width, 60%);
-    height: var(--dx-virtual-scroll-skeleton-height, 40%);
-    border-radius: var(--dx-virtual-scroll-skeleton-radius, 0.25rem);
-    background: var(--dx-virtual-scroll-skeleton-bg, oklch(0.8 0 0 / 0.3));
-    animation: danx-skeleton-pulse 1.5s ease-in-out infinite;
-  }
-}
-
-@keyframes danx-skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
 }
 </style>

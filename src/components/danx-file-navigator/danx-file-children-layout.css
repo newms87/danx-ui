@@ -11,10 +11,14 @@
 }
 
 .danx-file-children__loading {
-  padding: 0.5rem;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
+  padding: 0.25rem;
+}
+
+.danx-file-children__skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem;
 }
 
 .danx-file-children__item {

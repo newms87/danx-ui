@@ -342,14 +342,16 @@ describe("DanxFile", () => {
   });
 
   describe("Loading skeleton", () => {
-    it("renders skeleton when loading is true", () => {
+    it("renders skeleton with wave animation when loading is true", () => {
       const wrapper = mountFile({ loading: true });
-      expect(wrapper.find(".danx-file__skeleton").exists()).toBe(true);
+      const skeleton = wrapper.find(".danx-skeleton");
+      expect(skeleton.exists()).toBe(true);
+      expect(skeleton.classes()).toContain("danx-skeleton--wave");
     });
 
     it("does not render skeleton by default", () => {
       const wrapper = mountFile();
-      expect(wrapper.find(".danx-file__skeleton").exists()).toBe(false);
+      expect(wrapper.find(".danx-skeleton").exists()).toBe(false);
     });
 
     it("hides image preview when loading", () => {

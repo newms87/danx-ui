@@ -62,10 +62,4 @@
   --dx-file-thumb-filename-bg: rgb(0 0 0 / 0.6);
   --dx-file-thumb-action-bg-hover: rgb(0 0 0 / 0.7);
 
-  /* ==========================================================================
-     Loading Skeleton
-     ========================================================================== */
-
-  --dx-file-thumb-skeleton-bg: rgb(0 0 0 / 0.08);
-  --dx-file-thumb-skeleton-shine: rgb(0 0 0 / 0.15);
 }
