@@ -3,13 +3,13 @@ import { DanxSkeleton } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; align-items: start">
-    <div style="flex: 1">
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; color: gray">Custom colors</p>
+  <div class="flex gap-8 items-start">
+    <div class="flex-1">
+      <p class="m-0 mb-2 text-sm text-text-muted">Custom colors</p>
       <DanxSkeleton style="--dx-skeleton-bg: oklch(0.8 0.1 240); --dx-skeleton-height: 2rem" />
     </div>
-    <div style="flex: 1">
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; color: gray">Custom size + speed</p>
+    <div class="flex-1">
+      <p class="m-0 mb-2 text-sm text-text-muted">Custom size + speed</p>
       <DanxSkeleton
         shape="rounded"
         style="
@@ -20,8 +20,8 @@ import { DanxSkeleton } from "danx-ui";
         "
       />
     </div>
-    <div style="flex: 1">
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; color: gray">Custom wave highlight</p>
+    <div class="flex-1">
+      <p class="m-0 mb-2 text-sm text-text-muted">Custom wave highlight</p>
       <DanxSkeleton
         animation="wave"
         style="

@@ -5,14 +5,10 @@ const iconNames = Object.keys(iconRegistry);
 </script>
 
 <template>
-  <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center">
-    <div
-      v-for="name in iconNames"
-      :key="name"
-      style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem; width: 5rem"
-    >
+  <div class="flex flex-wrap gap-4 items-center">
+    <div v-for="name in iconNames" :key="name" class="flex flex-col items-center gap-1 w-20">
       <DanxIcon :icon="name" style="--dx-icon-size: 1.25rem" />
-      <span style="font-size: 0.65rem; color: gray">{{ name }}</span>
+      <span class="text-[0.65rem] text-text-muted">{{ name }}</span>
     </div>
   </div>
 </template>

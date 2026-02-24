@@ -31,14 +31,14 @@ const text = ref({
 </script>
 
 <template>
-  <div style="display: flex; gap: 1rem; align-items: start">
-    <div style="width: 120px; height: 100px">
+  <div class="flex gap-4 items-start">
+    <div class="w-[120px] h-[100px]">
       <DanxFile :file="pdf" />
     </div>
-    <div style="width: 120px; height: 100px">
+    <div class="w-[120px] h-[100px]">
       <DanxFile :file="zip" />
     </div>
-    <div style="width: 120px; height: 100px">
+    <div class="w-[120px] h-[100px]">
       <DanxFile :file="text" />
     </div>
   </div>

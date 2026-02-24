@@ -10,9 +10,9 @@ const show = ref(false);
     <template #trigger>
       <button class="demo-btn" @click="show = !show">Toggle Popover</button>
     </template>
-    <div style="padding: 0.75rem 1rem; max-width: 14rem">
-      <p style="margin: 0">This is a basic popover anchored below the trigger button.</p>
-      <p style="margin: 0.5rem 0 0; color: var(--color-text-muted); font-size: 0.8125rem">
+    <div class="px-4 py-3 max-w-56">
+      <p class="m-0">This is a basic popover anchored below the trigger button.</p>
+      <p class="mt-2 text-text-muted text-[0.8125rem]">
         Click outside or press Escape to close.
       </p>
     </div>

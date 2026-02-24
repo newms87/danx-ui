@@ -6,11 +6,11 @@ const content = ref("Type some **markdown** here...");
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+  <div class="flex flex-col gap-4 w-full">
     <MarkdownEditor v-model="content" />
-    <details style="font-size: 0.8125rem;">
-      <summary style="cursor: pointer; opacity: 0.7;">View raw markdown</summary>
-      <pre style="margin: 0.5rem 0 0; padding: 0.75rem; background: rgba(0,0,0,0.1); border-radius: 0.375rem; white-space: pre-wrap; font-size: 0.75rem;">{{ content }}</pre>
+    <details class="text-[0.8125rem]">
+      <summary class="cursor-pointer opacity-70">View raw markdown</summary>
+      <pre class="mt-2 p-3 bg-black/10 rounded-md whitespace-pre-wrap text-xs">{{ content }}</pre>
     </details>
   </div>
 </template>

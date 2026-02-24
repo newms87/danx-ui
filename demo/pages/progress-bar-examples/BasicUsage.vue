@@ -6,12 +6,12 @@ const value = ref(65);
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
+  <div class="flex flex-col gap-6 w-full">
     <DanxProgressBar :value="value" />
 
-    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem">
+    <label class="flex items-center gap-2 text-sm">
       Value: {{ value }}%
-      <input type="range" v-model.number="value" min="0" max="100" style="flex: 1" />
+      <input type="range" v-model.number="value" min="0" max="100" class="flex-1" />
     </label>
   </div>
 </template>

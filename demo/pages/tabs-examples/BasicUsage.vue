@@ -13,5 +13,5 @@ const tabs = [
 
 <template>
   <DanxTabs v-model="activeTab" :tabs="tabs" />
-  <p style="margin-top: 1rem; color: var(--color-text-muted)">Active: {{ activeTab }}</p>
+  <p class="mt-4 text-text-muted">Active: {{ activeTab }}</p>
 </template>

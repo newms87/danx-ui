@@ -36,8 +36,8 @@ function clearLog() {
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
-    <div style="display: flex; gap: 0.75rem; align-items: center">
+  <div class="flex flex-col gap-3 w-full">
+    <div class="flex gap-3 items-center">
       <DanxActionButton
         :action="successAction"
         variant="success"
@@ -59,15 +59,7 @@ function clearLog() {
         Fail
       </DanxActionButton>
       <button
-        style="
-          font-size: 0.75rem;
-          color: gray;
-          background: none;
-          border: 1px solid #ddd;
-          border-radius: 0.375rem;
-          padding: 0.25rem 0.5rem;
-          cursor: pointer;
-        "
+        class="text-xs text-text-muted bg-none border border-border rounded px-2 py-1 cursor-pointer"
         @click="clearLog"
       >
         Clear Log
@@ -75,16 +67,7 @@ function clearLog() {
     </div>
     <pre
       v-if="eventLog.length"
-      style="
-        margin: 0;
-        padding: 0.75rem;
-        font-size: 0.8125rem;
-        font-family: monospace;
-        background: #f5f5f5;
-        border: 1px solid #ddd;
-        border-radius: 0.375rem;
-        white-space: pre-wrap;
-      "
+      class="m-0 p-3 text-[0.8125rem] font-mono bg-surface-sunken border border-border rounded whitespace-pre-wrap"
       >{{ eventLog.join("\n") }}</pre
     >
   </div>

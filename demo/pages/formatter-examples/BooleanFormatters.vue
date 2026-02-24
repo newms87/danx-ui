@@ -13,33 +13,23 @@ const examples = [
 
 <template>
   <div>
-    <table style="border-collapse: collapse; width: 100%">
+    <table class="border-collapse w-full">
       <thead>
         <tr>
-          <th
-            style="text-align: left; padding: 0.5rem; border-bottom: 2px solid var(--color-border)"
-          >
+          <th class="text-left p-2 border-b-2 border-border">
             Function
           </th>
-          <th
-            style="text-align: left; padding: 0.5rem; border-bottom: 2px solid var(--color-border)"
-          >
+          <th class="text-left p-2 border-b-2 border-border">
             Result
           </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="ex in examples" :key="ex.label">
-          <td
-            style="
-              padding: 0.5rem;
-              border-bottom: 1px solid var(--color-border);
-              font-family: monospace;
-            "
-          >
+          <td class="p-2 border-b border-border font-mono">
             {{ ex.label }}
           </td>
-          <td style="padding: 0.5rem; border-bottom: 1px solid var(--color-border)">
+          <td class="p-2 border-b border-border">
             {{ ex.result }}
           </td>
         </tr>

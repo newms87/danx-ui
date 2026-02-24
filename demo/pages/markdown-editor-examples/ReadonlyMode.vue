@@ -13,7 +13,7 @@ This editor is in **readonly** mode. The content is rendered but cannot be edite
 </script>
 
 <template>
-  <div style="width: 100%;">
+  <div class="w-full">
     <MarkdownEditor :model-value="content" readonly />
   </div>
 </template>

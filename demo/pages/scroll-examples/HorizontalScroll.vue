@@ -4,7 +4,7 @@ import { DanxScroll } from "danx-ui";
 
 <template>
   <DanxScroll direction="horizontal" class="w-full h-[100px] border border-border rounded-lg p-2">
-    <div class="flex gap-4" style="width: 2000px">
+    <div class="flex gap-4 w-[2000px]">
       <div
         v-for="i in 30"
         :key="i"

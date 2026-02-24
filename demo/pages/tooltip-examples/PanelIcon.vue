@@ -3,7 +3,7 @@ import { DanxTooltip } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; align-items: center">
+  <div class="flex gap-8 items-center">
     <DanxTooltip icon="info" tooltip="Panel with info icon" triggerIcon="info" />
     <DanxTooltip
       icon="warning-triangle"

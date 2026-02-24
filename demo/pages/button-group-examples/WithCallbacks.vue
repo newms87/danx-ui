@@ -42,7 +42,7 @@ const buttons = [
     @select="(v) => log.push('select: ' + v)"
     @deselect="(v) => log.push('deselect: ' + v)"
   />
-  <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--color-text-muted)">
+  <div class="mt-4 text-sm text-text-muted">
     <p>Selected: {{ selected }}</p>
     <p v-for="(entry, i) in log" :key="i">{{ entry }}</p>
   </div>

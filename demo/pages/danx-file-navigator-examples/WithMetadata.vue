@@ -28,17 +28,11 @@ const file = ref({
 
 <template>
   <div
-    style="
-      width: 100%;
-      height: 500px;
-      border: 1px solid var(--color-border);
-      border-radius: 0.5rem;
-      overflow: hidden;
-    "
+    class="w-full h-[500px] border border-border rounded-lg overflow-hidden"
   >
     <DanxFileNavigator :file="file" downloadable />
   </div>
-  <p style="margin-top: 0.5rem; color: var(--color-text-muted); font-size: 0.875rem">
+  <p class="mt-2 text-sm text-text-muted">
     Click the info button in the header to toggle the metadata/EXIF panel.
   </p>
 </template>

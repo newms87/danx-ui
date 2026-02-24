@@ -6,7 +6,7 @@ const content = ref("");
 </script>
 
 <template>
-  <div style="width: 100%;">
+  <div class="w-full">
     <MarkdownEditor v-model="content" placeholder="Write your release notes here..." />
   </div>
 </template>

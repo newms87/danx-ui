@@ -3,7 +3,7 @@ import { DanxProgressBar } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
+  <div class="flex flex-col gap-4 w-full">
     <DanxProgressBar :value="70" size="lg" />
     <DanxProgressBar :value="30" variant="danger" size="lg" />
     <DanxProgressBar :value="90" variant="success" size="lg" />

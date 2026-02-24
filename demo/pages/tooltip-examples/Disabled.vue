@@ -10,12 +10,9 @@ function toggle() {
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; align-items: center">
+  <div class="flex gap-8 items-center">
     <DanxTooltip :disabled="isDisabled" triggerIcon="info" tooltip="I only show when enabled" />
-    <button
-      style="padding: 0.5rem 1rem; border: 1px solid #ccc; border-radius: 0.25rem"
-      @click="toggle"
-    >
+    <button class="px-4 py-2 border border-border rounded" @click="toggle">
       {{ isDisabled ? "Enable" : "Disable" }} tooltip
     </button>
   </div>

@@ -12,8 +12,8 @@ const data = {
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-    <p style="margin: 0; font-size: 0.875rem; opacity: 0.7;">
+  <div class="flex flex-col gap-4 w-full">
+    <p class="text-sm opacity-70">
       Click the collapsed preview to expand:
     </p>
     <CodeViewer :model-value="data" collapsible :default-collapsed="true" />

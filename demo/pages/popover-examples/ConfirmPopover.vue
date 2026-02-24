@@ -17,28 +17,22 @@ function save() {
       <DanxButton variant="info" @click="show = !show">Edit Settings</DanxButton>
     </template>
     <div
-      style="padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; min-width: 16rem"
+      class="p-4 flex flex-col gap-3 min-w-64"
     >
-      <h4 style="margin: 0; font-weight: 600">Settings</h4>
-      <label style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem">
+      <h4 class="font-semibold">Settings</h4>
+      <label class="flex flex-col gap-1 text-sm">
         Name
         <input
           v-model="name"
           type="text"
-          style="
-            padding: 0.375rem 0.5rem;
-            border: 1px solid var(--color-border);
-            border-radius: 0.25rem;
-            background: var(--color-surface);
-            color: var(--color-text);
-          "
+          class="px-2 py-1 border border-color-border rounded-sm bg-color-surface text-color-text"
         />
       </label>
-      <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem">
+      <label class="flex items-center gap-2 text-sm">
         <input v-model="enabled" type="checkbox" />
         Enabled
       </label>
-      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 0.25rem">
+      <div class="flex justify-end gap-2 pt-1">
         <DanxButton size="sm" @click="show = false">Cancel</DanxButton>
         <DanxButton size="sm" variant="info" @click="save">Save</DanxButton>
       </div>

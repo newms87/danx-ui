@@ -50,7 +50,7 @@ Visit [danx-ui docs](https://example.com) for more information.`);
 </script>
 
 <template>
-  <div style="width: 100%">
+  <div class="w-full">
     <MarkdownEditor v-model="content" />
   </div>
 </template>

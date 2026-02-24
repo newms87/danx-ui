@@ -43,13 +43,7 @@ const activeFile = ref(null);
 
 <template>
   <div
-    style="
-      width: 100%;
-      height: 500px;
-      border: 1px solid var(--color-border);
-      border-radius: 0.5rem;
-      overflow: hidden;
-    "
+    class="w-full h-[500px] border border-border rounded-lg overflow-hidden"
   >
     <DanxFileNavigator
       :file="mainFile"

@@ -54,6 +54,14 @@ function removeTag(index: number) {
 function removeTag(index) {
 ```
 
+## Styling in Demo Examples
+
+Demos follow the same Tailwind-first policy as source components. Use Tailwind utility classes for all static styling — no `style="display: flex; gap: 1rem"` when `class="flex gap-4"` works.
+
+**Exceptions:**
+- `--dx-*` token assignments for theming demos (kept as inline `style`)
+- Truly dynamic computed values via `:style` bindings
+
 ### Validation
 
 After adding demo pages, **always navigate to the demo page in a browser** (or at minimum verify that `useLivePreview.ts` has all needed entries). `yarn dev:check` only verifies the dev server starts — it does NOT catch runtime eval errors in live previews.

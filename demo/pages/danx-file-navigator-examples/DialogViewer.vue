@@ -26,7 +26,7 @@ const relatedFiles = ref([
 </script>
 
 <template>
-  <div style="width: 160px; height: 120px">
+  <div class="w-40 h-[120px]">
     <DanxFile :file="mainFile" @click="dialog.open()" />
   </div>
 

@@ -3,39 +3,37 @@ import { DanxProgressBar } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%">
+  <div class="flex flex-col gap-6 w-full">
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Striped</div>
+      <div class="text-xs text-text-muted mb-1">Striped</div>
       <DanxProgressBar :value="60" size="lg" striped />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Animated Stripes</div>
+      <div class="text-xs text-text-muted mb-1">Animated Stripes</div>
       <DanxProgressBar :value="60" size="lg" striped animateStripes />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Glow</div>
+      <div class="text-xs text-text-muted mb-1">Glow</div>
       <DanxProgressBar :value="60" variant="success" size="lg" glow />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Shimmer</div>
+      <div class="text-xs text-text-muted mb-1">Shimmer</div>
       <DanxProgressBar :value="75" size="lg" shimmer />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient (default)</div>
+      <div class="text-xs text-text-muted mb-1">Gradient (default)</div>
       <DanxProgressBar :value="80" size="lg" gradient />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Variant</div>
+      <div class="text-xs text-text-muted mb-1">Gradient + Variant</div>
       <DanxProgressBar :value="75" variant="danger" size="lg" gradient />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">Gradient + Striped</div>
+      <div class="text-xs text-text-muted mb-1">Gradient + Striped</div>
       <DanxProgressBar :value="70" variant="success" size="lg" gradient striped />
     </div>
     <div>
-      <div style="font-size: 0.75rem; color: gray; margin-bottom: 0.25rem">
-        Combined: Striped + Glow + Shimmer
-      </div>
+      <div class="text-xs text-text-muted mb-1">Combined: Striped + Glow + Shimmer</div>
       <DanxProgressBar :value="70" variant="danger" size="lg" striped animateStripes glow shimmer />
     </div>
   </div>

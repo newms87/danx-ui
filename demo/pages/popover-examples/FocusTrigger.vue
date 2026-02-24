@@ -8,19 +8,12 @@ import { DanxPopover } from "danx-ui";
       <input
         type="text"
         placeholder="Focus this input..."
-        style="
-          padding: 0.5rem 0.75rem;
-          border: 1px solid var(--color-border);
-          border-radius: 0.375rem;
-          background: var(--color-surface);
-          color: var(--color-text);
-          width: 16rem;
-        "
+        class="px-3 py-2 border border-border rounded bg-surface text-text w-64"
       />
     </template>
-    <div style="padding: 0.75rem 1rem; max-width: 16rem">
-      <p style="margin: 0; font-weight: 600">Hint</p>
-      <p style="margin: 0.25rem 0 0; color: var(--color-text-muted); font-size: 0.8125rem">
+    <div class="px-4 py-3 max-w-64">
+      <p class="m-0 font-semibold">Hint</p>
+      <p class="mt-1 text-text-muted text-[0.8125rem]">
         This popover appears when the input is focused and hides when focus moves elsewhere.
       </p>
     </div>

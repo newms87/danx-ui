@@ -3,7 +3,7 @@ import { DanxTooltip } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; align-items: center">
+  <div class="flex gap-8 items-center">
     <DanxTooltip tooltip="Default tooltip" triggerIcon="info" />
     <DanxTooltip variant="danger" tooltip="Danger tooltip" triggerIcon="info" />
     <DanxTooltip variant="success" tooltip="Success tooltip" triggerIcon="info" />

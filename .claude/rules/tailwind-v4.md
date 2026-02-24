@@ -158,6 +158,16 @@ Use native CSS for entry animations:
 .parent.is-active { color: white; }
 ```
 
+## Tailwind-First Styling
+
+All template styling uses Tailwind utility classes. Inline `style=""` is only permitted for:
+
+- Dynamic computed values (`:style` bindings with reactive data)
+- CSS custom property token overrides (`--dx-*`)
+- Values Tailwind genuinely cannot express
+
+Static layout properties (`display: flex`, `gap: 1rem`, `padding: 0.5rem`, etc.) must always use Tailwind classes. This applies to source components, demo pages, and example code alike.
+
 ## Forbidden Patterns
 
 | Pattern | Problem | Solution |
@@ -167,6 +177,7 @@ Use native CSS for entry animations:
 | Dark mode in components | Duplication | Put dark mode in semantic layer |
 | JavaScript animations | Bundle size | Use CSS `@starting-style` |
 | Inline styles | Specificity | Use CSS tokens |
+| Hardcoded inline styles | Bypasses Tailwind | Use Tailwind utilities |
 | Flat repeated-parent selectors | Repetitive, hard to scan | Use native CSS nesting |
 | `&--suffix` BEM concatenation | Lightning CSS produces invalid selectors | Top-level BEM modifier blocks |
 

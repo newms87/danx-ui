@@ -19,12 +19,12 @@ const show = ref(false);
     <template #trigger>
       <DanxButton variant="info" @click="show = !show">Custom Styled</DanxButton>
     </template>
-    <div style="padding: 1rem; max-width: 16rem">
-      <p style="margin: 0; font-weight: 600">Custom Appearance</p>
-      <p style="margin: 0.5rem 0 0; font-size: 0.875rem">
+    <div class="p-4 max-w-64">
+      <p class="font-semibold">Custom Appearance</p>
+      <p class="mt-2 text-sm">
         This popover uses CSS token overrides for a distinct look.
       </p>
-      <DanxButton size="sm" style="margin-top: 0.75rem" @click="show = false">Close</DanxButton>
+      <DanxButton size="sm" class="mt-3" @click="show = false">Close</DanxButton>
     </div>
   </DanxPopover>
 </template>

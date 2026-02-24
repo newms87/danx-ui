@@ -3,7 +3,7 @@ import { DanxChip } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+  <div class="flex flex-wrap gap-2">
     <DanxChip auto-color label="Pending" />
     <DanxChip auto-color label="In Review" />
     <DanxChip auto-color label="Approved" />
@@ -16,7 +16,7 @@ import { DanxChip } from "danx-ui";
     <DanxChip auto-color label="Active" />
   </div>
 
-  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem">
+  <div class="flex flex-wrap gap-2 mt-4">
     <DanxChip auto-color="category-a" label="Display A" />
     <DanxChip auto-color="category-b" label="Display B" />
     <DanxChip auto-color="category-a" label="Same Key as A" />

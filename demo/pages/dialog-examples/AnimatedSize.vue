@@ -20,7 +20,7 @@ const sizeMap = {
     :height="`${sizeMap[dialogSize].height}px`"
     close-x
   >
-    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem">
+    <div class="flex gap-2 mb-4">
       <DanxButton
         :variant="dialogSize === 'small' ? 'info' : 'muted'"
         size="sm"

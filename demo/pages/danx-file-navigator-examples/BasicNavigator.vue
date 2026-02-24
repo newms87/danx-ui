@@ -14,13 +14,7 @@ const file = ref({
 
 <template>
   <div
-    style="
-      width: 100%;
-      height: 400px;
-      border: 1px solid var(--color-border);
-      border-radius: 0.5rem;
-      overflow: hidden;
-    "
+    class="w-full h-[400px] border border-border rounded-lg overflow-hidden"
   >
     <DanxFileNavigator :file="file" downloadable />
   </div>

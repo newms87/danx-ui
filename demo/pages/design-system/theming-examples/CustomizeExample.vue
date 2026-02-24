@@ -8,10 +8,10 @@
       --color-interactive-subtle: #f5f3ff;
     "
   >
-    <p style="margin: 0 0 0.75rem; font-size: 0.875rem; color: var(--color-text-muted)">
+    <p class="mb-3 text-sm text-text-muted">
       All components inside this wrapper inherit purple interactive colors:
     </p>
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+    <div class="flex gap-2 flex-wrap">
       <DanxButton label="Primary" />
       <DanxButton label="Another" />
       <DanxBadge :count="5">

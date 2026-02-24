@@ -13,5 +13,5 @@ const buttons = [
 
 <template>
   <DanxButtonGroup v-model="selected" :buttons="buttons" />
-  <p style="margin-top: 1rem; color: var(--color-text-muted)">Selected: {{ selected }}</p>
+  <p class="mt-4 text-text-muted">Selected: {{ selected }}</p>
 </template>

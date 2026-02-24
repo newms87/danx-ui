@@ -8,7 +8,7 @@ const slotDialog = useDialog();
   <DanxButton variant="info" @click="slotDialog.open()">Open Custom Dialog</DanxButton>
   <DanxDialog v-model="slotDialog.isOpen.value">
     <template #title>
-      <span style="color: #0077cc">🎨 Custom Title</span>
+      <span class="text-blue-600">🎨 Custom Title</span>
     </template>
     <template #subtitle>
       <em>Styled subtitle via slot</em>

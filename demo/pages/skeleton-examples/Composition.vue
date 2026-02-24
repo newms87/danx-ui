@@ -3,18 +3,10 @@ import { DanxSkeleton } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem">
-    <div
-      style="
-        flex: 1;
-        max-width: 320px;
-        padding: 1rem;
-        border: 1px solid var(--color-border);
-        border-radius: 0.75rem;
-      "
-    >
-      <p style="margin: 0 0 0.75rem; font-size: 0.875rem; color: gray">Card skeleton</p>
-      <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem">
+  <div class="flex gap-8">
+    <div class="flex-1 max-w-80 p-4 border border-border rounded-xl">
+      <p class="m-0 mb-3 text-sm text-text-muted">Card skeleton</p>
+      <div class="flex gap-3 items-center mb-4">
         <DanxSkeleton shape="circle" style="--dx-skeleton-circle-size: 2.5rem" />
         <DanxSkeleton
           shape="rounded"
@@ -24,20 +16,13 @@ import { DanxSkeleton } from "danx-ui";
       <DanxSkeleton shape="text" :lines="3" />
       <DanxSkeleton
         shape="rounded"
-        style="--dx-skeleton-height: 8rem; --dx-skeleton-border-radius: 0.5rem; margin-top: 1rem"
+        style="--dx-skeleton-height: 8rem; --dx-skeleton-border-radius: 0.5rem"
+        class="mt-4"
       />
     </div>
-    <div
-      style="
-        flex: 1;
-        max-width: 320px;
-        padding: 1rem;
-        border: 1px solid var(--color-border);
-        border-radius: 0.75rem;
-      "
-    >
-      <p style="margin: 0 0 0.75rem; font-size: 0.875rem; color: gray">Card skeleton (wave)</p>
-      <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem">
+    <div class="flex-1 max-w-80 p-4 border border-border rounded-xl">
+      <p class="m-0 mb-3 text-sm text-text-muted">Card skeleton (wave)</p>
+      <div class="flex gap-3 items-center mb-4">
         <DanxSkeleton shape="circle" animation="wave" style="--dx-skeleton-circle-size: 2.5rem" />
         <DanxSkeleton
           shape="rounded"
@@ -49,7 +34,8 @@ import { DanxSkeleton } from "danx-ui";
       <DanxSkeleton
         shape="rounded"
         animation="wave"
-        style="--dx-skeleton-height: 8rem; --dx-skeleton-border-radius: 0.5rem; margin-top: 1rem"
+        style="--dx-skeleton-height: 8rem; --dx-skeleton-border-radius: 0.5rem"
+        class="mt-4"
       />
     </div>
   </div>

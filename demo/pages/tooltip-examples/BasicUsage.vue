@@ -3,12 +3,10 @@ import { DanxTooltip } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; align-items: center">
+  <div class="flex gap-8 items-center">
     <DanxTooltip tooltip="This is a basic tooltip">
       <template #trigger>
-        <button style="padding: 0.5rem 1rem; border: 1px solid #ccc; border-radius: 0.25rem">
-          Hover me
-        </button>
+        <button class="px-4 py-2 border border-border rounded">Hover me</button>
       </template>
     </DanxTooltip>
 

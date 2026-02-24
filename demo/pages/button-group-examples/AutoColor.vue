@@ -19,15 +19,15 @@ const buttons = [
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.5rem">
+  <div class="flex flex-col gap-6">
     <div>
-      <p style="margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--color-text-muted)">
+      <p class="mb-2 text-sm text-text-muted">
         Auto-color (active only):
       </p>
       <DanxButtonGroup v-model="selected" :buttons="buttons" auto-color multiple />
     </div>
     <div>
-      <p style="margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--color-text-muted)">
+      <p class="mb-2 text-sm text-text-muted">
         Auto-color (always):
       </p>
       <DanxButtonGroup
@@ -38,6 +38,6 @@ const buttons = [
         multiple
       />
     </div>
-    <p style="color: var(--color-text-muted)">Selected: {{ selected }}</p>
+    <p class="text-text-muted">Selected: {{ selected }}</p>
   </div>
 </template>

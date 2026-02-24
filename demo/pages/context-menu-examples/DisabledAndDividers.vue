@@ -53,24 +53,13 @@ const items = [
 
 <template>
   <div
-    style="
-      border: 2px dashed var(--color-border);
-      border-radius: 0.5rem;
-      padding: 2rem;
-      text-align: center;
-      cursor: context-menu;
-      min-height: 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    "
+    class="border-2 border-dashed border-color-border rounded-lg p-8 text-center cursor-context-menu min-h-[120px] flex flex-col items-center justify-center"
     @contextmenu="onContextMenu"
   >
-    <p style="margin: 0">Right-click for disabled items and dividers</p>
+    <p>Right-click for disabled items and dividers</p>
     <p
       v-if="lastAction"
-      style="margin: 0.5rem 0 0; font-size: 0.875rem; color: var(--color-text-muted)"
+      class="mt-2 text-sm text-text-muted"
     >
       Last action: <strong>{{ lastAction }}</strong>
     </p>

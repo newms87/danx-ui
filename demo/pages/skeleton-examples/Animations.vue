@@ -3,13 +3,13 @@ import { DanxSkeleton } from "danx-ui";
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; align-items: start">
-    <div style="flex: 1">
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; color: gray">Pulse (default)</p>
+  <div class="flex gap-8 items-start">
+    <div class="flex-1">
+      <p class="m-0 mb-2 text-sm text-text-muted">Pulse (default)</p>
       <DanxSkeleton animation="pulse" style="--dx-skeleton-height: 3rem" />
     </div>
-    <div style="flex: 1">
-      <p style="margin: 0 0 0.5rem; font-size: 0.875rem; color: gray">Wave</p>
+    <div class="flex-1">
+      <p class="m-0 mb-2 text-sm text-text-muted">Wave</p>
       <DanxSkeleton animation="wave" style="--dx-skeleton-height: 3rem" />
     </div>
   </div>

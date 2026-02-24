@@ -10,7 +10,7 @@ const textContent = "Plain text content without any\nsyntax highlighting applied
 </script>
 
 <template>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;">
+  <div class="grid grid-cols-2 gap-4 w-full">
     <CodeViewer :model-value="jsonData" format="json" />
     <CodeViewer :model-value="yamlData" format="yaml" />
     <CodeViewer :model-value="htmlCode" format="html" />

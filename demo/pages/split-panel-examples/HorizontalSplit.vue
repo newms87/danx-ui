@@ -5,20 +5,20 @@
       { id: 'bottom', label: 'Bottom', defaultWidth: 60 },
     ]"
     horizontal
-    style="height: 300px; border: 1px solid var(--color-border); border-radius: 0.5rem"
+    class="h-[300px] border border-border rounded-lg"
   >
     <template #top>
-      <div style="padding: 1rem; background: var(--color-surface-sunken); height: 100%">
-        <h4 style="margin: 0 0 0.5rem">Top Panel</h4>
-        <p style="margin: 0; font-size: 0.875rem; color: var(--color-text-muted)">
+      <div class="p-4 bg-surface-sunken h-full">
+        <h4 class="m-0 mb-2">Top Panel</h4>
+        <p class="m-0 text-sm text-text-muted">
           Horizontal orientation stacks panels top-to-bottom.
         </p>
       </div>
     </template>
     <template #bottom>
-      <div style="padding: 1rem; height: 100%">
-        <h4 style="margin: 0 0 0.5rem">Bottom Panel</h4>
-        <p style="margin: 0; font-size: 0.875rem; color: var(--color-text-muted)">
+      <div class="p-4 h-full">
+        <h4 class="m-0 mb-2">Bottom Panel</h4>
+        <p class="m-0 text-sm text-text-muted">
           Drag the handle vertically to resize.
         </p>
       </div>

@@ -69,18 +69,10 @@ function selectIcon(name) {
   selectedIcon.value = name;
   iconPopoverOpen.value = false;
 }
-
-const labelStyle =
-  "display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; min-width: 0";
-const inputStyle =
-  "padding: 0.2rem 0.4rem; border: 1px solid #555; border-radius: 4px; font-size: 0.8rem; background: #222; color: #eee; flex: 1; min-width: 0";
-const checkStyle = "accent-color: #06b6d4";
-const sectionLabel =
-  "font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em";
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; gap: 1.25rem; width: 100%">
+  <div class="flex flex-col gap-5 w-full">
     <DanxProgressBar
       :value="value"
       :buffer="buffer"
@@ -100,112 +92,66 @@ const sectionLabel =
     />
 
     <!-- Sliders -->
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap">
-      <label :style="labelStyle" style="flex: 1">
+    <div class="flex gap-4 flex-wrap">
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0 flex-1">
         Value: {{ value }}%
-        <input type="range" v-model.number="value" min="0" max="100" style="flex: 1" />
+        <input type="range" v-model.number="value" min="0" max="100" class="flex-1" />
       </label>
-      <label :style="labelStyle" style="flex: 1">
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0 flex-1">
         Buffer: {{ buffer }}%
-        <input type="range" v-model.number="buffer" min="0" max="100" style="flex: 1" />
+        <input type="range" v-model.number="buffer" min="0" max="100" class="flex-1" />
       </label>
     </div>
 
     <!-- Variant -->
-    <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start">
-      <span :style="sectionLabel">Variant</span>
+    <div class="flex flex-col gap-1.5 items-start">
+      <span class="text-[0.7rem] text-gray-400 uppercase tracking-wide">Variant</span>
       <DanxButtonGroup v-model="variant" :buttons="variantButtons" />
     </div>
 
     <!-- Size, Text Position & Align -->
-    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap">
-      <div style="display: flex; flex-direction: column; gap: 0.35rem">
-        <span :style="sectionLabel">Size</span>
+    <div class="flex gap-6 flex-wrap">
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[0.7rem] text-gray-400 uppercase tracking-wide">Size</span>
         <DanxButtonGroup v-model="size" :buttons="sizeButtons" />
       </div>
-      <div style="display: flex; flex-direction: column; gap: 0.35rem">
-        <span :style="sectionLabel">Text Position</span>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[0.7rem] text-gray-400 uppercase tracking-wide">Text Position</span>
         <DanxButtonGroup v-model="textPosition" :buttons="textPositionButtons" />
       </div>
-      <div style="display: flex; flex-direction: column; gap: 0.35rem">
-        <span :style="sectionLabel">Text Align</span>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-[0.7rem] text-gray-400 uppercase tracking-wide">Text Align</span>
         <DanxButtonGroup v-model="textAlign" :buttons="textAlignButtons" />
       </div>
     </div>
 
     <!-- Icon Picker -->
-    <div style="display: flex; flex-direction: column; gap: 0.35rem">
-      <span :style="sectionLabel">Icon</span>
-      <div style="display: flex; align-items: center; gap: 0.75rem">
+    <div class="flex flex-col gap-1.5">
+      <span class="text-[0.7rem] text-gray-400 uppercase tracking-wide">Icon</span>
+      <div class="flex items-center gap-3">
         <DanxPopover v-model="iconPopoverOpen" trigger="click">
           <template #trigger>
             <button
-              style="
-                display: inline-flex;
-                align-items: center;
-                gap: 0.4rem;
-                padding: 0.35rem 0.75rem;
-                border: 1px solid #555;
-                border-radius: 6px;
-                background: #222;
-                color: #eee;
-                font-size: 0.8rem;
-                cursor: pointer;
-              "
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-600 rounded-md bg-gray-900 text-gray-200 text-[0.8rem] cursor-pointer"
             >
-              <DanxIcon
-                v-if="selectedIcon"
-                :icon="selectedIcon"
-                style="width: 1rem; height: 1rem"
-              />
+              <DanxIcon v-if="selectedIcon" :icon="selectedIcon" class="w-4 h-4" />
               <span>{{ selectedIcon || "(none)" }}</span>
             </button>
           </template>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(5, 1fr);
-              gap: 0.25rem;
-              padding: 0.5rem;
-              max-width: 280px;
-            "
-          >
+          <div class="grid grid-cols-5 gap-1 p-2 max-w-[280px]">
             <button
               v-for="name in iconNames"
               :key="name"
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 2.5rem;
-                height: 2.5rem;
-                border: 1px solid transparent;
-                border-radius: 6px;
-                background: transparent;
-                color: #eee;
-                cursor: pointer;
-              "
-              :style="name === selectedIcon ? 'background: #334155; border-color: #06b6d4' : ''"
+              class="flex items-center justify-center w-10 h-10 border border-transparent rounded-md bg-transparent text-gray-200 cursor-pointer"
+              :class="name === selectedIcon ? 'bg-slate-700 border-cyan-500' : ''"
               :title="name"
               @click="selectIcon(name)"
             >
-              <DanxIcon :icon="name" style="width: 1.1rem; height: 1.1rem" />
+              <DanxIcon :icon="name" class="w-[1.1rem] h-[1.1rem]" />
             </button>
             <button
-              style="
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 2.5rem;
-                height: 2.5rem;
-                border: 1px solid transparent;
-                border-radius: 6px;
-                background: transparent;
-                color: #999;
-                cursor: pointer;
-                font-size: 0.65rem;
-              "
-              :style="!selectedIcon ? 'background: #334155; border-color: #06b6d4' : ''"
+              class="flex items-center justify-center w-10 h-10 border border-transparent rounded-md bg-transparent text-gray-400 cursor-pointer text-[0.65rem]"
+              :class="!selectedIcon ? 'bg-slate-700 border-cyan-500' : ''"
               title="No icon"
               @click="selectIcon('')"
             >
@@ -217,33 +163,37 @@ const sectionLabel =
     </div>
 
     <!-- Custom Label -->
-    <label :style="labelStyle">
+    <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
       Custom Label
-      <input v-model="label" :style="inputStyle" placeholder="Leave empty for default %" />
+      <input
+        v-model="label"
+        class="px-1.5 py-0.5 border border-gray-600 rounded text-[0.8rem] bg-gray-900 text-gray-200 flex-1 min-w-0"
+        placeholder="Leave empty for default %"
+      />
     </label>
 
     <!-- Toggles -->
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.8rem">
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="showText" :style="checkStyle" /> Show Text
+    <div class="flex gap-4 flex-wrap text-[0.8rem]">
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="showText" class="accent-cyan-500" /> Show Text
       </label>
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="indeterminate" :style="checkStyle" /> Indeterminate
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="indeterminate" class="accent-cyan-500" /> Indeterminate
       </label>
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="striped" :style="checkStyle" /> Striped
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="striped" class="accent-cyan-500" /> Striped
       </label>
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="animateStripes" :style="checkStyle" /> Animate Stripes
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="animateStripes" class="accent-cyan-500" /> Animate Stripes
       </label>
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="glow" :style="checkStyle" /> Glow
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="glow" class="accent-cyan-500" /> Glow
       </label>
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="shimmer" :style="checkStyle" /> Shimmer
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="shimmer" class="accent-cyan-500" /> Shimmer
       </label>
-      <label :style="labelStyle">
-        <input type="checkbox" v-model="gradient" :style="checkStyle" /> Gradient
+      <label class="flex items-center gap-2 text-[0.8rem] min-w-0">
+        <input type="checkbox" v-model="gradient" class="accent-cyan-500" /> Gradient
       </label>
     </div>
   </div>

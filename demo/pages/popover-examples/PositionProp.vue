@@ -16,24 +16,17 @@ function onContextMenu(event) {
   <DanxPopover v-model="show" :position="position">
     <template #trigger>
       <div
-        style="
-          padding: 2rem;
-          border: 1px dashed var(--color-border);
-          border-radius: 0.5rem;
-          text-align: center;
-          cursor: context-menu;
-          user-select: none;
-        "
+        class="p-8 border border-dashed border-border rounded-lg text-center cursor-context-menu select-none"
         @contextmenu="onContextMenu"
       >
         Right-click anywhere in this area
       </div>
     </template>
-    <div style="padding: 0.25rem 0; min-width: 10rem">
+    <div class="py-1 min-w-40">
       <div
         v-for="item in ['Cut', 'Copy', 'Paste', 'Delete']"
         :key="item"
-        style="padding: 0.375rem 1rem; cursor: pointer; font-size: 0.875rem"
+        class="px-4 py-1.5 cursor-pointer text-sm"
         @click="show = false"
       >
         {{ item }}

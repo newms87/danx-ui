@@ -13,14 +13,14 @@ const photo = ref({
 </script>
 
 <template>
-  <div style="display: flex; gap: 1rem; align-items: start">
-    <div style="width: 160px; height: 120px">
+  <div class="flex gap-4 items-start">
+    <div class="w-40 h-[120px]">
       <DanxFile :file="photo" />
     </div>
-    <div style="width: 160px; height: 120px">
+    <div class="w-40 h-[120px]">
       <DanxFile :file="photo" fit="contain" />
     </div>
-    <div style="width: 160px; height: 120px">
+    <div class="w-40 h-[120px]">
       <DanxFile :file="photo" show-filename />
     </div>
   </div>

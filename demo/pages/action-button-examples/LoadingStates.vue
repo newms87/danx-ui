@@ -39,27 +39,21 @@ const targetAction = reactive({
 </script>
 
 <template>
-  <div style="display: flex; gap: 2rem; flex-wrap: wrap">
+  <div class="flex gap-8 flex-wrap">
     <div>
-      <p style="font-size: 0.75rem; color: gray; font-family: monospace; margin: 0 0 0.5rem">
-        saving prop
-      </p>
+      <p class="text-xs text-text-muted font-mono mb-2">saving prop</p>
       <DanxActionButton :action="manualAction" :saving="savingManual" variant="success" icon="save">
         Save
       </DanxActionButton>
     </div>
     <div>
-      <p style="font-size: 0.75rem; color: gray; font-family: monospace; margin: 0 0 0.5rem">
-        action.isApplying
-      </p>
+      <p class="text-xs text-text-muted font-mono mb-2">action.isApplying</p>
       <DanxActionButton :action="applyingAction" variant="info" icon="refresh"
         >Apply</DanxActionButton
       >
     </div>
     <div>
-      <p style="font-size: 0.75rem; color: gray; font-family: monospace; margin: 0 0 0.5rem">
-        target.isSaving
-      </p>
+      <p class="text-xs text-text-muted font-mono mb-2">target.isSaving</p>
       <DanxActionButton :action="targetAction" :target="targetItem" variant="warning" icon="save">
         Update
       </DanxActionButton>
