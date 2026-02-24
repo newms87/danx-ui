@@ -41,4 +41,54 @@ describe("MarkdownEditorFooter", () => {
     });
     expect(wrapper.find(".char-count").text()).toContain("0");
   });
+
+  it("renders default slot content", () => {
+    const wrapper = mount(MarkdownEditorFooter, {
+      props: { charCount: 0 },
+      slots: {
+        default: "<span class='save-status'>Saved</span>",
+      },
+    });
+    expect(wrapper.find(".save-status").text()).toBe("Saved");
+  });
+
+  describe("raw toggle", () => {
+    it("renders the raw toggle button", () => {
+      const wrapper = mount(MarkdownEditorFooter, {
+        props: { charCount: 0 },
+      });
+      const btn = wrapper.find(".raw-toggle-btn");
+      expect(btn.exists()).toBe(true);
+      expect(btn.attributes("title")).toBe("Toggle raw markdown");
+    });
+
+    it("emits toggle-raw when raw toggle button is clicked", async () => {
+      const wrapper = mount(MarkdownEditorFooter, {
+        props: { charCount: 0 },
+      });
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      expect(wrapper.emitted("toggle-raw")).toHaveLength(1);
+    });
+
+    it("does not have is-active class when isRawMode is false", () => {
+      const wrapper = mount(MarkdownEditorFooter, {
+        props: { charCount: 0, isRawMode: false },
+      });
+      expect(wrapper.find(".raw-toggle-btn.is-active").exists()).toBe(false);
+    });
+
+    it("has is-active class when isRawMode is true", () => {
+      const wrapper = mount(MarkdownEditorFooter, {
+        props: { charCount: 0, isRawMode: true },
+      });
+      expect(wrapper.find(".raw-toggle-btn.is-active").exists()).toBe(true);
+    });
+
+    it("defaults isRawMode to false when not provided", () => {
+      const wrapper = mount(MarkdownEditorFooter, {
+        props: { charCount: 0 },
+      });
+      expect(wrapper.find(".raw-toggle-btn.is-active").exists()).toBe(false);
+    });
+  });
 });

@@ -235,6 +235,71 @@ describe("MarkdownEditor", () => {
     });
   });
 
+  describe("raw mode", () => {
+    it("renders the raw toggle button in the footer", () => {
+      mountEditor();
+      expect(wrapper.find(".raw-toggle-btn").exists()).toBe(true);
+    });
+
+    it("does not show raw mode by default", () => {
+      mountEditor();
+      expect(wrapper.find(".dx-markdown-editor-raw").exists()).toBe(false);
+      expect(wrapper.find(".dx-markdown-editor-content").exists()).toBe(true);
+    });
+
+    it("shows raw markdown source when raw toggle is clicked", async () => {
+      mountEditor({ modelValue: "# Hello **world**" });
+      await nextTick();
+
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      await nextTick();
+
+      expect(wrapper.find(".dx-markdown-editor-raw").exists()).toBe(true);
+      expect(wrapper.find(".dx-markdown-editor-content").exists()).toBe(false);
+      expect(wrapper.find(".dx-markdown-editor-raw").text()).toBe("# Hello **world**");
+    });
+
+    it("switches back to rendered mode when toggled again", async () => {
+      mountEditor({ modelValue: "# Hello" });
+      await nextTick();
+
+      // Toggle on
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      await nextTick();
+      expect(wrapper.find(".dx-markdown-editor-raw").exists()).toBe(true);
+
+      // Toggle off
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      await nextTick();
+      expect(wrapper.find(".dx-markdown-editor-raw").exists()).toBe(false);
+      expect(wrapper.find(".dx-markdown-editor-content").exists()).toBe(true);
+    });
+
+    it("updates raw content when modelValue changes externally", async () => {
+      mountEditor({ modelValue: "First" });
+      await nextTick();
+
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      await nextTick();
+      expect(wrapper.find(".dx-markdown-editor-raw").text()).toBe("First");
+
+      await wrapper.setProps({ modelValue: "Second" });
+      await nextTick();
+      expect(wrapper.find(".dx-markdown-editor-raw").text()).toBe("Second");
+    });
+
+    it("shows active state on raw toggle button when active", async () => {
+      mountEditor();
+
+      expect(wrapper.find(".raw-toggle-btn.is-active").exists()).toBe(false);
+
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      await nextTick();
+
+      expect(wrapper.find(".raw-toggle-btn.is-active").exists()).toBe(true);
+    });
+  });
+
   describe("char count", () => {
     it("displays char count in footer", async () => {
       mountEditor({ modelValue: "Hello" });

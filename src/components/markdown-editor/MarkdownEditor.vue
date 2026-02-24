@@ -5,8 +5,8 @@
  * A full-featured contenteditable markdown editor that renders markdown as styled HTML
  * in real-time. Supports headings, lists, inline formatting, code blocks (with syntax
  * highlighting via CodeViewer), tables, links, blockquotes, horizontal rules, and custom
- * token renderers. Includes a context menu, hotkey help popover, and link/table insert
- * popovers.
+ * token renderers. Includes a context menu, hotkey help popover, link/table insert
+ * popovers, and a raw markdown toggle to view unformatted source text.
  *
  * @props
  *   modelValue: string - The markdown content (use v-model, default: "")
@@ -69,6 +69,13 @@ const props = withDefaults(defineProps<MarkdownEditorProps>(), {
 
 const modelValue = defineModel<string>({ default: "" });
 
+// Raw mode toggle: show unformatted markdown source text
+const isRawMode = ref(false);
+
+function toggleRawMode() {
+  isRawMode.value = !isRawMode.value;
+}
+
 // Reference to the contenteditable DOM element (received via container-mounted emit)
 const contentElementRef = ref<HTMLElement | null>(null);
 
@@ -124,7 +131,9 @@ watch(modelValue, (newValue) => {
   <div class="dx-markdown-editor" :class="{ 'is-readonly': readonly }">
     <div class="dx-markdown-editor-body" @contextmenu="contextMenu.show">
       <DanxScroll class="dx-markdown-editor-scroll" size="sm">
+        <pre v-if="isRawMode" class="dx-markdown-editor-raw">{{ modelValue }}</pre>
         <MarkdownEditorContent
+          v-else
           :html="editor.renderedHtml.value"
           :readonly="readonly"
           :placeholder="placeholder"
@@ -144,7 +153,9 @@ watch(modelValue, (newValue) => {
     <MarkdownEditorFooter
       v-if="!hideFooter"
       :char-count="editor.charCount.value"
+      :is-raw-mode="isRawMode"
       @show-hotkeys="editor.showHotkeyHelp"
+      @toggle-raw="toggleRawMode"
     >
       <slot name="footer" />
     </MarkdownEditorFooter>
@@ -205,6 +216,18 @@ watch(modelValue, (newValue) => {
     flex: 1;
     min-height: var(--dx-mde-min-height, 100px);
     max-height: var(--dx-mde-max-height, none);
+  }
+
+  /* Raw markdown source display */
+  .dx-markdown-editor-raw {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-family: "Fira Code", Monaco, monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--dx-mde-color);
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 
   /* Badge slot positioned at top-right corner of editor body (matches LanguageBadge style) */

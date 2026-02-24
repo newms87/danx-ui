@@ -113,6 +113,39 @@ describe("parseParagraph", () => {
     });
   });
 
+  it("stops before a line starting with {", () => {
+    const lines = ["Paragraph text", '{"key": "value"}'];
+    expect(parseParagraph(lines, 0)).toEqual({
+      token: {
+        type: "paragraph",
+        content: "Paragraph text",
+      },
+      endIndex: 1,
+    });
+  });
+
+  it("stops before a line starting with [ when it is valid JSON", () => {
+    const lines = ["Paragraph text", '[{"key": "value"}]'];
+    expect(parseParagraph(lines, 0)).toEqual({
+      token: {
+        type: "paragraph",
+        content: "Paragraph text",
+      },
+      endIndex: 1,
+    });
+  });
+
+  it("does NOT stop for [ when it is a markdown link (not JSON)", () => {
+    const lines = ["Paragraph text", "[click here](https://example.com)"];
+    expect(parseParagraph(lines, 0)).toEqual({
+      token: {
+        type: "paragraph",
+        content: "Paragraph text\n[click here](https://example.com)",
+      },
+      endIndex: 2,
+    });
+  });
+
   it("returns null for empty lines at start", () => {
     const lines = ["", "Some text"];
     expect(parseParagraph(lines, 0)).toBeNull();

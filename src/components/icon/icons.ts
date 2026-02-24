@@ -48,6 +48,7 @@ import playSvg from "danx-icon/src/fontawesome/solid/play.svg?raw";
 import downloadSvg from "danx-icon/src/fontawesome/solid/download.svg?raw";
 import pencilSvg from "danx-icon/src/fontawesome/solid/pencil.svg?raw";
 import keyboardSvg from "danx-icon/src/fontawesome/solid/keyboard.svg?raw";
+import codeSvg from "danx-icon/src/fontawesome/solid/code.svg?raw";
 import chevronDownSvg from "danx-icon/src/fontawesome/solid/chevron-down.svg?raw";
 import chevronRightSvg from "danx-icon/src/fontawesome/solid/chevron-right.svg?raw";
 import chevronUpSvg from "danx-icon/src/fontawesome/solid/chevron-up.svg?raw";
@@ -99,6 +100,7 @@ export const playIcon = playSvg;
 export const downloadIcon = downloadSvg;
 export const pencilIcon = pencilSvg;
 export const keyboardIcon = keyboardSvg;
+export const codeIcon = codeSvg;
 export const chevronDownIcon = chevronDownSvg;
 export const chevronRightIcon = chevronRightSvg;
 export const chevronUpIcon = chevronUpSvg;
@@ -143,6 +145,7 @@ export const iconRegistry = {
   download: downloadIcon,
   pencil: pencilIcon,
   keyboard: keyboardIcon,
+  code: codeIcon,
   "chevron-down": chevronDownIcon,
   "chevron-right": chevronRightIcon,
   "chevron-up": chevronUpIcon,

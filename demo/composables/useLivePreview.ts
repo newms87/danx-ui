@@ -41,6 +41,7 @@ import { DanxChip } from "../../src/components/chip";
 import {
   DanxIcon,
   iconRegistry,
+  codeIcon,
   infoIcon,
   questionIcon,
   warningTriangleIcon,
@@ -198,6 +199,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useVariant,
   starIcon,
   iconRegistry,
+  codeIcon,
   infoIcon,
   questionIcon,
   warningTriangleIcon,

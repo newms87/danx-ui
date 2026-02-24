@@ -21,6 +21,12 @@ The editor auto-detects unfenced JSON and YAML blocks and renders them with synt
 
 {"server": "localhost", "port": 3000, "debug": true}
 
+### Inline JSON (No Blank Line)
+
+JSON blocks are detected even without a preceding blank line.
+Example for name="Dr. John Smith":
+[{"name": ["Dr.", "John", "Smith"]}]
+
 ### YAML Block
 
 name: John Smith
@@ -33,7 +39,9 @@ Fenced code blocks still work as usual:
 
 \`\`\`json
 {"fenced": true}
-\`\`\``);
+\`\`\`
+
+Use the code button in the footer to toggle raw markdown view.`);
 </script>
 
 <template>

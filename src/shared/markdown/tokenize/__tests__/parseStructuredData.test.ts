@@ -285,6 +285,35 @@ describe("parseStructuredData", () => {
       ]);
     });
 
+    it("tokenizes prose immediately followed by JSON (no blank line)", () => {
+      const markdown =
+        'Example for name="Dr. John Smith":\n[{"name": ["Dr.", "John", "Smith"]}]\n\nMore text';
+      const tokens = tokenizeBlocks(markdown);
+      expect(tokens).toEqual([
+        { type: "paragraph", content: 'Example for name="Dr. John Smith":' },
+        {
+          type: "code_block",
+          language: "json",
+          content: '[{"name": ["Dr.", "John", "Smith"]}]',
+        },
+        { type: "paragraph", content: "More text" },
+      ]);
+    });
+
+    it("tokenizes prose immediately followed by JSON object (no blank line)", () => {
+      const markdown = 'Here is the config:\n{"enabled": true, "count": 5}\n\nDone.';
+      const tokens = tokenizeBlocks(markdown);
+      expect(tokens).toEqual([
+        { type: "paragraph", content: "Here is the config:" },
+        {
+          type: "code_block",
+          language: "json",
+          content: '{"enabled": true, "count": 5}',
+        },
+        { type: "paragraph", content: "Done." },
+      ]);
+    });
+
     it("handles mixed content with JSON array", () => {
       const markdown = 'Description\n\n[{"name": ["Dr.", "John", "Smith"]}]\n\nFollowing text';
       const tokens = tokenizeBlocks(markdown);
