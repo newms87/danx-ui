@@ -29,8 +29,12 @@ function createScrollReturn(overrides: Record<string, any> = {}) {
     isHorizontalVisible: ref(false),
     hasVerticalOverflow: ref(false),
     hasHorizontalOverflow: ref(false),
-    onVerticalThumbMouseDown: vi.fn(),
-    onHorizontalThumbMouseDown: vi.fn(),
+    onVerticalThumbPointerDown: vi.fn(),
+    onVerticalThumbPointerMove: vi.fn(),
+    onVerticalThumbPointerUp: vi.fn(),
+    onHorizontalThumbPointerDown: vi.fn(),
+    onHorizontalThumbPointerMove: vi.fn(),
+    onHorizontalThumbPointerUp: vi.fn(),
     onVerticalTrackClick: vi.fn(),
     onHorizontalTrackClick: vi.fn(),
     onTrackMouseEnter: vi.fn(),
@@ -281,34 +285,76 @@ describe("DanxScroll", () => {
       expect(thumb.attributes("style")).toContain("height: 30%");
     });
 
-    it("wires mousedown on vertical thumb to composable handler", async () => {
-      const onVerticalThumbMouseDown = vi.fn();
+    it("wires pointerdown on vertical thumb to composable handler", async () => {
+      const onVerticalThumbPointerDown = vi.fn();
       mockUseDanxScroll.mockReturnValue(
         createScrollReturn({
           hasVerticalOverflow: ref(true),
-          onVerticalThumbMouseDown,
+          onVerticalThumbPointerDown,
         })
       );
       const wrapper = mountComponent({ direction: "vertical" });
 
-      await wrapper.find(".danx-scroll__track--vertical .danx-scroll__thumb").trigger("mousedown");
-      expect(onVerticalThumbMouseDown).toHaveBeenCalled();
+      await wrapper
+        .find(".danx-scroll__track--vertical .danx-scroll__thumb")
+        .trigger("pointerdown");
+      expect(onVerticalThumbPointerDown).toHaveBeenCalled();
     });
 
-    it("wires mousedown on horizontal thumb to composable handler", async () => {
-      const onHorizontalThumbMouseDown = vi.fn();
+    it("wires pointerdown on horizontal thumb to composable handler", async () => {
+      const onHorizontalThumbPointerDown = vi.fn();
       mockUseDanxScroll.mockReturnValue(
         createScrollReturn({
           hasHorizontalOverflow: ref(true),
-          onHorizontalThumbMouseDown,
+          onHorizontalThumbPointerDown,
         })
       );
       const wrapper = mountComponent({ direction: "horizontal" });
 
       await wrapper
         .find(".danx-scroll__track--horizontal .danx-scroll__thumb")
-        .trigger("mousedown");
-      expect(onHorizontalThumbMouseDown).toHaveBeenCalled();
+        .trigger("pointerdown");
+      expect(onHorizontalThumbPointerDown).toHaveBeenCalled();
+    });
+
+    it("wires pointermove and pointerup on vertical thumb to composable handlers", async () => {
+      const onVerticalThumbPointerMove = vi.fn();
+      const onVerticalThumbPointerUp = vi.fn();
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({
+          hasVerticalOverflow: ref(true),
+          onVerticalThumbPointerMove,
+          onVerticalThumbPointerUp,
+        })
+      );
+      const wrapper = mountComponent({ direction: "vertical" });
+      const thumb = wrapper.find(".danx-scroll__track--vertical .danx-scroll__thumb");
+
+      await thumb.trigger("pointermove");
+      expect(onVerticalThumbPointerMove).toHaveBeenCalled();
+
+      await thumb.trigger("pointerup");
+      expect(onVerticalThumbPointerUp).toHaveBeenCalled();
+    });
+
+    it("wires pointermove and pointerup on horizontal thumb to composable handlers", async () => {
+      const onHorizontalThumbPointerMove = vi.fn();
+      const onHorizontalThumbPointerUp = vi.fn();
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({
+          hasHorizontalOverflow: ref(true),
+          onHorizontalThumbPointerMove,
+          onHorizontalThumbPointerUp,
+        })
+      );
+      const wrapper = mountComponent({ direction: "horizontal" });
+      const thumb = wrapper.find(".danx-scroll__track--horizontal .danx-scroll__thumb");
+
+      await thumb.trigger("pointermove");
+      expect(onHorizontalThumbPointerMove).toHaveBeenCalled();
+
+      await thumb.trigger("pointerup");
+      expect(onHorizontalThumbPointerUp).toHaveBeenCalled();
     });
 
     it("wires click.self on vertical track to composable handler", async () => {
@@ -419,6 +465,11 @@ describe("DanxScroll", () => {
 
     it("does not show done when canLoadMore is true", () => {
       const wrapper = mountComponent({ infiniteScroll: true, canLoadMore: true });
+      expect(wrapper.find(".danx-scroll__done").exists()).toBe(false);
+    });
+
+    it("defaults canLoadMore to true (done indicator absent without explicit prop)", () => {
+      const wrapper = mountComponent({ infiniteScroll: true });
       expect(wrapper.find(".danx-scroll__done").exists()).toBe(false);
     });
 

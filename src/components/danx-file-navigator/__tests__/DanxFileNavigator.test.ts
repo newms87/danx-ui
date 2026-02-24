@@ -1,15 +1,33 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, afterEach } from "vitest";
+import { defineComponent } from "vue";
 import DanxFileNavigator from "../DanxFileNavigator.vue";
 import type { PreviewFile } from "../../danx-file/types";
-import { makeFile } from "../../danx-file/__tests__/test-helpers";
+import { makeFile, makeChild } from "../../danx-file/__tests__/test-helpers";
 
 const wrappers: ReturnType<typeof mount>[] = [];
+
+// Stub DanxPopover to render its slot content for testing popover-based interactions
+const PopoverStub = defineComponent({
+  template: '<div><slot name="trigger" /><slot /></div>',
+});
 
 function mountNavigator(props: Record<string, unknown> = {}) {
   const wrapper = mount(DanxFileNavigator, {
     props: { file: makeFile("1"), ...props },
     attachTo: document.body,
+  });
+  wrappers.push(wrapper);
+  return wrapper;
+}
+
+function mountNavigatorWithPopoverStub(props: Record<string, unknown> = {}) {
+  const wrapper = mount(DanxFileNavigator, {
+    props: { file: makeFile("1"), ...props },
+    attachTo: document.body,
+    global: {
+      stubs: { DanxPopover: PopoverStub },
+    },
   });
   wrappers.push(wrapper);
   return wrapper;
@@ -251,6 +269,62 @@ describe("DanxFileNavigator", () => {
       const wrapper = mountNavigator();
       expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
     });
+
+    it("shows back button when viewing a child file", async () => {
+      const children = [makeChild("c1")];
+      const wrapper = mountNavigatorWithPopoverStub({
+        file: makeFile("1", { children }),
+      });
+      // Initially no back button
+      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+
+      // Click on a child to dive into it
+      const childItem = wrapper.find(".danx-file-children__item");
+      await childItem.trigger("click");
+
+      // Now back button should appear
+      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(true);
+    });
+
+    it("navigates back to parent when back button clicked", async () => {
+      const children = [makeChild("c1")];
+      const parentFile = makeFile("1", { children });
+      const wrapper = mountNavigatorWithPopoverStub({
+        file: parentFile,
+      });
+      // Dive into child
+      const childItem = wrapper.find(".danx-file-children__item");
+      await childItem.trigger("click");
+
+      // Verify we're viewing the child
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("child-c1.jpg");
+
+      // Click back button
+      const backBtn = wrapper.find(".danx-file-navigator__back-btn");
+      await backBtn.trigger("click");
+
+      // Should be back at parent
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+    });
+
+    it("hides back button after returning to parent", async () => {
+      const children = [makeChild("c1")];
+      const wrapper = mountNavigatorWithPopoverStub({
+        file: makeFile("1", { children }),
+      });
+      // Dive into child
+      const childItem = wrapper.find(".danx-file-children__item");
+      await childItem.trigger("click");
+      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(true);
+
+      // Click back button
+      const backBtn = wrapper.find(".danx-file-navigator__back-btn");
+      await backBtn.trigger("click");
+
+      // Back button should be hidden again
+      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+    });
   });
 
   describe("Children menu", () => {
@@ -316,6 +390,21 @@ describe("DanxFileNavigator", () => {
       await nav.trigger("touchend", {
         changedTouches: [{ clientX: 250, clientY: 100 }],
       });
+      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+    });
+
+    it("handles touchend with empty changedTouches", async () => {
+      const wrapper = mountNavigator({
+        relatedFiles: [makeFile("2")],
+      });
+      const nav = wrapper.find(".danx-file-navigator");
+      await nav.trigger("touchstart", {
+        touches: [{ clientX: 200, clientY: 100 }],
+      });
+      await nav.trigger("touchend", {
+        changedTouches: [],
+      });
+      // Should not navigate or throw
       expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
     });
 
@@ -437,6 +526,104 @@ describe("DanxFileNavigator", () => {
       metadataPanel.vm.$emit("close");
       await wrapper.vm.$nextTick();
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
+    });
+
+    it("renders metadata in overlay mode (default) when localStorage is not set", async () => {
+      // Clear any existing localStorage setting
+      localStorage.removeItem("danx-file-metadata-mode");
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      // Overlay mode renders inside __content with class --overlay (or no special class)
+      const metadata = wrapper.find(".danx-file-metadata");
+      expect(metadata.exists()).toBe(true);
+      // Metadata should be a child of .danx-file-navigator__content (overlay positioning)
+      expect(wrapper.find(".danx-file-navigator__content .danx-file-metadata").exists()).toBe(true);
+    });
+
+    it("applies docked class when metadata is in docked mode", async () => {
+      localStorage.setItem("danx-file-metadata-mode", "docked");
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      // Docked mode has --docked class and is a sibling to content (not inside __content)
+      const dockedMetadata = wrapper.find(".danx-file-metadata--docked");
+      expect(dockedMetadata.exists()).toBe(true);
+      // In docked mode, metadata should be a direct child of __body, not __content
+      expect(
+        wrapper.find(".danx-file-navigator__body > .danx-file-metadata--docked").exists()
+      ).toBe(true);
+      localStorage.removeItem("danx-file-metadata-mode");
+    });
+
+    it("closes docked metadata panel when close event fires", async () => {
+      localStorage.setItem("danx-file-metadata-mode", "docked");
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
+
+      // Emit close from docked metadata panel
+      const metadataPanel = wrapper.findComponent({ name: "DanxFileMetadata" });
+      metadataPanel.vm.$emit("close");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
+      localStorage.removeItem("danx-file-metadata-mode");
+    });
+
+    it("updates mode from overlay to docked via DanxFileMetadata toggle", async () => {
+      localStorage.removeItem("danx-file-metadata-mode");
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      expect(wrapper.find(".danx-file-metadata--overlay").exists()).toBe(true);
+
+      // Toggle overlay → docked
+      const toggleBtn = wrapper
+        .findComponent({ name: "DanxFileMetadata" })
+        .findAll(".danx-button")
+        .find((btn) => btn.attributes("title") === "Toggle mode")!;
+      await toggleBtn.trigger("click");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
+    });
+
+    it("updates mode from docked to overlay via DanxFileMetadata toggle", async () => {
+      localStorage.setItem("danx-file-metadata-mode", "docked");
+      const wrapper = mountNavigator({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = wrapper
+        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .find((btn) => btn.attributes("title") === "Metadata")!;
+      await metaBtn.trigger("click");
+      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
+
+      // Toggle docked → overlay (exercises v-model:mode on the docked instance)
+      const toggleBtn = wrapper
+        .findComponent({ name: "DanxFileMetadata" })
+        .findAll(".danx-button")
+        .find((btn) => btn.attributes("title") === "Toggle mode")!;
+      await toggleBtn.trigger("click");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".danx-file-metadata--overlay").exists()).toBe(true);
+      localStorage.removeItem("danx-file-metadata-mode");
     });
   });
 });

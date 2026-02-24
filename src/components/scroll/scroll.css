@@ -23,6 +23,11 @@
   height: 100%;
   width: 100%;
 
+  /* Disable browser scroll anchoring — virtual scroll repositions content on
+     boundary transitions, which Chrome misinterprets as content shift and
+     "compensates" by adjusting scrollTop, causing an oscillation loop. */
+  overflow-anchor: none;
+
   /* Hide native scrollbar */
   scrollbar-width: none;
 
@@ -104,6 +109,9 @@
   border-radius: var(--dx-scroll-border-radius);
   transition: background 0.15s;
   cursor: pointer;
+
+  /* Required for setPointerCapture to work correctly */
+  touch-action: none;
 
   &:hover {
     background: var(--dx-scroll-thumb-hover-bg);

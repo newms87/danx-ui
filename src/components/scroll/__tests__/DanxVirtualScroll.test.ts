@@ -711,4 +711,112 @@ describe("DanxVirtualScroll", () => {
       expect(emitted![emitted!.length - 1]).toEqual([20]);
     });
   });
+
+  describe("infiniteScroll with totalItems", () => {
+    it("emits loadMore when endIndex reaches loaded items boundary", async () => {
+      // 10 loaded items, totalItems=100, so there are unloaded items beyond
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 100,
+        overscan: 0,
+        infiniteScroll: true,
+        canLoadMore: true,
+        loading: false,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, {
+        clientHeight: 200,
+        scrollTop: 0,
+        scrollHeight: 4000,
+      });
+
+      // Scroll to end of loaded items (item 9 is the last at index 9)
+      // scrollTop = 9 * 40 = 360 should put endIndex at or past 9
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 360,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      expect(wrapper.emitted("loadMore")).toBeTruthy();
+    });
+
+    it("does not emit loadMore when loading is true", async () => {
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 100,
+        overscan: 0,
+        infiniteScroll: true,
+        canLoadMore: true,
+        loading: true,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, {
+        clientHeight: 200,
+        scrollTop: 0,
+        scrollHeight: 4000,
+      });
+
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 360,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      expect(wrapper.emitted("loadMore")).toBeUndefined();
+    });
+
+    it("does not emit loadMore when canLoadMore is false", async () => {
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        totalItems: 100,
+        overscan: 0,
+        infiniteScroll: true,
+        canLoadMore: false,
+        loading: false,
+      });
+
+      const viewport = mockViewportDimensions(wrapper, {
+        clientHeight: 200,
+        scrollTop: 0,
+        scrollHeight: 4000,
+      });
+
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 360,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      expect(wrapper.emitted("loadMore")).toBeUndefined();
+    });
+
+    it("uses setupScrollInfinite when infiniteScroll is true but totalItems is not set", async () => {
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        defaultItemHeight: 40,
+        overscan: 0,
+        infiniteScroll: true,
+        canLoadMore: true,
+        loading: false,
+      });
+
+      // Without totalItems, the endIndex watcher is NOT used — setupScrollInfinite handles it.
+      // This test just verifies no crash and the component renders correctly.
+      expect(wrapper.find(".danx-scroll__viewport").exists()).toBe(true);
+    });
+  });
 });

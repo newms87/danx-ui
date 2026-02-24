@@ -138,6 +138,7 @@ import {
 } from "../../src/shared/arrayUtils";
 import { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "../../src/shared/autoColor";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
+import { useLogDemo, levelColor } from "../pages/scroll-examples/useLogDemo.js";
 
 /** Components available in compiled templates via the `components` option */
 const REGISTERED_COMPONENTS: Record<string, Component> = {
@@ -282,6 +283,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useScrollWindow,
   // Skeleton
   DanxSkeleton,
+  // Log demo helpers
+  useLogDemo,
+  levelColor,
 };
 
 const DEBOUNCE_MS = 250;

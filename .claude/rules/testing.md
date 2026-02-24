@@ -54,16 +54,13 @@ The project enforces 100% coverage:
 
 **Run `yarn test:coverage` as the final verification step after ANY code change. No exceptions.**
 
-A task is NOT complete if YOUR code has failing coverage.
+A task is NOT complete until `yarn test:coverage` passes with 0 threshold failures.
 
-### Pre-existing Coverage Failures
+### You Own ALL Coverage
 
-| Situation | Action |
-|-----------|--------|
-| **Uncommitted/WIP code** failing coverage | **Flag it** to the user, then **ignore it**. Another agent likely owns it. NEVER modify vitest config, thresholds, or exclusions to work around it. |
-| **Committed code** failing coverage | **Flag it** and ask the user. Only address if the user confirms AND you believe your changes could not have caused it. |
+You are 100% responsible for all code in this repo. If coverage fails — even in files you didn't touch — you must fix it NOW. Write the missing tests, cover the uncovered branches, whatever it takes.
 
-**NEVER "fix" someone else's coverage failures.** Do not touch `vitest.config.ts` exclusions, do not write tests for unrelated modules, do not adjust thresholds. Flag and move on.
+**The ONLY exception:** Untracked files (not yet committed) that belong to another agent actively working on them. Check `git status` — if the failing file is untracked/unstaged, another agent likely owns it. Leave it alone to avoid conflicts. But if the file is committed, it's your responsibility regardless of who wrote it.
 
 | Step | Command | When |
 |------|---------|------|

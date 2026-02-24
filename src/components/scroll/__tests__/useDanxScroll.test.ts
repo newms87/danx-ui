@@ -372,6 +372,20 @@ describe("useDanxScroll", () => {
     });
   });
 
+  describe("Pointermove without drag is no-op", () => {
+    it("does not change scrollTop when pointermove fires without prior pointerdown", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(el);
+      const result = createComposable(containerEl);
+
+      await nextTick();
+
+      // Call pointermove without starting a drag — should be a no-op
+      result.onVerticalThumbPointerMove(createPointerEvent("pointermove", { clientY: 130 }));
+      expect(el.scrollTop).toBe(0);
+    });
+  });
+
   describe("Vertical thumb drag", () => {
     it("updates scrollTop on vertical drag", async () => {
       const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
@@ -386,13 +400,13 @@ describe("useDanxScroll", () => {
       // Scrollbar stays visible during drag
       expect(result.isVerticalVisible.value).toBe(true);
 
-      // Simulate mouse move
-      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 130 }));
+      // Simulate pointer move (with capture, events go to thumb directly)
+      result.onVerticalThumbPointerMove(createPointerEvent("pointermove", { clientY: 130 }));
 
       // scrollTop = 0 + 30 * (1000/300) = 100
       expect(el.scrollTop).toBeCloseTo(100, 0);
 
-      document.dispatchEvent(new MouseEvent("mouseup"));
+      result.onVerticalThumbPointerUp(createPointerEvent("pointerup"));
     });
   });
 
@@ -413,12 +427,13 @@ describe("useDanxScroll", () => {
 
       startHorizontalDrag(result, 100);
 
-      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 130 }));
+      // Simulate pointer move (with capture, events go to thumb directly)
+      result.onHorizontalThumbPointerMove(createPointerEvent("pointermove", { clientX: 130 }));
 
       // scrollLeft = 0 + 30 * (1000/300) = 100
       expect(el.scrollLeft).toBeCloseTo(100, 0);
 
-      document.dispatchEvent(new MouseEvent("mouseup"));
+      result.onHorizontalThumbPointerUp(createPointerEvent("pointerup"));
     });
   });
 
@@ -533,7 +548,7 @@ describe("useDanxScroll", () => {
       startVerticalDrag(result, 100);
       expect(result.isVerticalVisible.value).toBe(true);
 
-      document.dispatchEvent(new MouseEvent("mouseup"));
+      result.onVerticalThumbPointerUp(createPointerEvent("pointerup"));
       vi.advanceTimersByTime(1200);
 
       expect(result.isVerticalVisible.value).toBe(false);
@@ -570,6 +585,15 @@ describe("useDanxScroll", () => {
   });
 
   describe("No container element", () => {
+    it("setupObserver is a no-op when container starts null", () => {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      // setupObserver was called via the immediate watcher with null el — early-returned
+      expect(result.hasVerticalOverflow.value).toBe(false);
+      expect(result.hasHorizontalOverflow.value).toBe(false);
+    });
+
     it("handles track click when container is null", () => {
       const containerEl = ref<HTMLElement | null>(null);
       const result = createComposable(containerEl);
@@ -601,8 +625,27 @@ describe("useDanxScroll", () => {
       startVerticalDrag(result, 100);
 
       // Should not throw
-      document.dispatchEvent(new MouseEvent("mousemove", { clientY: 130 }));
-      document.dispatchEvent(new MouseEvent("mouseup"));
+      result.onVerticalThumbPointerMove(createPointerEvent("pointermove", { clientY: 130 }));
+      result.onVerticalThumbPointerUp(createPointerEvent("pointerup"));
+    });
+
+    it("updateGeometry handles null container after ResizeObserver setup", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300 });
+      const containerEl = ref<HTMLElement | null>(el);
+      createComposable(containerEl);
+
+      await nextTick();
+
+      // Capture the resize callback before nullifying the container
+      const savedCallback = resizeCallback;
+      expect(savedCallback).not.toBeNull();
+
+      // Null the container (cleanup runs, but mock disconnect is a no-op)
+      containerEl.value = null;
+      await nextTick();
+
+      // Simulate a late ResizeObserver notification — updateGeometry should early-return
+      savedCallback!();
     });
 
     it("handles horizontal drag move when container is null", () => {
@@ -612,22 +655,26 @@ describe("useDanxScroll", () => {
       startHorizontalDrag(result, 100);
 
       // Should not throw — covers horizontal branch in onDragMove with null container
-      document.dispatchEvent(new MouseEvent("mousemove", { clientX: 130 }));
-      document.dispatchEvent(new MouseEvent("mouseup"));
+      result.onHorizontalThumbPointerMove(createPointerEvent("pointermove", { clientX: 130 }));
+      result.onHorizontalThumbPointerUp(createPointerEvent("pointerup"));
     });
   });
 
+  function createPointerEvent(type: string, props: Record<string, unknown> = {}): PointerEvent {
+    const event = new PointerEvent(type, { ...props, pointerId: 1 });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
+    Object.defineProperty(event, "stopPropagation", { value: vi.fn() });
+    Object.defineProperty(event, "currentTarget", {
+      value: { setPointerCapture: vi.fn(), releasePointerCapture: vi.fn() },
+    });
+    return event;
+  }
+
   function startVerticalDrag(result: UseDanxScrollReturn, clientY: number) {
-    const mousedownEvent = new MouseEvent("mousedown", { clientY });
-    Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-    Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
-    result.onVerticalThumbMouseDown(mousedownEvent);
+    result.onVerticalThumbPointerDown(createPointerEvent("pointerdown", { clientY }));
   }
 
   function startHorizontalDrag(result: UseDanxScrollReturn, clientX: number) {
-    const mousedownEvent = new MouseEvent("mousedown", { clientX });
-    Object.defineProperty(mousedownEvent, "preventDefault", { value: vi.fn() });
-    Object.defineProperty(mousedownEvent, "stopPropagation", { value: vi.fn() });
-    result.onHorizontalThumbMouseDown(mousedownEvent);
+    result.onHorizontalThumbPointerDown(createPointerEvent("pointerdown", { clientX }));
   }
 });

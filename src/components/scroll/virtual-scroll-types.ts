@@ -34,6 +34,9 @@ export interface ScrollWindowOptions<T> {
    * is computed from loaded items only.
    */
   totalItems?: number;
+
+  /** Enable debug console logging. @default false */
+  debug?: boolean;
 }
 
 /**

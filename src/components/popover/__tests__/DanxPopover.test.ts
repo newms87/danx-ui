@@ -213,4 +213,48 @@ describe("DanxPopover", () => {
       expect(panel.showPopover).toHaveBeenCalled();
     });
   });
+
+  describe("click outside dismiss", () => {
+    it("closes popover when clicking outside trigger and panel", async () => {
+      mountPopover({ modelValue: true });
+      await nextTick();
+
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: outside });
+      document.dispatchEvent(event);
+      await nextTick();
+
+      expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
+
+      outside.remove();
+    });
+
+    it("does not close popover when clicking on trigger", async () => {
+      mountPopover({ modelValue: true });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: trigger });
+      document.dispatchEvent(event);
+      await nextTick();
+
+      expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+    });
+
+    it("does not close popover when clicking on panel", async () => {
+      mountPopover({ modelValue: true });
+      await nextTick();
+
+      const panel = wrapper.find(".danx-popover").element;
+      const event = new MouseEvent("mousedown", { bubbles: true });
+      Object.defineProperty(event, "target", { value: panel });
+      document.dispatchEvent(event);
+      await nextTick();
+
+      expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+    });
+  });
 });

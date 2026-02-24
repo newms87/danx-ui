@@ -112,8 +112,12 @@ const {
   isHorizontalVisible,
   hasVerticalOverflow,
   hasHorizontalOverflow,
-  onVerticalThumbMouseDown,
-  onHorizontalThumbMouseDown,
+  onVerticalThumbPointerDown,
+  onVerticalThumbPointerMove,
+  onVerticalThumbPointerUp,
+  onHorizontalThumbPointerDown,
+  onHorizontalThumbPointerMove,
+  onHorizontalThumbPointerUp,
   onVerticalTrackClick,
   onHorizontalTrackClick,
   onTrackMouseEnter,
@@ -186,7 +190,9 @@ const wrapperStyle = computed(() => ({
       <div
         class="danx-scroll__thumb"
         :style="verticalThumbStyle"
-        @mousedown="onVerticalThumbMouseDown"
+        @pointerdown="onVerticalThumbPointerDown"
+        @pointermove="onVerticalThumbPointerMove"
+        @pointerup="onVerticalThumbPointerUp"
       />
     </div>
 
@@ -201,7 +207,9 @@ const wrapperStyle = computed(() => ({
       <div
         class="danx-scroll__thumb"
         :style="horizontalThumbStyle"
-        @mousedown="onHorizontalThumbMouseDown"
+        @pointerdown="onHorizontalThumbPointerDown"
+        @pointermove="onHorizontalThumbPointerMove"
+        @pointerup="onHorizontalThumbPointerUp"
       />
     </div>
   </component>

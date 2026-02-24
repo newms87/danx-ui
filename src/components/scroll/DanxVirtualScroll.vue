@@ -138,6 +138,7 @@ const {
   overscan: props.overscan,
   keyFn: props.keyFn,
   totalItems: props.totalItems,
+  debug: props.debug,
 });
 
 // DanxVirtualScroll handles infinite scroll directly so indicators render
@@ -198,9 +199,7 @@ const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);
 function itemRef(index: number) {
   return (el: Element | ComponentPublicInstance | null) => {
     if (!el || !(el instanceof HTMLElement)) return;
-    const item = props.items[index];
-    if (item === undefined) return;
-    const key = keyFn(item, index);
+    const key = keyFn(props.items[index], index);
     measureItem(key, el);
   };
 }

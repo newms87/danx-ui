@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import { useDanxFileNavigator } from "../useDanxFileNavigator";
 import { makeFile } from "../../danx-file/__tests__/test-helpers";
 
@@ -103,6 +103,19 @@ describe("useDanxFileNavigator", () => {
 
       prev();
       expect(currentFile.value.id).toBe("1");
+    });
+
+    it("slideLabel returns empty when currentFile is not in allFiles", () => {
+      const file = ref(makeFile("1"));
+      const related = ref([makeFile("2"), makeFile("3")]);
+      const { currentFile, slideLabel } = useDanxFileNavigator({
+        file,
+        relatedFiles: related,
+      });
+
+      // Set currentFile to a file not in allFiles — currentIndex becomes -1
+      currentFile.value = makeFile("not-in-list");
+      expect(slideLabel.value).toBe("");
     });
 
     it("slideLabel shows position", () => {
@@ -340,8 +353,7 @@ describe("useDanxFileNavigator", () => {
 
       // Change the anchor file
       file.value = makeFile("new");
-      // Vue watch is async, need to flush
-      await new Promise((r) => setTimeout(r, 0));
+      await nextTick();
       expect(currentFile.value.id).toBe("new");
       expect(hasParent.value).toBe(false);
     });

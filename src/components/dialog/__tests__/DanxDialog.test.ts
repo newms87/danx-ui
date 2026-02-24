@@ -712,4 +712,42 @@ describe("DanxDialog", () => {
       expect(wrapper2.emitted("close")).toHaveLength(1);
     });
   });
+
+  describe("Event propagation isolation", () => {
+    it("stops propagation for all isolated event types", async () => {
+      mountDialog({ modelValue: true });
+      await nextTick();
+
+      const dialog = bodyQuery("dialog") as HTMLElement;
+
+      // All event types that have .stop modifier on the dialog element
+      const isolatedEvents = [
+        "wheel",
+        "keydown",
+        "keyup",
+        "keypress",
+        "mousedown",
+        "mousemove",
+        "mouseup",
+        "pointerdown",
+        "pointermove",
+        "pointerup",
+        "touchstart",
+        "touchmove",
+        "touchend",
+        "contextmenu",
+      ];
+
+      for (const eventType of isolatedEvents) {
+        const parentSpy = vi.fn();
+        dialog.parentElement!.addEventListener(eventType, parentSpy);
+
+        const event = new Event(eventType, { bubbles: true });
+        dialog.dispatchEvent(event);
+
+        expect(parentSpy).not.toHaveBeenCalled();
+        dialog.parentElement!.removeEventListener(eventType, parentSpy);
+      }
+    });
+  });
 });

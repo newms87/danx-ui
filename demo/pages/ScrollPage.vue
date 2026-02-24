@@ -14,6 +14,7 @@ import virtualScrollPositionCode from "./scroll-examples/VirtualScrollPosition.v
 import virtualScrollRemoteCode from "./scroll-examples/VirtualScrollRemote.vue?raw";
 import virtualScrollDynamicCode from "./scroll-examples/VirtualScrollDynamic.vue?raw";
 import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer.vue?raw";
+import virtualScrollInDialogCode from "./scroll-examples/VirtualScrollInDialog.vue?raw";
 </script>
 
 <template>
@@ -81,6 +82,11 @@ import virtualScrollLogViewerCode from "./scroll-examples/VirtualScrollLogViewer
       title="Virtual Scroll — Log Viewer"
       description="Live log viewer with auto-scroll. New lines appear every 1-5 seconds. Scroll up to pause, scroll back to bottom to resume."
       :code="virtualScrollLogViewerCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — In Dialog"
+      description="Virtual scroll inside a DanxDialog. Tests scrollbar drag behavior within dialog overlay context."
+      :code="virtualScrollInDialogCode"
     />
   </DemoPage>
 </template>

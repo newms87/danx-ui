@@ -35,121 +35,14 @@
  * @returns Visible items, positions, measurement function, scrollToIndex, totalHeight
  */
 import { type Ref, computed, onUnmounted, ref, watch } from "vue";
+import { recalculateProportional, recalculateWalkFromZero } from "./scroll-strategies";
 import type { ScrollWindowOptions, ScrollWindowReturn } from "./virtual-scroll-types";
-
-/** Proportional recalculation when totalItems is known. */
-function recalculateProportional<T>(
-  itemList: T[],
-  count: number,
-  clientHeight: number,
-  scrollTop: number,
-  overscan: number,
-  defaultItemHeight: number,
-  totalItemsCount: number,
-  getItemHeight: (item: T, index: number) => number
-) {
-  const overscanPx = overscan * defaultItemHeight;
-  const fixedTotal = totalItemsCount * defaultItemHeight;
-
-  // Convert scroll position directly to item index. Since totalHeight uses
-  // defaultItemHeight uniformly, scrollTop / defaultItemHeight gives the exact
-  // item index at the viewport top — no ratio drift at large scroll positions.
-  const targetIndex = Math.max(
-    0,
-    Math.min(Math.floor(scrollTop / defaultItemHeight), totalItemsCount - 1)
-  );
-
-  // Compute full proportional range (may extend beyond loaded items)
-  const fullStart = Math.max(0, targetIndex - overscan);
-  const offset = fullStart * defaultItemHeight;
-
-  // Walk forward from fullStart using measured/default heights to fill viewport + overscan
-  const fillHeight = clientHeight + 2 * overscanPx;
-  let fullEnd = fullStart;
-  let filled = 0;
-  for (let i = fullStart; i < totalItemsCount; i++) {
-    fullEnd = i;
-    // Use measured height for loaded items, default for unloaded
-    const h = i < count ? getItemHeight(itemList[i]!, i) : defaultItemHeight;
-    filled += h;
-    if (filled >= fillHeight) break;
-  }
-
-  // Clamp visible (loaded) range to items that actually exist
-  const newStart = Math.min(fullStart, Math.max(0, count - 1));
-  const newEnd = Math.min(fullEnd, Math.max(0, count - 1));
-
-  // Placeholders: indices in the full range that fall outside loaded items
-  const placeholdersAfter = Math.max(0, fullEnd - Math.max(0, count - 1));
-
-  return {
-    newStart,
-    newEnd,
-    offset,
-    totalHeight: fixedTotal,
-    placeholdersAfter,
-  };
-}
-
-/** Walk-from-zero recalculation when totalItems is not known. */
-function recalculateWalkFromZero<T>(
-  itemList: T[],
-  count: number,
-  clientHeight: number,
-  scrollTop: number,
-  overscan: number,
-  defaultItemHeight: number,
-  getItemHeight: (item: T, index: number) => number
-) {
-  const overscanPx = overscan * defaultItemHeight;
-  const viewTop = Math.max(0, scrollTop - overscanPx);
-  const viewBottom = scrollTop + clientHeight + overscanPx;
-
-  let accumulated = 0;
-  let newStart = 0;
-  let newEnd = count - 1;
-  let foundStart = false;
-  let offset = 0;
-
-  for (let i = 0; i < count; i++) {
-    const h = getItemHeight(itemList[i]!, i);
-    if (!foundStart && accumulated + h > viewTop) {
-      newStart = i;
-      offset = accumulated;
-      foundStart = true;
-    }
-    accumulated += h;
-    if (foundStart && accumulated >= viewBottom) {
-      newEnd = i;
-      break;
-    }
-  }
-
-  if (!foundStart) {
-    newStart = Math.max(0, count - 1);
-    newEnd = count - 1;
-  }
-
-  // Compute totalHeight from all loaded items
-  let total = accumulated;
-  for (let i = newEnd + 1; i < count; i++) {
-    total += getItemHeight(itemList[i]!, i);
-  }
-
-  return {
-    newStart,
-    newEnd,
-    offset,
-    totalHeight: total,
-    placeholdersAfter: 0,
-  };
-}
 
 export function useScrollWindow<T>(
   viewportEl: Ref<HTMLElement | null>,
   options: ScrollWindowOptions<T>
 ): ScrollWindowReturn<T> {
-  const { items, defaultItemHeight = 40, overscan = 3, totalItems } = options;
+  const { items, defaultItemHeight = 40, overscan = 3, totalItems, debug } = options;
   const keyFn = options.keyFn ?? ((_item: T, index: number) => index);
 
   const startIndex = ref(0);
@@ -225,11 +118,11 @@ export function useScrollWindow<T>(
         ? recalculateProportional(
             itemList,
             count,
+            totalItems,
             clientHeight,
             scrollTop,
             overscan,
             defaultItemHeight,
-            totalItems,
             getItemHeight
           )
         : recalculateWalkFromZero(
@@ -246,6 +139,14 @@ export function useScrollWindow<T>(
     // triggered recalculates (same scrollTop) can oscillate startIndex ±1
     // with variable heights, causing visible jitter. Keep startIndex stable
     // and only update totalHeight/endIndex for scrollbar accuracy.
+    if (debug) {
+      console.log(
+        `[recalc] scrollTop=${scrollTop} scrollChanged=${scrollChanged}` +
+          ` result.start=${result.newStart} result.end=${result.newEnd}` +
+          ` result.offset=${result.offset} current.start=${startIndex.value}` +
+          ` totalHeight=${result.totalHeight} cacheSize=${heightCache.size}`
+      );
+    }
     if (scrollChanged) {
       startIndex.value = result.newStart;
       startOffset.value = result.offset;
@@ -298,6 +199,9 @@ export function useScrollWindow<T>(
     if (!el) return;
     const height = el.offsetHeight;
     if (height > 0 && heightCache.get(key) !== height) {
+      if (debug) {
+        console.log(`[measure] key=${key} old=${heightCache.get(key) ?? "none"} new=${height}`);
+      }
       heightCache.set(key, height);
       // Batch measurement-triggered recalculates via microtask so all items
       // measured in a single render cycle produce one recalculate, keeping

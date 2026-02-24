@@ -14,38 +14,8 @@
  * @returns Reactive state and event handlers for scrollbar tracks/thumbs
  */
 import { type CSSProperties, onUnmounted, type Ref, ref, watch } from "vue";
-
-export interface UseDanxScrollOptions {
-  /** Keep scrollbar always visible (no auto-hide). */
-  persistent?: boolean;
-}
-
-export interface UseDanxScrollReturn {
-  /** Inline styles for the vertical thumb (height + translateY). */
-  verticalThumbStyle: Ref<CSSProperties>;
-  /** Inline styles for the horizontal thumb (width + translateX). */
-  horizontalThumbStyle: Ref<CSSProperties>;
-  /** Whether the vertical scrollbar should be visible. */
-  isVerticalVisible: Ref<boolean>;
-  /** Whether the horizontal scrollbar should be visible. */
-  isHorizontalVisible: Ref<boolean>;
-  /** Whether content overflows vertically. */
-  hasVerticalOverflow: Ref<boolean>;
-  /** Whether content overflows horizontally. */
-  hasHorizontalOverflow: Ref<boolean>;
-  /** Mousedown handler for vertical thumb drag. */
-  onVerticalThumbMouseDown: (e: MouseEvent) => void;
-  /** Mousedown handler for horizontal thumb drag. */
-  onHorizontalThumbMouseDown: (e: MouseEvent) => void;
-  /** Click handler for vertical track (jump-scroll). */
-  onVerticalTrackClick: (e: MouseEvent) => void;
-  /** Click handler for horizontal track (jump-scroll). */
-  onHorizontalTrackClick: (e: MouseEvent) => void;
-  /** Mouseenter handler for track (keeps scrollbar visible). */
-  onTrackMouseEnter: () => void;
-  /** Mouseleave handler for track (allows auto-hide). */
-  onTrackMouseLeave: () => void;
-}
+import type { UseDanxScrollOptions, UseDanxScrollReturn } from "./types";
+export type { UseDanxScrollOptions, UseDanxScrollReturn } from "./types";
 
 const AUTO_HIDE_DELAY = 1200;
 const MIN_THUMB_PX = 24;
@@ -148,7 +118,12 @@ export function useDanxScroll(
   let dragStartPos = 0;
   let dragStartScroll = 0;
 
-  function startDrag(axis: "vertical" | "horizontal", e: MouseEvent) {
+  /**
+   * Start a thumb drag using pointer capture. Pointer capture routes all
+   * subsequent pointer events to the thumb element itself, so the drag works
+   * even inside containers that stop event propagation (e.g. DanxDialog).
+   */
+  function startDrag(axis: "vertical" | "horizontal", e: PointerEvent) {
     e.preventDefault();
     e.stopPropagation();
     isDragging = true;
@@ -158,20 +133,20 @@ export function useDanxScroll(
       axis === "vertical"
         ? (containerEl.value?.scrollTop ?? 0)
         : (containerEl.value?.scrollLeft ?? 0);
-    document.addEventListener("mousemove", onDragMove);
-    document.addEventListener("mouseup", onDragEnd);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     updateVisibility();
   }
 
-  function onVerticalThumbMouseDown(e: MouseEvent) {
+  function onVerticalThumbPointerDown(e: PointerEvent) {
     startDrag("vertical", e);
   }
 
-  function onHorizontalThumbMouseDown(e: MouseEvent) {
+  function onHorizontalThumbPointerDown(e: PointerEvent) {
     startDrag("horizontal", e);
   }
 
-  function onDragMove(e: MouseEvent) {
+  function onDragMove(e: PointerEvent) {
+    if (!isDragging) return;
     const el = containerEl.value;
     if (!el) return;
 
@@ -188,30 +163,25 @@ export function useDanxScroll(
     }
   }
 
-  function onDragEnd() {
+  function onDragEnd(e: PointerEvent) {
     isDragging = false;
-    document.removeEventListener("mousemove", onDragMove);
-    document.removeEventListener("mouseup", onDragEnd);
+    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     scheduleHide();
   }
 
   // Track click — jump-scroll to position
-  function onVerticalTrackClick(e: MouseEvent) {
+  function onTrackClick(axis: "vertical" | "horizontal", e: MouseEvent) {
     const el = containerEl.value;
     if (!el) return;
     const track = e.currentTarget as HTMLElement;
     const rect = track.getBoundingClientRect();
-    const clickRatio = (e.clientY - rect.top) / rect.height;
-    el.scrollTop = clickRatio * el.scrollHeight - el.clientHeight / 2;
-  }
-
-  function onHorizontalTrackClick(e: MouseEvent) {
-    const el = containerEl.value;
-    if (!el) return;
-    const track = e.currentTarget as HTMLElement;
-    const rect = track.getBoundingClientRect();
-    const clickRatio = (e.clientX - rect.left) / rect.width;
-    el.scrollLeft = clickRatio * el.scrollWidth - el.clientWidth / 2;
+    if (axis === "vertical") {
+      const clickRatio = (e.clientY - rect.top) / rect.height;
+      el.scrollTop = clickRatio * el.scrollHeight - el.clientHeight / 2;
+    } else {
+      const clickRatio = (e.clientX - rect.left) / rect.width;
+      el.scrollLeft = clickRatio * el.scrollWidth - el.clientWidth / 2;
+    }
   }
 
   // Track hover
@@ -254,8 +224,6 @@ export function useDanxScroll(
     resizeObserver?.disconnect();
     resizeObserver = null;
     if (hideTimeout) clearTimeout(hideTimeout);
-    document.removeEventListener("mousemove", onDragMove);
-    document.removeEventListener("mouseup", onDragEnd);
   }
 
   // Watch for container element becoming available (immediate handles onMounted case)
@@ -263,7 +231,7 @@ export function useDanxScroll(
     containerEl,
     (newEl, oldEl) => {
       if (oldEl) cleanup(oldEl);
-      if (newEl) setupObserver();
+      setupObserver();
     },
     { immediate: true }
   );
@@ -279,10 +247,14 @@ export function useDanxScroll(
     isHorizontalVisible,
     hasVerticalOverflow,
     hasHorizontalOverflow,
-    onVerticalThumbMouseDown,
-    onHorizontalThumbMouseDown,
-    onVerticalTrackClick,
-    onHorizontalTrackClick,
+    onVerticalThumbPointerDown,
+    onVerticalThumbPointerMove: onDragMove,
+    onVerticalThumbPointerUp: onDragEnd,
+    onHorizontalThumbPointerDown,
+    onHorizontalThumbPointerMove: onDragMove,
+    onHorizontalThumbPointerUp: onDragEnd,
+    onVerticalTrackClick: (e: MouseEvent) => onTrackClick("vertical", e),
+    onHorizontalTrackClick: (e: MouseEvent) => onTrackClick("horizontal", e),
     onTrackMouseEnter,
     onTrackMouseLeave,
   };

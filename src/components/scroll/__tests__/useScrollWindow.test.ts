@@ -31,6 +31,7 @@ describe("useScrollWindow", () => {
       overscan?: number;
       keyFn?: (item: string, i: number) => string | number;
       totalItems?: number;
+      debug?: boolean;
     } = {}
   ) {
     let result!: ScrollWindowReturn<string>;
@@ -1033,6 +1034,20 @@ describe("useScrollWindow", () => {
     });
   });
 
+  it("recalculate handles null viewport when items change", async () => {
+    const viewportEl = ref<HTMLElement | null>(null);
+    const items = ref(["a", "b"]);
+
+    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+
+    // Items watcher triggers recalculate() — should early-return with no viewport
+    items.value = ["a", "b", "c"];
+    await nextTick();
+
+    expect(result.startIndex.value).toBe(0);
+    expect(result.endIndex.value).toBe(0);
+  });
+
   it("unmount with null viewport does not throw", () => {
     const viewportEl = ref<HTMLElement | null>(null);
     const items = ref(["a"]);
@@ -1042,5 +1057,64 @@ describe("useScrollWindow", () => {
     // Unmount when currentEl is already null — should not throw
     const wrapper = mountedWrappers.pop()!;
     wrapper.unmount();
+  });
+
+  describe("debug logging", () => {
+    it("logs recalculate details when debug is true", () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+      createComposable(viewportEl, items, { defaultItemHeight: 40, debug: true });
+
+      const logMessages = consoleSpy.mock.calls.map((c) => c[0]);
+      expect(logMessages.some((m: string) => m.includes("[recalc]"))).toBe(true);
+
+      consoleSpy.mockRestore();
+    });
+
+    it("logs measurement details when debug is true", async () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemHeight: 40,
+        debug: true,
+      });
+
+      // Clear logs from initial recalculate
+      consoleSpy.mockClear();
+
+      // Measure an item
+      const itemEl = document.createElement("div");
+      Object.defineProperty(itemEl, "offsetHeight", { value: 55 });
+      result.measureItem("item-0", itemEl);
+
+      // measureItem batches via microtask — flush it
+      await Promise.resolve();
+
+      const logMessages = consoleSpy.mock.calls.map((c) => c[0]);
+      expect(logMessages.some((m: string) => m.includes("[measure]"))).toBe(true);
+
+      consoleSpy.mockRestore();
+    });
+
+    it("does not log when debug is false", () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+      createComposable(viewportEl, items, { defaultItemHeight: 40 });
+
+      const logMessages = consoleSpy.mock.calls.map((c) => String(c[0]));
+      expect(logMessages.some((m) => m.includes("[recalc]"))).toBe(false);
+      expect(logMessages.some((m) => m.includes("[measure]"))).toBe(false);
+
+      consoleSpy.mockRestore();
+    });
   });
 });

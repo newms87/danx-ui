@@ -4,7 +4,48 @@
  * Types for the custom scrollbar container with opt-in infinite scroll.
  */
 
+import type { CSSProperties, Ref } from "vue";
 import type { VariantType } from "../../shared/types";
+
+export interface UseDanxScrollOptions {
+  /** Keep scrollbar always visible (no auto-hide). */
+  persistent?: boolean;
+}
+
+export interface UseDanxScrollReturn {
+  /** Inline styles for the vertical thumb (height + translateY). */
+  verticalThumbStyle: Ref<CSSProperties>;
+  /** Inline styles for the horizontal thumb (width + translateX). */
+  horizontalThumbStyle: Ref<CSSProperties>;
+  /** Whether the vertical scrollbar should be visible. */
+  isVerticalVisible: Ref<boolean>;
+  /** Whether the horizontal scrollbar should be visible. */
+  isHorizontalVisible: Ref<boolean>;
+  /** Whether content overflows vertically. */
+  hasVerticalOverflow: Ref<boolean>;
+  /** Whether content overflows horizontally. */
+  hasHorizontalOverflow: Ref<boolean>;
+  /** Pointerdown handler for vertical thumb drag. */
+  onVerticalThumbPointerDown: (e: PointerEvent) => void;
+  /** Pointermove handler for vertical thumb drag (used with pointer capture). */
+  onVerticalThumbPointerMove: (e: PointerEvent) => void;
+  /** Pointerup handler for vertical thumb drag (used with pointer capture). */
+  onVerticalThumbPointerUp: (e: PointerEvent) => void;
+  /** Pointerdown handler for horizontal thumb drag. */
+  onHorizontalThumbPointerDown: (e: PointerEvent) => void;
+  /** Pointermove handler for horizontal thumb drag (used with pointer capture). */
+  onHorizontalThumbPointerMove: (e: PointerEvent) => void;
+  /** Pointerup handler for horizontal thumb drag (used with pointer capture). */
+  onHorizontalThumbPointerUp: (e: PointerEvent) => void;
+  /** Click handler for vertical track (jump-scroll). */
+  onVerticalTrackClick: (e: MouseEvent) => void;
+  /** Click handler for horizontal track (jump-scroll). */
+  onHorizontalTrackClick: (e: MouseEvent) => void;
+  /** Mouseenter handler for track (keeps scrollbar visible). */
+  onTrackMouseEnter: () => void;
+  /** Mouseleave handler for track (allows auto-hide). */
+  onTrackMouseLeave: () => void;
+}
 
 /**
  * Scrollbar thickness preset.

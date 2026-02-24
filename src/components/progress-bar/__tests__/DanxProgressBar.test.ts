@@ -320,6 +320,27 @@ describe("DanxProgressBar", () => {
 
       expect(wrapper.find(".danx-progress-bar__icon").exists()).toBe(true);
     });
+
+    it("renders icon only in fill bar when text position is not inside", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { value: 50, icon: saveIcon, textPosition: "above" },
+      });
+
+      const fillBar = wrapper.find(".danx-progress-bar__fill");
+      const iconEl = fillBar.find(".danx-progress-bar__icon");
+      expect(iconEl.exists()).toBe(true);
+      expect(iconEl.html()).toContain("<svg");
+    });
+
+    it("renders icon only in fill bar when textPosition is beside", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { value: 50, icon: saveIcon, textPosition: "beside" },
+      });
+
+      const fillBar = wrapper.find(".danx-progress-bar__fill");
+      const iconEl = fillBar.find(".danx-progress-bar__icon");
+      expect(iconEl.exists()).toBe(true);
+    });
   });
 
   describe("Buffer bar", () => {
