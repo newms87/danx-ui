@@ -253,7 +253,7 @@ watch(
           v-if="!editor.isEditing.value && currentFormat !== 'markdown'"
           direction="both"
           size="xs"
-          class="flex-1 min-h-0"
+          class="min-h-0 overflow-hidden"
         >
           <pre
             class="code-content"
@@ -269,7 +269,7 @@ watch(
           v-else-if="currentFormat === 'markdown' && !editor.isEditing.value"
           direction="both"
           size="xs"
-          class="flex-1 min-h-0"
+          class="min-h-0 overflow-hidden"
         >
           <MarkdownContent
             :content="markdownSource"
@@ -280,7 +280,7 @@ watch(
         </DanxScroll>
 
         <!-- Code editor - contenteditable -->
-        <DanxScroll v-else direction="both" size="xs" class="flex-1 min-h-0">
+        <DanxScroll v-else direction="both" size="xs" class="min-h-0 overflow-hidden">
           <pre
             ref="codeRef"
             class="code-content is-editable"
