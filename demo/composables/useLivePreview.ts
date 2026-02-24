@@ -375,8 +375,26 @@ export function parseScript(script: string): {
  */
 export function findDeclaredNames(script: string): string[] {
   const names: string[] = [];
+  // Simple identifier: const foo = ...
   for (const match of script.matchAll(/(?:const|let|var)\s+(\w+)/g)) {
     names.push(match[1]!);
+  }
+  // Destructured object: const { foo, bar } = ...
+  for (const match of script.matchAll(/(?:const|let|var)\s+\{([^}]+)\}/g)) {
+    for (const name of match[1]!.split(",")) {
+      // Handle renaming: { original: alias } → use alias
+      const trimmed = name.trim();
+      if (!trimmed) continue;
+      const colonIndex = trimmed.indexOf(":");
+      names.push(colonIndex >= 0 ? trimmed.slice(colonIndex + 1).trim() : trimmed);
+    }
+  }
+  // Destructured array: const [foo, bar] = ...
+  for (const match of script.matchAll(/(?:const|let|var)\s+\[([^\]]+)\]/g)) {
+    for (const name of match[1]!.split(",")) {
+      const trimmed = name.trim();
+      if (trimmed && /^\w+$/.test(trimmed)) names.push(trimmed);
+    }
   }
   for (const match of script.matchAll(/(?:async\s+)?function\s+(\w+)/g)) {
     names.push(match[1]!);

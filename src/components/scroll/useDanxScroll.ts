@@ -229,7 +229,7 @@ export function useDanxScroll(
   // Watch for container element becoming available (immediate handles onMounted case)
   watch(
     containerEl,
-    (newEl, oldEl) => {
+    (_newEl, oldEl) => {
       if (oldEl) cleanup(oldEl);
       setupObserver();
     },

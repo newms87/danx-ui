@@ -199,7 +199,7 @@ const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);
 function itemRef(index: number) {
   return (el: Element | ComponentPublicInstance | null) => {
     if (!el || !(el instanceof HTMLElement)) return;
-    const key = keyFn(props.items[index], index);
+    const key = keyFn(props.items[index]!, index);
     measureItem(key, el);
   };
 }
