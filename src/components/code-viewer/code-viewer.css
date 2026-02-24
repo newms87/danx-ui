@@ -60,7 +60,6 @@
     background-color: var(--dx-code-viewer-content-bg);
     color: var(--dx-code-viewer-content-text);
     width: 100%;
-    min-height: 0;
     font-family: var(--dx-code-viewer-font-family);
     font-size: var(--dx-code-viewer-font-size);
     line-height: var(--dx-code-viewer-line-height);
