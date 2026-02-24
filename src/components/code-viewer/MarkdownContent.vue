@@ -11,6 +11,11 @@
  * Code blocks are rendered as nested CodeViewer instances. Newlines within
  * paragraphs are converted to <br /> tags for soft line breaks.
  *
+ * Auto-detected (unfenced) JSON and YAML blocks respect the user's persisted
+ * format preference from localStorage. When the user switches format on an
+ * auto-detected block, the choice is saved and applied to all future
+ * auto-detected blocks. Fenced code blocks always use their declared language.
+ *
  * @props
  *   content: string - Raw markdown string to render (default: "")
  *   defaultCodeFormat?: "json" | "yaml" - Default format for embedded code blocks
@@ -46,10 +51,36 @@ import type { BlockToken, ListItem } from "../../shared/markdown";
 import CodeViewer from "./CodeViewer.vue";
 import { normalizeLanguage } from "./normalizeLanguage";
 import type { CodeFormat, MarkdownContentProps } from "./types";
+import {
+  getPreferredStructuredDataFormat,
+  setPreferredStructuredDataFormat,
+  isStructuredDataFormat,
+} from "../../shared/useStructuredDataPreference";
 
 const props = withDefaults(defineProps<MarkdownContentProps>(), {
   content: "",
 });
+
+/**
+ * Resolve the display format for a code block token.
+ * For auto-detected blocks, applies the user's persisted preference if set.
+ */
+function resolveCodeFormat(token: { language: string; autoDetected?: boolean }): CodeFormat {
+  const normalized = normalizeLanguage(token.language) as CodeFormat;
+  if (token.autoDetected && isStructuredDataFormat(normalized)) {
+    return getPreferredStructuredDataFormat() ?? normalized;
+  }
+  return normalized;
+}
+
+/**
+ * Handle format changes from CodeViewer. Persists the preference for auto-detected blocks.
+ */
+function onCodeFormatUpdate(format: CodeFormat, autoDetected?: boolean) {
+  if (autoDetected && isStructuredDataFormat(format)) {
+    setPreferredStructuredDataFormat(format);
+  }
+}
 
 const tokens = computed<BlockToken[]>(() => {
   if (!props.content) return [];
@@ -111,13 +142,14 @@ function renderBlockquote(content: string): string {
       <CodeViewer
         v-else-if="token.type === 'code_block'"
         :model-value="token.content"
-        :format="normalizeLanguage(token.language) as CodeFormat"
+        :format="resolveCodeFormat(token)"
         :default-code-format="defaultCodeFormat"
         :can-edit="false"
         :collapsible="false"
         hide-footer
         allow-any-language
         class="markdown-code-block"
+        @update:format="onCodeFormatUpdate($event, token.autoDetected)"
       />
 
       <!-- Blockquotes (recursive) -->

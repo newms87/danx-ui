@@ -138,6 +138,11 @@ import {
   arrayJoin,
 } from "../../src/shared/arrayUtils";
 import { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "../../src/shared/autoColor";
+import {
+  getPreferredStructuredDataFormat,
+  setPreferredStructuredDataFormat,
+  isStructuredDataFormat,
+} from "../../src/shared/useStructuredDataPreference";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 import { useLogDemo, levelColor } from "../pages/scroll-examples/useLogDemo.js";
 
@@ -251,6 +256,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useAutoColor,
   hashStringToIndex,
   AUTO_COLOR_PALETTE,
+  // Structured data preference
+  getPreferredStructuredDataFormat,
+  setPreferredStructuredDataFormat,
+  isStructuredDataFormat,
   // DanxProgressBar
   DanxProgressBar,
   // DanxFile + DanxFileNavigator

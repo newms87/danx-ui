@@ -28,7 +28,8 @@ export function renderTokens(tokens: BlockToken[], sanitize: boolean): string {
         // Always escape code block content for safety
         const escapedContent = escapeHtml(token.content);
         const langAttr = token.language ? ` class="language-${escapeHtml(token.language)}"` : "";
-        htmlParts.push(`<pre><code${langAttr}>${escapedContent}</code></pre>`);
+        const autoAttr = token.autoDetected ? " autodetected" : "";
+        htmlParts.push(`<pre><code${langAttr}${autoAttr}>${escapedContent}</code></pre>`);
         break;
       }
 

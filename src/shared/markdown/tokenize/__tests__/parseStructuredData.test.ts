@@ -11,6 +11,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{"name": "John", "age": 30}',
+          autoDetected: true,
         },
         endIndex: 1,
       });
@@ -23,6 +24,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: "[1, 2, 3]",
+          autoDetected: true,
         },
         endIndex: 1,
       });
@@ -35,6 +37,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{\n  "name": "John",\n  "age": 30\n}',
+          autoDetected: true,
         },
         endIndex: 4,
       });
@@ -47,6 +50,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '[{"name": ["Dr.", "John", "Smith"]},\n{"name": ["Ms.", "Jane", "Doe"]}]',
+          autoDetected: true,
         },
         endIndex: 2,
       });
@@ -59,6 +63,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{"key": "[value]", "other": "{braces}"}',
+          autoDetected: true,
         },
         endIndex: 1,
       });
@@ -71,6 +76,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{"msg": "say \\"hello\\""}',
+          autoDetected: true,
         },
         endIndex: 1,
       });
@@ -109,6 +115,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{"data": true}',
+          autoDetected: true,
         },
         endIndex: 2,
       });
@@ -121,6 +128,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{\n  "a": 1\n}',
+          autoDetected: true,
         },
         endIndex: 4,
       });
@@ -130,6 +138,12 @@ describe("parseStructuredData", () => {
       const lines = ['{"a": 1}', "next line"];
       const result = parseStructuredData(lines, 0);
       expect(result!.endIndex).toBe(1);
+    });
+
+    it("sets autoDetected: true on JSON tokens", () => {
+      const lines = ['{"name": "John"}'];
+      const result = parseStructuredData(lines, 0);
+      expect(result!.token).toHaveProperty("autoDetected", true);
     });
   });
 
@@ -141,6 +155,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "yaml",
           content: "name: John\nage: 30\ncity: NYC",
+          autoDetected: true,
         },
         endIndex: 3,
       });
@@ -153,6 +168,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "yaml",
           content: "- name: John\n- name: Jane",
+          autoDetected: true,
         },
         endIndex: 2,
       });
@@ -166,6 +182,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "yaml",
           content: "name: John\nage: 30",
+          autoDetected: true,
         },
         endIndex: 2,
       });
@@ -188,6 +205,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "yaml",
           content: "name: John\nroles:\n  - admin\n  - editor",
+          autoDetected: true,
         },
         endIndex: 4,
       });
@@ -224,9 +242,16 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "yaml",
           content: "key: value\nanother: data",
+          autoDetected: true,
         },
         endIndex: 3,
       });
+    });
+
+    it("sets autoDetected: true on YAML tokens", () => {
+      const lines = ["name: John", "age: 30"];
+      const result = parseStructuredData(lines, 0);
+      expect(result!.token).toHaveProperty("autoDetected", true);
     });
   });
 
@@ -254,6 +279,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{"name": "John", "age": 30}',
+          autoDetected: true,
         },
         { type: "paragraph", content: "More text after." },
       ]);
@@ -268,6 +294,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "yaml",
           content: "name: John\nage: 30",
+          autoDetected: true,
         },
         { type: "paragraph", content: "End text" },
       ]);
@@ -295,6 +322,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '[{"name": ["Dr.", "John", "Smith"]}]',
+          autoDetected: true,
         },
         { type: "paragraph", content: "More text" },
       ]);
@@ -309,6 +337,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '{"enabled": true, "count": 5}',
+          autoDetected: true,
         },
         { type: "paragraph", content: "Done." },
       ]);
@@ -323,6 +352,7 @@ describe("parseStructuredData", () => {
           type: "code_block",
           language: "json",
           content: '[{"name": ["Dr.", "John", "Smith"]}]',
+          autoDetected: true,
         },
         { type: "paragraph", content: "Following text" },
       ]);

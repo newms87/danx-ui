@@ -10,7 +10,7 @@ import { MarkdownEditor } from "danx-ui";
 
 const content = ref(`## Structured Data Detection
 
-The editor auto-detects unfenced JSON and YAML blocks and renders them with syntax highlighting.
+The editor auto-detects unfenced JSON and YAML blocks and renders them with syntax highlighting. Switching an auto-detected block between JSON and YAML via the language badge persists your preference — all future auto-detected blocks will display in that format.
 
 ### JSON Array
 

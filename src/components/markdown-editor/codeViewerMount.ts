@@ -9,6 +9,11 @@
 import { App, computed, createApp, h, nextTick, ref, watch } from "vue";
 import CodeViewer from "../code-viewer/CodeViewer.vue";
 import { CodeBlockState } from "./useCodeBlocks";
+import {
+  getPreferredStructuredDataFormat,
+  setPreferredStructuredDataFormat,
+  isStructuredDataFormat,
+} from "../../shared/useStructuredDataPreference";
 
 /**
  * Mounted CodeViewer instance tracking
@@ -53,6 +58,22 @@ export function mapLanguageToFormat(language: string): string {
 }
 
 /**
+ * Handle a format change on a code block. Updates the language and persists
+ * the preference if the block is auto-detected and the format is structured data.
+ */
+export function handleFormatChange(
+  id: string,
+  format: string,
+  autoDetected: boolean,
+  updateLanguage: (id: string, language: string) => void
+): void {
+  updateLanguage(id, format);
+  if (autoDetected && isStructuredDataFormat(format)) {
+    setPreferredStructuredDataFormat(format);
+  }
+}
+
+/**
  * Create and mount a CodeViewer instance for a code block wrapper element.
  * Skips if already mounted or if the wrapper has no valid ID/mount point.
  */
@@ -77,9 +98,19 @@ export function mountCodeViewer(wrapper: HTMLElement, deps: MountCodeViewerDeps)
   const mountPoint = wrapper.querySelector(".code-viewer-mount-point") as HTMLElement;
   if (!mountPoint) return;
 
+  const isAutoDetected = mountPoint.getAttribute("data-auto-detected") === "true";
+
   const state = codeBlocks.get(id);
   const initialContent = state?.content ?? mountPoint.getAttribute("data-content") ?? "";
-  const initialLanguage = state?.language ?? mountPoint.getAttribute("data-language") ?? "";
+  let initialLanguage = state?.language ?? mountPoint.getAttribute("data-language") ?? "";
+
+  // For auto-detected blocks, apply the user's persisted format preference
+  if (isAutoDetected && isStructuredDataFormat(initialLanguage)) {
+    const preferred = getPreferredStructuredDataFormat();
+    if (preferred) {
+      initialLanguage = preferred;
+    }
+  }
 
   if (!state) {
     codeBlocks.set(id, { id, content: initialContent, language: initialLanguage });
@@ -119,7 +150,7 @@ export function mountCodeViewer(wrapper: HTMLElement, deps: MountCodeViewerDeps)
       };
 
       const onUpdateFormat = (format: string) => {
-        updateCodeBlockLanguage(id, format);
+        handleFormatChange(id, format, isAutoDetected, updateCodeBlockLanguage);
       };
 
       const onExit = () => {

@@ -45,6 +45,7 @@ export function convertCodeBlocksToWrappers(
     const content = codeElement.textContent || "";
     const langMatch = codeElement.className.match(/language-(\w+)/);
     const language = langMatch ? langMatch[1]! : "";
+    const isAutoDetected = codeElement.hasAttribute("autodetected");
 
     const id = generateCodeBlockId();
 
@@ -61,6 +62,9 @@ export function convertCodeBlocksToWrappers(
     mountPoint.className = "code-viewer-mount-point";
     mountPoint.setAttribute("data-content", content);
     mountPoint.setAttribute("data-language", language);
+    if (isAutoDetected) {
+      mountPoint.setAttribute("data-auto-detected", "true");
+    }
     wrapper.appendChild(mountPoint);
 
     pre.parentNode?.replaceChild(wrapper, pre);

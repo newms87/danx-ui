@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { mapLanguageToFormat, mountCodeViewer } from "../codeViewerMount";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { mapLanguageToFormat, mountCodeViewer, handleFormatChange } from "../codeViewerMount";
 import type { MountCodeViewerDeps, MountedInstance } from "../codeViewerMount";
 import type { CodeBlockState } from "../useCodeBlocks";
 
@@ -208,6 +208,121 @@ describe("codeViewerMount", () => {
 
       expect(deps.mountedInstances.has("cb1")).toBe(true);
       mountedApps.push(deps.mountedInstances.get("cb1")!.app);
+    });
+
+    describe("auto-detected format preference", () => {
+      const STORAGE_KEY = "dx-structured-data-format";
+
+      beforeEach(() => {
+        localStorage.removeItem(STORAGE_KEY);
+      });
+
+      function createAutoDetectedWrapper(
+        id: string,
+        content = '{"a": 1}',
+        language = "json"
+      ): HTMLElement {
+        const wrapper = document.createElement("div");
+        wrapper.setAttribute("data-code-block-id", id);
+
+        const mountPoint = document.createElement("div");
+        mountPoint.className = "code-viewer-mount-point";
+        mountPoint.setAttribute("data-content", content);
+        mountPoint.setAttribute("data-language", language);
+        mountPoint.setAttribute("data-auto-detected", "true");
+        wrapper.appendChild(mountPoint);
+
+        document.body.appendChild(wrapper);
+        return wrapper;
+      }
+
+      it("applies preferred format to auto-detected blocks", () => {
+        localStorage.setItem(STORAGE_KEY, "yaml");
+        const wrapper = createAutoDetectedWrapper("cb-ad1");
+        const deps = createDeps();
+
+        mountCodeViewer(wrapper, deps);
+
+        const state = deps.codeBlocks.get("cb-ad1");
+        expect(state?.language).toBe("yaml");
+        mountedApps.push(deps.mountedInstances.get("cb-ad1")!.app);
+      });
+
+      it("uses original language when no preference is set", () => {
+        const wrapper = createAutoDetectedWrapper("cb-ad2", '{"a": 1}', "json");
+        const deps = createDeps();
+
+        mountCodeViewer(wrapper, deps);
+
+        const state = deps.codeBlocks.get("cb-ad2");
+        expect(state?.language).toBe("json");
+        mountedApps.push(deps.mountedInstances.get("cb-ad2")!.app);
+      });
+
+      it("does not apply preference to non-auto-detected blocks", () => {
+        localStorage.setItem(STORAGE_KEY, "yaml");
+        const wrapper = createWrapper("cb-ad3", '{"a": 1}', "json");
+        const deps = createDeps();
+
+        mountCodeViewer(wrapper, deps);
+
+        const state = deps.codeBlocks.get("cb-ad3");
+        expect(state?.language).toBe("json");
+        mountedApps.push(deps.mountedInstances.get("cb-ad3")!.app);
+      });
+
+      it("does not apply preference to auto-detected blocks with non-structured-data language", () => {
+        localStorage.setItem(STORAGE_KEY, "yaml");
+        const wrapper = createAutoDetectedWrapper("cb-ad4", "const x = 1;", "javascript");
+        const deps = createDeps();
+
+        mountCodeViewer(wrapper, deps);
+
+        const state = deps.codeBlocks.get("cb-ad4");
+        expect(state?.language).toBe("javascript");
+        mountedApps.push(deps.mountedInstances.get("cb-ad4")!.app);
+      });
+
+      it("applies JSON preference to auto-detected YAML block", () => {
+        localStorage.setItem(STORAGE_KEY, "json");
+        const wrapper = createAutoDetectedWrapper("cb-ad5", "name: John\nage: 30", "yaml");
+        const deps = createDeps();
+
+        mountCodeViewer(wrapper, deps);
+
+        const state = deps.codeBlocks.get("cb-ad5");
+        expect(state?.language).toBe("json");
+        mountedApps.push(deps.mountedInstances.get("cb-ad5")!.app);
+      });
+    });
+
+    describe("handleFormatChange", () => {
+      const FORMAT_KEY = "dx-structured-data-format";
+
+      beforeEach(() => {
+        localStorage.removeItem(FORMAT_KEY);
+      });
+
+      it("updates language and persists preference for auto-detected structured data", () => {
+        const updateLanguage = vi.fn();
+        handleFormatChange("cb1", "yaml", true, updateLanguage);
+        expect(updateLanguage).toHaveBeenCalledWith("cb1", "yaml");
+        expect(localStorage.getItem(FORMAT_KEY)).toBe("yaml");
+      });
+
+      it("updates language but does not persist for non-auto-detected blocks", () => {
+        const updateLanguage = vi.fn();
+        handleFormatChange("cb1", "yaml", false, updateLanguage);
+        expect(updateLanguage).toHaveBeenCalledWith("cb1", "yaml");
+        expect(localStorage.getItem(FORMAT_KEY)).toBeNull();
+      });
+
+      it("updates language but does not persist for non-structured-data formats", () => {
+        const updateLanguage = vi.fn();
+        handleFormatChange("cb1", "javascript", true, updateLanguage);
+        expect(updateLanguage).toHaveBeenCalledWith("cb1", "javascript");
+        expect(localStorage.getItem(FORMAT_KEY)).toBeNull();
+      });
     });
   });
 });

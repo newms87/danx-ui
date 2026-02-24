@@ -39,7 +39,7 @@ export interface ListItem {
  */
 export type BlockToken =
   | { type: "heading"; level: number; content: string }
-  | { type: "code_block"; language: string; content: string }
+  | { type: "code_block"; language: string; content: string; autoDetected?: boolean }
   | { type: "blockquote"; content: string }
   | { type: "ul"; items: ListItem[] }
   | { type: "ol"; items: ListItem[]; start: number }

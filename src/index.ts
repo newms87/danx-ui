@@ -246,4 +246,12 @@ export {
   fTimeAgo,
 } from "./shared";
 
+// Structured data format preference
+export {
+  getPreferredStructuredDataFormat,
+  setPreferredStructuredDataFormat,
+  isStructuredDataFormat,
+} from "./shared/useStructuredDataPreference";
+export type { StructuredDataFormat } from "./shared/useStructuredDataPreference";
+
 export type * from "./shared";

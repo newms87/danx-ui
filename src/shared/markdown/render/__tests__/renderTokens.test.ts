@@ -60,6 +60,22 @@ describe("renderTokens", () => {
       expect(result).toBe("<pre><code>plain code</code></pre>");
       expect(result).not.toContain("class=");
     });
+
+    it("adds autodetected attribute when token has autoDetected: true", () => {
+      const tokens: BlockToken[] = [
+        { type: "code_block", language: "json", content: '{"a": 1}', autoDetected: true },
+      ];
+      const result = renderTokens(tokens, true);
+      expect(result).toBe(
+        '<pre><code class="language-json" autodetected>{&quot;a&quot;: 1}</code></pre>'
+      );
+    });
+
+    it("does not add autodetected attribute on fenced code blocks", () => {
+      const tokens: BlockToken[] = [{ type: "code_block", language: "json", content: '{"a": 1}' }];
+      const result = renderTokens(tokens, true);
+      expect(result).not.toContain("autodetected");
+    });
   });
 
   describe("blockquotes", () => {

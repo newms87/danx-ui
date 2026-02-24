@@ -95,6 +95,28 @@ describe("syncConverters", () => {
       const result = convertCodeBlocksToWrappers(html);
       expect(result).toContain("code-block-wrapper");
     });
+
+    it("sets data-auto-detected on mount point when code has autodetected attribute", () => {
+      const html = '<pre><code class="language-json" autodetected>{"a": 1}</code></pre>';
+      const result = convertCodeBlocksToWrappers(html);
+
+      const temp = document.createElement("div");
+      temp.innerHTML = result;
+
+      const mountPoint = temp.querySelector(".code-viewer-mount-point");
+      expect(mountPoint?.getAttribute("data-auto-detected")).toBe("true");
+    });
+
+    it("does not set data-auto-detected when code lacks autodetected attribute", () => {
+      const html = '<pre><code class="language-json">{"a": 1}</code></pre>';
+      const result = convertCodeBlocksToWrappers(html);
+
+      const temp = document.createElement("div");
+      temp.innerHTML = result;
+
+      const mountPoint = temp.querySelector(".code-viewer-mount-point");
+      expect(mountPoint?.hasAttribute("data-auto-detected")).toBe(false);
+    });
   });
 
   describe("convertTokensToWrappers", () => {

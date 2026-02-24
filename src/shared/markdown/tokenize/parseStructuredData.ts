@@ -82,7 +82,7 @@ function tryParseJSON(lines: string[], index: number): ParseResult | null {
   if (!isJSON(content)) return null;
 
   return {
-    token: { type: "code_block", language: "json", content },
+    token: { type: "code_block", language: "json", content, autoDetected: true },
     endIndex: i,
   };
 }
@@ -112,7 +112,7 @@ function tryParseYAML(lines: string[], index: number): ParseResult | null {
   if (!isStructuredData(content)) return null;
 
   return {
-    token: { type: "code_block", language: "yaml", content },
+    token: { type: "code_block", language: "yaml", content, autoDetected: true },
     endIndex: i,
   };
 }
