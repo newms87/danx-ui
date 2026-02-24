@@ -14,6 +14,7 @@ import { parseTaskList } from "./parseTaskList";
 import { parseDefinitionList } from "./parseDefinitionList";
 import { parseHorizontalRule } from "./parseHorizontalRule";
 import { parseParagraph } from "./parseParagraph";
+import { parseStructuredData } from "./parseStructuredData";
 import { getIndent } from "./utils";
 
 /**
@@ -123,7 +124,15 @@ export function tokenizeBlocks(markdown: string): BlockToken[] {
       continue;
     }
 
-    // 11. Paragraphs (fallback): collect consecutive non-empty lines
+    // 11. Structured data: unfenced JSON or YAML blocks
+    result = parseStructuredData(lines, i);
+    if (result) {
+      tokens.push(result.token);
+      i = result.endIndex;
+      continue;
+    }
+
+    // 12. Paragraphs (fallback): collect consecutive non-empty lines
     result = parseParagraph(lines, i);
     if (result) {
       tokens.push(result.token);

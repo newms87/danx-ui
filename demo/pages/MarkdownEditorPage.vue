@@ -14,6 +14,7 @@ import customPlaceholderCode from "./markdown-editor-examples/CustomPlaceholder.
 import darkAndLightCode from "./markdown-editor-examples/DarkAndLight.vue?raw";
 import richContentCode from "./markdown-editor-examples/RichContent.vue?raw";
 import heightConstraintsCode from "./markdown-editor-examples/HeightConstraints.vue?raw";
+import structuredDataCode from "./markdown-editor-examples/StructuredData.vue?raw";
 </script>
 
 <template>
@@ -55,6 +56,12 @@ import heightConstraintsCode from "./markdown-editor-examples/HeightConstraints.
       title="Height Constraints"
       description="Use minHeight and maxHeight props to control editor size."
       :code="heightConstraintsCode"
+    />
+
+    <DemoSection
+      title="Structured Data Detection"
+      description="Unfenced JSON and YAML blocks are auto-detected and rendered with syntax highlighting inside a CodeViewer."
+      :code="structuredDataCode"
     />
   </DemoPage>
 </template>

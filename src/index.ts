@@ -208,6 +208,9 @@ export {
   fAddress,
   fPhone,
   fNameOrCount,
+  // Data format detection
+  isJSON,
+  isStructuredData,
   // Array utilities
   getNestedValue,
   arrayCount,

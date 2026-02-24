@@ -9,6 +9,7 @@ export * from "./composables/useVariant";
 export * from "./syntax-highlighting";
 export * from "./markdown";
 export * from "./formatters";
+export * from "./dataFormat";
 export * from "./arrayUtils";
 export * from "./nestedJson";
 export * from "./hexColor";
