@@ -225,6 +225,7 @@ watch(modelValue, (newValue) => {
     font-family: "Fira Code", Monaco, monospace;
     font-size: 0.875rem;
     line-height: 1.6;
+    background-color: var(--dx-mde-bg);
     color: var(--dx-mde-color);
     white-space: pre-wrap;
     word-wrap: break-word;

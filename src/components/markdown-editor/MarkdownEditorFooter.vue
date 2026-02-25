@@ -50,7 +50,7 @@ defineEmits<{
       :class="{ 'is-active': isRawMode }"
       icon="code"
       size="xxs"
-      tooltip="Toggle raw markdown"
+      :tooltip="isRawMode ? 'Show rendered preview' : 'Show raw markdown'"
       @click="$emit('toggle-raw')"
     />
     <DanxButton
