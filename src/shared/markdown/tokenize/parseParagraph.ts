@@ -9,10 +9,9 @@ import { parseStructuredData } from "./parseStructuredData";
 /**
  * Check if a line starts a block-level element.
  *
- * Note: `{` is included because no standard markdown syntax starts with it —
- * it is a non-standard extension for auto-detecting unfenced JSON objects.
- * `[` is NOT included here because it conflicts with markdown links;
- * instead, `[` lines are handled via a `parseStructuredData` lookahead
+ * Note: `{` and `[` are NOT included here because they conflict with
+ * template syntax (e.g. `{{token}}`) and markdown links respectively.
+ * Instead, both are handled via a `parseStructuredData` lookahead
  * in the paragraph collection loop.
  */
 function isBlockStarter(trimmed: string): boolean {
@@ -22,8 +21,7 @@ function isBlockStarter(trimmed: string): boolean {
     trimmed.startsWith(">") ||
     /^[-*+]\s+/.test(trimmed) ||
     /^\d+\.\s+/.test(trimmed) ||
-    /^(-{3,}|\*{3,}|_{3,})$/.test(trimmed) ||
-    trimmed.startsWith("{")
+    /^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)
   );
 }
 
@@ -49,8 +47,8 @@ export function parseParagraph(lines: string[], index: number): ParseResult | nu
       break;
     }
 
-    // Break before [ lines that are valid JSON arrays (not markdown links)
-    if (pTrimmed.startsWith("[") && parseStructuredData(lines, i)) {
+    // Break before { or [ lines that are valid structured data (not markdown links or template syntax)
+    if ((pTrimmed.startsWith("{") || pTrimmed.startsWith("[")) && parseStructuredData(lines, i)) {
       break;
     }
 

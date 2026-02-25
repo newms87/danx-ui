@@ -21,7 +21,7 @@
  *   size?: DanxFileSize - Named size preset (default: "md")
  *   fit?: ImageFit - Image object-fit (default: "cover")
  *   showFilename?: boolean - Show filename overlay at bottom (default: false)
- *   showFileSize?: boolean - Show file size below filename (default: false)
+ *   showFileSize?: boolean - Show file size beside filename (default: false)
  *   downloadable?: boolean - Show download button on hover (default: false)
  *   removable?: boolean - Show remove button on hover (default: false)
  *   disabled?: boolean - Suppress click event (default: false)

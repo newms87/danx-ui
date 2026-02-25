@@ -13,26 +13,37 @@ const photo = ref({
 </script>
 
 <template>
-  <div class="flex gap-6 items-start">
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="photo" size="lg" />
-      <span class="text-xs text-text-muted">cover (default)</span>
+  <div class="flex flex-col gap-6">
+    <!-- Row 1: Fit modes -->
+    <div class="flex gap-6 items-start">
+      <div class="flex flex-col items-center gap-1">
+        <DanxFile :file="photo" size="lg" />
+        <span class="text-xs text-text-muted">cover (default)</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <DanxFile :file="photo" size="lg" fit="contain" />
+        <span class="text-xs text-text-muted">contain</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <DanxFile :file="photo" size="lg" fit="fill" />
+        <span class="text-xs text-text-muted">stretch (fill)</span>
+      </div>
     </div>
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="photo" size="lg" fit="contain" />
-      <span class="text-xs text-text-muted">contain</span>
-    </div>
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="photo" size="lg" show-filename />
-      <span class="text-xs text-text-muted">with filename</span>
-    </div>
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="photo" size="lg" show-filename show-file-size />
-      <span class="text-xs text-text-muted">with file size</span>
-    </div>
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="photo" size="lg" show-file-size />
-      <span class="text-xs text-text-muted">size only</span>
+
+    <!-- Row 2: Filename / file size -->
+    <div class="flex gap-6 items-start">
+      <div class="flex flex-col items-center gap-1">
+        <DanxFile :file="photo" size="lg" show-filename />
+        <span class="text-xs text-text-muted">filename only</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <DanxFile :file="photo" size="lg" show-file-size />
+        <span class="text-xs text-text-muted">size only</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <DanxFile :file="photo" size="lg" show-filename show-file-size />
+        <span class="text-xs text-text-muted">filename + size</span>
+      </div>
     </div>
   </div>
 </template>

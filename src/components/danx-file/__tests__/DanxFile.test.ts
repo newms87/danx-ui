@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { nextTick } from "vue";
+import { defineComponent, nextTick } from "vue";
 import DanxFile from "../DanxFile.vue";
 import { DanxProgressBar } from "../../progress-bar";
 import { makeFile } from "./test-helpers";
@@ -229,6 +229,23 @@ describe("DanxFile", () => {
       expect(popover.props("trigger")).toBe("hover");
       expect(popover.props("placement")).toBe("top");
       expect(popover.props("variant")).toBe("danger");
+    });
+
+    it("passes error message through compact popover", () => {
+      // Mount with an always-open DanxPopover stub to verify slot content
+      const AlwaysOpenPopover = defineComponent({
+        template: "<div><slot name='trigger' /><slot /></div>",
+      });
+      const wrapper = mount(DanxFile, {
+        props: {
+          file: makeFile({ error: "Upload failed" }),
+          size: "xs" as const,
+        },
+        global: {
+          stubs: { DanxPopover: AlwaysOpenPopover },
+        },
+      });
+      expect(wrapper.text()).toContain("Upload failed");
     });
 
     it("does not show error when no error", () => {

@@ -59,7 +59,7 @@ describe("MarkdownEditorFooter", () => {
       });
       const btn = wrapper.find(".raw-toggle-btn");
       expect(btn.exists()).toBe(true);
-      expect(btn.attributes("title")).toBe("Toggle raw markdown");
+      expect(btn.attributes("title")).toBe("Show raw markdown");
     });
 
     it("emits toggle-raw when raw toggle button is clicked", async () => {
