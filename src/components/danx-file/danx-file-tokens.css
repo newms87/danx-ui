@@ -16,7 +16,7 @@
  * --dx-file-thumb-error-bg          Error overlay background
  * --dx-file-thumb-error-color       Error text and icon color
  * --dx-file-thumb-icon-color        File-type icon color for non-previewable files
- * --dx-file-thumb-filename-bg      Filename overlay background
+ * --dx-file-thumb-filename-color    Filename text color
  * --dx-file-thumb-action-bg-hover  Action button hover background
  * --dx-file-size-xs                 Extra-small size (2rem)
  * --dx-file-size-sm                 Small size (4rem)
@@ -67,7 +67,7 @@
      Filename & Action Backgrounds
      ========================================================================== */
 
-  --dx-file-thumb-filename-bg: rgb(0 0 0 / 0.6);
+  --dx-file-thumb-filename-color: var(--color-text-muted);
   --dx-file-thumb-action-bg-hover: rgb(0 0 0 / 0.7);
 
   /* ==========================================================================

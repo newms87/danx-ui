@@ -48,7 +48,7 @@
  *   --dx-file-thumb-error-color - Error text/icon color
  *   --dx-file-thumb-icon-color - File-type icon color
  *   --dx-file-thumb-fit - Image object-fit (set via fit prop)
- *   --dx-file-thumb-filename-bg - Filename overlay background
+ *   --dx-file-thumb-filename-color - Filename text color
  *   --dx-file-size-xs through --dx-file-size-xxl - Size preset dimensions
  *
  * @example
