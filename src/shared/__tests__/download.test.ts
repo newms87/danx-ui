@@ -200,6 +200,34 @@ describe("downloadFile", () => {
       expect(windowOpenSpy).toHaveBeenCalledWith("https://example.com/file.txt", "_blank");
     });
 
+    it("uses XHR for HTTP URLs even when filename is provided", () => {
+      const xhrInstance = {
+        open: vi.fn(),
+        send: vi.fn(),
+        responseType: "",
+        onload: null as unknown,
+        onerror: null as unknown,
+      };
+
+      class MockXHR {
+        open = xhrInstance.open;
+        send = xhrInstance.send;
+        responseType = xhrInstance.responseType;
+        onload: unknown = null;
+        onerror: unknown = null;
+      }
+
+      vi.stubGlobal("XMLHttpRequest", MockXHR);
+
+      const result = downloadFile("https://example.com/photo.jpg", "my-photo.jpg");
+      expect(result).toBeInstanceOf(MockXHR);
+      expect(xhrInstance.open).toHaveBeenCalledWith(
+        "GET",
+        expect.stringContaining("https://example.com/photo.jpg"),
+        true
+      );
+    });
+
     it("uses 'download' as filename when URL ends with slash", () => {
       const xhrInstance = {
         open: vi.fn(),
@@ -366,27 +394,12 @@ describe("downloadFile", () => {
     });
   });
 
-  describe("Invalid URL error (line 115)", () => {
-    it("throws error for invalid short URLs that fail validation", () => {
-      // Restore existing spy, grab real createElement, then re-spy
-      vi.mocked(document.createElement).mockRestore();
-      const realCreateElement = document.createElement.bind(document);
-      vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
-        const el = realCreateElement(tag);
-        if (tag === "a") {
-          // Force href to always be "about:blank" so URL validation fails
-          Object.defineProperty(el, "href", {
-            get: () => "about:blank",
-            set: () => {},
-            configurable: true,
-          });
-        }
-        return el;
-      });
-
-      expect(() => downloadFile("javascript:void(0)")).toThrow(
-        "Invalid URL given, cannot download file: javascript:void(0)"
-      );
+  describe("Non-HTTP string handling", () => {
+    it("treats non-HTTP strings as raw content and creates blob download", () => {
+      // Non-HTTP strings (like javascript: or plain text) are treated as raw content
+      const result = downloadFile("javascript:void(0)", "test.txt");
+      expect(createObjectURLSpy).toHaveBeenCalled();
+      expect(result).toBe(true);
     });
   });
 });

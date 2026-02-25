@@ -89,30 +89,16 @@ export function downloadFile(
   const mime = mimeType || DEFAULT_MIME;
   const name = filename || "download";
 
-  // If only a URL string is passed (no filename, no mime), treat as URL download
-  const isUrlOnly = !filename && !mimeType && typeof data === "string";
-
-  if (isUrlOnly && typeof data === "string" && data.length < 2048) {
-    const urlFileName = data.split("/").pop()?.split("?")[0] || "download";
-    const anchor = document.createElement("a");
-    anchor.href = data;
-
-    const isValidUrl =
-      anchor.href.indexOf(data) !== -1 ||
-      anchor.href.indexOf(encodeURI(data)) !== -1 ||
-      anchor.href === encodeURI(data);
-
-    if (isValidUrl) {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", data + "?no-cache=" + Date.now(), true);
-      xhr.responseType = "blob";
-      xhr.onload = () => downloadFile(xhr.response as Blob, urlFileName, DEFAULT_MIME);
-      xhr.onerror = () => window.open(data, "_blank")?.focus();
-      setTimeout(() => xhr.send(), 0);
-      return xhr;
-    }
-
-    throw new Error("Invalid URL given, cannot download file: " + data);
+  // URL string: fetch via XHR and convert to blob download
+  if (typeof data === "string" && /^https?:\/\//.test(data)) {
+    const urlFileName = filename || data.split("/").pop()?.split("?")[0] || "download";
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", data + (data.includes("?") ? "&" : "?") + "no-cache=" + Date.now(), true);
+    xhr.responseType = "blob";
+    xhr.onload = () => downloadFile(xhr.response as Blob, urlFileName, mimeType || DEFAULT_MIME);
+    xhr.onerror = () => window.open(data, "_blank")?.focus();
+    setTimeout(() => xhr.send(), 0);
+    return xhr;
   }
 
   // Data URL handling
