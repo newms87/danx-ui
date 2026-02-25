@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { nextTick } from "vue";
 import DanxFile from "../DanxFile.vue";
+import { DanxProgressBar } from "../../progress-bar";
 import { makeFile } from "./test-helpers";
 
 function mountFile(props: Record<string, unknown> = {}) {
@@ -119,12 +120,13 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__progress-text").text()).toBe("Converting...");
     });
 
-    it("sets progress bar width from file.progress", () => {
+    it("renders DanxProgressBar with correct value", () => {
       const wrapper = mountFile({
         file: makeFile({ progress: 60 }),
       });
-      const fill = wrapper.find(".danx-file__progress-fill");
-      expect(fill.attributes("style")).toContain("width: 60%");
+      const progressBar = wrapper.findComponent(DanxProgressBar);
+      expect(progressBar.exists()).toBe(true);
+      expect(progressBar.props("value")).toBe(60);
     });
 
     it("does not show progress when progress is null", () => {

@@ -10,8 +10,7 @@
  * --dx-file-thumb-overlay-bg        Background for hover overlay
  * --dx-file-thumb-action-color      Color for action buttons (download, remove)
  * --dx-file-thumb-play-size         Size of the play icon overlay on video thumbnails
- * --dx-file-thumb-progress-bg       Progress bar fill color
- * --dx-file-thumb-progress-track    Progress bar track/background color
+ * --dx-file-thumb-progress-track    Progress overlay background color
  * --dx-file-thumb-progress-text     Progress text color
  * --dx-file-thumb-error-bg          Error overlay background
  * --dx-file-thumb-error-color       Error text and icon color
@@ -46,9 +45,8 @@
      Progress Bar
      ========================================================================== */
 
-  --dx-file-thumb-progress-bg: var(--color-interactive);
   --dx-file-thumb-progress-track: rgb(0 0 0 / 0.6);
-  --dx-file-thumb-progress-text: var(--color-text-inverted);
+  --dx-file-thumb-progress-text: white;
 
   /* ==========================================================================
      Error State

@@ -41,8 +41,7 @@
  *   --dx-file-thumb-action-color - Action button color
  *   --dx-file-thumb-action-bg-hover - Action button hover background
  *   --dx-file-thumb-play-size - Play icon size for video thumbs
- *   --dx-file-thumb-progress-bg - Progress bar fill color
- *   --dx-file-thumb-progress-track - Progress bar track color
+ *   --dx-file-thumb-progress-track - Progress overlay background
  *   --dx-file-thumb-progress-text - Progress text color
  *   --dx-file-thumb-error-bg - Error overlay background
  *   --dx-file-thumb-error-color - Error text/icon color
@@ -62,6 +61,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { DanxIcon } from "../icon";
+import { DanxProgressBar } from "../progress-bar";
 import { DanxSkeleton } from "../skeleton";
 import {
   resolveFileUrl,
@@ -200,9 +200,13 @@ function onDownload() {
       <!-- Progress overlay -->
       <div v-if="showProgress" class="danx-file__progress">
         <span class="danx-file__progress-text">{{ progressText }}</span>
-        <div class="danx-file__progress-bar">
-          <div class="danx-file__progress-fill" :style="{ width: (file.progress ?? 0) + '%' }" />
-        </div>
+        <DanxProgressBar
+          :value="file.progress ?? 0"
+          size="sm"
+          striped
+          animate-stripes
+          :show-text="false"
+        />
       </div>
 
       <!-- Error overlay -->
