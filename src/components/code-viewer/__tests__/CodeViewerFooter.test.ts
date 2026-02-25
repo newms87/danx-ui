@@ -81,7 +81,7 @@ describe("CodeViewerFooter", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },
     });
-    await wrapper.findComponent({ name: "DanxButton" }).trigger("click");
+    await wrapper.findComponent({ name: "DanxButton" }).find("button").trigger("click");
     expect(wrapper.emitted("toggle-edit")).toHaveLength(1);
   });
 
@@ -89,7 +89,7 @@ describe("CodeViewerFooter", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true, isEditing: true },
     });
-    const btn = wrapper.findComponent({ name: "DanxButton" });
+    const btn = wrapper.findComponent({ name: "DanxButton" }).find("button");
     expect(btn.classes()).toContain("text-sky-500");
   });
 

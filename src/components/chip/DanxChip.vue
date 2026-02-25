@@ -24,7 +24,7 @@
  * | label     | string          | -       | Text label (alternative to slot)      |
  * | autoColor | boolean|string  | false   | Hash label/key for deterministic color|
  * | removable | boolean         | false   | Shows remove (X) button               |
- * | tooltip   | string          | -       | Native title attribute                |
+ * | tooltip   | string          | -       | Hover tooltip via DanxTooltip         |
  *
  * ## Events
  * | Event  | Payload | Description                              |
@@ -93,6 +93,7 @@ import { computed, toRef } from "vue";
 import { useAutoColor } from "../../shared/autoColor";
 import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
+import { DanxTooltip } from "../tooltip";
 import type { DanxChipEmits, DanxChipProps, DanxChipSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxChipProps>(), {
@@ -134,7 +135,28 @@ function handleRemove() {
 </script>
 
 <template>
-  <span :class="chipClasses" :style="chipStyle" :title="tooltip">
+  <DanxTooltip v-if="tooltip" :tooltip="tooltip" placement="top">
+    <template #trigger>
+      <span :class="chipClasses" :style="chipStyle">
+        <span v-if="$slots.icon || icon" class="danx-chip__icon">
+          <slot name="icon">
+            <DanxIcon :icon="icon!" />
+          </slot>
+        </span>
+        <slot>{{ label }}</slot>
+        <button
+          v-if="removable"
+          type="button"
+          class="danx-chip__remove"
+          aria-label="Remove"
+          @click.stop="handleRemove"
+        >
+          <DanxIcon icon="close" />
+        </button>
+      </span>
+    </template>
+  </DanxTooltip>
+  <span v-else :class="chipClasses" :style="chipStyle">
     <!-- Icon (only rendered when icon prop or icon slot is provided) -->
     <span v-if="$slots.icon || icon" class="danx-chip__icon">
       <slot name="icon">

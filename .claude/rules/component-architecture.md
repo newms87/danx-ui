@@ -203,3 +203,4 @@ Located at `src/shared/composables/useVariant.ts`. Maps component CSS tokens to 
 | `v-show` for dialogs | DOM pollution | Use `v-if` for mounting |
 | `any` type | Type safety | Proper TypeScript types |
 | `types.d.ts` for project types | Misleading — `.d.ts` is for ambient declarations | Use `types.ts` |
+| `title=""` for tooltips | Unstyled, no dark mode | Use `DanxTooltip` component |

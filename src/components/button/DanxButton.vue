@@ -24,7 +24,7 @@
  * | icon    | Component|string | -   | Icon (name, SVG, or component)    |
  * | disabled| boolean      | false   | Disables the button               |
  * | loading | boolean      | false   | Shows spinner, prevents clicks    |
- * | tooltip | string       | -       | Native title attribute            |
+ * | tooltip | string       | -       | Hover tooltip via DanxTooltip     |
  * | label   | string       | -       | Text label (alternative to slot)  |
  *
  * ## Events
@@ -96,9 +96,10 @@
 -->
 
 <script setup lang="ts">
-import { computed, toRef } from "vue";
+import { computed, toRef, useAttrs } from "vue";
 import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
+import { DanxTooltip } from "../tooltip";
 import type { DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxButtonProps>(), {
@@ -111,6 +112,10 @@ const props = withDefaults(defineProps<DanxButtonProps>(), {
 const emit = defineEmits<DanxButtonEmits>();
 
 defineSlots<DanxButtonSlots>();
+
+defineOptions({ inheritAttrs: false });
+
+const attrs = useAttrs();
 
 const BUTTON_VARIANT_TOKENS = {
   "--dx-button-bg": "bg",
@@ -136,25 +141,29 @@ function handleClick(event: MouseEvent) {
 </script>
 
 <template>
-  <button
-    type="button"
-    :class="buttonClasses"
-    :style="variantStyle"
-    :disabled="isDisabled"
-    :title="tooltip"
-    @click="handleClick"
-  >
-    <!-- Loading spinner -->
-    <span v-if="loading" class="danx-button__spinner" />
+  <DanxTooltip :tooltip="tooltip" :disabled="!tooltip" placement="top">
+    <template #trigger>
+      <button
+        type="button"
+        v-bind="attrs"
+        :class="buttonClasses"
+        :style="variantStyle"
+        :disabled="isDisabled"
+        @click="handleClick"
+      >
+        <!-- Loading spinner -->
+        <span v-if="loading" class="danx-button__spinner" />
 
-    <!-- Icon (only rendered when icon prop or icon slot is provided) -->
-    <span v-if="!loading && ($slots.icon || icon)" class="danx-button__icon">
-      <slot name="icon">
-        <DanxIcon :icon="icon!" />
-      </slot>
-    </span>
+        <!-- Icon (only rendered when icon prop or icon slot is provided) -->
+        <span v-if="!loading && ($slots.icon || icon)" class="danx-button__icon">
+          <slot name="icon">
+            <DanxIcon :icon="icon!" />
+          </slot>
+        </span>
 
-    <!-- Content -->
-    <slot>{{ label }}</slot>
-  </button>
+        <!-- Content -->
+        <slot>{{ label }}</slot>
+      </button>
+    </template>
+  </DanxTooltip>
 </template>

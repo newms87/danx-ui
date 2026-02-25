@@ -1,23 +1,27 @@
 <!--
 /**
- * DanxFile - File Thumbnail Component
+ * DanxFile - Universal File Renderer
  *
- * A pure thumbnail card for a file. Shows preview image, progress bar,
- * error state, file-type icons, and hover actions. No dialog, no navigator —
- * just the thumbnail. The parent decides what happens on click.
+ * Renders files in two modes:
+ * - **thumb** (default): Thumbnail card with preview image, play icon overlay
+ *   for video, file-type icons, progress bar, and error state.
+ * - **preview**: Full-size interactive content — video with controls, embedded
+ *   PDF, audio player, or full-size image with object-fit: contain.
  *
  * Visual states are rendered in priority order:
  * 1. Error (file.error) — red overlay with warning icon and message
  * 2. Progress (file.progress non-null and < 100) — progress bar overlay
- * 3. Image (image MIME + thumb/url) — img with object-fit
- * 4. Video (video MIME + thumb/url) — img with play icon overlay
- * 5. File-type icon (non-previewable) — MIME-based icon + filename
- * 6. Empty (no URL, no thumb, no progress) — generic document icon
+ * 3. Preview mode: video → `<video controls>`, PDF → `<object>`, image → full-size `<img>`
+ * 4. Thumb mode: image/video → thumbnail `<img>`, video adds play icon overlay
+ * 5. Audio — `<audio controls>` in both modes
+ * 6. File-type icon (non-previewable) — MIME-based icon + filename
+ * 7. Empty (no URL, no thumb, no progress) — generic document icon
  *
- * Progress and error overlays render ON TOP of the thumbnail when available.
+ * Progress and error overlays render ON TOP of the content in both modes.
  *
  * @props
  *   file: PreviewFile - The file to display (required)
+ *   mode?: DanxFileMode - Display mode: "thumb" or "preview" (default: "thumb")
  *   size?: DanxFileSize - Named size preset (default: "md")
  *   fit?: ImageFit - Image object-fit (default: "cover")
  *   showFilename?: boolean - Show filename overlay at bottom (default: false)
@@ -61,6 +65,8 @@
  *   <DanxFile :file="photo" size="lg" show-filename />
  *   <DanxFile :file="uploadingFile" />
  *   <DanxFile :file="doc" removable @remove="deleteFile" />
+ *   <DanxFile :file="video" mode="preview" size="auto" />
+ *   <DanxFile :file="pdf" mode="preview" size="auto" />
  */
 -->
 
@@ -68,6 +74,7 @@
 import { computed, onUnmounted, ref } from "vue";
 import { DanxIcon } from "../icon";
 import { DanxPopover } from "../popover";
+import { DanxTooltip } from "../tooltip";
 import { DanxProgressBar } from "../progress-bar";
 import { DanxSkeleton } from "../skeleton";
 import {
@@ -76,7 +83,7 @@ import {
   isImage,
   isVideo,
   isAudio,
-  isPreviewable,
+  isPdf,
   isInProgress,
   fileTypeIcon,
   formatFileSize,
@@ -86,6 +93,7 @@ import {
 import type { DanxFileEmits, DanxFileProps, DanxFileSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxFileProps>(), {
+  mode: "thumb",
   size: "md",
   fit: "cover",
   showFilename: false,
@@ -109,14 +117,45 @@ const isCompactDisplay = computed(
 
 // --- Computed state ---
 
+const isPreviewMode = computed(() => props.mode === "preview");
+const fileUrl = computed(() => resolveFileUrl(props.file));
 const thumbUrl = computed(() => resolveThumbUrl(props.file));
 const hasThumb = computed(() => !!thumbUrl.value);
-const showImage = computed(() => isImage(props.file) && hasThumb.value);
-const showVideo = computed(() => isVideo(props.file) && hasThumb.value);
-const showAudio = computed(() => isAudio(props.file));
-const showTypeIcon = computed(
-  () => !showAudio.value && (!isPreviewable(props.file) || !hasThumb.value)
+const hasFileUrl = computed(() => !!fileUrl.value);
+
+// Preview mode: render full-size interactive elements
+const showPreviewVideo = computed(
+  () => isPreviewMode.value && isVideo(props.file) && hasFileUrl.value
 );
+const showPreviewPdf = computed(() => isPreviewMode.value && isPdf(props.file) && hasFileUrl.value);
+const showPreviewImage = computed(
+  () => isPreviewMode.value && isImage(props.file) && hasFileUrl.value
+);
+
+// Thumb mode: render thumbnail images.
+// Images can use any resolved URL as a thumb. Videos need an explicit thumb/optimized
+// URL — the raw video URL is not a valid image source.
+const hasVideoThumb = computed(() => !!(props.file.thumb?.url || props.file.optimized?.url));
+const showThumbImage = computed(() => {
+  if (isPreviewMode.value) return false;
+  if (isImage(props.file)) return hasThumb.value;
+  if (isVideo(props.file)) return hasVideoThumb.value;
+  return false;
+});
+const showThumbPlayIcon = computed(
+  () => !isPreviewMode.value && isVideo(props.file) && hasVideoThumb.value
+);
+
+const showAudio = computed(() => isAudio(props.file));
+
+// Type icon: shown when no visual content renders in the current mode
+const showTypeIcon = computed(() => {
+  if (showAudio.value) return false;
+  if (isPreviewMode.value) {
+    return !showPreviewVideo.value && !showPreviewPdf.value && !showPreviewImage.value;
+  }
+  return !showThumbImage.value;
+});
 const showProgress = computed(() => !props.file.error && isInProgress(props.file));
 const showError = computed(() => !!props.file.error);
 const iconName = computed(() => fileTypeIcon(props.file));
@@ -193,20 +232,41 @@ function onDownload() {
         style="--dx-skeleton-height: 100%"
       />
 
-      <!-- Preview: Image -->
+      <!-- Preview mode: Video player -->
+      <video v-else-if="showPreviewVideo" class="danx-file__video" controls :src="fileUrl" />
+
+      <!-- Preview mode: PDF embed -->
+      <object
+        v-else-if="showPreviewPdf"
+        class="danx-file__pdf"
+        type="application/pdf"
+        :data="fileUrl"
+      >
+        <a :href="fileUrl" target="_blank" rel="noopener">Download PDF</a>
+      </object>
+
+      <!-- Preview mode: Full-size image -->
       <img
-        v-else-if="showImage || showVideo"
+        v-else-if="showPreviewImage"
+        class="danx-file__image danx-file__image--preview"
+        :src="fileUrl"
+        :alt="file.name"
+      />
+
+      <!-- Thumb mode: Thumbnail image (for images and videos) -->
+      <img
+        v-else-if="showThumbImage"
         class="danx-file__image"
         :src="thumbUrl"
         :alt="file.name"
         loading="lazy"
       />
 
-      <!-- Audio preview -->
-      <audio v-else-if="showAudio" class="danx-file__audio" controls :src="resolveFileUrl(file)" />
+      <!-- Audio preview (both modes) -->
+      <audio v-else-if="showAudio" class="danx-file__audio" controls :src="fileUrl" />
 
-      <!-- Video play icon overlay -->
-      <div v-if="showVideo && !showProgress && !showError" class="danx-file__play-icon">
+      <!-- Thumb mode: Video play icon overlay -->
+      <div v-if="showThumbPlayIcon && !showProgress && !showError" class="danx-file__play-icon">
         <DanxIcon icon="play" />
       </div>
 
@@ -271,24 +331,32 @@ function onDownload() {
       >
         <slot name="actions" />
 
-        <button
-          v-if="downloadable"
-          class="danx-file__action-btn danx-file__action-btn--download"
-          title="Download"
-          @click="onDownload"
-        >
-          <DanxIcon icon="download" />
-        </button>
+        <DanxTooltip v-if="downloadable" tooltip="Download" placement="top">
+          <template #trigger>
+            <button
+              class="danx-file__action-btn danx-file__action-btn--download"
+              @click="onDownload"
+            >
+              <DanxIcon icon="download" />
+            </button>
+          </template>
+        </DanxTooltip>
 
-        <button
+        <DanxTooltip
           v-if="removable"
-          class="danx-file__action-btn danx-file__action-btn--remove"
-          :class="{ 'danx-file__action-btn--armed': removeArmed }"
-          :title="removeArmed ? 'Click again to confirm' : 'Remove'"
-          @click="onRemoveClick"
+          :tooltip="removeArmed ? 'Click again to confirm' : 'Remove'"
+          placement="top"
         >
-          <DanxIcon :icon="removeArmed ? 'confirm' : 'trash'" />
-        </button>
+          <template #trigger>
+            <button
+              class="danx-file__action-btn danx-file__action-btn--remove"
+              :class="{ 'danx-file__action-btn--armed': removeArmed }"
+              @click="onRemoveClick"
+            >
+              <DanxIcon :icon="removeArmed ? 'confirm' : 'trash'" />
+            </button>
+          </template>
+        </DanxTooltip>
       </div>
     </div>
 

@@ -66,7 +66,9 @@ describe("DanxActionButton", () => {
         props: { tooltip: "Click me" },
       });
 
-      expect(wrapper.find("button").attributes("title")).toBe("Click me");
+      const tooltip = wrapper.findComponent({ name: "DanxTooltip" });
+      expect(tooltip.exists()).toBe(true);
+      expect(tooltip.props("tooltip")).toBe("Click me");
     });
 
     it("passes through slot content", () => {

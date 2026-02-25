@@ -67,7 +67,7 @@ describe("DanxButton", () => {
         props: { variant },
       });
 
-      const styleAttr = wrapper.attributes("style");
+      const styleAttr = wrapper.find("button").attributes("style");
       expect(styleAttr).toContain("--dx-button-bg:");
       expect(styleAttr).toContain(`--dx-variant-${variant}-`);
     });
@@ -75,9 +75,10 @@ describe("DanxButton", () => {
     it("defaults to blank variant with no inline styles", () => {
       const wrapper = mount(DanxButton);
 
-      expect(wrapper.classes()).toContain("danx-button");
-      expect(wrapper.classes()).toContain("danx-button--md");
-      expect(wrapper.attributes("style")).toBeUndefined();
+      const btn = wrapper.find("button");
+      expect(btn.classes()).toContain("danx-button");
+      expect(btn.classes()).toContain("danx-button--md");
+      expect(btn.attributes("style")).toBeUndefined();
     });
 
     it("blank variant via variant='' has no inline styles", () => {
@@ -85,7 +86,7 @@ describe("DanxButton", () => {
         props: { variant: "" },
       });
 
-      expect(wrapper.attributes("style")).toBeUndefined();
+      expect(wrapper.find("button").attributes("style")).toBeUndefined();
     });
   });
 
@@ -95,13 +96,13 @@ describe("DanxButton", () => {
         props: { variant: "success", size },
       });
 
-      expect(wrapper.classes()).toContain(`danx-button--${size}`);
+      expect(wrapper.find("button").classes()).toContain(`danx-button--${size}`);
     });
 
     it("defaults to md size when not specified", () => {
       const wrapper = mount(DanxButton);
 
-      expect(wrapper.classes()).toContain("danx-button--md");
+      expect(wrapper.find("button").classes()).toContain("danx-button--md");
     });
   });
 
@@ -256,7 +257,7 @@ describe("DanxButton", () => {
     it("does not apply loading class when loading is false", () => {
       const wrapper = mount(DanxButton);
 
-      expect(wrapper.classes()).not.toContain("danx-button--loading");
+      expect(wrapper.find("button").classes()).not.toContain("danx-button--loading");
     });
 
     it("adds loading class when loading=true", () => {
@@ -264,7 +265,7 @@ describe("DanxButton", () => {
         props: { variant: "success", loading: true },
       });
 
-      expect(wrapper.classes()).toContain("danx-button--loading");
+      expect(wrapper.find("button").classes()).toContain("danx-button--loading");
     });
 
     it("does not emit click when loading", async () => {
@@ -279,20 +280,25 @@ describe("DanxButton", () => {
   });
 
   describe("Tooltip", () => {
-    it("renders title attribute when tooltip provided", () => {
+    it("wraps button in DanxTooltip when tooltip provided", () => {
       const wrapper = mount(DanxButton, {
         props: { variant: "danger", tooltip: "Delete item" },
       });
 
-      expect(wrapper.find("button").attributes("title")).toBe("Delete item");
+      const tooltip = wrapper.findComponent({ name: "DanxTooltip" });
+      expect(tooltip.exists()).toBe(true);
+      expect(tooltip.props("tooltip")).toBe("Delete item");
+      expect(wrapper.find("button").attributes("title")).toBeUndefined();
     });
 
-    it("does not render title attribute when tooltip not provided", () => {
+    it("disables DanxTooltip when tooltip not provided", () => {
       const wrapper = mount(DanxButton, {
         props: { variant: "danger" },
       });
 
-      expect(wrapper.find("button").attributes("title")).toBeUndefined();
+      const tooltip = wrapper.findComponent({ name: "DanxTooltip" });
+      expect(tooltip.exists()).toBe(true);
+      expect(tooltip.props("disabled")).toBe(true);
     });
   });
 
@@ -326,7 +332,7 @@ describe("DanxButton", () => {
         props: { variant: "restart" },
       });
 
-      const styleAttr = wrapper.attributes("style");
+      const styleAttr = wrapper.find("button").attributes("style");
       expect(styleAttr).toContain("--dx-button-bg:");
       expect(styleAttr).toContain("--dx-variant-restart-");
     });
@@ -336,7 +342,7 @@ describe("DanxButton", () => {
     it("has base class danx-button", () => {
       const wrapper = mount(DanxButton);
 
-      expect(wrapper.classes()).toContain("danx-button");
+      expect(wrapper.find("button").classes()).toContain("danx-button");
     });
 
     it("combines variant styles and size classes", () => {
@@ -344,9 +350,10 @@ describe("DanxButton", () => {
         props: { variant: "danger", size: "lg" },
       });
 
-      expect(wrapper.classes()).toContain("danx-button");
-      expect(wrapper.classes()).toContain("danx-button--lg");
-      const styleAttr = wrapper.attributes("style");
+      const btn = wrapper.find("button");
+      expect(btn.classes()).toContain("danx-button");
+      expect(btn.classes()).toContain("danx-button--lg");
+      const styleAttr = btn.attributes("style");
       expect(styleAttr).toContain("--dx-button-bg:");
       expect(styleAttr).toContain("--dx-variant-danger-");
     });

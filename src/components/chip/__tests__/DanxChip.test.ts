@@ -173,18 +173,21 @@ describe("DanxChip", () => {
   });
 
   describe("Tooltip", () => {
-    it("renders title attribute when tooltip provided", () => {
+    it("wraps chip in DanxTooltip when tooltip provided", () => {
       const wrapper = mount(DanxChip, {
         props: { tooltip: "Status label" },
       });
 
-      expect(wrapper.attributes("title")).toBe("Status label");
+      const tooltip = wrapper.findComponent({ name: "DanxTooltip" });
+      expect(tooltip.exists()).toBe(true);
+      expect(tooltip.props("tooltip")).toBe("Status label");
+      expect(wrapper.find(".danx-chip").attributes("title")).toBeUndefined();
     });
 
-    it("does not render title attribute when tooltip not provided", () => {
+    it("does not render DanxTooltip when tooltip not provided", () => {
       const wrapper = mount(DanxChip);
 
-      expect(wrapper.attributes("title")).toBeUndefined();
+      expect(wrapper.findComponent({ name: "DanxTooltip" }).exists()).toBe(false);
     });
   });
 

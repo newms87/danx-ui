@@ -18,13 +18,16 @@ describe("MarkdownEditorFooter", () => {
     expect(wrapper.find(".char-count").text()).toContain("1,234,567");
   });
 
-  it("renders keyboard icon button", () => {
+  it("renders keyboard icon button with tooltip", () => {
     const wrapper = mount(MarkdownEditorFooter, {
       props: { charCount: 0 },
     });
     const btn = wrapper.find(".hotkey-help-btn");
     expect(btn.exists()).toBe(true);
-    expect(btn.attributes("title")).toBe("Keyboard shortcuts (Ctrl+?)");
+    const tooltip = wrapper
+      .findAllComponents({ name: "DanxTooltip" })
+      .find((t) => t.props("tooltip") === "Keyboard shortcuts (Ctrl+?)");
+    expect(tooltip).toBeDefined();
   });
 
   it("emits show-hotkeys when button is clicked", async () => {
@@ -53,13 +56,16 @@ describe("MarkdownEditorFooter", () => {
   });
 
   describe("raw toggle", () => {
-    it("renders the raw toggle button", () => {
+    it("renders the raw toggle button with tooltip", () => {
       const wrapper = mount(MarkdownEditorFooter, {
         props: { charCount: 0 },
       });
       const btn = wrapper.find(".raw-toggle-btn");
       expect(btn.exists()).toBe(true);
-      expect(btn.attributes("title")).toBe("Show raw markdown");
+      const tooltip = wrapper
+        .findAllComponents({ name: "DanxTooltip" })
+        .find((t) => t.props("tooltip") === "Show raw markdown");
+      expect(tooltip).toBeDefined();
     });
 
     it("emits toggle-raw when raw toggle button is clicked", async () => {

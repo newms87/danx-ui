@@ -199,8 +199,8 @@ describe("DanxDialog", () => {
       const wrapperEl = bodyQuery(".danx-dialog__wrapper");
       expect(wrapperEl).not.toBeNull();
 
-      // Close-x is a direct child of wrapper, sibling to box
-      const closeX = wrapperEl?.querySelector(":scope > .danx-dialog__close-x");
+      // Close-x is inside wrapper, sibling to box (not inside box)
+      const closeX = wrapperEl?.querySelector(".danx-dialog__close-x");
       expect(closeX).not.toBeNull();
 
       // Close-x is NOT inside the box
