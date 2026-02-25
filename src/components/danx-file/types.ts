@@ -1,7 +1,7 @@
 /**
  * DanxFile Type Definitions
  *
- * Types shared between DanxFile (thumbnail) and DanxFileNavigator (viewer).
+ * Types shared between DanxFile (thumbnail) and DanxFileViewer (viewer).
  */
 
 /**
@@ -70,7 +70,7 @@ export type ImageFit = "cover" | "contain" | "fill" | "none" | "scale-down";
 export type DanxFileSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl" | "auto";
 
 /**
- * Metadata panel display mode for DanxFileNavigator.
+ * Metadata panel display mode for DanxFileViewer.
  */
 export type MetadataMode = "overlay" | "docked";
 
@@ -97,7 +97,7 @@ export interface DanxFileProps {
 }
 
 /**
- * A preventable download event emitted by DanxFile and DanxFileNavigator.
+ * A preventable download event emitted by DanxFile and DanxFileViewer.
  * Call `preventDefault()` to suppress the automatic browser download.
  */
 export interface DanxFileDownloadEvent {

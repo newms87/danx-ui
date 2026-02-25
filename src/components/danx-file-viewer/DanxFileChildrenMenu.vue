@@ -2,7 +2,7 @@
 /**
  * DanxFileChildrenMenu - Children list popover
  *
- * Internal subcomponent of DanxFileNavigator. Shows a popover listing
+ * Internal subcomponent of DanxFileViewer. Shows a popover listing
  * a file's children (transcodes, PDF pages, etc.). Emits loadChildren
  * if children have not been loaded yet.
  *

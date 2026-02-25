@@ -1,5 +1,5 @@
 /**
- * Shared test helpers for DanxFile and DanxFileNavigator tests.
+ * Shared test helpers for DanxFile and DanxFileViewer tests.
  *
  * Provides a unified factory for creating PreviewFile test fixtures.
  */

@@ -2,7 +2,7 @@
 /**
  * DanxFileMetadata - File metadata and EXIF display panel
  *
- * Internal subcomponent of DanxFileNavigator. Displays file metadata
+ * Internal subcomponent of DanxFileViewer. Displays file metadata
  * and EXIF data as separate sections, each formatted as YAML via CodeViewer.
  * Supports overlay and docked display modes with the mode persisted to localStorage.
  *

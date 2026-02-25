@@ -1,5 +1,5 @@
 /**
- * useDanxFileNavigator - Navigation state composable for DanxFileNavigator
+ * useDanxFileViewer - Navigation state composable for DanxFileViewer
  *
  * Manages the current file, navigation between related files, child stack
  * (for diving into children like transcodes or PDF pages), and slide labels.
@@ -14,13 +14,13 @@
 import { computed, ref, type Ref, watch } from "vue";
 import type { PreviewFile } from "../danx-file/types";
 
-export interface UseDanxFileNavigatorOptions {
+export interface UseDanxFileViewerOptions {
   file: Ref<PreviewFile>;
   relatedFiles: Ref<PreviewFile[]>;
   onNavigate?: (file: PreviewFile) => void;
 }
 
-export interface UseDanxFileNavigatorReturn {
+export interface UseDanxFileViewerReturn {
   /** The currently displayed file */
   currentFile: Ref<PreviewFile>;
   /** Index of current file in the root file list */
@@ -51,9 +51,7 @@ export interface UseDanxFileNavigatorReturn {
   reset: () => void;
 }
 
-export function useDanxFileNavigator(
-  options: UseDanxFileNavigatorOptions
-): UseDanxFileNavigatorReturn {
+export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFileViewerReturn {
   const { file, relatedFiles, onNavigate } = options;
 
   // Build the full list: anchor file + related files (deduped by id)

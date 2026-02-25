@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { DanxFile, DanxFileNavigator, DanxDialog, useDialog } from "danx-ui";
+import { DanxFile, DanxFileViewer, DanxDialog, useDialog } from "danx-ui";
 
 const dialog = useDialog();
 
@@ -31,7 +31,7 @@ const relatedFiles = ref([
   </div>
 
   <DanxDialog v-model="dialog.isOpen.value" :width="90" :height="90">
-    <DanxFileNavigator
+    <DanxFileViewer
       :file="mainFile"
       :related-files="relatedFiles"
       downloadable

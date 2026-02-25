@@ -1,4 +1,4 @@
-# DanxFileNavigator Component
+# DanxFileViewer Component
 
 A responsive standalone file viewer with carousel navigation, metadata panel, and keyboard support. Fills its container and can be embedded anywhere.
 
@@ -21,12 +21,12 @@ A responsive standalone file viewer with carousel navigation, metadata panel, an
 ```vue
 <template>
   <div style="width: 600px; height: 400px">
-    <DanxFileNavigator :file="mainFile" downloadable />
+    <DanxFileViewer :file="mainFile" downloadable />
   </div>
 </template>
 
 <script setup lang="ts">
-import { DanxFileNavigator } from 'danx-ui';
+import { DanxFileViewer } from 'danx-ui';
 import type { PreviewFile } from 'danx-ui';
 
 const mainFile: PreviewFile = {
@@ -46,7 +46,7 @@ const mainFile: PreviewFile = {
   <DanxFile :file="mainFile" @click="showNav = true" />
 
   <DanxDialog v-model="showNav" :width="90" :height="90">
-    <DanxFileNavigator
+    <DanxFileViewer
       :file="mainFile"
       v-model:file-in-preview="activeFile"
       :related-files="relatedFiles"
@@ -91,7 +91,7 @@ const mainFile: PreviewFile = {
 
 ## Composables
 
-### useDanxFileNavigator
+### useDanxFileViewer
 
 Navigation state management for the file viewer.
 
@@ -111,7 +111,7 @@ const {
   backFromChild,  // () => void
   hasParent,      // Ref<boolean>
   reset,          // () => void
-} = useDanxFileNavigator({ file, relatedFiles, onNavigate });
+} = useDanxFileViewer({ file, relatedFiles, onNavigate });
 ```
 
 ### useDanxFileMetadata
@@ -144,18 +144,18 @@ const { visibleSlides } = useVirtualCarousel(files, currentIndex);
 
 | Token | Default | Description |
 |-------|---------|-------------|
-| `--dx-file-nav-bg` | `var(--color-surface)` | Viewer background |
-| `--dx-file-nav-header-bg` | `var(--color-surface-sunken)` | Header background |
-| `--dx-file-nav-header-color` | `var(--color-text)` | Header text |
-| `--dx-file-nav-header-opacity` | `0.9` | Header resting opacity |
-| `--dx-file-nav-header-padding` | `1rem` | Header horizontal padding |
-| `--dx-file-nav-close-btn-size` | `4rem` | Standalone close button size |
-| `--dx-file-nav-slide-transition` | `300ms` | Slide opacity transition |
-| `--dx-file-nav-arrow-size` | `2rem` | Arrow icon size |
-| `--dx-file-nav-arrow-color` | `white` | Arrow icon color |
-| `--dx-file-nav-arrow-bg` | `rgb(0 0 0 / 0.4)` | Arrow background |
-| `--dx-file-nav-arrow-bg-hover` | `rgb(0 0 0 / 0.6)` | Arrow hover bg |
-| `--dx-file-nav-counter-color` | `var(--color-text-muted)` | Counter text |
+| `--dx-file-viewer-bg` | `var(--color-surface)` | Viewer background |
+| `--dx-file-viewer-header-bg` | `var(--color-surface-sunken)` | Header background |
+| `--dx-file-viewer-header-color` | `var(--color-text)` | Header text |
+| `--dx-file-viewer-header-opacity` | `0.9` | Header resting opacity |
+| `--dx-file-viewer-header-padding` | `1rem` | Header horizontal padding |
+| `--dx-file-viewer-close-btn-size` | `4rem` | Standalone close button size |
+| `--dx-file-viewer-slide-transition` | `300ms` | Slide opacity transition |
+| `--dx-file-viewer-arrow-size` | `2rem` | Arrow icon size |
+| `--dx-file-viewer-arrow-color` | `white` | Arrow icon color |
+| `--dx-file-viewer-arrow-bg` | `rgb(0 0 0 / 0.4)` | Arrow background |
+| `--dx-file-viewer-arrow-bg-hover` | `rgb(0 0 0 / 0.6)` | Arrow hover bg |
+| `--dx-file-viewer-counter-color` | `var(--color-text-muted)` | Counter text |
 | `--dx-file-strip-gap` | `0.5rem` | Strip thumbnail gap |
 | `--dx-file-strip-thumb-size` | `4rem` | Strip thumbnail size |
 | `--dx-file-strip-active-border` | `var(--color-interactive)` | Active border |

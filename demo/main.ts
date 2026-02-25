@@ -19,7 +19,7 @@ import TooltipPage from "./pages/TooltipPage.vue";
 import ProgressBarPage from "./pages/ProgressBarPage.vue";
 import SplitPanelPage from "./pages/SplitPanelPage.vue";
 import DanxFilePage from "./pages/DanxFilePage.vue";
-import DanxFileNavigatorPage from "./pages/DanxFileNavigatorPage.vue";
+import DanxFileViewerPage from "./pages/DanxFileViewerPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
 import SkeletonPage from "./pages/SkeletonPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
@@ -53,7 +53,7 @@ const router = createRouter({
     { path: "/progress-bar", name: "progress-bar", component: ProgressBarPage },
     { path: "/split-panel", name: "split-panel", component: SplitPanelPage },
     { path: "/danx-file", name: "danx-file", component: DanxFilePage },
-    { path: "/danx-file-navigator", name: "danx-file-navigator", component: DanxFileNavigatorPage },
+    { path: "/danx-file-viewer", name: "danx-file-viewer", component: DanxFileViewerPage },
     { path: "/scroll", name: "scroll", component: ScrollPage },
     { path: "/skeleton", name: "skeleton", component: SkeletonPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },

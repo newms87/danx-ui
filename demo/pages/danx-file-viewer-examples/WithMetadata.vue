@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { DanxFileNavigator } from "danx-ui";
+import { DanxFileViewer } from "danx-ui";
 
 const file = ref({
   id: "1",
@@ -30,7 +30,7 @@ const file = ref({
   <div
     class="w-full h-[500px] border border-border rounded-lg overflow-hidden"
   >
-    <DanxFileNavigator :file="file" downloadable />
+    <DanxFileViewer :file="file" downloadable />
   </div>
   <p class="mt-2 text-sm text-text-muted">
     Click the info button in the header to toggle the metadata/EXIF panel.

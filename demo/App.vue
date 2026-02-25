@@ -143,8 +143,8 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/danx-file" class="demo-sidebar__link">File</RouterLink>
               </li>
               <li>
-                <RouterLink to="/danx-file-navigator" class="demo-sidebar__link"
-                  >File Navigator</RouterLink
+                <RouterLink to="/danx-file-viewer" class="demo-sidebar__link"
+                  >File Viewer</RouterLink
                 >
               </li>
               <li>

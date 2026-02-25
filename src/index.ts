@@ -20,7 +20,7 @@ export { DanxButtonGroup } from "./components/buttonGroup";
 export { DanxTooltip } from "./components/tooltip";
 export { DanxProgressBar } from "./components/progress-bar";
 export { DanxFile } from "./components/danx-file";
-export { DanxFileNavigator } from "./components/danx-file-navigator";
+export { DanxFileViewer } from "./components/danx-file-viewer";
 export { DanxScroll, DanxVirtualScroll } from "./components/scroll";
 export { DanxSkeleton } from "./components/skeleton";
 
@@ -50,10 +50,10 @@ export {
   triggerFileDownload,
 } from "./components/danx-file";
 export {
-  useDanxFileNavigator,
+  useDanxFileViewer,
   useDanxFileMetadata,
   useVirtualCarousel,
-} from "./components/danx-file-navigator";
+} from "./components/danx-file-viewer";
 export { useDanxScroll, useScrollInfinite, useScrollWindow } from "./components/scroll";
 export { downloadFile } from "./shared/download";
 
@@ -171,14 +171,14 @@ export type {
   ScrollWindowReturn,
 } from "./components/scroll";
 export type {
-  UseDanxFileNavigatorOptions,
-  UseDanxFileNavigatorReturn,
+  UseDanxFileViewerOptions,
+  UseDanxFileViewerReturn,
   UseDanxFileMetadataReturn,
   VirtualSlide,
-  DanxFileNavigatorProps,
-  DanxFileNavigatorEmits,
-  DanxFileNavigatorSlots,
-} from "./components/danx-file-navigator";
+  DanxFileViewerProps,
+  DanxFileViewerEmits,
+  DanxFileViewerSlots,
+} from "./components/danx-file-viewer";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
 
 // Auto-color

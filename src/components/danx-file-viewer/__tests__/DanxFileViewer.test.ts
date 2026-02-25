@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, afterEach } from "vitest";
 import { defineComponent } from "vue";
-import DanxFileNavigator from "../DanxFileNavigator.vue";
+import DanxFileViewer from "../DanxFileViewer.vue";
 import type { PreviewFile } from "../../danx-file/types";
 import { makeFile, makeChild } from "../../danx-file/__tests__/test-helpers";
 
@@ -12,8 +12,8 @@ const PopoverStub = defineComponent({
   template: '<div><slot name="trigger" /><slot /></div>',
 });
 
-function mountNavigator(props: Record<string, unknown> = {}) {
-  const wrapper = mount(DanxFileNavigator, {
+function mountViewer(props: Record<string, unknown> = {}) {
+  const wrapper = mount(DanxFileViewer, {
     props: { file: makeFile("1"), ...props },
     attachTo: document.body,
   });
@@ -21,8 +21,8 @@ function mountNavigator(props: Record<string, unknown> = {}) {
   return wrapper;
 }
 
-function mountNavigatorWithPopoverStub(props: Record<string, unknown> = {}) {
-  const wrapper = mount(DanxFileNavigator, {
+function mountViewerWithPopoverStub(props: Record<string, unknown> = {}) {
+  const wrapper = mount(DanxFileViewer, {
     props: { file: makeFile("1"), ...props },
     attachTo: document.body,
     global: {
@@ -38,149 +38,149 @@ afterEach(() => {
   wrappers.length = 0;
 });
 
-describe("DanxFileNavigator", () => {
+describe("DanxFileViewer", () => {
   describe("Rendering", () => {
     it("renders the navigator container", () => {
-      const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator").exists()).toBe(true);
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer").exists()).toBe(true);
     });
 
     it("displays filename in header", () => {
-      const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
 
     it("renders image preview inside active slide for image files", () => {
-      const wrapper = mountNavigator();
-      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
+      const wrapper = mountViewer();
+      const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
       expect(activeSlide.exists()).toBe(true);
-      expect(activeSlide.find(".danx-file-navigator__image").exists()).toBe(true);
+      expect(activeSlide.find(".danx-file-viewer__image").exists()).toBe(true);
     });
 
     it("renders video preview inside active slide for video files", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
       });
-      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
-      expect(activeSlide.find(".danx-file-navigator__video").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
+      expect(activeSlide.find(".danx-file-viewer__video").exists()).toBe(true);
     });
 
     it("renders PDF preview inside active slide for PDF files", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { type: "application/pdf" }),
       });
-      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
-      expect(activeSlide.find(".danx-file-navigator__pdf").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
+      expect(activeSlide.find(".danx-file-viewer__pdf").exists()).toBe(true);
     });
 
     it("renders no-preview inside active slide for non-previewable files", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { type: "text/plain" }),
       });
-      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
-      expect(activeSlide.find(".danx-file-navigator__no-preview").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
+      expect(activeSlide.find(".danx-file-viewer__no-preview").exists()).toBe(true);
     });
   });
 
   describe("Virtual carousel", () => {
     it("renders multiple slides when navigating with related files", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2"), makeFile("3")],
       });
-      const slides = wrapper.findAll(".danx-file-navigator__slide");
+      const slides = wrapper.findAll(".danx-file-viewer__slide");
       // At index 0 with 3 files, buffer shows indices 0-2
       expect(slides.length).toBe(3);
     });
 
     it("only one slide has --active class", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2"), makeFile("3")],
       });
-      const activeSlides = wrapper.findAll(".danx-file-navigator__slide--active");
+      const activeSlides = wrapper.findAll(".danx-file-viewer__slide--active");
       expect(activeSlides.length).toBe(1);
     });
   });
 
   describe("Navigation", () => {
     it("shows navigation arrows when related files exist", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      expect(wrapper.find(".danx-file-navigator__arrow--next").exists()).toBe(true);
+      expect(wrapper.find(".danx-file-viewer__arrow--next").exists()).toBe(true);
     });
 
     it("does not show arrows for single file", () => {
-      const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator__arrow--prev").exists()).toBe(false);
-      expect(wrapper.find(".danx-file-navigator__arrow--next").exists()).toBe(false);
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer__arrow--prev").exists()).toBe(false);
+      expect(wrapper.find(".danx-file-viewer__arrow--next").exists()).toBe(false);
     });
 
     it("navigates to next file when next arrow clicked", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      await wrapper.find(".danx-file-navigator__arrow--next").trigger("click");
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      await wrapper.find(".danx-file-viewer__arrow--next").trigger("click");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
     });
 
     it("shows slide counter", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2"), makeFile("3")],
       });
-      expect(wrapper.find(".danx-file-navigator__counter").text()).toBe("1 / 3");
+      expect(wrapper.find(".danx-file-viewer__counter").text()).toBe("1 / 3");
     });
 
     it("does not show counter for single file", () => {
-      const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator__counter").exists()).toBe(false);
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer__counter").exists()).toBe(false);
     });
   });
 
   describe("Keyboard navigation", () => {
     it("navigates with ArrowRight key", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      await wrapper.find(".danx-file-navigator").trigger("keydown", { key: "ArrowRight" });
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      await wrapper.find(".danx-file-viewer").trigger("keydown", { key: "ArrowRight" });
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
     });
 
     it("navigates with ArrowLeft key", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
       // Go to file 2 first
-      await wrapper.find(".danx-file-navigator").trigger("keydown", { key: "ArrowRight" });
+      await wrapper.find(".danx-file-viewer").trigger("keydown", { key: "ArrowRight" });
       // Go back to file 1
-      await wrapper.find(".danx-file-navigator").trigger("keydown", { key: "ArrowLeft" });
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      await wrapper.find(".danx-file-viewer").trigger("keydown", { key: "ArrowLeft" });
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
   });
 
   describe("Thumbnail strip", () => {
     it("renders strip for 2+ files", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
       expect(wrapper.find(".danx-file-strip").exists()).toBe(true);
     });
 
     it("does not render strip for single file", () => {
-      const wrapper = mountNavigator();
+      const wrapper = mountViewer();
       expect(wrapper.find(".danx-file-strip").exists()).toBe(false);
     });
 
     it("navigates when strip thumbnail clicked", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
       const thumbs = wrapper.findAll(".danx-file-strip__thumb");
       await thumbs[1]!.trigger("click");
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
     });
 
     it("marks active thumbnail", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
       const thumbs = wrapper.findAll(".danx-file-strip__thumb");
@@ -191,47 +191,47 @@ describe("DanxFileNavigator", () => {
 
   describe("Standalone close button", () => {
     it("shows standalone close button when closable", () => {
-      const wrapper = mountNavigator({ closable: true });
-      expect(wrapper.find(".danx-file-navigator__close-btn").exists()).toBe(true);
+      const wrapper = mountViewer({ closable: true });
+      expect(wrapper.find(".danx-file-viewer__close-btn").exists()).toBe(true);
     });
 
     it("does not show standalone close button when not closable", () => {
-      const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator__close-btn").exists()).toBe(false);
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer__close-btn").exists()).toBe(false);
     });
 
     it("emits close when standalone close button clicked", async () => {
-      const wrapper = mountNavigator({ closable: true });
-      await wrapper.find(".danx-file-navigator__close-btn").trigger("click");
+      const wrapper = mountViewer({ closable: true });
+      await wrapper.find(".danx-file-viewer__close-btn").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
     });
   });
 
   describe("Header actions", () => {
     it("shows download button when downloadable", () => {
-      const wrapper = mountNavigator({ downloadable: true });
+      const wrapper = mountViewer({ downloadable: true });
       const downloadBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Download");
       expect(downloadBtn).toBeTruthy();
     });
 
     it("emits download when download button clicked", async () => {
-      const wrapper = mountNavigator({ downloadable: true });
+      const wrapper = mountViewer({ downloadable: true });
       const downloadBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Download")!;
       await downloadBtn.trigger("click");
       expect(wrapper.emitted("download")).toBeTruthy();
     });
 
     it("emits download even when file has no URL", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { type: "application/pdf", url: "" }),
         downloadable: true,
       });
       const downloadBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Download")!;
       await downloadBtn.trigger("click");
       expect(wrapper.emitted("download")).toBeTruthy();
@@ -240,7 +240,7 @@ describe("DanxFileNavigator", () => {
 
   describe("Header-actions slot", () => {
     it("renders custom header actions", () => {
-      const wrapper = mount(DanxFileNavigator, {
+      const wrapper = mount(DanxFileViewer, {
         props: { file: makeFile("1") },
         slots: { "header-actions": "<button class='custom-btn'>Custom</button>" },
         attachTo: document.body,
@@ -252,10 +252,10 @@ describe("DanxFileNavigator", () => {
 
   describe("fileInPreview model", () => {
     it("emits update:fileInPreview on navigation", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      await wrapper.find(".danx-file-navigator__arrow--next").trigger("click");
+      await wrapper.find(".danx-file-viewer__arrow--next").trigger("click");
       const emitted = wrapper.emitted("update:fileInPreview");
       expect(emitted).toBeTruthy();
       // Find the navigation emission (not the initial sync)
@@ -266,30 +266,30 @@ describe("DanxFileNavigator", () => {
 
   describe("Back button", () => {
     it("does not show back button by default", () => {
-      const wrapper = mountNavigator();
-      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer__back-btn").exists()).toBe(false);
     });
 
     it("shows back button when viewing a child file", async () => {
       const children = [makeChild("c1")];
-      const wrapper = mountNavigatorWithPopoverStub({
+      const wrapper = mountViewerWithPopoverStub({
         file: makeFile("1", { children }),
       });
       // Initially no back button
-      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+      expect(wrapper.find(".danx-file-viewer__back-btn").exists()).toBe(false);
 
       // Click on a child to dive into it
       const childItem = wrapper.find(".danx-file-children__item");
       await childItem.trigger("click");
 
       // Now back button should appear
-      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(true);
+      expect(wrapper.find(".danx-file-viewer__back-btn").exists()).toBe(true);
     });
 
     it("navigates back to parent when back button clicked", async () => {
       const children = [makeChild("c1")];
       const parentFile = makeFile("1", { children });
-      const wrapper = mountNavigatorWithPopoverStub({
+      const wrapper = mountViewerWithPopoverStub({
         file: parentFile,
       });
       // Dive into child
@@ -297,33 +297,33 @@ describe("DanxFileNavigator", () => {
       await childItem.trigger("click");
 
       // Verify we're viewing the child
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("child-c1.jpg");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("child-c1.jpg");
 
       // Click back button
-      const backBtn = wrapper.find(".danx-file-navigator__back-btn");
+      const backBtn = wrapper.find(".danx-file-viewer__back-btn");
       await backBtn.trigger("click");
 
       // Should be back at parent
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
-      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
+      expect(wrapper.find(".danx-file-viewer__back-btn").exists()).toBe(false);
     });
 
     it("hides back button after returning to parent", async () => {
       const children = [makeChild("c1")];
-      const wrapper = mountNavigatorWithPopoverStub({
+      const wrapper = mountViewerWithPopoverStub({
         file: makeFile("1", { children }),
       });
       // Dive into child
       const childItem = wrapper.find(".danx-file-children__item");
       await childItem.trigger("click");
-      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(true);
+      expect(wrapper.find(".danx-file-viewer__back-btn").exists()).toBe(true);
 
       // Click back button
-      const backBtn = wrapper.find(".danx-file-navigator__back-btn");
+      const backBtn = wrapper.find(".danx-file-viewer__back-btn");
       await backBtn.trigger("click");
 
       // Back button should be hidden again
-      expect(wrapper.find(".danx-file-navigator__back-btn").exists()).toBe(false);
+      expect(wrapper.find(".danx-file-viewer__back-btn").exists()).toBe(false);
     });
   });
 
@@ -331,73 +331,73 @@ describe("DanxFileNavigator", () => {
     it("shows children menu when file.children is undefined", () => {
       const file = makeFile("1");
       delete (file as unknown as Record<string, unknown>).children;
-      const wrapper = mountNavigator({ file });
+      const wrapper = mountViewer({ file });
       expect(wrapper.findComponent({ name: "DanxFileChildrenMenu" }).exists()).toBe(true);
     });
   });
 
   describe("Audio preview", () => {
     it("renders audio element in carousel for audio files", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { type: "audio/mpeg", url: "https://example.com/song.mp3" }),
       });
-      const activeSlide = wrapper.find(".danx-file-navigator__slide--active");
-      expect(activeSlide.find(".danx-file-navigator__audio").exists()).toBe(true);
+      const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
+      expect(activeSlide.find(".danx-file-viewer__audio").exists()).toBe(true);
     });
   });
 
   describe("Previous arrow", () => {
     it("navigates when previous arrow is clicked", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
       // Go to file 2 first
-      await wrapper.find(".danx-file-navigator__arrow--next").trigger("click");
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      await wrapper.find(".danx-file-viewer__arrow--next").trigger("click");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
       // Now go back
-      await wrapper.find(".danx-file-navigator__arrow--prev").trigger("click");
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      await wrapper.find(".danx-file-viewer__arrow--prev").trigger("click");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
   });
 
   describe("Touch/swipe navigation", () => {
     it("swipe left navigates to next", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      const nav = wrapper.find(".danx-file-navigator");
+      const nav = wrapper.find(".danx-file-viewer");
       await nav.trigger("touchstart", {
         touches: [{ clientX: 200, clientY: 100 }],
       });
       await nav.trigger("touchend", {
         changedTouches: [{ clientX: 100, clientY: 100 }],
       });
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
     });
 
     it("swipe right navigates to previous", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
       // First go to file 2
-      await wrapper.find(".danx-file-navigator__arrow--next").trigger("click");
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-2.jpg");
+      await wrapper.find(".danx-file-viewer__arrow--next").trigger("click");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
 
-      const nav = wrapper.find(".danx-file-navigator");
+      const nav = wrapper.find(".danx-file-viewer");
       await nav.trigger("touchstart", {
         touches: [{ clientX: 100, clientY: 100 }],
       });
       await nav.trigger("touchend", {
         changedTouches: [{ clientX: 250, clientY: 100 }],
       });
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
 
     it("handles touchend with empty changedTouches", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      const nav = wrapper.find(".danx-file-navigator");
+      const nav = wrapper.find(".danx-file-viewer");
       await nav.trigger("touchstart", {
         touches: [{ clientX: 200, clientY: 100 }],
       });
@@ -405,14 +405,14 @@ describe("DanxFileNavigator", () => {
         changedTouches: [],
       });
       // Should not navigate or throw
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
 
     it("ignores vertical swipes", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      const nav = wrapper.find(".danx-file-navigator");
+      const nav = wrapper.find(".danx-file-viewer");
       await nav.trigger("touchstart", {
         touches: [{ clientX: 200, clientY: 100 }],
       });
@@ -420,15 +420,15 @@ describe("DanxFileNavigator", () => {
         changedTouches: [{ clientX: 180, clientY: 300 }],
       });
       // Should not navigate — vertical swipe
-      expect(wrapper.find(".danx-file-navigator__filename").text()).toBe("file-1.jpg");
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
   });
 
   describe("Preventable download", () => {
     it("emits download event with preventable interface", async () => {
-      const wrapper = mountNavigator({ downloadable: true });
+      const wrapper = mountViewer({ downloadable: true });
       const downloadBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Download")!;
       await downloadBtn.trigger("click");
       const emitted = wrapper.emitted("download");
@@ -442,44 +442,44 @@ describe("DanxFileNavigator", () => {
 
   describe("Metadata", () => {
     it("shows metadata button when file has meta", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata");
       expect(metaBtn).toBeTruthy();
     });
 
     it("does not show metadata button when file has no meta or exif", () => {
-      const wrapper = mountNavigator();
+      const wrapper = mountViewer();
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata");
       expect(metaBtn).toBeUndefined();
     });
 
     it("shows metadata button when file has only exif", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { exif: { camera: "Canon" } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata");
       expect(metaBtn).toBeTruthy();
     });
 
     it("shows metadata badge with info count", () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800, height: 600 }, exif: { camera: "Canon" } }),
       });
-      const badge = wrapper.find(".danx-file-navigator__meta-badge");
+      const badge = wrapper.find(".danx-file-viewer__meta-badge");
       expect(badge.exists()).toBe(true);
       expect(badge.text()).toBe("3");
     });
 
     it("toggles metadata panel when metadata button clicked", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       // No metadata panel initially
@@ -487,7 +487,7 @@ describe("DanxFileNavigator", () => {
 
       // Click metadata button
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(true);
@@ -499,11 +499,11 @@ describe("DanxFileNavigator", () => {
 
     it("renders metadata in docked mode when localStorage is set", async () => {
       localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       // Docked mode renders as sibling to content, outside __content
@@ -512,11 +512,11 @@ describe("DanxFileNavigator", () => {
     });
 
     it("hides metadata panel when close event fires", async () => {
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(true);
@@ -531,46 +531,46 @@ describe("DanxFileNavigator", () => {
     it("renders metadata in overlay mode (default) when localStorage is not set", async () => {
       // Clear any existing localStorage setting
       localStorage.removeItem("danx-file-metadata-mode");
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       // Overlay mode renders inside __content with class --overlay (or no special class)
       const metadata = wrapper.find(".danx-file-metadata");
       expect(metadata.exists()).toBe(true);
-      // Metadata should be a child of .danx-file-navigator__content (overlay positioning)
-      expect(wrapper.find(".danx-file-navigator__content .danx-file-metadata").exists()).toBe(true);
+      // Metadata should be a child of .danx-file-viewer__content (overlay positioning)
+      expect(wrapper.find(".danx-file-viewer__content .danx-file-metadata").exists()).toBe(true);
     });
 
     it("applies docked class when metadata is in docked mode", async () => {
       localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       // Docked mode has --docked class and is a sibling to content (not inside __content)
       const dockedMetadata = wrapper.find(".danx-file-metadata--docked");
       expect(dockedMetadata.exists()).toBe(true);
       // In docked mode, metadata should be a direct child of __body, not __content
-      expect(
-        wrapper.find(".danx-file-navigator__body > .danx-file-metadata--docked").exists()
-      ).toBe(true);
+      expect(wrapper.find(".danx-file-viewer__body > .danx-file-metadata--docked").exists()).toBe(
+        true
+      );
       localStorage.removeItem("danx-file-metadata-mode");
     });
 
     it("closes docked metadata panel when close event fires", async () => {
       localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
@@ -585,11 +585,11 @@ describe("DanxFileNavigator", () => {
 
     it("updates mode from overlay to docked via DanxFileMetadata toggle", async () => {
       localStorage.removeItem("danx-file-metadata-mode");
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       expect(wrapper.find(".danx-file-metadata--overlay").exists()).toBe(true);
@@ -606,11 +606,11 @@ describe("DanxFileNavigator", () => {
 
     it("updates mode from docked to overlay via DanxFileMetadata toggle", async () => {
       localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountNavigator({
+      const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = wrapper
-        .findAll(".danx-file-navigator__header-actions .danx-button")
+        .findAll(".danx-file-viewer__header-actions .danx-button")
         .find((btn) => btn.attributes("title") === "Metadata")!;
       await metaBtn.trigger("click");
       expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);

@@ -1,6 +1,6 @@
 <!--
 /**
- * DanxFileNavigator - Responsive standalone file viewer with virtual carousel
+ * DanxFileViewer - Responsive standalone file viewer with virtual carousel
  *
  * A responsive file viewer that fills its container. Completely independent
  * from DanxFile. Can be embedded anywhere — in a dialog, sidebar, or page section.
@@ -48,7 +48,7 @@
  *   --dx-file-strip-active-scale - Active thumbnail scale transform
  *
  * @example
- *   <DanxFileNavigator
+ *   <DanxFileViewer
  *     :file="mainFile"
  *     v-model:file-in-preview="activeFile"
  *     :related-files="relatedFiles"
@@ -73,12 +73,8 @@ import {
   triggerFileDownload,
 } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
-import type {
-  DanxFileNavigatorEmits,
-  DanxFileNavigatorProps,
-  DanxFileNavigatorSlots,
-} from "./types";
-import { useDanxFileNavigator } from "./useDanxFileNavigator";
+import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
+import { useDanxFileViewer } from "./useDanxFileViewer";
 import { hasAnyInfo, metaCount, exifCount } from "./file-metadata-helpers";
 import { useDanxFileMetadata } from "./useDanxFileMetadata";
 import { useVirtualCarousel } from "./useVirtualCarousel";
@@ -86,19 +82,19 @@ import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
 import DanxFileMetadata from "./DanxFileMetadata.vue";
 import DanxFileChildrenMenu from "./DanxFileChildrenMenu.vue";
 
-const props = withDefaults(defineProps<DanxFileNavigatorProps>(), {
+const props = withDefaults(defineProps<DanxFileViewerProps>(), {
   relatedFiles: () => [],
   downloadable: false,
   closable: false,
 });
 
-const emit = defineEmits<DanxFileNavigatorEmits>();
+const emit = defineEmits<DanxFileViewerEmits>();
 
 const fileInPreview = defineModel<PreviewFile | null>("fileInPreview", {
   default: null,
 });
 
-defineSlots<DanxFileNavigatorSlots>();
+defineSlots<DanxFileViewerSlots>();
 
 const {
   currentFile,
@@ -113,7 +109,7 @@ const {
   hasParent,
   backFromChild,
   diveIntoChild,
-} = useDanxFileNavigator({
+} = useDanxFileViewer({
   file: toRef(props, "file"),
   relatedFiles: toRef(props, "relatedFiles"),
   onNavigate: (f) => {
@@ -196,7 +192,7 @@ function onTouchEnd(e: TouchEvent) {
 
 <template>
   <div
-    class="danx-file-navigator"
+    class="danx-file-viewer"
     tabindex="0"
     @keydown="onKeydown"
     @touchstart.passive="onTouchStart"
@@ -205,7 +201,7 @@ function onTouchEnd(e: TouchEvent) {
     <!-- Standalone close button -->
     <button
       v-if="closable"
-      class="danx-file-navigator__close-btn"
+      class="danx-file-viewer__close-btn"
       title="Close"
       aria-label="Close"
       @click="emit('close')"
@@ -214,10 +210,10 @@ function onTouchEnd(e: TouchEvent) {
     </button>
 
     <!-- Header -->
-    <div class="danx-file-navigator__header">
+    <div class="danx-file-viewer__header">
       <button
         v-if="hasParent"
-        class="danx-file-navigator__back-btn"
+        class="danx-file-viewer__back-btn"
         title="Back"
         aria-label="Back"
         @click="backFromChild"
@@ -225,11 +221,11 @@ function onTouchEnd(e: TouchEvent) {
         <DanxIcon icon="back" />
       </button>
 
-      <span class="danx-file-navigator__filename">{{ currentFile.name }}</span>
+      <span class="danx-file-viewer__filename">{{ currentFile.name }}</span>
 
-      <span v-if="slideLabel" class="danx-file-navigator__counter">{{ slideLabel }}</span>
+      <span v-if="slideLabel" class="danx-file-viewer__counter">{{ slideLabel }}</span>
 
-      <div class="danx-file-navigator__header-actions">
+      <div class="danx-file-viewer__header-actions">
         <slot name="header-actions" />
 
         <DanxFileChildrenMenu
@@ -247,7 +243,7 @@ function onTouchEnd(e: TouchEvent) {
           title="Metadata"
           @click="toggleMetadata"
         >
-          <span v-if="infoCount > 0" class="danx-file-navigator__meta-badge">{{ infoCount }}</span>
+          <span v-if="infoCount > 0" class="danx-file-viewer__meta-badge">{{ infoCount }}</span>
         </DanxButton>
 
         <DanxButton
@@ -262,12 +258,12 @@ function onTouchEnd(e: TouchEvent) {
     </div>
 
     <!-- Main content area with optional docked metadata -->
-    <div class="danx-file-navigator__body">
-      <div class="danx-file-navigator__content">
+    <div class="danx-file-viewer__body">
+      <div class="danx-file-viewer__content">
         <!-- Previous arrow -->
         <button
           v-if="hasPrev"
-          class="danx-file-navigator__arrow danx-file-navigator__arrow--prev"
+          class="danx-file-viewer__arrow danx-file-viewer__arrow--prev"
           title="Previous"
           aria-label="Previous"
           @click="prev"
@@ -279,31 +275,31 @@ function onTouchEnd(e: TouchEvent) {
         <div
           v-for="slide in visibleSlides"
           :key="slide.file.id"
-          class="danx-file-navigator__slide"
-          :class="{ 'danx-file-navigator__slide--active': slide.isActive }"
+          class="danx-file-viewer__slide"
+          :class="{ 'danx-file-viewer__slide--active': slide.isActive }"
         >
           <img
             v-if="isImage(slide.file) && slide.url"
-            class="danx-file-navigator__image"
+            class="danx-file-viewer__image"
             :src="slide.url"
             :alt="slide.file.name"
           />
           <video
             v-else-if="slide.isActive && isVideo(slide.file) && slide.url"
-            class="danx-file-navigator__video"
+            class="danx-file-viewer__video"
             :src="slide.url"
             controls
             :key="slide.file.id"
           />
           <audio
             v-else-if="slide.isActive && isAudio(slide.file) && slide.url"
-            class="danx-file-navigator__audio"
+            class="danx-file-viewer__audio"
             controls
             :src="slide.url"
           />
           <object
             v-else-if="slide.isActive && isPdf(slide.file) && slide.url"
-            class="danx-file-navigator__pdf"
+            class="danx-file-viewer__pdf"
             type="application/pdf"
             :data="slide.url"
           >
@@ -311,7 +307,7 @@ function onTouchEnd(e: TouchEvent) {
           </object>
           <div
             v-else-if="slide.isActive && !isImage(slide.file)"
-            class="danx-file-navigator__no-preview"
+            class="danx-file-viewer__no-preview"
           >
             <DanxIcon icon="document" />
             <span>{{ slide.file.name }}</span>
@@ -321,7 +317,7 @@ function onTouchEnd(e: TouchEvent) {
         <!-- Next arrow -->
         <button
           v-if="hasNext"
-          class="danx-file-navigator__arrow danx-file-navigator__arrow--next"
+          class="danx-file-viewer__arrow danx-file-viewer__arrow--next"
           title="Next"
           aria-label="Next"
           @click="next"

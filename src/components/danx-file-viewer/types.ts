@@ -1,7 +1,7 @@
 /**
- * DanxFileNavigator Type Definitions
+ * DanxFileViewer Type Definitions
  *
- * Types specific to the file navigator component.
+ * Types specific to the file viewer component.
  */
 
 import type { DanxFileDownloadEvent, PreviewFile } from "../danx-file/types";
@@ -24,9 +24,9 @@ export interface VirtualSlide {
 }
 
 /**
- * Props for DanxFileNavigator.
+ * Props for DanxFileViewer.
  */
-export interface DanxFileNavigatorProps {
+export interface DanxFileViewerProps {
   /** The main/anchor file */
   file: PreviewFile;
   /** Related files for carousel navigation */
@@ -38,18 +38,18 @@ export interface DanxFileNavigatorProps {
 }
 
 /**
- * Emits for DanxFileNavigator.
+ * Emits for DanxFileViewer.
  */
-export interface DanxFileNavigatorEmits {
+export interface DanxFileViewerEmits {
   (e: "download", event: DanxFileDownloadEvent): void;
   (e: "loadChildren", file: PreviewFile): void;
   (e: "close"): void;
 }
 
 /**
- * Slots for DanxFileNavigator.
+ * Slots for DanxFileViewer.
  */
-export interface DanxFileNavigatorSlots {
+export interface DanxFileViewerSlots {
   /** Extra buttons in the header bar */
   "header-actions"?(): unknown;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { DanxFileNavigator } from "danx-ui";
+import { DanxFileViewer } from "danx-ui";
 
 const file = ref({
   id: "1",
@@ -13,9 +13,7 @@ const file = ref({
 </script>
 
 <template>
-  <div
-    class="w-full h-[400px] border border-border rounded-lg overflow-hidden"
-  >
-    <DanxFileNavigator :file="file" downloadable />
+  <div class="w-full h-[400px] border border-border rounded-lg overflow-hidden">
+    <DanxFileViewer :file="file" downloadable />
   </div>
 </template>

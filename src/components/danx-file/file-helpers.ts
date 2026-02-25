@@ -2,7 +2,7 @@
  * File Helper Functions
  *
  * Pure functions for MIME detection, URL resolution, icon mapping,
- * and file state inspection. Used by both DanxFile and DanxFileNavigator.
+ * and file state inspection. Used by both DanxFile and DanxFileViewer.
  */
 
 import { downloadFile } from "../../shared/download";

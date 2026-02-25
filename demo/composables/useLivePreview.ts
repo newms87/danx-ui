@@ -76,11 +76,11 @@ import {
 import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxFile } from "../../src/components/danx-file";
 import {
-  DanxFileNavigator,
-  useDanxFileNavigator,
+  DanxFileViewer,
+  useDanxFileViewer,
   useDanxFileMetadata,
   useVirtualCarousel,
-} from "../../src/components/danx-file-navigator";
+} from "../../src/components/danx-file-viewer";
 import {
   resolveFileUrl,
   resolveThumbUrl,
@@ -163,7 +163,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxTabs,
   DanxTooltip,
   DanxFile,
-  DanxFileNavigator,
+  DanxFileViewer,
   DanxProgressBar,
   DanxSplitPanel,
   SplitPanelHandle,
@@ -262,9 +262,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   isStructuredDataFormat,
   // DanxProgressBar
   DanxProgressBar,
-  // DanxFile + DanxFileNavigator
+  // DanxFile + DanxFileViewer
   DanxFile,
-  DanxFileNavigator,
+  DanxFileViewer,
   resolveFileUrl,
   resolveThumbUrl,
   isImage,
@@ -279,7 +279,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   createDownloadEvent,
   triggerFileDownload,
   downloadFile,
-  useDanxFileNavigator,
+  useDanxFileViewer,
   useDanxFileMetadata,
   useVirtualCarousel,
   // SplitPanel

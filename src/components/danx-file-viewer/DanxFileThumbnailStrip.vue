@@ -2,7 +2,7 @@
 /**
  * DanxFileThumbnailStrip - Scrollable horizontal thumbnail row
  *
- * Internal subcomponent of DanxFileNavigator. Renders a horizontal strip
+ * Internal subcomponent of DanxFileViewer. Renders a horizontal strip
  * of file thumbnails with the active file highlighted. Auto-scrolls to
  * keep the active thumbnail visible. Only renders for 2+ files.
  * Inactive thumbnails have reduced opacity; the active thumbnail scales up.

@@ -1,0 +1,10 @@
+/**
+ * DanxFileViewer Entry Styles
+ *
+ * Imports tokens and layout for the file viewer component.
+ */
+
+@import "./danx-file-viewer-tokens.css";
+@import "./danx-file-viewer-layout.css";
+@import "./danx-file-metadata-layout.css";
+@import "./danx-file-children-layout.css";

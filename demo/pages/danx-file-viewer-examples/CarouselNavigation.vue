@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { DanxFileNavigator } from "danx-ui";
+import { DanxFileViewer } from "danx-ui";
 
 const mainFile = ref({
   id: "1",
@@ -45,7 +45,7 @@ const activeFile = ref(null);
   <div
     class="w-full h-[500px] border border-border rounded-lg overflow-hidden"
   >
-    <DanxFileNavigator
+    <DanxFileViewer
       :file="mainFile"
       v-model:file-in-preview="activeFile"
       :related-files="relatedFiles"

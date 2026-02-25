@@ -1,13 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { nextTick, ref } from "vue";
-import { useDanxFileNavigator } from "../useDanxFileNavigator";
+import { useDanxFileViewer } from "../useDanxFileViewer";
 import { makeFile } from "../../danx-file/__tests__/test-helpers";
 
-describe("useDanxFileNavigator", () => {
+describe("useDanxFileViewer", () => {
   describe("initial state", () => {
     it("currentFile starts as the anchor file", () => {
       const file = ref(makeFile("1"));
-      const { currentFile } = useDanxFileNavigator({
+      const { currentFile } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -16,7 +16,7 @@ describe("useDanxFileNavigator", () => {
 
     it("currentIndex starts at 0 for single file", () => {
       const file = ref(makeFile("1"));
-      const { currentIndex } = useDanxFileNavigator({
+      const { currentIndex } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -25,7 +25,7 @@ describe("useDanxFileNavigator", () => {
 
     it("hasNext is false for single file", () => {
       const file = ref(makeFile("1"));
-      const { hasNext } = useDanxFileNavigator({
+      const { hasNext } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -34,7 +34,7 @@ describe("useDanxFileNavigator", () => {
 
     it("hasPrev is false for single file", () => {
       const file = ref(makeFile("1"));
-      const { hasPrev } = useDanxFileNavigator({
+      const { hasPrev } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -43,7 +43,7 @@ describe("useDanxFileNavigator", () => {
 
     it("slideLabel is empty for single file", () => {
       const file = ref(makeFile("1"));
-      const { slideLabel } = useDanxFileNavigator({
+      const { slideLabel } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -55,14 +55,14 @@ describe("useDanxFileNavigator", () => {
     it("hasNext is true when there are more files", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2"), makeFile("3")]);
-      const { hasNext } = useDanxFileNavigator({ file, relatedFiles: related });
+      const { hasNext } = useDanxFileViewer({ file, relatedFiles: related });
       expect(hasNext.value).toBe(true);
     });
 
     it("next() advances to the next file", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
-      const { currentFile, next } = useDanxFileNavigator({ file, relatedFiles: related });
+      const { currentFile, next } = useDanxFileViewer({ file, relatedFiles: related });
 
       next();
       expect(currentFile.value.id).toBe("2");
@@ -71,7 +71,7 @@ describe("useDanxFileNavigator", () => {
     it("prev() goes to the previous file", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
-      const { currentFile, next, prev } = useDanxFileNavigator({
+      const { currentFile, next, prev } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -85,7 +85,7 @@ describe("useDanxFileNavigator", () => {
 
     it("next() does nothing at the end", () => {
       const file = ref(makeFile("1"));
-      const { currentFile, next } = useDanxFileNavigator({
+      const { currentFile, next } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -96,7 +96,7 @@ describe("useDanxFileNavigator", () => {
 
     it("prev() does nothing at the beginning", () => {
       const file = ref(makeFile("1"));
-      const { currentFile, prev } = useDanxFileNavigator({
+      const { currentFile, prev } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -108,7 +108,7 @@ describe("useDanxFileNavigator", () => {
     it("slideLabel returns empty when currentFile is not in allFiles", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2"), makeFile("3")]);
-      const { currentFile, slideLabel } = useDanxFileNavigator({
+      const { currentFile, slideLabel } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -121,7 +121,7 @@ describe("useDanxFileNavigator", () => {
     it("slideLabel shows position", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2"), makeFile("3")]);
-      const { slideLabel, next } = useDanxFileNavigator({
+      const { slideLabel, next } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -134,7 +134,7 @@ describe("useDanxFileNavigator", () => {
     it("deduplicates files by id", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("1"), makeFile("2")]);
-      const { slideLabel } = useDanxFileNavigator({ file, relatedFiles: related });
+      const { slideLabel } = useDanxFileViewer({ file, relatedFiles: related });
       expect(slideLabel.value).toBe("1 / 2");
     });
   });
@@ -144,7 +144,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const file3 = makeFile("3");
       const related = ref([makeFile("2"), file3]);
-      const { currentFile, goTo } = useDanxFileNavigator({
+      const { currentFile, goTo } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -158,7 +158,7 @@ describe("useDanxFileNavigator", () => {
       const child = makeFile("child");
       const file2 = makeFile("2");
       const related = ref([file2]);
-      const { currentFile, diveIntoChild, goTo, hasParent } = useDanxFileNavigator({
+      const { currentFile, diveIntoChild, goTo, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -176,7 +176,7 @@ describe("useDanxFileNavigator", () => {
     it("diveIntoChild pushes current file and sets child as current", () => {
       const file = ref(makeFile("1"));
       const child = makeFile("child");
-      const { currentFile, diveIntoChild, hasParent, childStack } = useDanxFileNavigator({
+      const { currentFile, diveIntoChild, hasParent, childStack } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -191,7 +191,7 @@ describe("useDanxFileNavigator", () => {
     it("backFromChild pops stack and restores parent", () => {
       const file = ref(makeFile("1"));
       const child = makeFile("child");
-      const { currentFile, diveIntoChild, backFromChild, hasParent } = useDanxFileNavigator({
+      const { currentFile, diveIntoChild, backFromChild, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -204,7 +204,7 @@ describe("useDanxFileNavigator", () => {
 
     it("backFromChild does nothing when stack is empty", () => {
       const file = ref(makeFile("1"));
-      const { currentFile, backFromChild } = useDanxFileNavigator({
+      const { currentFile, backFromChild } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -217,7 +217,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const child = makeFile("child");
       const grandchild = makeFile("grandchild");
-      const { currentFile, diveIntoChild, backFromChild, childStack } = useDanxFileNavigator({
+      const { currentFile, diveIntoChild, backFromChild, childStack } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
@@ -238,7 +238,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
       const child = makeFile("child");
-      const { hasNext, hasPrev, slideLabel, diveIntoChild } = useDanxFileNavigator({
+      const { hasNext, hasPrev, slideLabel, diveIntoChild } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -256,7 +256,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
       const onNavigate = vi.fn();
-      const { next } = useDanxFileNavigator({
+      const { next } = useDanxFileViewer({
         file,
         relatedFiles: related,
         onNavigate,
@@ -271,7 +271,7 @@ describe("useDanxFileNavigator", () => {
       const file3 = makeFile("3");
       const related = ref([makeFile("2"), file3]);
       const onNavigate = vi.fn();
-      const { goTo } = useDanxFileNavigator({ file, relatedFiles: related, onNavigate });
+      const { goTo } = useDanxFileViewer({ file, relatedFiles: related, onNavigate });
 
       goTo(file3);
       expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "3" }));
@@ -281,7 +281,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const child = makeFile("child");
       const onNavigate = vi.fn();
-      const { diveIntoChild } = useDanxFileNavigator({
+      const { diveIntoChild } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
         onNavigate,
@@ -295,7 +295,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const child = makeFile("child");
       const onNavigate = vi.fn();
-      const { diveIntoChild, backFromChild } = useDanxFileNavigator({
+      const { diveIntoChild, backFromChild } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
         onNavigate,
@@ -311,7 +311,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
       const onNavigate = vi.fn();
-      const { next, reset } = useDanxFileNavigator({
+      const { next, reset } = useDanxFileViewer({
         file,
         relatedFiles: related,
         onNavigate,
@@ -328,7 +328,7 @@ describe("useDanxFileNavigator", () => {
     it("exposes deduped allFiles computed", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("1"), makeFile("2")]);
-      const { allFiles } = useDanxFileNavigator({
+      const { allFiles } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -342,7 +342,7 @@ describe("useDanxFileNavigator", () => {
     it("resets when anchor file ref changes", async () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
-      const { currentFile, next, diveIntoChild, hasParent } = useDanxFileNavigator({
+      const { currentFile, next, diveIntoChild, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
@@ -364,7 +364,7 @@ describe("useDanxFileNavigator", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
       const child = makeFile("child");
-      const { currentFile, next, diveIntoChild, reset, hasParent } = useDanxFileNavigator({
+      const { currentFile, next, diveIntoChild, reset, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });

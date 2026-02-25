@@ -1,30 +1,30 @@
 <script setup lang="ts">
 /**
- * DanxFileNavigatorPage
+ * DanxFileViewerPage
  *
- * Demo page for DanxFileNavigator viewer component with live examples and documentation.
+ * Demo page for DanxFileViewer viewer component with live examples and documentation.
  */
 import DemoSection from "../components/DemoSection.vue";
 import DemoPage from "../components/DemoPage.vue";
 
-import danxFileNavigatorDocs from "../../docs/danx-file-navigator.md?raw";
+import danxFileViewerDocs from "../../docs/danx-file-viewer.md?raw";
 
-import basicNavigatorCode from "./danx-file-navigator-examples/BasicNavigator.vue?raw";
-import carouselNavigationCode from "./danx-file-navigator-examples/CarouselNavigation.vue?raw";
-import dialogViewerCode from "./danx-file-navigator-examples/DialogViewer.vue?raw";
-import withMetadataCode from "./danx-file-navigator-examples/WithMetadata.vue?raw";
+import basicViewerCode from "./danx-file-viewer-examples/BasicNavigator.vue?raw";
+import carouselNavigationCode from "./danx-file-viewer-examples/CarouselNavigation.vue?raw";
+import dialogViewerCode from "./danx-file-viewer-examples/DialogViewer.vue?raw";
+import withMetadataCode from "./danx-file-viewer-examples/WithMetadata.vue?raw";
 </script>
 
 <template>
   <DemoPage
-    title="DanxFileNavigator"
+    title="DanxFileViewer"
     description="A responsive standalone file viewer with carousel navigation, metadata, and keyboard support."
-    :docs="danxFileNavigatorDocs"
+    :docs="danxFileViewerDocs"
   >
     <DemoSection
-      title="Basic Navigator"
+      title="Basic Viewer"
       description="Single file viewer embedded in a container."
-      :code="basicNavigatorCode"
+      :code="basicViewerCode"
     />
 
     <DemoSection
@@ -35,7 +35,7 @@ import withMetadataCode from "./danx-file-navigator-examples/WithMetadata.vue?ra
 
     <DemoSection
       title="Dialog Viewer"
-      description="Click a DanxFile thumbnail to open DanxFileNavigator in a DanxDialog."
+      description="Click a DanxFile thumbnail to open DanxFileViewer in a DanxDialog."
       :code="dialogViewerCode"
     />
 

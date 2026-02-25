@@ -1,5 +1,5 @@
 /**
- * DanxFileNavigator Layout Styles
+ * DanxFileViewer Layout Styles
  *
  * Responsive file viewer styles including header, content area,
  * navigation arrows, thumbnail strip, and container queries.
@@ -8,10 +8,10 @@
  */
 
 /* ==========================================================================
-   Base Navigator
+   Base Viewer
    ========================================================================== */
 
-.danx-file-navigator {
+.danx-file-viewer {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -29,7 +29,7 @@
    Header
    ========================================================================== */
 
-.danx-file-navigator__header {
+.danx-file-viewer__header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -47,7 +47,7 @@
   }
 }
 
-.danx-file-navigator__back-btn {
+.danx-file-viewer__back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,7 +70,7 @@
   }
 }
 
-.danx-file-navigator__filename {
+.danx-file-viewer__filename {
   flex: 1;
   font-size: 0.875rem;
   font-weight: 500;
@@ -80,13 +80,13 @@
   text-align: center;
 }
 
-.danx-file-navigator__counter {
+.danx-file-viewer__counter {
   font-size: 0.75rem;
   color: var(--dx-file-nav-counter-color);
   white-space: nowrap;
 }
 
-.danx-file-navigator__header-actions {
+.danx-file-viewer__header-actions {
   display: flex;
   gap: 0.25rem;
   align-items: center;
@@ -96,7 +96,7 @@
    Body (content + docked metadata)
    ========================================================================== */
 
-.danx-file-navigator__body {
+.danx-file-viewer__body {
   display: flex;
   flex: 1;
   min-height: 0;
@@ -107,7 +107,7 @@
    Content Area
    ========================================================================== */
 
-.danx-file-navigator__content {
+.danx-file-viewer__content {
   flex: 1;
   position: relative;
   display: flex;
@@ -121,7 +121,7 @@
    Navigation Arrows
    ========================================================================== */
 
-.danx-file-navigator__arrow {
+.danx-file-viewer__arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -151,11 +151,11 @@
   }
 }
 
-.danx-file-navigator__arrow--prev {
+.danx-file-viewer__arrow--prev {
   left: 1rem;
 }
 
-.danx-file-navigator__arrow--next {
+.danx-file-viewer__arrow--next {
   right: 1rem;
 }
 
@@ -163,7 +163,7 @@
    Standalone Close Button
    ========================================================================== */
 
-.danx-file-navigator__close-btn {
+.danx-file-viewer__close-btn {
   position: absolute;
   top: 0;
   right: 0;
@@ -193,7 +193,7 @@
    Virtual Carousel Slides
    ========================================================================== */
 
-.danx-file-navigator__slide {
+.danx-file-viewer__slide {
   position: absolute;
   inset: 0;
   display: flex;
@@ -205,7 +205,7 @@
   z-index: 0;
 }
 
-.danx-file-navigator__slide--active {
+.danx-file-viewer__slide--active {
   opacity: 1;
   pointer-events: auto;
   z-index: 10;
@@ -215,7 +215,7 @@
    Metadata Badge
    ========================================================================== */
 
-.danx-file-navigator__meta-badge {
+.danx-file-viewer__meta-badge {
   font-size: 0.625rem;
   font-weight: 600;
   line-height: 1;
@@ -230,28 +230,28 @@
    Preview
    ========================================================================== */
 
-.danx-file-navigator__image {
+.danx-file-viewer__image {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-.danx-file-navigator__video {
+.danx-file-viewer__video {
   max-width: 100%;
   max-height: 100%;
 }
 
-.danx-file-navigator__audio {
+.danx-file-viewer__audio {
   width: 80%;
   max-width: 30rem;
 }
 
-.danx-file-navigator__pdf {
+.danx-file-viewer__pdf {
   width: 100%;
   height: 100%;
 }
 
-.danx-file-navigator__no-preview {
+.danx-file-viewer__no-preview {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -345,11 +345,11 @@
    ========================================================================== */
 
 @container (max-width: 480px) {
-  .danx-file-navigator__filename {
+  .danx-file-viewer__filename {
     font-size: 0.75rem;
   }
 
-  .danx-file-navigator__counter {
+  .danx-file-viewer__counter {
     display: none;
   }
 
@@ -357,7 +357,7 @@
     display: none;
   }
 
-  .danx-file-navigator__arrow {
+  .danx-file-viewer__arrow {
     width: 2rem;
     height: 2rem;
 
@@ -376,7 +376,7 @@
 }
 
 @container (min-width: 480px) and (max-width: 768px) {
-  .danx-file-navigator__filename {
+  .danx-file-viewer__filename {
     font-size: 0.8125rem;
   }
 }
