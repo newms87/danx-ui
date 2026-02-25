@@ -20,8 +20,6 @@ export type MetadataMode = "overlay" | "docked";
 export interface VirtualSlide {
   /** The file this slide represents */
   file: PreviewFile;
-  /** Pre-resolved display URL (avoids repeated resolveFileUrl calls) */
-  url: string;
   /** Index in the full file list */
   index: number;
   /** Whether this is the currently active/visible slide */

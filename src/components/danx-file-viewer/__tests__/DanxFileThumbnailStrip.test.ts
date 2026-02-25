@@ -98,27 +98,27 @@ describe("DanxFileThumbnailStrip", () => {
     });
   });
 
-  describe("Raw image thumbnails", () => {
-    it("renders raw img elements for image files", () => {
+  describe("DanxFile thumbnails", () => {
+    it("renders DanxFile components for image files", () => {
       const wrapper = mountStrip();
-      const imgs = wrapper.findAll(".danx-file-strip__img");
+      const imgs = wrapper.findAll(".danx-file__image");
       expect(imgs.length).toBe(2);
     });
 
-    it("sets correct src on img elements", () => {
+    it("sets correct src on DanxFile images", () => {
       const wrapper = mountStrip();
-      const img = wrapper.find(".danx-file-strip__img");
+      const img = wrapper.find(".danx-file__image");
       expect(img.attributes("src")).toBe("https://example.com/1.jpg");
     });
 
-    it("renders fallback icon for non-previewable files", () => {
+    it("renders type icon for non-previewable files", () => {
       const wrapper = mountStrip({
         files: [
           makeFile("1", { type: "application/pdf", url: "https://example.com/doc.pdf" }),
           makeFile("2"),
         ],
       });
-      const icons = wrapper.findAll(".danx-file-strip__fallback-icon");
+      const icons = wrapper.findAll(".danx-file__type-icon");
       expect(icons.length).toBe(1);
     });
 
@@ -129,11 +129,11 @@ describe("DanxFileThumbnailStrip", () => {
           makeFile("2"),
         ],
       });
-      const imgs = wrapper.findAll(".danx-file-strip__img");
+      const imgs = wrapper.findAll(".danx-file__image");
       expect(imgs[0]!.attributes("src")).toBe("https://example.com/thumb-1.jpg");
     });
 
-    it("renders img for video file thumbnails with thumb URL", () => {
+    it("renders thumbnail for video file with thumb URL", () => {
       const wrapper = mountStrip({
         files: [
           makeFile("1", {
@@ -144,26 +144,26 @@ describe("DanxFileThumbnailStrip", () => {
           makeFile("2"),
         ],
       });
-      const imgs = wrapper.findAll(".danx-file-strip__img");
+      const imgs = wrapper.findAll(".danx-file__image");
       expect(imgs.length).toBe(2);
     });
 
-    it("renders fallback icon for video file without thumb URL", () => {
+    it("renders type icon for video file without thumb URL", () => {
       const wrapper = mountStrip({
         files: [
           makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
           makeFile("2"),
         ],
       });
-      const icons = wrapper.findAll(".danx-file-strip__fallback-icon");
+      const icons = wrapper.findAll(".danx-file__type-icon");
       expect(icons.length).toBe(1);
     });
 
-    it("renders fallback icon for image file with no URL", () => {
+    it("renders type icon for image file with no URL", () => {
       const wrapper = mountStrip({
         files: [makeFile("1", { url: "" }), makeFile("2")],
       });
-      const icons = wrapper.findAll(".danx-file-strip__fallback-icon");
+      const icons = wrapper.findAll(".danx-file__type-icon");
       expect(icons.length).toBe(1);
     });
   });

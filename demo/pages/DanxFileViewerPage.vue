@@ -13,6 +13,7 @@ import basicViewerCode from "./danx-file-viewer-examples/BasicNavigator.vue?raw"
 import carouselNavigationCode from "./danx-file-viewer-examples/CarouselNavigation.vue?raw";
 import dialogViewerCode from "./danx-file-viewer-examples/DialogViewer.vue?raw";
 import withMetadataCode from "./danx-file-viewer-examples/WithMetadata.vue?raw";
+import withChildrenCode from "./danx-file-viewer-examples/WithChildren.vue?raw";
 </script>
 
 <template>
@@ -37,6 +38,12 @@ import withMetadataCode from "./danx-file-viewer-examples/WithMetadata.vue?raw";
       title="Dialog Viewer"
       description="Click a DanxFile thumbnail to open DanxFileViewer in a DanxDialog."
       :code="dialogViewerCode"
+    />
+
+    <DemoSection
+      title="With Children"
+      description="Nested file navigation with breadcrumbs. The PDF has child pages, and one page has sub-children."
+      :code="withChildrenCode"
     />
 
     <DemoSection

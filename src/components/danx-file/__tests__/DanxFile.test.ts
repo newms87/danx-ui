@@ -53,6 +53,18 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__play-icon").exists()).toBe(true);
     });
 
+    it("renders img with play icon for video with optimized URL (no thumb)", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          type: "video/mp4",
+          url: "https://example.com/video.mp4",
+          optimized: { url: "https://example.com/optimized.jpg" },
+        }),
+      });
+      expect(wrapper.find(".danx-file__image").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(true);
+    });
+
     it("does not show play icon when video has no thumb", () => {
       const wrapper = mountFile({
         file: makeFile({ type: "video/mp4", url: "" }),
@@ -688,6 +700,140 @@ describe("DanxFile", () => {
       const wrapper = mountFile({ file: makeFile({ error: "Failed" }) });
       const preview = wrapper.find(".danx-file__preview");
       expect(preview.find(".danx-file__error").exists()).toBe(true);
+    });
+  });
+
+  describe("Preview mode (mode='preview')", () => {
+    it("renders <video controls> for video files", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({ type: "video/mp4", url: "https://example.com/video.mp4" }),
+      });
+      const video = wrapper.find(".danx-file__video");
+      expect(video.exists()).toBe(true);
+      expect(video.attributes("controls")).toBeDefined();
+      expect(video.attributes("src")).toBe("https://example.com/video.mp4");
+      // Should NOT show thumb image or play icon
+      expect(wrapper.find(".danx-file__image").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
+    });
+
+    it("renders <object type=application/pdf> for PDF files", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          type: "application/pdf",
+          url: "https://example.com/doc.pdf",
+          name: "doc.pdf",
+        }),
+      });
+      const pdf = wrapper.find(".danx-file__pdf");
+      expect(pdf.exists()).toBe(true);
+      expect(pdf.attributes("type")).toBe("application/pdf");
+      expect(pdf.attributes("data")).toBe("https://example.com/doc.pdf");
+      // Fallback download link inside object
+      const link = pdf.find("a");
+      expect(link.exists()).toBe(true);
+      expect(link.attributes("href")).toBe("https://example.com/doc.pdf");
+    });
+
+    it("renders full-size <img> with resolveFileUrl (not thumb) for images", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          url: "https://example.com/full.jpg",
+          thumb: { url: "https://example.com/thumb.jpg" },
+        }),
+      });
+      const img = wrapper.find(".danx-file__image");
+      expect(img.exists()).toBe(true);
+      // Should use the full URL, not thumb
+      expect(img.attributes("src")).toBe("https://example.com/full.jpg");
+      expect(img.classes()).toContain("danx-file__image--preview");
+    });
+
+    it("uses optimized URL when available for preview image", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          url: "https://example.com/original.jpg",
+          optimized: { url: "https://example.com/optimized.jpg" },
+          thumb: { url: "https://example.com/thumb.jpg" },
+        }),
+      });
+      expect(wrapper.find(".danx-file__image").attributes("src")).toBe(
+        "https://example.com/optimized.jpg"
+      );
+    });
+
+    it("still shows progress overlay in preview mode", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({ progress: 45 }),
+      });
+      expect(wrapper.find(".danx-file__progress").exists()).toBe(true);
+    });
+
+    it("still shows error overlay in preview mode", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        size: "lg",
+        file: makeFile({ error: "Processing failed" }),
+      });
+      expect(wrapper.find(".danx-file__error").exists()).toBe(true);
+    });
+
+    it("shows type icon for non-previewable files in preview mode", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        size: "lg",
+        file: makeFile({
+          type: "text/plain",
+          url: "https://example.com/readme.txt",
+          name: "readme.txt",
+        }),
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+    });
+
+    it("shows type icon when preview file has no URL", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        size: "lg",
+        file: makeFile({ type: "video/mp4", url: "" }),
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__video").exists()).toBe(false);
+    });
+
+    it("does not show play icon in preview mode", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({ type: "video/mp4", url: "https://example.com/video.mp4" }),
+      });
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
+    });
+  });
+
+  describe("Thumb mode (default) unchanged", () => {
+    it("still renders thumbnail for video with play icon in thumb mode", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
+      });
+      expect(wrapper.find(".danx-file__image").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__image").attributes("src")).toBe(
+        "https://example.com/thumb.jpg"
+      );
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__video").exists()).toBe(false);
+    });
+
+    it("does not render <video> or <object> elements in thumb mode", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
+      });
+      expect(wrapper.find(".danx-file__video").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__pdf").exists()).toBe(false);
     });
   });
 });

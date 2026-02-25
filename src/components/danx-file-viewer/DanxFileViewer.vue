@@ -62,16 +62,9 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
 import { DanxButton } from "../button";
+import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
-import {
-  isImage,
-  isVideo,
-  isAudio,
-  isPdf,
-  hasChildren,
-  createDownloadEvent,
-  triggerFileDownload,
-} from "../danx-file/file-helpers";
+import { hasChildren, createDownloadEvent, triggerFileDownload } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
 import { useDanxFileViewer } from "./useDanxFileViewer";
@@ -107,7 +100,8 @@ const {
   prev,
   goTo,
   hasParent,
-  backFromChild,
+  navigateToAncestor,
+  breadcrumbs,
   diveIntoChild,
 } = useDanxFileViewer({
   file: toRef(props, "file"),
@@ -211,17 +205,27 @@ function onTouchEnd(e: TouchEvent) {
 
     <!-- Header -->
     <div class="danx-file-viewer__header">
-      <button
-        v-if="hasParent"
-        class="danx-file-viewer__back-btn"
-        title="Back"
-        aria-label="Back"
-        @click="backFromChild"
-      >
-        <DanxIcon icon="back" />
-      </button>
+      <!-- Breadcrumb navigation when viewing children -->
+      <nav v-if="hasParent" class="danx-file-viewer__breadcrumbs" aria-label="File navigation">
+        <template v-for="(entry, index) in breadcrumbs" :key="entry.id">
+          <span v-if="index > 0" class="danx-file-viewer__breadcrumb-separator">/</span>
+          <span
+            v-if="index === breadcrumbs.length - 1"
+            class="danx-file-viewer__breadcrumb-item danx-file-viewer__breadcrumb-item--active"
+            aria-current="step"
+            >{{ entry.name }}</span
+          >
+          <button
+            v-else
+            class="danx-file-viewer__breadcrumb-item"
+            @click="navigateToAncestor(entry.id)"
+          >
+            {{ entry.name }}
+          </button>
+        </template>
+      </nav>
 
-      <span class="danx-file-viewer__filename">{{ currentFile.name }}</span>
+      <span v-else class="danx-file-viewer__filename">{{ currentFile.name }}</span>
 
       <span v-if="slideLabel" class="danx-file-viewer__counter">{{ slideLabel }}</span>
 
@@ -278,40 +282,13 @@ function onTouchEnd(e: TouchEvent) {
           class="danx-file-viewer__slide"
           :class="{ 'danx-file-viewer__slide--active': slide.isActive }"
         >
-          <img
-            v-if="isImage(slide.file) && slide.url"
-            class="danx-file-viewer__image"
-            :src="slide.url"
-            :alt="slide.file.name"
+          <DanxFile
+            :file="slide.file"
+            :mode="slide.isActive ? 'preview' : 'thumb'"
+            size="auto"
+            fit="contain"
+            disabled
           />
-          <video
-            v-else-if="slide.isActive && isVideo(slide.file) && slide.url"
-            class="danx-file-viewer__video"
-            :src="slide.url"
-            controls
-            :key="slide.file.id"
-          />
-          <audio
-            v-else-if="slide.isActive && isAudio(slide.file) && slide.url"
-            class="danx-file-viewer__audio"
-            controls
-            :src="slide.url"
-          />
-          <object
-            v-else-if="slide.isActive && isPdf(slide.file) && slide.url"
-            class="danx-file-viewer__pdf"
-            type="application/pdf"
-            :data="slide.url"
-          >
-            <a :href="slide.url" target="_blank">Download PDF</a>
-          </object>
-          <div
-            v-else-if="slide.isActive && !isImage(slide.file)"
-            class="danx-file-viewer__no-preview"
-          >
-            <DanxIcon icon="document" />
-            <span>{{ slide.file.name }}</span>
-          </div>
         </div>
 
         <!-- Next arrow -->

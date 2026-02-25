@@ -27,6 +27,7 @@ export type {
   PreviewFile,
   ImageFit,
   DanxFileSize,
+  DanxFileMode,
   DanxFileProps,
   DanxFileEmits,
   DanxFileSlots,

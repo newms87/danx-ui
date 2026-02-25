@@ -379,4 +379,124 @@ describe("useDanxFileViewer", () => {
       expect(hasParent.value).toBe(false);
     });
   });
+
+  describe("navigateToAncestor", () => {
+    it("navigates to a specific ancestor in the stack", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const grandchild = makeFile("grandchild");
+      const { currentFile, diveIntoChild, navigateToAncestor, childStack } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChild(child);
+      diveIntoChild(grandchild);
+      expect(currentFile.value.id).toBe("grandchild");
+      expect(childStack.value).toHaveLength(2);
+
+      // Navigate back to root (file "1")
+      navigateToAncestor("1");
+      expect(currentFile.value.id).toBe("1");
+      expect(childStack.value).toHaveLength(0);
+    });
+
+    it("navigates to intermediate ancestor", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const grandchild = makeFile("grandchild");
+      const greatGrandchild = makeFile("great-grandchild");
+      const { currentFile, diveIntoChild, navigateToAncestor, childStack } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChild(child);
+      diveIntoChild(grandchild);
+      diveIntoChild(greatGrandchild);
+      expect(childStack.value).toHaveLength(3);
+
+      // Navigate to "child" (skipping grandchild)
+      navigateToAncestor("child");
+      expect(currentFile.value.id).toBe("child");
+      expect(childStack.value).toHaveLength(1);
+      expect(childStack.value[0]!.id).toBe("1");
+    });
+
+    it("does nothing for unknown file ID", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const { currentFile, diveIntoChild, navigateToAncestor } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChild(child);
+      navigateToAncestor("unknown");
+      expect(currentFile.value.id).toBe("child");
+    });
+  });
+
+  describe("breadcrumbs", () => {
+    it("returns empty array at root level", () => {
+      const file = ref(makeFile("1"));
+      const { breadcrumbs } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+      expect(breadcrumbs.value).toEqual([]);
+    });
+
+    it("returns [parent, child] when one level deep", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const { breadcrumbs, diveIntoChild } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChild(child);
+      expect(breadcrumbs.value).toEqual([
+        { id: "1", name: "file-1.jpg" },
+        { id: "child", name: "file-child.jpg" },
+      ]);
+    });
+
+    it("returns full chain at three levels deep", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const grandchild = makeFile("grandchild");
+      const { breadcrumbs, diveIntoChild } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChild(child);
+      diveIntoChild(grandchild);
+      expect(breadcrumbs.value).toEqual([
+        { id: "1", name: "file-1.jpg" },
+        { id: "child", name: "file-child.jpg" },
+        { id: "grandchild", name: "file-grandchild.jpg" },
+      ]);
+    });
+
+    it("updates after navigateToAncestor", () => {
+      const file = ref(makeFile("1"));
+      const child = makeFile("child");
+      const grandchild = makeFile("grandchild");
+      const { breadcrumbs, diveIntoChild, navigateToAncestor } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChild(child);
+      diveIntoChild(grandchild);
+      navigateToAncestor("child");
+
+      expect(breadcrumbs.value).toEqual([
+        { id: "1", name: "file-1.jpg" },
+        { id: "child", name: "file-child.jpg" },
+      ]);
+    });
+  });
 });

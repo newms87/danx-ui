@@ -16,6 +16,7 @@ import errorStateCode from "./danx-file-examples/ErrorState.vue?raw";
 import fileTypeIconsCode from "./danx-file-examples/FileTypeIcons.vue?raw";
 import sizesCode from "./danx-file-examples/Sizes.vue?raw";
 import actionsCode from "./danx-file-examples/Actions.vue?raw";
+import previewModeCode from "./danx-file-examples/PreviewMode.vue?raw";
 </script>
 
 <template>
@@ -64,6 +65,12 @@ import actionsCode from "./danx-file-examples/Actions.vue?raw";
       title="Download & Remove Actions"
       description="Hover actions for download and remove. Remove uses 2-step confirmation."
       :code="actionsCode"
+    />
+
+    <DemoSection
+      title="Preview Mode"
+      description="Full-size interactive rendering: video player, PDF embed, and full-size images. Set mode='preview' to switch from thumbnail to preview."
+      :code="previewModeCode"
     />
   </DemoPage>
 </template>

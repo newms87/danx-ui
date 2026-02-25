@@ -184,6 +184,17 @@ describe("DanxChip", () => {
       expect(wrapper.find(".danx-chip").attributes("title")).toBeUndefined();
     });
 
+    it("renders icon inside tooltip-wrapped chip", () => {
+      const wrapper = mount(DanxChip, {
+        props: { tooltip: "Info", icon: "save" },
+      });
+
+      const tooltip = wrapper.findComponent({ name: "DanxTooltip" });
+      expect(tooltip.exists()).toBe(true);
+      expect(tooltip.find(".danx-chip__icon").exists()).toBe(true);
+      expect(tooltip.find(".danx-chip__icon").html()).toContain("<svg");
+    });
+
     it("does not render DanxTooltip when tooltip not provided", () => {
       const wrapper = mount(DanxChip);
 

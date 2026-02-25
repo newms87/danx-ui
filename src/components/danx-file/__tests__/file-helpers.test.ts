@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   resolveFileUrl,
   resolveThumbUrl,
@@ -20,6 +20,10 @@ import { makeFile } from "./test-helpers";
 vi.mock("../../../shared/download", () => ({
   downloadFile: vi.fn(),
 }));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("resolveFileUrl", () => {
   it("returns optimized URL when available", () => {
@@ -231,7 +235,6 @@ describe("triggerFileDownload", () => {
   });
 
   it("does not call downloadFile when URL is empty", () => {
-    vi.mocked(downloadFile).mockClear();
     const file = makeFile({ url: "" });
     triggerFileDownload(file);
     expect(downloadFile).not.toHaveBeenCalled();

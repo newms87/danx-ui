@@ -13,7 +13,6 @@
 
 import { computed, type Ref } from "vue";
 import type { PreviewFile } from "../danx-file/types";
-import { resolveFileUrl } from "../danx-file/file-helpers";
 import type { VirtualSlide } from "./types";
 
 const BUFFER_SIZE = 2;
@@ -31,7 +30,6 @@ export function useVirtualCarousel(files: Ref<PreviewFile[]>, currentIndex: Ref<
     for (let i = start; i <= end; i++) {
       slides.push({
         file: list[i]!,
-        url: resolveFileUrl(list[i]!),
         index: i,
         isActive: i === idx,
       });

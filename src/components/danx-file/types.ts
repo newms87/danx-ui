@@ -33,7 +33,7 @@ export interface PreviewFile {
   thumb?: { url: string };
   /** Optimized version URL */
   optimized?: { url: string };
-  /** Child variants (transcodes, PDF pages, etc.) */
+  /** Child variants (transcodes, PDF pages, etc.). undefined = not yet loaded; [] = loaded with no children. */
   children?: PreviewFile[];
   /** Application/business metadata (dimensions, format, duration, codec) */
   meta?: Record<string, unknown>;
@@ -68,11 +68,23 @@ export type ImageFit = "cover" | "contain" | "fill" | "none" | "scale-down";
 export type DanxFileSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl" | "auto";
 
 /**
- * Props for DanxFile (thumbnail component).
+ * Display mode for DanxFile.
+ *
+ * | Mode    | Behavior                                             |
+ * |---------|------------------------------------------------------|
+ * | thumb   | Thumbnail card (default) — current behavior          |
+ * | preview | Full-size interactive — video player, PDF embed, etc.|
+ */
+export type DanxFileMode = "thumb" | "preview";
+
+/**
+ * Props for DanxFile (universal file renderer).
  */
 export interface DanxFileProps {
   /** The file to display */
   file: PreviewFile;
+  /** Display mode (default: "thumb") */
+  mode?: DanxFileMode;
   /** Named size preset (default: "md") */
   size?: DanxFileSize;
   /** Image object-fit (default: "cover") */

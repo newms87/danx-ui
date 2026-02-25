@@ -289,6 +289,36 @@ describe("DanxPopover", () => {
       expect(spy).not.toHaveBeenCalled();
       document.body.removeEventListener("wheel", spy);
     });
+
+    it("stops all event types from propagating through the panel", async () => {
+      mountPopover({ modelValue: true });
+      await nextTick();
+
+      const panel = wrapper.find(".danx-popover");
+      const events = [
+        "keydown",
+        "keyup",
+        "keypress",
+        "mousedown",
+        "mousemove",
+        "mouseup",
+        "pointerdown",
+        "pointermove",
+        "pointerup",
+        "touchstart",
+        "touchmove",
+        "touchend",
+        "contextmenu",
+      ];
+
+      for (const eventType of events) {
+        const spy = vi.fn();
+        document.body.addEventListener(eventType, spy);
+        await panel.trigger(eventType);
+        expect(spy).not.toHaveBeenCalled();
+        document.body.removeEventListener(eventType, spy);
+      }
+    });
   });
 
   describe("click outside dismiss", () => {

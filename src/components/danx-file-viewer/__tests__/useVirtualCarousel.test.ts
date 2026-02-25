@@ -105,12 +105,13 @@ describe("useVirtualCarousel", () => {
       expect(visibleSlides.value).toEqual([]);
     });
 
-    it("includes pre-resolved url on each slide", () => {
+    it("includes file reference on each slide", () => {
       const files = ref(makeFiles(3));
       const currentIndex = ref(1);
       const { visibleSlides } = useVirtualCarousel(files, currentIndex);
       for (const slide of visibleSlides.value) {
-        expect(slide.url).toBe(`https://example.com/${slide.file.id}.jpg`);
+        expect(slide.file).toBeDefined();
+        expect(slide.file.url).toBe(`https://example.com/${slide.file.id}.jpg`);
       }
     });
   });

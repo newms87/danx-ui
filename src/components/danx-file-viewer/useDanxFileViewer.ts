@@ -43,6 +43,10 @@ export interface UseDanxFileViewerReturn {
   diveIntoChild: (child: PreviewFile) => void;
   /** Return from a child to the parent file */
   backFromChild: () => void;
+  /** Navigate to a specific ancestor in the child stack by file ID */
+  navigateToAncestor: (fileId: string) => void;
+  /** Breadcrumb entries: [...ancestors, currentFile]. Empty at root level. */
+  breadcrumbs: Ref<{ id: string; name: string }[]>;
   /** Whether we are currently viewing a child (stack is non-empty) */
   hasParent: Ref<boolean>;
   /** All files (anchor + related, deduped) */
@@ -125,6 +129,24 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     setCurrentFile(parent);
   }
 
+  function navigateToAncestor(fileId: string) {
+    // Find the ancestor in the stack
+    const ancestorIndex = childStack.value.findIndex((f) => f.id === fileId);
+    if (ancestorIndex === -1) return;
+    // The ancestor becomes the current file; slice stack to before it
+    const ancestor = childStack.value[ancestorIndex]!;
+    childStack.value = childStack.value.slice(0, ancestorIndex);
+    setCurrentFile(ancestor);
+  }
+
+  const breadcrumbs = computed(() => {
+    if (childStack.value.length === 0) return [];
+    return [
+      ...childStack.value.map((f) => ({ id: f.id, name: f.name })),
+      { id: currentFile.value.id, name: currentFile.value.name },
+    ];
+  });
+
   function reset() {
     childStack.value = [];
     setCurrentFile(file.value);
@@ -145,6 +167,8 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     childStack,
     diveIntoChild,
     backFromChild,
+    navigateToAncestor,
+    breadcrumbs,
     hasParent,
     allFiles,
     reset,
