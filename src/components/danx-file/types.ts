@@ -27,8 +27,6 @@ export interface PreviewFile {
   url: string;
   /** Temporary blob URL during upload */
   blobUrl?: string;
-  /** Geolocation data (application-defined pass-through) */
-  location?: unknown;
   /** Upload progress 0-100. Non-null and < 100 = in progress. */
   progress?: number | null;
   /** Thumbnail image URL */
@@ -70,11 +68,6 @@ export type ImageFit = "cover" | "contain" | "fill" | "none" | "scale-down";
 export type DanxFileSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl" | "auto";
 
 /**
- * Metadata panel display mode for DanxFileViewer.
- */
-export type MetadataMode = "overlay" | "docked";
-
-/**
  * Props for DanxFile (thumbnail component).
  */
 export interface DanxFileProps {
@@ -86,6 +79,8 @@ export interface DanxFileProps {
   fit?: ImageFit;
   /** Show filename overlay (default: false) */
   showFilename?: boolean;
+  /** Show file size below filename (default: false) */
+  showFileSize?: boolean;
   /** Show download button on hover (default: false) */
   downloadable?: boolean;
   /** Show remove button on hover (default: false) */

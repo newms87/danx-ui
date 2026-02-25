@@ -21,6 +21,7 @@
  *   size?: DanxFileSize - Named size preset (default: "md")
  *   fit?: ImageFit - Image object-fit (default: "cover")
  *   showFilename?: boolean - Show filename overlay at bottom (default: false)
+ *   showFileSize?: boolean - Show file size below filename (default: false)
  *   downloadable?: boolean - Show download button on hover (default: false)
  *   removable?: boolean - Show remove button on hover (default: false)
  *   disabled?: boolean - Suppress click event (default: false)
@@ -52,6 +53,7 @@
  *   --dx-file-thumb-icon-color - File-type icon color
  *   --dx-file-thumb-fit - Image object-fit (set via fit prop)
  *   --dx-file-thumb-filename-color - Filename text color
+ *   --dx-file-thumb-filesize-color - File size text color
  *   --dx-file-size-xs through --dx-file-size-xxl - Size preset dimensions
  *
  * @example
@@ -77,6 +79,7 @@ import {
   isPreviewable,
   isInProgress,
   fileTypeIcon,
+  formatFileSize,
   createDownloadEvent,
   triggerFileDownload,
 } from "./file-helpers";
@@ -86,6 +89,7 @@ const props = withDefaults(defineProps<DanxFileProps>(), {
   size: "md",
   fit: "cover",
   showFilename: false,
+  showFileSize: false,
   downloadable: false,
   removable: false,
   disabled: false,
@@ -121,6 +125,11 @@ const progressText = computed(() => {
   if (props.file.statusMessage) return props.file.statusMessage;
   return `Uploading... ${props.file.progress ?? 0}%`;
 });
+
+const fileSizeText = computed(() =>
+  props.showFileSize && props.file.size != null ? formatFileSize(props.file.size) : ""
+);
+const showFooter = computed(() => props.showFilename || props.showFileSize);
 
 const fitStyle = computed(() => ({
   "--dx-file-thumb-fit": props.fit,
@@ -202,7 +211,7 @@ function onDownload() {
       </div>
 
       <!-- File-type icon for non-previewable files -->
-      <div v-if="showTypeIcon && !showImage && !showVideo && !loading" class="danx-file__type-icon">
+      <div v-if="showTypeIcon && !loading" class="danx-file__type-icon">
         <DanxIcon :icon="iconName" />
         <span v-if="!isCompactDisplay" class="danx-file__type-icon-name">{{ file.name }}</span>
       </div>
@@ -283,9 +292,10 @@ function onDownload() {
       </div>
     </div>
 
-    <!-- Filename: flow element below preview -->
-    <div v-if="showFilename && !showProgress && !showError" class="danx-file__filename">
-      {{ file.name }}
+    <!-- Footer: filename and/or file size below preview -->
+    <div v-if="showFooter && !showProgress && !showError" class="danx-file__footer">
+      <span v-if="showFilename" class="danx-file__filename">{{ file.name }}</span>
+      <span v-if="fileSizeText" class="danx-file__filesize">{{ fileSizeText }}</span>
     </div>
   </div>
 </template>

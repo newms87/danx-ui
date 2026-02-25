@@ -148,7 +148,6 @@ export type {
 export type {
   PreviewFile,
   ImageFit,
-  MetadataMode,
   DanxFileSize,
   DanxFileProps,
   DanxFileEmits,
@@ -171,6 +170,7 @@ export type {
   ScrollWindowReturn,
 } from "./components/scroll";
 export type {
+  MetadataMode,
   UseDanxFileViewerOptions,
   UseDanxFileViewerReturn,
   UseDanxFileMetadataReturn,

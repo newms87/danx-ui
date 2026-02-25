@@ -26,6 +26,7 @@ export {
 } from "./file-metadata-helpers";
 export { useVirtualCarousel } from "./useVirtualCarousel";
 export type {
+  MetadataMode,
   VirtualSlide,
   DanxFileViewerProps,
   DanxFileViewerEmits,

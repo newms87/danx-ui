@@ -245,32 +245,73 @@ describe("DanxFile", () => {
     });
   });
 
-  describe("Filename overlay", () => {
+  describe("Footer (filename + file size)", () => {
     it("shows filename when showFilename is true", () => {
       const wrapper = mountFile({ showFilename: true });
-      expect(wrapper.find(".danx-file__filename").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__footer").exists()).toBe(true);
       expect(wrapper.find(".danx-file__filename").text()).toBe("file-1.jpg");
     });
 
-    it("hides filename by default", () => {
+    it("hides footer by default", () => {
       const wrapper = mountFile();
-      expect(wrapper.find(".danx-file__filename").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__footer").exists()).toBe(false);
     });
 
-    it("hides filename when progress is showing", () => {
+    it("hides footer when progress is showing", () => {
       const wrapper = mountFile({
         showFilename: true,
         file: makeFile({ progress: 50 }),
       });
-      expect(wrapper.find(".danx-file__filename").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__footer").exists()).toBe(false);
     });
 
-    it("hides filename when error is showing", () => {
+    it("hides footer when error is showing", () => {
       const wrapper = mountFile({
         showFilename: true,
         file: makeFile({ error: "Failed" }),
       });
+      expect(wrapper.find(".danx-file__footer").exists()).toBe(false);
+    });
+
+    it("shows file size when showFileSize is true", () => {
+      const wrapper = mountFile({
+        showFileSize: true,
+        file: makeFile({ size: 245760 }),
+      });
+      expect(wrapper.find(".danx-file__footer").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__filesize").text()).toBe("240.0 KiB");
+    });
+
+    it("shows both filename and file size together", () => {
+      const wrapper = mountFile({
+        showFilename: true,
+        showFileSize: true,
+        file: makeFile({ size: 1048576 }),
+      });
+      expect(wrapper.find(".danx-file__filename").text()).toBe("file-1.jpg");
+      expect(wrapper.find(".danx-file__filesize").text()).toBe("1.0 MiB");
+    });
+
+    it("shows file size without filename", () => {
+      const wrapper = mountFile({
+        showFileSize: true,
+        file: makeFile({ size: 512 }),
+      });
       expect(wrapper.find(".danx-file__filename").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__filesize").text()).toBe("512 B");
+    });
+
+    it("hides file size when showFileSize is false", () => {
+      const wrapper = mountFile({ showFilename: true });
+      expect(wrapper.find(".danx-file__filesize").exists()).toBe(false);
+    });
+
+    it("shows 0 B for zero-byte files", () => {
+      const wrapper = mountFile({
+        showFileSize: true,
+        file: makeFile({ size: 0 }),
+      });
+      expect(wrapper.find(".danx-file__filesize").text()).toBe("0 B");
     });
   });
 
@@ -598,12 +639,12 @@ describe("DanxFile", () => {
       expect(preview.find(".danx-file__type-icon").exists()).toBe(true);
     });
 
-    it("places filename outside preview wrapper", () => {
+    it("places footer outside preview wrapper", () => {
       const wrapper = mountFile({ showFilename: true });
       const preview = wrapper.find(".danx-file__preview");
-      // Filename should be a sibling of preview, not inside it
-      expect(preview.find(".danx-file__filename").exists()).toBe(false);
-      expect(wrapper.find(".danx-file__filename").exists()).toBe(true);
+      // Footer should be a sibling of preview, not inside it
+      expect(preview.find(".danx-file__footer").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__footer").exists()).toBe(true);
     });
 
     it("places actions inside preview wrapper", () => {

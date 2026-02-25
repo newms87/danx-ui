@@ -9,7 +9,7 @@
  */
 
 import { ref, watch, type Ref } from "vue";
-import type { MetadataMode } from "../danx-file/types";
+import type { MetadataMode } from "./types";
 
 const STORAGE_KEY = "danx-file-metadata-mode";
 

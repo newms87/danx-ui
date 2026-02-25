@@ -31,7 +31,8 @@ import { computed } from "vue";
 import { CodeViewer } from "../code-viewer";
 import { DanxButton } from "../button";
 import { DanxScroll } from "../scroll";
-import type { PreviewFile, MetadataMode } from "../danx-file/types";
+import type { PreviewFile } from "../danx-file/types";
+import type { MetadataMode } from "./types";
 import { formatMeta, metaCount, formatExif, exifCount, hasAnyInfo } from "./file-metadata-helpers";
 
 const props = defineProps<{
