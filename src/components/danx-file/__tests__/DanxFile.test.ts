@@ -199,6 +199,17 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__error-text").text()).toBe("Upload failed");
     });
 
+    it("does not use DanxPopover at lg/xl sizes", () => {
+      for (const size of ["lg", "xl"]) {
+        const wrapper = mountFile({
+          file: makeFile({ error: "Upload failed" }),
+          size,
+        });
+        expect(wrapper.find(".danx-file__error-popover").exists()).toBe(false);
+        expect(wrapper.find(".danx-file__error-text").exists()).toBe(true);
+      }
+    });
+
     it("shows compact error with popover at xs/sm/md sizes", () => {
       const wrapper = mountFile({
         file: makeFile({ error: "Upload failed" }),
@@ -208,9 +219,29 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__error-text").exists()).toBe(false);
     });
 
+    it("renders DanxPopover with danger variant at compact sizes", () => {
+      const wrapper = mountFile({
+        file: makeFile({ error: "Upload failed" }),
+        size: "xs",
+      });
+      const popover = wrapper.findComponent({ name: "DanxPopover" });
+      expect(popover.exists()).toBe(true);
+      expect(popover.props("trigger")).toBe("hover");
+      expect(popover.props("placement")).toBe("top");
+      expect(popover.props("variant")).toBe("danger");
+    });
+
     it("does not show error when no error", () => {
       const wrapper = mountFile();
       expect(wrapper.find(".danx-file__error").exists()).toBe(false);
+    });
+
+    it("handles empty error string as no error", () => {
+      const wrapper = mountFile({
+        file: makeFile({ error: "" }),
+      });
+      expect(wrapper.find(".danx-file__error").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__error--compact").exists()).toBe(false);
     });
   });
 
@@ -276,9 +307,9 @@ describe("DanxFile", () => {
   });
 
   describe("Download action", () => {
-    it("shows download button when downloadable", () => {
+    it("shows download button with --download BEM modifier", () => {
       const wrapper = mountFile({ downloadable: true });
-      const btn = wrapper.find(".danx-file__action-btn");
+      const btn = wrapper.find(".danx-file__action-btn--download");
       expect(btn.exists()).toBe(true);
     });
 
@@ -299,10 +330,9 @@ describe("DanxFile", () => {
   });
 
   describe("Remove confirmation", () => {
-    it("shows remove button when removable", () => {
+    it("shows remove button with --remove BEM modifier", () => {
       const wrapper = mountFile({ removable: true });
-      const buttons = wrapper.findAll(".danx-file__action-btn");
-      expect(buttons.length).toBe(1);
+      expect(wrapper.find(".danx-file__action-btn--remove").exists()).toBe(true);
     });
 
     it("arms on first click, confirms on second click", async () => {
@@ -525,6 +555,23 @@ describe("DanxFile", () => {
     it("applies auto size class", () => {
       const wrapper = mountFile({ size: "auto" });
       expect(wrapper.find(".danx-file").classes()).toContain("danx-file--auto");
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has role=button on root element", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file").attributes("role")).toBe("button");
+    });
+
+    it("has tabindex=0 when not disabled", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file").attributes("tabindex")).toBe("0");
+    });
+
+    it("has tabindex=-1 when disabled", () => {
+      const wrapper = mountFile({ disabled: true });
+      expect(wrapper.find(".danx-file").attributes("tabindex")).toBe("-1");
     });
   });
 

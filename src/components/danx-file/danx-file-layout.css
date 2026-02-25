@@ -212,11 +212,20 @@
   }
 }
 
-.danx-file__action-btn--armed {
-  background: var(--color-danger);
+.danx-file__action-btn--download {
+  background: var(--dx-file-thumb-action-download-bg);
 
   &:hover {
-    background: var(--color-danger-hover);
+    background: var(--dx-file-thumb-action-download-bg-hover);
+  }
+}
+
+.danx-file__action-btn--remove,
+.danx-file__action-btn--armed {
+  background: var(--dx-file-thumb-action-remove-bg);
+
+  &:hover {
+    background: var(--dx-file-thumb-action-remove-bg-hover);
   }
 }
 

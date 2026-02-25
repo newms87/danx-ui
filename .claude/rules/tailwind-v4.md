@@ -68,6 +68,23 @@ Component-specific tokens referencing semantic tokens:
 }
 ```
 
+### CRITICAL: Component Token Files NEVER Contain Raw Values
+
+**Component token files (`*-tokens.css`) may ONLY contain `var()` references to semantic tokens.** Raw color values (`rgb()`, `oklch()`, hex, `white`, `black`) are FORBIDDEN in component token files — no exceptions.
+
+If a semantic token doesn't exist for what you need, the correct action is to create one in the semantic layer — not to hardcode a value in the component layer.
+
+**The ONLY exception:** Transparency overlays (`rgb(0 0 0 / 0.5)`) where the intent is purely "dim the background" with no semantic meaning. These are visual effects, not colors. If the value would change between light and dark mode, it MUST be a semantic token reference.
+
+| Allowed in `*-tokens.css` | Forbidden in `*-tokens.css` |
+|---|---|
+| `var(--color-danger)` | `rgb(239 68 68 / 0.85)` |
+| `var(--color-info)` | `#3b82f6` |
+| `var(--color-text-inverted)` | `white` |
+| `rgb(0 0 0 / 0.5)` (neutral dim) | `rgb(255 255 255 / 0.4)` (theme-dependent) |
+
+**Test:** "Would this value need to change in dark mode?" If yes, it MUST be `var()`. If you're about to write a `.dark` block in a component token file, STOP — you're violating the tier system.
+
 ## Dark Mode Implementation
 
 ### Dark Mode Lives on Semantic Layer ONLY

@@ -54,10 +54,10 @@
      Variant: Info
      ========================================================================== */
 
-  --dx-variant-info-bg: var(--color-interactive);
-  --dx-variant-info-bg-hover: var(--color-interactive-hover);
+  --dx-variant-info-bg: var(--color-info);
+  --dx-variant-info-bg-hover: var(--color-info-hover);
   --dx-variant-info-text: var(--color-text-inverted);
-  --dx-variant-info-border: var(--color-interactive);
+  --dx-variant-info-border: var(--color-info);
 
   /* ==========================================================================
      Variant: Muted

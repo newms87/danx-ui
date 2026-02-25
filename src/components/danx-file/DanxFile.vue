@@ -38,8 +38,12 @@
  *   --dx-file-thumb-bg - Background color (default: var(--color-surface-sunken))
  *   --dx-file-thumb-border-radius - Corner radius (default: var(--radius-component))
  *   --dx-file-thumb-overlay-bg - Hover overlay background
- *   --dx-file-thumb-action-color - Action button color
+ *   --dx-file-thumb-action-color - Action button icon color
  *   --dx-file-thumb-action-bg-hover - Action button hover background
+ *   --dx-file-thumb-action-download-bg - Download button background
+ *   --dx-file-thumb-action-download-bg-hover - Download button hover background
+ *   --dx-file-thumb-action-remove-bg - Remove button background
+ *   --dx-file-thumb-action-remove-bg-hover - Remove button hover background
  *   --dx-file-thumb-play-size - Play icon size for video thumbs
  *   --dx-file-thumb-progress-track - Progress overlay background
  *   --dx-file-thumb-progress-text - Progress text color
@@ -94,7 +98,8 @@ defineSlots<DanxFileSlots>();
 
 const sizeClass = computed(() => `danx-file--${props.size}`);
 const isCompactSize = computed(() => props.size === "xs");
-const isCompactError = computed(
+/** Compact display: xs/sm/md use icon-only overlays with hover popovers for details */
+const isCompactDisplay = computed(
   () => props.size === "xs" || props.size === "sm" || props.size === "md"
 );
 
@@ -199,7 +204,7 @@ function onDownload() {
       <!-- File-type icon for non-previewable files -->
       <div v-if="showTypeIcon && !showImage && !showVideo && !loading" class="danx-file__type-icon">
         <DanxIcon :icon="iconName" />
-        <span v-if="!isCompactError" class="danx-file__type-icon-name">{{ file.name }}</span>
+        <span v-if="!isCompactDisplay" class="danx-file__type-icon-name">{{ file.name }}</span>
       </div>
 
       <!-- Progress overlay -->
@@ -224,8 +229,12 @@ function onDownload() {
         </template>
       </div>
 
-      <!-- Error overlay: compact sizes show icon-only with hover popover -->
-      <template v-if="showError && isCompactError">
+      <!--
+        Error overlay: compact sizes (xs/sm/md) show icon-only with hover popover.
+        The popover trigger uses display:contents, so the error div's position:absolute
+        resolves against .danx-file__preview (the nearest positioned ancestor).
+      -->
+      <template v-if="showError && isCompactDisplay">
         <DanxPopover
           trigger="hover"
           placement="top"
@@ -255,7 +264,7 @@ function onDownload() {
 
         <button
           v-if="downloadable"
-          class="danx-file__action-btn"
+          class="danx-file__action-btn danx-file__action-btn--download"
           title="Download"
           @click="onDownload"
         >
@@ -264,7 +273,7 @@ function onDownload() {
 
         <button
           v-if="removable"
-          class="danx-file__action-btn"
+          class="danx-file__action-btn danx-file__action-btn--remove"
           :class="{ 'danx-file__action-btn--armed': removeArmed }"
           :title="removeArmed ? 'Click again to confirm' : 'Remove'"
           @click="onRemoveClick"

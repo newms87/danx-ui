@@ -166,6 +166,24 @@ describe("DanxPopover", () => {
 
       expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
     });
+
+    it("respects custom hoverDelay value", async () => {
+      mountPopover({ modelValue: true, trigger: "hover", hoverDelay: 500 });
+      await nextTick();
+
+      const trigger = wrapper.find(".danx-popover-trigger").element;
+      trigger.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+
+      // Should NOT close at 200ms (default)
+      vi.advanceTimersByTime(200);
+      await nextTick();
+      expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+
+      // Should close at 500ms (custom delay)
+      vi.advanceTimersByTime(300);
+      await nextTick();
+      expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
+    });
   });
 
   describe("focus trigger", () => {
@@ -218,7 +236,7 @@ describe("DanxPopover", () => {
         "--dx-variant-danger-text"
       );
       expect(panel.style.getPropertyValue("--dx-popover-border")).toContain(
-        "--dx-variant-danger-bg"
+        "--dx-variant-danger-border"
       );
     });
 
@@ -240,6 +258,36 @@ describe("DanxPopover", () => {
 
       const panel = wrapper.find(".danx-popover").element as HTMLElement;
       expect(panel.showPopover).toHaveBeenCalled();
+    });
+  });
+
+  describe("panel event isolation", () => {
+    it("stops click events from propagating through the panel", async () => {
+      mountPopover({ modelValue: true });
+      await nextTick();
+
+      const panel = wrapper.find(".danx-popover");
+      const spy = vi.fn();
+      document.body.addEventListener("click", spy);
+
+      await panel.trigger("click");
+
+      expect(spy).not.toHaveBeenCalled();
+      document.body.removeEventListener("click", spy);
+    });
+
+    it("stops wheel events from propagating through the panel", async () => {
+      mountPopover({ modelValue: true });
+      await nextTick();
+
+      const panel = wrapper.find(".danx-popover");
+      const spy = vi.fn();
+      document.body.addEventListener("wheel", spy);
+
+      await panel.trigger("wheel");
+
+      expect(spy).not.toHaveBeenCalled();
+      document.body.removeEventListener("wheel", spy);
     });
   });
 

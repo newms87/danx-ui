@@ -63,6 +63,10 @@
   --color-warning-hover: var(--color-amber-100);
   --color-warning-subtle: var(--color-amber-950);
 
+  --color-info: var(--color-blue-400);
+  --color-info-hover: var(--color-blue-300);
+  --color-info-subtle: var(--color-blue-950);
+
   /* ==========================================================================
      Focus & Selection
      ========================================================================== */

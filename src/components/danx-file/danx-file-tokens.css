@@ -46,13 +46,13 @@
      ========================================================================== */
 
   --dx-file-thumb-progress-track: rgb(0 0 0 / 0.6);
-  --dx-file-thumb-progress-text: white;
+  --dx-file-thumb-progress-text: var(--color-text-inverted);
 
   /* ==========================================================================
      Error State
      ========================================================================== */
 
-  --dx-file-thumb-error-bg: rgb(239 68 68 / 0.85);
+  --dx-file-thumb-error-bg: var(--color-danger);
   --dx-file-thumb-error-color: var(--color-text-inverted);
 
   /* ==========================================================================
@@ -67,6 +67,10 @@
 
   --dx-file-thumb-filename-color: var(--color-text-muted);
   --dx-file-thumb-action-bg-hover: rgb(0 0 0 / 0.7);
+  --dx-file-thumb-action-download-bg: var(--color-info);
+  --dx-file-thumb-action-download-bg-hover: var(--color-info-hover);
+  --dx-file-thumb-action-remove-bg: var(--color-danger);
+  --dx-file-thumb-action-remove-bg-hover: var(--color-danger-hover);
 
   /* ==========================================================================
      Size Presets
@@ -78,5 +82,5 @@
   --dx-file-size-lg: 10rem;
   --dx-file-size-xl: 16rem;
   --dx-file-size-xxl: 24rem;
-
 }
+

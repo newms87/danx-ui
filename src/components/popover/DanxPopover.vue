@@ -101,15 +101,13 @@ const modelValue = defineModel<boolean>({ default: false });
 
 defineSlots<DanxPopoverSlots>();
 
-const variantStyle = useVariant(
-  computed(() => props.variant),
-  "popover",
-  {
-    "--dx-popover-bg": "bg",
-    "--dx-popover-border": "bg",
-    "--dx-popover-text": "text",
-  }
-);
+const POPOVER_VARIANT_TOKENS = {
+  "--dx-popover-bg": "bg",
+  "--dx-popover-border": "border",
+  "--dx-popover-text": "text",
+};
+
+const variantStyle = useVariant(toRef(props, "variant"), "popover", POPOVER_VARIANT_TOKENS);
 
 defineOptions({ inheritAttrs: false });
 
@@ -168,6 +166,13 @@ usePopoverTrigger(
   <div ref="triggerRef" class="danx-popover-trigger">
     <slot name="trigger" />
   </div>
+  <!--
+    Event suppression: All pointer, touch, keyboard, and scroll events on the panel
+    are stopped via .stop modifiers. The panel renders in the browser's top layer via
+    the Popover API, but events still propagate through the DOM tree to ancestors.
+    Without suppression, interactions inside the panel would bubble to underlying
+    layers (e.g. dialog overlays, parent click handlers).
+  -->
   <div
     v-if="modelValue"
     ref="panelRef"

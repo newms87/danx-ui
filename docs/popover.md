@@ -119,7 +119,7 @@ Click-outside dismissal and Escape key work in all trigger modes as additive dis
 
 ## Placement
 
-The `placement` prop controls where the panel appears relative to the trigger element. An 8px gap separates the trigger from the panel (configurable via `--dx-popover-offset`).
+The `placement` prop controls where the panel appears relative to the trigger element. An 8px gap separates the trigger from the panel.
 
 ```vue
 <DanxPopover v-model="show" placement="top">
@@ -209,5 +209,3 @@ Attrs (including `class`) are forwarded to the panel element, not the trigger wr
 | `--dx-popover-border-radius` | `0.5rem` | Corner radius |
 | `--dx-popover-shadow` | `rgb(0 0 0 / 0.5)` | Box shadow color |
 | `--dx-popover-text` | `--color-text` | Text color |
-| `--dx-popover-offset` | `0.5rem` | Gap between trigger and panel |
-| `--dx-popover-animation-duration` | `--duration-200` | Animation duration |
