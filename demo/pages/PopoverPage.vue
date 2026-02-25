@@ -19,6 +19,7 @@ import positionPropCode from "./popover-examples/PositionProp.vue?raw";
 import hoverTriggerCode from "./popover-examples/HoverTrigger.vue?raw";
 import focusTriggerCode from "./popover-examples/FocusTrigger.vue?raw";
 import clickTriggerCode from "./popover-examples/ClickTrigger.vue?raw";
+import variantsCode from "./popover-examples/Variants.vue?raw";
 </script>
 
 <template>
@@ -67,6 +68,12 @@ import clickTriggerCode from "./popover-examples/ClickTrigger.vue?raw";
       title="Explicit Position"
       description="Position the panel at arbitrary coordinates, such as a right-click context menu."
       :code="positionPropCode"
+    />
+
+    <DemoSection
+      title="Variants"
+      description="Semantic color variants using the shared variant token system."
+      :code="variantsCode"
     />
 
     <DemoSection

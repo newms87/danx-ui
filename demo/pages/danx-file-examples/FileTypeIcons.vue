@@ -31,18 +31,26 @@ const text = ref({
 </script>
 
 <template>
-  <div class="flex gap-6 items-start">
+  <div class="flex gap-6 items-end flex-wrap">
     <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="pdf" size="lg" />
-      <span class="text-xs text-text-muted">PDF</span>
+      <DanxFile :file="pdf" size="xs" />
+      <span class="text-xs text-text-muted">xs (PDF)</span>
+    </div>
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="pdf" size="sm" />
+      <span class="text-xs text-text-muted">sm (PDF)</span>
+    </div>
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="pdf" size="md" />
+      <span class="text-xs text-text-muted">md (PDF)</span>
     </div>
     <div class="flex flex-col items-center gap-1">
       <DanxFile :file="zip" size="lg" />
-      <span class="text-xs text-text-muted">ZIP</span>
+      <span class="text-xs text-text-muted">lg (ZIP)</span>
     </div>
     <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="text" size="lg" />
-      <span class="text-xs text-text-muted">text</span>
+      <DanxFile :file="text" size="xl" />
+      <span class="text-xs text-text-muted">xl (TXT)</span>
     </div>
   </div>
 </template>

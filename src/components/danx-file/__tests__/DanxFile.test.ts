@@ -91,9 +91,19 @@ describe("DanxFile", () => {
           url: "https://example.com/readme.txt",
           name: "readme.txt",
         }),
+        size: "lg",
       });
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
       expect(wrapper.find(".danx-file__type-icon-name").text()).toBe("readme.txt");
+    });
+
+    it("hides inline filename at compact sizes (xs, sm, md)", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "text/plain", url: "", name: "readme.txt" }),
+        size: "md",
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__type-icon-name").exists()).toBe(false);
     });
 
     it("shows file-type icon for image without URL", () => {
@@ -180,12 +190,22 @@ describe("DanxFile", () => {
   });
 
   describe("Error state", () => {
-    it("shows error overlay when file has error", () => {
+    it("shows full error overlay with text at large sizes", () => {
       const wrapper = mountFile({
         file: makeFile({ error: "Upload failed" }),
+        size: "lg",
       });
       expect(wrapper.find(".danx-file__error").exists()).toBe(true);
       expect(wrapper.find(".danx-file__error-text").text()).toBe("Upload failed");
+    });
+
+    it("shows compact error with popover at xs/sm/md sizes", () => {
+      const wrapper = mountFile({
+        file: makeFile({ error: "Upload failed" }),
+        size: "md",
+      });
+      expect(wrapper.find(".danx-file__error--compact").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__error-text").exists()).toBe(false);
     });
 
     it("does not show error when no error", () => {

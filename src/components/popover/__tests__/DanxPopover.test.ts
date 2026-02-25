@@ -203,6 +203,35 @@ describe("DanxPopover", () => {
     });
   });
 
+  describe("variant prop", () => {
+    it("applies no variant styles when variant is empty", () => {
+      mountPopover({ variant: "" });
+      const panel = wrapper.find(".danx-popover").element as HTMLElement;
+      expect(panel.style.getPropertyValue("--dx-popover-bg")).toBe("");
+    });
+
+    it("applies variant inline styles for danger", () => {
+      mountPopover({ variant: "danger" });
+      const panel = wrapper.find(".danx-popover").element as HTMLElement;
+      expect(panel.style.getPropertyValue("--dx-popover-bg")).toContain("--dx-variant-danger-bg");
+      expect(panel.style.getPropertyValue("--dx-popover-text")).toContain(
+        "--dx-variant-danger-text"
+      );
+      expect(panel.style.getPropertyValue("--dx-popover-border")).toContain(
+        "--dx-variant-danger-bg"
+      );
+    });
+
+    it("applies variant inline styles for success", () => {
+      mountPopover({ variant: "success" });
+      const panel = wrapper.find(".danx-popover").element as HTMLElement;
+      expect(panel.style.getPropertyValue("--dx-popover-bg")).toContain("--dx-variant-success-bg");
+      expect(panel.style.getPropertyValue("--dx-popover-text")).toContain(
+        "--dx-variant-success-text"
+      );
+    });
+  });
+
   describe("showPopover integration", () => {
     it("calls showPopover when panel mounts", async () => {
       mountPopover({ modelValue: true });

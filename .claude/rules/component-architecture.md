@@ -163,6 +163,35 @@ Every slot must be documented in the component's comment block.
 --dx-dialog-border-radius
 ```
 
+## Variant Pattern
+
+Components that support color variants (danger, success, warning, info, muted) MUST use the shared variant system. Never create component-specific variant types or CSS class-based variant styling.
+
+### Implementation checklist
+
+1. Import `VariantType` from `../../shared/types` in the component's `types.ts`
+2. Add `variant?: VariantType` prop (default `""`)
+3. Use the `useVariant` composable to map component tokens to variant tokens
+4. Apply the returned style object to the component's root/panel element via `:style`
+
+### useVariant composable
+
+Located at `src/shared/composables/useVariant.ts`. Maps component CSS tokens to shared variant tokens via inline styles. The token fallback chain is: `--dx-variant-{component}-{variant}-{suffix}` then `--dx-variant-{variant}-{suffix}`.
+
+| What to do | How |
+|------------|-----|
+| Type the prop | `variant?: VariantType` (from `shared/types`) |
+| Create mapping | `useVariant(computed(() => props.variant), "component-name", { "--dx-comp-bg": "bg", "--dx-comp-text": "text" })` |
+| Apply styles | `:style="variantStyle"` on the styled element |
+
+### What NOT to do
+
+| Wrong | Why |
+|-------|-----|
+| Custom variant type (`PopoverVariant`) | Duplicates `VariantType` |
+| CSS class modifiers (`.danx-popover--danger`) | Bypasses token system |
+| Hardcoded token overrides per variant | Not reusable across themes |
+
 ## Forbidden Patterns
 
 | Pattern | Problem | Solution |

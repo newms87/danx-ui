@@ -61,6 +61,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
 import { DanxIcon } from "../icon";
+import { DanxPopover } from "../popover";
 import { DanxProgressBar } from "../progress-bar";
 import { DanxSkeleton } from "../skeleton";
 import {
@@ -93,6 +94,9 @@ defineSlots<DanxFileSlots>();
 
 const sizeClass = computed(() => `danx-file--${props.size}`);
 const isCompactSize = computed(() => props.size === "xs");
+const isCompactError = computed(
+  () => props.size === "xs" || props.size === "sm" || props.size === "md"
+);
 
 // --- Computed state ---
 
@@ -195,7 +199,7 @@ function onDownload() {
       <!-- File-type icon for non-previewable files -->
       <div v-if="showTypeIcon && !showImage && !showVideo && !loading" class="danx-file__type-icon">
         <DanxIcon :icon="iconName" />
-        <span class="danx-file__type-icon-name">{{ file.name }}</span>
+        <span v-if="!isCompactError" class="danx-file__type-icon-name">{{ file.name }}</span>
       </div>
 
       <!-- Progress overlay -->
@@ -220,8 +224,23 @@ function onDownload() {
         </template>
       </div>
 
-      <!-- Error overlay -->
-      <div v-if="showError" class="danx-file__error" :title="file.error">
+      <!-- Error overlay: compact sizes show icon-only with hover popover -->
+      <template v-if="showError && isCompactError">
+        <DanxPopover
+          trigger="hover"
+          placement="top"
+          variant="danger"
+          class="danx-file__error-popover"
+        >
+          <template #trigger>
+            <div class="danx-file__error danx-file__error--compact">
+              <DanxIcon icon="warning-triangle" />
+            </div>
+          </template>
+          {{ file.error }}
+        </DanxPopover>
+      </template>
+      <div v-else-if="showError" class="danx-file__error">
         <DanxIcon icon="warning-triangle" />
         <span class="danx-file__error-text">{{ file.error }}</span>
       </div>

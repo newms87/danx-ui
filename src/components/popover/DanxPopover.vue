@@ -23,6 +23,7 @@
  * | position   | PopoverPosition   | -        | Explicit {x, y} viewport coordinates |
  * | trigger    | PopoverTrigger    | "manual" | How popover opens: manual/click/hover/focus |
  * | hoverDelay | number            | 200      | Close delay (ms) for hover mode   |
+ * | variant    | VariantType       | ""       | Visual variant (danger, success, etc.) |
  *
  * ## Events
  * | Event             | Payload | Description                              |
@@ -71,11 +72,18 @@
  *     <template #trigger><div @contextmenu.prevent="show = true">Right-click me</div></template>
  *     Context menu content
  *   </DanxPopover>
+ *
+ * Danger variant:
+ *   <DanxPopover trigger="hover" variant="danger">
+ *     <template #trigger><span>Hover for error</span></template>
+ *     Something went wrong!
+ *   </DanxPopover>
  */
 -->
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
+import { useVariant } from "../../shared/composables/useVariant";
 import type { DanxPopoverProps, DanxPopoverSlots } from "./types";
 import { useClickOutside } from "./useClickOutside";
 import { useEscapeKey } from "./useEscapeKey";
@@ -86,11 +94,23 @@ const props = withDefaults(defineProps<DanxPopoverProps>(), {
   placement: "bottom",
   trigger: "manual",
   hoverDelay: 200,
+  variant: "",
 });
 
 const modelValue = defineModel<boolean>({ default: false });
 
 defineSlots<DanxPopoverSlots>();
+
+const variantStyle = useVariant(
+  computed(() => props.variant),
+  "popover",
+  {
+    "--dx-popover-bg": "bg",
+    "--dx-popover-border": "bg",
+    "--dx-popover-text": "text",
+  }
+);
+
 defineOptions({ inheritAttrs: false });
 
 const triggerRef = ref<HTMLElement | null>(null);
@@ -154,7 +174,7 @@ usePopoverTrigger(
     popover="manual"
     class="danx-popover"
     :data-placement="placement"
-    :style="panelStyle"
+    :style="[panelStyle, variantStyle]"
     v-bind="$attrs"
     @wheel.stop
     @keydown.stop

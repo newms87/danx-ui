@@ -4,6 +4,8 @@
  * Types for the trigger-anchored popover component.
  */
 
+import type { VariantType } from "../../shared/types";
+
 /** Placement direction for the popover panel relative to the trigger */
 export type PopoverPlacement = "top" | "bottom" | "left" | "right";
 
@@ -53,6 +55,13 @@ export interface DanxPopoverProps {
    * Only applies when trigger is "hover".
    */
   hoverDelay?: number;
+
+  /**
+   * Visual variant for the popover panel.
+   * Maps to shared variant tokens via useVariant composable.
+   * Common values: "danger", "success", "warning", "info", "muted".
+   */
+  variant?: VariantType;
 }
 
 export interface DanxPopoverEmits {

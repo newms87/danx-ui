@@ -47,6 +47,7 @@ const show = ref(false);
 | `position` | `PopoverPosition` | - | Explicit `{ x, y }` viewport coordinates |
 | `trigger` | `PopoverTrigger` | `"manual"` | How popover opens/closes |
 | `hoverDelay` | `number` | `200` | Close delay (ms) for hover mode |
+| `variant` | `VariantType` | `""` | Visual variant (danger, success, warning, info, muted) |
 
 ### PopoverPlacement
 
@@ -163,6 +164,19 @@ function onContextMenu(event: MouseEvent) {
 ## Click-Outside Behavior
 
 Clicking anywhere outside both the trigger and panel elements closes the popover. Clicks on the trigger or panel are ignored, allowing interaction with panel content and re-toggling via the trigger.
+
+## Variants
+
+The `variant` prop applies semantic color styles using the shared variant token system (`useVariant`). Tokens are resolved via inline styles mapping component tokens to `--dx-variant-{name}-{suffix}`.
+
+```vue
+<DanxPopover trigger="hover" variant="danger">
+  <template #trigger><span>Hover for error</span></template>
+  Something went wrong!
+</DanxPopover>
+```
+
+Available variants: `danger`, `success`, `warning`, `info`, `muted`, or any custom variant with matching tokens defined.
 
 ## Styling
 
