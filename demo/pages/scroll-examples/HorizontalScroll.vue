@@ -8,9 +8,10 @@ import { DanxScroll } from "danx-ui";
       <div
         v-for="i in 30"
         :key="i"
-        class="flex-shrink-0 w-[120px] h-[60px] bg-blue-100 dark:bg-blue-900 rounded flex items-center justify-center"
+        class="flex-shrink-0 w-[120px] h-[60px] rounded flex flex-col items-center justify-center text-sm font-medium shadow-sm"
+        :style="{ backgroundColor: `hsl(${(i * 37) % 360}, 70%, 85%)` }"
       >
-        Card {{ i }}
+        <span class="text-gray-700">Card {{ i }}</span>
       </div>
     </div>
   </DanxScroll>
