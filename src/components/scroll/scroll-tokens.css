@@ -28,8 +28,8 @@
  */
 
 :root {
-  --dx-scroll-thumb-bg: rgb(0 0 0 / 0.3);
-  --dx-scroll-thumb-hover-bg: rgb(0 0 0 / 0.5);
+  --dx-scroll-thumb-bg: rgb(0 0 0 / 0.8);
+  --dx-scroll-thumb-hover-bg: rgb(0 0 0 / 0.9);
   --dx-scroll-track-bg: transparent;
   --dx-scroll-border-radius: 9999px;
   --dx-scroll-fade-duration: 0.3s;
@@ -39,8 +39,8 @@
 }
 
 .dark {
-  --dx-scroll-thumb-bg: rgb(255 255 255 / 0.35);
-  --dx-scroll-thumb-hover-bg: rgb(255 255 255 / 0.55);
+  --dx-scroll-thumb-bg: rgb(255 255 255 / 0.8);
+  --dx-scroll-thumb-hover-bg: rgb(255 255 255 / 0.9);
 
   --dx-scroll-xs-thumb-thickness: 4px;
   --dx-scroll-xs-track-padding: 1px;

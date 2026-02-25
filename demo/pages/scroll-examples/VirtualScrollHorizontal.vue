@@ -17,11 +17,11 @@ const items = ref(
     direction="horizontal"
     :default-item-size="160"
     :totalItems="500"
-    class="w-full h-48 border border-border rounded-lg"
+    class="w-full h-52 border border-border rounded-lg"
   >
     <template #item="{ item }">
       <div
-        class="flex flex-col items-center justify-center w-36 h-full m-2 rounded-lg text-sm font-medium shadow-sm shrink-0"
+        class="flex flex-col items-center justify-center w-36 h-40 my-2 mx-2 rounded-lg text-sm font-medium shadow-sm shrink-0"
         :style="{ backgroundColor: item.color }"
       >
         <span class="text-gray-700">{{ item.label }}</span>
