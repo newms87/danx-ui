@@ -13,11 +13,14 @@ const photo = ref({
 </script>
 
 <template>
-  <div class="flex gap-4 items-end flex-wrap">
-    <DanxFile :file="photo" size="xs" />
-    <DanxFile :file="photo" size="sm" />
-    <DanxFile :file="photo" size="md" />
-    <DanxFile :file="photo" size="lg" />
-    <DanxFile :file="photo" size="xl" show-filename />
+  <div class="flex gap-6 items-end flex-wrap">
+    <div
+      v-for="s in ['xs', 'sm', 'md', 'lg', 'xl']"
+      :key="s"
+      class="flex flex-col items-center gap-1"
+    >
+      <DanxFile :file="photo" :size="s" />
+      <span class="text-xs text-text-muted">{{ s }}</span>
+    </div>
   </div>
 </template>

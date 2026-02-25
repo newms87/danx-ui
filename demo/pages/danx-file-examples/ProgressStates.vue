@@ -26,12 +26,14 @@ const customMessage = ref({
 </script>
 
 <template>
-  <div class="flex gap-4 items-start">
-    <div class="w-40 h-[120px]">
-      <DanxFile :file="uploading" />
+  <div class="flex gap-6 items-start">
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="uploading" size="lg" />
+      <span class="text-xs text-text-muted">default progress</span>
     </div>
-    <div class="w-40 h-[120px]">
-      <DanxFile :file="customMessage" />
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="customMessage" size="lg" />
+      <span class="text-xs text-text-muted">custom message</span>
     </div>
   </div>
 </template>

@@ -23,21 +23,21 @@ function onRemove(file) {
 </script>
 
 <template>
-  <div class="flex gap-4 items-start">
-    <div class="w-40 h-[120px]">
-      <DanxFile :file="photo" downloadable @download="onDownload" />
+  <div class="flex gap-6 items-start">
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="photo" size="lg" downloadable @download="onDownload" />
+      <span class="text-xs text-text-muted">downloadable</span>
     </div>
-    <div class="w-40 h-[120px]">
-      <DanxFile :file="photo" removable @remove="onRemove" />
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="photo" size="lg" removable @remove="onRemove" />
+      <span class="text-xs text-text-muted">removable</span>
     </div>
-    <div class="w-40 h-[120px]">
-      <DanxFile :file="photo" downloadable removable />
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="photo" size="lg" downloadable removable />
+      <span class="text-xs text-text-muted">both</span>
     </div>
   </div>
-  <p
-    v-if="lastEvent"
-    class="mt-3 text-sm text-text-muted"
-  >
+  <p v-if="lastEvent" class="mt-3 text-sm text-text-muted">
     {{ lastEvent }}
   </p>
 </template>

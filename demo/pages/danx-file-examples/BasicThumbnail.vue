@@ -13,9 +13,18 @@ const photo = ref({
 </script>
 
 <template>
-  <div class="flex gap-4 items-start">
-    <DanxFile :file="photo" size="lg" />
-    <DanxFile :file="photo" size="lg" fit="contain" />
-    <DanxFile :file="photo" size="lg" show-filename />
+  <div class="flex gap-6 items-start">
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="photo" size="lg" />
+      <span class="text-xs text-text-muted">cover (default)</span>
+    </div>
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="photo" size="lg" fit="contain" />
+      <span class="text-xs text-text-muted">contain</span>
+    </div>
+    <div class="flex flex-col items-center gap-1">
+      <DanxFile :file="photo" size="lg" show-filename />
+      <span class="text-xs text-text-muted">with filename</span>
+    </div>
   </div>
 </template>

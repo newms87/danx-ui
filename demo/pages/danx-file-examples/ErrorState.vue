@@ -14,7 +14,8 @@ const errorFile = ref({
 </script>
 
 <template>
-  <div class="w-40 h-[120px]">
-    <DanxFile :file="errorFile" />
+  <div class="flex flex-col items-center gap-1">
+    <DanxFile :file="errorFile" size="lg" />
+    <span class="text-xs text-text-muted">error overlay</span>
   </div>
 </template>
