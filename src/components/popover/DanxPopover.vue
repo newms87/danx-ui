@@ -156,6 +156,21 @@ usePopoverTrigger(
     :data-placement="placement"
     :style="panelStyle"
     v-bind="$attrs"
+    @wheel.stop
+    @keydown.stop
+    @keyup.stop
+    @keypress.stop
+    @mousedown.stop
+    @mousemove.stop
+    @mouseup.stop
+    @pointerdown.stop
+    @pointermove.stop
+    @pointerup.stop
+    @touchstart.stop
+    @touchmove.stop
+    @touchend.stop
+    @contextmenu.stop
+    @click.stop
   >
     <slot />
   </div>
