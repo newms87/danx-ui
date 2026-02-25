@@ -26,14 +26,26 @@ const customMessage = ref({
 </script>
 
 <template>
-  <div class="flex gap-6 items-start">
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="uploading" size="lg" />
-      <span class="text-xs text-text-muted">default progress</span>
+  <div class="flex flex-col gap-6">
+    <div>
+      <p class="text-sm text-text-muted mb-2">Default progress at all sizes</p>
+      <div class="flex gap-6 items-end flex-wrap">
+        <div
+          v-for="s in ['xs', 'sm', 'md', 'lg', 'xl']"
+          :key="s"
+          class="flex flex-col items-center gap-1"
+        >
+          <DanxFile :file="uploading" :size="s" />
+          <span class="text-xs text-text-muted">{{ s }}</span>
+        </div>
+      </div>
     </div>
-    <div class="flex flex-col items-center gap-1">
-      <DanxFile :file="customMessage" size="lg" />
-      <span class="text-xs text-text-muted">custom message</span>
+    <div>
+      <p class="text-sm text-text-muted mb-2">Custom status message</p>
+      <div class="flex flex-col items-center gap-1 w-fit">
+        <DanxFile :file="customMessage" size="lg" />
+        <span class="text-xs text-text-muted">custom message</span>
+      </div>
     </div>
   </div>
 </template>

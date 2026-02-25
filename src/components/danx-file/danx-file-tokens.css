@@ -47,7 +47,7 @@
      ========================================================================== */
 
   --dx-file-thumb-progress-bg: var(--color-interactive);
-  --dx-file-thumb-progress-track: rgb(0 0 0 / 0.3);
+  --dx-file-thumb-progress-track: rgb(0 0 0 / 0.6);
   --dx-file-thumb-progress-text: var(--color-text-inverted);
 
   /* ==========================================================================
