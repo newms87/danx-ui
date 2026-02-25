@@ -240,6 +240,21 @@
   }
 }
 
+.danx-file__progress--compact {
+  gap: 0.125rem;
+  padding: 0.125rem;
+
+  .danx-icon {
+    width: 0.625rem;
+    height: 0.625rem;
+    color: var(--dx-file-thumb-progress-text);
+  }
+
+  .danx-progress-bar {
+    width: 100%;
+  }
+}
+
 .danx-file__progress-text {
   color: var(--dx-file-thumb-progress-text);
   font-size: 0.625rem;

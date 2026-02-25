@@ -92,6 +92,7 @@ const emit = defineEmits<DanxFileEmits>();
 defineSlots<DanxFileSlots>();
 
 const sizeClass = computed(() => `danx-file--${props.size}`);
+const isCompactSize = computed(() => props.size === "xs");
 
 // --- Computed state ---
 
@@ -198,15 +199,25 @@ function onDownload() {
       </div>
 
       <!-- Progress overlay -->
-      <div v-if="showProgress" class="danx-file__progress">
-        <span class="danx-file__progress-text">{{ progressText }}</span>
-        <DanxProgressBar
-          :value="file.progress ?? 0"
-          size="sm"
-          striped
-          animate-stripes
-          :show-text="false"
-        />
+      <div
+        v-if="showProgress"
+        class="danx-file__progress"
+        :class="{ 'danx-file__progress--compact': isCompactSize }"
+      >
+        <template v-if="isCompactSize">
+          <DanxIcon icon="clock" />
+          <DanxProgressBar :value="file.progress ?? 0" size="sm" :show-text="false" />
+        </template>
+        <template v-else>
+          <span class="danx-file__progress-text">{{ progressText }}</span>
+          <DanxProgressBar
+            :value="file.progress ?? 0"
+            size="sm"
+            striped
+            animate-stripes
+            :show-text="false"
+          />
+        </template>
       </div>
 
       <!-- Error overlay -->

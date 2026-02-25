@@ -158,6 +158,25 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__progress").exists()).toBe(true);
       expect(wrapper.find(".danx-file__progress-text").text()).toBe("Uploading... 0%");
     });
+
+    it("shows compact progress for xs size with icon and no text", () => {
+      const wrapper = mountFile({
+        size: "xs",
+        file: makeFile({ progress: 50 }),
+      });
+      expect(wrapper.find(".danx-file__progress--compact").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__progress-text").exists()).toBe(false);
+      expect(wrapper.findComponent(DanxProgressBar).exists()).toBe(true);
+    });
+
+    it("shows standard progress for non-xs sizes", () => {
+      const wrapper = mountFile({
+        size: "sm",
+        file: makeFile({ progress: 50 }),
+      });
+      expect(wrapper.find(".danx-file__progress--compact").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__progress-text").exists()).toBe(true);
+    });
   });
 
   describe("Error state", () => {
