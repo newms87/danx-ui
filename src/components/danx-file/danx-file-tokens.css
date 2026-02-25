@@ -38,7 +38,7 @@
      Action Buttons
      ========================================================================== */
 
-  --dx-file-thumb-action-color: var(--color-text-inverted);
+  --dx-file-thumb-action-color: var(--color-white);
   --dx-file-thumb-play-size: 2.5rem;
 
   /* ==========================================================================
@@ -46,14 +46,14 @@
      ========================================================================== */
 
   --dx-file-thumb-progress-track: rgb(0 0 0 / 0.6);
-  --dx-file-thumb-progress-text: var(--color-text-inverted);
+  --dx-file-thumb-progress-text: var(--color-white);
 
   /* ==========================================================================
      Error State
      ========================================================================== */
 
   --dx-file-thumb-error-bg: var(--color-danger);
-  --dx-file-thumb-error-color: var(--color-text-inverted);
+  --dx-file-thumb-error-color: var(--color-white);
 
   /* ==========================================================================
      File-Type Icon

@@ -34,3 +34,5 @@ vite.config.ts.timestamp-*
 coverage/
 
 .claude/clad.json
+
+.claude/code-review-plans/
