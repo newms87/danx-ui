@@ -21,7 +21,7 @@ function loadMore() {
 <template>
   <DanxVirtualScroll
     :items="items"
-    :default-item-height="36"
+    :default-item-size="36"
     infiniteScroll
     :loading="loading"
     :canLoadMore="canLoadMore"

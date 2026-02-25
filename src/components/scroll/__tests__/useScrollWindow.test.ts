@@ -27,10 +27,11 @@ describe("useScrollWindow", () => {
     viewportEl: Ref<HTMLElement | null>,
     items: Ref<string[]>,
     options: {
-      defaultItemHeight?: number;
+      defaultItemSize?: number;
       overscan?: number;
       keyFn?: (item: string, i: number) => string | number;
       totalItems?: number;
+      direction?: "vertical" | "horizontal";
       debug?: boolean;
     } = {}
   ) {
@@ -69,7 +70,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 3 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 3 });
 
     // Viewport is 200px, items are 40px each = 5 visible items
     // Plus overscan of 3 items (120px buffer) below = 200+120=320px / 40px = 8 items (0-7)
@@ -83,7 +84,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Scroll down to 400px (items 10-14 visible at 40px each)
     Object.defineProperty(el, "scrollTop", { value: 400, writable: true, configurable: true });
@@ -99,7 +100,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Measure first 5 items as 60px each instead of 40px default
     for (let i = 0; i < 5; i++) {
@@ -114,7 +115,7 @@ describe("useScrollWindow", () => {
 
     // With 60px items, first 5 items take 300px > 200px viewport
     // So fewer items should be visible
-    expect(result.totalHeight.value).toBe(5 * 60 + 45 * 40); // 5 measured + 45 default
+    expect(result.totalSize.value).toBe(5 * 60 + 45 * 40); // 5 measured + 45 default
   });
 
   it("handles mixed cached and uncached heights in spacers", async () => {
@@ -122,7 +123,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Measure items 0-2 as 80px each
     for (let i = 0; i < 3; i++) {
@@ -141,7 +142,7 @@ describe("useScrollWindow", () => {
     // scrollTop=201: items 0-1 = 160px, item 2 starts at 160px (within viewport)
     // startIndex=2, so startOffset = items 0+1 = 160px
     expect(result.startOffset.value).toBe(160);
-    expect(result.totalHeight.value).toBe(3 * 80 + 17 * 40);
+    expect(result.totalSize.value).toBe(3 * 80 + 17 * 40);
   });
 
   it("updates when items array grows", async () => {
@@ -149,16 +150,16 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
-    const initialTotal = result.totalHeight.value;
+    const initialTotal = result.totalSize.value;
     expect(initialTotal).toBe(400); // 10 * 40
 
     // Append items (simulating remote load)
     items.value = [...items.value, ...Array.from({ length: 10 }, (_, i) => `item-${10 + i}`)];
     await nextTick();
 
-    expect(result.totalHeight.value).toBe(800); // 20 * 40
+    expect(result.totalSize.value).toBe(800); // 20 * 40
   });
 
   it("respects overscan count", () => {
@@ -167,7 +168,7 @@ describe("useScrollWindow", () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
 
     const withOverscan = createComposable(viewportEl, items, {
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       overscan: 5,
     });
     const startWithOverscan = withOverscan.startIndex.value;
@@ -177,7 +178,7 @@ describe("useScrollWindow", () => {
       createMockViewport({ clientHeight: 200, scrollTop: 400 })
     );
     const withoutOverscan = createComposable(viewportEl2, items, {
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       overscan: 0,
     });
     const startWithout = withoutOverscan.startIndex.value;
@@ -193,7 +194,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40 });
 
     result.scrollToIndex(10);
     expect(el.scrollTop).toBe(400); // 10 * 40px
@@ -205,7 +206,7 @@ describe("useScrollWindow", () => {
     const items = ref(["a", "b", "c", "d", "e"]);
 
     const keyFn = (item: string) => item;
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, keyFn });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, keyFn });
 
     // Measure "b" as 100px
     const mockEl = document.createElement("div");
@@ -217,7 +218,7 @@ describe("useScrollWindow", () => {
     await nextTick();
 
     // Total should still reflect "b" at 100px, others at 40px default
-    expect(result.totalHeight.value).toBe(4 * 40 + 100);
+    expect(result.totalSize.value).toBe(4 * 40 + 100);
   });
 
   it("removes scroll listener on unmount", () => {
@@ -246,7 +247,7 @@ describe("useScrollWindow", () => {
     expect(result.startIndex.value).toBe(0);
     expect(result.endIndex.value).toBe(0);
     expect(result.startOffset.value).toBe(0);
-    expect(result.totalHeight.value).toBe(0);
+    expect(result.totalSize.value).toBe(0);
   });
 
   it("handles null viewport element", () => {
@@ -270,7 +271,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el1);
     const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
-    createComposable(viewportEl, items, { defaultItemHeight: 40 });
+    createComposable(viewportEl, items, { defaultItemSize: 40 });
 
     // Change viewport element
     viewportEl.value = el2;
@@ -289,7 +290,7 @@ describe("useScrollWindow", () => {
 
     // Should not throw
     result.measureItem("key", null);
-    expect(result.totalHeight.value).toBe(40); // Still uses default
+    expect(result.totalSize.value).toBe(40); // Still uses default
   });
 
   it("measureItem triggers recalculate when height changes", async () => {
@@ -297,7 +298,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Initial: 200px / 40px = 5 items (0-4), endIndex=4
     expect(result.visibleItems.value.length).toBe(5);
@@ -323,7 +324,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Initial: scrollTop=200, 40px items → startIndex=5
     const initialStart = result.startIndex.value;
@@ -343,8 +344,8 @@ describe("useScrollWindow", () => {
     // startIndex and startOffset stay stable (scrollTop didn't change)
     expect(result.startIndex.value).toBe(initialStart);
     expect(result.startOffset.value).toBe(initialOffset);
-    // But endIndex and totalHeight DO update from the new measurements
-    expect(result.totalHeight.value).toBe(5 * 80 + 45 * 40);
+    // But endIndex and totalSize DO update from the new measurements
+    expect(result.totalSize.value).toBe(5 * 80 + 45 * 40);
   });
 
   it("consecutive measurement batches at same scrollTop keep startIndex stable", async () => {
@@ -352,7 +353,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     const initialStart = result.startIndex.value;
 
@@ -382,7 +383,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Measure item 0 at 60px (different from default)
     const mockEl = document.createElement("div");
@@ -390,13 +391,13 @@ describe("useScrollWindow", () => {
     result.measureItem(0, mockEl);
     await nextTick();
 
-    const totalAfterFirst = result.totalHeight.value;
+    const totalAfterFirst = result.totalSize.value;
     expect(totalAfterFirst).toBe(60 + 9 * 40); // 420
 
     // Measure same item at same height — should not trigger recalculate
     result.measureItem(0, mockEl);
     await nextTick();
-    expect(result.totalHeight.value).toBe(totalAfterFirst);
+    expect(result.totalSize.value).toBe(totalAfterFirst);
   });
 
   it("measureItem ignores zero-height elements", () => {
@@ -410,7 +411,7 @@ describe("useScrollWindow", () => {
     Object.defineProperty(mockEl, "offsetHeight", { value: 0, configurable: true });
     result.measureItem("key", mockEl);
 
-    expect(result.totalHeight.value).toBe(40); // Still uses default
+    expect(result.totalSize.value).toBe(40); // Still uses default
   });
 
   it("scrollToIndex does nothing with null viewport", () => {
@@ -428,7 +429,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 5 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40 });
 
     result.scrollToIndex(100); // Way beyond items
     expect(el.scrollTop).toBe(200); // 5 * 40px (capped at all items)
@@ -439,7 +440,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(["a", "b", "c"]);
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40 });
 
     // Measure by index key
     const mockEl = document.createElement("div");
@@ -447,7 +448,7 @@ describe("useScrollWindow", () => {
     result.measureItem(0, mockEl);
     await nextTick(); // flush microtask-batched recalculate
 
-    expect(result.totalHeight.value).toBe(80 + 40 + 40); // first measured, rest default
+    expect(result.totalSize.value).toBe(80 + 40 + 40); // first measured, rest default
   });
 
   it("visibleItems returns correct slice", () => {
@@ -455,7 +456,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]);
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // 120px viewport / 40px items = 3 visible items
     expect(result.visibleItems.value.length).toBe(3);
@@ -474,7 +475,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Initial calculation happened in attachListener, reset to check throttling
     const initialStart = result.startIndex.value;
@@ -499,7 +500,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 5 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // When scrolled past all items, both indices point to the last item
     expect(result.startIndex.value).toBe(4);
@@ -526,7 +527,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40 });
 
     // Measure first 3 items at 60px each
     for (let i = 0; i < 3; i++) {
@@ -545,17 +546,17 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     expect(result.visibleItems.value.length).toBe(5); // 200/40 = 5
-    expect(result.totalHeight.value).toBe(800); // 20 * 40
+    expect(result.totalSize.value).toBe(800); // 20 * 40
 
     // Shrink to 3 items
     items.value = ["item-0", "item-1", "item-2"];
     await nextTick();
 
     expect(result.visibleItems.value.length).toBe(3);
-    expect(result.totalHeight.value).toBe(120); // 3 * 40
+    expect(result.totalSize.value).toBe(120); // 3 * 40
   });
 
   it("resets to start when scrolling back to top", async () => {
@@ -563,7 +564,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(el);
     const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40, overscan: 0 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40, overscan: 0 });
 
     // Initially scrolled down
     expect(result.startIndex.value).toBe(10);
@@ -579,28 +580,28 @@ describe("useScrollWindow", () => {
   });
 
   describe("totalItems", () => {
-    it("uses fixed totalHeight when totalItems is provided", () => {
+    it("uses fixed totalSize when totalItems is provided", () => {
       const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
 
-      // totalHeight = 500 * 40 = 20000, regardless of loaded items count
-      expect(result.totalHeight.value).toBe(20000);
+      // totalSize = 500 * 40 = 20000, regardless of loaded items count
+      expect(result.totalSize.value).toBe(20000);
     });
 
-    it("totalHeight stays fixed even after height measurements", async () => {
+    it("totalSize stays fixed even after height measurements", async () => {
       const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
@@ -613,43 +614,43 @@ describe("useScrollWindow", () => {
       }
       await nextTick();
 
-      // totalHeight should still be fixed at totalItems * defaultItemHeight
-      expect(result.totalHeight.value).toBe(20000);
+      // totalSize should still be fixed at totalItems * defaultItemSize
+      expect(result.totalSize.value).toBe(20000);
     });
 
-    it("totalHeight stays fixed when items grow", async () => {
+    it("totalSize stays fixed when items grow", async () => {
       const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
 
-      expect(result.totalHeight.value).toBe(20000);
+      expect(result.totalSize.value).toBe(20000);
 
       // Add more items
       items.value = [...items.value, ...Array.from({ length: 20 }, (_, i) => `item-${10 + i}`)];
       await nextTick();
 
       // Still fixed
-      expect(result.totalHeight.value).toBe(20000);
+      expect(result.totalSize.value).toBe(20000);
     });
 
-    it("empty items with totalItems still produces fixed totalHeight", () => {
+    it("empty items with totalItems still produces fixed totalSize", () => {
       const el = createMockViewport({ clientHeight: 200, scrollTop: 0 });
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref<string[]>([]);
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 100,
       });
 
-      expect(result.totalHeight.value).toBe(4000);
+      expect(result.totalSize.value).toBe(4000);
     });
 
     it("visible range still uses measured heights even with totalItems", async () => {
@@ -658,7 +659,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -673,8 +674,8 @@ describe("useScrollWindow", () => {
 
       // With 80px items, only ~2-3 fit in 200px viewport
       expect(result.endIndex.value).toBeLessThan(4);
-      // But totalHeight is still fixed
-      expect(result.totalHeight.value).toBe(40000);
+      // But totalSize is still fixed
+      expect(result.totalSize.value).toBe(40000);
     });
 
     it("scrolling to 50% shows items at the midpoint of totalItems", () => {
@@ -686,7 +687,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: totalItemsCount }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: totalItemsCount,
       });
@@ -700,7 +701,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
@@ -717,7 +718,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
@@ -727,19 +728,19 @@ describe("useScrollWindow", () => {
       expect(result.endIndex.value).toBe(499);
     });
 
-    it("startOffset uses proportional defaultItemHeight-based positioning", () => {
+    it("startOffset uses proportional defaultItemSize-based positioning", () => {
       // Scroll to item 122: scrollTop = 4900, floor(4900/40) = 122
       const el = createMockViewport({ clientHeight: 400, scrollTop: 4900 });
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
 
-      // offset = startIndex * defaultItemHeight (proportional positioning)
+      // offset = startIndex * defaultItemSize (proportional positioning)
       expect(result.startOffset.value).toBe(result.startIndex.value * 40);
     });
 
@@ -752,7 +753,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 5,
         totalItems: 500,
       });
@@ -763,14 +764,14 @@ describe("useScrollWindow", () => {
     });
 
     it("clamps startIndex to 0 when overscan exceeds targetIndex", () => {
-      // scrollTop = 80, defaultItemHeight = 40 → targetIndex = floor(80/40) = 2
+      // scrollTop = 80, defaultItemSize = 40 → targetIndex = floor(80/40) = 2
       // overscan = 5 → newStart = max(0, 2 - 5) = 0
       const el = createMockViewport({ clientHeight: 400, scrollTop: 80 });
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 5,
         totalItems: 500,
       });
@@ -789,7 +790,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -807,13 +808,13 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 5,
       });
 
       expect(result.startIndex.value).toBe(0);
-      expect(result.totalHeight.value).toBe(200);
+      expect(result.totalSize.value).toBe(200);
     });
 
     it("scrollToIndex uses proportional mapping with totalItems", () => {
@@ -823,13 +824,13 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
 
       result.scrollToIndex(250);
-      // Direct conversion: index * defaultItemHeight
+      // Direct conversion: index * defaultItemSize
       expect(el.scrollTop).toBe(10000);
     });
 
@@ -839,7 +840,7 @@ describe("useScrollWindow", () => {
       const items = ref(["only-item"]);
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 1,
       });
 
@@ -855,7 +856,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 100,
       });
@@ -871,7 +872,7 @@ describe("useScrollWindow", () => {
       const items = ref(["only"]);
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1,
       });
@@ -886,7 +887,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 500,
       });
@@ -896,7 +897,7 @@ describe("useScrollWindow", () => {
 
     it("placeholdersAfter is exact when scrolled past loaded items", () => {
       // 1000 total items, only 20 loaded
-      // scrollTop=19960, defaultItemHeight=40 → targetIndex = floor(19960/40) = 499
+      // scrollTop=19960, defaultItemSize=40 → targetIndex = floor(19960/40) = 499
       // fullStart=499, walk fills 400px: 400/40 = 10 items → fullEnd=508
       // placeholdersAfter = 508 - max(0, 19) = 489
       const el = createMockViewport({ clientHeight: 400, scrollTop: 19960 });
@@ -904,7 +905,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -922,7 +923,7 @@ describe("useScrollWindow", () => {
         createMockViewport({ clientHeight: 400, scrollTop: 800 })
       );
       const result1 = createComposable(viewportEl1, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -934,7 +935,7 @@ describe("useScrollWindow", () => {
         createMockViewport({ clientHeight: 400, scrollTop: 2000 })
       );
       const result2 = createComposable(viewportEl2, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -950,7 +951,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       });
 
@@ -963,7 +964,7 @@ describe("useScrollWindow", () => {
       const items = ref<string[]>([]);
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 100,
       });
 
@@ -980,7 +981,7 @@ describe("useScrollWindow", () => {
       const elPast = createMockViewport({ clientHeight: 400, scrollTop: 760 });
       const viewportPast = ref<HTMLElement | null>(elPast);
       const resultPast = createComposable(viewportPast, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -991,7 +992,7 @@ describe("useScrollWindow", () => {
       const elWithin = createMockViewport({ clientHeight: 400, scrollTop: 400 });
       const viewportWithin = ref<HTMLElement | null>(elWithin);
       const resultWithin = createComposable(viewportWithin, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 1000,
       });
@@ -1008,7 +1009,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         totalItems: 100,
       });
@@ -1027,8 +1028,8 @@ describe("useScrollWindow", () => {
 
       // Fewer items visible due to taller measured heights
       expect(result.endIndex.value).toBeLessThan(9);
-      // totalHeight unchanged
-      expect(result.totalHeight.value).toBe(4000);
+      // totalSize unchanged
+      expect(result.totalSize.value).toBe(4000);
       // startIndex still 0 (scroll position didn't change)
       expect(result.startIndex.value).toBe(0);
     });
@@ -1038,7 +1039,7 @@ describe("useScrollWindow", () => {
     const viewportEl = ref<HTMLElement | null>(null);
     const items = ref(["a", "b"]);
 
-    const result = createComposable(viewportEl, items, { defaultItemHeight: 40 });
+    const result = createComposable(viewportEl, items, { defaultItemSize: 40 });
 
     // Items watcher triggers recalculate() — should early-return with no viewport
     items.value = ["a", "b", "c"];
@@ -1066,7 +1067,7 @@ describe("useScrollWindow", () => {
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-      createComposable(viewportEl, items, { defaultItemHeight: 40, debug: true });
+      createComposable(viewportEl, items, { defaultItemSize: 40, debug: true });
 
       const logMessages = consoleSpy.mock.calls.map((c) => c[0]);
       expect(logMessages.some((m: string) => m.includes("[recalc]"))).toBe(true);
@@ -1081,7 +1082,7 @@ describe("useScrollWindow", () => {
       const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
       const result = createComposable(viewportEl, items, {
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         debug: true,
       });
 
@@ -1108,13 +1109,175 @@ describe("useScrollWindow", () => {
       const viewportEl = ref<HTMLElement | null>(el);
       const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
 
-      createComposable(viewportEl, items, { defaultItemHeight: 40 });
+      createComposable(viewportEl, items, { defaultItemSize: 40 });
 
       const logMessages = consoleSpy.mock.calls.map((c) => String(c[0]));
       expect(logMessages.some((m) => m.includes("[recalc]"))).toBe(false);
       expect(logMessages.some((m) => m.includes("[measure]"))).toBe(false);
 
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe("horizontal direction", () => {
+    function createHorizontalMockViewport(overrides: Record<string, number> = {}): HTMLElement {
+      const el = document.createElement("div");
+      const props: Record<string, number> = {
+        scrollLeft: 0,
+        clientWidth: 400,
+        scrollWidth: 4000,
+        scrollTop: 0,
+        clientHeight: 200,
+        scrollHeight: 200,
+        ...overrides,
+      };
+
+      for (const [key, value] of Object.entries(props)) {
+        Object.defineProperty(el, key, { value, writable: true, configurable: true });
+      }
+
+      return el;
+    }
+
+    it("computes initial range using clientWidth", () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200, scrollLeft: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        overscan: 0,
+        direction: "horizontal",
+      });
+
+      // 200px viewport / 40px items = 5 visible items (0-4)
+      expect(result.startIndex.value).toBe(0);
+      expect(result.endIndex.value).toBe(4);
+      expect(result.startOffset.value).toBe(0);
+    });
+
+    it("shifts range on horizontal scroll", async () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200, scrollLeft: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        overscan: 0,
+        direction: "horizontal",
+      });
+
+      // Scroll right to 400px
+      Object.defineProperty(el, "scrollLeft", { value: 400, writable: true, configurable: true });
+      el.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      expect(result.startIndex.value).toBe(10);
+      expect(result.startOffset.value).toBe(400);
+    });
+
+    it("scrollToIndex sets scrollLeft", () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 50 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        direction: "horizontal",
+      });
+
+      result.scrollToIndex(10);
+      expect(el.scrollLeft).toBe(400);
+    });
+
+    it("measureItem reads offsetWidth", async () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200, scrollLeft: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 20 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        overscan: 0,
+        direction: "horizontal",
+      });
+
+      // Measure first 5 items as 60px wide
+      for (let i = 0; i < 5; i++) {
+        const mockEl = document.createElement("div");
+        Object.defineProperty(mockEl, "offsetWidth", { value: 60, configurable: true });
+        result.measureItem(i, mockEl);
+      }
+
+      el.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      // 5 measured at 60px + 15 at 40px default = 900
+      expect(result.totalSize.value).toBe(5 * 60 + 15 * 40);
+    });
+
+    it("scrollToIndex with totalItems sets scrollLeft proportionally", () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 500 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        totalItems: 500,
+        direction: "horizontal",
+      });
+
+      result.scrollToIndex(250);
+      expect(el.scrollLeft).toBe(10000);
+    });
+
+    it("totalSize uses totalItems in horizontal mode", () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200, scrollLeft: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 10 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        totalItems: 500,
+        direction: "horizontal",
+      });
+
+      expect(result.totalSize.value).toBe(20000);
+    });
+
+    it("overscan extends visible range in horizontal mode", () => {
+      // clientWidth=200, scrollLeft=400 → targetIndex = floor(400/40) = 10
+      // overscan=3 → viewTop = 400 - 3*40 = 280, viewBottom = 400 + 200 + 3*40 = 720
+      const el = createHorizontalMockViewport({ clientWidth: 200, scrollLeft: 400 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref(Array.from({ length: 100 }, (_, i) => `item-${i}`));
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        overscan: 3,
+        direction: "horizontal",
+      });
+
+      // startIndex should be before the viewport leading edge due to overscan
+      expect(result.startIndex.value).toBeLessThan(10);
+      // endIndex should extend beyond the viewport trailing edge
+      expect(result.endIndex.value).toBeGreaterThan(14);
+    });
+
+    it("handles empty items in horizontal mode", () => {
+      const el = createHorizontalMockViewport({ clientWidth: 200, scrollLeft: 0 });
+      const viewportEl = ref<HTMLElement | null>(el);
+      const items = ref<string[]>([]);
+
+      const result = createComposable(viewportEl, items, {
+        defaultItemSize: 40,
+        overscan: 0,
+        direction: "horizontal",
+      });
+
+      expect(result.startIndex.value).toBe(0);
+      expect(result.endIndex.value).toBe(0);
+      expect(result.totalSize.value).toBe(0);
+      expect(result.visibleItems.value).toEqual([]);
     });
   });
 });

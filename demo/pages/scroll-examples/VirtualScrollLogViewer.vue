@@ -16,7 +16,7 @@ const { logs, scrollPosition, autoScroll, keyFn, onScrollPositionUpdate } = useL
   <DanxVirtualScroll
     v-model:scrollPosition="scrollPosition"
     :items="logs"
-    :default-item-height="28"
+    :default-item-size="28"
     :overscan="5"
     :key-fn="keyFn"
     debug

@@ -21,7 +21,7 @@ function jumpTo(index) {
   <DanxVirtualScroll
     v-model:scrollPosition="position"
     :items="items"
-    :default-item-height="36"
+    :default-item-size="36"
     :totalItems="10000"
     class="w-full h-[300px] border border-border rounded-lg"
   >

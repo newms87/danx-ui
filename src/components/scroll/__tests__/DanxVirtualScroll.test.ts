@@ -52,7 +52,7 @@ describe("DanxVirtualScroll", () => {
     const wrapper = mount(DanxVirtualScroll, {
       props: {
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         ...props,
       },
@@ -86,7 +86,7 @@ describe("DanxVirtualScroll", () => {
     const items = ["alpha", "beta", "gamma", "delta", "epsilon"];
     const wrapper = mountVirtualScroll({
       items,
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       overscan: 0,
     });
 
@@ -101,7 +101,7 @@ describe("DanxVirtualScroll", () => {
     expect(renderedItems[4]!.text()).toBe("4: epsilon");
   });
 
-  it("renders container with totalHeight and positioned wrapper", async () => {
+  it("renders container with totalSize and positioned wrapper", async () => {
     const wrapper = mountVirtualScroll({
       items: Array.from({ length: 50 }, (_, i) => `item-${i}`),
     });
@@ -110,7 +110,7 @@ describe("DanxVirtualScroll", () => {
     wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
     await nextTick();
 
-    // The viewport contains a container div with height=totalHeight and position:relative
+    // The viewport contains a container div with height=totalSize and position:relative
     const viewport = wrapper.find(".danx-scroll__viewport");
     const container = viewport.element.children[0] as HTMLElement;
     expect(container.style.height).toMatch(/\d+px/);
@@ -158,7 +158,7 @@ describe("DanxVirtualScroll", () => {
       infiniteScroll: false,
       loading: true,
       canLoadMore: false,
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       overscan: 0,
     });
 
@@ -206,7 +206,7 @@ describe("DanxVirtualScroll", () => {
     ];
 
     const ItemComponent = defineComponent({
-      template: `<DanxVirtualScroll :items="items" :key-fn="keyFn" :default-item-height="40" :overscan="0">
+      template: `<DanxVirtualScroll :items="items" :key-fn="keyFn" :default-item-size="40" :overscan="0">
         <template #item="{ item }"><span class="keyed-item">{{ item.name }}</span></template>
       </DanxVirtualScroll>`,
       components: { DanxVirtualScroll },
@@ -235,7 +235,7 @@ describe("DanxVirtualScroll", () => {
         items,
         infiniteScroll: true,
         loading: true,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       },
       {
@@ -258,7 +258,7 @@ describe("DanxVirtualScroll", () => {
         items,
         infiniteScroll: true,
         canLoadMore: false,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       },
       {
@@ -280,7 +280,7 @@ describe("DanxVirtualScroll", () => {
         items,
         infiniteScroll: true,
         loading: true,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       },
       {
@@ -302,7 +302,7 @@ describe("DanxVirtualScroll", () => {
       items,
       infiniteScroll: true,
       loading: true,
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       overscan: 0,
     });
 
@@ -320,7 +320,7 @@ describe("DanxVirtualScroll", () => {
       items,
       infiniteScroll: true,
       canLoadMore: false,
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       overscan: 0,
     });
 
@@ -332,11 +332,11 @@ describe("DanxVirtualScroll", () => {
     expect(wrapper.find(".danx-scroll__done").text()).toBe("No more items");
   });
 
-  it("totalItems prop produces stable totalHeight in container", async () => {
+  it("totalItems prop produces stable totalSize in container", async () => {
     const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
     const wrapper = mountVirtualScroll({
       items,
-      defaultItemHeight: 40,
+      defaultItemSize: 40,
       totalItems: 500,
       overscan: 0,
     });
@@ -345,7 +345,7 @@ describe("DanxVirtualScroll", () => {
     wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
     await nextTick();
 
-    // Container height should be totalItems * defaultItemHeight = 20000px
+    // Container height should be totalItems * defaultItemSize = 20000px
     const viewport = wrapper.find(".danx-scroll__viewport");
     const container = viewport.element.children[0] as HTMLElement;
     expect(container.style.height).toBe("20000px");
@@ -362,7 +362,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 20 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 1000,
         overscan: 0,
       });
@@ -381,7 +381,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 100,
         overscan: 0,
       });
@@ -397,7 +397,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       });
 
@@ -412,7 +412,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 1000,
         overscan: 0,
       });
@@ -430,7 +430,7 @@ describe("DanxVirtualScroll", () => {
       const wrapper = mountVirtualScroll(
         {
           items,
-          defaultItemHeight: 40,
+          defaultItemSize: 40,
           totalItems: 1000,
           overscan: 0,
         },
@@ -456,11 +456,11 @@ describe("DanxVirtualScroll", () => {
       expect(wrapper.findAll(".danx-skeleton").length).toBe(0);
     });
 
-    it("placeholder height matches defaultItemHeight", async () => {
+    it("placeholder height matches defaultItemSize", async () => {
       const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 50,
+        defaultItemSize: 50,
         totalItems: 1000,
         overscan: 0,
       });
@@ -480,7 +480,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       });
 
@@ -498,7 +498,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       });
 
@@ -514,7 +514,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         scrollPosition: 0,
       });
@@ -533,7 +533,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 1000,
         overscan: 0,
         scrollPosition: 0,
@@ -545,7 +545,7 @@ describe("DanxVirtualScroll", () => {
       await wrapper.setProps({ scrollPosition: 50 });
       await nextTick();
 
-      // Proportional mode: scrollTop = index * defaultItemHeight = 50 * 40 = 2000
+      // Proportional mode: scrollTop = index * defaultItemSize = 50 * 40 = 2000
       expect(viewport.scrollTop).toBe(2000);
     });
 
@@ -553,7 +553,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 50 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
       });
 
@@ -582,7 +582,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         scrollPosition: 0,
       });
@@ -611,7 +611,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         scrollPosition: 0,
       });
@@ -634,7 +634,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         scrollPosition: 0,
         debug: true,
@@ -662,7 +662,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         scrollPosition: 0,
         debug: true,
@@ -685,7 +685,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         scrollPosition: 0,
       });
@@ -718,7 +718,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 100,
         overscan: 0,
         infiniteScroll: true,
@@ -749,7 +749,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 100,
         overscan: 0,
         infiniteScroll: true,
@@ -778,7 +778,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         totalItems: 100,
         overscan: 0,
         infiniteScroll: true,
@@ -807,7 +807,7 @@ describe("DanxVirtualScroll", () => {
       const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
       const wrapper = mountVirtualScroll({
         items,
-        defaultItemHeight: 40,
+        defaultItemSize: 40,
         overscan: 0,
         infiniteScroll: true,
         canLoadMore: true,
@@ -817,6 +817,191 @@ describe("DanxVirtualScroll", () => {
       // Without totalItems, the endIndex watcher is NOT used — setupScrollInfinite handles it.
       // This test just verifies no crash and the component renders correctly.
       expect(wrapper.find(".danx-scroll__viewport").exists()).toBe(true);
+    });
+  });
+
+  describe("horizontal mode", () => {
+    function mockHorizontalViewport(
+      wrapper: VueWrapper,
+      overrides: Record<string, number> = {}
+    ): HTMLElement {
+      const viewport = wrapper.find(".danx-scroll__viewport").element as HTMLElement;
+      const defaults: Record<string, number> = {
+        scrollLeft: 0,
+        scrollWidth: 4000,
+        clientWidth: 300,
+        clientHeight: 200,
+        scrollTop: 0,
+        scrollHeight: 200,
+        ...overrides,
+      };
+
+      for (const [key, value] of Object.entries(defaults)) {
+        Object.defineProperty(viewport, key, { value, writable: true, configurable: true });
+      }
+
+      return viewport;
+    }
+
+    it("renders only visible items horizontally", async () => {
+      const wrapper = mountVirtualScroll({
+        items: Array.from({ length: 1000 }, (_, i) => `item-${i}`),
+        direction: "horizontal",
+        defaultItemSize: 100,
+      });
+
+      mockHorizontalViewport(wrapper, { clientWidth: 300 });
+
+      const viewport = wrapper.find(".danx-scroll__viewport").element;
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const renderedItems = wrapper.findAll(".test-item");
+      // 300px viewport / 100px items = 3 visible items (overscan=0)
+      expect(renderedItems.length).toBe(3);
+    });
+
+    it("container uses width instead of height", async () => {
+      const wrapper = mountVirtualScroll({
+        items: Array.from({ length: 50 }, (_, i) => `item-${i}`),
+        direction: "horizontal",
+        defaultItemSize: 100,
+      });
+
+      mockHorizontalViewport(wrapper, { clientWidth: 300 });
+      wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const viewport = wrapper.find(".danx-scroll__viewport");
+      const container = viewport.element.children[0] as HTMLElement;
+      // Container should have width (total content size) and height: 100%
+      expect(container.style.width).toMatch(/\d+px/);
+      expect(container.style.height).toBe("100%");
+      expect(container.style.position).toBe("relative");
+    });
+
+    it("wrapper uses left instead of top and flex row layout", async () => {
+      const wrapper = mountVirtualScroll({
+        items: Array.from({ length: 50 }, (_, i) => `item-${i}`),
+        direction: "horizontal",
+        defaultItemSize: 100,
+      });
+
+      mockHorizontalViewport(wrapper, { clientWidth: 300 });
+      wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const viewport = wrapper.find(".danx-scroll__viewport");
+      const container = viewport.element.children[0] as HTMLElement;
+      const positionedWrapper = container.children[0] as HTMLElement;
+      expect(positionedWrapper.style.position).toBe("absolute");
+      expect(positionedWrapper.style.left).toMatch(/\d+px/);
+      expect(positionedWrapper.style.height).toBe("100%");
+      expect(positionedWrapper.style.display).toBe("flex");
+      expect(positionedWrapper.style.flexDirection).toBe("row");
+    });
+
+    it("scrollPosition works in horizontal mode", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        direction: "horizontal",
+        defaultItemSize: 100,
+        scrollPosition: 0,
+      });
+
+      const viewport = mockHorizontalViewport(wrapper, { clientWidth: 300, scrollLeft: 0 });
+
+      // Change scrollPosition to index 10
+      await wrapper.setProps({ scrollPosition: 10 });
+      await nextTick();
+
+      // scrollToIndex(10) should set scrollLeft = 10 * 100 = 1000
+      expect(viewport.scrollLeft).toBe(1000);
+    });
+
+    it("placeholder sizing uses width when horizontal", async () => {
+      const items = Array.from({ length: 5 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        direction: "horizontal",
+        defaultItemSize: 120,
+        totalItems: 1000,
+      });
+
+      const viewport = mockHorizontalViewport(wrapper, { clientWidth: 300, scrollLeft: 600 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const placeholders = wrapper.findAll(".danx-virtual-scroll__placeholder");
+      expect(placeholders.length).toBeGreaterThan(0);
+      expect(placeholders[0]!.attributes("style")).toContain("width: 120px");
+    });
+
+    it("emits update:scrollPosition on horizontal scroll", async () => {
+      const items = Array.from({ length: 100 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        direction: "horizontal",
+        defaultItemSize: 100,
+      });
+
+      const viewport = mockHorizontalViewport(wrapper, { clientWidth: 300, scrollLeft: 500 });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      // scrollLeft 500 / 100px per item = startIndex 5
+      const emitted = wrapper.emitted("update:scrollPosition");
+      expect(emitted).toBeTruthy();
+      expect(emitted![emitted!.length - 1]).toEqual([5]);
+    });
+
+    it("infiniteScroll with totalItems emits loadMore in horizontal mode", async () => {
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        direction: "horizontal",
+        defaultItemSize: 100,
+        totalItems: 100,
+        overscan: 0,
+        infiniteScroll: true,
+        canLoadMore: true,
+        loading: false,
+      });
+
+      const viewport = mockHorizontalViewport(wrapper, { clientWidth: 300, scrollLeft: 0 });
+
+      // Scroll to end of loaded items (index 9 is last loaded)
+      // scrollLeft = 900 → targetIndex = floor(900/100) = 9
+      Object.defineProperty(viewport, "scrollLeft", {
+        value: 900,
+        writable: true,
+        configurable: true,
+      });
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const loadMoreEmits = wrapper.emitted("loadMore");
+      expect(loadMoreEmits).toBeTruthy();
+    });
+
+    it("totalItems with horizontal direction uses width for container", async () => {
+      const items = Array.from({ length: 10 }, (_, i) => `item-${i}`);
+      const wrapper = mountVirtualScroll({
+        items,
+        direction: "horizontal",
+        defaultItemSize: 100,
+        totalItems: 500,
+      });
+
+      mockHorizontalViewport(wrapper, { clientWidth: 300 });
+      wrapper.find(".danx-scroll__viewport").element.dispatchEvent(new Event("scroll"));
+      await nextTick();
+
+      const viewport = wrapper.find(".danx-scroll__viewport");
+      const container = viewport.element.children[0] as HTMLElement;
+      // Container width should be totalItems * defaultItemSize = 50000px
+      expect(container.style.width).toBe("50000px");
     });
   });
 });

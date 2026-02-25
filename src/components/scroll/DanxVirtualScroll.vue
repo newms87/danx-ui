@@ -3,31 +3,36 @@
  * DanxVirtualScroll - Windowed rendering for large lists
  *
  * Renders only the items visible in the viewport (plus an overscan buffer),
- * using absolute positioning within a fixed-height container. Built on top of
+ * using absolute positioning within a fixed-size container. Built on top of
  * DanxScroll for custom overlay scrollbars.
  *
+ * Supports both vertical (default) and horizontal scrolling via the inherited
+ * direction prop. In horizontal mode, items flow left-to-right and the virtual
+ * window uses width/left instead of height/top.
+ *
  * Uses absolute positioning instead of spacer divs: a single container div
- * with height=totalHeight holds the visible items at their computed offsets.
- * This keeps scrollHeight stable and prevents scrollbar oscillation.
+ * with size=totalSize holds the visible items at their computed offsets.
+ * This keeps scroll size stable and prevents scrollbar oscillation.
  *
  * Supports two modes:
  * - Local: All items passed upfront, only visible window rendered
  * - Remote: Items grow via infinite scroll (DanxVirtualScroll handles load-more directly)
  *
- * Items can have variable heights — measured after render via ref callbacks.
+ * Items can have variable sizes — measured after render via ref callbacks.
  *
  * @props
  *   items: T[] - Array of items to render (required)
- *   defaultItemHeight?: number - Estimated height for unmeasured items (default: 40)
- *   overscan?: number - Extra items above/below viewport (default: 3)
+ *   defaultItemSize?: number - Estimated size (height or width) for unmeasured items (default: 40)
+ *   overscan?: number - Extra items above/below (or before/after) viewport (default: 3)
  *   keyFn?: (item: T, index: number) => string | number - Unique key extractor (default: index)
  *   totalItems?: number - Total items in full dataset (for stable scrollbar in remote mode)
+ *   direction?: ScrollDirection - Scroll axis: "vertical" (default) or "horizontal"
  *   infiniteScroll?: boolean - Enable infinite scroll (read once at mount, not reactive) (default: false)
  *   loading?: boolean - Load in progress (default: false)
  *   canLoadMore?: boolean - Whether more items exist (default: true)
  *   distance?: number - Pixel threshold for infinite trigger (default: 200)
  *   infiniteDirection?: InfiniteScrollEdge - Edge for loading (default: "bottom")
- *   scrollPosition?: number - v-model for current top item index (default: 0).
+ *   scrollPosition?: number - v-model for current first visible item index (default: 0).
  *     Updates on scroll; setting from parent scrolls to that index.
  *   debug?: boolean - Enable debug console logging for this instance (default: false)
  *   ...DanxScrollProps - Non-infinite-scroll DanxScroll props pass through
@@ -38,7 +43,7 @@
  *
  * @slots
  *   item - Scoped slot receiving { item, index } for each visible item
- *   placeholder - Skeleton row for unloaded items (totalItems mode). Receives { index }. Default: DanxSkeleton rounded bar.
+ *   placeholder - Skeleton slot for unloaded items (totalItems mode). Receives { index }. Default: DanxSkeleton rounded bar.
  *   loading - Loading indicator (shown at end of visible items when loading=true)
  *   done - Done indicator (shown at end of visible items when canLoadMore=false)
  *
@@ -56,13 +61,12 @@
  * @example
  *   <DanxVirtualScroll
  *     :items="items"
- *     infiniteScroll
- *     :loading="loading"
- *     :canLoadMore="hasMore"
- *     @loadMore="fetchMore"
+ *     direction="horizontal"
+ *     :defaultItemSize="120"
+ *     class="h-48"
  *   >
  *     <template #item="{ item }">
- *       <LogLine :entry="item" />
+ *       <div class="w-28 h-full">{{ item.name }}</div>
  *     </template>
  *   </DanxVirtualScroll>
  */
@@ -74,7 +78,7 @@ import { useScrollWindow } from "./useScrollWindow";
 import type { DanxVirtualScrollProps, DanxVirtualScrollSlots } from "./virtual-scroll-types";
 
 const props = withDefaults(defineProps<DanxVirtualScrollProps<T>>(), {
-  defaultItemHeight: 40,
+  defaultItemSize: 40,
   overscan: 3,
   canLoadMore: true,
 });
@@ -87,6 +91,8 @@ const scrollPosition = defineModel<number>("scrollPosition", { default: 0 });
 
 defineSlots<DanxVirtualScrollSlots<T>>();
 
+const isHorizontal = computed(() => props.direction === "horizontal");
+
 /**
  * DanxScroll passthrough props — virtual-scroll-specific and infinite scroll props
  * are filtered out. DanxVirtualScroll handles infinite scroll directly so that
@@ -96,7 +102,7 @@ defineSlots<DanxVirtualScrollSlots<T>>();
 const scrollProps = computed(() => {
   const {
     items: _,
-    defaultItemHeight: _d,
+    defaultItemSize: _d,
     overscan: _o,
     keyFn: _k,
     totalItems: _t,
@@ -126,7 +132,7 @@ const {
   visibleItems,
   startIndex,
   endIndex,
-  totalHeight,
+  totalSize,
   startOffset,
   placeholdersAfter,
   measureItem,
@@ -134,10 +140,11 @@ const {
   keyFn,
 } = useScrollWindow<T>(viewportEl, {
   items: toRef(props, "items"),
-  defaultItemHeight: props.defaultItemHeight,
+  defaultItemSize: props.defaultItemSize,
   overscan: props.overscan,
   keyFn: props.keyFn,
   totalItems: props.totalItems,
+  direction: props.direction,
   debug: props.debug,
 });
 
@@ -196,6 +203,32 @@ watch(scrollPosition, (index) => {
 /** Whether the user has scrolled to the end of loaded items */
 const isAtEnd = computed(() => endIndex.value >= props.items.length - 1);
 
+/** Axis property names derived from direction. */
+const sizeProp = computed(() => (isHorizontal.value ? "width" : "height"));
+const posProp = computed(() => (isHorizontal.value ? "left" : "top"));
+const crossProp = computed(() => (isHorizontal.value ? "height" : "width"));
+
+/** Container style: sets the total scrollable size along the active axis. */
+const containerStyle = computed(() => ({
+  [sizeProp.value]: totalSize.value + "px",
+  [crossProp.value]: isHorizontal.value ? "100%" : undefined,
+  position: "relative" as const,
+  flexShrink: 0,
+}));
+
+/** Positioned wrapper style: offsets visible items along the active axis. */
+const wrapperStyle = computed(() => ({
+  position: "absolute" as const,
+  [posProp.value]: startOffset.value + "px",
+  [crossProp.value]: "100%",
+  ...(isHorizontal.value ? { display: "flex", flexDirection: "row" as const } : {}),
+}));
+
+/** Placeholder sizing style: uses size along the active axis. */
+const placeholderStyle = computed(() => ({
+  [sizeProp.value]: props.defaultItemSize + "px",
+}));
+
 function itemRef(index: number) {
   return (el: Element | ComponentPublicInstance | null) => {
     if (!el || !(el instanceof HTMLElement)) return;
@@ -207,15 +240,15 @@ function itemRef(index: number) {
 
 <template>
   <DanxScroll ref="scrollRef" v-bind="scrollProps">
-    <!-- Container sized to total content height for correct scrollbar -->
-    <div :style="{ height: totalHeight + 'px', position: 'relative', flexShrink: 0 }">
+    <!-- Container sized to total content size for correct scrollbar -->
+    <div :style="containerStyle">
       <!--
         Single absolutely-positioned wrapper at startOffset.
-        Visible items flow naturally (static positioning) inside it,
-        so each item stacks below the previous one without needing
-        individual top offsets.
+        Visible items flow naturally inside it.
+        In vertical mode: items stack top-to-bottom (default block flow).
+        In horizontal mode: items flow left-to-right (flexbox row).
       -->
-      <div :style="{ position: 'absolute', top: startOffset + 'px', width: '100%' }">
+      <div :style="wrapperStyle">
         <div
           v-for="(item, i) in visibleItems"
           :key="keyFn(item, startIndex + i)"
@@ -224,11 +257,11 @@ function itemRef(index: number) {
           <slot name="item" :item="item" :index="startIndex + i" />
         </div>
 
-        <!-- Placeholder skeleton rows for unloaded items (totalItems mode) -->
+        <!-- Placeholder skeleton slots for unloaded items (totalItems mode) -->
         <div
           v-for="p in placeholdersAfter"
           :key="'placeholder-' + (endIndex + p)"
-          :style="{ height: defaultItemHeight + 'px' }"
+          :style="placeholderStyle"
           class="danx-virtual-scroll__placeholder"
         >
           <slot name="placeholder" :index="endIndex + p">

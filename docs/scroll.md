@@ -210,7 +210,7 @@ const {
 
 ## Virtual Scroll
 
-`DanxVirtualScroll` renders only the items visible in the viewport (plus an overscan buffer), using absolute positioning within a fixed-height container. Built on top of `DanxScroll` for custom overlay scrollbars. The scrollbar thumb has a minimum size of 24px so it remains visible and grabbable even with very large lists.
+`DanxVirtualScroll` renders only the items visible in the viewport (plus an overscan buffer), using absolute positioning within a fixed-size container. Built on top of `DanxScroll` for custom overlay scrollbars. The scrollbar thumb has a minimum size of 24px so it remains visible and grabbable even with very large lists.
 
 ### DanxVirtualScroll Props
 
@@ -219,9 +219,9 @@ All `DanxScroll` props are supported, plus:
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `items` | `T[]` | required | Array of items to render |
-| `defaultItemHeight` | `number` | `40` | Estimated height for unmeasured items |
+| `defaultItemSize` | `number` | `40` | Estimated size (height or width) for unmeasured items |
 | `overscan` | `number` | `3` | Extra items above/below viewport |
-| `keyFn` | `(item, index) => string \| number` | index | Unique key for height caching |
+| `keyFn` | `(item, index) => string \| number` | index | Unique key for size caching |
 | `totalItems` | `number` | — | Total items in full dataset (stabilizes scrollbar) |
 | `scrollPosition` | `number` | `0` | v-model: current top item index. Updates on scroll; set from parent to jump. |
 | `debug` | `boolean` | `false` | Enable debug console logging for this instance |
@@ -285,7 +285,7 @@ Combine with infinite scroll to load items on demand:
 
 The `totalItems` prop makes the scrollbar proportional to the full dataset. Without it, the scrollbar only represents loaded items. With it, dragging the scrollbar to 50% scrolls to approximately the middle of the full dataset.
 
-When `totalItems` is set and the user scrolls past loaded items, placeholder skeleton rows are rendered automatically. Customize them with the `#placeholder` slot:
+When `totalItems` is set and the user scrolls past loaded items, placeholder skeletons are rendered automatically. Customize them with the `#placeholder` slot:
 
 ```vue
 <DanxVirtualScroll :items="items" :totalItems="500" ...>
@@ -306,7 +306,7 @@ For variable-height items (like log entries with multi-line messages), provide a
 <DanxVirtualScroll
   :items="logs"
   :key-fn="(log) => log.id"
-  :default-item-height="28"
+  :default-item-size="28"
   :overscan="5"
   size="sm"
   class="h-[400px] font-mono text-xs"
@@ -369,13 +369,13 @@ const {
   startIndex,     // Ref: first rendered index
   endIndex,       // Ref: last rendered index
   startOffset,    // Ref: absolute top offset for first visible item
-  totalHeight,    // Ref: container height (fixed when totalItems set)
-  measureItem,    // (key, el) => void — cache item height
+  totalSize,      // Ref: container size (fixed when totalItems set)
+  measureItem,    // (key, el) => void — cache item size
   scrollToIndex,  // (index) => void — scroll to item
   keyFn,          // Resolved key extractor function
 } = useScrollWindow(viewportEl, {
   items,
-  defaultItemHeight: 40,
+  defaultItemSize: 40,
   overscan: 3,
   keyFn: (item) => item.id,
   totalItems: 10000, // Optional: stabilizes scrollbar for remote datasets

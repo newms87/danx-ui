@@ -9,6 +9,7 @@ import bothAxesCode from "./scroll-examples/BothAxes.vue?raw";
 import sizesCode from "./scroll-examples/Sizes.vue?raw";
 import variantsCode from "./scroll-examples/Variants.vue?raw";
 import infiniteScrollCode from "./scroll-examples/InfiniteScroll.vue?raw";
+import virtualScrollHorizontalCode from "./scroll-examples/VirtualScrollHorizontal.vue?raw";
 import virtualScrollLocalCode from "./scroll-examples/VirtualScrollLocal.vue?raw";
 import virtualScrollPositionCode from "./scroll-examples/VirtualScrollPosition.vue?raw";
 import virtualScrollRemoteCode from "./scroll-examples/VirtualScrollRemote.vue?raw";
@@ -62,6 +63,11 @@ import virtualScrollInDialogCode from "./scroll-examples/VirtualScrollInDialog.v
       title="Virtual Scroll — Local"
       description="Windowed rendering for 10,000 items. Only visible items are in the DOM."
       :code="virtualScrollLocalCode"
+    />
+    <DemoSection
+      title="Virtual Scroll — Horizontal"
+      description="Horizontal virtual scroll for filmstrip/card-carousel layouts. Only visible cards are in the DOM."
+      :code="virtualScrollHorizontalCode"
     />
     <DemoSection
       title="Virtual Scroll — Scroll Position"
