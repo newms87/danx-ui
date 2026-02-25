@@ -14,8 +14,10 @@ const errorFile = ref({
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-1">
-    <DanxFile :file="errorFile" size="lg" />
-    <span class="text-xs text-text-muted">error overlay</span>
+  <div class="flex gap-6 items-end flex-wrap">
+    <div v-for="s in ['xs', 'sm', 'md', 'lg', 'xl']" :key="s" class="flex flex-col items-center gap-1">
+      <DanxFile :file="errorFile" :size="s" />
+      <span class="text-xs text-text-muted">{{ s }}</span>
+    </div>
   </div>
 </template>
