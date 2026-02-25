@@ -53,6 +53,23 @@ export interface PreviewFile {
 export type ImageFit = "cover" | "contain" | "fill" | "none" | "scale-down";
 
 /**
+ * Named size presets for DanxFile thumbnails.
+ *
+ * | Size | Value  | Use case                     |
+ * |------|--------|------------------------------|
+ * | xs   | 2rem   | Inline icons, compact lists  |
+ * | sm   | 4rem   | Small list items             |
+ * | md   | 6rem   | Standard thumbnails (default)|
+ * | lg   | 10rem  | Gallery views                |
+ * | xl   | 16rem  | Featured images              |
+ * | xxl  | 24rem  | Hero/spotlight               |
+ * | auto | 100%   | Fill parent container        |
+ *
+ * Concrete values are defined in `danx-file-tokens.css` (`--dx-file-size-*`).
+ */
+export type DanxFileSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl" | "auto";
+
+/**
  * Metadata panel display mode for DanxFileNavigator.
  */
 export type MetadataMode = "overlay" | "docked";
@@ -63,6 +80,8 @@ export type MetadataMode = "overlay" | "docked";
 export interface DanxFileProps {
   /** The file to display */
   file: PreviewFile;
+  /** Named size preset (default: "md") */
+  size?: DanxFileSize;
   /** Image object-fit (default: "cover") */
   fit?: ImageFit;
   /** Show filename overlay (default: false) */

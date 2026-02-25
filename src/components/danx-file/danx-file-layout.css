@@ -12,13 +12,11 @@
    ========================================================================== */
 
 .danx-file {
-  position: relative;
   display: inline-flex;
+  flex-direction: column;
   overflow: hidden;
   background: var(--dx-file-thumb-bg);
   border-radius: var(--dx-file-thumb-border-radius);
-  width: 100%;
-  aspect-ratio: 1;
   cursor: pointer;
   user-select: none;
 
@@ -26,6 +24,61 @@
     outline: 2px solid var(--color-focus-ring);
     outline-offset: 2px;
   }
+}
+
+/* ==========================================================================
+   Preview Wrapper
+   ========================================================================== */
+
+.danx-file__preview {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-file--xs {
+  width: var(--dx-file-size-xs);
+  height: var(--dx-file-size-xs);
+}
+
+.danx-file--sm {
+  width: var(--dx-file-size-sm);
+  height: var(--dx-file-size-sm);
+}
+
+.danx-file--md {
+  width: var(--dx-file-size-md);
+  height: var(--dx-file-size-md);
+}
+
+.danx-file--lg {
+  width: var(--dx-file-size-lg);
+  height: var(--dx-file-size-lg);
+}
+
+.danx-file--xl {
+  width: var(--dx-file-size-xl);
+  height: var(--dx-file-size-xl);
+}
+
+.danx-file--xxl {
+  width: var(--dx-file-size-xxl);
+  height: var(--dx-file-size-xxl);
+}
+
+.danx-file--auto {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .danx-file--disabled {
@@ -98,15 +151,13 @@
    ========================================================================== */
 
 .danx-file__filename {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
   padding: 0.25rem 0.5rem;
   background: var(--dx-file-thumb-filename-bg);
   color: var(--dx-file-thumb-action-color);
   font-size: 0.625rem;
   line-height: 1.3;
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

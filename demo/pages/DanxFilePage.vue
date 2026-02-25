@@ -14,6 +14,7 @@ import videoThumbnailCode from "./danx-file-examples/VideoThumbnail.vue?raw";
 import progressStatesCode from "./danx-file-examples/ProgressStates.vue?raw";
 import errorStateCode from "./danx-file-examples/ErrorState.vue?raw";
 import fileTypeIconsCode from "./danx-file-examples/FileTypeIcons.vue?raw";
+import sizesCode from "./danx-file-examples/Sizes.vue?raw";
 import actionsCode from "./danx-file-examples/Actions.vue?raw";
 </script>
 
@@ -27,6 +28,12 @@ import actionsCode from "./danx-file-examples/Actions.vue?raw";
       title="Basic Thumbnail"
       description="Image thumbnails with different fit modes and filename overlay."
       :code="basicThumbnailCode"
+    />
+
+    <DemoSection
+      title="Sizes"
+      description="Named size presets from xs (2rem) to xxl (24rem), plus auto for filling the parent."
+      :code="sizesCode"
     />
 
     <DemoSection

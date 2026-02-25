@@ -16,6 +16,14 @@
  * --dx-file-thumb-error-bg          Error overlay background
  * --dx-file-thumb-error-color       Error text and icon color
  * --dx-file-thumb-icon-color        File-type icon color for non-previewable files
+ * --dx-file-thumb-filename-bg      Filename overlay background
+ * --dx-file-thumb-action-bg-hover  Action button hover background
+ * --dx-file-size-xs                 Extra-small size (2rem)
+ * --dx-file-size-sm                 Small size (4rem)
+ * --dx-file-size-md                 Medium/default size (6rem)
+ * --dx-file-size-lg                 Large size (10rem)
+ * --dx-file-size-xl                 Extra-large size (16rem)
+ * --dx-file-size-xxl                Double extra-large size (24rem)
  */
 
 :root {
@@ -61,5 +69,16 @@
 
   --dx-file-thumb-filename-bg: rgb(0 0 0 / 0.6);
   --dx-file-thumb-action-bg-hover: rgb(0 0 0 / 0.7);
+
+  /* ==========================================================================
+     Size Presets
+     ========================================================================== */
+
+  --dx-file-size-xs: 2rem;
+  --dx-file-size-sm: 4rem;
+  --dx-file-size-md: 6rem;
+  --dx-file-size-lg: 10rem;
+  --dx-file-size-xl: 16rem;
+  --dx-file-size-xxl: 24rem;
 
 }

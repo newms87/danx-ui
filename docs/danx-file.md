@@ -37,18 +37,34 @@ const photo: PreviewFile = {
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `file` | `PreviewFile` | required | The file to display |
+| `size` | `DanxFileSize` | `"md"` | Named size preset |
 | `fit` | `ImageFit` | `"cover"` | Image object-fit mode |
-| `showFilename` | `boolean` | `false` | Show filename overlay at bottom |
+| `showFilename` | `boolean` | `false` | Show filename below preview |
 | `downloadable` | `boolean` | `false` | Show download button on hover |
 | `removable` | `boolean` | `false` | Show remove button on hover |
 | `disabled` | `boolean` | `false` | Suppress click event |
+| `loading` | `boolean` | `false` | Show pulsing skeleton placeholder |
+
+## Size Presets
+
+| Size | Value | Use case |
+|------|-------|----------|
+| `xs` | 2rem | Inline icons, compact lists |
+| `sm` | 4rem | Small list items |
+| `md` | 6rem | Standard thumbnails (default) |
+| `lg` | 10rem | Gallery views |
+| `xl` | 16rem | Featured images |
+| `xxl` | 24rem | Hero/spotlight |
+| `auto` | 100% | Fill parent container |
+
+Sizes are defined as CSS tokens (`--dx-file-size-xs` through `--dx-file-size-xxl`) and can be overridden globally or per-instance.
 
 ## Events
 
 | Event | Payload | Description |
 |-------|---------|-------------|
 | `click` | `PreviewFile` | Thumbnail clicked |
-| `download` | `PreviewFile` | Download button clicked |
+| `download` | `DanxFileDownloadEvent` | Download button clicked (call `preventDefault()` to suppress) |
 | `remove` | `PreviewFile` | Remove confirmed (after 2-step) |
 
 ## Slots
@@ -102,6 +118,12 @@ interface PreviewFile {
 | `--dx-file-thumb-error-bg` | `rgb(239 68 68 / 0.85)` | Error overlay |
 | `--dx-file-thumb-error-color` | `white` | Error text/icon |
 | `--dx-file-thumb-icon-color` | `var(--color-text-muted)` | File-type icon |
+| `--dx-file-size-xs` | `2rem` | Extra-small size |
+| `--dx-file-size-sm` | `4rem` | Small size |
+| `--dx-file-size-md` | `6rem` | Medium size |
+| `--dx-file-size-lg` | `10rem` | Large size |
+| `--dx-file-size-xl` | `16rem` | Extra-large size |
+| `--dx-file-size-xxl` | `24rem` | Double extra-large |
 
 ## File Helpers
 

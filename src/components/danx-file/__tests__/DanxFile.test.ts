@@ -449,4 +449,99 @@ describe("DanxFile", () => {
       expect(wrapper.emitted("click")).toBeUndefined();
     });
   });
+
+  describe("Size prop", () => {
+    it("defaults to md size class", () => {
+      const wrapper = mountFile();
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--md");
+    });
+
+    it("applies xs size class", () => {
+      const wrapper = mountFile({ size: "xs" });
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--xs");
+    });
+
+    it("applies sm size class", () => {
+      const wrapper = mountFile({ size: "sm" });
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--sm");
+    });
+
+    it("applies lg size class", () => {
+      const wrapper = mountFile({ size: "lg" });
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--lg");
+    });
+
+    it("applies xl size class", () => {
+      const wrapper = mountFile({ size: "xl" });
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--xl");
+    });
+
+    it("applies xxl size class", () => {
+      const wrapper = mountFile({ size: "xxl" });
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--xxl");
+    });
+
+    it("applies auto size class", () => {
+      const wrapper = mountFile({ size: "auto" });
+      expect(wrapper.find(".danx-file").classes()).toContain("danx-file--auto");
+    });
+  });
+
+  describe("Preview wrapper structure", () => {
+    it("wraps image content in preview div", () => {
+      const wrapper = mountFile();
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.exists()).toBe(true);
+      expect(preview.find(".danx-file__image").exists()).toBe(true);
+    });
+
+    it("wraps skeleton in preview div when loading", () => {
+      const wrapper = mountFile({ loading: true });
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.exists()).toBe(true);
+      expect(preview.find(".danx-skeleton").exists()).toBe(true);
+    });
+
+    it("wraps type icon in preview div", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "text/plain", url: "https://example.com/readme.txt" }),
+      });
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.find(".danx-file__type-icon").exists()).toBe(true);
+    });
+
+    it("places filename outside preview wrapper", () => {
+      const wrapper = mountFile({ showFilename: true });
+      const preview = wrapper.find(".danx-file__preview");
+      // Filename should be a sibling of preview, not inside it
+      expect(preview.find(".danx-file__filename").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__filename").exists()).toBe(true);
+    });
+
+    it("places actions inside preview wrapper", () => {
+      const wrapper = mountFile({ downloadable: true });
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.find(".danx-file__actions").exists()).toBe(true);
+    });
+
+    it("wraps audio element in preview div", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+      });
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.find(".danx-file__audio").exists()).toBe(true);
+    });
+
+    it("wraps progress overlay in preview div", () => {
+      const wrapper = mountFile({ file: makeFile({ progress: 50 }) });
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.find(".danx-file__progress").exists()).toBe(true);
+    });
+
+    it("wraps error overlay in preview div", () => {
+      const wrapper = mountFile({ file: makeFile({ error: "Failed" }) });
+      const preview = wrapper.find(".danx-file__preview");
+      expect(preview.find(".danx-file__error").exists()).toBe(true);
+    });
+  });
 });

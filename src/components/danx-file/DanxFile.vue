@@ -18,6 +18,7 @@
  *
  * @props
  *   file: PreviewFile - The file to display (required)
+ *   size?: DanxFileSize - Named size preset (default: "md")
  *   fit?: ImageFit - Image object-fit (default: "cover")
  *   showFilename?: boolean - Show filename overlay at bottom (default: false)
  *   downloadable?: boolean - Show download button on hover (default: false)
@@ -48,9 +49,11 @@
  *   --dx-file-thumb-icon-color - File-type icon color
  *   --dx-file-thumb-fit - Image object-fit (set via fit prop)
  *   --dx-file-thumb-filename-bg - Filename overlay background
+ *   --dx-file-size-xs through --dx-file-size-xxl - Size preset dimensions
  *
  * @example
  *   <DanxFile :file="photo" downloadable @click="openPreview" />
+ *   <DanxFile :file="photo" size="lg" show-filename />
  *   <DanxFile :file="uploadingFile" />
  *   <DanxFile :file="doc" removable @remove="deleteFile" />
  */
@@ -75,6 +78,7 @@ import {
 import type { DanxFileEmits, DanxFileProps, DanxFileSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxFileProps>(), {
+  size: "md",
   fit: "cover",
   showFilename: false,
   downloadable: false,
@@ -86,6 +90,8 @@ const props = withDefaults(defineProps<DanxFileProps>(), {
 const emit = defineEmits<DanxFileEmits>();
 
 defineSlots<DanxFileSlots>();
+
+const sizeClass = computed(() => `danx-file--${props.size}`);
 
 // --- Computed state ---
 
@@ -151,85 +157,92 @@ function onDownload() {
 <template>
   <div
     class="danx-file"
-    :class="{ 'danx-file--disabled': disabled }"
+    :class="[sizeClass, { 'danx-file--disabled': disabled }]"
     :style="fitStyle"
     role="button"
     :tabindex="disabled ? -1 : 0"
     @click="onClick"
     @keydown.enter="onClick"
   >
-    <!-- Loading skeleton -->
-    <DanxSkeleton
-      v-if="loading"
-      animation="wave"
-      aria-label="Loading file"
-      style="--dx-skeleton-height: 100%"
-    />
+    <!-- Preview wrapper: holds all visual content and absolute overlays -->
+    <div class="danx-file__preview">
+      <!-- Loading skeleton -->
+      <DanxSkeleton
+        v-if="loading"
+        animation="wave"
+        aria-label="Loading file"
+        style="--dx-skeleton-height: 100%"
+      />
 
-    <!-- Preview: Image -->
-    <img
-      v-else-if="showImage || showVideo"
-      class="danx-file__image"
-      :src="thumbUrl"
-      :alt="file.name"
-      loading="lazy"
-    />
+      <!-- Preview: Image -->
+      <img
+        v-else-if="showImage || showVideo"
+        class="danx-file__image"
+        :src="thumbUrl"
+        :alt="file.name"
+        loading="lazy"
+      />
 
-    <!-- Audio preview -->
-    <audio v-else-if="showAudio" class="danx-file__audio" controls :src="resolveFileUrl(file)" />
+      <!-- Audio preview -->
+      <audio v-else-if="showAudio" class="danx-file__audio" controls :src="resolveFileUrl(file)" />
 
-    <!-- Video play icon overlay -->
-    <div v-if="showVideo && !showProgress && !showError" class="danx-file__play-icon">
-      <DanxIcon icon="play" />
-    </div>
+      <!-- Video play icon overlay -->
+      <div v-if="showVideo && !showProgress && !showError" class="danx-file__play-icon">
+        <DanxIcon icon="play" />
+      </div>
 
-    <!-- File-type icon for non-previewable files -->
-    <div v-if="showTypeIcon && !showImage && !showVideo && !loading" class="danx-file__type-icon">
-      <DanxIcon :icon="iconName" />
-      <span class="danx-file__type-icon-name">{{ file.name }}</span>
-    </div>
+      <!-- File-type icon for non-previewable files -->
+      <div v-if="showTypeIcon && !showImage && !showVideo && !loading" class="danx-file__type-icon">
+        <DanxIcon :icon="iconName" />
+        <span class="danx-file__type-icon-name">{{ file.name }}</span>
+      </div>
 
-    <!-- Progress overlay -->
-    <div v-if="showProgress" class="danx-file__progress">
-      <span class="danx-file__progress-text">{{ progressText }}</span>
-      <div class="danx-file__progress-bar">
-        <div class="danx-file__progress-fill" :style="{ width: (file.progress ?? 0) + '%' }" />
+      <!-- Progress overlay -->
+      <div v-if="showProgress" class="danx-file__progress">
+        <span class="danx-file__progress-text">{{ progressText }}</span>
+        <div class="danx-file__progress-bar">
+          <div class="danx-file__progress-fill" :style="{ width: (file.progress ?? 0) + '%' }" />
+        </div>
+      </div>
+
+      <!-- Error overlay -->
+      <div v-if="showError" class="danx-file__error" :title="file.error">
+        <DanxIcon icon="warning-triangle" />
+        <span class="danx-file__error-text">{{ file.error }}</span>
+      </div>
+
+      <!-- Hover actions -->
+      <div
+        v-if="downloadable || removable || $slots.actions"
+        class="danx-file__actions"
+        @click.stop
+      >
+        <slot name="actions" />
+
+        <button
+          v-if="downloadable"
+          class="danx-file__action-btn"
+          title="Download"
+          @click="onDownload"
+        >
+          <DanxIcon icon="download" />
+        </button>
+
+        <button
+          v-if="removable"
+          class="danx-file__action-btn"
+          :class="{ 'danx-file__action-btn--armed': removeArmed }"
+          :title="removeArmed ? 'Click again to confirm' : 'Remove'"
+          @click="onRemoveClick"
+        >
+          <DanxIcon :icon="removeArmed ? 'confirm' : 'trash'" />
+        </button>
       </div>
     </div>
 
-    <!-- Error overlay -->
-    <div v-if="showError" class="danx-file__error" :title="file.error">
-      <DanxIcon icon="warning-triangle" />
-      <span class="danx-file__error-text">{{ file.error }}</span>
-    </div>
-
-    <!-- Filename overlay -->
+    <!-- Filename: flow element below preview -->
     <div v-if="showFilename && !showProgress && !showError" class="danx-file__filename">
       {{ file.name }}
-    </div>
-
-    <!-- Hover actions -->
-    <div v-if="downloadable || removable || $slots.actions" class="danx-file__actions" @click.stop>
-      <slot name="actions" />
-
-      <button
-        v-if="downloadable"
-        class="danx-file__action-btn"
-        title="Download"
-        @click="onDownload"
-      >
-        <DanxIcon icon="download" />
-      </button>
-
-      <button
-        v-if="removable"
-        class="danx-file__action-btn"
-        :class="{ 'danx-file__action-btn--armed': removeArmed }"
-        :title="removeArmed ? 'Click again to confirm' : 'Remove'"
-        @click="onRemoveClick"
-      >
-        <DanxIcon :icon="removeArmed ? 'confirm' : 'trash'" />
-      </button>
     </div>
   </div>
 </template>
