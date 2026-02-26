@@ -22,6 +22,7 @@ import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileViewerPage from "./pages/DanxFileViewerPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
 import SkeletonPage from "./pages/SkeletonPage.vue";
+import InputPage from "./pages/InputPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
 import TypographyPage from "./pages/design-system/TypographyPage.vue";
 import SpacingPage from "./pages/design-system/SpacingPage.vue";
@@ -56,6 +57,7 @@ const router = createRouter({
     { path: "/danx-file-viewer", name: "danx-file-viewer", component: DanxFileViewerPage },
     { path: "/scroll", name: "scroll", component: ScrollPage },
     { path: "/skeleton", name: "skeleton", component: SkeletonPage },
+    { path: "/input", name: "input", component: InputPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },
     { path: "/design/typography", name: "design-typography", component: TypographyPage },
     { path: "/design/spacing", name: "design-spacing", component: SpacingPage },

@@ -1,0 +1,71 @@
+/**
+ * DanxInput Tokens
+ *
+ * Component tokens (Tier 3) referencing shared form tokens.
+ *
+ * CSS Tokens:
+ * --dx-input-bg                  Input background
+ * --dx-input-border              Default border color
+ * --dx-input-border-hover        Border color on hover
+ * --dx-input-border-focus        Border color when focused
+ * --dx-input-border-error        Border color in error state
+ * --dx-input-text                Input text color
+ * --dx-input-placeholder         Placeholder text color
+ * --dx-input-disabled-bg         Background when disabled
+ * --dx-input-disabled-text       Text color when disabled
+ * --dx-input-border-radius       Corner radius
+ * --dx-input-transition          Transition timing
+ * --dx-input-clear-color         Clear button color
+ * --dx-input-clear-hover         Clear button hover color
+ * --dx-input-disabled-opacity    Opacity when disabled
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-input-{size}-height       Input height
+ * --dx-input-{size}-font-size    Font size
+ * --dx-input-{size}-padding-x    Horizontal padding
+ */
+
+:root {
+  /* ==========================================================================
+     Global Input Tokens
+     ========================================================================== */
+
+  --dx-input-bg: var(--color-field-bg);
+  --dx-input-border: var(--color-field-border);
+  --dx-input-border-hover: var(--color-field-border-hover);
+  --dx-input-border-focus: var(--color-field-border-focus);
+  --dx-input-border-error: var(--color-field-border-error);
+  --dx-input-text: var(--color-field-text);
+  --dx-input-placeholder: var(--color-field-placeholder);
+  --dx-input-disabled-bg: var(--color-field-disabled-bg);
+  --dx-input-disabled-text: var(--color-field-disabled-text);
+  --dx-input-border-radius: var(--radius-field);
+  --dx-input-transition: var(--transition-fast);
+  --dx-input-clear-color: var(--color-text-subtle);
+  --dx-input-clear-hover: var(--color-text);
+  --dx-input-disabled-opacity: 0.5;
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-input-sm-height: var(--field-sm-height);
+  --dx-input-sm-font-size: var(--field-sm-font-size);
+  --dx-input-sm-padding-x: var(--field-sm-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-input-md-height: var(--field-md-height);
+  --dx-input-md-font-size: var(--field-md-font-size);
+  --dx-input-md-padding-x: var(--field-md-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-input-lg-height: var(--field-lg-height);
+  --dx-input-lg-font-size: var(--field-lg-font-size);
+  --dx-input-lg-padding-x: var(--field-lg-padding-x);
+}

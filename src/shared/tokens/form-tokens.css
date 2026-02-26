@@ -1,0 +1,70 @@
+/**
+ * Shared Form Field Tokens
+ *
+ * Tier-2.5 tokens referenced by ALL form components (input, textarea, select, etc.).
+ * Values are var() references to semantic tokens — no raw values allowed.
+ *
+ * CSS Tokens:
+ * --color-field-bg              Field background
+ * --color-field-border          Default border color
+ * --color-field-border-hover    Border color on hover
+ * --color-field-border-focus    Border color when focused
+ * --color-field-border-error    Border color in error state
+ * --color-field-text            Input text color
+ * --color-field-placeholder     Placeholder text color
+ * --color-field-label           Label text color
+ * --color-field-helper          Helper text color
+ * --color-field-error-text      Error message text color
+ * --color-field-disabled-bg     Background when disabled
+ * --color-field-disabled-text   Text color when disabled
+ * --radius-field                Border radius for inputs
+ *
+ * Size tokens (sm, md, lg):
+ * --field-{size}-height         Field height
+ * --field-{size}-font-size      Font size
+ * --field-{size}-padding-x      Horizontal padding
+ */
+
+:root {
+  /* ==========================================================================
+     Color Tokens
+     ========================================================================== */
+
+  --color-field-bg: var(--color-surface);
+  --color-field-border: var(--color-border);
+  --color-field-border-hover: var(--color-border-strong);
+  --color-field-border-focus: var(--color-focus-ring);
+  --color-field-border-error: var(--color-danger);
+  --color-field-text: var(--color-text);
+  --color-field-placeholder: var(--color-text-subtle);
+  --color-field-label: var(--color-text);
+  --color-field-helper: var(--color-text-subtle);
+  --color-field-error-text: var(--color-danger);
+  --color-field-disabled-bg: var(--color-surface-sunken);
+  --color-field-disabled-text: var(--color-text-subtle);
+  --radius-field: var(--radius-input);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --field-sm-height: 2rem;
+  --field-sm-font-size: var(--text-xs);
+  --field-sm-padding-x: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --field-md-height: 2.5rem;
+  --field-md-font-size: var(--text-sm);
+  --field-md-padding-x: var(--spacing-3);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --field-lg-height: 3rem;
+  --field-lg-font-size: var(--text-base);
+  --field-lg-padding-x: var(--spacing-4);
+}

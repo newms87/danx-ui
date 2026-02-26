@@ -1,0 +1,22 @@
+/**
+ * DanxFieldWrapper Tokens
+ *
+ * Component tokens (Tier 3) referencing shared form tokens.
+ *
+ * CSS Tokens:
+ * --dx-field-wrapper-label-color       Label text color
+ * --dx-field-wrapper-label-font-size   Label font size
+ * --dx-field-wrapper-label-font-weight Label font weight
+ * --dx-field-wrapper-label-gap         Gap between label and field
+ * --dx-field-wrapper-message-font-size Message (error/helper) font size
+ * --dx-field-wrapper-required-color    Required asterisk color
+ */
+
+:root {
+  --dx-field-wrapper-label-color: var(--color-field-label);
+  --dx-field-wrapper-label-font-size: var(--text-sm);
+  --dx-field-wrapper-label-font-weight: var(--font-medium);
+  --dx-field-wrapper-label-gap: var(--spacing-1-5);
+  --dx-field-wrapper-message-font-size: var(--text-xs);
+  --dx-field-wrapper-required-color: var(--color-danger);
+}

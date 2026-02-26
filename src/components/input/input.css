@@ -1,0 +1,175 @@
+/**
+ * DanxInput Styles
+ *
+ * Main entry point that imports tokens and defines input layout,
+ * size modifiers, states, and interactive elements (clear, reveal).
+ *
+ * Note: BEM modifiers (.danx-input--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./input-tokens.css";
+
+/* ==========================================================================
+   Base Input Container
+   ========================================================================== */
+
+.danx-input {
+  display: flex;
+  align-items: center;
+  background: var(--dx-input-bg);
+  border: 1px solid var(--dx-input-border);
+  border-radius: var(--dx-input-border-radius);
+  transition:
+    border-color var(--dx-input-transition),
+    box-shadow var(--dx-input-transition);
+
+  &:hover:not(.danx-input--disabled):not(.danx-input--readonly) {
+    border-color: var(--dx-input-border-hover);
+  }
+}
+
+/* ==========================================================================
+   Native Input Element
+   ========================================================================== */
+
+.danx-input__native {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--dx-input-text);
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--dx-input-placeholder);
+  }
+
+  /* Hide number spinners */
+  &[type="number"]::-webkit-outer-spin-button,
+  &[type="number"]::-webkit-inner-spin-button {
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+/* ==========================================================================
+   Prefix & Suffix Slots
+   ========================================================================== */
+
+.danx-input__prefix,
+.danx-input__suffix {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--dx-input-placeholder);
+}
+
+/* ==========================================================================
+   Clear & Reveal Buttons (shared base)
+   ========================================================================== */
+
+.danx-input__clear,
+.danx-input__reveal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--dx-input-clear-color);
+  transition: color var(--dx-input-transition);
+
+  &:hover {
+    color: var(--dx-input-clear-hover);
+  }
+}
+
+.danx-input__clear .danx-icon {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+.danx-input__reveal .danx-icon {
+  width: 1em;
+  height: 1em;
+}
+
+/* ==========================================================================
+   Character Count
+   ========================================================================== */
+
+.danx-input__char-count {
+  flex-shrink: 0;
+  font-size: 0.75em;
+  color: var(--dx-input-placeholder);
+  user-select: none;
+}
+
+.danx-input__char-count--limit {
+  color: var(--color-field-error-text);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-input--sm {
+  height: var(--dx-input-sm-height);
+  font-size: var(--dx-input-sm-font-size);
+  padding: 0 var(--dx-input-sm-padding-x);
+  gap: var(--spacing-1-5);
+}
+
+.danx-input--md {
+  height: var(--dx-input-md-height);
+  font-size: var(--dx-input-md-font-size);
+  padding: 0 var(--dx-input-md-padding-x);
+  gap: var(--spacing-2);
+}
+
+.danx-input--lg {
+  height: var(--dx-input-lg-height);
+  font-size: var(--dx-input-lg-font-size);
+  padding: 0 var(--dx-input-lg-padding-x);
+  gap: var(--spacing-2-5);
+}
+
+/* ==========================================================================
+   State Modifiers
+   ========================================================================== */
+
+.danx-input--focused {
+  border-color: var(--dx-input-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-input-border-focus) 25%, transparent);
+}
+
+.danx-input--error {
+  border-color: var(--dx-input-border-error);
+
+  &.danx-input--focused {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-input-border-error) 25%, transparent);
+  }
+}
+
+.danx-input--disabled {
+  background: var(--dx-input-disabled-bg);
+  opacity: var(--dx-input-disabled-opacity);
+  cursor: not-allowed;
+
+  .danx-input__native {
+    color: var(--dx-input-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+.danx-input--readonly {
+  .danx-input__native {
+    cursor: default;
+  }
+}

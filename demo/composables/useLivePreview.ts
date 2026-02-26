@@ -36,6 +36,9 @@ import {
   watchEffect,
 } from "vue";
 import { DanxBadge } from "../../src/components/badge";
+import { DanxFieldWrapper } from "../../src/components/field-wrapper";
+import { DanxInput } from "../../src/components/input";
+import { useFormField } from "../../src/shared/composables/useFormField";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
 import {
@@ -172,6 +175,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxScroll,
   DanxVirtualScroll,
   DanxSkeleton,
+  DanxInput,
+  DanxFieldWrapper,
 };
 
 /**
@@ -299,6 +304,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useScrollWindow,
   // Skeleton
   DanxSkeleton,
+  // Input
+  DanxInput,
+  DanxFieldWrapper,
+  useFormField,
   // Log demo helpers
   useLogDemo,
   levelColor,

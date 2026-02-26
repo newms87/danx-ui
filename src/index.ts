@@ -23,6 +23,8 @@ export { DanxFile } from "./components/danx-file";
 export { DanxFileViewer } from "./components/danx-file-viewer";
 export { DanxScroll, DanxVirtualScroll } from "./components/scroll";
 export { DanxSkeleton } from "./components/skeleton";
+export { DanxFieldWrapper } from "./components/field-wrapper";
+export { DanxInput } from "./components/input";
 
 // Composables
 export {
@@ -185,10 +187,17 @@ export type {
   UseTouchSwipeReturn,
 } from "./components/danx-file-viewer";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
+export type { InputType, DanxInputProps, DanxInputEmits, DanxInputSlots } from "./components/input";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";
 export type { AutoColorEntry } from "./shared/autoColor";
+
+// Form field infrastructure
+export { useFormField } from "./shared/composables/useFormField";
+export type { UseFormFieldReturn } from "./shared/composables/useFormField";
+export type { InputSize, FormFieldState, FormFieldBaseProps } from "./shared/form-types";
+export type { DanxFieldWrapperProps, DanxFieldWrapperSlots } from "./components/field-wrapper";
 
 // Variant system
 export { useVariant } from "./shared/composables/useVariant";
