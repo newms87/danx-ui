@@ -926,6 +926,17 @@ describe("DanxFile", () => {
     });
   });
 
+  describe("Blob URL fallback in thumb mode", () => {
+    it("uses blobUrl when url is empty for image file", () => {
+      const wrapper = mountFile({
+        file: makeFile({ url: "", blobUrl: "blob:https://example.com/abc123" }),
+      });
+      const img = wrapper.find(".danx-file__image");
+      expect(img.exists()).toBe(true);
+      expect(img.attributes("src")).toBe("blob:https://example.com/abc123");
+    });
+  });
+
   describe("Text preview", () => {
     it("renders MarkdownContent for text file with meta.content in preview mode", async () => {
       const wrapper = mountFile({

@@ -22,6 +22,11 @@ export {
   FILTERED_KEYS,
 } from "./file-metadata-helpers";
 export { useVirtualCarousel } from "./useVirtualCarousel";
+export { useTouchSwipe } from "../../shared/composables/useTouchSwipe";
+export type {
+  UseTouchSwipeOptions,
+  UseTouchSwipeReturn,
+} from "../../shared/composables/useTouchSwipe";
 export type {
   VirtualSlide,
   DanxFileViewerProps,

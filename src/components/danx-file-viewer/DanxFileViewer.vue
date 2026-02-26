@@ -9,7 +9,8 @@
  * current ±2 slides with opacity transitions for smooth navigation.
  *
  * Metadata is displayed in a resizable split panel beside the file preview,
- * toggled via the info button in the header.
+ * toggled via the info button in the header. Touch/swipe gestures are handled
+ * by the `useTouchSwipe` composable for instance-scoped gesture state.
  *
  * @models
  *   fileInPreview: PreviewFile | null - Currently active file (emits on navigation)
@@ -64,10 +65,11 @@ import { DanxButton } from "../button";
 import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
 import { DanxSplitPanel } from "../split-panel";
-import { createDownloadEvent, triggerFileDownload } from "../danx-file/file-helpers";
+import { handleDownload } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
 import { useDanxFileViewer } from "./useDanxFileViewer";
+import { useTouchSwipe } from "../../shared/composables/useTouchSwipe";
 import { hasAnyInfo, metaCount, exifCount } from "./file-metadata-helpers";
 import { useVirtualCarousel } from "./useVirtualCarousel";
 import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
@@ -158,11 +160,7 @@ function toggleMetadata() {
 }
 
 function onDownload() {
-  const event = createDownloadEvent(currentFile.value);
-  emit("download", event);
-  if (!event.prevented) {
-    triggerFileDownload(currentFile.value);
-  }
+  handleDownload(currentFile.value, (event) => emit("download", event));
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -177,31 +175,10 @@ function onKeydown(e: KeyboardEvent) {
 
 // --- Touch/swipe gestures ---
 
-const SWIPE_THRESHOLD = 50;
-let touchStartX = 0;
-let touchStartY = 0;
-
-function onTouchStart(e: TouchEvent) {
-  const touch = e.touches[0];
-  if (touch) {
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-  }
-}
-
-function onTouchEnd(e: TouchEvent) {
-  const touch = e.changedTouches[0];
-  if (!touch) return;
-  const deltaX = touch.clientX - touchStartX;
-  const deltaY = touch.clientY - touchStartY;
-  if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
-    if (deltaX < 0) {
-      next();
-    } else {
-      prev();
-    }
-  }
-}
+const { onTouchStart, onTouchEnd } = useTouchSwipe({
+  onSwipeLeft: next,
+  onSwipeRight: prev,
+});
 </script>
 
 <template>

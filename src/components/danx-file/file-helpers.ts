@@ -129,6 +129,21 @@ export function triggerFileDownload(file: PreviewFile): void {
 }
 
 /**
+ * Create a preventable download event, emit it via the given callback,
+ * and trigger a browser download if the event was not prevented.
+ */
+export function handleDownload(
+  file: PreviewFile,
+  emitFn: (event: DanxFileDownloadEvent) => void
+): void {
+  const event = createDownloadEvent(file);
+  emitFn(event);
+  if (!event.prevented) {
+    triggerFileDownload(file);
+  }
+}
+
+/**
  * Format a file size in bytes to a human-readable string.
  * Uses binary units (1024-based) with IEC labels (KiB, MiB, GiB).
  */

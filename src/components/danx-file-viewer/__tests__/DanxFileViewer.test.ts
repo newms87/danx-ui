@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { describe, it, expect, afterEach } from "vitest";
 import { nextTick } from "vue";
 import DanxFileViewer from "../DanxFileViewer.vue";
@@ -170,8 +170,7 @@ describe("DanxFileViewer", () => {
       const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      await nextTick();
-      await nextTick();
+      await flushPromises();
       const thumbs = wrapper.findAll(".danx-file-strip__thumb");
       await thumbs[1]!.trigger("click");
       expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-2.jpg");
@@ -181,8 +180,7 @@ describe("DanxFileViewer", () => {
       const wrapper = mountViewer({
         relatedFiles: [makeFile("2")],
       });
-      await nextTick();
-      await nextTick();
+      await flushPromises();
       const thumbs = wrapper.findAll(".danx-file-strip__thumb");
       expect(thumbs[0]!.classes()).toContain("danx-file-strip__thumb--active");
       expect(thumbs[1]!.classes()).not.toContain("danx-file-strip__thumb--active");
@@ -597,6 +595,23 @@ describe("DanxFileViewer", () => {
     });
   });
 
+  describe("Touch/swipe edge cases", () => {
+    it("handles touchstart with empty touches array", async () => {
+      const wrapper = mountViewer({
+        relatedFiles: [makeFile("2")],
+      });
+      const nav = wrapper.find(".danx-file-viewer");
+      await nav.trigger("touchstart", {
+        touches: [],
+      });
+      await nav.trigger("touchend", {
+        // touchStartX/Y stayed at 0; deltaX=30 is under the 50px threshold
+        changedTouches: [{ clientX: 30, clientY: 0 }],
+      });
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
+    });
+  });
+
   describe("Metadata", () => {
     it("shows metadata button when file has meta", () => {
       const wrapper = mountViewer({
@@ -610,6 +625,24 @@ describe("DanxFileViewer", () => {
       const wrapper = mountViewer();
       const metaBtn = findButtonByTooltip(wrapper, "Metadata");
       expect(metaBtn).toBeUndefined();
+    });
+
+    it("does not show metadata panel for file without meta/exif even if metadataEnabled was toggled", async () => {
+      // First mount with meta to toggle metadata on
+      const wrapper = mountViewer({
+        file: makeFile("1", { meta: { width: 800 } }),
+      });
+      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
+      await metaBtn.trigger("click");
+      expect(wrapper.find(".danx-file-metadata").exists()).toBe(true);
+
+      // Navigate to a file without meta — metadata panel should hide
+      await wrapper.setProps({
+        file: makeFile("2"),
+        relatedFiles: [],
+      });
+      await nextTick();
+      expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
     });
 
     it("shows metadata button when file has only exif", () => {

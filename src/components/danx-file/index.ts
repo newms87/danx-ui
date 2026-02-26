@@ -23,6 +23,7 @@ export {
   formatFileSize,
   createDownloadEvent,
   triggerFileDownload,
+  handleDownload,
 } from "./file-helpers";
 export type {
   PreviewFile,

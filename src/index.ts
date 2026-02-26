@@ -41,6 +41,7 @@ export {
   isVideo,
   isPdf,
   isAudio,
+  isText,
   isPreviewable,
   isInProgress,
   hasChildren,
@@ -48,8 +49,13 @@ export {
   formatFileSize,
   createDownloadEvent,
   triggerFileDownload,
+  handleDownload,
 } from "./components/danx-file";
-export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
+export {
+  useDanxFileViewer,
+  useVirtualCarousel,
+  useTouchSwipe,
+} from "./components/danx-file-viewer";
 export { useDanxScroll, useScrollInfinite, useScrollWindow } from "./components/scroll";
 export { downloadFile } from "./shared/download";
 
@@ -145,6 +151,7 @@ export type {
   PreviewFile,
   ImageFit,
   DanxFileSize,
+  DanxFileMode,
   DanxFileProps,
   DanxFileEmits,
   DanxFileSlots,
@@ -172,6 +179,8 @@ export type {
   DanxFileViewerProps,
   DanxFileViewerEmits,
   DanxFileViewerSlots,
+  UseTouchSwipeOptions,
+  UseTouchSwipeReturn,
 } from "./components/danx-file-viewer";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
 

@@ -133,34 +133,30 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     setCurrentFile(children[0]!);
   }
 
+  /** Sync childFiles to match the current top-of-stack parent's children. */
+  function restoreChildFilesForCurrentLevel() {
+    if (childStack.value.length > 0) {
+      const parent = childStack.value[childStack.value.length - 1]!;
+      childFiles.value = parent.children ?? [];
+    } else {
+      childFiles.value = [];
+    }
+  }
+
   function backFromChild() {
     if (childStack.value.length === 0) return;
     const parent = childStack.value[childStack.value.length - 1]!;
     childStack.value = childStack.value.slice(0, -1);
-    // Restore childFiles: if still in child mode, use the new top-of-stack's children
-    if (childStack.value.length > 0) {
-      const newParent = childStack.value[childStack.value.length - 1]!;
-      childFiles.value = newParent.children ?? [];
-    } else {
-      childFiles.value = [];
-    }
+    restoreChildFilesForCurrentLevel();
     setCurrentFile(parent);
   }
 
   function navigateToAncestor(fileId: string) {
-    // Find the ancestor in the stack
     const ancestorIndex = childStack.value.findIndex((f) => f.id === fileId);
     if (ancestorIndex === -1) return;
-    // The ancestor becomes the current file; slice stack to before it
     const ancestor = childStack.value[ancestorIndex]!;
     childStack.value = childStack.value.slice(0, ancestorIndex);
-    // Restore childFiles for the new level
-    if (childStack.value.length > 0) {
-      const newParent = childStack.value[childStack.value.length - 1]!;
-      childFiles.value = newParent.children ?? [];
-    } else {
-      childFiles.value = [];
-    }
+    restoreChildFilesForCurrentLevel();
     setCurrentFile(ancestor);
   }
 

@@ -13,7 +13,8 @@
  * 1. Error (file.error) — red overlay with warning icon and message
  * 2. Progress (file.progress non-null and < 100) — progress bar overlay
  * 3. Preview mode: video → `<video controls>`, image → full-size `<img>`,
- *    text → MarkdownContent (from meta.content or fetched URL)
+ *    text → MarkdownEditor readonly (via `isText` helper: text/plain, text/markdown;
+ *    content resolved from meta.content or fetched from URL)
  * 4. Thumb mode: thumbnail `<img>`, video adds play icon overlay
  * 5. Audio — `<audio controls>` in both modes
  * 6. File-type icon — MIME-based icon + filename (no renderable URL)
@@ -93,8 +94,7 @@ import {
   isInProgress,
   fileTypeIcon,
   formatFileSize,
-  createDownloadEvent,
-  triggerFileDownload,
+  handleDownload,
 } from "./file-helpers";
 import type { DanxFileEmits, DanxFileProps, DanxFileSlots } from "./types";
 
@@ -115,7 +115,7 @@ const emit = defineEmits<DanxFileEmits>();
 defineSlots<DanxFileSlots>();
 
 const sizeClass = computed(() => `danx-file--${props.size}`);
-const isCompactSize = computed(() => props.size === "xs");
+const isXsSize = computed(() => props.size === "xs");
 /** Compact display: xs/sm/md use icon-only overlays with hover popovers for details */
 const isCompactDisplay = computed(
   () => props.size === "xs" || props.size === "sm" || props.size === "md"
@@ -246,11 +246,7 @@ function onClick() {
 }
 
 function onDownload() {
-  const event = createDownloadEvent(props.file);
-  emit("download", event);
-  if (!event.prevented) {
-    triggerFileDownload(props.file);
-  }
+  handleDownload(props.file, (event) => emit("download", event));
 }
 </script>
 
@@ -286,10 +282,7 @@ function onDownload() {
       />
 
       <!-- Preview mode: Text/markdown content -->
-      <div
-        v-else-if="showPreviewText"
-        class="w-full h-full overflow-hidden px-14 py-6 text-left bg-surface-sunken"
-      >
+      <div v-else-if="showPreviewText" class="danx-file__text-preview">
         <MarkdownEditor :model-value="textContent" readonly hide-footer class="h-full" />
       </div>
 
@@ -320,9 +313,9 @@ function onDownload() {
       <div
         v-if="showProgress"
         class="danx-file__progress"
-        :class="{ 'danx-file__progress--compact': isCompactSize }"
+        :class="{ 'danx-file__progress--compact': isXsSize }"
       >
-        <template v-if="isCompactSize">
+        <template v-if="isXsSize">
           <DanxIcon icon="clock" />
           <DanxProgressBar :value="file.progress ?? 0" size="sm" :show-text="false" />
         </template>

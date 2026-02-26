@@ -79,6 +79,7 @@ import {
   DanxFileViewer,
   useDanxFileViewer,
   useVirtualCarousel,
+  useTouchSwipe,
 } from "../../src/components/danx-file-viewer";
 import {
   resolveFileUrl,
@@ -95,6 +96,7 @@ import {
   formatFileSize,
   createDownloadEvent,
   triggerFileDownload,
+  handleDownload,
 } from "../../src/components/danx-file";
 import { downloadFile } from "../../src/shared/download";
 import { useVariant } from "../../src/shared/composables/useVariant";
@@ -279,9 +281,11 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   formatFileSize,
   createDownloadEvent,
   triggerFileDownload,
+  handleDownload,
   downloadFile,
   useDanxFileViewer,
   useVirtualCarousel,
+  useTouchSwipe,
   // SplitPanel
   DanxSplitPanel,
   SplitPanelHandle,

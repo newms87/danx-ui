@@ -16,7 +16,12 @@
  * --dx-file-thumb-error-color       Error text and icon color
  * --dx-file-thumb-icon-color        File-type icon color for non-previewable files
  * --dx-file-thumb-filename-color    Filename text color
+ * --dx-file-thumb-filesize-color   File size text color
  * --dx-file-thumb-action-bg-hover  Action button hover background
+ * --dx-file-thumb-action-download-bg        Download button background
+ * --dx-file-thumb-action-download-bg-hover  Download button hover background
+ * --dx-file-thumb-action-remove-bg          Remove button background
+ * --dx-file-thumb-action-remove-bg-hover    Remove button hover background
  * --dx-file-size-xs                 Extra-small size (2rem)
  * --dx-file-size-sm                 Small size (4rem)
  * --dx-file-size-md                 Medium/default size (6rem)
@@ -66,6 +71,7 @@
      ========================================================================== */
 
   --dx-file-thumb-filename-color: var(--color-text-muted);
+  --dx-file-thumb-filesize-color: var(--color-text-muted);
   --dx-file-thumb-action-bg-hover: rgb(0 0 0 / 0.7);
   --dx-file-thumb-action-download-bg: var(--color-info);
   --dx-file-thumb-action-download-bg-hover: var(--color-info-hover);
