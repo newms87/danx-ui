@@ -15,6 +15,7 @@ export {
   isVideo,
   isPdf,
   isAudio,
+  isText,
   isPreviewable,
   isInProgress,
   hasChildren,

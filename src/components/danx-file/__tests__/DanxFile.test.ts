@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { defineComponent, nextTick } from "vue";
 import DanxFile from "../DanxFile.vue";
@@ -923,6 +923,110 @@ describe("DanxFile", () => {
         file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
       });
       expect(wrapper.find(".danx-file__video").exists()).toBe(false);
+    });
+  });
+
+  describe("Text preview", () => {
+    it("renders MarkdownContent for text file with meta.content in preview mode", async () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          type: "text/plain",
+          url: "",
+          name: "readme.txt",
+          meta: { content: "Hello world" },
+        }),
+      });
+      await flushPromises();
+      expect(wrapper.find(".danx-file__text-preview").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
+    });
+
+    it("shows type icon for text file without content in preview mode", async () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        size: "lg",
+        file: makeFile({
+          type: "text/plain",
+          url: "",
+          name: "readme.txt",
+        }),
+      });
+      await flushPromises();
+      expect(wrapper.find(".danx-file__text-preview").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+    });
+
+    it("shows type icon for text file in thumb mode (not text preview)", async () => {
+      const wrapper = mountFile({
+        mode: "thumb",
+        file: makeFile({
+          type: "text/plain",
+          url: "",
+          name: "readme.txt",
+          meta: { content: "Hello world" },
+        }),
+      });
+      await flushPromises();
+      expect(wrapper.find(".danx-file__text-preview").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+    });
+
+    it("fetches content from URL when no meta.content", async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        text: () => Promise.resolve("Fetched content"),
+      });
+      vi.stubGlobal("fetch", mockFetch);
+
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          type: "text/markdown",
+          url: "https://example.com/readme.md",
+          name: "readme.md",
+        }),
+      });
+      await flushPromises();
+      expect(mockFetch).toHaveBeenCalledWith("https://example.com/readme.md");
+      expect(wrapper.find(".danx-file__text-preview").exists()).toBe(true);
+
+      vi.unstubAllGlobals();
+    });
+
+    it("handles fetch failure gracefully", async () => {
+      const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      vi.stubGlobal("fetch", mockFetch);
+
+      const wrapper = mountFile({
+        mode: "preview",
+        size: "lg",
+        file: makeFile({
+          type: "text/plain",
+          url: "https://example.com/readme.txt",
+          name: "readme.txt",
+        }),
+      });
+      await flushPromises();
+      expect(wrapper.find(".danx-file__text-preview").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+
+      vi.unstubAllGlobals();
+    });
+
+    it("renders MarkdownEditor in readonly mode for text/markdown files", async () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          type: "text/markdown",
+          url: "",
+          name: "notes.md",
+          meta: { content: "# Title\n\nSome **bold** text." },
+        }),
+      });
+      await flushPromises();
+      expect(wrapper.find(".danx-file__text-preview").exists()).toBe(true);
+      expect(wrapper.find(".dx-markdown-editor").exists()).toBe(true);
+      expect(wrapper.find(".dx-markdown-editor.is-readonly").exists()).toBe(true);
     });
   });
 });

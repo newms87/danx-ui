@@ -35,9 +35,11 @@ const pageChildren = PAGE_NAMES.map((name, i) => ({
   type: "image/jpeg",
   url: `https://picsum.photos/seed/report-p${i + 1}/800/1100`,
   thumb: { url: `https://picsum.photos/seed/report-p${i + 1}/200/275` },
-  // Page 1 (Cover) has sub-children to demonstrate multi-level breadcrumbs
-  children:
-    i === 0
+  // Every page gets text children (OCR + markdown summary).
+  // Page 1 (Cover) also has image crops to demonstrate multi-level breadcrumbs.
+  children: [
+    // Page 1 gets image crops + text children
+    ...(i === 0
       ? [
           {
             id: "crop-logo",
@@ -58,7 +60,31 @@ const pageChildren = PAGE_NAMES.map((name, i) => ({
             children: [],
           },
         ]
-      : [],
+      : []),
+    // Every page gets an OCR transcription and a markdown summary
+    {
+      id: `page-${i + 1}-ocr`,
+      name: `page-${i + 1}-ocr.txt`,
+      size: 2400 + Math.floor(Math.random() * 1200),
+      type: "text/plain",
+      url: "",
+      meta: {
+        content: `OCR Transcription — Page ${i + 1}: ${name}\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.`,
+      },
+      children: [],
+    },
+    {
+      id: `page-${i + 1}-summary`,
+      name: `page-${i + 1}-summary.md`,
+      size: 1800 + Math.floor(Math.random() * 800),
+      type: "text/markdown",
+      url: "",
+      meta: {
+        content: `# Page ${i + 1}: ${name}\n\n## Summary\n\nThis page covers **${name.toLowerCase()}** with key metrics and analysis.\n\n- Revenue: $1.2M\n- Growth: 15% YoY\n- Status: *On track*`,
+      },
+      children: [],
+    },
+  ],
 }));
 
 const mainFile = ref({
@@ -77,10 +103,10 @@ const activeFile = ref(null);
 <template>
   <div class="flex flex-col gap-4">
     <p class="text-sm text-text-muted">
-      A 22-page PDF with image children for each page. Click the "Pages" button in the header to
-      dive into the children carousel. Use the back arrow to return to the parent. Breadcrumbs below
-      the header show the ancestor chain. "Page 1 - Cover" has sub-children (logo and title crops)
-      for multi-level navigation.
+      A 22-page PDF with image children for each page. Every page has text children: an OCR
+      transcription (.txt) and a markdown summary (.md) that render as formatted text in preview
+      mode. Page 1 (Cover) also has image crop sub-children for multi-level navigation. Click the
+      "Pages" button to dive into children. Use the back arrow to return to the parent.
     </p>
     <div class="w-full h-[600px] border border-border rounded-lg overflow-hidden">
       <DanxFileViewer

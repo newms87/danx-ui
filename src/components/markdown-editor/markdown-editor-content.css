@@ -6,28 +6,16 @@
  */
 
 .dx-markdown-editor-content {
+  flex: 1;
   min-height: 100px;
   outline: none;
   cursor: text;
-  border: 2px solid transparent;
-  border-radius: 0.375rem 0.375rem 0 0;
   padding: 1rem;
-  background-color: var(--dx-mde-bg);
   color: var(--dx-mde-color);
-  transition: border-color 0.2s ease;
   caret-color: var(--dx-mde-caret);
-
-  &:focus {
-    border-color: var(--dx-mde-border-focus);
-  }
-
-  &:hover:not(:focus):not(.is-readonly) {
-    border-color: var(--dx-mde-border-hover);
-  }
 
   &.is-readonly {
     cursor: default;
-    border-color: transparent;
   }
 
   /* Placeholder styling when empty */

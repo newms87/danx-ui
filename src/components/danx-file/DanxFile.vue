@@ -6,12 +6,14 @@
  * - **thumb** (default): Thumbnail card with preview image, play icon overlay
  *   for video, file-type icons, progress bar, and error state.
  * - **preview**: Full-size interactive content — video with controls,
- *   audio player, or full-size image with object-fit: contain.
+ *   audio player, text/markdown rendered via MarkdownContent, or
+ *   full-size image with object-fit: contain.
  *
  * Visual states are rendered in priority order:
  * 1. Error (file.error) — red overlay with warning icon and message
  * 2. Progress (file.progress non-null and < 100) — progress bar overlay
- * 3. Preview mode: video → `<video controls>`, image → full-size `<img>`
+ * 3. Preview mode: video → `<video controls>`, image → full-size `<img>`,
+ *    text → MarkdownContent (from meta.content or fetched URL)
  * 4. Thumb mode: thumbnail `<img>`, video adds play icon overlay
  * 5. Audio — `<audio controls>` in both modes
  * 6. File-type icon — MIME-based icon + filename (no renderable URL)
@@ -76,16 +78,18 @@
 -->
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { DanxIcon } from "../icon";
 import { DanxPopover } from "../popover";
 import { DanxTooltip } from "../tooltip";
 import { DanxProgressBar } from "../progress-bar";
 import { DanxSkeleton } from "../skeleton";
+import { MarkdownEditor } from "../markdown-editor";
 import {
   isImage,
   isVideo,
   isAudio,
+  isText,
   isInProgress,
   fileTypeIcon,
   formatFileSize,
@@ -150,6 +154,37 @@ const showPreviewVideo = computed(
 const showPreviewImage = computed(() => isPreviewMode.value && !!previewImageUrl.value);
 const showAudio = computed(() => isAudio(props.file) && !!originalUrl.value);
 
+// Text content resolution: meta.content (sync) or fetch from URL (async fallback)
+const textContent = ref("");
+watch(
+  () => props.file,
+  async (file) => {
+    if (!isText(file)) {
+      textContent.value = "";
+      return;
+    }
+    if (typeof file.meta?.content === "string" && file.meta.content) {
+      textContent.value = file.meta.content;
+      return;
+    }
+    const url = file.url || file.blobUrl || "";
+    if (url) {
+      try {
+        const response = await fetch(url);
+        textContent.value = await response.text();
+      } catch {
+        textContent.value = "";
+      }
+    } else {
+      textContent.value = "";
+    }
+  },
+  { immediate: true }
+);
+const showPreviewText = computed(
+  () => isPreviewMode.value && isText(props.file) && !!textContent.value
+);
+
 // Thumb mode: thumbnail images
 const showThumbImage = computed(() => !isPreviewMode.value && !!thumbImageUrl.value);
 const showThumbPlayIcon = computed(
@@ -159,6 +194,7 @@ const showThumbPlayIcon = computed(
 // Type icon: shown when no visual content renders in the current mode
 const showTypeIcon = computed(() => {
   if (showAudio.value) return false;
+  if (showPreviewText.value) return false;
   if (isPreviewMode.value) return !showPreviewVideo.value && !showPreviewImage.value;
   return !showThumbImage.value;
 });
@@ -248,6 +284,14 @@ function onDownload() {
         :src="previewImageUrl"
         :alt="file.name"
       />
+
+      <!-- Preview mode: Text/markdown content -->
+      <div
+        v-else-if="showPreviewText"
+        class="w-full h-full overflow-hidden px-14 py-6 text-left bg-surface-sunken"
+      >
+        <MarkdownEditor :model-value="textContent" readonly hide-footer class="h-full" />
+      </div>
 
       <!-- Thumb mode: Thumbnail image (thumb > optimized > original for images) -->
       <img

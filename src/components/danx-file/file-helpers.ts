@@ -51,9 +51,14 @@ export function isAudio(file: PreviewFile): boolean {
   return file.type.startsWith("audio/");
 }
 
-/** Check if file can be directly previewed (image, video, audio, or PDF) */
+/** Check if file has a text MIME type (text/plain, text/markdown, etc.) */
+export function isText(file: PreviewFile): boolean {
+  return file.type.startsWith("text/");
+}
+
+/** Check if file can be directly previewed (image, video, audio, PDF, or text) */
 export function isPreviewable(file: PreviewFile): boolean {
-  return isImage(file) || isVideo(file) || isAudio(file) || isPdf(file);
+  return isImage(file) || isVideo(file) || isAudio(file) || isPdf(file) || isText(file);
 }
 
 /** Check if file is currently uploading/processing (progress non-null and < 100) */

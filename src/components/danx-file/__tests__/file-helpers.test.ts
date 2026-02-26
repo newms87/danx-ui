@@ -6,6 +6,7 @@ import {
   isVideo,
   isPdf,
   isAudio,
+  isText,
   isPreviewable,
   isInProgress,
   hasChildren,
@@ -112,17 +113,33 @@ describe("isPdf", () => {
   });
 });
 
+describe("isText", () => {
+  it("returns true for text MIME types", () => {
+    expect(isText(makeFile({ type: "text/plain" }))).toBe(true);
+    expect(isText(makeFile({ type: "text/markdown" }))).toBe(true);
+    expect(isText(makeFile({ type: "text/html" }))).toBe(true);
+    expect(isText(makeFile({ type: "text/csv" }))).toBe(true);
+  });
+
+  it("returns false for non-text types", () => {
+    expect(isText(makeFile({ type: "image/jpeg" }))).toBe(false);
+    expect(isText(makeFile({ type: "application/pdf" }))).toBe(false);
+  });
+});
+
 describe("isPreviewable", () => {
-  it("returns true for images, videos, audio, and PDFs", () => {
+  it("returns true for images, videos, audio, PDFs, and text", () => {
     expect(isPreviewable(makeFile({ type: "image/jpeg" }))).toBe(true);
     expect(isPreviewable(makeFile({ type: "video/mp4" }))).toBe(true);
     expect(isPreviewable(makeFile({ type: "audio/mpeg" }))).toBe(true);
     expect(isPreviewable(makeFile({ type: "application/pdf" }))).toBe(true);
+    expect(isPreviewable(makeFile({ type: "text/plain" }))).toBe(true);
+    expect(isPreviewable(makeFile({ type: "text/markdown" }))).toBe(true);
   });
 
   it("returns false for non-previewable types", () => {
-    expect(isPreviewable(makeFile({ type: "text/plain" }))).toBe(false);
     expect(isPreviewable(makeFile({ type: "application/zip" }))).toBe(false);
+    expect(isPreviewable(makeFile({ type: "application/octet-stream" }))).toBe(false);
   });
 });
 

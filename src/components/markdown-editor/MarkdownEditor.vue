@@ -206,9 +206,11 @@ watch(modelValue, (newValue) => {
   /* Body container for content */
   .dx-markdown-editor-body {
     display: flex;
+    flex-direction: column;
     position: relative;
     flex: 1;
-    overflow: visible;
+    min-height: 0;
+    overflow: hidden;
   }
 
   /* Apply min/max height to scroll wrapper around content */
@@ -216,6 +218,26 @@ watch(modelValue, (newValue) => {
     flex: 1;
     min-height: var(--dx-mde-min-height, 100px);
     max-height: var(--dx-mde-max-height, none);
+    background-color: var(--dx-mde-bg);
+    border: 2px solid transparent;
+    border-radius: 0.375rem 0.375rem 0 0;
+    transition: border-color 0.2s ease;
+
+    &:has(:focus) {
+      border-color: var(--dx-mde-border-focus);
+    }
+
+    &:hover:not(:has(:focus)) {
+      border-color: var(--dx-mde-border-hover);
+    }
+  }
+
+  &.is-readonly .dx-markdown-editor-scroll {
+    border-color: transparent;
+
+    &:hover {
+      border-color: transparent;
+    }
   }
 
   /* Raw markdown source display */
