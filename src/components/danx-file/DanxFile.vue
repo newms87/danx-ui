@@ -6,26 +6,21 @@
  * - **thumb** (default): Thumbnail card with preview image, play icon overlay
  *   for video, file-type icons, progress bar, and error state.
  * - **preview**: Full-size interactive content — video with controls,
- *   audio player, text/markdown rendered via MarkdownContent, or
+ *   audio player, text/markdown rendered via MarkdownEditor, or
  *   full-size image with object-fit: contain.
  *
  * Visual states are rendered in priority order:
  * 1. Error (file.error) — red overlay with warning icon and message
  * 2. Progress (file.progress non-null and < 100) — progress bar overlay
  * 3. Preview mode: video → `<video controls>`, image → full-size `<img>`,
- *    text → MarkdownEditor readonly (via `isText` helper: text/plain, text/markdown;
- *    content resolved from meta.content or fetched from URL)
+ *    text → MarkdownEditor readonly
  * 4. Thumb mode: thumbnail `<img>`, video adds play icon overlay
  * 5. Audio — `<audio controls>` in both modes
  * 6. File-type icon — MIME-based icon + filename (no renderable URL)
  *
- * URL resolution per mode:
- * - Preview image: optimized > original (images only) > type icon
- * - Thumb image: thumb > optimized > original (images only) > type icon
- * - Video/audio always use the original URL for playback
- * - thumb and optimized are always browser-renderable images
- *
- * Progress and error overlays render ON TOP of the content in both modes.
+ * Computed state (URL resolution, visibility flags, text content) is
+ * managed by the `useDanxFile` composable. Overlay sections (progress,
+ * error, actions) are delegated to internal sub-components.
  *
  * @props
  *   file: PreviewFile - The file to display (required)
@@ -40,62 +35,40 @@
  *   loading?: boolean - Show pulsing skeleton placeholder (default: false)
  *
  * @emits
- *   click(file) - Thumbnail clicked (parent uses this to open navigator, etc.)
- *   download(event) - Download button clicked (preventable via event.preventDefault())
+ *   click(file) - Thumbnail clicked
+ *   download(event) - Download button clicked (preventable)
  *   remove(file) - Remove confirmed after 2-step confirmation
  *
  * @slots
  *   actions - Custom action buttons in the hover overlay (top-right)
  *
  * @tokens
- *   --dx-file-thumb-bg - Background color (default: var(--color-surface-sunken))
- *   --dx-file-thumb-border-radius - Corner radius (default: var(--radius-component))
- *   --dx-file-thumb-overlay-bg - Hover overlay background
- *   --dx-file-thumb-action-color - Action button icon color
- *   --dx-file-thumb-action-bg-hover - Action button hover background
- *   --dx-file-thumb-action-download-bg - Download button background
- *   --dx-file-thumb-action-download-bg-hover - Download button hover background
- *   --dx-file-thumb-action-remove-bg - Remove button background
- *   --dx-file-thumb-action-remove-bg-hover - Remove button hover background
- *   --dx-file-thumb-play-size - Play icon size for video thumbs
- *   --dx-file-thumb-progress-track - Progress overlay background
- *   --dx-file-thumb-progress-text - Progress text color
- *   --dx-file-thumb-error-bg - Error overlay background
- *   --dx-file-thumb-error-color - Error text/icon color
- *   --dx-file-thumb-icon-color - File-type icon color
- *   --dx-file-thumb-fit - Image object-fit (set via fit prop)
- *   --dx-file-thumb-filename-color - Filename text color
- *   --dx-file-thumb-filesize-color - File size text color
- *   --dx-file-size-xs through --dx-file-size-xxl - Size preset dimensions
+ *   --dx-file-thumb-bg, --dx-file-thumb-border-radius,
+ *   --dx-file-thumb-overlay-bg, --dx-file-thumb-action-color,
+ *   --dx-file-thumb-action-bg-hover, --dx-file-thumb-action-download-bg,
+ *   --dx-file-thumb-action-download-bg-hover, --dx-file-thumb-action-remove-bg,
+ *   --dx-file-thumb-action-remove-bg-hover, --dx-file-thumb-play-size,
+ *   --dx-file-thumb-progress-track, --dx-file-thumb-progress-text,
+ *   --dx-file-thumb-error-bg, --dx-file-thumb-error-color,
+ *   --dx-file-thumb-icon-color, --dx-file-thumb-fit,
+ *   --dx-file-thumb-filename-color, --dx-file-thumb-filesize-color,
+ *   --dx-file-size-xs through --dx-file-size-xxl
  *
  * @example
  *   <DanxFile :file="photo" downloadable @click="openPreview" />
- *   <DanxFile :file="photo" size="lg" show-filename />
  *   <DanxFile :file="uploadingFile" />
- *   <DanxFile :file="doc" removable @remove="deleteFile" />
  *   <DanxFile :file="video" mode="preview" size="auto" />
- *   <DanxFile :file="pdf" mode="preview" size="auto" />
  */
 -->
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
 import { DanxIcon } from "../icon";
-import { DanxPopover } from "../popover";
-import { DanxTooltip } from "../tooltip";
-import { DanxProgressBar } from "../progress-bar";
 import { DanxSkeleton } from "../skeleton";
 import { MarkdownEditor } from "../markdown-editor";
-import {
-  isImage,
-  isVideo,
-  isAudio,
-  isText,
-  isInProgress,
-  fileTypeIcon,
-  formatFileSize,
-  handleDownload,
-} from "./file-helpers";
+import DanxFileActions from "./DanxFileActions.vue";
+import DanxFileError from "./DanxFileError.vue";
+import DanxFileProgress from "./DanxFileProgress.vue";
+import { useDanxFile } from "./useDanxFile";
 import type { DanxFileEmits, DanxFileProps, DanxFileSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxFileProps>(), {
@@ -114,139 +87,33 @@ const emit = defineEmits<DanxFileEmits>();
 
 defineSlots<DanxFileSlots>();
 
-const sizeClass = computed(() => `danx-file--${props.size}`);
-const isXsSize = computed(() => props.size === "xs");
-/** Compact display: xs/sm/md use icon-only overlays with hover popovers for details */
-const isCompactDisplay = computed(
-  () => props.size === "xs" || props.size === "sm" || props.size === "md"
-);
-
-// --- Computed state ---
-
-const isPreviewMode = computed(() => props.mode === "preview");
-const originalUrl = computed(() => props.file.url || props.file.blobUrl || "");
-
-// Preview mode image URL.
-// Videos use <video> player, audio uses <audio> — both skip this.
-// Everything else: optimized (always an image) > original (if browser-renderable image).
-const previewImageUrl = computed(() => {
-  if (isVideo(props.file) || isAudio(props.file)) return "";
-  if (props.file.optimized?.url) return props.file.optimized.url;
-  if (isImage(props.file)) return originalUrl.value;
-  return "";
-});
-
-// Thumb mode image URL.
-// Priority: thumb > optimized > original (images only).
-// thumb and optimized are always browser-renderable images.
-// Video/PDF/etc. original URLs cannot be rendered as <img>.
-const thumbImageUrl = computed(() => {
-  if (props.file.thumb?.url) return props.file.thumb.url;
-  if (props.file.optimized?.url) return props.file.optimized.url;
-  if (isImage(props.file)) return originalUrl.value;
-  return "";
-});
-
-// Preview mode: interactive elements
-const showPreviewVideo = computed(
-  () => isPreviewMode.value && isVideo(props.file) && !!originalUrl.value
-);
-const showPreviewImage = computed(() => isPreviewMode.value && !!previewImageUrl.value);
-const showAudio = computed(() => isAudio(props.file) && !!originalUrl.value);
-
-// Text content resolution: meta.content (sync) or fetch from URL (async fallback)
-const textContent = ref("");
-watch(
-  () => props.file,
-  async (file) => {
-    if (!isText(file)) {
-      textContent.value = "";
-      return;
-    }
-    if (typeof file.meta?.content === "string" && file.meta.content) {
-      textContent.value = file.meta.content;
-      return;
-    }
-    const url = file.url || file.blobUrl || "";
-    if (url) {
-      try {
-        const response = await fetch(url);
-        textContent.value = await response.text();
-      } catch {
-        textContent.value = "";
-      }
-    } else {
-      textContent.value = "";
-    }
-  },
-  { immediate: true }
-);
-const showPreviewText = computed(
-  () => isPreviewMode.value && isText(props.file) && !!textContent.value
-);
-
-// Thumb mode: thumbnail images
-const showThumbImage = computed(() => !isPreviewMode.value && !!thumbImageUrl.value);
-const showThumbPlayIcon = computed(
-  () => !isPreviewMode.value && isVideo(props.file) && !!thumbImageUrl.value
-);
-
-// Type icon: shown when no visual content renders in the current mode
-const showTypeIcon = computed(() => {
-  if (showAudio.value) return false;
-  if (showPreviewText.value) return false;
-  if (isPreviewMode.value) return !showPreviewVideo.value && !showPreviewImage.value;
-  return !showThumbImage.value;
-});
-const showProgress = computed(() => !props.file.error && isInProgress(props.file));
-const showError = computed(() => !!props.file.error);
-const iconName = computed(() => fileTypeIcon(props.file));
-
-const progressText = computed(() => {
-  if (props.file.statusMessage) return props.file.statusMessage;
-  return `Uploading... ${props.file.progress ?? 0}%`;
-});
-
-const fileSizeText = computed(() =>
-  props.showFileSize && props.file.size != null ? formatFileSize(props.file.size) : ""
-);
-const showFooter = computed(() => props.showFilename || props.showFileSize);
-
-const fitStyle = computed(() => ({
-  "--dx-file-thumb-fit": props.fit,
-}));
-
-// --- Remove confirmation ---
-
-const REMOVE_CONFIRM_TIMEOUT_MS = 3000;
-
-const removeArmed = ref(false);
-let removeTimer: ReturnType<typeof setTimeout> | undefined;
-onUnmounted(() => clearTimeout(removeTimer));
-
-function onRemoveClick() {
-  if (!removeArmed.value) {
-    removeArmed.value = true;
-    removeTimer = setTimeout(() => {
-      removeArmed.value = false;
-    }, REMOVE_CONFIRM_TIMEOUT_MS);
-    return;
-  }
-  clearTimeout(removeTimer);
-  removeArmed.value = false;
-  emit("remove", props.file);
-}
-
-// --- Event handlers ---
+const {
+  sizeClass,
+  isXsSize,
+  isCompactDisplay,
+  originalUrl,
+  previewImageUrl,
+  thumbImageUrl,
+  showPreviewVideo,
+  showPreviewImage,
+  showAudio,
+  showPreviewText,
+  textContent,
+  showThumbImage,
+  showThumbPlayIcon,
+  showTypeIcon,
+  showProgress,
+  showError,
+  iconName,
+  fileSizeText,
+  showFooter,
+  fitStyle,
+} = useDanxFile(props);
 
 function onClick() {
   if (!props.disabled) {
     emit("click", props.file);
   }
-}
-
-function onDownload() {
-  handleDownload(props.file, (event) => emit("download", event));
 }
 </script>
 
@@ -310,87 +177,24 @@ function onDownload() {
       </div>
 
       <!-- Progress overlay -->
-      <div
-        v-if="showProgress"
-        class="danx-file__progress"
-        :class="{ 'danx-file__progress--compact': isXsSize }"
-      >
-        <template v-if="isXsSize">
-          <DanxIcon icon="clock" />
-          <DanxProgressBar :value="file.progress ?? 0" size="sm" :show-text="false" />
-        </template>
-        <template v-else>
-          <span class="danx-file__progress-text">{{ progressText }}</span>
-          <DanxProgressBar
-            :value="file.progress ?? 0"
-            size="sm"
-            striped
-            animate-stripes
-            :show-text="false"
-          />
-        </template>
-      </div>
+      <DanxFileProgress v-if="showProgress" :file="file" :is-xs-size="isXsSize" />
 
-      <!--
-        Error overlay: compact sizes (xs/sm/md) show icon-only with hover popover.
-        The popover trigger uses display:contents, so the error div's position:absolute
-        resolves against .danx-file__preview (the nearest positioned ancestor).
-      -->
-      <template v-if="showError && isCompactDisplay">
-        <DanxPopover
-          trigger="hover"
-          placement="top"
-          variant="danger"
-          class="danx-file__error-popover"
-        >
-          <template #trigger>
-            <div class="danx-file__error danx-file__error--compact">
-              <DanxIcon icon="warning-triangle" />
-            </div>
-          </template>
-          {{ file.error }}
-        </DanxPopover>
-      </template>
-      <div v-else-if="showError" class="danx-file__error">
-        <DanxIcon icon="warning-triangle" />
-        <span class="danx-file__error-text">{{ file.error }}</span>
-      </div>
+      <!-- Error overlay -->
+      <DanxFileError v-if="showError" :file="file" :is-compact-display="isCompactDisplay" />
 
       <!-- Hover actions -->
-      <div
+      <DanxFileActions
         v-if="downloadable || removable || $slots.actions"
-        class="danx-file__actions"
-        @click.stop
+        :file="file"
+        :downloadable="downloadable"
+        :removable="removable"
+        @download="emit('download', $event)"
+        @remove="emit('remove', $event)"
       >
-        <slot name="actions" />
-
-        <DanxTooltip v-if="downloadable" tooltip="Download" placement="top">
-          <template #trigger>
-            <button
-              class="danx-file__action-btn danx-file__action-btn--download"
-              @click="onDownload"
-            >
-              <DanxIcon icon="download" />
-            </button>
-          </template>
-        </DanxTooltip>
-
-        <DanxTooltip
-          v-if="removable"
-          :tooltip="removeArmed ? 'Click again to confirm' : 'Remove'"
-          placement="top"
-        >
-          <template #trigger>
-            <button
-              class="danx-file__action-btn danx-file__action-btn--remove"
-              :class="{ 'danx-file__action-btn--armed': removeArmed }"
-              @click="onRemoveClick"
-            >
-              <DanxIcon :icon="removeArmed ? 'confirm' : 'trash'" />
-            </button>
-          </template>
-        </DanxTooltip>
-      </div>
+        <template v-if="$slots.actions" #actions>
+          <slot name="actions" />
+        </template>
+      </DanxFileActions>
     </div>
 
     <!-- Footer: filename and/or file size below preview -->

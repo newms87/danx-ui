@@ -50,6 +50,7 @@ export {
   createDownloadEvent,
   triggerFileDownload,
   handleDownload,
+  useDanxFile,
 } from "./components/danx-file";
 export {
   useDanxFileViewer,
@@ -156,6 +157,7 @@ export type {
   DanxFileEmits,
   DanxFileSlots,
   DanxFileDownloadEvent,
+  UseDanxFileReturn,
 } from "./components/danx-file";
 export type {
   DanxScrollEmits,

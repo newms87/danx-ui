@@ -83,6 +83,17 @@ What's causing the issue.
 What should be changed (prose, not code).
 ```
 
+## Template Decomposition
+
+When planning or reviewing a component, **start with the template.** A large template is the primary signal that a component needs sub-components. For each top-level section, evaluate:
+
+- Does it own independent state or event handling? → Extract as sub-component
+- Is it an overlay/toolbar that layers on top of content? → Almost always extractable
+- Is it a self-contained UI region (footer, header, sidebar)? → Extract if it has its own logic
+- Is it part of a v-if/else-if content chain? → Evaluate last; may need to stay together
+
+Reducing template size is the fastest way to reduce cognitive load. A developer reading a component should be able to understand the template structure in one screen.
+
 ## Anti-Patterns to Flag
 
 - `defineExpose` usage

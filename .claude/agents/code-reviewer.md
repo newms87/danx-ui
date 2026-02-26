@@ -50,6 +50,19 @@ This agent can:
 | Types file | 50 |
 | CSS file | 100 |
 
+### Template-First Decomposition (Oversized Components)
+
+When a component exceeds the size limit, **analyze the template first.** Walk through each top-level block and ask: "Does this section have its own state, events, or behavior that is independent of adjacent sections?" If yes, it is a sub-component extraction candidate.
+
+**Evaluation order:**
+
+1. **Overlays and absolute-positioned sections** (progress bars, error states, action toolbars) — almost always extractable because they layer on top of content independently
+2. **Self-contained UI regions** (footers, headers, sidebars) — extractable when they own their own computed state or event handling
+3. **Repeated structural patterns** — identical or near-identical blocks that differ only by props
+4. **Content rendering chains** (v-if/else-if cascades) — evaluate last; these often need to stay together for mutual exclusivity, but may still be extractable as a single content sub-component
+
+**Do not generalize from one section to the whole template.** Finding that the content chain resists extraction does not excuse the overlays. Evaluate each section independently.
+
 ### Vue-Specific Anti-Patterns
 
 | Anti-Pattern | Correct Pattern |

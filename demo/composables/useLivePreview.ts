@@ -74,7 +74,7 @@ import {
   useScrollWindow,
 } from "../../src/components/scroll";
 import { DanxSkeleton } from "../../src/components/skeleton";
-import { DanxFile } from "../../src/components/danx-file";
+import { DanxFile, useDanxFile } from "../../src/components/danx-file";
 import {
   DanxFileViewer,
   useDanxFileViewer,
@@ -283,6 +283,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   triggerFileDownload,
   handleDownload,
   downloadFile,
+  useDanxFile,
   useDanxFileViewer,
   useVirtualCarousel,
   useTouchSwipe,

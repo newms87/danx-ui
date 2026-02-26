@@ -8,6 +8,8 @@
  */
 
 export { default as DanxFile } from "./DanxFile.vue";
+export { useDanxFile } from "./useDanxFile";
+export type { UseDanxFileReturn } from "./useDanxFile";
 export {
   resolveFileUrl,
   resolveThumbUrl,
