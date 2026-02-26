@@ -3,7 +3,7 @@
  *
  * Exports:
  * - DanxFileViewer: Standalone file viewer component
- * - Composables: Navigation and metadata state management
+ * - Composables: Navigation and virtual carousel
  * - Types: TypeScript interfaces
  *
  * Internal subcomponents (DanxFileThumbnailStrip, DanxFileMetadata)
@@ -13,8 +13,6 @@
 export { default as DanxFileViewer } from "./DanxFileViewer.vue";
 export { useDanxFileViewer } from "./useDanxFileViewer";
 export type { UseDanxFileViewerOptions, UseDanxFileViewerReturn } from "./useDanxFileViewer";
-export { useDanxFileMetadata } from "./useDanxFileMetadata";
-export type { UseDanxFileMetadataReturn } from "./useDanxFileMetadata";
 export {
   formatMeta,
   metaCount,
@@ -25,7 +23,6 @@ export {
 } from "./file-metadata-helpers";
 export { useVirtualCarousel } from "./useVirtualCarousel";
 export type {
-  MetadataMode,
   VirtualSlide,
   DanxFileViewerProps,
   DanxFileViewerEmits,

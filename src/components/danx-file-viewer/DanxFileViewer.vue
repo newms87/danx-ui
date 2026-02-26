@@ -8,6 +8,9 @@
  * keyboard navigation, and download. Uses a virtual carousel that renders
  * current ±2 slides with opacity transitions for smooth navigation.
  *
+ * Metadata is displayed in a resizable split panel beside the file preview,
+ * toggled via the info button in the header.
+ *
  * @models
  *   fileInPreview: PreviewFile | null - Currently active file (emits on navigation)
  *
@@ -60,12 +63,12 @@ import { computed, ref, toRef, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
+import { DanxSplitPanel } from "../split-panel";
 import { createDownloadEvent, triggerFileDownload } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
 import { useDanxFileViewer } from "./useDanxFileViewer";
 import { hasAnyInfo, metaCount, exifCount } from "./file-metadata-helpers";
-import { useDanxFileMetadata } from "./useDanxFileMetadata";
 import { useVirtualCarousel } from "./useVirtualCarousel";
 import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
 import DanxFileMetadata from "./DanxFileMetadata.vue";
@@ -83,6 +86,11 @@ const fileInPreview = defineModel<PreviewFile | null>("fileInPreview", {
 });
 
 defineSlots<DanxFileViewerSlots>();
+
+const SPLIT_PANELS = [
+  { id: "viewer", label: "Viewer", defaultWidth: 70 },
+  { id: "metadata", label: "Info", defaultWidth: 30 },
+];
 
 const {
   currentFile,
@@ -122,11 +130,17 @@ watch(
 
 const childCount = computed(() => currentFile.value.children?.length ?? 0);
 
-// Metadata state
-const { mode: metadataMode } = useDanxFileMetadata();
-const showMetadata = ref(false);
+// Metadata state — toggle the split panel's metadata panel
 const hasMetadata = computed(() => hasAnyInfo(currentFile.value));
 const infoCount = computed(() => metaCount(currentFile.value) + exifCount(currentFile.value));
+const metadataEnabled = ref(false);
+const activePanels = computed({
+  get: () => (metadataEnabled.value && hasMetadata.value ? ["viewer", "metadata"] : ["viewer"]),
+  set: (val) => {
+    metadataEnabled.value = val.includes("metadata");
+  },
+});
+const showMetadata = computed(() => activePanels.value.includes("metadata"));
 
 // Emit loadChildren when the current file's children are undefined
 watch(
@@ -140,7 +154,7 @@ watch(
 );
 
 function toggleMetadata() {
-  showMetadata.value = !showMetadata.value;
+  metadataEnabled.value = !metadataEnabled.value;
 }
 
 function onDownload() {
@@ -204,7 +218,7 @@ function onTouchEnd(e: TouchEvent) {
       <div v-if="hasParent || hasChildFiles" class="danx-file-viewer__nav-buttons">
         <DanxButton
           v-if="hasParent"
-          type="muted"
+          variant="muted"
           size="sm"
           icon="back"
           tooltip="Go to parent"
@@ -229,7 +243,7 @@ function onTouchEnd(e: TouchEvent) {
 
         <DanxButton
           v-if="hasMetadata"
-          type="muted"
+          variant="muted"
           size="sm"
           icon="info"
           tooltip="Metadata"
@@ -240,7 +254,7 @@ function onTouchEnd(e: TouchEvent) {
 
         <DanxButton
           v-if="downloadable"
-          type="muted"
+          variant="muted"
           size="sm"
           icon="download"
           tooltip="Download"
@@ -269,62 +283,57 @@ function onTouchEnd(e: TouchEvent) {
       </template>
     </nav>
 
-    <!-- Main content area with optional docked metadata -->
-    <div class="danx-file-viewer__body">
-      <div class="danx-file-viewer__content">
-        <!-- Previous arrow -->
-        <button
-          v-if="hasPrev"
-          class="danx-file-viewer__arrow danx-file-viewer__arrow--prev"
-          aria-label="Previous"
-          @click="prev"
-        >
-          <DanxIcon icon="chevron-left" />
-        </button>
+    <!-- Main content area with optional metadata split panel -->
+    <DanxSplitPanel
+      v-model="activePanels"
+      :panels="SPLIT_PANELS"
+      storage-key="danx-file-viewer-meta"
+      class="danx-file-viewer__body"
+    >
+      <template #viewer>
+        <div class="danx-file-viewer__content">
+          <!-- Previous arrow -->
+          <button
+            v-if="hasPrev"
+            class="danx-file-viewer__arrow danx-file-viewer__arrow--prev"
+            aria-label="Previous"
+            @click="prev"
+          >
+            <DanxIcon icon="chevron-left" />
+          </button>
 
-        <!-- Virtual carousel slides -->
-        <div
-          v-for="slide in visibleSlides"
-          :key="slide.file.id"
-          class="danx-file-viewer__slide"
-          :class="{ 'danx-file-viewer__slide--active': slide.isActive }"
-        >
-          <DanxFile
-            :file="slide.file"
-            :mode="slide.isActive ? 'preview' : 'thumb'"
-            size="auto"
-            fit="contain"
-            disabled
-          />
+          <!-- Virtual carousel slides -->
+          <div
+            v-for="slide in visibleSlides"
+            :key="slide.file.id"
+            class="danx-file-viewer__slide"
+            :class="{ 'danx-file-viewer__slide--active': slide.isActive }"
+          >
+            <DanxFile
+              :file="slide.file"
+              :mode="slide.isActive ? 'preview' : 'thumb'"
+              size="auto"
+              fit="contain"
+              disabled
+            />
+          </div>
+
+          <!-- Next arrow -->
+          <button
+            v-if="hasNext"
+            class="danx-file-viewer__arrow danx-file-viewer__arrow--next"
+            aria-label="Next"
+            @click="next"
+          >
+            <DanxIcon icon="chevron-right" />
+          </button>
         </div>
+      </template>
 
-        <!-- Next arrow -->
-        <button
-          v-if="hasNext"
-          class="danx-file-viewer__arrow danx-file-viewer__arrow--next"
-          aria-label="Next"
-          @click="next"
-        >
-          <DanxIcon icon="chevron-right" />
-        </button>
-
-        <!-- Metadata overlay (positioned absolute inside content) -->
-        <DanxFileMetadata
-          v-if="showMetadata && metadataMode === 'overlay'"
-          v-model:mode="metadataMode"
-          :file="currentFile"
-          @close="showMetadata = false"
-        />
-      </div>
-
-      <!-- Metadata docked (flex sibling to content) -->
-      <DanxFileMetadata
-        v-if="showMetadata && metadataMode === 'docked'"
-        v-model:mode="metadataMode"
-        :file="currentFile"
-        @close="showMetadata = false"
-      />
-    </div>
+      <template v-if="showMetadata" #metadata>
+        <DanxFileMetadata :file="currentFile" />
+      </template>
+    </DanxSplitPanel>
 
     <!-- Thumbnail strip -->
     <DanxFileThumbnailStrip :files="activeFiles" :active-file-id="currentFile.id" @select="goTo" />

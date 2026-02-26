@@ -35,7 +35,6 @@ function mountViewer(props: Record<string, unknown> = {}) {
 afterEach(() => {
   for (const w of wrappers) w.unmount();
   wrappers.length = 0;
-  localStorage.removeItem("danx-file-metadata-mode");
 });
 
 describe("DanxFileViewer", () => {
@@ -644,105 +643,21 @@ describe("DanxFileViewer", () => {
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
     });
 
-    it("renders metadata in docked mode when localStorage is set", async () => {
-      localStorage.setItem("danx-file-metadata-mode", "docked");
+    it("renders metadata inside split panel", async () => {
       const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
       const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
       await metaBtn.trigger("click");
-      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
-    });
-
-    it("hides metadata panel when close event fires", async () => {
-      const wrapper = mountViewer({
-        file: makeFile("1", { meta: { width: 800 } }),
-      });
-      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
-      await metaBtn.trigger("click");
+      expect(wrapper.findComponent({ name: "DanxSplitPanel" }).exists()).toBe(true);
       expect(wrapper.find(".danx-file-metadata").exists()).toBe(true);
-
-      const metadataPanel = wrapper.findComponent({ name: "DanxFileMetadata" });
-      metadataPanel.vm.$emit("close");
-      await wrapper.vm.$nextTick();
-      expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
     });
 
-    it("renders metadata in overlay mode (default) when localStorage is not set", async () => {
-      localStorage.removeItem("danx-file-metadata-mode");
+    it("uses DanxSplitPanel for body layout", () => {
       const wrapper = mountViewer({
         file: makeFile("1", { meta: { width: 800 } }),
       });
-      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
-      await metaBtn.trigger("click");
-      const metadata = wrapper.find(".danx-file-metadata");
-      expect(metadata.exists()).toBe(true);
-      expect(wrapper.find(".danx-file-viewer__content .danx-file-metadata").exists()).toBe(true);
-    });
-
-    it("applies docked class when metadata is in docked mode", async () => {
-      localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountViewer({
-        file: makeFile("1", { meta: { width: 800 } }),
-      });
-      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
-      await metaBtn.trigger("click");
-      const dockedMetadata = wrapper.find(".danx-file-metadata--docked");
-      expect(dockedMetadata.exists()).toBe(true);
-      expect(wrapper.find(".danx-file-viewer__body > .danx-file-metadata--docked").exists()).toBe(
-        true
-      );
-    });
-
-    it("closes docked metadata panel when close event fires", async () => {
-      localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountViewer({
-        file: makeFile("1", { meta: { width: 800 } }),
-      });
-      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
-      await metaBtn.trigger("click");
-      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
-
-      const metadataPanel = wrapper.findComponent({ name: "DanxFileMetadata" });
-      metadataPanel.vm.$emit("close");
-      await wrapper.vm.$nextTick();
-      expect(wrapper.find(".danx-file-metadata").exists()).toBe(false);
-    });
-
-    it("updates mode from overlay to docked via DanxFileMetadata toggle", async () => {
-      localStorage.removeItem("danx-file-metadata-mode");
-      const wrapper = mountViewer({
-        file: makeFile("1", { meta: { width: 800 } }),
-      });
-      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
-      await metaBtn.trigger("click");
-      expect(wrapper.find(".danx-file-metadata--overlay").exists()).toBe(true);
-
-      const toggleBtn = wrapper
-        .findComponent({ name: "DanxFileMetadata" })
-        .findAll(".danx-button")
-        .find((btn) => btn.attributes("title") === "Toggle mode")!;
-      await toggleBtn.trigger("click");
-      await wrapper.vm.$nextTick();
-      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
-    });
-
-    it("updates mode from docked to overlay via DanxFileMetadata toggle", async () => {
-      localStorage.setItem("danx-file-metadata-mode", "docked");
-      const wrapper = mountViewer({
-        file: makeFile("1", { meta: { width: 800 } }),
-      });
-      const metaBtn = findButtonByTooltip(wrapper, "Metadata")!;
-      await metaBtn.trigger("click");
-      expect(wrapper.find(".danx-file-metadata--docked").exists()).toBe(true);
-
-      const toggleBtn = wrapper
-        .findComponent({ name: "DanxFileMetadata" })
-        .findAll(".danx-button")
-        .find((btn) => btn.attributes("title") === "Toggle mode")!;
-      await toggleBtn.trigger("click");
-      await wrapper.vm.$nextTick();
-      expect(wrapper.find(".danx-file-metadata--overlay").exists()).toBe(true);
+      expect(wrapper.findComponent({ name: "DanxSplitPanel" }).exists()).toBe(true);
     });
   });
 });

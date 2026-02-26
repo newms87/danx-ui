@@ -2,7 +2,7 @@
  * File Metadata Helpers
  *
  * Pure functions for formatting and inspecting file metadata and EXIF data.
- * Used by both useDanxFileMetadata (composable) and DanxFileMetadata (panel).
+ * Used by DanxFileViewer and DanxFileMetadata.
  */
 
 import type { PreviewFile } from "../danx-file/types";

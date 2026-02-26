@@ -78,7 +78,6 @@ import { DanxFile } from "../../src/components/danx-file";
 import {
   DanxFileViewer,
   useDanxFileViewer,
-  useDanxFileMetadata,
   useVirtualCarousel,
 } from "../../src/components/danx-file-viewer";
 import {
@@ -282,7 +281,6 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   triggerFileDownload,
   downloadFile,
   useDanxFileViewer,
-  useDanxFileMetadata,
   useVirtualCarousel,
   // SplitPanel
   DanxSplitPanel,

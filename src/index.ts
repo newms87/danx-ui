@@ -49,11 +49,7 @@ export {
   createDownloadEvent,
   triggerFileDownload,
 } from "./components/danx-file";
-export {
-  useDanxFileViewer,
-  useDanxFileMetadata,
-  useVirtualCarousel,
-} from "./components/danx-file-viewer";
+export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
 export { useDanxScroll, useScrollInfinite, useScrollWindow } from "./components/scroll";
 export { downloadFile } from "./shared/download";
 
@@ -170,10 +166,8 @@ export type {
   ScrollWindowReturn,
 } from "./components/scroll";
 export type {
-  MetadataMode,
   UseDanxFileViewerOptions,
   UseDanxFileViewerReturn,
-  UseDanxFileMetadataReturn,
   VirtualSlide,
   DanxFileViewerProps,
   DanxFileViewerEmits,

@@ -7,11 +7,6 @@
 import type { DanxFileDownloadEvent, PreviewFile } from "../danx-file/types";
 
 /**
- * Metadata panel display mode for DanxFileViewer.
- */
-export type MetadataMode = "overlay" | "docked";
-
-/**
  * A virtual slide descriptor for the carousel buffer.
  *
  * The virtual carousel renders current ±2 slides for smooth opacity

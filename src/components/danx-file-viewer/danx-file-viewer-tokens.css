@@ -23,9 +23,6 @@
  * --dx-file-strip-inactive-opacity   Inactive thumbnail opacity
  * --dx-file-strip-active-scale       Active thumbnail scale
  * --dx-file-meta-bg                  Metadata panel background
- * --dx-file-meta-width               Metadata panel width (docked mode)
- * --dx-file-meta-max-width           Metadata panel maximum width
- * --dx-file-meta-min-width           Metadata panel minimum width
  * --dx-file-meta-border-color        Metadata panel border
  */
 
@@ -80,9 +77,6 @@
      ========================================================================== */
 
   --dx-file-meta-bg: var(--color-surface);
-  --dx-file-meta-width: 40%;
-  --dx-file-meta-max-width: 37.5rem;
-  --dx-file-meta-min-width: 18.75rem;
   --dx-file-meta-border-color: var(--color-border);
 
 }

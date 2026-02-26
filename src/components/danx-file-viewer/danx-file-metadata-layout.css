@@ -1,32 +1,15 @@
 /**
  * DanxFileMetadata Layout Styles
  *
- * Metadata panel styles for overlay and docked display modes.
- * BEM modifiers are top-level blocks (Lightning CSS limitation).
+ * Metadata panel styles — sizing is controlled by DanxSplitPanel.
  */
 
 .danx-file-metadata {
   display: flex;
   flex-direction: column;
-  width: var(--dx-file-meta-width);
-  max-width: var(--dx-file-meta-max-width);
-  min-width: var(--dx-file-meta-min-width);
   background: var(--dx-file-meta-bg);
   border-left: 1px solid var(--dx-file-meta-border-color);
   overflow: hidden;
-}
-
-.danx-file-metadata--overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3;
-  box-shadow: -2px 0 8px rgb(0 0 0 / 0.1);
-}
-
-.danx-file-metadata--docked {
-  flex-shrink: 0;
 }
 
 .danx-file-metadata__header {
@@ -44,11 +27,6 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
-}
-
-.danx-file-metadata__header-actions {
-  display: flex;
-  gap: 0.25rem;
 }
 
 .danx-file-metadata__content {

@@ -126,14 +126,17 @@
   display: flex;
   gap: 0.25rem;
   align-items: center;
+
+  .danx-button {
+    position: relative;
+  }
 }
 
 /* ==========================================================================
-   Body (content + docked metadata)
+   Body (split panel container)
    ========================================================================== */
 
 .danx-file-viewer__body {
-  display: flex;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -222,6 +225,9 @@
    ========================================================================== */
 
 .danx-file-viewer__meta-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
   font-size: 0.625rem;
   font-weight: 600;
   line-height: 1;
@@ -229,7 +235,7 @@
   border-radius: 9999px;
   background: var(--color-interactive);
   color: var(--color-text-inverted);
-  margin-left: 0.25rem;
+  pointer-events: none;
 }
 
 /* Note: Preview element styles (image, video, audio, pdf) are in DanxFile's
@@ -243,6 +249,7 @@
   background: var(--dx-file-strip-bg);
   border-top: 1px solid var(--color-border);
   flex-shrink: 0;
+  padding: 0 1rem;
 
   /* DanxVirtualScroll uses absolute positioning for items, so the strip
      needs an explicit height. Account for the scaled active thumb
@@ -269,7 +276,7 @@
   /* DanxVirtualScroll controls the flex container, so spacing must be
      applied per-item. Horizontal margin for gaps, vertical margin to
      center thumbs and prevent active-scale border from clipping. */
-  margin: 0.75rem calc(var(--dx-file-strip-gap) / 2);
+  margin: 0.75rem calc(var(--dx-file-strip-gap) / 2 + 0.25rem);
 
   &:hover {
     outline-color: var(--color-interactive);
@@ -325,12 +332,6 @@
     }
   }
 
-  .danx-file-metadata--docked {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    border-left: none;
-  }
 }
 
 @container (min-width: 480px) and (max-width: 768px) {
