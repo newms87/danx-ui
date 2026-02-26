@@ -48,17 +48,30 @@
 }
 
 /* ==========================================================================
-   Breadcrumb Navigation
+   Navigation Buttons (parent / children)
+   ========================================================================== */
+
+.danx-file-viewer__nav-buttons {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Breadcrumb Navigation (beneath header)
    ========================================================================== */
 
 .danx-file-viewer__breadcrumbs {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  flex: 1;
   min-width: 0;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   overflow: hidden;
+  padding: 0.375rem var(--dx-file-nav-header-padding);
+  background: var(--dx-file-nav-header-bg);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .danx-file-viewer__breadcrumb-item {
@@ -183,36 +196,6 @@
 }
 
 /* ==========================================================================
-   Standalone Close Button
-   ========================================================================== */
-
-.danx-file-viewer__close-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 30;
-  width: var(--dx-file-nav-close-btn-size);
-  height: var(--dx-file-nav-close-btn-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: none;
-  color: inherit;
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: var(--dx-file-nav-close-btn-bg-hover);
-  }
-
-  .danx-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-}
-
-/* ==========================================================================
    Virtual Carousel Slides
    ========================================================================== */
 
@@ -257,17 +240,14 @@
    ========================================================================== */
 
 .danx-file-strip {
-  padding: 0.75rem 1rem;
   background: var(--dx-file-strip-bg);
   border-top: 1px solid var(--color-border);
   flex-shrink: 0;
-}
 
-.danx-file-strip__inner {
-  display: flex;
-  justify-content: center;
-  gap: var(--dx-file-strip-gap);
-  padding: 0.25rem 0;
+  /* DanxVirtualScroll uses absolute positioning for items, so the strip
+     needs an explicit height. Account for the scaled active thumb
+     (thumb-size × active-scale) plus generous vertical breathing room. */
+  height: calc(var(--dx-file-strip-thumb-size) + 2.5rem);
 }
 
 .danx-file-strip__thumb {
@@ -278,18 +258,28 @@
   border-radius: var(--radius-md, 0.375rem);
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
   opacity: var(--dx-file-strip-inactive-opacity);
-  transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, outline-color 0.2s ease, transform 0.2s ease;
+
+  /* Use outline instead of border so the image fills to the full
+     border-radius edge with no gap between content and highlight ring. */
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+
+  /* DanxVirtualScroll controls the flex container, so spacing must be
+     applied per-item. Horizontal margin for gaps, vertical margin to
+     center thumbs and prevent active-scale border from clipping. */
+  margin: 0.75rem calc(var(--dx-file-strip-gap) / 2);
 
   &:hover {
-    border-color: var(--color-border-strong);
+    outline-color: var(--color-interactive);
     opacity: 1;
   }
 }
 
 .danx-file-strip__thumb--active {
-  border: var(--dx-file-strip-active-border);
+  outline: var(--dx-file-strip-active-border);
+  outline-offset: 1px;
   opacity: 1;
   transform: scale(var(--dx-file-strip-active-scale));
 }

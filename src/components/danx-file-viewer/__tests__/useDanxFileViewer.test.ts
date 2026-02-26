@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { nextTick, ref } from "vue";
 import { useDanxFileViewer } from "../useDanxFileViewer";
-import { makeFile } from "../../danx-file/__tests__/test-helpers";
+import { makeFile, makeChild } from "../../danx-file/__tests__/test-helpers";
 
 describe("useDanxFileViewer", () => {
   describe("initial state", () => {
@@ -153,50 +153,60 @@ describe("useDanxFileViewer", () => {
       expect(currentFile.value.id).toBe("3");
     });
 
-    it("clears child stack", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const file2 = makeFile("2");
-      const related = ref([file2]);
-      const { currentFile, diveIntoChild, goTo, hasParent } = useDanxFileViewer({
-        file,
-        relatedFiles: related,
-      });
-
-      diveIntoChild(child);
-      expect(hasParent.value).toBe(true);
-
-      goTo(file2);
-      expect(hasParent.value).toBe(false);
-      expect(currentFile.value.id).toBe("2");
-    });
-  });
-
-  describe("child stack", () => {
-    it("diveIntoChild pushes current file and sets child as current", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const { currentFile, diveIntoChild, hasParent, childStack } = useDanxFileViewer({
+    it("stays in child mode when navigating within children", () => {
+      const children = [makeChild("c1"), makeChild("c2"), makeChild("c3")];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, goTo, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
-      expect(currentFile.value.id).toBe("child");
+      diveIntoChildren();
+      expect(hasParent.value).toBe(true);
+
+      goTo(children[2]!);
+      expect(hasParent.value).toBe(true);
+      expect(currentFile.value.id).toBe("c3");
+    });
+  });
+
+  describe("child stack", () => {
+    it("diveIntoChildren pushes current file and sets first child as current", () => {
+      const children = [makeChild("c1"), makeChild("c2")];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, hasParent, childStack } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChildren();
+      expect(currentFile.value.id).toBe("c1");
       expect(hasParent.value).toBe(true);
       expect(childStack.value).toHaveLength(1);
       expect(childStack.value[0]!.id).toBe("1");
     });
 
-    it("backFromChild pops stack and restores parent", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const { currentFile, diveIntoChild, backFromChild, hasParent } = useDanxFileViewer({
+    it("diveIntoChildren does nothing when no children exist", () => {
+      const file = ref(makeFile("1", { children: [] }));
+      const { currentFile, diveIntoChildren, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
+      diveIntoChildren();
+      expect(currentFile.value.id).toBe("1");
+      expect(hasParent.value).toBe(false);
+    });
+
+    it("backFromChild pops stack and restores parent", () => {
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, backFromChild, hasParent } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChildren();
       backFromChild();
       expect(currentFile.value.id).toBe("1");
       expect(hasParent.value).toBe(false);
@@ -214,40 +224,133 @@ describe("useDanxFileViewer", () => {
     });
 
     it("supports multi-level diving", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const grandchild = makeFile("grandchild");
-      const { currentFile, diveIntoChild, backFromChild, childStack } = useDanxFileViewer({
+      const grandchildren = [makeChild("gc1")];
+      const children = [makeChild("c1", { children: grandchildren }), makeChild("c2")];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, backFromChild, childStack } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
-      diveIntoChild(grandchild);
-      expect(currentFile.value.id).toBe("grandchild");
+      diveIntoChildren(); // into children[0] = c1
+      expect(currentFile.value.id).toBe("c1");
+
+      diveIntoChildren(); // into grandchildren[0] = gc1
+      expect(currentFile.value.id).toBe("gc1");
       expect(childStack.value).toHaveLength(2);
 
       backFromChild();
-      expect(currentFile.value.id).toBe("child");
+      expect(currentFile.value.id).toBe("c1");
 
       backFromChild();
       expect(currentFile.value.id).toBe("1");
     });
 
-    it("disables next/prev/slideLabel when in child", () => {
+    it("enables next/prev within children", () => {
+      const children = [makeChild("c1"), makeChild("c2"), makeChild("c3")];
+      const file = ref(makeFile("1", { children }));
+      const related = ref([makeFile("2")]);
+      const { hasNext, hasPrev, slideLabel, diveIntoChildren, next, currentFile } =
+        useDanxFileViewer({
+          file,
+          relatedFiles: related,
+        });
+
+      diveIntoChildren();
+      expect(currentFile.value.id).toBe("c1");
+      expect(hasNext.value).toBe(true);
+      expect(hasPrev.value).toBe(false);
+      expect(slideLabel.value).toBe("1 / 3");
+
+      next();
+      expect(currentFile.value.id).toBe("c2");
+      expect(slideLabel.value).toBe("2 / 3");
+    });
+  });
+
+  describe("activeFiles", () => {
+    it("returns root files at root level", () => {
       const file = ref(makeFile("1"));
       const related = ref([makeFile("2")]);
-      const child = makeFile("child");
-      const { hasNext, hasPrev, slideLabel, diveIntoChild } = useDanxFileViewer({
+      const { activeFiles } = useDanxFileViewer({ file, relatedFiles: related });
+      expect(activeFiles.value.length).toBe(2);
+      expect(activeFiles.value[0]!.id).toBe("1");
+      expect(activeFiles.value[1]!.id).toBe("2");
+    });
+
+    it("returns children when in child mode", () => {
+      const children = [makeChild("c1"), makeChild("c2")];
+      const file = ref(makeFile("1", { children }));
+      const related = ref([makeFile("2")]);
+      const { activeFiles, diveIntoChildren } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
 
-      expect(hasNext.value).toBe(true);
-      diveIntoChild(child);
-      expect(hasNext.value).toBe(false);
-      expect(hasPrev.value).toBe(false);
-      expect(slideLabel.value).toBe("");
+      expect(activeFiles.value.length).toBe(2);
+      diveIntoChildren();
+      expect(activeFiles.value.length).toBe(2);
+      expect(activeFiles.value[0]!.id).toBe("c1");
+      expect(activeFiles.value[1]!.id).toBe("c2");
+    });
+
+    it("restores root files after backFromChild", () => {
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
+      const { activeFiles, diveIntoChildren, backFromChild } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+
+      diveIntoChildren();
+      expect(activeFiles.value[0]!.id).toBe("c1");
+
+      backFromChild();
+      expect(activeFiles.value[0]!.id).toBe("1");
+    });
+  });
+
+  describe("hasChildFiles", () => {
+    it("is true when current file has children", () => {
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
+      const { hasChildFiles } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+      expect(hasChildFiles.value).toBe(true);
+    });
+
+    it("is false when current file has no children", () => {
+      const file = ref(makeFile("1", { children: [] }));
+      const { hasChildFiles } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+      expect(hasChildFiles.value).toBe(false);
+    });
+
+    it("is false when children is undefined", () => {
+      const file = ref(makeFile("1"));
+      const { hasChildFiles } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([]),
+      });
+      expect(hasChildFiles.value).toBe(false);
+    });
+
+    it("updates when navigating to a file with children", () => {
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1"));
+      const file2 = makeFile("2", { children });
+      const { hasChildFiles, goTo } = useDanxFileViewer({
+        file,
+        relatedFiles: ref([file2]),
+      });
+
+      expect(hasChildFiles.value).toBe(false);
+      goTo(file2);
+      expect(hasChildFiles.value).toBe(true);
     });
   });
 
@@ -277,31 +380,31 @@ describe("useDanxFileViewer", () => {
       expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "3" }));
     });
 
-    it("calls onNavigate for diveIntoChild", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
+    it("calls onNavigate for diveIntoChildren", () => {
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
       const onNavigate = vi.fn();
-      const { diveIntoChild } = useDanxFileViewer({
+      const { diveIntoChildren } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
         onNavigate,
       });
 
-      diveIntoChild(child);
-      expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "child" }));
+      diveIntoChildren();
+      expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "c1" }));
     });
 
     it("calls onNavigate for backFromChild", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
       const onNavigate = vi.fn();
-      const { diveIntoChild, backFromChild } = useDanxFileViewer({
+      const { diveIntoChildren, backFromChild } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
         onNavigate,
       });
 
-      diveIntoChild(child);
+      diveIntoChildren();
       onNavigate.mockClear();
       backFromChild();
       expect(onNavigate).toHaveBeenCalledWith(expect.objectContaining({ id: "1" }));
@@ -340,15 +443,15 @@ describe("useDanxFileViewer", () => {
 
   describe("anchor file change", () => {
     it("resets when anchor file ref changes", async () => {
-      const file = ref(makeFile("1"));
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
       const related = ref([makeFile("2")]);
-      const { currentFile, next, diveIntoChild, hasParent } = useDanxFileViewer({
+      const { currentFile, diveIntoChildren, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
 
-      next();
-      diveIntoChild(makeFile("child"));
+      diveIntoChildren();
       expect(hasParent.value).toBe(true);
 
       // Change the anchor file
@@ -361,17 +464,16 @@ describe("useDanxFileViewer", () => {
 
   describe("reset", () => {
     it("resets to anchor file and clears stack", () => {
-      const file = ref(makeFile("1"));
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
       const related = ref([makeFile("2")]);
-      const child = makeFile("child");
-      const { currentFile, next, diveIntoChild, reset, hasParent } = useDanxFileViewer({
+      const { currentFile, diveIntoChildren, reset, hasParent } = useDanxFileViewer({
         file,
         relatedFiles: related,
       });
 
-      next();
-      diveIntoChild(child);
-      expect(currentFile.value.id).toBe("child");
+      diveIntoChildren();
+      expect(currentFile.value.id).toBe("c1");
       expect(hasParent.value).toBe(true);
 
       reset();
@@ -382,17 +484,17 @@ describe("useDanxFileViewer", () => {
 
   describe("navigateToAncestor", () => {
     it("navigates to a specific ancestor in the stack", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const grandchild = makeFile("grandchild");
-      const { currentFile, diveIntoChild, navigateToAncestor, childStack } = useDanxFileViewer({
+      const grandchildren = [makeChild("gc1")];
+      const children = [makeChild("c1", { children: grandchildren })];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, navigateToAncestor, childStack } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
-      diveIntoChild(grandchild);
-      expect(currentFile.value.id).toBe("grandchild");
+      diveIntoChildren(); // into c1
+      diveIntoChildren(); // into gc1
+      expect(currentFile.value.id).toBe("gc1");
       expect(childStack.value).toHaveLength(2);
 
       // Navigate back to root (file "1")
@@ -402,38 +504,38 @@ describe("useDanxFileViewer", () => {
     });
 
     it("navigates to intermediate ancestor", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const grandchild = makeFile("grandchild");
-      const greatGrandchild = makeFile("great-grandchild");
-      const { currentFile, diveIntoChild, navigateToAncestor, childStack } = useDanxFileViewer({
+      const greatGrandchildren = [makeChild("ggc1")];
+      const grandchildren = [makeChild("gc1", { children: greatGrandchildren })];
+      const children = [makeChild("c1", { children: grandchildren })];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, navigateToAncestor, childStack } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
-      diveIntoChild(grandchild);
-      diveIntoChild(greatGrandchild);
+      diveIntoChildren(); // into c1
+      diveIntoChildren(); // into gc1
+      diveIntoChildren(); // into ggc1
       expect(childStack.value).toHaveLength(3);
 
-      // Navigate to "child" (skipping grandchild)
-      navigateToAncestor("child");
-      expect(currentFile.value.id).toBe("child");
+      // Navigate to "c1" (skipping gc1)
+      navigateToAncestor("c1");
+      expect(currentFile.value.id).toBe("c1");
       expect(childStack.value).toHaveLength(1);
       expect(childStack.value[0]!.id).toBe("1");
     });
 
     it("does nothing for unknown file ID", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const { currentFile, diveIntoChild, navigateToAncestor } = useDanxFileViewer({
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
+      const { currentFile, diveIntoChildren, navigateToAncestor } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
+      diveIntoChildren();
       navigateToAncestor("unknown");
-      expect(currentFile.value.id).toBe("child");
+      expect(currentFile.value.id).toBe("c1");
     });
   });
 
@@ -448,54 +550,54 @@ describe("useDanxFileViewer", () => {
     });
 
     it("returns [parent, child] when one level deep", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const { breadcrumbs, diveIntoChild } = useDanxFileViewer({
+      const children = [makeChild("c1")];
+      const file = ref(makeFile("1", { children }));
+      const { breadcrumbs, diveIntoChildren } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
+      diveIntoChildren();
       expect(breadcrumbs.value).toEqual([
         { id: "1", name: "file-1.jpg" },
-        { id: "child", name: "file-child.jpg" },
+        { id: "c1", name: "child-c1.jpg" },
       ]);
     });
 
     it("returns full chain at three levels deep", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const grandchild = makeFile("grandchild");
-      const { breadcrumbs, diveIntoChild } = useDanxFileViewer({
+      const grandchildren = [makeChild("gc1")];
+      const children = [makeChild("c1", { children: grandchildren })];
+      const file = ref(makeFile("1", { children }));
+      const { breadcrumbs, diveIntoChildren } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
-      diveIntoChild(grandchild);
+      diveIntoChildren(); // into c1
+      diveIntoChildren(); // into gc1
       expect(breadcrumbs.value).toEqual([
         { id: "1", name: "file-1.jpg" },
-        { id: "child", name: "file-child.jpg" },
-        { id: "grandchild", name: "file-grandchild.jpg" },
+        { id: "c1", name: "child-c1.jpg" },
+        { id: "gc1", name: "child-gc1.jpg" },
       ]);
     });
 
     it("updates after navigateToAncestor", () => {
-      const file = ref(makeFile("1"));
-      const child = makeFile("child");
-      const grandchild = makeFile("grandchild");
-      const { breadcrumbs, diveIntoChild, navigateToAncestor } = useDanxFileViewer({
+      const grandchildren = [makeChild("gc1")];
+      const children = [makeChild("c1", { children: grandchildren })];
+      const file = ref(makeFile("1", { children }));
+      const { breadcrumbs, diveIntoChildren, navigateToAncestor } = useDanxFileViewer({
         file,
         relatedFiles: ref([]),
       });
 
-      diveIntoChild(child);
-      diveIntoChild(grandchild);
-      navigateToAncestor("child");
+      diveIntoChildren(); // into c1
+      diveIntoChildren(); // into gc1
+      navigateToAncestor("c1");
 
       expect(breadcrumbs.value).toEqual([
         { id: "1", name: "file-1.jpg" },
-        { id: "child", name: "file-child.jpg" },
+        { id: "c1", name: "child-c1.jpg" },
       ]);
     });
   });

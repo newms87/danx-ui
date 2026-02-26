@@ -36,8 +36,6 @@ export interface DanxFileViewerProps {
   relatedFiles?: PreviewFile[];
   /** Show download button in header */
   downloadable?: boolean;
-  /** Show close button (standalone, top-right) */
-  closable?: boolean;
 }
 
 /**
@@ -46,7 +44,6 @@ export interface DanxFileViewerProps {
 export interface DanxFileViewerEmits {
   (e: "download", event: DanxFileDownloadEvent): void;
   (e: "loadChildren", file: PreviewFile): void;
-  (e: "close"): void;
 }
 
 /**

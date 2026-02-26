@@ -6,9 +6,8 @@
  * - Composables: Navigation and metadata state management
  * - Types: TypeScript interfaces
  *
- * Internal subcomponents (DanxFileThumbnailStrip, DanxFileMetadata,
- * DanxFileChildrenMenu) are not exported — they are used only by
- * DanxFileViewer internally.
+ * Internal subcomponents (DanxFileThumbnailStrip, DanxFileMetadata)
+ * are not exported — they are used only by DanxFileViewer internally.
  */
 
 export { default as DanxFileViewer } from "./DanxFileViewer.vue";

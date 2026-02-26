@@ -15,13 +15,11 @@
  *   file: PreviewFile - The main/anchor file (required)
  *   relatedFiles?: PreviewFile[] - Related files for carousel navigation
  *   downloadable?: boolean - Show download button in header
- *   closable?: boolean - Show close button (standalone, top-right)
  *
  * @emits
  *   update:fileInPreview(file | null) - Active file changed
  *   download(file) - Download clicked (also auto-downloads)
  *   loadChildren(file) - Children needed (parent fetches and updates file.children)
- *   close - Close button clicked
  *
  * @slots
  *   header-actions - Extra buttons in the header bar
@@ -37,8 +35,6 @@
  *   --dx-file-nav-arrow-bg - Navigation arrow background
  *   --dx-file-nav-arrow-bg-hover - Navigation arrow hover background
  *   --dx-file-nav-counter-color - Slide counter color
- *   --dx-file-nav-close-btn-size - Standalone close button dimensions
- *   --dx-file-nav-close-btn-bg-hover - Close button hover background
  *   --dx-file-nav-slide-transition - Slide opacity transition duration
  *   --dx-file-strip-gap - Thumbnail strip gap
  *   --dx-file-strip-thumb-size - Thumbnail strip thumb size
@@ -53,8 +49,6 @@
  *     v-model:file-in-preview="activeFile"
  *     :related-files="relatedFiles"
  *     downloadable
- *     closable
- *     @close="showNav = false"
  *   />
  */
 -->
@@ -64,7 +58,7 @@ import { computed, ref, toRef, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
-import { hasChildren, createDownloadEvent, triggerFileDownload } from "../danx-file/file-helpers";
+import { createDownloadEvent, triggerFileDownload } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
 import { useDanxFileViewer } from "./useDanxFileViewer";
@@ -73,12 +67,10 @@ import { useDanxFileMetadata } from "./useDanxFileMetadata";
 import { useVirtualCarousel } from "./useVirtualCarousel";
 import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
 import DanxFileMetadata from "./DanxFileMetadata.vue";
-import DanxFileChildrenMenu from "./DanxFileChildrenMenu.vue";
 
 const props = withDefaults(defineProps<DanxFileViewerProps>(), {
   relatedFiles: () => [],
   downloadable: false,
-  closable: false,
 });
 
 const emit = defineEmits<DanxFileViewerEmits>();
@@ -92,7 +84,7 @@ defineSlots<DanxFileViewerSlots>();
 const {
   currentFile,
   currentIndex,
-  allFiles,
+  activeFiles,
   hasNext,
   hasPrev,
   slideLabel,
@@ -100,9 +92,11 @@ const {
   prev,
   goTo,
   hasParent,
+  hasChildFiles,
+  backFromChild,
   navigateToAncestor,
   breadcrumbs,
-  diveIntoChild,
+  diveIntoChildren,
 } = useDanxFileViewer({
   file: toRef(props, "file"),
   relatedFiles: toRef(props, "relatedFiles"),
@@ -112,7 +106,7 @@ const {
 });
 
 // Virtual carousel: renders current ±2 slides for smooth opacity transitions
-const { visibleSlides } = useVirtualCarousel(allFiles, currentIndex);
+const { visibleSlides } = useVirtualCarousel(activeFiles, currentIndex);
 
 // Sync fileInPreview on mount
 watch(
@@ -123,14 +117,21 @@ watch(
   { immediate: true }
 );
 
-// Metadata and children state
+// Metadata state
 const { mode: metadataMode } = useDanxFileMetadata();
 const showMetadata = ref(false);
 const hasMetadata = computed(() => hasAnyInfo(currentFile.value));
 const infoCount = computed(() => metaCount(currentFile.value) + exifCount(currentFile.value));
-// Show when children exist (to display them) OR when children haven't loaded yet (to trigger loading)
-const showChildrenMenu = computed(
-  () => hasChildren(currentFile.value) || !currentFile.value.children
+
+// Emit loadChildren when the current file's children are undefined
+watch(
+  currentFile,
+  (f) => {
+    if (!f.children) {
+      emit("loadChildren", f);
+    }
+  },
+  { immediate: true }
 );
 
 function toggleMetadata() {
@@ -192,59 +193,41 @@ function onTouchEnd(e: TouchEvent) {
     @touchstart.passive="onTouchStart"
     @touchend.passive="onTouchEnd"
   >
-    <!-- Standalone close button -->
-    <button
-      v-if="closable"
-      class="danx-file-viewer__close-btn"
-      title="Close"
-      aria-label="Close"
-      @click="emit('close')"
-    >
-      <DanxIcon icon="close" />
-    </button>
-
     <!-- Header -->
     <div class="danx-file-viewer__header">
-      <!-- Breadcrumb navigation when viewing children -->
-      <nav v-if="hasParent" class="danx-file-viewer__breadcrumbs" aria-label="File navigation">
-        <template v-for="(entry, index) in breadcrumbs" :key="entry.id">
-          <span v-if="index > 0" class="danx-file-viewer__breadcrumb-separator">/</span>
-          <span
-            v-if="index === breadcrumbs.length - 1"
-            class="danx-file-viewer__breadcrumb-item danx-file-viewer__breadcrumb-item--active"
-            aria-current="step"
-            >{{ entry.name }}</span
-          >
-          <button
-            v-else
-            class="danx-file-viewer__breadcrumb-item"
-            @click="navigateToAncestor(entry.id)"
-          >
-            {{ entry.name }}
-          </button>
-        </template>
-      </nav>
+      <!-- Navigation buttons (parent / children) -->
+      <div v-if="hasParent || hasChildFiles" class="danx-file-viewer__nav-buttons">
+        <DanxButton
+          v-if="hasParent"
+          type="muted"
+          size="sm"
+          icon="chevron-up"
+          tooltip="Go to parent"
+          @click="backFromChild()"
+        />
+        <DanxButton
+          v-if="hasChildFiles"
+          type="muted"
+          size="sm"
+          icon="chevron-down"
+          tooltip="View children"
+          @click="diveIntoChildren()"
+        />
+      </div>
 
-      <span v-else class="danx-file-viewer__filename">{{ currentFile.name }}</span>
+      <span class="danx-file-viewer__filename">{{ currentFile.name }}</span>
 
       <span v-if="slideLabel" class="danx-file-viewer__counter">{{ slideLabel }}</span>
 
       <div class="danx-file-viewer__header-actions">
         <slot name="header-actions" />
 
-        <DanxFileChildrenMenu
-          v-if="showChildrenMenu"
-          :file="currentFile"
-          @select="diveIntoChild"
-          @load-children="emit('loadChildren', $event)"
-        />
-
         <DanxButton
           v-if="hasMetadata"
           type="muted"
           size="sm"
           icon="info"
-          title="Metadata"
+          tooltip="Metadata"
           @click="toggleMetadata"
         >
           <span v-if="infoCount > 0" class="danx-file-viewer__meta-badge">{{ infoCount }}</span>
@@ -255,11 +238,31 @@ function onTouchEnd(e: TouchEvent) {
           type="muted"
           size="sm"
           icon="download"
-          title="Download"
+          tooltip="Download"
           @click="onDownload"
         />
       </div>
     </div>
+
+    <!-- Breadcrumb navigation beneath header -->
+    <nav v-if="hasParent" class="danx-file-viewer__breadcrumbs" aria-label="File navigation">
+      <template v-for="(entry, index) in breadcrumbs" :key="entry.id">
+        <span v-if="index > 0" class="danx-file-viewer__breadcrumb-separator">/</span>
+        <span
+          v-if="index === breadcrumbs.length - 1"
+          class="danx-file-viewer__breadcrumb-item danx-file-viewer__breadcrumb-item--active"
+          aria-current="step"
+          >{{ entry.name }}</span
+        >
+        <button
+          v-else
+          class="danx-file-viewer__breadcrumb-item"
+          @click="navigateToAncestor(entry.id)"
+        >
+          {{ entry.name }}
+        </button>
+      </template>
+    </nav>
 
     <!-- Main content area with optional docked metadata -->
     <div class="danx-file-viewer__body">
@@ -268,7 +271,6 @@ function onTouchEnd(e: TouchEvent) {
         <button
           v-if="hasPrev"
           class="danx-file-viewer__arrow danx-file-viewer__arrow--prev"
-          title="Previous"
           aria-label="Previous"
           @click="prev"
         >
@@ -295,7 +297,6 @@ function onTouchEnd(e: TouchEvent) {
         <button
           v-if="hasNext"
           class="danx-file-viewer__arrow danx-file-viewer__arrow--next"
-          title="Next"
           aria-label="Next"
           @click="next"
         >
@@ -321,6 +322,6 @@ function onTouchEnd(e: TouchEvent) {
     </div>
 
     <!-- Thumbnail strip -->
-    <DanxFileThumbnailStrip :files="allFiles" :active-file-id="currentFile.id" @select="goTo" />
+    <DanxFileThumbnailStrip :files="activeFiles" :active-file-id="currentFile.id" @select="goTo" />
   </div>
 </template>

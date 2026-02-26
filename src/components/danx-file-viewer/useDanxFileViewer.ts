@@ -12,6 +12,7 @@
  */
 
 import { computed, ref, type Ref, watch } from "vue";
+import { hasChildren } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 
 export interface UseDanxFileViewerOptions {
@@ -23,7 +24,7 @@ export interface UseDanxFileViewerOptions {
 export interface UseDanxFileViewerReturn {
   /** The currently displayed file */
   currentFile: Ref<PreviewFile>;
-  /** Index of current file in the root file list */
+  /** Index of current file in the active file list */
   currentIndex: Ref<number>;
   /** Whether there is a next file to navigate to */
   hasNext: Ref<boolean>;
@@ -35,12 +36,12 @@ export interface UseDanxFileViewerReturn {
   next: () => void;
   /** Navigate to the previous file */
   prev: () => void;
-  /** Navigate to a specific file */
+  /** Navigate to a specific file (stays in current level) */
   goTo: (file: PreviewFile) => void;
   /** Stack of parent files when diving into children */
   childStack: Ref<PreviewFile[]>;
-  /** Dive into a child file, pushing the current file onto the stack */
-  diveIntoChild: (child: PreviewFile) => void;
+  /** Dive into children of the current file (navigate to first child) */
+  diveIntoChildren: () => void;
   /** Return from a child to the parent file */
   backFromChild: () => void;
   /** Navigate to a specific ancestor in the child stack by file ID */
@@ -49,8 +50,12 @@ export interface UseDanxFileViewerReturn {
   breadcrumbs: Ref<{ id: string; name: string }[]>;
   /** Whether we are currently viewing a child (stack is non-empty) */
   hasParent: Ref<boolean>;
-  /** All files (anchor + related, deduped) */
+  /** Whether the current file has children to dive into */
+  hasChildFiles: Ref<boolean>;
+  /** All root-level files (anchor + related, deduped) */
   allFiles: Ref<PreviewFile[]>;
+  /** The files currently being navigated (root files or children depending on level) */
+  activeFiles: Ref<PreviewFile[]>;
   /** Reset navigation to the anchor file */
   reset: () => void;
 }
@@ -71,31 +76,35 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
 
   const currentFile = ref<PreviewFile>(file.value) as Ref<PreviewFile>;
   const childStack = ref<PreviewFile[]>([]);
+  const childFiles = ref<PreviewFile[]>([]);
+
+  // Active files: children when in child mode, root files otherwise
+  const activeFiles = computed(() => {
+    if (childStack.value.length > 0) return childFiles.value;
+    return allFiles.value;
+  });
 
   const currentIndex = computed(() => {
-    if (childStack.value.length > 0) return -1;
-    return allFiles.value.findIndex((f) => f.id === currentFile.value.id);
+    return activeFiles.value.findIndex((f) => f.id === currentFile.value.id);
   });
 
   const hasNext = computed(() => {
-    if (childStack.value.length > 0) return false;
-    return currentIndex.value < allFiles.value.length - 1;
+    return currentIndex.value < activeFiles.value.length - 1;
   });
 
   const hasPrev = computed(() => {
-    if (childStack.value.length > 0) return false;
     return currentIndex.value > 0;
   });
 
   const slideLabel = computed(() => {
-    if (childStack.value.length > 0) return "";
-    if (allFiles.value.length <= 1) return "";
+    if (activeFiles.value.length <= 1) return "";
     const idx = currentIndex.value;
     if (idx < 0) return "";
-    return `${idx + 1} / ${allFiles.value.length}`;
+    return `${idx + 1} / ${activeFiles.value.length}`;
   });
 
   const hasParent = computed(() => childStack.value.length > 0);
+  const hasChildFiles = computed(() => hasChildren(currentFile.value));
 
   function setCurrentFile(f: PreviewFile) {
     currentFile.value = f;
@@ -104,28 +113,42 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
 
   function next() {
     if (!hasNext.value) return;
-    setCurrentFile(allFiles.value[currentIndex.value + 1]!);
+    setCurrentFile(activeFiles.value[currentIndex.value + 1]!);
   }
 
   function prev() {
     if (!hasPrev.value) return;
-    setCurrentFile(allFiles.value[currentIndex.value - 1]!);
+    setCurrentFile(activeFiles.value[currentIndex.value - 1]!);
   }
 
   function goTo(f: PreviewFile) {
-    childStack.value = [];
-    setCurrentFile(f);
+    if (childStack.value.length === 0) {
+      setCurrentFile(f);
+    } else {
+      // Stay in child mode — navigate within children
+      setCurrentFile(f);
+    }
   }
 
-  function diveIntoChild(child: PreviewFile) {
+  function diveIntoChildren() {
+    const children = currentFile.value.children;
+    if (!children || children.length === 0) return;
     childStack.value = [...childStack.value, currentFile.value];
-    setCurrentFile(child);
+    childFiles.value = children;
+    setCurrentFile(children[0]!);
   }
 
   function backFromChild() {
     if (childStack.value.length === 0) return;
     const parent = childStack.value[childStack.value.length - 1]!;
     childStack.value = childStack.value.slice(0, -1);
+    // Restore childFiles: if still in child mode, use the new top-of-stack's children
+    if (childStack.value.length > 0) {
+      const newParent = childStack.value[childStack.value.length - 1]!;
+      childFiles.value = newParent.children ?? [];
+    } else {
+      childFiles.value = [];
+    }
     setCurrentFile(parent);
   }
 
@@ -136,6 +159,13 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     // The ancestor becomes the current file; slice stack to before it
     const ancestor = childStack.value[ancestorIndex]!;
     childStack.value = childStack.value.slice(0, ancestorIndex);
+    // Restore childFiles for the new level
+    if (childStack.value.length > 0) {
+      const newParent = childStack.value[childStack.value.length - 1]!;
+      childFiles.value = newParent.children ?? [];
+    } else {
+      childFiles.value = [];
+    }
     setCurrentFile(ancestor);
   }
 
@@ -149,6 +179,7 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
 
   function reset() {
     childStack.value = [];
+    childFiles.value = [];
     setCurrentFile(file.value);
   }
 
@@ -165,12 +196,14 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     prev,
     goTo,
     childStack,
-    diveIntoChild,
+    diveIntoChildren,
     backFromChild,
     navigateToAncestor,
     breadcrumbs,
     hasParent,
+    hasChildFiles,
     allFiles,
+    activeFiles,
     reset,
   };
 }

@@ -30,13 +30,7 @@ const relatedFiles = ref([
     <DanxFile :file="mainFile" @click="dialog.open()" />
   </div>
 
-  <DanxDialog v-model="dialog.isOpen.value" :width="90" :height="90">
-    <DanxFileViewer
-      :file="mainFile"
-      :related-files="relatedFiles"
-      downloadable
-      closable
-      @close="dialog.close()"
-    />
+  <DanxDialog v-model="dialog.isOpen.value" :width="90" :height="90" close-x>
+    <DanxFileViewer :file="mainFile" :related-files="relatedFiles" downloadable />
   </DanxDialog>
 </template>

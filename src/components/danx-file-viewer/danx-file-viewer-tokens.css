@@ -15,7 +15,6 @@
  * --dx-file-nav-arrow-bg             Navigation arrow button background
  * --dx-file-nav-arrow-bg-hover       Navigation arrow hover background
  * --dx-file-nav-counter-color        Slide counter text color
- * --dx-file-nav-close-btn-size       Standalone close button dimensions
  * --dx-file-nav-slide-transition     Slide opacity transition duration
  * --dx-file-strip-gap                Gap between strip thumbnails
  * --dx-file-strip-thumb-size         Strip thumbnail width and height
@@ -28,8 +27,6 @@
  * --dx-file-meta-max-width           Metadata panel maximum width
  * --dx-file-meta-min-width           Metadata panel minimum width
  * --dx-file-meta-border-color        Metadata panel border
- * --dx-file-children-bg              Children menu background
- * --dx-file-children-thumb-size      Children menu thumbnail size
  */
 
 :root {
@@ -49,7 +46,7 @@
      ========================================================================== */
 
   --dx-file-nav-arrow-size: 2rem;
-  --dx-file-nav-arrow-color: var(--color-text-inverted);
+  --dx-file-nav-arrow-color: var(--color-white);
   --dx-file-nav-arrow-bg: rgb(0 0 0 / 0.4);
   --dx-file-nav-arrow-bg-hover: rgb(0 0 0 / 0.6);
 
@@ -58,13 +55,6 @@
      ========================================================================== */
 
   --dx-file-nav-counter-color: var(--color-text-muted);
-
-  /* ==========================================================================
-     Close Button
-     ========================================================================== */
-
-  --dx-file-nav-close-btn-size: 4rem;
-  --dx-file-nav-close-btn-bg-hover: rgb(0 0 0 / 0.15);
 
   /* ==========================================================================
      Slide Transitions
@@ -83,7 +73,7 @@
   --dx-file-strip-inactive-opacity: 0.6;
   --dx-file-strip-active-scale: 1.1;
   --dx-file-strip-badge-bg: rgb(0 0 0 / 0.5);
-  --dx-file-strip-badge-color: var(--color-text-inverted);
+  --dx-file-strip-badge-color: var(--color-white);
 
   /* ==========================================================================
      Metadata Panel
@@ -95,10 +85,4 @@
   --dx-file-meta-min-width: 18.75rem;
   --dx-file-meta-border-color: var(--color-border);
 
-  /* ==========================================================================
-     Children Menu
-     ========================================================================== */
-
-  --dx-file-children-bg: var(--color-surface);
-  --dx-file-children-thumb-size: 2.5rem;
 }
