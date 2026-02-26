@@ -122,12 +122,7 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
   }
 
   function goTo(f: PreviewFile) {
-    if (childStack.value.length === 0) {
-      setCurrentFile(f);
-    } else {
-      // Stay in child mode — navigate within children
-      setCurrentFile(f);
-    }
+    setCurrentFile(f);
   }
 
   function diveIntoChildren() {

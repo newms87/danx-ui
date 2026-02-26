@@ -77,13 +77,18 @@ const activeFile = ref(null);
 <template>
   <div class="flex flex-col gap-4">
     <p class="text-sm text-text-muted">
-      A 22-page PDF with image children for each page. Click the down arrow in the header to dive
-      into the children carousel. Use the up arrow to return to the parent. Breadcrumbs below the
-      header show the ancestor chain. "Page 1 - Cover" has sub-children (logo and title crops) for
-      multi-level navigation.
+      A 22-page PDF with image children for each page. Click the "Pages" button in the header to
+      dive into the children carousel. Use the back arrow to return to the parent. Breadcrumbs below
+      the header show the ancestor chain. "Page 1 - Cover" has sub-children (logo and title crops)
+      for multi-level navigation.
     </p>
     <div class="w-full h-[600px] border border-border rounded-lg overflow-hidden">
-      <DanxFileViewer :file="mainFile" v-model:file-in-preview="activeFile" downloadable />
+      <DanxFileViewer
+        :file="mainFile"
+        v-model:file-in-preview="activeFile"
+        downloadable
+        children-label="Pages"
+      />
     </div>
   </div>
 </template>

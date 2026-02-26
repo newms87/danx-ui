@@ -36,6 +36,8 @@ export interface DanxFileViewerProps {
   relatedFiles?: PreviewFile[];
   /** Show download button in header */
   downloadable?: boolean;
+  /** Label for the children navigation button (default: "Children") */
+  childrenLabel?: string;
 }
 
 /**

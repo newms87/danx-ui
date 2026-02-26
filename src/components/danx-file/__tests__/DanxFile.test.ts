@@ -72,6 +72,15 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
     });
 
+    it("shows type icon for video with original URL but no thumb or optimized", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "video/mp4", url: "https://example.com/video.mp4" }),
+      });
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__image").exists()).toBe(false);
+      expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
+    });
+
     it("hides play icon when video has progress", () => {
       const wrapper = mountFile({
         file: makeFile({
@@ -480,6 +489,24 @@ describe("DanxFile", () => {
       const wrapper = mountFile();
       expect(wrapper.find(".danx-file__audio").exists()).toBe(false);
     });
+
+    it("does not show type icon when audio is rendered", () => {
+      const wrapper = mountFile({
+        file: makeFile({ type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+      });
+      expect(wrapper.find(".danx-file__audio").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
+    });
+
+    it("renders audio element in preview mode", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({ type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+      });
+      const audio = wrapper.find(".danx-file__audio");
+      expect(audio.exists()).toBe(true);
+      expect(audio.attributes("src")).toBe("https://example.com/song.mp3");
+    });
   });
 
   describe("Loading skeleton", () => {
@@ -718,7 +745,7 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
     });
 
-    it("renders <object type=application/pdf> for PDF files", () => {
+    it("shows type icon for PDF without optimized/thumb URL", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
@@ -727,14 +754,23 @@ describe("DanxFile", () => {
           name: "doc.pdf",
         }),
       });
-      const pdf = wrapper.find(".danx-file__pdf");
-      expect(pdf.exists()).toBe(true);
-      expect(pdf.attributes("type")).toBe("application/pdf");
-      expect(pdf.attributes("data")).toBe("https://example.com/doc.pdf");
-      // Fallback download link inside object
-      const link = pdf.find("a");
-      expect(link.exists()).toBe(true);
-      expect(link.attributes("href")).toBe("https://example.com/doc.pdf");
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
+      expect(wrapper.find(".danx-file__image").exists()).toBe(false);
+    });
+
+    it("renders optimized image for PDF with optimized URL", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          type: "application/pdf",
+          url: "https://example.com/doc.pdf",
+          optimized: { url: "https://example.com/doc-optimized.jpg" },
+        }),
+      });
+      const img = wrapper.find(".danx-file__image--preview");
+      expect(img.exists()).toBe(true);
+      expect(img.attributes("src")).toBe("https://example.com/doc-optimized.jpg");
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
     });
 
     it("renders full-size <img> with resolveFileUrl (not thumb) for images", () => {
@@ -750,6 +786,34 @@ describe("DanxFile", () => {
       // Should use the full URL, not thumb
       expect(img.attributes("src")).toBe("https://example.com/full.jpg");
       expect(img.classes()).toContain("danx-file__image--preview");
+    });
+
+    it("uses blobUrl as preview image when url is empty", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          url: "",
+          blobUrl: "blob:https://example.com/abc123",
+        }),
+      });
+      const img = wrapper.find(".danx-file__image");
+      expect(img.exists()).toBe(true);
+      expect(img.attributes("src")).toBe("blob:https://example.com/abc123");
+    });
+
+    it("uses original URL for video playback, not optimized", () => {
+      const wrapper = mountFile({
+        mode: "preview",
+        file: makeFile({
+          type: "video/mp4",
+          url: "https://example.com/video.mp4",
+          optimized: { url: "https://example.com/optimized.jpg" },
+        }),
+      });
+      const video = wrapper.find(".danx-file__video");
+      expect(video.exists()).toBe(true);
+      expect(video.attributes("src")).toBe("https://example.com/video.mp4");
+      expect(wrapper.find(".danx-file__image").exists()).toBe(false);
     });
 
     it("uses optimized URL when available for preview image", () => {
@@ -815,7 +879,33 @@ describe("DanxFile", () => {
     });
   });
 
-  describe("Thumb mode (default) unchanged", () => {
+  describe("Thumb mode URL resolution", () => {
+    it("uses optimized URL when no thumb is set for image file", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          url: "https://example.com/original.jpg",
+          optimized: { url: "https://example.com/optimized.jpg" },
+        }),
+      });
+      expect(wrapper.find(".danx-file__image").attributes("src")).toBe(
+        "https://example.com/optimized.jpg"
+      );
+    });
+
+    it("renders thumb image for PDF with optimized URL", () => {
+      const wrapper = mountFile({
+        file: makeFile({
+          type: "application/pdf",
+          url: "https://example.com/doc.pdf",
+          optimized: { url: "https://example.com/doc-optimized.jpg" },
+        }),
+      });
+      const img = wrapper.find(".danx-file__image");
+      expect(img.exists()).toBe(true);
+      expect(img.attributes("src")).toBe("https://example.com/doc-optimized.jpg");
+      expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
+    });
+
     it("still renders thumbnail for video with play icon in thumb mode", () => {
       const wrapper = mountFile({
         file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
@@ -828,12 +918,11 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__video").exists()).toBe(false);
     });
 
-    it("does not render <video> or <object> elements in thumb mode", () => {
+    it("does not render <video> element in thumb mode", () => {
       const wrapper = mountFile({
         file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
       });
       expect(wrapper.find(".danx-file__video").exists()).toBe(false);
-      expect(wrapper.find(".danx-file__pdf").exists()).toBe(false);
     });
   });
 });

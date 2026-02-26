@@ -57,6 +57,7 @@ watch(
     if (!virtualScrollRef.value?.$el) return;
     // Wait for DanxVirtualScroll to render the item at the new position
     await nextTick();
+    if (!virtualScrollRef.value?.$el) return;
     const thumb = virtualScrollRef.value.$el.querySelector(
       `.danx-file-strip__thumb--active`
     ) as HTMLElement | null;

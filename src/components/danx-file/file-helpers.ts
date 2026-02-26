@@ -9,16 +9,23 @@ import { downloadFile } from "../../shared/download";
 import type { DanxFileDownloadEvent, PreviewFile } from "./types";
 
 /**
- * Resolve the best available URL for displaying a file.
+ * Resolve the best available URL for downloading or linking to a file.
  * Priority: optimized > url > blobUrl > empty string.
+ *
+ * Note: For display rendering (img src), use the mode-aware logic in
+ * DanxFile.vue which gates non-image originals behind isImage() checks.
  */
 export function resolveFileUrl(file: PreviewFile): string {
   return file.optimized?.url || file.url || file.blobUrl || "";
 }
 
 /**
- * Resolve the best available thumbnail URL for a file.
+ * Resolve the best available thumbnail URL for downloading or linking.
  * Priority: thumb > optimized > url > blobUrl > empty string.
+ *
+ * Note: For display rendering, DanxFile.vue uses mode-aware computeds
+ * that prevent non-renderable URLs (e.g. video originals) from being
+ * used as image sources.
  */
 export function resolveThumbUrl(file: PreviewFile): string {
   return file.thumb?.url || resolveFileUrl(file);

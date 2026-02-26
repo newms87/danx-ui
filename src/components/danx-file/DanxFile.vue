@@ -5,17 +5,22 @@
  * Renders files in two modes:
  * - **thumb** (default): Thumbnail card with preview image, play icon overlay
  *   for video, file-type icons, progress bar, and error state.
- * - **preview**: Full-size interactive content — video with controls, embedded
- *   PDF, audio player, or full-size image with object-fit: contain.
+ * - **preview**: Full-size interactive content — video with controls,
+ *   audio player, or full-size image with object-fit: contain.
  *
  * Visual states are rendered in priority order:
  * 1. Error (file.error) — red overlay with warning icon and message
  * 2. Progress (file.progress non-null and < 100) — progress bar overlay
- * 3. Preview mode: video → `<video controls>`, PDF → `<object>`, image → full-size `<img>`
- * 4. Thumb mode: image/video → thumbnail `<img>`, video adds play icon overlay
+ * 3. Preview mode: video → `<video controls>`, image → full-size `<img>`
+ * 4. Thumb mode: thumbnail `<img>`, video adds play icon overlay
  * 5. Audio — `<audio controls>` in both modes
- * 6. File-type icon (non-previewable) — MIME-based icon + filename
- * 7. Empty (no URL, no thumb, no progress) — generic document icon
+ * 6. File-type icon — MIME-based icon + filename (no renderable URL)
+ *
+ * URL resolution per mode:
+ * - Preview image: optimized > original (images only) > type icon
+ * - Thumb image: thumb > optimized > original (images only) > type icon
+ * - Video/audio always use the original URL for playback
+ * - thumb and optimized are always browser-renderable images
  *
  * Progress and error overlays render ON TOP of the content in both modes.
  *
@@ -78,12 +83,9 @@ import { DanxTooltip } from "../tooltip";
 import { DanxProgressBar } from "../progress-bar";
 import { DanxSkeleton } from "../skeleton";
 import {
-  resolveFileUrl,
-  resolveThumbUrl,
   isImage,
   isVideo,
   isAudio,
-  isPdf,
   isInProgress,
   fileTypeIcon,
   formatFileSize,
@@ -118,42 +120,46 @@ const isCompactDisplay = computed(
 // --- Computed state ---
 
 const isPreviewMode = computed(() => props.mode === "preview");
-const fileUrl = computed(() => resolveFileUrl(props.file));
-const thumbUrl = computed(() => resolveThumbUrl(props.file));
-const hasThumb = computed(() => !!thumbUrl.value);
-const hasFileUrl = computed(() => !!fileUrl.value);
+const originalUrl = computed(() => props.file.url || props.file.blobUrl || "");
 
-// Preview mode: render full-size interactive elements
-const showPreviewVideo = computed(
-  () => isPreviewMode.value && isVideo(props.file) && hasFileUrl.value
-);
-const showPreviewPdf = computed(() => isPreviewMode.value && isPdf(props.file) && hasFileUrl.value);
-const showPreviewImage = computed(
-  () => isPreviewMode.value && isImage(props.file) && hasFileUrl.value
-);
-
-// Thumb mode: render thumbnail images.
-// Images can use any resolved URL as a thumb. Videos need an explicit thumb/optimized
-// URL — the raw video URL is not a valid image source.
-const hasVideoThumb = computed(() => !!(props.file.thumb?.url || props.file.optimized?.url));
-const showThumbImage = computed(() => {
-  if (isPreviewMode.value) return false;
-  if (isImage(props.file)) return hasThumb.value;
-  if (isVideo(props.file)) return hasVideoThumb.value;
-  return false;
+// Preview mode image URL.
+// Videos use <video> player, audio uses <audio> — both skip this.
+// Everything else: optimized (always an image) > original (if browser-renderable image).
+const previewImageUrl = computed(() => {
+  if (isVideo(props.file) || isAudio(props.file)) return "";
+  if (props.file.optimized?.url) return props.file.optimized.url;
+  if (isImage(props.file)) return originalUrl.value;
+  return "";
 });
-const showThumbPlayIcon = computed(
-  () => !isPreviewMode.value && isVideo(props.file) && hasVideoThumb.value
-);
 
-const showAudio = computed(() => isAudio(props.file));
+// Thumb mode image URL.
+// Priority: thumb > optimized > original (images only).
+// thumb and optimized are always browser-renderable images.
+// Video/PDF/etc. original URLs cannot be rendered as <img>.
+const thumbImageUrl = computed(() => {
+  if (props.file.thumb?.url) return props.file.thumb.url;
+  if (props.file.optimized?.url) return props.file.optimized.url;
+  if (isImage(props.file)) return originalUrl.value;
+  return "";
+});
+
+// Preview mode: interactive elements
+const showPreviewVideo = computed(
+  () => isPreviewMode.value && isVideo(props.file) && !!originalUrl.value
+);
+const showPreviewImage = computed(() => isPreviewMode.value && !!previewImageUrl.value);
+const showAudio = computed(() => isAudio(props.file) && !!originalUrl.value);
+
+// Thumb mode: thumbnail images
+const showThumbImage = computed(() => !isPreviewMode.value && !!thumbImageUrl.value);
+const showThumbPlayIcon = computed(
+  () => !isPreviewMode.value && isVideo(props.file) && !!thumbImageUrl.value
+);
 
 // Type icon: shown when no visual content renders in the current mode
 const showTypeIcon = computed(() => {
   if (showAudio.value) return false;
-  if (isPreviewMode.value) {
-    return !showPreviewVideo.value && !showPreviewPdf.value && !showPreviewImage.value;
-  }
+  if (isPreviewMode.value) return !showPreviewVideo.value && !showPreviewImage.value;
   return !showThumbImage.value;
 });
 const showProgress = computed(() => !props.file.error && isInProgress(props.file));
@@ -233,37 +239,27 @@ function onDownload() {
       />
 
       <!-- Preview mode: Video player -->
-      <video v-else-if="showPreviewVideo" class="danx-file__video" controls :src="fileUrl" />
+      <video v-else-if="showPreviewVideo" class="danx-file__video" controls :src="originalUrl" />
 
-      <!-- Preview mode: PDF embed -->
-      <object
-        v-else-if="showPreviewPdf"
-        class="danx-file__pdf"
-        type="application/pdf"
-        :data="fileUrl"
-      >
-        <a :href="fileUrl" target="_blank" rel="noopener">Download PDF</a>
-      </object>
-
-      <!-- Preview mode: Full-size image -->
+      <!-- Preview mode: Full-size image (optimized > original for images) -->
       <img
         v-else-if="showPreviewImage"
         class="danx-file__image danx-file__image--preview"
-        :src="fileUrl"
+        :src="previewImageUrl"
         :alt="file.name"
       />
 
-      <!-- Thumb mode: Thumbnail image (for images and videos) -->
+      <!-- Thumb mode: Thumbnail image (thumb > optimized > original for images) -->
       <img
         v-else-if="showThumbImage"
         class="danx-file__image"
-        :src="thumbUrl"
+        :src="thumbImageUrl"
         :alt="file.name"
         loading="lazy"
       />
 
       <!-- Audio preview (both modes) -->
-      <audio v-else-if="showAudio" class="danx-file__audio" controls :src="fileUrl" />
+      <audio v-else-if="showAudio" class="danx-file__audio" controls :src="originalUrl" />
 
       <!-- Thumb mode: Video play icon overlay -->
       <div v-if="showThumbPlayIcon && !showProgress && !showError" class="danx-file__play-icon">

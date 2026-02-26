@@ -73,7 +73,7 @@ export type DanxFileSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl" | "auto";
  * | Mode    | Behavior                                             |
  * |---------|------------------------------------------------------|
  * | thumb   | Thumbnail card (default) — current behavior          |
- * | preview | Full-size interactive — video player, PDF embed, etc.|
+ * | preview | Full-size interactive — video player, image, etc.  |
  */
 export type DanxFileMode = "thumb" | "preview";
 

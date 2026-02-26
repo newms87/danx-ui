@@ -15,9 +15,9 @@
  *   file: PreviewFile - The main/anchor file (required)
  *   relatedFiles?: PreviewFile[] - Related files for carousel navigation
  *   downloadable?: boolean - Show download button in header
+ *   childrenLabel?: string - Label for children nav button (default: "Children")
  *
  * @emits
- *   update:fileInPreview(file | null) - Active file changed
  *   download(file) - Download clicked (also auto-downloads)
  *   loadChildren(file) - Children needed (parent fetches and updates file.children)
  *
@@ -42,6 +42,8 @@
  *   --dx-file-strip-bg - Strip background
  *   --dx-file-strip-inactive-opacity - Inactive thumbnail opacity
  *   --dx-file-strip-active-scale - Active thumbnail scale transform
+ *   --dx-file-strip-badge-bg - Thumbnail strip badge background
+ *   --dx-file-strip-badge-color - Thumbnail strip badge text color
  *
  * @example
  *   <DanxFileViewer
@@ -71,6 +73,7 @@ import DanxFileMetadata from "./DanxFileMetadata.vue";
 const props = withDefaults(defineProps<DanxFileViewerProps>(), {
   relatedFiles: () => [],
   downloadable: false,
+  childrenLabel: "Children",
 });
 
 const emit = defineEmits<DanxFileViewerEmits>();
@@ -116,6 +119,8 @@ watch(
   },
   { immediate: true }
 );
+
+const childCount = computed(() => currentFile.value.children?.length ?? 0);
 
 // Metadata state
 const { mode: metadataMode } = useDanxFileMetadata();
@@ -201,16 +206,16 @@ function onTouchEnd(e: TouchEvent) {
           v-if="hasParent"
           type="muted"
           size="sm"
-          icon="chevron-up"
+          icon="back"
           tooltip="Go to parent"
           @click="backFromChild()"
         />
         <DanxButton
           v-if="hasChildFiles"
-          type="muted"
+          variant="info"
           size="sm"
-          icon="chevron-down"
-          tooltip="View children"
+          icon="list"
+          :label="`${childCount} ${childrenLabel}`"
           @click="diveIntoChildren()"
         />
       </div>
