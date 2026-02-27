@@ -139,16 +139,10 @@ describe("DanxTextarea", () => {
 
       expect(wrapper.find("textarea").element.style.resize).toBe(resize);
     });
-
-    it("hides resize handle when autoResize is true", () => {
-      const wrapper = mount(DanxTextarea, { props: { autoResize: true } });
-
-      expect(wrapper.find("textarea").element.style.resize).toBe("none");
-    });
   });
 
   describe("Auto-resize", () => {
-    it("sets textarea height via auto-resize mechanism", async () => {
+    it("sets textarea height on mount via adjustHeight", async () => {
       const wrapper = mountWithModel("short", { autoResize: true });
 
       const textarea = wrapper.find("textarea").element;
@@ -160,12 +154,47 @@ describe("DanxTextarea", () => {
       expect(textarea.style.height).toBe("0px");
     });
 
-    it("does not set height when autoResize is false", () => {
+    it("adjusts height on input event", async () => {
+      const wrapper = mount(DanxTextarea, {
+        props: { autoResize: true, modelValue: "initial" },
+      });
+      await nextTick();
+      await nextTick();
+
+      const textarea = wrapper.find("textarea");
+      // Reset height to verify input triggers adjustHeight
+      textarea.element.style.height = "";
+      await textarea.trigger("input");
+
+      // scrollHeight is 0 in jsdom, so auto-resize sets height to "0px"
+      expect(textarea.element.style.height).toBe("0px");
+    });
+
+    it("does not adjust height on input when autoResize is false", async () => {
       const wrapper = mount(DanxTextarea, {
         props: { modelValue: "hello" },
       });
 
-      expect(wrapper.find("textarea").element.style.height).toBe("");
+      const textarea = wrapper.find("textarea");
+      await textarea.trigger("input");
+
+      expect(textarea.element.style.height).toBe("");
+    });
+
+    it("sets overflow to hidden when autoResize is true", () => {
+      const wrapper = mount(DanxTextarea, {
+        props: { autoResize: true },
+      });
+
+      expect(wrapper.find("textarea").element.style.overflow).toBe("hidden");
+    });
+
+    it("does not set overflow when autoResize is false", () => {
+      const wrapper = mount(DanxTextarea, {
+        props: { modelValue: "hello" },
+      });
+
+      expect(wrapper.find("textarea").element.style.overflow).toBe("");
     });
 
     it("overrides resize to none when autoResize is true", () => {
@@ -331,21 +360,24 @@ describe("DanxTextarea", () => {
       expect(wrapper.find(".danx-textarea__footer").exists()).toBe(true);
     });
 
-    it("shows footer when clearable with value", () => {
+    it("does not show footer when only clearable (clear is overlay, not footer)", () => {
       const wrapper = mount(DanxTextarea, {
         props: { clearable: true, modelValue: "hi" },
       });
 
-      expect(wrapper.find(".danx-textarea__footer").exists()).toBe(true);
+      expect(wrapper.find(".danx-textarea__footer").exists()).toBe(false);
+      expect(wrapper.find(".danx-textarea__clear").exists()).toBe(true);
     });
 
-    it("shows footer with both char count and clear visible", () => {
+    it("shows footer with char count and clear as separate overlay", () => {
       const wrapper = mount(DanxTextarea, {
         props: { showCharCount: true, clearable: true, modelValue: "hi" },
       });
 
       expect(wrapper.find(".danx-textarea__footer").exists()).toBe(true);
       expect(wrapper.find(".danx-textarea__char-count").exists()).toBe(true);
+      // Clear button is an overlay, not inside the footer
+      expect(wrapper.find(".danx-textarea__footer .danx-textarea__clear").exists()).toBe(false);
       expect(wrapper.find(".danx-textarea__clear").exists()).toBe(true);
     });
 

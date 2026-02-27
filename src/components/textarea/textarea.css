@@ -16,6 +16,7 @@
    ========================================================================== */
 
 .danx-textarea {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--dx-textarea-bg);
@@ -35,7 +36,7 @@
    ========================================================================== */
 
 .danx-textarea__native {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   border: none;
   outline: none;
@@ -50,7 +51,7 @@
 }
 
 /* ==========================================================================
-   Footer (char count + clear)
+   Footer (char count)
    ========================================================================== */
 
 .danx-textarea__footer {
@@ -66,11 +67,14 @@
    ========================================================================== */
 
 .danx-textarea__clear {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 0;
+  padding: 0.125rem;
   border: none;
   background: none;
   cursor: pointer;

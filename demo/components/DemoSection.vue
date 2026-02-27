@@ -158,7 +158,7 @@ function onCodeInput(event: Event) {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  align-items: center;
+  align-items: start;
 }
 
 .demo-section__toolbar {

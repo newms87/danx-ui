@@ -4,7 +4,7 @@
  *
  * Handles multi-line text entry with auto-resize, clearable, and character
  * count features. Visual anatomy: native textarea inside a bordered container
- * with optional footer for char count and clear button.
+ * with an overlay clear button (top-right) and optional footer for char count.
  *
  * Features:
  * - Three sizes (sm, md, lg) via CSS tokens
@@ -70,7 +70,7 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watchEffect } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { useFormField } from "../../shared/composables/useFormField";
 import { useFieldInteraction } from "../../shared/composables/useFieldInteraction";
 import { DanxIcon } from "../icon";
@@ -107,25 +107,24 @@ const {
   bemPrefix: "danx-textarea",
 });
 
-/** Whether the footer should render (char count or clear visible) */
-const showFooter = computed(() => props.showCharCount || showClear.value);
+/** Whether the footer should render (char count visible) */
+const showFooter = computed(() => !!props.showCharCount);
 
 /** Effective resize CSS value — hidden when autoResize is active */
 const resizeStyle = computed(() => (props.autoResize ? "none" : props.resize));
 
-/** Auto-resize: adjust height to fit content */
-watchEffect(() => {
-  // Track model value to trigger re-computation
-  void model.value;
+/** Overflow must be hidden for auto-resize scrollHeight calculation to work */
+const overflowStyle = computed(() => (props.autoResize ? "hidden" : undefined));
 
-  if (!props.autoResize || !textareaRef.value) return;
+/** Auto-resize: collapse to 0 then set to scrollHeight so it grows AND shrinks */
+function adjustHeight(event?: Event) {
+  const el = (event?.target as HTMLTextAreaElement) ?? textareaRef.value;
+  if (!el || !props.autoResize) return;
+  el.style.height = "0";
+  el.style.height = `${el.scrollHeight}px`;
+}
 
-  void nextTick(() => {
-    const el = textareaRef.value!;
-    el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
-  });
-});
+onMounted(() => nextTick(adjustHeight));
 </script>
 
 <template>
@@ -153,13 +152,25 @@ watchEffect(() => {
         :maxlength="maxlength"
         :rows="rows"
         :autocomplete="autocomplete"
-        :style="{ resize: resizeStyle }"
+        :style="{ resize: resizeStyle, overflow: overflowStyle }"
         v-bind="inputAriaAttrs"
+        @input="adjustHeight"
         @focus="handleFocus"
         @blur="handleBlur"
       />
 
-      <!-- Footer: char count + clear -->
+      <!-- Clear button (top-right overlay) -->
+      <button
+        v-if="showClear"
+        type="button"
+        class="danx-textarea__clear"
+        aria-label="Clear"
+        @click="handleClear"
+      >
+        <DanxIcon icon="close" />
+      </button>
+
+      <!-- Footer: char count -->
       <div v-if="showFooter" class="danx-textarea__footer">
         <span
           v-if="showCharCount"
@@ -170,16 +181,6 @@ watchEffect(() => {
         >
           {{ charCountText }}
         </span>
-
-        <button
-          v-if="showClear"
-          type="button"
-          class="danx-textarea__clear"
-          aria-label="Clear"
-          @click="handleClear"
-        >
-          <DanxIcon icon="close" />
-        </button>
       </div>
     </div>
   </DanxFieldWrapper>
