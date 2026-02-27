@@ -1,7 +1,7 @@
 /**
  * Shared Form Type Definitions
  *
- * Common types used across all form field components (DanxInput, future
+ * Common types used across all form field components (DanxInput,
  * DanxTextarea, DanxSelect, etc.). Every form component accepts these
  * base props to provide consistent label, error, and helper text behavior.
  */
@@ -55,4 +55,20 @@ export interface FormFieldBaseProps {
 
   /** HTML id for the native input. Auto-generated if omitted. */
   id?: string;
+}
+
+/**
+ * Base emits shared by every form field component.
+ *
+ * All form fields emit focus, blur, and clear events with the same signatures.
+ */
+export interface FormFieldEmits {
+  /** Emitted when the native element receives focus */
+  (e: "focus", event: FocusEvent): void;
+
+  /** Emitted when the native element loses focus */
+  (e: "blur", event: FocusEvent): void;
+
+  /** Emitted when the clear button is clicked */
+  (e: "clear"): void;
 }

@@ -18,6 +18,7 @@
  * --color-field-disabled-bg     Background when disabled
  * --color-field-disabled-text   Text color when disabled
  * --radius-field                Border radius for inputs
+ * --opacity-field-disabled      Opacity when disabled
  *
  * Size tokens (sm, md, lg):
  * --field-{size}-height         Field height
@@ -43,6 +44,7 @@
   --color-field-disabled-bg: var(--color-surface-sunken);
   --color-field-disabled-text: var(--color-text-subtle);
   --radius-field: var(--radius-input);
+  --opacity-field-disabled: 0.5;
 
   /* ==========================================================================
      Size Tokens - SM

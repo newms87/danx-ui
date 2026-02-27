@@ -1,0 +1,156 @@
+/**
+ * DanxTextarea Styles
+ *
+ * Main entry point that imports tokens and defines textarea layout,
+ * size modifiers, states, and interactive elements (clear, char count).
+ *
+ * Note: BEM modifiers (.danx-textarea--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./textarea-tokens.css";
+
+/* ==========================================================================
+   Base Textarea Container
+   ========================================================================== */
+
+.danx-textarea {
+  display: flex;
+  flex-direction: column;
+  background: var(--dx-textarea-bg);
+  border: 1px solid var(--dx-textarea-border);
+  border-radius: var(--dx-textarea-border-radius);
+  transition:
+    border-color var(--dx-textarea-transition),
+    box-shadow var(--dx-textarea-transition);
+
+  &:hover:not(.danx-textarea--disabled):not(.danx-textarea--readonly) {
+    border-color: var(--dx-textarea-border-hover);
+  }
+}
+
+/* ==========================================================================
+   Native Textarea Element
+   ========================================================================== */
+
+.danx-textarea__native {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--dx-textarea-text);
+  font-family: inherit;
+  line-height: 1.5;
+
+  &::placeholder {
+    color: var(--dx-textarea-placeholder);
+  }
+}
+
+/* ==========================================================================
+   Footer (char count + clear)
+   ========================================================================== */
+
+.danx-textarea__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0 0.25rem 0.25rem;
+}
+
+/* ==========================================================================
+   Clear Button
+   ========================================================================== */
+
+.danx-textarea__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--dx-textarea-clear-color);
+  transition: color var(--dx-textarea-transition);
+
+  &:hover {
+    color: var(--dx-textarea-clear-hover);
+  }
+}
+
+.danx-textarea__clear .danx-icon {
+  width: 0.875em;
+  height: 0.875em;
+}
+
+/* ==========================================================================
+   Character Count
+   ========================================================================== */
+
+.danx-textarea__char-count {
+  flex-shrink: 0;
+  font-size: 0.75em;
+  color: var(--dx-textarea-placeholder);
+  user-select: none;
+}
+
+.danx-textarea__char-count--limit {
+  color: var(--color-field-error-text);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-textarea--sm {
+  font-size: var(--dx-textarea-sm-font-size);
+  padding: var(--dx-textarea-sm-padding);
+}
+
+.danx-textarea--md {
+  font-size: var(--dx-textarea-md-font-size);
+  padding: var(--dx-textarea-md-padding);
+}
+
+.danx-textarea--lg {
+  font-size: var(--dx-textarea-lg-font-size);
+  padding: var(--dx-textarea-lg-padding);
+}
+
+/* ==========================================================================
+   State Modifiers
+   ========================================================================== */
+
+.danx-textarea--focused {
+  border-color: var(--dx-textarea-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-textarea-border-focus) 25%, transparent);
+}
+
+.danx-textarea--error {
+  border-color: var(--dx-textarea-border-error);
+
+  &.danx-textarea--focused {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-textarea-border-error) 25%, transparent);
+  }
+}
+
+.danx-textarea--disabled {
+  background: var(--dx-textarea-disabled-bg);
+  opacity: var(--dx-textarea-disabled-opacity);
+  cursor: not-allowed;
+
+  .danx-textarea__native {
+    color: var(--dx-textarea-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+.danx-textarea--readonly {
+  .danx-textarea__native {
+    cursor: default;
+  }
+}

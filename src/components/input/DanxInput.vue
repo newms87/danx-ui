@@ -83,6 +83,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useFormField } from "../../shared/composables/useFormField";
+import { useFieldInteraction } from "../../shared/composables/useFieldInteraction";
 import { DanxIcon } from "../icon";
 import { searchIcon } from "../icon/icons";
 import { DanxFieldWrapper } from "../field-wrapper";
@@ -103,63 +104,34 @@ defineSlots<DanxInputSlots>();
 
 const { fieldId, hasError, inputAriaAttrs } = useFormField(props);
 
-const isFocused = ref(false);
 const isRevealed = ref(false);
 
 /** Effective clearable: true when clearable prop is set or type is search */
 const isClearable = computed(() => props.clearable || props.type === "search");
 
-/** Whether clear button should be visible */
-const showClear = computed(
-  () =>
-    isClearable.value &&
-    !props.disabled &&
-    !props.readonly &&
-    model.value != null &&
-    model.value !== ""
-);
+const {
+  showClear,
+  containerClasses,
+  charCountText,
+  isAtCharLimit,
+  handleFocus,
+  handleBlur,
+  handleClear,
+} = useFieldInteraction({
+  model,
+  props,
+  hasError,
+  emit,
+  bemPrefix: "danx-input",
+  isClearable,
+  getClearValue: () => (props.type === "number" ? null : ""),
+});
 
 /** Effective input type — password toggles between password and text */
 const effectiveType = computed(() => {
   if (props.type === "password" && isRevealed.value) return "text";
   return props.type;
 });
-
-/** CSS classes for the bordered container */
-const containerClasses = computed(() => {
-  const classes: string[] = ["danx-input", `danx-input--${props.size}`];
-  if (isFocused.value) classes.push("danx-input--focused");
-  if (hasError.value) classes.push("danx-input--error");
-  if (props.disabled) classes.push("danx-input--disabled");
-  if (props.readonly) classes.push("danx-input--readonly");
-  return classes;
-});
-
-/** Character count display string */
-const charCountText = computed(() => {
-  const len = String(model.value ?? "").length;
-  return props.maxlength != null ? `${len}/${props.maxlength}` : String(len);
-});
-
-/** Whether char count is at the limit */
-const isAtCharLimit = computed(
-  () => props.maxlength != null && String(model.value ?? "").length >= props.maxlength
-);
-
-function handleFocus(event: FocusEvent) {
-  isFocused.value = true;
-  emit("focus", event);
-}
-
-function handleBlur(event: FocusEvent) {
-  isFocused.value = false;
-  emit("blur", event);
-}
-
-function handleClear() {
-  model.value = props.type === "number" ? null : "";
-  emit("clear");
-}
 
 function toggleReveal() {
   isRevealed.value = !isRevealed.value;

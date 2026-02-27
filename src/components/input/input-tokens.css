@@ -43,7 +43,7 @@
   --dx-input-transition: var(--transition-fast);
   --dx-input-clear-color: var(--color-text-subtle);
   --dx-input-clear-hover: var(--color-text);
-  --dx-input-disabled-opacity: 0.5;
+  --dx-input-disabled-opacity: var(--opacity-field-disabled);
 
   /* ==========================================================================
      Size Tokens - SM

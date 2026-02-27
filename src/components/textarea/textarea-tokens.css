@@ -1,0 +1,67 @@
+/**
+ * DanxTextarea Tokens
+ *
+ * Component tokens (Tier 3) referencing shared form tokens.
+ *
+ * CSS Tokens:
+ * --dx-textarea-bg                  Textarea background
+ * --dx-textarea-border              Default border color
+ * --dx-textarea-border-hover        Border color on hover
+ * --dx-textarea-border-focus        Border color when focused
+ * --dx-textarea-border-error        Border color in error state
+ * --dx-textarea-text                Textarea text color
+ * --dx-textarea-placeholder         Placeholder text color
+ * --dx-textarea-disabled-bg         Background when disabled
+ * --dx-textarea-disabled-text       Text color when disabled
+ * --dx-textarea-border-radius       Corner radius
+ * --dx-textarea-transition          Transition timing
+ * --dx-textarea-clear-color         Clear button color
+ * --dx-textarea-clear-hover         Clear button hover color
+ * --dx-textarea-disabled-opacity    Opacity when disabled
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-textarea-{size}-font-size    Font size
+ * --dx-textarea-{size}-padding      Padding (all sides)
+ */
+
+:root {
+  /* ==========================================================================
+     Global Textarea Tokens
+     ========================================================================== */
+
+  --dx-textarea-bg: var(--color-field-bg);
+  --dx-textarea-border: var(--color-field-border);
+  --dx-textarea-border-hover: var(--color-field-border-hover);
+  --dx-textarea-border-focus: var(--color-field-border-focus);
+  --dx-textarea-border-error: var(--color-field-border-error);
+  --dx-textarea-text: var(--color-field-text);
+  --dx-textarea-placeholder: var(--color-field-placeholder);
+  --dx-textarea-disabled-bg: var(--color-field-disabled-bg);
+  --dx-textarea-disabled-text: var(--color-field-disabled-text);
+  --dx-textarea-border-radius: var(--radius-field);
+  --dx-textarea-transition: var(--transition-fast);
+  --dx-textarea-clear-color: var(--color-text-subtle);
+  --dx-textarea-clear-hover: var(--color-text);
+  --dx-textarea-disabled-opacity: var(--opacity-field-disabled);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-textarea-sm-font-size: var(--field-sm-font-size);
+  --dx-textarea-sm-padding: var(--field-sm-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-textarea-md-font-size: var(--field-md-font-size);
+  --dx-textarea-md-padding: var(--field-md-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-textarea-lg-font-size: var(--field-lg-font-size);
+  --dx-textarea-lg-padding: var(--field-lg-padding-x);
+}

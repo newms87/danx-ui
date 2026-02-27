@@ -38,7 +38,9 @@ import {
 import { DanxBadge } from "../../src/components/badge";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
+import { DanxTextarea } from "../../src/components/textarea";
 import { useFormField } from "../../src/shared/composables/useFormField";
+import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
 import {
@@ -176,6 +178,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxVirtualScroll,
   DanxSkeleton,
   DanxInput,
+  DanxTextarea,
   DanxFieldWrapper,
 };
 
@@ -306,8 +309,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxSkeleton,
   // Input
   DanxInput,
+  DanxTextarea,
   DanxFieldWrapper,
   useFormField,
+  useFieldInteraction,
   // Log demo helpers
   useLogDemo,
   levelColor,

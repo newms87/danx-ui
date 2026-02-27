@@ -31,3 +31,4 @@
 @import "./components/danx-file-viewer/danx-file-viewer.css" layer(components);
 @import "./components/field-wrapper/field-wrapper.css" layer(components);
 @import "./components/input/input.css" layer(components);
+@import "./components/textarea/textarea.css" layer(components);

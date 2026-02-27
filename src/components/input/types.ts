@@ -2,7 +2,7 @@
  * DanxInput Type Definitions
  */
 
-import type { FormFieldBaseProps } from "../../shared/form-types";
+import type { FormFieldBaseProps, FormFieldEmits } from "../../shared/form-types";
 
 /** Supported HTML input types */
 export type InputType =
@@ -53,16 +53,8 @@ export interface DanxInputProps extends FormFieldBaseProps {
   autocomplete?: string;
 }
 
-export interface DanxInputEmits {
-  /** Emitted when the native input receives focus */
-  (e: "focus", event: FocusEvent): void;
-
-  /** Emitted when the native input loses focus */
-  (e: "blur", event: FocusEvent): void;
-
-  /** Emitted when the clear button is clicked */
-  (e: "clear"): void;
-}
+/** DanxInput uses the shared form field emit interface */
+export type DanxInputEmits = FormFieldEmits;
 
 export interface DanxInputSlots {
   /** Content rendered before the native input */
