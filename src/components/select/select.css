@@ -1,0 +1,348 @@
+/**
+ * DanxSelect Styles
+ *
+ * Layout, size modifiers, states, and interactive elements.
+ *
+ * Note: BEM modifiers (.danx-select--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./select-tokens.css";
+
+/* ==========================================================================
+   Base Trigger Container
+   ========================================================================== */
+
+.danx-select {
+  display: inline-flex;
+  align-items: center;
+  background: var(--dx-select-trigger-bg);
+  border: 1px solid var(--dx-select-trigger-border);
+  border-radius: var(--dx-select-border-radius);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition:
+    border-color var(--dx-select-transition),
+    box-shadow var(--dx-select-transition);
+
+  &:hover:not(.danx-select--disabled):not(.danx-select--readonly) {
+    border-color: var(--dx-select-trigger-border-hover);
+  }
+}
+
+/* ==========================================================================
+   Value Display
+   ========================================================================== */
+
+.danx-select__value,
+.danx-select__placeholder {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.danx-select__value {
+  color: var(--dx-select-trigger-text);
+}
+
+.danx-select__placeholder {
+  color: var(--dx-select-placeholder);
+}
+
+/* ==========================================================================
+   Tags (Multi-Select)
+   ========================================================================== */
+
+.danx-select__tags {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Clear Button
+   ========================================================================== */
+
+.danx-select__clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--dx-select-clear-color);
+  transition: color var(--dx-select-transition);
+
+  &:hover {
+    color: var(--dx-select-clear-hover);
+  }
+
+  .danx-icon {
+    width: 0.875em;
+    height: 0.875em;
+  }
+}
+
+/* ==========================================================================
+   Chevron Icon
+   ========================================================================== */
+
+.danx-select__chevron {
+  flex-shrink: 0;
+  color: var(--dx-select-chevron-color);
+  transition: transform var(--dx-select-transition);
+
+  .danx-icon {
+    width: 0.75em;
+    height: 0.75em;
+  }
+}
+
+.danx-select--open .danx-select__chevron {
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   Dropdown Panel
+   ========================================================================== */
+
+.danx-select__panel {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   Search Input
+   ========================================================================== */
+
+.danx-select__search {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+
+  input {
+    width: 100%;
+    border: 1px solid var(--color-field-border);
+    border-radius: var(--dx-select-border-radius);
+    padding: 0.375rem 0.5rem;
+    font-size: 0.875em;
+    outline: none;
+    background: var(--color-field-bg);
+    color: var(--color-field-text);
+
+    &::placeholder {
+      color: var(--color-field-placeholder);
+    }
+
+    &:focus {
+      border-color: var(--dx-select-trigger-border-focus);
+    }
+  }
+}
+
+/* ==========================================================================
+   Listbox
+   ========================================================================== */
+
+.danx-select__listbox {
+  max-height: var(--dx-select-panel-max-height);
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+/* ==========================================================================
+   Option
+   ========================================================================== */
+
+.danx-select__option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  transition: background-color var(--dx-select-transition);
+
+  &:hover {
+    background: var(--dx-select-option-bg-hover);
+  }
+}
+
+.danx-select__option--highlighted {
+  background: var(--dx-select-option-bg-hover);
+}
+
+.danx-select__option--selected {
+  background: var(--dx-select-option-bg-selected);
+}
+
+.danx-select__option--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+
+  &:hover {
+    background: none;
+  }
+}
+
+.danx-select__option--create {
+  font-style: italic;
+}
+
+.danx-select__option-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.danx-select__option-description {
+  font-size: 0.8em;
+  color: var(--color-text-subtle);
+  margin-top: 0.125rem;
+}
+
+.danx-select__option-check {
+  flex-shrink: 0;
+  color: var(--dx-select-option-check);
+
+  .danx-icon {
+    width: 0.875em;
+    height: 0.875em;
+  }
+}
+
+.danx-select__checkbox {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  border: 1.5px solid var(--color-field-border);
+  border-radius: 0.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color var(--dx-select-transition),
+    border-color var(--dx-select-transition);
+}
+
+.danx-select__checkbox--checked {
+  background: var(--dx-select-option-check);
+  border-color: var(--dx-select-option-check);
+  color: var(--color-text-inverted);
+
+  .danx-icon {
+    width: 0.65em;
+    height: 0.65em;
+  }
+}
+
+/* ==========================================================================
+   Group Header
+   ========================================================================== */
+
+.danx-select__group-header {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Empty / Loading
+   ========================================================================== */
+
+.danx-select__empty {
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--color-text-subtle);
+  font-size: 0.875em;
+}
+
+.danx-select__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  color: var(--color-text-subtle);
+  font-size: 0.875em;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-select--sm {
+  height: var(--dx-select-sm-height);
+  font-size: var(--dx-select-sm-font-size);
+  padding: 0 var(--dx-select-sm-padding-x);
+  gap: var(--spacing-1-5);
+}
+
+.danx-select--md {
+  height: var(--dx-select-md-height);
+  font-size: var(--dx-select-md-font-size);
+  padding: 0 var(--dx-select-md-padding-x);
+  gap: var(--spacing-2);
+}
+
+.danx-select--lg {
+  height: var(--dx-select-lg-height);
+  font-size: var(--dx-select-lg-font-size);
+  padding: 0 var(--dx-select-lg-padding-x);
+  gap: var(--spacing-2-5);
+}
+
+/* ==========================================================================
+   State Modifiers
+   ========================================================================== */
+
+.danx-select--open {
+  border-color: var(--dx-select-trigger-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-select-trigger-border-focus) 25%, transparent);
+}
+
+.danx-select--error {
+  border-color: var(--dx-select-trigger-border-error);
+
+  &.danx-select--open {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-select-trigger-border-error) 25%, transparent);
+  }
+}
+
+.danx-select--disabled {
+  opacity: var(--dx-select-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.danx-select--readonly {
+  cursor: default;
+}
+
+/* ==========================================================================
+   Multi-select height auto
+   ========================================================================== */
+
+.danx-select--multiple {
+  height: auto;
+  min-height: var(--dx-select-md-height);
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.danx-select--multiple.danx-select--sm {
+  min-height: var(--dx-select-sm-height);
+}
+
+.danx-select--multiple.danx-select--lg {
+  min-height: var(--dx-select-lg-height);
+}

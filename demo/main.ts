@@ -24,6 +24,7 @@ import ScrollPage from "./pages/ScrollPage.vue";
 import SkeletonPage from "./pages/SkeletonPage.vue";
 import InputPage from "./pages/InputPage.vue";
 import TextareaPage from "./pages/TextareaPage.vue";
+import SelectPage from "./pages/SelectPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
 import TypographyPage from "./pages/design-system/TypographyPage.vue";
 import SpacingPage from "./pages/design-system/SpacingPage.vue";
@@ -60,6 +61,7 @@ const router = createRouter({
     { path: "/skeleton", name: "skeleton", component: SkeletonPage },
     { path: "/input", name: "input", component: InputPage },
     { path: "/textarea", name: "textarea", component: TextareaPage },
+    { path: "/select", name: "select", component: SelectPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },
     { path: "/design/typography", name: "design-typography", component: TypographyPage },
     { path: "/design/spacing", name: "design-spacing", component: SpacingPage },

@@ -1,0 +1,83 @@
+/**
+ * DanxSelect Tokens
+ *
+ * Component tokens (Tier 3) referencing shared form/semantic tokens.
+ * The trigger is flat by default (transparent bg and border).
+ *
+ * CSS Tokens:
+ * --dx-select-trigger-bg            Trigger background (transparent)
+ * --dx-select-trigger-text          Trigger text color
+ * --dx-select-trigger-border        Trigger border (transparent)
+ * --dx-select-trigger-border-hover  Border on hover
+ * --dx-select-trigger-border-focus  Border when focused/open
+ * --dx-select-trigger-border-error  Border in error state
+ * --dx-select-placeholder           Placeholder text color
+ * --dx-select-chevron-color         Chevron icon color
+ * --dx-select-option-bg-hover       Option hover background
+ * --dx-select-option-bg-selected    Selected option background
+ * --dx-select-option-check          Checkmark/checkbox color
+ * --dx-select-panel-max-height      Max dropdown height
+ * --dx-select-disabled-opacity      Opacity when disabled
+ * --dx-select-border-radius         Corner radius
+ * --dx-select-transition            Transition timing
+ * --dx-select-clear-color           Clear button color
+ * --dx-select-clear-hover           Clear button hover color
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-select-{size}-height         Trigger height
+ * --dx-select-{size}-font-size      Font size
+ * --dx-select-{size}-padding-x      Horizontal padding
+ */
+
+:root {
+  /* ==========================================================================
+     Trigger Tokens
+     ========================================================================== */
+
+  --dx-select-trigger-bg: transparent;
+  --dx-select-trigger-text: var(--color-field-text);
+  --dx-select-trigger-border: transparent;
+  --dx-select-trigger-border-hover: var(--color-field-border-hover);
+  --dx-select-trigger-border-focus: var(--color-field-border-focus);
+  --dx-select-trigger-border-error: var(--color-field-border-error);
+  --dx-select-placeholder: var(--color-field-placeholder);
+  --dx-select-chevron-color: var(--color-text-subtle);
+  --dx-select-border-radius: var(--radius-field);
+  --dx-select-transition: var(--transition-fast);
+  --dx-select-clear-color: var(--color-text-subtle);
+  --dx-select-clear-hover: var(--color-text);
+  --dx-select-disabled-opacity: var(--opacity-field-disabled);
+
+  /* ==========================================================================
+     Panel/Option Tokens
+     ========================================================================== */
+
+  --dx-select-option-bg-hover: var(--color-surface-sunken);
+  --dx-select-option-bg-selected: var(--color-interactive-subtle);
+  --dx-select-option-check: var(--color-interactive);
+  --dx-select-panel-max-height: 16rem;
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-select-sm-height: var(--field-sm-height);
+  --dx-select-sm-font-size: var(--field-sm-font-size);
+  --dx-select-sm-padding-x: var(--field-sm-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-select-md-height: var(--field-md-height);
+  --dx-select-md-font-size: var(--field-md-font-size);
+  --dx-select-md-padding-x: var(--field-md-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-select-lg-height: var(--field-lg-height);
+  --dx-select-lg-font-size: var(--field-lg-font-size);
+  --dx-select-lg-padding-x: var(--field-lg-padding-x);
+}

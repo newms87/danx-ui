@@ -26,6 +26,7 @@ export { DanxSkeleton } from "./components/skeleton";
 export { DanxFieldWrapper } from "./components/field-wrapper";
 export { DanxInput } from "./components/input";
 export { DanxTextarea } from "./components/textarea";
+export { DanxSelect } from "./components/select";
 
 // Composables
 export {
@@ -190,12 +191,23 @@ export type {
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
 export type { InputType, DanxInputProps, DanxInputEmits, DanxInputSlots } from "./components/input";
 export type { TextareaResize, DanxTextareaProps, DanxTextareaEmits } from "./components/textarea";
+export type {
+  DanxSelectEmits,
+  DanxSelectProps,
+  DanxSelectSlots,
+  SelectModelValue,
+  SelectOption,
+  SelectOptionSlotScope,
+  SelectSelectedSlotScope,
+} from "./components/select";
+export type { UseSelectOptions, UseSelectReturn } from "./components/select";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";
 export type { AutoColorEntry } from "./shared/autoColor";
 
 // Form field infrastructure
+export { useSelect } from "./components/select";
 export { useFormField } from "./shared/composables/useFormField";
 export { useFieldInteraction } from "./shared/composables/useFieldInteraction";
 export type { UseFormFieldReturn } from "./shared/composables/useFormField";

@@ -126,6 +126,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/textarea" class="demo-sidebar__link">Textarea</RouterLink>
               </li>
               <li>
+                <RouterLink to="/select" class="demo-sidebar__link">Select</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/popover" class="demo-sidebar__link">Popover</RouterLink>
               </li>
               <li>
