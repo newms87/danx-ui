@@ -100,6 +100,7 @@ import { DanxChip } from "../chip";
 import { DanxFieldWrapper } from "../field-wrapper";
 import { DanxIcon } from "../icon";
 import { DanxPopover } from "../popover";
+import { DanxScroll } from "../scroll";
 import type { DanxSelectEmits, DanxSelectProps, DanxSelectSlots, SelectModelValue } from "./types";
 import { useSelect } from "./useSelect";
 
@@ -333,9 +334,10 @@ function handleChipRemove(value: string | number): void {
         <slot name="header" />
 
         <!-- Option list -->
-        <div
+        <DanxScroll
           role="listbox"
           class="danx-select__listbox"
+          size="xs"
           :aria-multiselectable="multiple ? 'true' : undefined"
         >
           <template v-for="[group, options] of groupedOptions" :key="group ?? '__ungrouped'">
@@ -369,13 +371,11 @@ function handleChipRemove(value: string | number): void {
                   <DanxIcon v-if="isSelected(option)" icon="check" />
                 </span>
 
+                <!-- Option icon -->
+                <DanxIcon v-if="option.icon" :icon="option.icon" class="danx-select__option-icon" />
+
                 <!-- Option content -->
                 <span class="danx-select__option-content">
-                  <DanxIcon
-                    v-if="option.icon"
-                    :icon="option.icon"
-                    class="danx-select__option-icon"
-                  />
                   <span>{{ option.label }}</span>
                   <span v-if="option.description" class="danx-select__option-description">
                     {{ option.description }}
@@ -405,7 +405,7 @@ function handleChipRemove(value: string | number): void {
               {{ emptyText }}
             </slot>
           </div>
-        </div>
+        </DanxScroll>
 
         <!-- Footer slot -->
         <slot name="footer" />

@@ -20,6 +20,7 @@
   background: var(--dx-select-trigger-bg);
   border: 1px solid var(--dx-select-trigger-border);
   border-radius: var(--dx-select-border-radius);
+  color: var(--dx-select-trigger-text);
   cursor: pointer;
   user-select: none;
   outline: none;
@@ -46,7 +47,7 @@
 }
 
 .danx-select__value {
-  color: var(--dx-select-trigger-text);
+  color: inherit;
 }
 
 .danx-select__placeholder {
@@ -154,7 +155,6 @@
 
 .danx-select__listbox {
   max-height: var(--dx-select-panel-max-height);
-  overflow-y: auto;
   padding: 0.25rem 0;
 }
 
