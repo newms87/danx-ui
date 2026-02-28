@@ -4,12 +4,12 @@
  *
  * A polished select/dropdown built on DanxPopover for the floating panel,
  * DanxChip for option and tag rendering, and the shared form field
- * infrastructure for label/error/helper text. The trigger has a flat
- * appearance (transparent background/border) with a chevron icon.
+ * infrastructure for label/error/helper text. The trigger matches
+ * DanxInput styling by default (field background and border).
  *
  * Features:
  * - Single and multi-select modes
- * - Flat trigger with hover/focus border
+ * - Bordered trigger matching DanxInput
  * - Filterable search input with auto-focus
  * - Keyboard navigation (Arrow, Enter, Space, Escape, Home, End)
  * - Option groups with headers
@@ -63,9 +63,9 @@
  *   footer - Content below option list
  *
  * @tokens
- *   --dx-select-trigger-bg - Trigger background (default transparent)
+ *   --dx-select-trigger-bg - Trigger background (default field bg)
  *   --dx-select-trigger-text - Trigger text color
- *   --dx-select-trigger-border - Trigger border (default transparent)
+ *   --dx-select-trigger-border - Trigger border (default field border)
  *   --dx-select-trigger-border-hover - Hover border color
  *   --dx-select-trigger-border-focus - Focus/open border color
  *   --dx-select-trigger-border-error - Error border color

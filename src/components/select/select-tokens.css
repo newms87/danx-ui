@@ -2,12 +2,12 @@
  * DanxSelect Tokens
  *
  * Component tokens (Tier 3) referencing shared form/semantic tokens.
- * The trigger is flat by default (transparent bg and border).
+ * The trigger matches DanxInput styling by default (field bg and border).
  *
  * CSS Tokens:
- * --dx-select-trigger-bg            Trigger background (transparent)
+ * --dx-select-trigger-bg            Trigger background (field bg)
  * --dx-select-trigger-text          Trigger text color
- * --dx-select-trigger-border        Trigger border (transparent)
+ * --dx-select-trigger-border        Trigger border (field border)
  * --dx-select-trigger-border-hover  Border on hover
  * --dx-select-trigger-border-focus  Border when focused/open
  * --dx-select-trigger-border-error  Border in error state
@@ -34,9 +34,9 @@
      Trigger Tokens
      ========================================================================== */
 
-  --dx-select-trigger-bg: transparent;
+  --dx-select-trigger-bg: var(--color-field-bg);
   --dx-select-trigger-text: var(--color-field-text);
-  --dx-select-trigger-border: transparent;
+  --dx-select-trigger-border: var(--color-field-border);
   --dx-select-trigger-border-hover: var(--color-field-border-hover);
   --dx-select-trigger-border-focus: var(--color-field-border-focus);
   --dx-select-trigger-border-error: var(--color-field-border-error);
