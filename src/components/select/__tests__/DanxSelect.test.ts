@@ -477,19 +477,27 @@ describe("DanxSelect", () => {
       const wrapper = mountWithModel("a");
       await wrapper.find(".danx-select").trigger("click");
       const selectedOption = wrapper.find(".danx-select__option--selected");
-      expect(selectedOption.find(".danx-select__option-check").exists()).toBe(true);
+      const check = selectedOption.find(".danx-select__option-check");
+      expect(check.exists()).toBe(true);
+      expect(check.find(".danx-icon").exists()).toBe(true);
     });
 
-    it("renders checkbox for multi-select options", async () => {
+    it("renders checkmark for selected option in multi mode", async () => {
       const wrapper = mountWithModel(["a"], { multiple: true });
       await wrapper.find(".danx-select").trigger("click");
-      expect(wrapper.find(".danx-select__checkbox").exists()).toBe(true);
+      const selectedOption = wrapper.find(".danx-select__option--selected");
+      const check = selectedOption.find(".danx-select__option-check");
+      expect(check.exists()).toBe(true);
+      expect(check.find(".danx-icon").exists()).toBe(true);
     });
 
-    it("renders checked checkbox for selected multi options", async () => {
-      const wrapper = mountWithModel(["a"], { multiple: true });
+    it("renders empty check placeholder for unselected options", async () => {
+      const wrapper = mountWithModel(null);
       await wrapper.find(".danx-select").trigger("click");
-      expect(wrapper.find(".danx-select__checkbox--checked").exists()).toBe(true);
+      const firstOption = wrapper.find(".danx-select__option");
+      const check = firstOption.find(".danx-select__option-check");
+      expect(check.exists()).toBe(true);
+      expect(check.find(".danx-icon").exists()).toBe(false);
     });
 
     it("renders option description when provided", async () => {
@@ -499,11 +507,12 @@ describe("DanxSelect", () => {
       expect(wrapper.find(".danx-select__option-description").text()).toBe("First option");
     });
 
-    it("renders option as DanxChip", async () => {
+    it("renders option as plain text", async () => {
       const wrapper = mountWithModel();
       await wrapper.find(".danx-select").trigger("click");
-      const optionChips = wrapper.findAll(".danx-select__option .danx-chip");
-      expect(optionChips.length).toBe(3);
+      const optionContents = wrapper.findAll(".danx-select__option-content");
+      expect(optionContents.length).toBe(3);
+      expect(optionContents[0]!.text()).toBe("Alpha");
     });
 
     it("highlights option on mouseenter", async () => {

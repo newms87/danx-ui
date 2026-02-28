@@ -18,7 +18,7 @@
  * - Variant coloring on trigger and dropdown
  * - Three sizes (sm, md, lg)
  * - Full ARIA: combobox, listbox, option roles
- * - DanxChip rendering for options and multi-select tags
+ * - DanxChip rendering for multi-select tags
  * - Loading and empty states
  * - Custom slots for options, selected value, header, footer, empty
  *
@@ -364,28 +364,22 @@ function handleChipRemove(value: string | number): void {
                 :selected="isSelected(option)"
                 :highlighted="highlightedIndex === flatOptionIndex.get(option.value)"
               >
-                <!-- Multi-select checkbox -->
-                <span
-                  v-if="multiple"
-                  :class="[
-                    'danx-select__checkbox',
-                    { 'danx-select__checkbox--checked': isSelected(option) },
-                  ]"
-                >
+                <!-- Checkmark (left side, both single and multi) -->
+                <span class="danx-select__option-check">
                   <DanxIcon v-if="isSelected(option)" icon="check" />
                 </span>
 
                 <!-- Option content -->
                 <span class="danx-select__option-content">
-                  <DanxChip :label="option.label" :icon="option.icon" size="xs" />
+                  <DanxIcon
+                    v-if="option.icon"
+                    :icon="option.icon"
+                    class="danx-select__option-icon"
+                  />
+                  <span>{{ option.label }}</span>
                   <span v-if="option.description" class="danx-select__option-description">
                     {{ option.description }}
                   </span>
-                </span>
-
-                <!-- Single-select checkmark -->
-                <span v-if="!multiple && isSelected(option)" class="danx-select__option-check">
-                  <DanxIcon icon="check" />
                 </span>
               </slot>
             </div>

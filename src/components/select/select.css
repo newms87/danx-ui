@@ -211,6 +211,7 @@
 
 .danx-select__option-check {
   flex-shrink: 0;
+  width: 1em;
   color: var(--dx-select-option-check);
 
   .danx-icon {
@@ -219,28 +220,12 @@
   }
 }
 
-.danx-select__checkbox {
+.danx-select__option-icon {
   flex-shrink: 0;
-  width: 1em;
-  height: 1em;
-  border: 1.5px solid var(--color-field-border);
-  border-radius: 0.2em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background-color var(--dx-select-transition),
-    border-color var(--dx-select-transition);
-}
-
-.danx-select__checkbox--checked {
-  background: var(--dx-select-option-check);
-  border-color: var(--dx-select-option-check);
-  color: var(--color-text-inverted);
 
   .danx-icon {
-    width: 0.65em;
-    height: 0.65em;
+    width: 1em;
+    height: 1em;
   }
 }
 
