@@ -1,7 +1,7 @@
 /**
  * useClickOutside - Detects clicks outside specified elements
  *
- * Adds a mousedown listener on document that fires a callback when the click
+ * Adds a pointerdown listener on document that fires a callback when the click
  * target is outside both the trigger and panel elements. Automatically cleans
  * up the listener when the scope is disposed.
  *
@@ -18,7 +18,7 @@ export function useClickOutside(
   callback: () => void,
   isActive: Ref<boolean>
 ): void {
-  function onMousedown(event: MouseEvent): void {
+  function onPointerDown(event: PointerEvent): void {
     const target = event.target as Node;
     if (trigger.value?.contains(target)) return;
     if (panel.value?.contains(target)) return;
@@ -29,14 +29,14 @@ export function useClickOutside(
 
   function addListener(): void {
     if (!listening) {
-      document.addEventListener("mousedown", onMousedown);
+      document.addEventListener("pointerdown", onPointerDown);
       listening = true;
     }
   }
 
   function removeListener(): void {
     if (listening) {
-      document.removeEventListener("mousedown", onMousedown);
+      document.removeEventListener("pointerdown", onPointerDown);
       listening = false;
     }
   }
