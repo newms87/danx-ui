@@ -6,7 +6,7 @@ const file = ref({
   id: "1",
   name: "photo-with-exif.jpg",
   size: 3145728,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/meta1/800/600",
   children: [],
   meta: {

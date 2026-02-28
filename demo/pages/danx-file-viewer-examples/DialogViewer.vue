@@ -8,7 +8,7 @@ const mainFile = ref({
   id: "1",
   name: "landscape.jpg",
   size: 524288,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/dlg1/800/600",
   children: [],
 });
@@ -18,7 +18,7 @@ const relatedFiles = ref([
     id: "2",
     name: "portrait.jpg",
     size: 409600,
-    type: "image/jpeg",
+    mime: "image/jpeg",
     url: "https://picsum.photos/seed/dlg2/800/600",
     children: [],
   },

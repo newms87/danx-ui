@@ -14,6 +14,8 @@ import {
   formatFileSize,
   createDownloadEvent,
   triggerFileDownload,
+  sortByPageNumber,
+  fileDisplayNumber,
 } from "../file-helpers";
 import { downloadFile } from "../../../shared/download";
 import { makeFile } from "./test-helpers";
@@ -67,79 +69,79 @@ describe("resolveThumbUrl", () => {
 
 describe("isImage", () => {
   it("returns true for image MIME types", () => {
-    expect(isImage(makeFile({ type: "image/jpeg" }))).toBe(true);
-    expect(isImage(makeFile({ type: "image/png" }))).toBe(true);
-    expect(isImage(makeFile({ type: "image/gif" }))).toBe(true);
-    expect(isImage(makeFile({ type: "image/webp" }))).toBe(true);
+    expect(isImage(makeFile({ mime: "image/jpeg" }))).toBe(true);
+    expect(isImage(makeFile({ mime: "image/png" }))).toBe(true);
+    expect(isImage(makeFile({ mime: "image/gif" }))).toBe(true);
+    expect(isImage(makeFile({ mime: "image/webp" }))).toBe(true);
   });
 
   it("returns false for non-image types", () => {
-    expect(isImage(makeFile({ type: "video/mp4" }))).toBe(false);
-    expect(isImage(makeFile({ type: "application/pdf" }))).toBe(false);
+    expect(isImage(makeFile({ mime: "video/mp4" }))).toBe(false);
+    expect(isImage(makeFile({ mime: "application/pdf" }))).toBe(false);
   });
 });
 
 describe("isVideo", () => {
   it("returns true for video MIME types", () => {
-    expect(isVideo(makeFile({ type: "video/mp4" }))).toBe(true);
-    expect(isVideo(makeFile({ type: "video/webm" }))).toBe(true);
+    expect(isVideo(makeFile({ mime: "video/mp4" }))).toBe(true);
+    expect(isVideo(makeFile({ mime: "video/webm" }))).toBe(true);
   });
 
   it("returns false for non-video types", () => {
-    expect(isVideo(makeFile({ type: "image/jpeg" }))).toBe(false);
+    expect(isVideo(makeFile({ mime: "image/jpeg" }))).toBe(false);
   });
 });
 
 describe("isAudio", () => {
   it("returns true for audio MIME types", () => {
-    expect(isAudio(makeFile({ type: "audio/mpeg" }))).toBe(true);
-    expect(isAudio(makeFile({ type: "audio/wav" }))).toBe(true);
-    expect(isAudio(makeFile({ type: "audio/ogg" }))).toBe(true);
+    expect(isAudio(makeFile({ mime: "audio/mpeg" }))).toBe(true);
+    expect(isAudio(makeFile({ mime: "audio/wav" }))).toBe(true);
+    expect(isAudio(makeFile({ mime: "audio/ogg" }))).toBe(true);
   });
 
   it("returns false for non-audio types", () => {
-    expect(isAudio(makeFile({ type: "image/jpeg" }))).toBe(false);
-    expect(isAudio(makeFile({ type: "video/mp4" }))).toBe(false);
+    expect(isAudio(makeFile({ mime: "image/jpeg" }))).toBe(false);
+    expect(isAudio(makeFile({ mime: "video/mp4" }))).toBe(false);
   });
 });
 
 describe("isPdf", () => {
   it("returns true for PDF MIME type", () => {
-    expect(isPdf(makeFile({ type: "application/pdf" }))).toBe(true);
+    expect(isPdf(makeFile({ mime: "application/pdf" }))).toBe(true);
   });
 
   it("returns false for non-PDF types", () => {
-    expect(isPdf(makeFile({ type: "image/jpeg" }))).toBe(false);
+    expect(isPdf(makeFile({ mime: "image/jpeg" }))).toBe(false);
   });
 });
 
 describe("isText", () => {
   it("returns true for text MIME types", () => {
-    expect(isText(makeFile({ type: "text/plain" }))).toBe(true);
-    expect(isText(makeFile({ type: "text/markdown" }))).toBe(true);
-    expect(isText(makeFile({ type: "text/html" }))).toBe(true);
-    expect(isText(makeFile({ type: "text/csv" }))).toBe(true);
+    expect(isText(makeFile({ mime: "text/plain" }))).toBe(true);
+    expect(isText(makeFile({ mime: "text/markdown" }))).toBe(true);
+    expect(isText(makeFile({ mime: "text/html" }))).toBe(true);
+    expect(isText(makeFile({ mime: "text/csv" }))).toBe(true);
   });
 
   it("returns false for non-text types", () => {
-    expect(isText(makeFile({ type: "image/jpeg" }))).toBe(false);
-    expect(isText(makeFile({ type: "application/pdf" }))).toBe(false);
+    expect(isText(makeFile({ mime: "image/jpeg" }))).toBe(false);
+    expect(isText(makeFile({ mime: "application/pdf" }))).toBe(false);
   });
 });
 
 describe("isPreviewable", () => {
   it("returns true for images, videos, audio, PDFs, and text", () => {
-    expect(isPreviewable(makeFile({ type: "image/jpeg" }))).toBe(true);
-    expect(isPreviewable(makeFile({ type: "video/mp4" }))).toBe(true);
-    expect(isPreviewable(makeFile({ type: "audio/mpeg" }))).toBe(true);
-    expect(isPreviewable(makeFile({ type: "application/pdf" }))).toBe(true);
-    expect(isPreviewable(makeFile({ type: "text/plain" }))).toBe(true);
-    expect(isPreviewable(makeFile({ type: "text/markdown" }))).toBe(true);
+    expect(isPreviewable(makeFile({ mime: "image/jpeg" }))).toBe(true);
+    expect(isPreviewable(makeFile({ mime: "video/mp4" }))).toBe(true);
+    expect(isPreviewable(makeFile({ mime: "audio/mpeg" }))).toBe(true);
+    expect(isPreviewable(makeFile({ mime: "application/pdf" }))).toBe(true);
+    expect(isPreviewable(makeFile({ mime: "text/plain" }))).toBe(true);
+    expect(isPreviewable(makeFile({ mime: "text/markdown" }))).toBe(true);
   });
 
   it("returns false for non-previewable types", () => {
-    expect(isPreviewable(makeFile({ type: "application/zip" }))).toBe(false);
-    expect(isPreviewable(makeFile({ type: "application/octet-stream" }))).toBe(false);
+    expect(isPreviewable(makeFile({ mime: "application/zip" }))).toBe(false);
+    expect(isPreviewable(makeFile({ mime: "application/octet-stream" }))).toBe(false);
   });
 });
 
@@ -177,30 +179,30 @@ describe("hasChildren", () => {
 
 describe("fileTypeIcon", () => {
   it("returns 'play' for video files", () => {
-    expect(fileTypeIcon(makeFile({ type: "video/mp4" }))).toBe("play");
-    expect(fileTypeIcon(makeFile({ type: "video/webm" }))).toBe("play");
+    expect(fileTypeIcon(makeFile({ mime: "video/mp4" }))).toBe("play");
+    expect(fileTypeIcon(makeFile({ mime: "video/webm" }))).toBe("play");
   });
 
   it("returns 'folder' for compressed files", () => {
-    expect(fileTypeIcon(makeFile({ type: "application/zip" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ type: "application/gzip" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ type: "application/x-rar-compressed" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ type: "application/x-tar" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ type: "application/x-7z-compressed" }))).toBe("folder");
+    expect(fileTypeIcon(makeFile({ mime: "application/zip" }))).toBe("folder");
+    expect(fileTypeIcon(makeFile({ mime: "application/gzip" }))).toBe("folder");
+    expect(fileTypeIcon(makeFile({ mime: "application/x-rar-compressed" }))).toBe("folder");
+    expect(fileTypeIcon(makeFile({ mime: "application/x-tar" }))).toBe("folder");
+    expect(fileTypeIcon(makeFile({ mime: "application/x-7z-compressed" }))).toBe("folder");
   });
 
   it("returns 'music' for audio files", () => {
-    expect(fileTypeIcon(makeFile({ type: "audio/mpeg" }))).toBe("music");
-    expect(fileTypeIcon(makeFile({ type: "audio/wav" }))).toBe("music");
+    expect(fileTypeIcon(makeFile({ mime: "audio/mpeg" }))).toBe("music");
+    expect(fileTypeIcon(makeFile({ mime: "audio/wav" }))).toBe("music");
   });
 
   it("returns 'file-pdf' for PDF files", () => {
-    expect(fileTypeIcon(makeFile({ type: "application/pdf" }))).toBe("file-pdf");
+    expect(fileTypeIcon(makeFile({ mime: "application/pdf" }))).toBe("file-pdf");
   });
 
   it("returns 'document' for other types", () => {
-    expect(fileTypeIcon(makeFile({ type: "text/plain" }))).toBe("document");
-    expect(fileTypeIcon(makeFile({ type: "image/jpeg" }))).toBe("document");
+    expect(fileTypeIcon(makeFile({ mime: "text/plain" }))).toBe("document");
+    expect(fileTypeIcon(makeFile({ mime: "image/jpeg" }))).toBe("document");
   });
 });
 
@@ -255,5 +257,51 @@ describe("triggerFileDownload", () => {
     const file = makeFile({ url: "" });
     triggerFileDownload(file);
     expect(downloadFile).not.toHaveBeenCalled();
+  });
+});
+
+describe("sortByPageNumber", () => {
+  it("sorts files with page_number ascending", () => {
+    const files = [
+      makeFile("a", { page_number: 3 }),
+      makeFile("b", { page_number: 1 }),
+      makeFile("c", { page_number: 2 }),
+    ];
+    const sorted = sortByPageNumber(files);
+    expect(sorted.map((f) => f.id)).toEqual(["b", "c", "a"]);
+  });
+
+  it("places files without page_number after those with", () => {
+    const files = [
+      makeFile("a"),
+      makeFile("b", { page_number: 2 }),
+      makeFile("c", { page_number: 1 }),
+    ];
+    const sorted = sortByPageNumber(files);
+    expect(sorted.map((f) => f.id)).toEqual(["c", "b", "a"]);
+  });
+
+  it("preserves original order for files without page_number", () => {
+    const files = [makeFile("a"), makeFile("b"), makeFile("c")];
+    const sorted = sortByPageNumber(files);
+    expect(sorted.map((f) => f.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("returns empty array for empty input", () => {
+    expect(sortByPageNumber([])).toEqual([]);
+  });
+});
+
+describe("fileDisplayNumber", () => {
+  it("returns page_number when present", () => {
+    expect(fileDisplayNumber(makeFile({ page_number: 5 }), 0)).toBe(5);
+  });
+
+  it("returns index + 1 when page_number is absent", () => {
+    expect(fileDisplayNumber(makeFile(), 3)).toBe(4);
+  });
+
+  it("returns index + 1 when page_number is undefined", () => {
+    expect(fileDisplayNumber(makeFile({ page_number: undefined }), 7)).toBe(8);
   });
 });

@@ -47,7 +47,7 @@ describe("DanxFile", () => {
   describe("Video preview", () => {
     it("renders img with play icon for video files", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
+        file: makeFile({ mime: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
       });
       expect(wrapper.find(".danx-file__image").exists()).toBe(true);
       expect(wrapper.find(".danx-file__play-icon").exists()).toBe(true);
@@ -56,7 +56,7 @@ describe("DanxFile", () => {
     it("renders img with play icon for video with optimized URL (no thumb)", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "video/mp4",
+          mime: "video/mp4",
           url: "https://example.com/video.mp4",
           optimized: { url: "https://example.com/optimized.jpg" },
         }),
@@ -67,14 +67,14 @@ describe("DanxFile", () => {
 
     it("does not show play icon when video has no thumb", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "video/mp4", url: "" }),
+        file: makeFile({ mime: "video/mp4", url: "" }),
       });
       expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
     });
 
     it("shows type icon for video with original URL but no thumb or optimized", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "video/mp4", url: "https://example.com/video.mp4" }),
+        file: makeFile({ mime: "video/mp4", url: "https://example.com/video.mp4" }),
       });
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
       expect(wrapper.find(".danx-file__image").exists()).toBe(false);
@@ -84,7 +84,7 @@ describe("DanxFile", () => {
     it("hides play icon when video has progress", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "video/mp4",
+          mime: "video/mp4",
           thumb: { url: "https://example.com/thumb.jpg" },
           progress: 50,
         }),
@@ -95,7 +95,7 @@ describe("DanxFile", () => {
     it("hides play icon when video has error", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "video/mp4",
+          mime: "video/mp4",
           thumb: { url: "https://example.com/thumb.jpg" },
           error: "Upload failed",
         }),
@@ -108,7 +108,7 @@ describe("DanxFile", () => {
     it("shows file-type icon for non-previewable files", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "https://example.com/readme.txt",
           name: "readme.txt",
         }),
@@ -120,7 +120,7 @@ describe("DanxFile", () => {
 
     it("hides inline filename at compact sizes (xs, sm, md)", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "text/plain", url: "", name: "readme.txt" }),
+        file: makeFile({ mime: "text/plain", url: "", name: "readme.txt" }),
         size: "md",
       });
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
@@ -475,7 +475,7 @@ describe("DanxFile", () => {
     it("renders audio element for audio files", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "audio/mpeg",
+          mime: "audio/mpeg",
           url: "https://example.com/song.mp3",
           name: "song.mp3",
         }),
@@ -492,7 +492,7 @@ describe("DanxFile", () => {
 
     it("does not show type icon when audio is rendered", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+        file: makeFile({ mime: "audio/mpeg", url: "https://example.com/song.mp3" }),
       });
       expect(wrapper.find(".danx-file__audio").exists()).toBe(true);
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
@@ -501,7 +501,7 @@ describe("DanxFile", () => {
     it("renders audio element in preview mode", () => {
       const wrapper = mountFile({
         mode: "preview",
-        file: makeFile({ type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+        file: makeFile({ mime: "audio/mpeg", url: "https://example.com/song.mp3" }),
       });
       const audio = wrapper.find(".danx-file__audio");
       expect(audio.exists()).toBe(true);
@@ -530,7 +530,7 @@ describe("DanxFile", () => {
     it("hides type icon when loading", () => {
       const wrapper = mountFile({
         loading: true,
-        file: makeFile({ type: "text/plain" }),
+        file: makeFile({ mime: "text/plain" }),
       });
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(false);
     });
@@ -689,7 +689,7 @@ describe("DanxFile", () => {
 
     it("wraps type icon in preview div", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "text/plain", url: "https://example.com/readme.txt" }),
+        file: makeFile({ mime: "text/plain", url: "https://example.com/readme.txt" }),
       });
       const preview = wrapper.find(".danx-file__preview");
       expect(preview.find(".danx-file__type-icon").exists()).toBe(true);
@@ -711,7 +711,7 @@ describe("DanxFile", () => {
 
     it("wraps audio element in preview div", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+        file: makeFile({ mime: "audio/mpeg", url: "https://example.com/song.mp3" }),
       });
       const preview = wrapper.find(".danx-file__preview");
       expect(preview.find(".danx-file__audio").exists()).toBe(true);
@@ -734,7 +734,7 @@ describe("DanxFile", () => {
     it("renders <video controls> for video files", () => {
       const wrapper = mountFile({
         mode: "preview",
-        file: makeFile({ type: "video/mp4", url: "https://example.com/video.mp4" }),
+        file: makeFile({ mime: "video/mp4", url: "https://example.com/video.mp4" }),
       });
       const video = wrapper.find(".danx-file__video");
       expect(video.exists()).toBe(true);
@@ -749,7 +749,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
-          type: "application/pdf",
+          mime: "application/pdf",
           url: "https://example.com/doc.pdf",
           name: "doc.pdf",
         }),
@@ -762,7 +762,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
-          type: "application/pdf",
+          mime: "application/pdf",
           url: "https://example.com/doc.pdf",
           optimized: { url: "https://example.com/doc-optimized.jpg" },
         }),
@@ -805,7 +805,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
-          type: "video/mp4",
+          mime: "video/mp4",
           url: "https://example.com/video.mp4",
           optimized: { url: "https://example.com/optimized.jpg" },
         }),
@@ -852,7 +852,7 @@ describe("DanxFile", () => {
         mode: "preview",
         size: "lg",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "https://example.com/readme.txt",
           name: "readme.txt",
         }),
@@ -864,7 +864,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         size: "lg",
-        file: makeFile({ type: "video/mp4", url: "" }),
+        file: makeFile({ mime: "video/mp4", url: "" }),
       });
       expect(wrapper.find(".danx-file__type-icon").exists()).toBe(true);
       expect(wrapper.find(".danx-file__video").exists()).toBe(false);
@@ -873,7 +873,7 @@ describe("DanxFile", () => {
     it("does not show play icon in preview mode", () => {
       const wrapper = mountFile({
         mode: "preview",
-        file: makeFile({ type: "video/mp4", url: "https://example.com/video.mp4" }),
+        file: makeFile({ mime: "video/mp4", url: "https://example.com/video.mp4" }),
       });
       expect(wrapper.find(".danx-file__play-icon").exists()).toBe(false);
     });
@@ -895,7 +895,7 @@ describe("DanxFile", () => {
     it("renders thumb image for PDF with optimized URL", () => {
       const wrapper = mountFile({
         file: makeFile({
-          type: "application/pdf",
+          mime: "application/pdf",
           url: "https://example.com/doc.pdf",
           optimized: { url: "https://example.com/doc-optimized.jpg" },
         }),
@@ -908,7 +908,7 @@ describe("DanxFile", () => {
 
     it("still renders thumbnail for video with play icon in thumb mode", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
+        file: makeFile({ mime: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
       });
       expect(wrapper.find(".danx-file__image").exists()).toBe(true);
       expect(wrapper.find(".danx-file__image").attributes("src")).toBe(
@@ -920,7 +920,7 @@ describe("DanxFile", () => {
 
     it("does not render <video> element in thumb mode", () => {
       const wrapper = mountFile({
-        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
+        file: makeFile({ mime: "video/mp4", thumb: { url: "https://example.com/thumb.jpg" } }),
       });
       expect(wrapper.find(".danx-file__video").exists()).toBe(false);
     });
@@ -942,7 +942,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           name: "readme.txt",
           meta: { content: "Hello world" },
@@ -958,7 +958,7 @@ describe("DanxFile", () => {
         mode: "preview",
         size: "lg",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           name: "readme.txt",
         }),
@@ -972,7 +972,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "thumb",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           name: "readme.txt",
           meta: { content: "Hello world" },
@@ -992,7 +992,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
-          type: "text/markdown",
+          mime: "text/markdown",
           url: "https://example.com/readme.md",
           name: "readme.md",
         }),
@@ -1012,7 +1012,7 @@ describe("DanxFile", () => {
         mode: "preview",
         size: "lg",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "https://example.com/readme.txt",
           name: "readme.txt",
         }),
@@ -1028,7 +1028,7 @@ describe("DanxFile", () => {
       const wrapper = mountFile({
         mode: "preview",
         file: makeFile({
-          type: "text/markdown",
+          mime: "text/markdown",
           url: "",
           name: "notes.md",
           meta: { content: "# Title\n\nSome **bold** text." },

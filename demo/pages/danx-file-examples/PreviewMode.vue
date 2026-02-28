@@ -6,7 +6,7 @@ const imageFile = ref({
   id: "1",
   name: "landscape.jpg",
   size: 524288,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/preview1/800/600",
   thumb: { url: "https://picsum.photos/seed/preview1/200/150" },
 });
@@ -15,7 +15,7 @@ const videoFile = ref({
   id: "2",
   name: "sample-video.mp4",
   size: 1048576,
-  type: "video/mp4",
+  mime: "video/mp4",
   url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
   thumb: { url: "https://picsum.photos/seed/preview2/200/150" },
 });
@@ -24,7 +24,7 @@ const pdfFile = ref({
   id: "3",
   name: "document.pdf",
   size: 204800,
-  type: "application/pdf",
+  mime: "application/pdf",
   url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
 });
 </script>

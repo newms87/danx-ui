@@ -32,6 +32,7 @@
 <script setup lang="ts">
 import { type ComponentPublicInstance, computed, nextTick, ref, watch } from "vue";
 import { DanxFile } from "../danx-file";
+import { fileDisplayNumber } from "../danx-file/file-helpers";
 import { DanxVirtualScroll } from "../scroll";
 import type { PreviewFile } from "../danx-file/types";
 
@@ -86,7 +87,9 @@ watch(
         @click="emit('select', file)"
       >
         <DanxFile :file="file" size="auto" fit="cover" disabled />
-        <span v-if="showBadges" class="danx-file-strip__badge">{{ index + 1 }}</span>
+        <span v-if="showBadges" class="danx-file-strip__badge">{{
+          fileDisplayNumber(file, index)
+        }}</span>
       </div>
     </template>
   </DanxVirtualScroll>

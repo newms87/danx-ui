@@ -6,7 +6,7 @@ const video = ref({
   id: "2",
   name: "demo-clip.mp4",
   size: 5242880,
-  type: "video/mp4",
+  mime: "video/mp4",
   url: "https://picsum.photos/seed/danx-vid/400/300",
   thumb: { url: "https://picsum.photos/seed/danx-vid/400/300" },
   children: [],

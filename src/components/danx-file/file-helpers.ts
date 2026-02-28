@@ -33,27 +33,27 @@ export function resolveThumbUrl(file: PreviewFile): string {
 
 /** Check if file has an image MIME type */
 export function isImage(file: PreviewFile): boolean {
-  return file.type.startsWith("image/");
+  return file.mime.startsWith("image/");
 }
 
 /** Check if file has a video MIME type */
 export function isVideo(file: PreviewFile): boolean {
-  return file.type.startsWith("video/");
+  return file.mime.startsWith("video/");
 }
 
 /** Check if file is a PDF */
 export function isPdf(file: PreviewFile): boolean {
-  return file.type === "application/pdf";
+  return file.mime === "application/pdf";
 }
 
 /** Check if file has an audio MIME type */
 export function isAudio(file: PreviewFile): boolean {
-  return file.type.startsWith("audio/");
+  return file.mime.startsWith("audio/");
 }
 
 /** Check if file has a text MIME type (text/plain, text/markdown, etc.) */
 export function isText(file: PreviewFile): boolean {
-  return file.type.startsWith("text/");
+  return file.mime.startsWith("text/");
 }
 
 /** Check if file can be directly previewed (image, video, audio, PDF, or text) */
@@ -72,6 +72,22 @@ export function hasChildren(file: PreviewFile): boolean {
 }
 
 /**
+ * Sort files by page_number when present, preserving original order for files without one.
+ * Files with page_number come first (sorted ascending), then files without.
+ */
+export function sortByPageNumber(files: PreviewFile[]): PreviewFile[] {
+  const withPage = files.filter((f) => f.page_number != null);
+  const withoutPage = files.filter((f) => f.page_number == null);
+  withPage.sort((a, b) => a.page_number! - b.page_number!);
+  return [...withPage, ...withoutPage];
+}
+
+/** Resolve the display number for a file at a given index. Uses page_number if present, otherwise index + 1. */
+export function fileDisplayNumber(file: PreviewFile, index: number): number {
+  return file.page_number ?? index + 1;
+}
+
+/**
  * Map a file's MIME type to an icon registry name.
  *
  * Returns a string matching a key in the DanxIcon iconRegistry:
@@ -83,18 +99,18 @@ export function hasChildren(file: PreviewFile): boolean {
  * - default → "document"
  */
 export function fileTypeIcon(file: PreviewFile): string {
-  const { type } = file;
+  const { mime } = file;
 
-  if (type.startsWith("video/")) return "play";
-  if (type.startsWith("audio/")) return "music";
-  if (type === "application/pdf") return "file-pdf";
+  if (mime.startsWith("video/")) return "play";
+  if (mime.startsWith("audio/")) return "music";
+  if (mime === "application/pdf") return "file-pdf";
 
   if (
-    type === "application/zip" ||
-    type === "application/x-rar-compressed" ||
-    type === "application/gzip" ||
-    type === "application/x-tar" ||
-    type === "application/x-7z-compressed"
+    mime === "application/zip" ||
+    mime === "application/x-rar-compressed" ||
+    mime === "application/gzip" ||
+    mime === "application/x-tar" ||
+    mime === "application/x-7z-compressed"
   ) {
     return "folder";
   }

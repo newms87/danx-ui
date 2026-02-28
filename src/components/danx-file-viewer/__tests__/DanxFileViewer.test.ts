@@ -58,7 +58,7 @@ describe("DanxFileViewer", () => {
 
     it("renders DanxFile in preview mode with video for video files", () => {
       const wrapper = mountViewer({
-        file: makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
+        file: makeFile("1", { mime: "video/mp4", url: "https://example.com/video.mp4" }),
       });
       const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
       expect(activeSlide.find(".danx-file__video").exists()).toBe(true);
@@ -66,7 +66,7 @@ describe("DanxFileViewer", () => {
 
     it("renders type icon for PDF without optimized/thumb URL", () => {
       const wrapper = mountViewer({
-        file: makeFile("1", { type: "application/pdf" }),
+        file: makeFile("1", { mime: "application/pdf" }),
       });
       const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
       expect(activeSlide.find(".danx-file__type-icon").exists()).toBe(true);
@@ -74,7 +74,7 @@ describe("DanxFileViewer", () => {
 
     it("renders DanxFile with type icon for non-previewable files", () => {
       const wrapper = mountViewer({
-        file: makeFile("1", { type: "text/plain" }),
+        file: makeFile("1", { mime: "text/plain" }),
       });
       const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
       expect(activeSlide.find(".danx-file__type-icon").exists()).toBe(true);
@@ -203,7 +203,7 @@ describe("DanxFileViewer", () => {
 
     it("emits download even when file has no URL", async () => {
       const wrapper = mountViewer({
-        file: makeFile("1", { type: "application/pdf", url: "" }),
+        file: makeFile("1", { mime: "application/pdf", url: "" }),
         downloadable: true,
       });
       const downloadBtn = findButtonByTooltip(wrapper, "Download")!;
@@ -487,7 +487,7 @@ describe("DanxFileViewer", () => {
   describe("Audio preview", () => {
     it("renders audio element in carousel for audio files", () => {
       const wrapper = mountViewer({
-        file: makeFile("1", { type: "audio/mpeg", url: "https://example.com/song.mp3" }),
+        file: makeFile("1", { mime: "audio/mpeg", url: "https://example.com/song.mp3" }),
       });
       const activeSlide = wrapper.find(".danx-file-viewer__slide--active");
       expect(activeSlide.find(".danx-file__audio").exists()).toBe(true);

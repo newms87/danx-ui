@@ -101,6 +101,20 @@ describe("DanxFileThumbnailStrip", () => {
       const wrapper = await mountStrip();
       expect(wrapper.findAll(".danx-file-strip__badge").length).toBe(0);
     });
+
+    it("shows page_number in badge when present", async () => {
+      const wrapper = await mountStrip({
+        files: [
+          makeFile("1", { page_number: 10 }),
+          makeFile("2", { page_number: 20 }),
+          makeFile("3"),
+        ],
+      });
+      const badges = wrapper.findAll(".danx-file-strip__badge");
+      expect(badges[0]!.text()).toBe("10");
+      expect(badges[1]!.text()).toBe("20");
+      expect(badges[2]!.text()).toBe("3"); // fallback to index + 1
+    });
   });
 
   describe("Auto-scroll", () => {
@@ -150,7 +164,7 @@ describe("DanxFileThumbnailStrip", () => {
     it("renders type icon for non-previewable files", async () => {
       const wrapper = await mountStrip({
         files: [
-          makeFile("1", { type: "application/pdf", url: "https://example.com/doc.pdf" }),
+          makeFile("1", { mime: "application/pdf", url: "https://example.com/doc.pdf" }),
           makeFile("2"),
         ],
       });
@@ -173,7 +187,7 @@ describe("DanxFileThumbnailStrip", () => {
       const wrapper = await mountStrip({
         files: [
           makeFile("1", {
-            type: "video/mp4",
+            mime: "video/mp4",
             url: "https://example.com/video.mp4",
             thumb: { url: "https://example.com/video-thumb.jpg" },
           }),
@@ -187,7 +201,7 @@ describe("DanxFileThumbnailStrip", () => {
     it("renders type icon for video file without thumb URL", async () => {
       const wrapper = await mountStrip({
         files: [
-          makeFile("1", { type: "video/mp4", url: "https://example.com/video.mp4" }),
+          makeFile("1", { mime: "video/mp4", url: "https://example.com/video.mp4" }),
           makeFile("2"),
         ],
       });

@@ -6,7 +6,7 @@ const photo = ref({
   id: "9",
   name: "photo.jpg",
   size: 245760,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/danx-act/400/300",
   children: [],
 });

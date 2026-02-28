@@ -6,7 +6,7 @@ const file = ref({
   id: "1",
   name: "mountain-vista.jpg",
   size: 524288,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/nav1/800/600",
   children: [],
 });

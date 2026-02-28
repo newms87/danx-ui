@@ -6,7 +6,7 @@ const errorFile = ref({
   id: "5",
   name: "corrupted.jpg",
   size: 0,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/danx-err/400/300",
   error: "Upload failed: file too large (max 10MB)",
   children: [],

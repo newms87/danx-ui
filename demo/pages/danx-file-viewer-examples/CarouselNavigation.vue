@@ -8,7 +8,7 @@ const mainFile = ref({
   id: "1",
   name: "photo-1.jpg",
   size: 524288,
-  type: "image/jpeg",
+  mime: "image/jpeg",
   url: "https://picsum.photos/seed/carousel1/800/600",
   children: [],
 });
@@ -18,7 +18,7 @@ const relatedFiles = ref(
     id: String(i + 2),
     name: `photo-${i + 2}.jpg`,
     size: 300000 + Math.floor(Math.random() * 300000),
-    type: "image/jpeg",
+    mime: "image/jpeg",
     url: `https://picsum.photos/seed/carousel${i + 2}/800/600`,
     children: [],
   }))

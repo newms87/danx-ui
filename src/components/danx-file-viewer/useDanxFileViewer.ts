@@ -12,7 +12,7 @@
  */
 
 import { computed, ref, type Ref, watch } from "vue";
-import { hasChildren } from "../danx-file/file-helpers";
+import { fileDisplayNumber, hasChildren, sortByPageNumber } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 
 export interface UseDanxFileViewerOptions {
@@ -63,15 +63,16 @@ export interface UseDanxFileViewerReturn {
 export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFileViewerReturn {
   const { file, relatedFiles, onNavigate } = options;
 
-  // Build the full list: anchor file + related files (deduped by id)
+  // Build the full list: anchor file + related files (deduped by id), sorted by page_number
   const allFiles = computed(() => {
     const files = [file.value, ...relatedFiles.value];
     const seen = new Set<string>();
-    return files.filter((f) => {
+    const deduped = files.filter((f) => {
       if (seen.has(f.id)) return false;
       seen.add(f.id);
       return true;
     });
+    return sortByPageNumber(deduped);
   });
 
   const currentFile = ref<PreviewFile>(file.value) as Ref<PreviewFile>;
@@ -100,7 +101,7 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     if (activeFiles.value.length <= 1) return "";
     const idx = currentIndex.value;
     if (idx < 0) return "";
-    return `${idx + 1} / ${activeFiles.value.length}`;
+    return `${fileDisplayNumber(currentFile.value, idx)} / ${activeFiles.value.length}`;
   });
 
   const hasParent = computed(() => childStack.value.length > 0);
@@ -129,15 +130,16 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     const children = currentFile.value.children;
     if (!children || children.length === 0) return;
     childStack.value = [...childStack.value, currentFile.value];
-    childFiles.value = children;
-    setCurrentFile(children[0]!);
+    const sorted = sortByPageNumber(children);
+    childFiles.value = sorted;
+    setCurrentFile(sorted[0]!);
   }
 
   /** Sync childFiles to match the current top-of-stack parent's children. */
   function restoreChildFilesForCurrentLevel() {
     if (childStack.value.length > 0) {
       const parent = childStack.value[childStack.value.length - 1]!;
-      childFiles.value = parent.children ?? [];
+      childFiles.value = sortByPageNumber(parent.children ?? []);
     } else {
       childFiles.value = [];
     }

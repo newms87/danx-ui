@@ -22,7 +22,7 @@ export function makeFile(
     id,
     name: `file-${id}.jpg`,
     size: 1024,
-    type: "image/jpeg",
+    mime: "image/jpeg",
     url: `https://example.com/${id}.jpg`,
     ...overrides,
   };

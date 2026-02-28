@@ -7,7 +7,7 @@
 /**
  * A file object for preview rendering.
  *
- * Based on quasar-ui-danx FileUpload.ts output. The `type` field matches
+ * Based on quasar-ui-danx FileUpload.ts output. The `mime` field matches
  * the browser File API MIME type (e.g. "image/jpeg", "video/mp4").
  *
  * Progress is auto-detected: when `progress` is non-null and < 100,
@@ -22,7 +22,7 @@ export interface PreviewFile {
   /** File size in bytes */
   size: number;
   /** MIME type (e.g. "image/jpeg", "video/mp4") */
-  type: string;
+  mime: string;
   /** URL to file (empty string during upload) */
   url: string;
   /** Temporary blob URL during upload */
@@ -43,6 +43,8 @@ export interface PreviewFile {
   statusMessage?: string;
   /** Error message (shows error state, takes priority over progress) */
   error?: string;
+  /** Page number for ordering and display (e.g. PDF pages). Falls back to index order when absent. */
+  page_number?: number;
 }
 
 /**

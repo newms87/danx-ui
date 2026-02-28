@@ -115,14 +115,14 @@ describe("useDanxFile", () => {
   describe("previewImageUrl", () => {
     it("returns empty for video files", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "video/mp4" }),
+        file: makeFile({ mime: "video/mp4" }),
       });
       expect(result.previewImageUrl.value).toBe("");
     });
 
     it("returns empty for audio files", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "audio/mpeg" }),
+        file: makeFile({ mime: "audio/mpeg" }),
       });
       expect(result.previewImageUrl.value).toBe("");
     });
@@ -141,7 +141,7 @@ describe("useDanxFile", () => {
 
     it("returns empty for non-image without optimized", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "application/pdf", url: "https://example.com/doc.pdf" }),
+        file: makeFile({ mime: "application/pdf", url: "https://example.com/doc.pdf" }),
       });
       expect(result.previewImageUrl.value).toBe("");
     });
@@ -169,7 +169,7 @@ describe("useDanxFile", () => {
 
     it("returns empty for video without thumb or optimized", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "video/mp4", url: "https://example.com/v.mp4" }),
+        file: makeFile({ mime: "video/mp4", url: "https://example.com/v.mp4" }),
       });
       expect(result.thumbImageUrl.value).toBe("");
     });
@@ -179,14 +179,14 @@ describe("useDanxFile", () => {
     it("showPreviewVideo is true for video in preview mode with URL", () => {
       const { result } = createUseDanxFile({
         mode: "preview",
-        file: makeFile({ type: "video/mp4", url: "https://example.com/v.mp4" }),
+        file: makeFile({ mime: "video/mp4", url: "https://example.com/v.mp4" }),
       });
       expect(result.showPreviewVideo.value).toBe(true);
     });
 
     it("showPreviewVideo is false in thumb mode", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "video/mp4", url: "https://example.com/v.mp4" }),
+        file: makeFile({ mime: "video/mp4", url: "https://example.com/v.mp4" }),
       });
       expect(result.showPreviewVideo.value).toBe(false);
     });
@@ -194,7 +194,7 @@ describe("useDanxFile", () => {
     it("showPreviewVideo is false when video has no URL", () => {
       const { result } = createUseDanxFile({
         mode: "preview",
-        file: makeFile({ type: "video/mp4", url: "" }),
+        file: makeFile({ mime: "video/mp4", url: "" }),
       });
       expect(result.showPreviewVideo.value).toBe(false);
     });
@@ -211,14 +211,14 @@ describe("useDanxFile", () => {
 
     it("showAudio is true for audio with URL", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "audio/mpeg", url: "https://example.com/a.mp3" }),
+        file: makeFile({ mime: "audio/mpeg", url: "https://example.com/a.mp3" }),
       });
       expect(result.showAudio.value).toBe(true);
     });
 
     it("showAudio is false for audio without URL", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "audio/mpeg", url: "" }),
+        file: makeFile({ mime: "audio/mpeg", url: "" }),
       });
       expect(result.showAudio.value).toBe(false);
     });
@@ -235,7 +235,7 @@ describe("useDanxFile", () => {
 
     it("showThumbPlayIcon is true for video with thumb in thumb mode", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/t.jpg" } }),
+        file: makeFile({ mime: "video/mp4", thumb: { url: "https://example.com/t.jpg" } }),
       });
       expect(result.showThumbPlayIcon.value).toBe(true);
     });
@@ -243,7 +243,7 @@ describe("useDanxFile", () => {
     it("showThumbPlayIcon is false in preview mode", () => {
       const { result } = createUseDanxFile({
         mode: "preview",
-        file: makeFile({ type: "video/mp4", thumb: { url: "https://example.com/t.jpg" } }),
+        file: makeFile({ mime: "video/mp4", thumb: { url: "https://example.com/t.jpg" } }),
       });
       expect(result.showThumbPlayIcon.value).toBe(false);
     });
@@ -252,14 +252,14 @@ describe("useDanxFile", () => {
   describe("showTypeIcon", () => {
     it("is false when audio is shown", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "audio/mpeg", url: "https://example.com/a.mp3" }),
+        file: makeFile({ mime: "audio/mpeg", url: "https://example.com/a.mp3" }),
       });
       expect(result.showTypeIcon.value).toBe(false);
     });
 
     it("is true when no visual content in thumb mode", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "application/pdf", url: "https://example.com/doc.pdf" }),
+        file: makeFile({ mime: "application/pdf", url: "https://example.com/doc.pdf" }),
       });
       expect(result.showTypeIcon.value).toBe(true);
     });
@@ -272,7 +272,7 @@ describe("useDanxFile", () => {
     it("is true in preview mode with no video/image", () => {
       const { result } = createUseDanxFile({
         mode: "preview",
-        file: makeFile({ type: "application/pdf", url: "https://example.com/doc.pdf" }),
+        file: makeFile({ mime: "application/pdf", url: "https://example.com/doc.pdf" }),
       });
       expect(result.showTypeIcon.value).toBe(true);
     });
@@ -281,7 +281,7 @@ describe("useDanxFile", () => {
       const { result } = createUseDanxFile({
         mode: "preview",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           meta: { content: "Hello" },
         }),
@@ -339,14 +339,14 @@ describe("useDanxFile", () => {
   describe("iconName", () => {
     it("returns play for video", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "video/mp4" }),
+        file: makeFile({ mime: "video/mp4" }),
       });
       expect(result.iconName.value).toBe("play");
     });
 
     it("returns document for generic file types", () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "application/octet-stream" }),
+        file: makeFile({ mime: "application/octet-stream" }),
       });
       expect(result.iconName.value).toBe("document");
     });
@@ -410,7 +410,7 @@ describe("useDanxFile", () => {
     it("resolves from meta.content synchronously", async () => {
       const { result } = createUseDanxFile({
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           meta: { content: "Hello world" },
         }),
@@ -427,7 +427,7 @@ describe("useDanxFile", () => {
 
       const { result } = createUseDanxFile({
         file: makeFile({
-          type: "text/markdown",
+          mime: "text/markdown",
           url: "https://example.com/readme.md",
         }),
       });
@@ -444,7 +444,7 @@ describe("useDanxFile", () => {
 
       const { result } = createUseDanxFile({
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "https://example.com/readme.txt",
         }),
       });
@@ -456,7 +456,7 @@ describe("useDanxFile", () => {
 
     it("clears textContent for non-text files", async () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "image/jpeg" }),
+        file: makeFile({ mime: "image/jpeg" }),
       });
       await flushPromises();
       expect(result.textContent.value).toBe("");
@@ -464,7 +464,7 @@ describe("useDanxFile", () => {
 
     it("sets empty when text file has no URL and no meta.content", async () => {
       const { result } = createUseDanxFile({
-        file: makeFile({ type: "text/plain", url: "" }),
+        file: makeFile({ mime: "text/plain", url: "" }),
       });
       await flushPromises();
       expect(result.textContent.value).toBe("");
@@ -478,7 +478,7 @@ describe("useDanxFile", () => {
 
       const { result } = createUseDanxFile({
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           blobUrl: "blob:abc",
         }),
@@ -496,7 +496,7 @@ describe("useDanxFile", () => {
       const { result } = createUseDanxFile({
         mode: "preview",
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           meta: { content: "Hello" },
         }),
@@ -508,7 +508,7 @@ describe("useDanxFile", () => {
     it("is false in thumb mode", async () => {
       const { result } = createUseDanxFile({
         file: makeFile({
-          type: "text/plain",
+          mime: "text/plain",
           url: "",
           meta: { content: "Hello" },
         }),
@@ -520,7 +520,7 @@ describe("useDanxFile", () => {
     it("is false when no text content resolved", async () => {
       const { result } = createUseDanxFile({
         mode: "preview",
-        file: makeFile({ type: "text/plain", url: "" }),
+        file: makeFile({ mime: "text/plain", url: "" }),
       });
       await flushPromises();
       expect(result.showPreviewText.value).toBe(false);
