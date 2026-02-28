@@ -672,27 +672,20 @@ describe("useDanxFileViewer", () => {
   });
 
   describe("slideLabel with page_number", () => {
-    it("shows page_number when present", () => {
+    it("shows position in list, not page_number", () => {
       const file = ref(makeFile("a", { page_number: 5 }));
       const related = ref([makeFile("b", { page_number: 10 })]);
-      const { slideLabel } = useDanxFileViewer({ file, relatedFiles: related });
-      expect(slideLabel.value).toBe("5 / 2");
-    });
-
-    it("falls back to index + 1 when page_number absent", () => {
-      const file = ref(makeFile("1"));
-      const related = ref([makeFile("2")]);
       const { slideLabel } = useDanxFileViewer({ file, relatedFiles: related });
       expect(slideLabel.value).toBe("1 / 2");
     });
 
-    it("shows page_number after navigating to file with page_number", () => {
+    it("shows correct position after navigating", () => {
       const file = ref(makeFile("a", { page_number: 1 }));
       const fileB = makeFile("b", { page_number: 7 });
       const related = ref([fileB]);
       const { slideLabel, goTo } = useDanxFileViewer({ file, relatedFiles: related });
       goTo(fileB);
-      expect(slideLabel.value).toBe("7 / 2");
+      expect(slideLabel.value).toBe("2 / 2");
     });
   });
 });

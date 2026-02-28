@@ -12,7 +12,7 @@
  */
 
 import { computed, ref, type Ref, watch } from "vue";
-import { fileDisplayNumber, hasChildren, sortByPageNumber } from "../danx-file/file-helpers";
+import { hasChildren, sortByPageNumber } from "../danx-file/file-helpers";
 import type { PreviewFile } from "../danx-file/types";
 
 export interface UseDanxFileViewerOptions {
@@ -101,7 +101,7 @@ export function useDanxFileViewer(options: UseDanxFileViewerOptions): UseDanxFil
     if (activeFiles.value.length <= 1) return "";
     const idx = currentIndex.value;
     if (idx < 0) return "";
-    return `${fileDisplayNumber(currentFile.value, idx)} / ${activeFiles.value.length}`;
+    return `${idx + 1} / ${activeFiles.value.length}`;
   });
 
   const hasParent = computed(() => childStack.value.length > 0);
