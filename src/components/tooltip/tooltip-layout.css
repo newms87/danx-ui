@@ -20,8 +20,11 @@
    ========================================================================== */
 
 .danx-tooltip {
+  /* Reset UA popover defaults — JS sets top/left via inline style */
+  margin: 0;
+  inset: auto;
   position: fixed;
-  z-index: 1001;
+
   display: flex;
   align-items: flex-start;
   gap: var(--dx-tooltip-gap);
@@ -33,6 +36,9 @@
   border-radius: var(--dx-tooltip-border-radius);
   box-shadow: var(--dx-tooltip-shadow);
   font-size: var(--dx-tooltip-font-size);
+
+  /* Ensure full interactivity in top layer */
+  pointer-events: auto;
 
   .danx-tooltip__icon {
     display: inline-flex;
@@ -48,19 +54,21 @@
 }
 
 /* ==========================================================================
-   Fade Transition (enter + leave)
+   Entry Animation (native @starting-style for popover)
    ========================================================================== */
 
-.danx-tooltip-fade-enter-active,
-.danx-tooltip-fade-leave-active {
+.danx-tooltip {
+  opacity: 1;
+  transform: translateY(0);
   transition:
     opacity var(--dx-tooltip-animation-duration) var(--ease-out),
     transform var(--dx-tooltip-animation-duration) var(--ease-out);
 }
 
-.danx-tooltip-fade-enter-from,
-.danx-tooltip-fade-leave-to {
-  opacity: 0;
-  transform: translateY(2px);
+@starting-style {
+  .danx-tooltip {
+    opacity: 0;
+    transform: translateY(2px);
+  }
 }
 

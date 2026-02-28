@@ -138,6 +138,20 @@ const TOOLTIP_VARIANT_TOKENS = {
 
 const variantStyle = useVariant(toRef(props, "variant"), "tooltip", TOOLTIP_VARIANT_TOKENS);
 
+/**
+ * When the panel element mounts (via v-if), call showPopover() to promote it
+ * to the top layer. Uses popover="manual" so tooltip interaction controls dismiss.
+ */
+watch(
+  panelRef,
+  (el) => {
+    if (el && !el.matches(":popover-open")) {
+      el.showPopover();
+    }
+  },
+  { flush: "post" }
+);
+
 /** Whether the panel has icon + content flex layout */
 const hasPanelIcon = computed(() => !!props.icon);
 </script>
@@ -159,28 +173,25 @@ const hasPanelIcon = computed(() => !!props.icon);
     </slot>
   </span>
 
-  <!-- Floating panel -->
-  <Teleport to="body">
-    <Transition name="danx-tooltip-fade">
-      <div
-        v-if="isOpen && !disabled"
-        ref="panelRef"
-        class="danx-tooltip"
-        :style="[panelStyle, variantStyle]"
-        v-bind="$attrs"
-        @mouseenter="onPanelMouseenter"
-        @mouseleave="onPanelMouseleave"
-      >
-        <span v-if="hasPanelIcon" class="danx-tooltip__icon">
-          <DanxIcon :icon="icon!" />
-        </span>
-        <div v-if="hasPanelIcon || slots.default" class="danx-tooltip__content">
-          <slot>{{ tooltip }}</slot>
-        </div>
-        <template v-else>
-          <slot>{{ tooltip }}</slot>
-        </template>
-      </div>
-    </Transition>
-  </Teleport>
+  <!-- Floating panel (native Popover API — renders in top layer) -->
+  <div
+    v-if="isOpen && !disabled"
+    ref="panelRef"
+    popover="manual"
+    class="danx-tooltip"
+    :style="[panelStyle, variantStyle]"
+    v-bind="$attrs"
+    @mouseenter="onPanelMouseenter"
+    @mouseleave="onPanelMouseleave"
+  >
+    <span v-if="hasPanelIcon" class="danx-tooltip__icon">
+      <DanxIcon :icon="icon!" />
+    </span>
+    <div v-if="hasPanelIcon || slots.default" class="danx-tooltip__content">
+      <slot>{{ tooltip }}</slot>
+    </div>
+    <template v-else>
+      <slot>{{ tooltip }}</slot>
+    </template>
+  </div>
 </template>
