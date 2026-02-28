@@ -92,12 +92,14 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxScroll } from "../scroll";
 import DialogBreadcrumbs from "./DialogBreadcrumbs.vue";
 import type { DanxDialogEmits, DanxDialogProps, DanxDialogSlots } from "./types";
 import { useDialogStack } from "./useDialogStack";
+
+const attrs = useAttrs();
 
 const props = withDefaults(defineProps<DanxDialogProps>(), {
   persistent: false,
@@ -251,7 +253,7 @@ function handleConfirm() {
     <dialog
       v-if="modelValue"
       ref="dialogRef"
-      :class="['danx-dialog', { 'danx-dialog--stacked': isStacked }]"
+      :class="['danx-dialog', { 'danx-dialog--stacked': isStacked }, attrs.class]"
       @wheel.stop
       @keydown.stop
       @keyup.stop
