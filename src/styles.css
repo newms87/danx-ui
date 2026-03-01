@@ -22,6 +22,7 @@
 @import "./components/markdown-editor/markdown-editor.css" layer(components);
 @import "./components/buttonGroup/button-group.css" layer(components);
 @import "./components/tabs/tabs.css" layer(components);
+@import "./components/toast/toast.css" layer(components);
 @import "./components/tooltip/tooltip.css" layer(components);
 @import "./components/progress-bar/progress-bar.css" layer(components);
 @import "./components/split-panel/split-panel.css" layer(components);
@@ -33,3 +34,4 @@
 @import "./components/input/input.css" layer(components);
 @import "./components/textarea/textarea.css" layer(components);
 @import "./components/select/select.css" layer(components);
+@import "./components/danx-file-upload/danx-file-upload.css" layer(components);

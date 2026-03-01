@@ -1,0 +1,41 @@
+/**
+ * DanxFileUpload Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize file upload appearance.
+ *
+ * CSS Tokens:
+ * --dx-file-upload-gap                Grid gap between thumbnails
+ * --dx-file-upload-add-bg             Add card background
+ * --dx-file-upload-add-border         Dashed border color
+ * --dx-file-upload-add-border-hover   Hover border color
+ * --dx-file-upload-add-border-active  Drag active border color
+ * --dx-file-upload-add-color          Icon/text color
+ * --dx-file-upload-add-radius         Corner radius
+ * --dx-file-upload-dropzone-active-bg Drag overlay tint
+ */
+
+:root {
+  /* ==========================================================================
+     Grid Layout
+     ========================================================================== */
+
+  --dx-file-upload-gap: var(--spacing-3);
+
+  /* ==========================================================================
+     Add Card
+     ========================================================================== */
+
+  --dx-file-upload-add-bg: var(--color-surface-sunken);
+  --dx-file-upload-add-border: var(--color-border);
+  --dx-file-upload-add-border-hover: var(--color-border-strong);
+  --dx-file-upload-add-border-active: var(--color-interactive);
+  --dx-file-upload-add-color: var(--color-text-muted);
+  --dx-file-upload-add-radius: var(--radius-component);
+
+  /* ==========================================================================
+     Drop Zone
+     ========================================================================== */
+
+  --dx-file-upload-dropzone-active-bg: rgb(0 0 0 / 0.04);
+}

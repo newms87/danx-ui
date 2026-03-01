@@ -15,6 +15,7 @@ import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
 import FormattersPage from "./pages/FormattersPage.vue";
 import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
 import TabsPage from "./pages/TabsPage.vue";
+import ToastPage from "./pages/ToastPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
 import ProgressBarPage from "./pages/ProgressBarPage.vue";
 import SplitPanelPage from "./pages/SplitPanelPage.vue";
@@ -25,6 +26,7 @@ import SkeletonPage from "./pages/SkeletonPage.vue";
 import InputPage from "./pages/InputPage.vue";
 import TextareaPage from "./pages/TextareaPage.vue";
 import SelectPage from "./pages/SelectPage.vue";
+import DanxFileUploadPage from "./pages/DanxFileUploadPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
 import TypographyPage from "./pages/design-system/TypographyPage.vue";
 import SpacingPage from "./pages/design-system/SpacingPage.vue";
@@ -52,6 +54,7 @@ const router = createRouter({
     { path: "/formatters", name: "formatters", component: FormattersPage },
     { path: "/button-group", name: "button-group", component: ButtonGroupPage },
     { path: "/tabs", name: "tabs", component: TabsPage },
+    { path: "/toast", name: "toast", component: ToastPage },
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
     { path: "/progress-bar", name: "progress-bar", component: ProgressBarPage },
     { path: "/split-panel", name: "split-panel", component: SplitPanelPage },
@@ -62,6 +65,7 @@ const router = createRouter({
     { path: "/input", name: "input", component: InputPage },
     { path: "/textarea", name: "textarea", component: TextareaPage },
     { path: "/select", name: "select", component: SelectPage },
+    { path: "/danx-file-upload", name: "danx-file-upload", component: DanxFileUploadPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },
     { path: "/design/typography", name: "design-typography", component: TypographyPage },
     { path: "/design/spacing", name: "design-spacing", component: SpacingPage },

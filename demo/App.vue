@@ -8,6 +8,7 @@
 import { ref, onMounted, watch } from "vue";
 import { RouterLink, RouterView } from "vue-router";
 import { DanxScroll } from "../src";
+import { DanxToastContainer } from "../src/components/toast";
 import { version } from "../package.json";
 
 type Theme = "light" | "dark";
@@ -146,6 +147,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
               </li>
               <li>
+                <RouterLink to="/toast" class="demo-sidebar__link">Toast</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/tooltip" class="demo-sidebar__link">Tooltip</RouterLink>
               </li>
               <li>
@@ -154,6 +158,11 @@ watch(theme, (newTheme) => {
               <li>
                 <RouterLink to="/danx-file-viewer" class="demo-sidebar__link"
                   >File Viewer</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="/danx-file-upload" class="demo-sidebar__link"
+                  >File Upload</RouterLink
                 >
               </li>
               <li>
@@ -190,6 +199,8 @@ watch(theme, (newTheme) => {
     <DanxScroll tag="main" class="demo-main">
       <RouterView />
     </DanxScroll>
+
+    <DanxToastContainer />
   </div>
 </template>
 

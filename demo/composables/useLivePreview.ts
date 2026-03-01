@@ -69,6 +69,7 @@ import { DanxPopover } from "../../src/components/popover";
 import { MarkdownEditor } from "../../src/components/markdown-editor";
 import { DanxButtonGroup } from "../../src/components/buttonGroup";
 import { DanxTabs } from "../../src/components/tabs";
+import { DanxToast, DanxToastContainer, useToast, useToastTimer } from "../../src/components/toast";
 import { DanxTooltip } from "../../src/components/tooltip";
 import { DanxProgressBar } from "../../src/components/progress-bar";
 import { DanxSplitPanel, SplitPanelHandle, useSplitPanel } from "../../src/components/split-panel";
@@ -81,6 +82,14 @@ import {
 } from "../../src/components/scroll";
 import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxFile, useDanxFile } from "../../src/components/danx-file";
+import {
+  DanxFileUpload,
+  useFileUpload,
+  setFileUploadHandler,
+  getFileUploadHandler,
+  uploadFileToUrl,
+  isAcceptedType,
+} from "../../src/components/danx-file-upload";
 import {
   DanxFileViewer,
   useDanxFileViewer,
@@ -169,6 +178,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   MarkdownEditor,
   DanxButtonGroup,
   DanxTabs,
+  DanxToast,
+  DanxToastContainer,
   DanxTooltip,
   DanxFile,
   DanxFileViewer,
@@ -182,6 +193,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxTextarea,
   DanxSelect,
   DanxFieldWrapper,
+  DanxFileUpload,
 };
 
 /**
@@ -212,6 +224,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   MarkdownEditor,
   DanxButtonGroup,
   DanxTabs,
+  DanxToast,
+  DanxToastContainer,
+  useToast,
+  useToastTimer,
   DanxTooltip,
   useVariant,
   starIcon,
@@ -316,6 +332,13 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxFieldWrapper,
   useFormField,
   useFieldInteraction,
+  // File Upload
+  DanxFileUpload,
+  useFileUpload,
+  setFileUploadHandler,
+  getFileUploadHandler,
+  uploadFileToUrl,
+  isAcceptedType,
   // Log demo helpers
   useLogDemo,
   levelColor,
