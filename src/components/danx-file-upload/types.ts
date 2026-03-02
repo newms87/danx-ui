@@ -5,7 +5,7 @@
  * component props/emits/slots, and composable options.
  */
 
-import type { PreviewFile, DanxFileSize } from "../danx-file";
+import type { PreviewFile, DanxFileSize, DanxFileDownloadEvent } from "../danx-file";
 import type { FormFieldBaseProps } from "../../shared/form-types";
 
 /**
@@ -60,6 +60,10 @@ export interface DanxFileUploadProps extends FormFieldBaseProps {
   showFileSize?: boolean;
   /** Per-instance upload handler override */
   uploadFn?: FileUploadHandler;
+  /** Enable click-to-view file in full-screen viewer (default: true) */
+  viewable?: boolean;
+  /** Show download button in viewer (default: false) */
+  downloadable?: boolean;
 }
 
 /**
@@ -67,6 +71,7 @@ export interface DanxFileUploadProps extends FormFieldBaseProps {
  */
 export interface DanxFileUploadEmits {
   (e: "remove", file: PreviewFile): void;
+  (e: "download", event: DanxFileDownloadEvent): void;
 }
 
 /**

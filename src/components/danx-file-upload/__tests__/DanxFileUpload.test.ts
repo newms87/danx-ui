@@ -16,7 +16,7 @@ const DanxFileStub = markRaw(
   defineComponent({
     props: ["file", "size", "showFilename", "showFileSize", "removable", "disabled"],
     emits: ["remove"],
-    template: `<div class="danx-file-stub" :data-file-id="file.id" @click="$emit('remove', file)">{{ file.name }}</div>`,
+    template: `<div class="danx-file-stub" :data-file-id="file.id">{{ file.name }}</div>`,
   })
 );
 
@@ -24,6 +24,22 @@ const DanxIconStub = markRaw(
   defineComponent({
     props: ["icon"],
     template: "<span class='icon-stub' />",
+  })
+);
+
+const DanxDialogStub = markRaw(
+  defineComponent({
+    props: ["modelValue", "width", "height"],
+    emits: ["update:modelValue"],
+    template: "<div class='danx-dialog-stub' v-if='modelValue'><slot /></div>",
+  })
+);
+
+const DanxFileViewerStub = markRaw(
+  defineComponent({
+    props: ["file", "relatedFiles", "downloadable"],
+    emits: ["download"],
+    template: "<div class='danx-file-viewer-stub' :data-file-id='file.id' />",
   })
 );
 
@@ -63,6 +79,8 @@ describe("DanxFileUpload", () => {
           DanxFieldWrapper: DanxFieldWrapperStub,
           DanxFile: DanxFileStub,
           DanxIcon: DanxIconStub,
+          DanxDialog: DanxDialogStub,
+          DanxFileViewer: DanxFileViewerStub,
         },
       },
     });
@@ -139,8 +157,9 @@ describe("DanxFileUpload", () => {
     const file = makeFile("1");
     const wrapper = createWrapper({}, [file]);
 
-    // Click the DanxFile stub to trigger remove
-    await wrapper.find(".danx-file-stub").trigger("click");
+    // Emit remove directly from the DanxFile stub
+    const fileComp = wrapper.findComponent(DanxFileStub);
+    fileComp.vm.$emit("remove", file);
     await nextTick();
 
     const emitted = wrapper.emitted("remove");
@@ -251,11 +270,139 @@ describe("DanxFileUpload", () => {
           DanxFieldWrapper: DanxFieldWrapperStub,
           DanxFile: DanxFileStub,
           DanxIcon: DanxIconStub,
+          DanxDialog: DanxDialogStub,
+          DanxFileViewer: DanxFileViewerStub,
         },
       },
     });
 
     expect(wrapper.find(".custom-empty").exists()).toBe(true);
     expect(wrapper.find(".custom-empty").text()).toBe("Drop files here");
+  });
+
+  describe("file viewer", () => {
+    it("opens viewer dialog when a file thumbnail is clicked", async () => {
+      const files = [makeFile("1"), makeFile("2")];
+      const wrapper = createWrapper({}, files);
+
+      // Click the first file stub — the native click bubbles to the @click handler
+      await wrapper.findAll(".danx-file-stub")[0]!.trigger("click");
+      await nextTick();
+
+      const dialog = wrapper.findComponent(DanxDialogStub);
+      expect(dialog.exists()).toBe(true);
+      expect(dialog.props("modelValue")).toBe(true);
+
+      const viewer = wrapper.findComponent(DanxFileViewerStub);
+      expect(viewer.exists()).toBe(true);
+      expect(viewer.props("file")).toEqual(files[0]);
+      expect(viewer.props("relatedFiles")).toEqual(files);
+    });
+
+    it("does not open viewer when viewable is false", async () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({ viewable: false }, files);
+
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+
+      expect(wrapper.find(".danx-dialog-stub").exists()).toBe(false);
+    });
+
+    it("does not open viewer for uploading files", async () => {
+      const uploadingFile = makeFile("1", { progress: 50 });
+      const wrapper = createWrapper({}, [uploadingFile]);
+
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+
+      expect(wrapper.find(".danx-dialog-stub").exists()).toBe(false);
+    });
+
+    it("passes downloadable prop to DanxFileViewer", async () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({ downloadable: true }, files);
+
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+
+      const viewer = wrapper.findComponent(DanxFileViewerStub);
+      expect(viewer.props("downloadable")).toBe(true);
+    });
+
+    it("forwards download event from DanxFileViewer", async () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({ downloadable: true }, files);
+
+      // Open the viewer
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+
+      // Emit download from the viewer stub
+      const downloadEvent = { file: files[0], url: files[0]!.url! };
+      const viewer = wrapper.findComponent(DanxFileViewerStub);
+      viewer.vm.$emit("download", downloadEvent);
+      await nextTick();
+
+      const emitted = wrapper.emitted("download");
+      expect(emitted).toBeTruthy();
+      expect(emitted![0]![0]).toEqual(downloadEvent);
+    });
+
+    it("adds cursor-pointer class when viewable and not uploading", () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({}, files);
+
+      const danxFile = wrapper.findComponent(DanxFileStub);
+      expect(danxFile.classes()).toContain("cursor-pointer");
+    });
+
+    it("does not add cursor-pointer class when viewable is false", () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({ viewable: false }, files);
+
+      const danxFile = wrapper.findComponent(DanxFileStub);
+      expect(danxFile.classes()).not.toContain("cursor-pointer");
+    });
+
+    it("does not add cursor-pointer class for uploading files", () => {
+      const uploadingFile = makeFile("1", { progress: 50 });
+      const wrapper = createWrapper({}, [uploadingFile]);
+
+      const danxFile = wrapper.findComponent(DanxFileStub);
+      expect(danxFile.classes()).not.toContain("cursor-pointer");
+    });
+
+    it("closes viewer dialog when DanxDialog emits update:modelValue false", async () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({}, files);
+
+      // Open the viewer
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+
+      const dialog = wrapper.findComponent(DanxDialogStub);
+      expect(dialog.props("modelValue")).toBe(true);
+
+      // Close via v-model
+      dialog.vm.$emit("update:modelValue", false);
+      await nextTick();
+
+      // Dialog should be gone (modelValue is false)
+      const dialogAfter = wrapper.findComponent(DanxDialogStub);
+      expect(dialogAfter.props("modelValue")).toBe(false);
+    });
+
+    it("sets dialog dimensions to 95vw/95vh", async () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({}, files);
+
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+
+      const dialog = wrapper.findComponent(DanxDialogStub);
+      expect(dialog.props("width")).toBe(95);
+      expect(dialog.props("height")).toBe(95);
+    });
   });
 });

@@ -29,9 +29,12 @@
  *   showFilename?: boolean - Show filename below thumbnails
  *   showFileSize?: boolean - Show file size below thumbnails
  *   uploadFn?: FileUploadHandler - Per-instance upload handler override
+ *   viewable?: boolean - Enable click-to-view in full-screen viewer (default: true)
+ *   downloadable?: boolean - Show download button in viewer (default: false)
  *
  * @emits
  *   remove(file) - File removed from the model
+ *   download(event) - Forwarded from DanxFileViewer when download is clicked
  *
  * @slots
  *   empty - Custom empty state content for the add button area
@@ -59,10 +62,13 @@
 -->
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useFormField } from "../../shared/composables/useFormField";
 import { DanxFieldWrapper } from "../field-wrapper";
 import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
+import { DanxDialog, useDialog } from "../dialog";
+import { DanxFileViewer } from "../danx-file-viewer";
 import DanxFileUploadDropZone from "./DanxFileUploadDropZone.vue";
 import { useFileUpload } from "./useFileUpload";
 import type { PreviewFile } from "../danx-file";
@@ -73,6 +79,8 @@ const props = withDefaults(defineProps<DanxFileUploadProps>(), {
   showFilename: false,
   showFileSize: false,
   multiple: false,
+  viewable: true,
+  downloadable: false,
 });
 
 const emit = defineEmits<DanxFileUploadEmits>();
@@ -120,6 +128,20 @@ function onDropZoneDrop(files: FileList) {
   isDragging.value = false;
   addFiles(files);
 }
+
+// --- File viewer ---
+const viewerDialog = useDialog();
+const selectedFile = ref<PreviewFile | null>(null);
+
+function isUploading(file: PreviewFile): boolean {
+  return file.progress != null && file.progress < 100;
+}
+
+function onFileClick(file: PreviewFile) {
+  if (!props.viewable || isUploading(file)) return;
+  selectedFile.value = file;
+  viewerDialog.open();
+}
 </script>
 
 <template>
@@ -150,7 +172,9 @@ function onDropZoneDrop(files: FileList) {
           :show-file-size="showFileSize"
           removable
           :disabled="!!disabled"
+          :class="{ 'cursor-pointer': viewable && !isUploading(file) }"
           @remove="onRemoveFile"
+          @click="onFileClick(file)"
         />
 
         <!-- Add card -->
@@ -181,4 +205,15 @@ function onDropZoneDrop(files: FileList) {
       />
     </DanxFileUploadDropZone>
   </DanxFieldWrapper>
+
+  <!-- Full-screen file viewer dialog -->
+  <DanxDialog v-if="selectedFile" v-model="viewerDialog.isOpen.value" :width="95" :height="95">
+    <DanxFileViewer
+      :file="selectedFile"
+      :related-files="model"
+      :downloadable="downloadable"
+      class="h-full"
+      @download="emit('download', $event)"
+    />
+  </DanxDialog>
 </template>
