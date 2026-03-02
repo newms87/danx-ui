@@ -85,6 +85,13 @@ describe("DanxFileUploadDropZone", () => {
     expect(wrapper.classes()).toContain("danx-file-upload-drop-zone");
   });
 
+  it("prevents default on dragover", async () => {
+    const wrapper = createWrapper();
+    const event = new Event("dragover", { cancelable: true, bubbles: true });
+    wrapper.element.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it("does not emit dragEnter when dragenter has no dataTransfer", async () => {
     const wrapper = createWrapper();
     await wrapper.trigger("dragenter");

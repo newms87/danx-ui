@@ -92,14 +92,12 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, type StyleValue, useAttrs, watch } from "vue";
 import { DanxButton } from "../button";
 import { DanxScroll } from "../scroll";
 import DialogBreadcrumbs from "./DialogBreadcrumbs.vue";
 import type { DanxDialogEmits, DanxDialogProps, DanxDialogSlots } from "./types";
 import { useDialogStack } from "./useDialogStack";
-
-const attrs = useAttrs();
 
 const props = withDefaults(defineProps<DanxDialogProps>(), {
   persistent: false,
@@ -111,9 +109,12 @@ const props = withDefaults(defineProps<DanxDialogProps>(), {
 });
 
 const emit = defineEmits<DanxDialogEmits>();
+
 const modelValue = defineModel<boolean>({ default: false });
 
 defineSlots<DanxDialogSlots>();
+
+const attrs = useAttrs();
 
 const dialogRef = ref<HTMLDialogElement>();
 
@@ -254,6 +255,7 @@ function handleConfirm() {
       v-if="modelValue"
       ref="dialogRef"
       :class="['danx-dialog', { 'danx-dialog--stacked': isStacked }, attrs.class]"
+      :style="attrs.style as StyleValue"
       @wheel.stop
       @keydown.stop
       @keyup.stop

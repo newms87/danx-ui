@@ -98,7 +98,7 @@ describe("useFileUpload", () => {
     });
     return {
       ...result,
-      model: (overrides.model as ReturnType<typeof ref<PreviewFile[]>>) ?? model,
+      model: (overrides.model ?? model) as Ref<PreviewFile[]>,
     };
   }
 

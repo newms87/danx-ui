@@ -328,9 +328,7 @@ describe("DanxPopover", () => {
 
       const outside = document.createElement("div");
       document.body.appendChild(outside);
-      const event = new MouseEvent("mousedown", { bubbles: true });
-      Object.defineProperty(event, "target", { value: outside });
-      document.dispatchEvent(event);
+      outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       await nextTick();
 
       expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
@@ -343,9 +341,7 @@ describe("DanxPopover", () => {
       await nextTick();
 
       const trigger = wrapper.find(".danx-popover-trigger").element;
-      const event = new MouseEvent("mousedown", { bubbles: true });
-      Object.defineProperty(event, "target", { value: trigger });
-      document.dispatchEvent(event);
+      trigger.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       await nextTick();
 
       expect(wrapper.emitted("update:modelValue")).toBeUndefined();
@@ -356,9 +352,7 @@ describe("DanxPopover", () => {
       await nextTick();
 
       const panel = wrapper.find(".danx-popover").element;
-      const event = new MouseEvent("mousedown", { bubbles: true });
-      Object.defineProperty(event, "target", { value: panel });
-      document.dispatchEvent(event);
+      panel.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       await nextTick();
 
       expect(wrapper.emitted("update:modelValue")).toBeUndefined();

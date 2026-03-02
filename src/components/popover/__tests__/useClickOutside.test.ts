@@ -17,10 +17,8 @@ describe("useClickOutside", () => {
     return { trigger, panel };
   }
 
-  function simulateMousedown(target: EventTarget): void {
-    const event = new MouseEvent("mousedown", { bubbles: true });
-    Object.defineProperty(event, "target", { value: target });
-    document.dispatchEvent(event);
+  function simulatePointerdown(target: Element): void {
+    target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
   }
 
   it("fires callback when clicking outside both elements", () => {
@@ -37,7 +35,7 @@ describe("useClickOutside", () => {
 
     const outside = document.createElement("div");
     document.body.appendChild(outside);
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
@@ -53,7 +51,7 @@ describe("useClickOutside", () => {
       useClickOutside(triggerRef, panelRef, callback, isActive);
     });
 
-    simulateMousedown(trigger);
+    simulatePointerdown(trigger);
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -69,7 +67,7 @@ describe("useClickOutside", () => {
       useClickOutside(triggerRef, panelRef, callback, isActive);
     });
 
-    simulateMousedown(panel);
+    simulatePointerdown(panel);
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -87,7 +85,7 @@ describe("useClickOutside", () => {
 
     const outside = document.createElement("div");
     document.body.appendChild(outside);
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -107,12 +105,12 @@ describe("useClickOutside", () => {
     document.body.appendChild(outside);
 
     // Should not fire while inactive
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).not.toHaveBeenCalled();
 
     // Activate and try again
     isActive.value = true;
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
@@ -131,11 +129,11 @@ describe("useClickOutside", () => {
     const outside = document.createElement("div");
     document.body.appendChild(outside);
 
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).toHaveBeenCalledTimes(1);
 
     isActive.value = false;
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).toHaveBeenCalledTimes(1); // Not called again
   });
 
@@ -155,7 +153,7 @@ describe("useClickOutside", () => {
 
     const outside = document.createElement("div");
     document.body.appendChild(outside);
-    simulateMousedown(outside);
+    simulatePointerdown(outside);
     expect(callback).not.toHaveBeenCalled();
   });
 });

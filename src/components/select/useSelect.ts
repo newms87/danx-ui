@@ -249,7 +249,7 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
   // Keyboard Navigation (delegated to useSelectKeyboard)
   // ---------------------------------------------------------------------------
 
-  const { handleKeydown, findFirstEnabledIndex, scrollHighlightedIntoView } = useSelectKeyboard({
+  const { handleKeydown, findFirstEnabledIndex } = useSelectKeyboard({
     selectId,
     filteredOptions,
     highlightedIndex,

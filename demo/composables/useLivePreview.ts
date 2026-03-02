@@ -94,8 +94,8 @@ import {
   DanxFileViewer,
   useDanxFileViewer,
   useVirtualCarousel,
-  useTouchSwipe,
 } from "../../src/components/danx-file-viewer";
+import { useTouchSwipe } from "../../src/shared/composables/useTouchSwipe";
 import {
   resolveFileUrl,
   resolveThumbUrl,

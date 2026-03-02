@@ -3,6 +3,35 @@ import { defineComponent, markRaw } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DanxTooltip } from "../index";
 
+/**
+ * Mock native Popover API on HTMLElement.prototype since jsdom doesn't support it.
+ * Tracks open state per element via a WeakMap so dynamically created elements
+ * (from v-if) automatically have the API available.
+ */
+const popoverOpenState = new WeakMap<HTMLElement, boolean>();
+const origMatches = HTMLElement.prototype.matches;
+
+beforeEach(() => {
+  HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+    popoverOpenState.set(this, true);
+    this.dispatchEvent(new Event("toggle"));
+  });
+  HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
+    popoverOpenState.set(this, false);
+    this.dispatchEvent(new Event("toggle"));
+  });
+  HTMLElement.prototype.matches = function (selector: string) {
+    if (selector === ":popover-open") return popoverOpenState.get(this) ?? false;
+    return origMatches.call(this, selector);
+  };
+});
+
+afterEach(() => {
+  HTMLElement.prototype.showPopover = undefined as unknown as () => void;
+  HTMLElement.prototype.hidePopover = undefined as unknown as () => void;
+  HTMLElement.prototype.matches = origMatches;
+});
+
 describe("DanxTooltip", () => {
   let wrapper: VueWrapper;
 
@@ -261,9 +290,7 @@ describe("DanxTooltip", () => {
       // Click outside
       const outside = document.createElement("div");
       document.body.appendChild(outside);
-      const event = new MouseEvent("mousedown", { bubbles: true });
-      Object.defineProperty(event, "target", { value: outside });
-      document.dispatchEvent(event);
+      outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       await vi.runAllTimersAsync();
 
       expect(document.body.querySelector(".danx-tooltip")).toBeNull();
@@ -276,9 +303,7 @@ describe("DanxTooltip", () => {
       await vi.runAllTimersAsync();
 
       const panel = document.body.querySelector(".danx-tooltip")!;
-      const event = new MouseEvent("mousedown", { bubbles: true });
-      Object.defineProperty(event, "target", { value: panel });
-      document.dispatchEvent(event);
+      panel.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
       await vi.runAllTimersAsync();
 
       expect(document.body.querySelector(".danx-tooltip")).not.toBeNull();
@@ -585,15 +610,15 @@ describe("DanxTooltip", () => {
   // ==========================================================================
 
   describe("teleport", () => {
-    it("teleports panel to body", async () => {
+    it("renders panel in top layer via popover API", async () => {
       mountTooltip();
       await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
       await vi.runAllTimersAsync();
 
-      // Panel should be a direct child of body, not inside the wrapper
+      // Panel uses native Popover API (popover="manual") to render in the top layer
       const panel = document.body.querySelector(".danx-tooltip");
       expect(panel).not.toBeNull();
-      expect(wrapper.element.querySelector(".danx-tooltip")).toBeNull();
+      expect(panel?.getAttribute("popover")).toBe("manual");
     });
   });
 
