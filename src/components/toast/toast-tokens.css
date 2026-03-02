@@ -1,0 +1,23 @@
+/**
+ * DanxToast Token Definitions (Tier 3)
+ *
+ * Component-specific tokens referencing semantic tokens only.
+ * Raw values are forbidden — see tailwind-v4.md token rules.
+ */
+
+:root {
+  --dx-toast-bg: var(--color-surface-elevated);
+  --dx-toast-text: var(--color-text);
+  --dx-toast-border: var(--color-border);
+  --dx-toast-border-radius: var(--radius-component);
+  --dx-toast-shadow: var(--shadow-elevated);
+  --dx-toast-padding-x: var(--space-md);
+  --dx-toast-padding-y: var(--space-sm);
+  --dx-toast-max-width: 24rem;
+  --dx-toast-min-width: 16rem;
+  --dx-toast-gap: var(--space-sm);
+  --dx-toast-stack-gap: var(--space-sm);
+  --dx-toast-screen-offset: var(--space-lg);
+  --dx-toast-progress-height: 3px;
+  --dx-toast-progress-bg: var(--color-interactive);
+}

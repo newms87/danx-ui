@@ -427,34 +427,60 @@ export function parseScript(script: string): {
 
 /**
  * Find all top-level const/let/var and function declarations in a script body.
- * Returns the list of declared names so we can return them from setup().
+ * Only captures declarations at brace depth 0 (top-level scope), so variables
+ * declared inside function bodies are excluded from the setup() return object.
  */
 export function findDeclaredNames(script: string): string[] {
   const names: string[] = [];
-  // Simple identifier: const foo = ...
-  for (const match of script.matchAll(/(?:const|let|var)\s+(\w+)/g)) {
-    names.push(match[1]!);
-  }
-  // Destructured object: const { foo, bar } = ...
-  for (const match of script.matchAll(/(?:const|let|var)\s+\{([^}]+)\}/g)) {
-    for (const name of match[1]!.split(",")) {
-      // Handle renaming: { original: alias } → use alias
-      const trimmed = name.trim();
-      if (!trimmed) continue;
-      const colonIndex = trimmed.indexOf(":");
-      names.push(colonIndex >= 0 ? trimmed.slice(colonIndex + 1).trim() : trimmed);
+  const lines = script.split("\n");
+  let braceDepth = 0;
+
+  for (const line of lines) {
+    // Track brace depth character by character (skip strings)
+    const depthBefore = braceDepth;
+    let inString: string | null = null;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i]!;
+      if (inString) {
+        if (ch === inString && line[i - 1] !== "\\") inString = null;
+      } else if (ch === '"' || ch === "'" || ch === "`") {
+        inString = ch;
+      } else if (ch === "{") {
+        braceDepth++;
+      } else if (ch === "}") {
+        braceDepth = Math.max(0, braceDepth - 1);
+      }
+    }
+
+    // Only capture declarations that START at top-level scope
+    if (depthBefore > 0) continue;
+
+    // Simple identifier: const foo = ...
+    for (const match of line.matchAll(/(?:const|let|var)\s+(\w+)/g)) {
+      names.push(match[1]!);
+    }
+    // Destructured object: const { foo, bar } = ...
+    for (const match of line.matchAll(/(?:const|let|var)\s+\{([^}]+)\}/g)) {
+      for (const name of match[1]!.split(",")) {
+        const trimmed = name.trim();
+        if (!trimmed) continue;
+        const colonIndex = trimmed.indexOf(":");
+        names.push(colonIndex >= 0 ? trimmed.slice(colonIndex + 1).trim() : trimmed);
+      }
+    }
+    // Destructured array: const [foo, bar] = ...
+    for (const match of line.matchAll(/(?:const|let|var)\s+\[([^\]]+)\]/g)) {
+      for (const name of match[1]!.split(",")) {
+        const trimmed = name.trim();
+        if (trimmed && /^\w+$/.test(trimmed)) names.push(trimmed);
+      }
+    }
+    // Named function declaration
+    for (const match of line.matchAll(/(?:async\s+)?function\s+(\w+)/g)) {
+      names.push(match[1]!);
     }
   }
-  // Destructured array: const [foo, bar] = ...
-  for (const match of script.matchAll(/(?:const|let|var)\s+\[([^\]]+)\]/g)) {
-    for (const name of match[1]!.split(",")) {
-      const trimmed = name.trim();
-      if (trimmed && /^\w+$/.test(trimmed)) names.push(trimmed);
-    }
-  }
-  for (const match of script.matchAll(/(?:async\s+)?function\s+(\w+)/g)) {
-    names.push(match[1]!);
-  }
+
   return [...new Set(names)];
 }
 

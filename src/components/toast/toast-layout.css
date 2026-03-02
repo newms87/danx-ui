@@ -1,0 +1,180 @@
+/**
+ * DanxToast Layout Styles
+ *
+ * Individual toast panel styling. Container layout is in DanxToastContainer.
+ * Uses native CSS nesting throughout.
+ */
+
+.danx-toast {
+  position: relative;
+  max-width: var(--dx-toast-max-width);
+  min-width: var(--dx-toast-min-width);
+  background: var(--dx-toast-bg);
+  color: var(--dx-toast-text);
+  border: 1px solid var(--dx-toast-border);
+  border-radius: var(--dx-toast-border-radius);
+  box-shadow: var(--dx-toast-shadow);
+
+  /* Entry animation */
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+@starting-style {
+  .danx-toast {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+.danx-toast__body {
+  display: flex;
+  align-items: center;
+  gap: var(--dx-toast-gap);
+  padding: var(--dx-toast-padding-y) var(--dx-toast-padding-x);
+}
+
+.danx-toast__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.danx-toast__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.danx-toast__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  z-index: 1;
+}
+
+.danx-toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-component);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.danx-toast__progress {
+  height: var(--dx-toast-progress-height);
+  background: var(--dx-toast-progress-bg);
+  border-radius: 0 0 var(--dx-toast-border-radius) var(--dx-toast-border-radius);
+  transition: width 50ms linear;
+}
+
+/* Container layout: 9-position grid */
+
+.danx-toast-container {
+  pointer-events: none;
+}
+
+.danx-toast-region {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-toast-stack-gap);
+  pointer-events: none;
+
+  /* Reset popover UA defaults */
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  inset: unset;
+  overflow: visible;
+}
+
+/* All toasts within regions should receive pointer events */
+.danx-toast-region .danx-toast {
+  pointer-events: auto;
+}
+
+/* Element-targeted regions use usePopoverPositioning on the region div */
+.danx-toast-region--targeted {
+  pointer-events: auto;
+}
+
+/* Top row */
+.danx-toast-region--top-left {
+  top: var(--dx-toast-screen-offset);
+  left: var(--dx-toast-screen-offset);
+  align-items: flex-start;
+}
+
+.danx-toast-region--top-center {
+  top: var(--dx-toast-screen-offset);
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+
+.danx-toast-region--top-right {
+  top: var(--dx-toast-screen-offset);
+  right: var(--dx-toast-screen-offset);
+  align-items: flex-end;
+}
+
+/* Center row */
+.danx-toast-region--center-left {
+  top: 50%;
+  left: var(--dx-toast-screen-offset);
+  transform: translateY(-50%);
+  align-items: flex-start;
+}
+
+.danx-toast-region--center-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  align-items: center;
+}
+
+.danx-toast-region--center-right {
+  top: 50%;
+  right: var(--dx-toast-screen-offset);
+  transform: translateY(-50%);
+  align-items: flex-end;
+}
+
+/* Bottom row — stack upward (newest on bottom, older above) */
+.danx-toast-region--bottom-left {
+  bottom: var(--dx-toast-screen-offset);
+  left: var(--dx-toast-screen-offset);
+  flex-direction: column-reverse;
+  align-items: flex-start;
+}
+
+.danx-toast-region--bottom-center {
+  bottom: var(--dx-toast-screen-offset);
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.danx-toast-region--bottom-right {
+  bottom: var(--dx-toast-screen-offset);
+  right: var(--dx-toast-screen-offset);
+  flex-direction: column-reverse;
+  align-items: flex-end;
+}
