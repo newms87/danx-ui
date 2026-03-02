@@ -4,6 +4,7 @@ import { h, defineComponent, markRaw, nextTick } from "vue";
 import DanxTabs from "../DanxTabs.vue";
 import { saveIcon } from "../../icon/icons";
 import type { DanxTab } from "../types";
+import type { VariantType } from "../../../shared/types";
 
 /** Helper to create a basic set of tabs */
 function createTabs(overrides: Partial<DanxTab>[] = []): DanxTab[] {
@@ -308,6 +309,123 @@ describe("DanxTabs", () => {
         expect(btn.element.tagName).toBe("BUTTON");
         expect(btn.attributes("type")).toBe("button");
       }
+    });
+  });
+
+  describe("Variants", () => {
+    const colorTypes: VariantType[] = ["danger", "success", "warning", "info", "muted"];
+
+    it.each(colorTypes)("renders variant %s with inline styles", (variant) => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs(), variant },
+      });
+
+      const styleAttr = wrapper.find(".danx-tabs").attributes("style");
+      expect(styleAttr).toContain("--dx-tabs-bg:");
+      expect(styleAttr).toContain(`--dx-variant-${variant}-`);
+    });
+
+    it("defaults to blank variant with no inline variant styles", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const styleAttr = wrapper.find(".danx-tabs").attributes("style");
+      // No variant tokens should be present (only indicator child has styles)
+      expect(styleAttr).toBeUndefined();
+    });
+
+    it("blank variant via variant='' has no inline variant styles", () => {
+      const wrapper = mount(DanxTabs, {
+        props: {
+          modelValue: "one",
+          "onUpdate:modelValue": () => {},
+          tabs: createTabs(),
+          variant: "",
+        },
+      });
+
+      expect(wrapper.find(".danx-tabs").attributes("style")).toBeUndefined();
+    });
+  });
+
+  describe("Slots", () => {
+    it("default slot replaces icon and label content", () => {
+      const tabs: DanxTab[] = [{ value: "a", label: "A", icon: "save" }];
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "a", "onUpdate:modelValue": () => {}, tabs },
+        slots: {
+          default: ({ tab, isActive }: { tab: DanxTab; isActive: boolean }) =>
+            h("span", { class: "custom-content" }, `${tab.label}-${isActive}`),
+        },
+      });
+
+      expect(wrapper.find(".custom-content").exists()).toBe(true);
+      expect(wrapper.find(".custom-content").text()).toBe("A-true");
+      // Default icon and label should not render
+      expect(wrapper.find(".danx-tabs__icon").exists()).toBe(false);
+    });
+
+    it("default slot still renders count badge outside slot", () => {
+      const tabs: DanxTab[] = [{ value: "a", label: "A", count: 5 }];
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "a", "onUpdate:modelValue": () => {}, tabs },
+        slots: {
+          default: ({ tab }: { tab: DanxTab }) => h("span", { class: "custom" }, tab.label),
+        },
+      });
+
+      expect(wrapper.find(".danx-tabs__count").exists()).toBe(true);
+      expect(wrapper.find(".danx-tabs__count").text()).toBe("(5)");
+    });
+
+    it("icon slot replaces icon area only", () => {
+      const tabs: DanxTab[] = [{ value: "a", label: "A", icon: "save" }];
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "a", "onUpdate:modelValue": () => {}, tabs },
+        slots: {
+          icon: ({ tab }: { tab: DanxTab }) =>
+            h("span", { class: "custom-icon" }, `icon-${tab.value}`),
+        },
+      });
+
+      expect(wrapper.find(".custom-icon").exists()).toBe(true);
+      expect(wrapper.find(".custom-icon").text()).toBe("icon-a");
+      // Default icon should not render
+      expect(wrapper.find(".danx-tabs__icon").exists()).toBe(false);
+      // Label should still render
+      expect(wrapper.text()).toContain("A");
+    });
+
+    it("label slot replaces label text only", () => {
+      const tabs: DanxTab[] = [{ value: "a", label: "A", icon: "save" }];
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "a", "onUpdate:modelValue": () => {}, tabs },
+        slots: {
+          label: ({ tab, isActive }: { tab: DanxTab; isActive: boolean }) =>
+            h("span", { class: "custom-label" }, `${tab.label}${isActive ? "!" : ""}`),
+        },
+      });
+
+      expect(wrapper.find(".custom-label").exists()).toBe(true);
+      expect(wrapper.find(".custom-label").text()).toBe("A!");
+      // Icon should still render from default
+      expect(wrapper.find(".danx-tabs__icon").exists()).toBe(true);
+    });
+
+    it("scoped props pass correct isActive for each tab", () => {
+      const tabs = createTabs();
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "two", "onUpdate:modelValue": () => {}, tabs },
+        slots: {
+          label: ({ tab, isActive }: { tab: DanxTab; isActive: boolean }) =>
+            h("span", { class: `label-${tab.value}` }, isActive ? "active" : "inactive"),
+        },
+      });
+
+      expect(wrapper.find(".label-one").text()).toBe("inactive");
+      expect(wrapper.find(".label-two").text()).toBe("active");
+      expect(wrapper.find(".label-three").text()).toBe("inactive");
     });
   });
 

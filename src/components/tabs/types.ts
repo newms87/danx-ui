@@ -1,5 +1,6 @@
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
+import type { VariantType } from "../../shared/types";
 
 /**
  * DanxTabs Type Definitions
@@ -37,4 +38,7 @@ export interface DanxTab {
 export interface DanxTabsProps {
   /** Array of tab items to render */
   tabs: DanxTab[];
+
+  /** Color variant applied via the shared variant system. @default "" */
+  variant?: VariantType;
 }

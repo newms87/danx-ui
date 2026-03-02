@@ -12,14 +12,17 @@
  * - Optional icons via DanxIcon (name string, SVG string, or Component)
  * - Optional count badges
  * - v-model for active tab selection
+ * - Variant support via shared variant system
+ * - Scoped slots for custom tab content
  * - Full CSS token system for styling
  * - Light and dark theme support
  *
  * ## Props
- * | Prop       | Type      | Default | Description              |
- * |------------|-----------|---------|--------------------------|
- * | modelValue | string    | -       | Active tab value (v-model) |
- * | tabs       | DanxTab[] | -       | Array of tab items       |
+ * | Prop       | Type        | Default | Description              |
+ * |------------|-------------|---------|--------------------------|
+ * | modelValue | string      | -       | Active tab value (v-model) |
+ * | tabs       | DanxTab[]   | -       | Array of tab items       |
+ * | variant    | VariantType | ""      | Color variant            |
  *
  * ## Events
  * | Event             | Payload | Description               |
@@ -27,7 +30,11 @@
  * | update:modelValue | string  | Emitted on tab click      |
  *
  * ## Slots
- * None (v1)
+ * | Slot    | Scoped Props           | Description                    |
+ * |---------|------------------------|--------------------------------|
+ * | default | { tab, isActive }      | Replaces icon + label entirely |
+ * | icon    | { tab, isActive }      | Replaces icon area only        |
+ * | label   | { tab, isActive }      | Replaces label text only       |
  *
  * ## CSS Tokens
  * Container:
@@ -76,6 +83,23 @@
  * Basic tabs:
  *   <DanxTabs v-model="activeTab" :tabs="tabs" />
  *
+ * Tabs with variant:
+ *   <DanxTabs v-model="activeTab" :tabs="tabs" variant="danger" />
+ *
+ * Custom tab content via default slot:
+ *   <DanxTabs v-model="activeTab" :tabs="tabs">
+ *     <template #default="{ tab, isActive }">
+ *       <span :class="{ 'font-bold': isActive }">{{ tab.label }}</span>
+ *     </template>
+ *   </DanxTabs>
+ *
+ * Custom icon slot:
+ *   <DanxTabs v-model="activeTab" :tabs="tabs">
+ *     <template #icon="{ tab }">
+ *       <img :src="tab.icon" class="w-4 h-4" />
+ *     </template>
+ *   </DanxTabs>
+ *
  * Tabs with per-tab colors:
  *   <DanxTabs v-model="activeTab" :tabs="[
  *     { value: 'success', label: 'Passed', activeColor: '#22c55e' },
@@ -85,12 +109,24 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, toRef, watch } from "vue";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
 import type { DanxTabsProps } from "./types";
 
-const props = defineProps<DanxTabsProps>();
+const props = withDefaults(defineProps<DanxTabsProps>(), {
+  variant: "",
+});
+
 const modelValue = defineModel<string>("modelValue", { required: true });
+
+const TABS_VARIANT_TOKENS = {
+  "--dx-tabs-bg": "bg",
+  "--dx-tabs-text": "text",
+  "--dx-tabs-active-color": "bg",
+};
+
+const variantStyle = useVariant(toRef(props, "variant"), "tabs", TABS_VARIANT_TOKENS);
 const buttonRefs = ref<Map<string, HTMLElement>>(new Map());
 
 /**
@@ -156,7 +192,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="danx-tabs">
+  <div class="danx-tabs" :style="variantStyle">
     <!-- Sliding active indicator -->
     <div class="danx-tabs__indicator" :style="indicatorStyle" />
 
@@ -172,10 +208,16 @@ onMounted(() => {
         :class="{ 'is-active': modelValue === tab.value }"
         @click="modelValue = tab.value"
       >
-        <span v-if="tab.icon" class="danx-tabs__icon">
-          <DanxIcon :icon="tab.icon" />
-        </span>
-        <span>{{ tab.label }}</span>
+        <slot :tab="tab" :is-active="modelValue === tab.value">
+          <slot name="icon" :tab="tab" :is-active="modelValue === tab.value">
+            <span v-if="tab.icon" class="danx-tabs__icon">
+              <DanxIcon :icon="tab.icon" />
+            </span>
+          </slot>
+          <slot name="label" :tab="tab" :is-active="modelValue === tab.value">
+            <span>{{ tab.label }}</span>
+          </slot>
+        </slot>
         <span v-if="tab.count !== undefined" class="danx-tabs__count">({{ tab.count }})</span>
       </button>
     </template>

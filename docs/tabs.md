@@ -36,10 +36,11 @@ const tabs: DanxTab[] = [
 
 ## Props
 
-| Prop       | Type       | Required | Description                    |
-|------------|------------|----------|--------------------------------|
-| modelValue | `string`   | Yes      | Active tab value (v-model)     |
-| tabs       | `DanxTab[]`| Yes      | Array of tab items             |
+| Prop       | Type          | Required | Default | Description                |
+|------------|---------------|----------|---------|----------------------------|
+| modelValue | `string`      | Yes      | -       | Active tab value (v-model) |
+| tabs       | `DanxTab[]`   | Yes      | -       | Array of tab items         |
+| variant    | `VariantType` | No       | `""`    | Color variant              |
 
 ## DanxTab Interface
 
@@ -56,6 +57,59 @@ const tabs: DanxTab[] = [
 | Event             | Payload  | Description                |
 |-------------------|----------|----------------------------|
 | update:modelValue | `string` | Emitted when a tab is clicked |
+
+## Slots
+
+All slots receive scoped props `{ tab: DanxTab, isActive: boolean }`.
+
+| Slot    | Description                                      |
+|---------|--------------------------------------------------|
+| default | Replaces icon + label entirely (count still renders) |
+| icon    | Replaces icon area only                          |
+| label   | Replaces label text only                         |
+
+### Slot Examples
+
+Custom label with active styling:
+
+```vue
+<DanxTabs v-model="activeTab" :tabs="tabs">
+  <template #label="{ tab, isActive }">
+    <span :class="isActive ? 'font-bold' : ''">{{ tab.label }}</span>
+  </template>
+</DanxTabs>
+```
+
+Fully custom tab content:
+
+```vue
+<DanxTabs v-model="activeTab" :tabs="tabs">
+  <template #default="{ tab, isActive }">
+    <div class="flex flex-col items-center">
+      <span class="text-xs">{{ isActive ? 'Viewing' : 'View' }}</span>
+      <span class="font-semibold">{{ tab.label }}</span>
+    </div>
+  </template>
+</DanxTabs>
+```
+
+## Variants
+
+DanxTabs supports the shared variant system. Pass a variant name to apply semantic colors:
+
+```vue
+<DanxTabs v-model="activeTab" :tabs="tabs" variant="danger" />
+```
+
+Available variants: `danger`, `success`, `warning`, `info`, `muted`, or any custom variant defined via `--dx-variant-{name}-*` CSS tokens.
+
+The variant maps these component tokens:
+
+| Component Token        | Variant Suffix |
+|------------------------|----------------|
+| --dx-tabs-bg           | bg             |
+| --dx-tabs-text         | text           |
+| --dx-tabs-active-color | bg             |
 
 ## CSS Tokens
 
