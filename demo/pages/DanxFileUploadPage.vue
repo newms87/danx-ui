@@ -10,6 +10,7 @@ import DemoPage from "../components/DemoPage.vue";
 import singleFileCode from "./danx-file-upload-examples/SingleFile.vue?raw";
 import multiFileCode from "./danx-file-upload-examples/MultiFile.vue?raw";
 import withValidationCode from "./danx-file-upload-examples/WithValidation.vue?raw";
+import withTranscodingCode from "./danx-file-upload-examples/WithTranscoding.vue?raw";
 </script>
 
 <template>
@@ -33,6 +34,12 @@ import withValidationCode from "./danx-file-upload-examples/WithValidation.vue?r
       title="Validation"
       description="Validates file type (accept) and size (maxFileSize). Rejected files show inline error states."
       :code="withValidationCode"
+    />
+
+    <DemoSection
+      title="Upload + Transcode"
+      description="Simulates a two-phase workflow: upload to 100%, then transcode from 0-100% with a status message. After transcoding, the file gets thumb and optimized URLs."
+      :code="withTranscodingCode"
     />
   </DemoPage>
 </template>

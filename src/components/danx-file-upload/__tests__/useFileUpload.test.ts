@@ -606,6 +606,105 @@ describe("useFileUpload", () => {
     });
   });
 
+  describe("getStableKey", () => {
+    it("returns the file's own ID for non-uploaded files", () => {
+      const handler = vi.fn(
+        (): Promise<PreviewFile> =>
+          new Promise(() => {
+            /* hang */
+          })
+      );
+      const { addFiles, model, getStableKey } = createComposable({ uploadFn: handler });
+
+      addFiles([createFile("test.jpg")]);
+      const tempFile = model.value[0]!;
+      expect(getStableKey(tempFile)).toBe(tempFile.id);
+    });
+
+    it("returns the temp ID after upload completes (server ID mapped to temp ID)", async () => {
+      // Use a handler that captures the temp ID before resolving
+      let capturedTempId: string | undefined;
+      const handler = vi.fn((file: File, onProgress: (p: number) => void): Promise<PreviewFile> => {
+        return new Promise((resolve) => {
+          onProgress(50);
+          onProgress(95);
+          resolve(
+            makeFile(String(Date.now()), {
+              name: file.name,
+              size: file.size,
+              mime: file.type,
+              url: `https://example.com/${file.name}`,
+            })
+          );
+        });
+      });
+
+      const { addFiles, model, getStableKey } = createComposable({ uploadFn: handler });
+
+      addFiles([createFile("test.jpg")]);
+      // Capture temp ID synchronously — the file is added to model before await
+      capturedTempId = model.value[0]!.id;
+      expect(capturedTempId).toMatch(/^__upload:\d+$/);
+
+      await vi.waitFor(() => expect(handler).toHaveBeenCalledTimes(1));
+      await nextTick();
+
+      // Server file now in model — getStableKey should return the original temp ID
+      const serverFile = model.value[0]!;
+      expect(serverFile.id).not.toContain("__upload:");
+      expect(getStableKey(serverFile)).toBe(capturedTempId);
+    });
+
+    it("returns the file's own ID for pre-existing files not from upload", () => {
+      const { getStableKey } = createComposable({ uploadFn: createMockHandler() });
+      const existingFile = makeFile("existing-123");
+      expect(getStableKey(existingFile)).toBe("existing-123");
+    });
+
+    it("cleans up stable key entries when removeFile is called", async () => {
+      const handler = createMockHandler();
+      const { addFiles, removeFile, model, getStableKey } = createComposable({
+        uploadFn: handler,
+      });
+
+      addFiles([createFile("test.jpg")]);
+      await vi.waitFor(() => expect(handler).toHaveBeenCalledTimes(1));
+      await nextTick();
+
+      const serverFile = model.value[0]!;
+      const stableKey = getStableKey(serverFile);
+      expect(stableKey).toMatch(/^__upload:\d+$/);
+
+      removeFile(serverFile);
+
+      // After removal, getStableKey for same ID should fall back to file.id
+      expect(getStableKey(serverFile)).toBe(serverFile.id);
+    });
+
+    it("cleans up all stable key entries when clearFiles is called", async () => {
+      const handler = createMockHandler();
+      const { addFiles, clearFiles, model, getStableKey } = createComposable({
+        multiple: true,
+        uploadFn: handler,
+      });
+
+      addFiles([createFile("a.jpg"), createFile("b.jpg")]);
+      await vi.waitFor(() => expect(handler).toHaveBeenCalledTimes(2));
+      await nextTick();
+
+      const serverFileA = model.value[0]!;
+      const serverFileB = model.value[1]!;
+      expect(getStableKey(serverFileA)).toMatch(/^__upload:\d+$/);
+      expect(getStableKey(serverFileB)).toMatch(/^__upload:\d+$/);
+
+      clearFiles();
+
+      // After clear, stable keys should be gone
+      expect(getStableKey(serverFileA)).toBe(serverFileA.id);
+      expect(getStableKey(serverFileB)).toBe(serverFileB.id);
+    });
+  });
+
   describe("global handler via setFileUploadHandler", () => {
     it("uses the global handler when no uploadFn is provided", async () => {
       const handler = createMockHandler();

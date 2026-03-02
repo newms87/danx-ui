@@ -41,6 +41,8 @@ export interface UseFileUploadReturn {
   retryFile: (fileId: string) => void;
   /** Remove all files + abort all pending */
   clearFiles: () => void;
+  /** Get a stable key for a file (preserves temp ID across upload completion) */
+  getStableKey: (file: PreviewFile) => string;
   /** Increment drag depth counter */
   handleDragEnter: () => void;
   /** Decrement drag depth counter */
@@ -58,6 +60,8 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
   const _fileMap = new Map<string, File>();
   /** One AbortController per in-progress upload */
   const _controllers = new Map<string, AbortController>();
+  /** Maps server file ID -> temp ID for stable rendering keys */
+  const _stableKeys = new Map<string, string>();
 
   const isDragging = ref(false);
   const inputRef = ref<HTMLInputElement | null>(null);
@@ -165,6 +169,8 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
       if (tempFile?.blobUrl) {
         URL.revokeObjectURL(tempFile.blobUrl);
       }
+      // Record stable key mapping: server ID -> temp ID
+      _stableKeys.set(serverFile.id, tempId);
       // Replace temp with server-returned file
       model.value = model.value.map((f) => (f.id === tempId ? serverFile : f));
       _fileMap.delete(tempId);
@@ -200,6 +206,7 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     }
 
     _fileMap.delete(file.id);
+    _stableKeys.delete(file.id);
     model.value = model.value.filter((f) => f.id !== file.id);
   }
 
@@ -227,6 +234,7 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     }
 
     _fileMap.clear();
+    _stableKeys.clear();
     model.value = [];
   }
 
@@ -252,6 +260,10 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     }
   }
 
+  function getStableKey(file: PreviewFile): string {
+    return _stableKeys.get(file.id) ?? file.id;
+  }
+
   return {
     isUploading,
     canAddMore,
@@ -262,6 +274,7 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     removeFile,
     retryFile,
     clearFiles,
+    getStableKey,
     handleDragEnter,
     handleDragLeave,
     handleDrop,

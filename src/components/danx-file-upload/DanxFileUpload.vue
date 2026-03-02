@@ -90,6 +90,7 @@ const {
   openFilePicker,
   addFiles,
   removeFile,
+  getStableKey,
   handleDragEnter,
   handleDragLeave,
 } = useFileUpload({
@@ -142,7 +143,7 @@ function onDropZoneDrop(files: FileList) {
         <!-- Existing files -->
         <DanxFile
           v-for="file in model"
-          :key="file.id"
+          :key="getStableKey(file)"
           :file="file"
           :size="fileSize"
           :show-filename="showFilename"

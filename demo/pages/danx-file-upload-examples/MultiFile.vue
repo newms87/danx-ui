@@ -2,14 +2,36 @@
 import { ref } from "vue";
 import { DanxFileUpload } from "danx-ui";
 
-// Per-instance upload handler via uploadFn prop
-function mockUpload(file) {
-  return Promise.resolve({
-    id: String(Date.now()),
-    name: file.name,
-    size: file.size,
-    mime: file.type,
-    url: "https://picsum.photos/200",
+// Recursive progress simulation
+function simulateProgress(onProgress, resolve, file, pct) {
+  if (pct >= 95) {
+    onProgress(95);
+    setTimeout(function () {
+      onProgress(100);
+      resolve({
+        id: String(Date.now()) + "-" + Math.random().toString(36).slice(2, 6),
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        url: "https://picsum.photos/seed/" + Date.now() + "/400/400",
+      });
+    }, 200);
+    return;
+  }
+  onProgress(Math.round(pct));
+  setTimeout(
+    function () {
+      simulateProgress(onProgress, resolve, file, pct + 10 + Math.random() * 15);
+    },
+    150 + Math.random() * 200
+  );
+}
+
+function mockUpload(file, onProgress) {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      simulateProgress(onProgress, resolve, file, 0);
+    }, 100);
   });
 }
 
