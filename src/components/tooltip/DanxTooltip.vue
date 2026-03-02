@@ -174,24 +174,27 @@ const hasPanelIcon = computed(() => !!props.icon);
   </span>
 
   <!-- Floating panel (native Popover API — renders in top layer) -->
-  <div
-    v-if="isOpen && !disabled"
-    ref="panelRef"
-    popover="manual"
-    class="danx-tooltip"
-    :style="[panelStyle, variantStyle]"
-    v-bind="$attrs"
-    @mouseenter="onPanelMouseenter"
-    @mouseleave="onPanelMouseleave"
-  >
-    <span v-if="hasPanelIcon" class="danx-tooltip__icon">
-      <DanxIcon :icon="icon!" />
-    </span>
-    <div v-if="hasPanelIcon || slots.default" class="danx-tooltip__content">
-      <slot>{{ tooltip }}</slot>
+  <!-- Teleported to body so the panel never participates in parent layout (e.g. space-x-*) -->
+  <Teleport to="body">
+    <div
+      v-if="isOpen && !disabled"
+      ref="panelRef"
+      popover="manual"
+      class="danx-tooltip"
+      :style="[panelStyle, variantStyle]"
+      v-bind="$attrs"
+      @mouseenter="onPanelMouseenter"
+      @mouseleave="onPanelMouseleave"
+    >
+      <span v-if="hasPanelIcon" class="danx-tooltip__icon">
+        <DanxIcon :icon="icon!" />
+      </span>
+      <div v-if="hasPanelIcon || slots.default" class="danx-tooltip__content">
+        <slot>{{ tooltip }}</slot>
+      </div>
+      <template v-else>
+        <slot>{{ tooltip }}</slot>
+      </template>
     </div>
-    <template v-else>
-      <slot>{{ tooltip }}</slot>
-    </template>
-  </div>
+  </Teleport>
 </template>
