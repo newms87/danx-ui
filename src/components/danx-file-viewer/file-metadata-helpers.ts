@@ -5,7 +5,7 @@
  * Used by DanxFileViewer and DanxFileMetadata.
  */
 
-import type { PreviewFile } from "../danx-file/types";
+import type { PreviewFile } from "../danx-file";
 
 /** Keys filtered out from metadata display */
 export const FILTERED_KEYS = new Set(["children"]);

@@ -12,8 +12,9 @@
  */
 
 import { computed, ref, type Ref, watch } from "vue";
-import { hasChildren, sortByPageNumber } from "../danx-file/file-helpers";
-import type { PreviewFile } from "../danx-file/types";
+import { hasChildren, sortByPageNumber } from "../danx-file";
+import type { PreviewFile } from "../danx-file";
+import type { BreadcrumbEntry } from "./types";
 
 export interface UseDanxFileViewerOptions {
   file: Ref<PreviewFile>;
@@ -47,7 +48,7 @@ export interface UseDanxFileViewerReturn {
   /** Navigate to a specific ancestor in the child stack by file ID */
   navigateToAncestor: (fileId: string) => void;
   /** Breadcrumb entries: [...ancestors, currentFile]. Empty at root level. */
-  breadcrumbs: Ref<{ id: string; name: string }[]>;
+  breadcrumbs: Ref<BreadcrumbEntry[]>;
   /** Whether we are currently viewing a child (stack is non-empty) */
   hasParent: Ref<boolean>;
   /** Whether the current file has children to dive into */

@@ -620,7 +620,7 @@ describe("useDanxFileViewer", () => {
     it("navigation follows page_number sort order", () => {
       const file = ref(makeFile("a", { page_number: 3 }));
       const related = ref([makeFile("b", { page_number: 1 }), makeFile("c", { page_number: 2 })]);
-      const { currentFile, next } = useDanxFileViewer({ file, relatedFiles: related });
+      const { currentFile } = useDanxFileViewer({ file, relatedFiles: related });
       // Anchor file has page_number 3, so after sorting it's last. currentFile starts as anchor
       // but currentIndex looks up anchor in sorted list → index 2
       expect(currentFile.value.id).toBe("a");
@@ -661,7 +661,6 @@ describe("useDanxFileViewer", () => {
       expect(activeFiles.value.map((f) => f.id)).toEqual(["c2", "c1"]);
 
       // Navigate to c1 (which has grandchildren) and dive
-      const { goTo } = useDanxFileViewer({ file, relatedFiles: ref([]) });
       // Use the original composable instance instead
       diveIntoChildren(); // from c2 (no children) → does nothing since c2 has no children
       backFromChild(); // back to root

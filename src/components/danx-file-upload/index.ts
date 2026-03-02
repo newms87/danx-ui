@@ -12,7 +12,12 @@
 export { default as DanxFileUpload } from "./DanxFileUpload.vue";
 export { useFileUpload } from "./useFileUpload";
 export type { UseFileUploadReturn } from "./useFileUpload";
-export { setFileUploadHandler, getFileUploadHandler } from "./fileUploadConfig";
+export {
+  setFileUploadHandler,
+  getFileUploadHandler,
+  // resetFileUploadHandler intentionally not in src/index.ts — test-only utility
+  resetFileUploadHandler,
+} from "./fileUploadConfig";
 export { uploadFileToUrl } from "./uploadFileToUrl";
 export { isAcceptedType } from "./fileValidation";
 export type {

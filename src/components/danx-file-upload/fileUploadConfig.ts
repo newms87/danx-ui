@@ -28,3 +28,11 @@ export function setFileUploadHandler(fn: FileUploadHandler): void {
 export function getFileUploadHandler(): FileUploadHandler | null {
   return handler;
 }
+
+/**
+ * Reset the global file upload handler to null.
+ * Test-only utility for isolating handler state between tests.
+ */
+export function resetFileUploadHandler(): void {
+  handler = null;
+}

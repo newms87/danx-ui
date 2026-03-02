@@ -129,6 +129,24 @@ describe("useFileUpload", () => {
     });
   });
 
+  describe("openFilePicker", () => {
+    it("calls click on inputRef element when set", () => {
+      const { openFilePicker, inputRef } = createComposable({ uploadFn: createMockHandler() });
+      const mockInput = { click: vi.fn() } as unknown as HTMLInputElement;
+      inputRef.value = mockInput;
+
+      openFilePicker();
+
+      expect(mockInput.click).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not throw when inputRef is null", () => {
+      const { openFilePicker } = createComposable({ uploadFn: createMockHandler() });
+
+      expect(() => openFilePicker()).not.toThrow();
+    });
+  });
+
   describe("single mode", () => {
     it("replaces existing file when adding a new one", async () => {
       const handler = createMockHandler();
@@ -216,6 +234,7 @@ describe("useFileUpload", () => {
 
       expect(model.value).toHaveLength(1);
       expect(model.value[0]!.error).toContain("not accepted");
+      expect(model.value[0]!.progress).toBeNull();
       expect(handler).not.toHaveBeenCalled();
     });
 

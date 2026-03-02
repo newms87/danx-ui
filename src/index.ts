@@ -59,11 +59,8 @@ export {
   handleDownload,
   useDanxFile,
 } from "./components/danx-file";
-export {
-  useDanxFileViewer,
-  useVirtualCarousel,
-  useTouchSwipe,
-} from "./components/danx-file-viewer";
+export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
+export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
 export { useDanxScroll, useScrollInfinite, useScrollWindow } from "./components/scroll";
 export { downloadFile } from "./shared/download";
 export {
@@ -204,9 +201,8 @@ export type {
   DanxFileViewerProps,
   DanxFileViewerEmits,
   DanxFileViewerSlots,
-  UseTouchSwipeOptions,
-  UseTouchSwipeReturn,
 } from "./components/danx-file-viewer";
+export type { UseTouchSwipeOptions, UseTouchSwipeReturn } from "./shared/composables/useTouchSwipe";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
 export type { InputType, DanxInputProps, DanxInputEmits, DanxInputSlots } from "./components/input";
 export type { TextareaResize, DanxTextareaProps, DanxTextareaEmits } from "./components/textarea";

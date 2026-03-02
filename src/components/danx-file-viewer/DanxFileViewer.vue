@@ -61,17 +61,16 @@
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
-import { DanxButton } from "../button";
-import { DanxFile } from "../danx-file";
+import { DanxFile, handleDownload } from "../danx-file";
+import type { PreviewFile } from "../danx-file";
 import { DanxIcon } from "../icon";
 import { DanxSplitPanel } from "../split-panel";
-import { handleDownload } from "../danx-file/file-helpers";
-import type { PreviewFile } from "../danx-file/types";
 import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
 import { useDanxFileViewer } from "./useDanxFileViewer";
 import { useTouchSwipe } from "../../shared/composables/useTouchSwipe";
 import { hasAnyInfo, metaCount, exifCount } from "./file-metadata-helpers";
 import { useVirtualCarousel } from "./useVirtualCarousel";
+import DanxFileViewerHeader from "./DanxFileViewerHeader.vue";
 import DanxFileThumbnailStrip from "./DanxFileThumbnailStrip.vue";
 import DanxFileMetadata from "./DanxFileMetadata.vue";
 
@@ -189,76 +188,28 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
     @touchstart.passive="onTouchStart"
     @touchend.passive="onTouchEnd"
   >
-    <!-- Header -->
-    <div class="danx-file-viewer__header">
-      <!-- Navigation buttons (parent / children) -->
-      <div v-if="hasParent || hasChildFiles" class="danx-file-viewer__nav-buttons">
-        <DanxButton
-          v-if="hasParent"
-          variant="muted"
-          size="sm"
-          icon="back"
-          tooltip="Go to parent"
-          @click="backFromChild()"
-        />
-        <DanxButton
-          v-if="hasChildFiles"
-          variant="info"
-          size="sm"
-          icon="list"
-          :label="`${childCount} ${childrenLabel}`"
-          @click="diveIntoChildren()"
-        />
-      </div>
-
-      <span class="danx-file-viewer__filename">{{ currentFile.name }}</span>
-
-      <span v-if="slideLabel" class="danx-file-viewer__counter">{{ slideLabel }}</span>
-
-      <div class="danx-file-viewer__header-actions">
+    <!-- Header + breadcrumbs -->
+    <DanxFileViewerHeader
+      :file-name="currentFile.name"
+      :has-parent="hasParent"
+      :has-child-files="hasChildFiles"
+      :child-count="childCount"
+      :children-label="childrenLabel"
+      :slide-label="slideLabel"
+      :has-metadata="hasMetadata"
+      :info-count="infoCount"
+      :downloadable="downloadable"
+      :breadcrumbs="breadcrumbs"
+      @back-from-child="backFromChild()"
+      @dive-into-children="diveIntoChildren()"
+      @toggle-metadata="toggleMetadata"
+      @download="onDownload"
+      @navigate-to-ancestor="navigateToAncestor($event)"
+    >
+      <template #header-actions>
         <slot name="header-actions" />
-
-        <DanxButton
-          v-if="hasMetadata"
-          variant="muted"
-          size="sm"
-          icon="info"
-          tooltip="Metadata"
-          @click="toggleMetadata"
-        >
-          <span v-if="infoCount > 0" class="danx-file-viewer__meta-badge">{{ infoCount }}</span>
-        </DanxButton>
-
-        <DanxButton
-          v-if="downloadable"
-          variant="muted"
-          size="sm"
-          icon="download"
-          tooltip="Download"
-          @click="onDownload"
-        />
-      </div>
-    </div>
-
-    <!-- Breadcrumb navigation beneath header -->
-    <nav v-if="hasParent" class="danx-file-viewer__breadcrumbs" aria-label="File navigation">
-      <template v-for="(entry, index) in breadcrumbs" :key="entry.id">
-        <span v-if="index > 0" class="danx-file-viewer__breadcrumb-separator">/</span>
-        <span
-          v-if="index === breadcrumbs.length - 1"
-          class="danx-file-viewer__breadcrumb-item danx-file-viewer__breadcrumb-item--active"
-          aria-current="step"
-          >{{ entry.name }}</span
-        >
-        <button
-          v-else
-          class="danx-file-viewer__breadcrumb-item"
-          @click="navigateToAncestor(entry.id)"
-        >
-          {{ entry.name }}
-        </button>
       </template>
-    </nav>
+    </DanxFileViewerHeader>
 
     <!-- Main content area with optional metadata split panel -->
     <DanxSplitPanel

@@ -23,6 +23,8 @@ export {
   hasChildren,
   fileTypeIcon,
   formatFileSize,
+  sortByPageNumber,
+  fileDisplayNumber,
   createDownloadEvent,
   triggerFileDownload,
   handleDownload,

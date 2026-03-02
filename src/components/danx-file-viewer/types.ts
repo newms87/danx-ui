@@ -4,7 +4,7 @@
  * Types specific to the file viewer component.
  */
 
-import type { DanxFileDownloadEvent, PreviewFile } from "../danx-file/types";
+import type { DanxFileDownloadEvent, PreviewFile } from "../danx-file";
 
 /**
  * A virtual slide descriptor for the carousel buffer.
@@ -19,6 +19,12 @@ export interface VirtualSlide {
   index: number;
   /** Whether this is the currently active/visible slide */
   isActive: boolean;
+}
+
+/** A breadcrumb entry for file ancestor navigation. */
+export interface BreadcrumbEntry {
+  id: string;
+  name: string;
 }
 
 /**

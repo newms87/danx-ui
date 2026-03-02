@@ -16,10 +16,11 @@
  */
 
 import { computed, ref, type ComputedRef, type Ref } from "vue";
-import type { PreviewFile } from "../danx-file/types";
-import { formatFileSize } from "../danx-file/file-helpers";
+import { formatFileSize } from "../danx-file";
+import type { PreviewFile } from "../danx-file";
 import { getFileUploadHandler } from "./fileUploadConfig";
 import { isAcceptedType } from "./fileValidation";
+import { useDragDrop } from "./useDragDrop";
 import type { FileUploadHandler, UseFileUploadOptions } from "./types";
 
 export interface UseFileUploadReturn {
@@ -63,9 +64,7 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
   /** Maps server file ID -> temp ID for stable rendering keys */
   const _stableKeys = new Map<string, string>();
 
-  const isDragging = ref(false);
   const inputRef = ref<HTMLInputElement | null>(null);
-  let _dragDepth = 0;
 
   const isUploading = computed(() =>
     model.value.some((f) => f.progress != null && f.progress < 100)
@@ -81,25 +80,29 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     inputRef.value?.click();
   }
 
+  function createAndAppendErrorFile(file: File, error: string) {
+    const tempFile = createTempFile(file);
+    tempFile.error = error;
+    tempFile.progress = null;
+    model.value = [...model.value, tempFile];
+  }
+
   function addFiles(files: FileList | File[]) {
     const fileArray = Array.from(files);
 
     for (const file of fileArray) {
       // Validate MIME type
       if (!isAcceptedType(file, accept)) {
-        const tempFile = createTempFile(file);
-        tempFile.error = `File type "${file.type || "unknown"}" is not accepted`;
-        tempFile.progress = null;
-        model.value = [...model.value, tempFile];
+        createAndAppendErrorFile(file, `File type "${file.type || "unknown"}" is not accepted`);
         continue;
       }
 
       // Validate file size
       if (maxFileSize != null && file.size > maxFileSize) {
-        const tempFile = createTempFile(file);
-        tempFile.error = `File exceeds maximum size of ${formatFileSize(maxFileSize)}`;
-        tempFile.progress = null;
-        model.value = [...model.value, tempFile];
+        createAndAppendErrorFile(
+          file,
+          `File exceeds maximum size of ${formatFileSize(maxFileSize)}`
+        );
         continue;
       }
 
@@ -238,27 +241,9 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     model.value = [];
   }
 
-  function handleDragEnter() {
-    _dragDepth++;
-    isDragging.value = true;
-  }
-
-  function handleDragLeave() {
-    _dragDepth--;
-    if (_dragDepth <= 0) {
-      _dragDepth = 0;
-      isDragging.value = false;
-    }
-  }
-
-  function handleDrop(event: DragEvent) {
-    _dragDepth = 0;
-    isDragging.value = false;
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      addFiles(files);
-    }
-  }
+  const { isDragging, handleDragEnter, handleDragLeave, handleDrop } = useDragDrop({
+    onDrop: addFiles,
+  });
 
   function getStableKey(file: PreviewFile): string {
     return _stableKeys.get(file.id) ?? file.id;

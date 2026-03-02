@@ -5,7 +5,7 @@
  * component props/emits/slots, and composable options.
  */
 
-import type { PreviewFile, DanxFileSize } from "../danx-file/types";
+import type { PreviewFile, DanxFileSize } from "../danx-file";
 import type { FormFieldBaseProps } from "../../shared/form-types";
 
 /**

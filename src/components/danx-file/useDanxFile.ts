@@ -11,15 +11,8 @@
  */
 
 import { computed, type ComputedRef, ref, type Ref, watch } from "vue";
-import {
-  fileTypeIcon,
-  formatFileSize,
-  isAudio,
-  isImage,
-  isInProgress,
-  isText,
-  isVideo,
-} from "./file-helpers";
+import { isImage, isVideo, isAudio, isText, fileTypeIcon } from "./file-mime-helpers";
+import { formatFileSize, isInProgress } from "./file-helpers";
 import type { DanxFileProps } from "./types";
 
 /**

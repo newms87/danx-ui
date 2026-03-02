@@ -65,7 +65,7 @@ import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
 import DanxFileUploadDropZone from "./DanxFileUploadDropZone.vue";
 import { useFileUpload } from "./useFileUpload";
-import type { PreviewFile } from "../danx-file/types";
+import type { PreviewFile } from "../danx-file";
 import type { DanxFileUploadProps, DanxFileUploadEmits, DanxFileUploadSlots } from "./types";
 
 const props = withDefaults(defineProps<DanxFileUploadProps>(), {

@@ -1,149 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
-  resolveFileUrl,
-  resolveThumbUrl,
-  isImage,
-  isVideo,
-  isPdf,
-  isAudio,
-  isText,
-  isPreviewable,
   isInProgress,
   hasChildren,
-  fileTypeIcon,
   formatFileSize,
-  createDownloadEvent,
-  triggerFileDownload,
   sortByPageNumber,
   fileDisplayNumber,
 } from "../file-helpers";
-import { downloadFile } from "../../../shared/download";
 import { makeFile } from "./test-helpers";
-
-vi.mock("../../../shared/download", () => ({
-  downloadFile: vi.fn(),
-}));
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
-
-describe("resolveFileUrl", () => {
-  it("returns optimized URL when available", () => {
-    const file = makeFile({ optimized: { url: "https://example.com/optimized.jpg" } });
-    expect(resolveFileUrl(file)).toBe("https://example.com/optimized.jpg");
-  });
-
-  it("returns url when no optimized", () => {
-    const file = makeFile();
-    expect(resolveFileUrl(file)).toBe("https://example.com/1.jpg");
-  });
-
-  it("returns blobUrl when no url or optimized", () => {
-    const file = makeFile({ url: "", blobUrl: "blob:http://localhost/abc" });
-    expect(resolveFileUrl(file)).toBe("blob:http://localhost/abc");
-  });
-
-  it("returns empty string when nothing available", () => {
-    const file = makeFile({ url: "" });
-    expect(resolveFileUrl(file)).toBe("");
-  });
-});
-
-describe("resolveThumbUrl", () => {
-  it("returns thumb URL when available", () => {
-    const file = makeFile({ thumb: { url: "https://example.com/thumb.jpg" } });
-    expect(resolveThumbUrl(file)).toBe("https://example.com/thumb.jpg");
-  });
-
-  it("falls back to resolveFileUrl when no thumb", () => {
-    const file = makeFile();
-    expect(resolveThumbUrl(file)).toBe("https://example.com/1.jpg");
-  });
-
-  it("returns optimized URL when no thumb but optimized exists", () => {
-    const file = makeFile({ optimized: { url: "https://example.com/opt.jpg" } });
-    expect(resolveThumbUrl(file)).toBe("https://example.com/opt.jpg");
-  });
-});
-
-describe("isImage", () => {
-  it("returns true for image MIME types", () => {
-    expect(isImage(makeFile({ mime: "image/jpeg" }))).toBe(true);
-    expect(isImage(makeFile({ mime: "image/png" }))).toBe(true);
-    expect(isImage(makeFile({ mime: "image/gif" }))).toBe(true);
-    expect(isImage(makeFile({ mime: "image/webp" }))).toBe(true);
-  });
-
-  it("returns false for non-image types", () => {
-    expect(isImage(makeFile({ mime: "video/mp4" }))).toBe(false);
-    expect(isImage(makeFile({ mime: "application/pdf" }))).toBe(false);
-  });
-});
-
-describe("isVideo", () => {
-  it("returns true for video MIME types", () => {
-    expect(isVideo(makeFile({ mime: "video/mp4" }))).toBe(true);
-    expect(isVideo(makeFile({ mime: "video/webm" }))).toBe(true);
-  });
-
-  it("returns false for non-video types", () => {
-    expect(isVideo(makeFile({ mime: "image/jpeg" }))).toBe(false);
-  });
-});
-
-describe("isAudio", () => {
-  it("returns true for audio MIME types", () => {
-    expect(isAudio(makeFile({ mime: "audio/mpeg" }))).toBe(true);
-    expect(isAudio(makeFile({ mime: "audio/wav" }))).toBe(true);
-    expect(isAudio(makeFile({ mime: "audio/ogg" }))).toBe(true);
-  });
-
-  it("returns false for non-audio types", () => {
-    expect(isAudio(makeFile({ mime: "image/jpeg" }))).toBe(false);
-    expect(isAudio(makeFile({ mime: "video/mp4" }))).toBe(false);
-  });
-});
-
-describe("isPdf", () => {
-  it("returns true for PDF MIME type", () => {
-    expect(isPdf(makeFile({ mime: "application/pdf" }))).toBe(true);
-  });
-
-  it("returns false for non-PDF types", () => {
-    expect(isPdf(makeFile({ mime: "image/jpeg" }))).toBe(false);
-  });
-});
-
-describe("isText", () => {
-  it("returns true for text MIME types", () => {
-    expect(isText(makeFile({ mime: "text/plain" }))).toBe(true);
-    expect(isText(makeFile({ mime: "text/markdown" }))).toBe(true);
-    expect(isText(makeFile({ mime: "text/html" }))).toBe(true);
-    expect(isText(makeFile({ mime: "text/csv" }))).toBe(true);
-  });
-
-  it("returns false for non-text types", () => {
-    expect(isText(makeFile({ mime: "image/jpeg" }))).toBe(false);
-    expect(isText(makeFile({ mime: "application/pdf" }))).toBe(false);
-  });
-});
-
-describe("isPreviewable", () => {
-  it("returns true for images, videos, audio, PDFs, and text", () => {
-    expect(isPreviewable(makeFile({ mime: "image/jpeg" }))).toBe(true);
-    expect(isPreviewable(makeFile({ mime: "video/mp4" }))).toBe(true);
-    expect(isPreviewable(makeFile({ mime: "audio/mpeg" }))).toBe(true);
-    expect(isPreviewable(makeFile({ mime: "application/pdf" }))).toBe(true);
-    expect(isPreviewable(makeFile({ mime: "text/plain" }))).toBe(true);
-    expect(isPreviewable(makeFile({ mime: "text/markdown" }))).toBe(true);
-  });
-
-  it("returns false for non-previewable types", () => {
-    expect(isPreviewable(makeFile({ mime: "application/zip" }))).toBe(false);
-    expect(isPreviewable(makeFile({ mime: "application/octet-stream" }))).toBe(false);
-  });
-});
 
 describe("isInProgress", () => {
   it("returns true when progress is non-null and < 100", () => {
@@ -177,35 +40,6 @@ describe("hasChildren", () => {
   });
 });
 
-describe("fileTypeIcon", () => {
-  it("returns 'play' for video files", () => {
-    expect(fileTypeIcon(makeFile({ mime: "video/mp4" }))).toBe("play");
-    expect(fileTypeIcon(makeFile({ mime: "video/webm" }))).toBe("play");
-  });
-
-  it("returns 'folder' for compressed files", () => {
-    expect(fileTypeIcon(makeFile({ mime: "application/zip" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ mime: "application/gzip" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ mime: "application/x-rar-compressed" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ mime: "application/x-tar" }))).toBe("folder");
-    expect(fileTypeIcon(makeFile({ mime: "application/x-7z-compressed" }))).toBe("folder");
-  });
-
-  it("returns 'music' for audio files", () => {
-    expect(fileTypeIcon(makeFile({ mime: "audio/mpeg" }))).toBe("music");
-    expect(fileTypeIcon(makeFile({ mime: "audio/wav" }))).toBe("music");
-  });
-
-  it("returns 'file-pdf' for PDF files", () => {
-    expect(fileTypeIcon(makeFile({ mime: "application/pdf" }))).toBe("file-pdf");
-  });
-
-  it("returns 'document' for other types", () => {
-    expect(fileTypeIcon(makeFile({ mime: "text/plain" }))).toBe("document");
-    expect(fileTypeIcon(makeFile({ mime: "image/jpeg" }))).toBe("document");
-  });
-});
-
 describe("formatFileSize", () => {
   it("formats zero bytes", () => {
     expect(formatFileSize(0)).toBe("0 B");
@@ -228,35 +62,6 @@ describe("formatFileSize", () => {
 
   it("formats gigabytes", () => {
     expect(formatFileSize(1024 * 1024 * 1024)).toBe("1.0 GiB");
-  });
-});
-
-describe("createDownloadEvent", () => {
-  it("creates event with file and prevented=false", () => {
-    const file = makeFile();
-    const event = createDownloadEvent(file);
-    expect(event.file).toBe(file);
-    expect(event.prevented).toBe(false);
-  });
-
-  it("sets prevented to true when preventDefault is called", () => {
-    const event = createDownloadEvent(makeFile());
-    event.preventDefault();
-    expect(event.prevented).toBe(true);
-  });
-});
-
-describe("triggerFileDownload", () => {
-  it("calls downloadFile with resolved URL and filename", () => {
-    const file = makeFile({ url: "https://example.com/file.jpg", name: "photo.jpg" });
-    triggerFileDownload(file);
-    expect(downloadFile).toHaveBeenCalledWith("https://example.com/file.jpg", "photo.jpg");
-  });
-
-  it("does not call downloadFile when URL is empty", () => {
-    const file = makeFile({ url: "" });
-    triggerFileDownload(file);
-    expect(downloadFile).not.toHaveBeenCalled();
   });
 });
 

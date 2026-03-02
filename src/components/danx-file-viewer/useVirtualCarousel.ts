@@ -12,7 +12,7 @@
  */
 
 import { computed, type Ref } from "vue";
-import type { PreviewFile } from "../danx-file/types";
+import type { PreviewFile } from "../danx-file";
 import type { VirtualSlide } from "./types";
 
 const BUFFER_SIZE = 2;

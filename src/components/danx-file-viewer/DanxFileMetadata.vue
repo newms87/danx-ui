@@ -22,7 +22,7 @@
 import { computed } from "vue";
 import { CodeViewer } from "../code-viewer";
 import { DanxScroll } from "../scroll";
-import type { PreviewFile } from "../danx-file/types";
+import type { PreviewFile } from "../danx-file";
 import { formatMeta, metaCount, formatExif, exifCount, hasAnyInfo } from "./file-metadata-helpers";
 
 const props = defineProps<{

@@ -25,7 +25,7 @@
 import { onUnmounted, ref } from "vue";
 import { DanxIcon } from "../icon";
 import { DanxTooltip } from "../tooltip";
-import { handleDownload } from "./file-helpers";
+import { handleDownload } from "./file-download-helpers";
 import type { DanxFileDownloadEvent, PreviewFile } from "./types";
 
 const props = defineProps<{

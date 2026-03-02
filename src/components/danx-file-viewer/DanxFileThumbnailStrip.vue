@@ -31,10 +31,9 @@
 
 <script setup lang="ts">
 import { type ComponentPublicInstance, computed, nextTick, ref, watch } from "vue";
-import { DanxFile } from "../danx-file";
-import { fileDisplayNumber } from "../danx-file/file-helpers";
+import { DanxFile, fileDisplayNumber } from "../danx-file";
+import type { PreviewFile } from "../danx-file";
 import { DanxVirtualScroll } from "../scroll";
-import type { PreviewFile } from "../danx-file/types";
 
 const props = defineProps<{
   files: PreviewFile[];

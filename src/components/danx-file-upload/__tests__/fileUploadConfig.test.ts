@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { setFileUploadHandler, getFileUploadHandler } from "../fileUploadConfig";
+import {
+  setFileUploadHandler,
+  getFileUploadHandler,
+  resetFileUploadHandler,
+} from "../fileUploadConfig";
 import type { PreviewFile } from "../../danx-file/types";
 
 describe("fileUploadConfig", () => {
   beforeEach(() => {
-    // Reset handler to a known baseline before each test.
-    // Cast needed because setFileUploadHandler only accepts FileUploadHandler,
-    // but we need null state for isolation.
-    (setFileUploadHandler as (fn: null) => void)(null);
+    resetFileUploadHandler();
   });
 
   it("returns null when no handler has been set", () => {
