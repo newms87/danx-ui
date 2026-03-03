@@ -10,7 +10,16 @@ import {
 } from "../file-mime-helpers";
 import { makeFile } from "./test-helpers";
 
+/** Helper to create a file with undefined mime (simulates runtime data) */
+function makeFileMissingMime() {
+  return makeFile({ mime: undefined as unknown as string });
+}
+
 describe("isImage", () => {
+  it("returns false when mime is undefined", () => {
+    expect(isImage(makeFileMissingMime())).toBe(false);
+  });
+
   it("returns true for image MIME types", () => {
     expect(isImage(makeFile({ mime: "image/jpeg" }))).toBe(true);
     expect(isImage(makeFile({ mime: "image/png" }))).toBe(true);
@@ -25,6 +34,10 @@ describe("isImage", () => {
 });
 
 describe("isVideo", () => {
+  it("returns false when mime is undefined", () => {
+    expect(isVideo(makeFileMissingMime())).toBe(false);
+  });
+
   it("returns true for video MIME types", () => {
     expect(isVideo(makeFile({ mime: "video/mp4" }))).toBe(true);
     expect(isVideo(makeFile({ mime: "video/webm" }))).toBe(true);
@@ -36,6 +49,10 @@ describe("isVideo", () => {
 });
 
 describe("isAudio", () => {
+  it("returns false when mime is undefined", () => {
+    expect(isAudio(makeFileMissingMime())).toBe(false);
+  });
+
   it("returns true for audio MIME types", () => {
     expect(isAudio(makeFile({ mime: "audio/mpeg" }))).toBe(true);
     expect(isAudio(makeFile({ mime: "audio/wav" }))).toBe(true);
@@ -49,6 +66,10 @@ describe("isAudio", () => {
 });
 
 describe("isPdf", () => {
+  it("returns false when mime is undefined", () => {
+    expect(isPdf(makeFileMissingMime())).toBe(false);
+  });
+
   it("returns true for PDF MIME type", () => {
     expect(isPdf(makeFile({ mime: "application/pdf" }))).toBe(true);
   });
@@ -59,6 +80,10 @@ describe("isPdf", () => {
 });
 
 describe("isText", () => {
+  it("returns false when mime is undefined", () => {
+    expect(isText(makeFileMissingMime())).toBe(false);
+  });
+
   it("returns true for text MIME types", () => {
     expect(isText(makeFile({ mime: "text/plain" }))).toBe(true);
     expect(isText(makeFile({ mime: "text/markdown" }))).toBe(true);
@@ -73,6 +98,10 @@ describe("isText", () => {
 });
 
 describe("isPreviewable", () => {
+  it("returns false when mime is undefined", () => {
+    expect(isPreviewable(makeFileMissingMime())).toBe(false);
+  });
+
   it("returns true for images, videos, audio, PDFs, and text", () => {
     expect(isPreviewable(makeFile({ mime: "image/jpeg" }))).toBe(true);
     expect(isPreviewable(makeFile({ mime: "video/mp4" }))).toBe(true);
@@ -89,6 +118,10 @@ describe("isPreviewable", () => {
 });
 
 describe("fileTypeIcon", () => {
+  it("returns 'document' when mime is undefined", () => {
+    expect(fileTypeIcon(makeFileMissingMime())).toBe("document");
+  });
+
   it("returns 'play' for video files", () => {
     expect(fileTypeIcon(makeFile({ mime: "video/mp4" }))).toBe("play");
     expect(fileTypeIcon(makeFile({ mime: "video/webm" }))).toBe("play");

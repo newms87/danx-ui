@@ -9,12 +9,12 @@ import type { PreviewFile } from "./types";
 
 /** Check if file has an image MIME type */
 export function isImage(file: PreviewFile): boolean {
-  return file.mime.startsWith("image/");
+  return file.mime?.startsWith("image/") ?? false;
 }
 
 /** Check if file has a video MIME type */
 export function isVideo(file: PreviewFile): boolean {
-  return file.mime.startsWith("video/");
+  return file.mime?.startsWith("video/") ?? false;
 }
 
 /** Check if file is a PDF */
@@ -24,12 +24,12 @@ export function isPdf(file: PreviewFile): boolean {
 
 /** Check if file has an audio MIME type */
 export function isAudio(file: PreviewFile): boolean {
-  return file.mime.startsWith("audio/");
+  return file.mime?.startsWith("audio/") ?? false;
 }
 
 /** Check if file has a text MIME type (text/plain, text/markdown, etc.) */
 export function isText(file: PreviewFile): boolean {
-  return file.mime.startsWith("text/");
+  return file.mime?.startsWith("text/") ?? false;
 }
 
 /** Check if file can be directly previewed (image, video, audio, PDF, or text) */
@@ -49,7 +49,7 @@ export function isPreviewable(file: PreviewFile): boolean {
  * - default → "document"
  */
 export function fileTypeIcon(file: PreviewFile): string {
-  const { mime } = file;
+  const mime = file.mime ?? "";
 
   if (mime.startsWith("video/")) return "play";
   if (mime.startsWith("audio/")) return "music";
