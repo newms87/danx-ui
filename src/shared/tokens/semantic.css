@@ -32,6 +32,7 @@
   --color-text-muted: var(--color-slate-600);
   --color-text-subtle: var(--color-slate-400);
   --color-text-inverted: var(--color-white);
+  --color-text-on-color: var(--color-white);
   --color-text-accent: var(--color-blue-600);
 
   /* ==========================================================================
@@ -60,18 +61,22 @@
   --color-danger: var(--color-red-500);
   --color-danger-hover: var(--color-red-600);
   --color-danger-subtle: var(--color-red-50);
+  --color-danger-tint: var(--color-red-50);
 
   --color-success: var(--color-green-500);
   --color-success-hover: var(--color-green-600);
   --color-success-subtle: var(--color-green-50);
+  --color-success-tint: var(--color-green-50);
 
   --color-warning: var(--color-amber-400);
   --color-warning-hover: var(--color-amber-500);
   --color-warning-subtle: var(--color-amber-50);
+  --color-warning-tint: var(--color-amber-50);
 
   --color-info: var(--color-blue-500);
   --color-info-hover: var(--color-blue-600);
   --color-info-subtle: var(--color-blue-50);
+  --color-info-tint: var(--color-blue-50);
 
   /* ==========================================================================
      Focus & Selection

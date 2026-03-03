@@ -18,7 +18,7 @@
  *   :root {
  *     --dx-variant-artifact-output-bg: var(--color-purple-500);
  *     --dx-variant-artifact-output-bg-hover: var(--color-purple-600);
- *     --dx-variant-artifact-output-text: var(--color-text-inverted);
+ *     --dx-variant-artifact-output-text: var(--color-text-on-color);
  *   }
  */
 
@@ -29,7 +29,7 @@
 
   --dx-variant-danger-bg: var(--color-danger);
   --dx-variant-danger-bg-hover: var(--color-danger-hover);
-  --dx-variant-danger-text: var(--color-text-inverted);
+  --dx-variant-danger-text: var(--color-text-on-color);
   --dx-variant-danger-border: var(--color-danger);
 
   /* ==========================================================================
@@ -38,7 +38,7 @@
 
   --dx-variant-success-bg: var(--color-success);
   --dx-variant-success-bg-hover: var(--color-success-hover);
-  --dx-variant-success-text: var(--color-text-inverted);
+  --dx-variant-success-text: var(--color-text-on-color);
   --dx-variant-success-border: var(--color-success);
 
   /* ==========================================================================
@@ -47,7 +47,7 @@
 
   --dx-variant-warning-bg: var(--color-warning);
   --dx-variant-warning-bg-hover: var(--color-warning-hover);
-  --dx-variant-warning-text: var(--color-text-inverted);
+  --dx-variant-warning-text: var(--color-text-on-color);
   --dx-variant-warning-border: var(--color-warning);
 
   /* ==========================================================================
@@ -56,7 +56,7 @@
 
   --dx-variant-info-bg: var(--color-info);
   --dx-variant-info-bg-hover: var(--color-info-hover);
-  --dx-variant-info-text: var(--color-text-inverted);
+  --dx-variant-info-text: var(--color-text-on-color);
   --dx-variant-info-border: var(--color-info);
 
   /* ==========================================================================
@@ -72,22 +72,22 @@
      Dialog - Component-Specific Overrides (subtle tints instead of full-saturation)
      ========================================================================== */
 
-  --dx-variant-dialog-danger-bg: var(--color-danger-subtle);
+  --dx-variant-dialog-danger-bg: var(--color-danger-tint);
   --dx-variant-dialog-danger-text: var(--color-danger);
   --dx-variant-dialog-danger-border: var(--color-danger);
   --dx-variant-dialog-danger-header-bg: var(--color-danger-subtle);
 
-  --dx-variant-dialog-success-bg: var(--color-success-subtle);
+  --dx-variant-dialog-success-bg: var(--color-success-tint);
   --dx-variant-dialog-success-text: var(--color-success);
   --dx-variant-dialog-success-border: var(--color-success);
   --dx-variant-dialog-success-header-bg: var(--color-success-subtle);
 
-  --dx-variant-dialog-warning-bg: var(--color-warning-subtle);
+  --dx-variant-dialog-warning-bg: var(--color-warning-tint);
   --dx-variant-dialog-warning-text: var(--color-warning);
   --dx-variant-dialog-warning-border: var(--color-warning);
   --dx-variant-dialog-warning-header-bg: var(--color-warning-subtle);
 
-  --dx-variant-dialog-info-bg: var(--color-info-subtle);
+  --dx-variant-dialog-info-bg: var(--color-info-tint);
   --dx-variant-dialog-info-text: var(--color-info);
   --dx-variant-dialog-info-border: var(--color-info);
   --dx-variant-dialog-info-header-bg: var(--color-info-subtle);
