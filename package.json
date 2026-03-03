@@ -72,7 +72,7 @@
     "dev": "vite",
     "dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 && vue-tsc --noEmit",
     "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css",
-    "build:css": "mkdir -p dist/shared/tokens dist/components/button dist/components/code-viewer dist/components/dialog dist/components/scroll dist/components/markdown-editor && cp src/shared/tokens/*.css dist/shared/tokens/ && cp src/components/button/*.css dist/components/button/ && cp src/components/code-viewer/*.css dist/components/code-viewer/ && cp src/components/dialog/*.css dist/components/dialog/ && cp src/components/scroll/*.css dist/components/scroll/ && cp src/components/markdown-editor/*.css dist/components/markdown-editor/ && cp src/styles.css dist/",
+    "build:css": "cd src && find . -name '*.css' -exec sh -c 'mkdir -p \"../dist/$(dirname \"$1\")\" && cp \"$1\" \"../dist/$1\"' _ {} \\;",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint src --fix",
