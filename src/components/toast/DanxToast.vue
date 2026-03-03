@@ -94,7 +94,7 @@ function onDismiss(): void {
 <template>
   <div class="danx-toast" :style="variantStyle" @mouseenter="pause" @mouseleave="resume">
     <div class="danx-toast__body">
-      <span v-if="defaultIcon || $slots.icon" class="danx-toast__icon">
+      <span v-if="defaultIcon || 'icon' in $slots" class="danx-toast__icon">
         <slot name="icon" :entry="entry">
           <DanxIcon v-if="defaultIcon" :icon="defaultIcon" class="h-4 w-4" />
         </slot>
