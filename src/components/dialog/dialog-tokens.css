@@ -48,6 +48,9 @@
   --dx-dialog-subtitle-size: var(--text-sm);
 
   --dx-dialog-content-bg: transparent;
+  --dx-dialog-content-text: var(--color-text-muted);
+  --dx-dialog-footer-bg: var(--color-surface-sunken);
+  --dx-dialog-footer-border: var(--color-border-subtle);
 
   --dx-dialog-backdrop: var(--color-backdrop);
   --dx-dialog-backdrop-blur: 4px;

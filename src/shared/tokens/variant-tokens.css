@@ -69,6 +69,35 @@
   --dx-variant-muted-border: var(--color-surface-sunken);
 
   /* ==========================================================================
+     Dialog - Component-Specific Overrides (subtle tints instead of full-saturation)
+     ========================================================================== */
+
+  --dx-variant-dialog-danger-bg: var(--color-danger-subtle);
+  --dx-variant-dialog-danger-text: var(--color-danger);
+  --dx-variant-dialog-danger-border: var(--color-danger);
+  --dx-variant-dialog-danger-header-bg: var(--color-danger-subtle);
+
+  --dx-variant-dialog-success-bg: var(--color-success-subtle);
+  --dx-variant-dialog-success-text: var(--color-success);
+  --dx-variant-dialog-success-border: var(--color-success);
+  --dx-variant-dialog-success-header-bg: var(--color-success-subtle);
+
+  --dx-variant-dialog-warning-bg: var(--color-warning-subtle);
+  --dx-variant-dialog-warning-text: var(--color-warning);
+  --dx-variant-dialog-warning-border: var(--color-warning);
+  --dx-variant-dialog-warning-header-bg: var(--color-warning-subtle);
+
+  --dx-variant-dialog-info-bg: var(--color-info-subtle);
+  --dx-variant-dialog-info-text: var(--color-info);
+  --dx-variant-dialog-info-border: var(--color-info);
+  --dx-variant-dialog-info-header-bg: var(--color-info-subtle);
+
+  --dx-variant-dialog-muted-bg: var(--color-surface-sunken);
+  --dx-variant-dialog-muted-text: var(--color-text-muted);
+  --dx-variant-dialog-muted-border: var(--color-border);
+  --dx-variant-dialog-muted-header-bg: var(--color-surface-sunken);
+
+  /* ==========================================================================
      Progress Bar - Variant-Specific Gradient Endpoints
      ========================================================================== */
 

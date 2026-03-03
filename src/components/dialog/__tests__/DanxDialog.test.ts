@@ -719,13 +719,19 @@ describe("DanxDialog", () => {
       await nextTick();
 
       const box = bodyQuery(".danx-dialog__box") as HTMLElement;
-      // useVariant sets CSS custom properties as inline styles
-      expect(box.style.getPropertyValue("--dx-dialog-header-border")).toContain(
-        "--dx-variant-danger-border"
-      );
-      expect(box.style.getPropertyValue("--dx-dialog-content-bg")).toContain(
-        "--dx-variant-danger-bg"
-      );
+      // useVariant sets CSS custom properties as inline styles for all mapped tokens
+      const variantTokens = [
+        "--dx-dialog-border-color",
+        "--dx-dialog-header-bg",
+        "--dx-dialog-header-border",
+        "--dx-dialog-content-bg",
+        "--dx-dialog-content-text",
+        "--dx-dialog-footer-bg",
+        "--dx-dialog-footer-border",
+      ];
+      for (const token of variantTokens) {
+        expect(box.style.getPropertyValue(token)).toContain("--dx-variant");
+      }
     });
 
     it("does not apply variant styles when variant is not set", async () => {
@@ -735,6 +741,7 @@ describe("DanxDialog", () => {
       const box = bodyQuery(".danx-dialog__box") as HTMLElement;
       expect(box.style.getPropertyValue("--dx-dialog-header-border")).toBe("");
       expect(box.style.getPropertyValue("--dx-dialog-content-bg")).toBe("");
+      expect(box.style.getPropertyValue("--dx-dialog-footer-bg")).toBe("");
     });
 
     it("passes variant to confirm button", async () => {

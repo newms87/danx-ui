@@ -129,8 +129,13 @@ const variantStyle = useVariant(
   computed(() => props.variant ?? ""),
   "dialog",
   {
+    "--dx-dialog-border-color": "border",
+    "--dx-dialog-header-bg": "header-bg",
     "--dx-dialog-header-border": "border",
     "--dx-dialog-content-bg": "bg",
+    "--dx-dialog-content-text": "text",
+    "--dx-dialog-footer-bg": "header-bg",
+    "--dx-dialog-footer-border": "border",
   }
 );
 
