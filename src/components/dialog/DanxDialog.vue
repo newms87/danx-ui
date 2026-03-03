@@ -28,6 +28,7 @@
  * | disabled       | boolean           | false     | Disable confirm button                 |
  * | independent    | boolean           | false     | Opt out of dialog stacking             |
  * | returnOnClose  | boolean           | true      | Reveal previous dialog on close        |
+ * | variant        | VariantType       | ""        | Color variant (danger, success, etc.)  |
  *
  * ## Events
  * | Event             | Payload | Description                              |
@@ -59,6 +60,7 @@
  * | --dx-dialog-title-color     | --color-text             | Title text color        |
  * | --dx-dialog-title-size      | --text-xl                | Title font size         |
  * | --dx-dialog-subtitle-color  | --color-text-muted       | Subtitle text color     |
+ * | --dx-dialog-content-bg      | transparent              | Content area background |
  * | --dx-dialog-backdrop        | --color-backdrop         | Backdrop color          |
  * | --dx-dialog-backdrop-blur   | 4px                      | Backdrop blur radius    |
  *
@@ -88,11 +90,15 @@
  *
  * Persistent (no ESC/backdrop close):
  *   <DanxDialog v-model="show" persistent />
+ *
+ * With variant (danger confirm button, accent header border, tinted content):
+ *   <DanxDialog v-model="show" variant="danger" confirm-button="Delete" />
  */
 -->
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, type StyleValue, useAttrs, watch } from "vue";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxButton } from "../button";
 import { DanxScroll } from "../scroll";
 import DialogBreadcrumbs from "./DialogBreadcrumbs.vue";
@@ -117,6 +123,16 @@ defineSlots<DanxDialogSlots>();
 const attrs = useAttrs();
 
 const dialogRef = ref<HTMLDialogElement>();
+
+// Variant styling for header border accent and content background tint
+const variantStyle = useVariant(
+  computed(() => props.variant ?? ""),
+  "dialog",
+  {
+    "--dx-dialog-header-border": "border",
+    "--dx-dialog-content-bg": "bg",
+  }
+);
 
 // Computed styles for width/height
 const dialogStyle = computed(() => {
@@ -287,7 +303,7 @@ function handleConfirm() {
         />
 
         <!-- Visible dialog box -->
-        <div class="danx-dialog__box" :style="dialogStyle">
+        <div class="danx-dialog__box" :style="{ ...dialogStyle, ...variantStyle }">
           <!-- Header -->
           <header
             v-if="title || subtitle || $slots.title || $slots.subtitle || showBreadcrumbs"
@@ -320,7 +336,7 @@ function handleConfirm() {
               <!-- Confirm Button -->
               <slot v-if="confirmButton" name="confirm-button">
                 <DanxButton
-                  type="info"
+                  :variant="props.variant || 'info'"
                   class="danx-dialog__button--primary"
                   :disabled="disabled"
                   :loading="isSaving"

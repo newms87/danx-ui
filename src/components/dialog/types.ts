@@ -1,4 +1,4 @@
-import type { SizeValue } from "../../shared/types";
+import type { SizeValue, VariantType } from "../../shared/types";
 
 /**
  * DanxDialog Type Definitions
@@ -86,6 +86,13 @@ export interface DanxDialogProps {
    * - false: Closing this dialog tears down the entire stack.
    */
   returnOnClose?: boolean;
+
+  /**
+   * Visual variant for the dialog. Affects header border accent,
+   * content background tint, and confirm button color.
+   * When unset, confirm button defaults to "info" variant.
+   */
+  variant?: VariantType;
 }
 
 export interface DanxDialogEmits {

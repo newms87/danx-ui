@@ -713,6 +713,50 @@ describe("DanxDialog", () => {
     });
   });
 
+  describe("Variant prop", () => {
+    it("applies variant inline styles to the dialog box", async () => {
+      mountDialog({ modelValue: true, variant: "danger" });
+      await nextTick();
+
+      const box = bodyQuery(".danx-dialog__box") as HTMLElement;
+      // useVariant sets CSS custom properties as inline styles
+      expect(box.style.getPropertyValue("--dx-dialog-header-border")).toContain(
+        "--dx-variant-danger-border"
+      );
+      expect(box.style.getPropertyValue("--dx-dialog-content-bg")).toContain(
+        "--dx-variant-danger-bg"
+      );
+    });
+
+    it("does not apply variant styles when variant is not set", async () => {
+      mountDialog({ modelValue: true });
+      await nextTick();
+
+      const box = bodyQuery(".danx-dialog__box") as HTMLElement;
+      expect(box.style.getPropertyValue("--dx-dialog-header-border")).toBe("");
+      expect(box.style.getPropertyValue("--dx-dialog-content-bg")).toBe("");
+    });
+
+    it("passes variant to confirm button", async () => {
+      mountDialog({ modelValue: true, confirmButton: true, variant: "danger" });
+      await nextTick();
+
+      const confirmBtn = bodyQuery(".danx-dialog__button--primary") as HTMLElement;
+      // The confirm button should have variant styles from useVariant("danger")
+      // DanxButton applies variant inline styles to its root element
+      expect(confirmBtn.style.cssText).toContain("--dx-variant-danger");
+    });
+
+    it("confirm button defaults to info variant when no dialog variant set", async () => {
+      mountDialog({ modelValue: true, confirmButton: true });
+      await nextTick();
+
+      const confirmBtn = bodyQuery(".danx-dialog__button--primary") as HTMLElement;
+      // Should have info variant styles
+      expect(confirmBtn.style.cssText).toContain("--dx-variant-info");
+    });
+  });
+
   describe("Event propagation isolation", () => {
     it("stops propagation for all isolated event types", async () => {
       mountDialog({ modelValue: true });

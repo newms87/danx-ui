@@ -20,6 +20,7 @@ import persistentDialogCode from "./dialog-examples/PersistentDialog.vue?raw";
 import slotCustomizationCode from "./dialog-examples/SlotCustomization.vue?raw";
 import stackedDialogsCode from "./dialog-examples/StackedDialogs.vue?raw";
 import subtitleDialogCode from "./dialog-examples/SubtitleDialog.vue?raw";
+import variantDialogCode from "./dialog-examples/VariantDialog.vue?raw";
 </script>
 
 <template>
@@ -50,6 +51,12 @@ import subtitleDialogCode from "./dialog-examples/SubtitleDialog.vue?raw";
       title="Confirm Dialog with Loading"
       description="Dialog with confirm button that shows loading state."
       :code="confirmDialogCode"
+    />
+
+    <DemoSection
+      title="Variant Dialogs"
+      description="Variant prop colors the header border, content background, and confirm button."
+      :code="variantDialogCode"
     />
 
     <DemoSection

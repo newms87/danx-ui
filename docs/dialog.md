@@ -47,6 +47,7 @@ const show = ref(false);
 | `disabled` | `boolean` | `false` | Disable confirm button |
 | `independent` | `boolean` | `false` | Opt out of dialog stacking |
 | `returnOnClose` | `boolean` | `true` | Reveal previous dialog on close |
+| `variant` | `VariantType` | `""` | Color variant (danger, success, etc.) |
 
 ## Events
 
@@ -155,6 +156,26 @@ Prevent closing via ESC or backdrop click:
 </DanxDialog>
 ```
 
+## Variants
+
+The `variant` prop applies color theming to the dialog's header border, content background, and confirm button. Built-in variants: `danger`, `success`, `warning`, `info`, `muted`.
+
+```vue
+<!-- Danger dialog for destructive actions -->
+<DanxDialog
+  v-model="show"
+  title="Delete Item"
+  variant="danger"
+  close-button="Cancel"
+  confirm-button="Delete"
+  @confirm="handleDelete"
+>
+  <p>Are you sure? This cannot be undone.</p>
+</DanxDialog>
+```
+
+When no variant is set, the confirm button defaults to the `info` variant. Custom variants work by defining `--dx-variant-{name}-*` CSS tokens.
+
 ## Custom Content
 
 ### Using Slots
@@ -207,6 +228,7 @@ Prevent closing via ESC or backdrop click:
 | `--dx-dialog-title-color` | `--color-text` | Title color |
 | `--dx-dialog-title-size` | `--text-xl` | Title font size |
 | `--dx-dialog-subtitle-color` | `--color-text-muted` | Subtitle color |
+| `--dx-dialog-content-bg` | `transparent` | Content area background |
 | `--dx-dialog-backdrop` | `--color-backdrop` | Backdrop color |
 | `--dx-dialog-backdrop-blur` | `4px` | Backdrop blur radius |
 | `--dx-dialog-button-primary-bg` | `--color-interactive` | Confirm button bg |

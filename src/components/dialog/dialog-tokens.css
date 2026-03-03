@@ -21,6 +21,7 @@
  * --dx-dialog-title-weight    Title font weight
  * --dx-dialog-subtitle-color  Subtitle text color
  * --dx-dialog-subtitle-size   Subtitle font size
+ * --dx-dialog-content-bg      Content area background (transparent, tinted by variant)
  * --dx-dialog-backdrop             Backdrop color
  * --dx-dialog-backdrop-blur        Backdrop blur radius
  * --dx-dialog-animation-duration   Animation duration
@@ -45,6 +46,8 @@
   --dx-dialog-title-weight: var(--font-semibold);
   --dx-dialog-subtitle-color: var(--color-text-muted);
   --dx-dialog-subtitle-size: var(--text-sm);
+
+  --dx-dialog-content-bg: transparent;
 
   --dx-dialog-backdrop: var(--color-backdrop);
   --dx-dialog-backdrop-blur: 4px;
