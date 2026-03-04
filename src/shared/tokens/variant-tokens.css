@@ -107,3 +107,30 @@
   --dx-variant-progress-bar-info-gradient-to: var(--color-success);
   --dx-variant-progress-bar-muted-gradient-to: var(--color-surface);
 }
+
+/* ==========================================================================
+   Dark Mode - Shared Variant Overrides
+   Very dark backgrounds with lighter text for all colorable components.
+   ========================================================================== */
+
+.dark {
+  --dx-variant-danger-bg: var(--color-danger-subtle);
+  --dx-variant-danger-bg-hover: var(--color-danger-tint);
+  --dx-variant-danger-text: var(--color-danger);
+  --dx-variant-danger-border: var(--color-danger-subtle);
+
+  --dx-variant-success-bg: var(--color-success-subtle);
+  --dx-variant-success-bg-hover: var(--color-success-tint);
+  --dx-variant-success-text: var(--color-success);
+  --dx-variant-success-border: var(--color-success-subtle);
+
+  --dx-variant-warning-bg: var(--color-warning-subtle);
+  --dx-variant-warning-bg-hover: var(--color-warning-tint);
+  --dx-variant-warning-text: var(--color-warning);
+  --dx-variant-warning-border: var(--color-warning-subtle);
+
+  --dx-variant-info-bg: var(--color-info-subtle);
+  --dx-variant-info-bg-hover: var(--color-info-tint);
+  --dx-variant-info-text: var(--color-info);
+  --dx-variant-info-border: var(--color-info-subtle);
+}
