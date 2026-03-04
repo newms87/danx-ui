@@ -97,9 +97,8 @@ defineSlots<DanxProgressBarSlots>();
 
 const PROGRESS_BAR_VARIANT_TOKENS = {
   "--dx-progress-bar-fill-bg": "bg",
+  "--dx-progress-bar-text-color": "text",
   "--dx-progress-bar-glow-color": "bg",
-  "--dx-progress-bar-gradient-from": "bg",
-  "--dx-progress-bar-gradient-to": "gradient-to",
 };
 
 const variantStyle = useVariant(

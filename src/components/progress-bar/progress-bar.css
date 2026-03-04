@@ -303,8 +303,9 @@
   .danx-progress-bar__fill {
     background-image: linear-gradient(
       90deg,
-      var(--dx-progress-bar-gradient-from),
-      var(--dx-progress-bar-gradient-to)
+      oklch(from var(--dx-progress-bar-fill-bg) calc(l * 0.67) c h),
+      var(--dx-progress-bar-fill-bg) 50%,
+      oklch(from var(--dx-progress-bar-fill-bg) calc(l * 1.33) c h)
     );
   }
 }
@@ -322,8 +323,9 @@
       ),
       linear-gradient(
         90deg,
-        var(--dx-progress-bar-gradient-from),
-        var(--dx-progress-bar-gradient-to)
+        oklch(from var(--dx-progress-bar-fill-bg) calc(l * 0.67) c h),
+        var(--dx-progress-bar-fill-bg) 50%,
+        oklch(from var(--dx-progress-bar-fill-bg) calc(l * 1.33) c h)
       );
     background-size:
       calc(var(--dx-progress-bar-stripe-width) * 2.828) 100%,

@@ -93,8 +93,9 @@
 -->
 
 <script setup lang="ts">
-import { computed, type CSSProperties } from "vue";
+import { computed, type CSSProperties, toRef } from "vue";
 import { hashStringToIndex, AUTO_COLOR_PALETTE } from "../../shared/autoColor";
+import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
 import type { DanxButtonGroupEmits, DanxButtonGroupItem, DanxButtonGroupProps } from "./types";
 
@@ -103,10 +104,25 @@ const props = withDefaults(defineProps<DanxButtonGroupProps>(), {
   required: false,
   autoColor: false,
   autoColorMode: "active-only",
+  variant: "",
 });
 
 const emit = defineEmits<DanxButtonGroupEmits>();
+
 const modelValue = defineModel<string | string[] | null>();
+
+const BUTTON_GROUP_VARIANT_TOKENS = {
+  "--dx-button-group-inactive-bg": "bg",
+  "--dx-button-group-text": "text-muted",
+  "--dx-button-group-active-bg": "bg-hover",
+  "--dx-button-group-text-active": "text",
+};
+
+const variantStyle = useVariant(
+  toRef(props, "variant"),
+  "button-group",
+  BUTTON_GROUP_VARIANT_TOKENS
+);
 
 /**
  * Check whether a button value is currently selected
@@ -212,7 +228,7 @@ function getButtonStyle(button: DanxButtonGroupItem): CSSProperties | undefined 
 </script>
 
 <template>
-  <div class="danx-button-group">
+  <div class="danx-button-group" :style="variantStyle">
     <template v-for="(button, index) in buttons" :key="button.value">
       <!-- Divider between buttons (skip first) -->
       <span v-if="index > 0" class="danx-button-group__divider" />

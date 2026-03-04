@@ -13,9 +13,6 @@
  *   --dx-variant-{name}-text-muted  Secondary text color (placeholder, icons)
  *   --dx-variant-{name}-border      Border color
  *
- * Progress-bar-specific variant tokens:
- *   --dx-variant-progress-bar-{name}-gradient-to   Gradient end color
- *
  * To define a custom variant (e.g. "artifact-output"), set:
  *   :root {
  *     --dx-variant-artifact-output-bg: var(--color-purple-500);
@@ -81,6 +78,20 @@
   --dx-variant-muted-border: var(--color-surface-sunken);
 
   /* ==========================================================================
+     Progress Bar - Component-Specific Override (muted fill needs contrast against track)
+     ========================================================================== */
+
+  --dx-variant-progress-bar-muted-bg: var(--color-border);
+
+  /* ==========================================================================
+     Button Group - Component-Specific Overrides (bright active text)
+     ========================================================================== */
+
+  --dx-variant-button-group-danger-text: var(--color-red-300);
+  --dx-variant-button-group-success-text: var(--color-green-300);
+  --dx-variant-button-group-info-text: var(--color-blue-300);
+
+  /* ==========================================================================
      Dialog - Component-Specific Overrides (subtle tints instead of full-saturation)
      ========================================================================== */
 
@@ -109,15 +120,6 @@
   --dx-variant-dialog-muted-border: var(--color-border);
   --dx-variant-dialog-muted-header-bg: var(--color-surface-sunken);
 
-  /* ==========================================================================
-     Progress Bar - Variant-Specific Gradient Endpoints
-     ========================================================================== */
-
-  --dx-variant-progress-bar-danger-gradient-to: var(--color-warning);
-  --dx-variant-progress-bar-success-gradient-to: var(--color-interactive);
-  --dx-variant-progress-bar-warning-gradient-to: var(--color-danger);
-  --dx-variant-progress-bar-info-gradient-to: var(--color-success);
-  --dx-variant-progress-bar-muted-gradient-to: var(--color-surface);
 }
 
 /* ==========================================================================

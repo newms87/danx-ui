@@ -14,6 +14,7 @@ import buttonGroupDocs from "../../docs/button-group.md?raw";
 import basicUsageCode from "./button-group-examples/BasicUsage.vue?raw";
 import multiSelectCode from "./button-group-examples/MultiSelect.vue?raw";
 import autoColorCode from "./button-group-examples/AutoColor.vue?raw";
+import variantsCode from "./button-group-examples/Variants.vue?raw";
 import withCallbacksCode from "./button-group-examples/WithCallbacks.vue?raw";
 </script>
 
@@ -33,6 +34,12 @@ import withCallbacksCode from "./button-group-examples/WithCallbacks.vue?raw";
       title="Multi-Select"
       description="Multiple buttons can be toggled on/off simultaneously."
       :code="multiSelectCode"
+    />
+
+    <DemoSection
+      title="Variants"
+      description="Variant-colored active backgrounds via CSS token overrides."
+      :code="variantsCode"
     />
 
     <DemoSection

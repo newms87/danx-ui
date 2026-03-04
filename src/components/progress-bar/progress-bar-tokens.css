@@ -64,8 +64,8 @@
   --dx-progress-bar-stripe-width: 1rem;
   --dx-progress-bar-shimmer-color: rgb(255 255 255 / 0.35);
   --dx-progress-bar-shimmer-duration: 2s;
-  --dx-progress-bar-gradient-from: var(--color-interactive);
-  --dx-progress-bar-gradient-to: var(--color-success);
+  --dx-progress-bar-gradient-from: var(--dx-progress-bar-fill-bg);
+  --dx-progress-bar-gradient-to: var(--dx-progress-bar-fill-bg);
 
   /* ==========================================================================
      Size Tokens - Small

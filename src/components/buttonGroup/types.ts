@@ -4,6 +4,7 @@
 
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
+import type { VariantType } from "../../shared/types";
 
 /**
  * A single button item in a button group. Each button has a unique value
@@ -63,6 +64,9 @@ export interface DanxButtonGroupProps {
 
   /** Controls when auto-color styles are applied (default: "active-only") */
   autoColorMode?: AutoColorMode;
+
+  /** Color variant for active button state (danger, success, warning, info, muted) */
+  variant?: VariantType;
 }
 
 export interface DanxButtonGroupEmits {
