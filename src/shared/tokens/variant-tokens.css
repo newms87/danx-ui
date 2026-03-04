@@ -47,7 +47,7 @@
 
   --dx-variant-warning-bg: var(--color-warning);
   --dx-variant-warning-bg-hover: var(--color-warning-hover);
-  --dx-variant-warning-text: var(--color-text-on-color);
+  --dx-variant-warning-text: var(--color-warning-on-color);
   --dx-variant-warning-border: var(--color-warning);
 
   /* ==========================================================================

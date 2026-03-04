@@ -66,6 +66,7 @@
   --color-warning-hover: var(--color-amber-100);
   --color-warning-subtle: var(--color-amber-950);
   --color-warning-tint: var(--color-amber-900);
+  --color-warning-on-color: var(--color-amber-950);
 
   --color-info: var(--color-blue-400);
   --color-info-hover: var(--color-blue-300);
