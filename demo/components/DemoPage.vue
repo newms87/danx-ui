@@ -82,7 +82,7 @@ const isLightTheme = computed(() => !isDark.value);
 
 <style scoped>
 .demo-page {
-  max-width: var(--demo-page-max-width, 900px);
+  max-width: 1200px;
 }
 
 .demo-page h1 {

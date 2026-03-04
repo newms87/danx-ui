@@ -156,7 +156,7 @@ function onCodeInput(event: Event) {
 
 .demo-section__content {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.75rem;
   align-items: start;
 }
