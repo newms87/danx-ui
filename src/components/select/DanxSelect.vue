@@ -128,6 +128,11 @@ const SELECT_VARIANT_TOKENS = {
   "--dx-select-trigger-bg": "bg",
   "--dx-select-trigger-text": "text",
   "--dx-select-trigger-border": "border",
+  "--dx-select-trigger-border-hover": "border",
+  "--dx-select-placeholder": "text-muted",
+  "--dx-select-chevron-color": "text-muted",
+  "--dx-select-option-bg-hover": "bg-hover",
+  "--dx-select-option-bg-selected": "bg-selected",
 };
 
 const variantStyle = useVariant(toRef(props, "variant"), "select", SELECT_VARIANT_TOKENS);
@@ -314,7 +319,7 @@ function handleChipRemove(value: string | number): void {
       </template>
 
       <!-- Dropdown panel -->
-      <div class="danx-select__panel" :style="{ minWidth: panelMinWidth }">
+      <div class="danx-select__panel" :style="{ minWidth: panelMinWidth, ...variantStyle }">
         <!-- Filter search input -->
         <div v-if="filterable" class="danx-select__search">
           <input

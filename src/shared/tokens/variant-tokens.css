@@ -8,8 +8,10 @@
  * Built-in variant tokens:
  *   --dx-variant-{name}-bg          Background color
  *   --dx-variant-{name}-bg-hover    Hover background color
+ *   --dx-variant-{name}-bg-selected Selected/active background color
  *   --dx-variant-{name}-text        Text/icon color
- *   --dx-variant-{name}-border      Border color (used by tooltip)
+ *   --dx-variant-{name}-text-muted  Secondary text color (placeholder, icons)
+ *   --dx-variant-{name}-border      Border color
  *
  * Progress-bar-specific variant tokens:
  *   --dx-variant-progress-bar-{name}-gradient-to   Gradient end color
@@ -29,7 +31,9 @@
 
   --dx-variant-danger-bg: var(--color-danger);
   --dx-variant-danger-bg-hover: var(--color-danger-hover);
+  --dx-variant-danger-bg-selected: var(--color-danger-subtle);
   --dx-variant-danger-text: var(--color-text-on-color);
+  --dx-variant-danger-text-muted: var(--color-danger-muted);
   --dx-variant-danger-border: var(--color-danger);
 
   /* ==========================================================================
@@ -38,7 +42,9 @@
 
   --dx-variant-success-bg: var(--color-success);
   --dx-variant-success-bg-hover: var(--color-success-hover);
+  --dx-variant-success-bg-selected: var(--color-success-subtle);
   --dx-variant-success-text: var(--color-text-on-color);
+  --dx-variant-success-text-muted: var(--color-success-muted);
   --dx-variant-success-border: var(--color-success);
 
   /* ==========================================================================
@@ -47,7 +53,9 @@
 
   --dx-variant-warning-bg: var(--color-warning);
   --dx-variant-warning-bg-hover: var(--color-warning-hover);
+  --dx-variant-warning-bg-selected: var(--color-warning-subtle);
   --dx-variant-warning-text: var(--color-warning-on-color);
+  --dx-variant-warning-text-muted: var(--color-warning-muted);
   --dx-variant-warning-border: var(--color-warning);
 
   /* ==========================================================================
@@ -56,7 +64,9 @@
 
   --dx-variant-info-bg: var(--color-info);
   --dx-variant-info-bg-hover: var(--color-info-hover);
+  --dx-variant-info-bg-selected: var(--color-info-subtle);
   --dx-variant-info-text: var(--color-text-on-color);
+  --dx-variant-info-text-muted: var(--color-info-muted);
   --dx-variant-info-border: var(--color-info);
 
   /* ==========================================================================
@@ -65,7 +75,9 @@
 
   --dx-variant-muted-bg: var(--color-surface-sunken);
   --dx-variant-muted-bg-hover: var(--color-border);
+  --dx-variant-muted-bg-selected: var(--color-border-subtle);
   --dx-variant-muted-text: var(--color-text-muted);
+  --dx-variant-muted-text-muted: var(--color-text-subtle);
   --dx-variant-muted-border: var(--color-surface-sunken);
 
   /* ==========================================================================
@@ -115,22 +127,30 @@
 
 .dark {
   --dx-variant-danger-bg: var(--color-danger-subtle);
-  --dx-variant-danger-bg-hover: var(--color-danger-tint);
+  --dx-variant-danger-bg-hover: var(--color-danger-muted);
+  --dx-variant-danger-bg-selected: var(--color-danger-tint);
   --dx-variant-danger-text: var(--color-danger);
+  --dx-variant-danger-text-muted: var(--color-danger-muted);
   --dx-variant-danger-border: var(--color-danger-subtle);
 
   --dx-variant-success-bg: var(--color-success-subtle);
-  --dx-variant-success-bg-hover: var(--color-success-tint);
+  --dx-variant-success-bg-hover: var(--color-success-muted);
+  --dx-variant-success-bg-selected: var(--color-success-tint);
   --dx-variant-success-text: var(--color-success);
+  --dx-variant-success-text-muted: var(--color-success-muted);
   --dx-variant-success-border: var(--color-success-subtle);
 
   --dx-variant-warning-bg: var(--color-warning-subtle);
-  --dx-variant-warning-bg-hover: var(--color-warning-tint);
+  --dx-variant-warning-bg-hover: var(--color-warning-muted);
+  --dx-variant-warning-bg-selected: var(--color-warning-tint);
   --dx-variant-warning-text: var(--color-warning);
+  --dx-variant-warning-text-muted: var(--color-warning-muted);
   --dx-variant-warning-border: var(--color-warning-subtle);
 
   --dx-variant-info-bg: var(--color-info-subtle);
-  --dx-variant-info-bg-hover: var(--color-info-tint);
+  --dx-variant-info-bg-hover: var(--color-info-muted);
+  --dx-variant-info-bg-selected: var(--color-info-tint);
   --dx-variant-info-text: var(--color-info);
+  --dx-variant-info-text-muted: var(--color-info-muted);
   --dx-variant-info-border: var(--color-info-subtle);
 }

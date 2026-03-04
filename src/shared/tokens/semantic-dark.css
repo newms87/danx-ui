@@ -54,24 +54,28 @@
 
   --color-danger: var(--color-red-400);
   --color-danger-hover: var(--color-red-300);
+  --color-danger-muted: var(--color-red-700);
   --color-danger-subtle: var(--color-red-950);
   --color-danger-tint: var(--color-red-900);
 
-  --color-success: var(--color-green-400);
-  --color-success-hover: var(--color-green-300);
+  --color-success: var(--color-green-300);
+  --color-success-hover: var(--color-green-200);
+  --color-success-muted: var(--color-green-600);
   --color-success-subtle: var(--color-green-900);
-  --color-success-tint: var(--color-green-800);
+  --color-success-tint: var(--color-green-700);
 
   --color-warning: var(--color-amber-200);
   --color-warning-hover: var(--color-amber-100);
+  --color-warning-muted: var(--color-amber-600);
   --color-warning-subtle: var(--color-amber-950);
   --color-warning-tint: var(--color-amber-900);
   --color-warning-on-color: var(--color-amber-950);
 
-  --color-info: var(--color-blue-400);
-  --color-info-hover: var(--color-blue-300);
+  --color-info: var(--color-blue-300);
+  --color-info-hover: var(--color-blue-200);
+  --color-info-muted: var(--color-blue-600);
   --color-info-subtle: var(--color-blue-900);
-  --color-info-tint: var(--color-blue-800);
+  --color-info-tint: var(--color-blue-700);
 
   /* ==========================================================================
      Focus & Selection
