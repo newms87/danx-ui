@@ -122,8 +122,10 @@ const modelValue = defineModel<string>("modelValue", { required: true });
 
 const TABS_VARIANT_TOKENS = {
   "--dx-tabs-bg": "bg",
-  "--dx-tabs-text": "text",
-  "--dx-tabs-active-color": "bg",
+  "--dx-tabs-text": "text-muted",
+  "--dx-tabs-text-active": "text",
+  "--dx-tabs-text-hover": "text",
+  "--dx-tabs-active-color": "bg-selected",
 };
 
 const variantStyle = useVariant(toRef(props, "variant"), "tabs", TABS_VARIANT_TOKENS);
