@@ -58,7 +58,7 @@ const emit = defineEmits<{
 }>();
 
 const containerRef = ref<HTMLElement | null>(null);
-const isContentEmpty = ref(true);
+const isContentEmpty = ref(!props.html?.trim());
 
 /**
  * Check if the editor content is empty by examining the actual DOM text content.
