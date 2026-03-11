@@ -74,6 +74,20 @@ const isRawMode = ref(false);
 
 function toggleRawMode() {
   isRawMode.value = !isRawMode.value;
+
+  // When switching back to rich mode, re-sync the editor with the current markdown
+  if (!isRawMode.value) {
+    editor.setMarkdown(modelValue.value);
+  }
+}
+
+/**
+ * Handle input events from the raw contenteditable pre element.
+ * Updates the model value with the raw text content.
+ */
+function onRawInput(event: Event) {
+  const target = event.target as HTMLElement;
+  modelValue.value = target.textContent || "";
 }
 
 // Reference to the contenteditable DOM element (received via container-mounted emit)
@@ -131,7 +145,13 @@ watch(modelValue, (newValue) => {
   <div class="dx-markdown-editor" :class="{ 'is-readonly': readonly }">
     <div class="dx-markdown-editor-body" @contextmenu="contextMenu.show">
       <DanxScroll class="dx-markdown-editor-scroll" size="sm">
-        <pre v-if="isRawMode" class="dx-markdown-editor-raw">{{ modelValue }}</pre>
+        <pre
+          v-if="isRawMode"
+          class="dx-markdown-editor-raw"
+          :contenteditable="!readonly"
+          @input="onRawInput"
+          >{{ modelValue }}</pre
+        >
         <MarkdownEditorContent
           v-else
           :html="editor.renderedHtml.value"
@@ -240,7 +260,7 @@ watch(modelValue, (newValue) => {
     }
   }
 
-  /* Raw markdown source display */
+  /* Raw markdown source display (contenteditable) */
   .dx-markdown-editor-raw {
     margin: 0;
     padding: 0.75rem 1rem;
@@ -251,6 +271,8 @@ watch(modelValue, (newValue) => {
     color: var(--dx-mde-color);
     white-space: pre-wrap;
     word-wrap: break-word;
+    outline: none;
+    caret-color: var(--dx-mde-content-caret, #d4d4d4);
   }
 
   /* Badge slot positioned at top-right corner of editor body (matches LanguageBadge style) */
