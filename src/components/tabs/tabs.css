@@ -61,6 +61,10 @@
   &.is-active {
     color: var(--dx-tabs-text-active);
   }
+
+  &:has(.danx-tabs__count) {
+    padding-right: calc(var(--dx-tabs-padding-x) + var(--dx-tabs-count-min-width) / 2);
+  }
 }
 
 /* ==========================================================================
@@ -92,9 +96,29 @@
 }
 
 /* ==========================================================================
-   Count Badge
+   Count Badge (overlay at top-right of tab)
    ========================================================================== */
 
 .danx-tabs__count {
-  opacity: var(--dx-tabs-count-opacity);
+  position: absolute;
+  top: var(--dx-tabs-count-offset-y);
+  right: var(--dx-tabs-count-offset-x);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--dx-tabs-count-min-width);
+  height: var(--dx-tabs-count-height);
+  padding: 0 var(--dx-tabs-count-padding-x);
+  font-size: var(--dx-tabs-count-font-size);
+  font-weight: var(--dx-tabs-count-font-weight);
+  line-height: 1;
+  color: var(--dx-tabs-count-text);
+  background: var(--dx-tab-color, var(--dx-tabs-active-color));
+  border-radius: 9999px;
+  pointer-events: none;
+
+  .is-active & {
+    color: var(--dx-tab-color, var(--dx-tabs-count-text-active));
+    background: var(--dx-tabs-text-active);
+  }
 }

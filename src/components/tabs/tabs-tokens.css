@@ -21,7 +21,17 @@
  * --dx-tabs-divider             Border color between tabs
  * --dx-tabs-transition          Transition timing for color changes
  * --dx-tabs-indicator-transition Transition timing for indicator slide
- * --dx-tabs-count-opacity       Opacity for count badges
+ * --dx-tabs-count-min-width     Minimum width for count pill
+ * --dx-tabs-count-height        Height of count pill
+ * --dx-tabs-count-padding-x     Horizontal padding inside count pill
+ * --dx-tabs-count-offset-x      Horizontal offset from tab right edge
+ * --dx-tabs-count-offset-y      Vertical offset from tab top edge
+ * --dx-tabs-count-font-size     Count text font size
+ * --dx-tabs-count-font-weight   Count text font weight
+ * --dx-tabs-count-bg            Count pill background (inactive)
+ * --dx-tabs-count-text          Count pill text color (inactive)
+ * --dx-tabs-count-bg-active     Count pill background (active)
+ * --dx-tabs-count-text-active   Count pill text color (active)
  */
 
 :root {
@@ -70,5 +80,13 @@
      Count Badge Tokens
      ========================================================================== */
 
-  --dx-tabs-count-opacity: 0.7;
+  --dx-tabs-count-min-width: 1.125rem;
+  --dx-tabs-count-height: 1.125rem;
+  --dx-tabs-count-padding-x: 0.3rem;
+  --dx-tabs-count-offset-x: 0px;
+  --dx-tabs-count-offset-y: 0px;
+  --dx-tabs-count-font-size: 0.625rem;
+  --dx-tabs-count-font-weight: var(--font-bold);
+  --dx-tabs-count-text: var(--dx-tabs-text-active);
+  --dx-tabs-count-text-active: var(--dx-tabs-active-color);
 }

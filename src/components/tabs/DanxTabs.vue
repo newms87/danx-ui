@@ -73,10 +73,17 @@
  * | --dx-tabs-transition           | --transition-fast| Text color transition  |
  * | --dx-tabs-indicator-transition | 300ms ease-out   | Indicator slide        |
  *
- * Count:
- * | Token                          | Default | Description        |
- * |--------------------------------|---------|--------------------|
- * | --dx-tabs-count-opacity        | 0.7     | Count badge opacity|
+ * Count Badge:
+ * | Token                          | Default                      | Description          |
+ * |--------------------------------|------------------------------|----------------------|
+ * | --dx-tabs-count-min-width      | 1.125rem                     | Min width of pill    |
+ * | --dx-tabs-count-height         | 1.125rem                     | Height of pill       |
+ * | --dx-tabs-count-padding-x      | 0.3rem                       | Horizontal padding   |
+ * | --dx-tabs-count-font-size      | 0.625rem                     | Font size            |
+ * | --dx-tabs-count-font-weight    | --font-bold                  | Font weight          |
+ * | --dx-tabs-count-bg             | currentColor 20% transparent | Background color     |
+ * | --dx-tabs-count-text           | currentColor                 | Text color           |
+ * | --dx-tabs-count-opacity        | 1                            | Opacity              |
  *
  * ## Usage Examples
  *
@@ -208,6 +215,7 @@ onMounted(() => {
         type="button"
         class="danx-tabs__tab"
         :class="{ 'is-active': modelValue === tab.value }"
+        :style="tab.activeColor ? { '--dx-tab-color': tab.activeColor } : undefined"
         @click="modelValue = tab.value"
       >
         <slot :tab="tab" :is-active="modelValue === tab.value">
@@ -220,7 +228,9 @@ onMounted(() => {
             <span>{{ tab.label }}</span>
           </slot>
         </slot>
-        <span v-if="tab.count !== undefined" class="danx-tabs__count">({{ tab.count }})</span>
+        <span v-if="tab.count !== undefined && tab.count !== 0" class="danx-tabs__count">{{
+          tab.count
+        }}</span>
       </button>
     </template>
   </div>
