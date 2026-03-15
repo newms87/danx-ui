@@ -1,5 +1,6 @@
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
+import type { PopoverPosition } from "../popover/types";
 
 /**
  * DanxContextMenu Type Definitions
@@ -45,13 +46,9 @@ export interface ContextMenuItem {
 
 /**
  * Position coordinates for placing the context menu.
+ * Re-exported from popover for convenience.
  */
-export interface ContextMenuPosition {
-  /** Horizontal viewport coordinate in pixels */
-  x: number;
-  /** Vertical viewport coordinate in pixels */
-  y: number;
-}
+export type ContextMenuPosition = PopoverPosition;
 
 /**
  * Props for DanxContextMenu component.

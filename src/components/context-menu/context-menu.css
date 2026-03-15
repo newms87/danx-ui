@@ -1,59 +1,23 @@
 /**
  * DanxContextMenu Styles
  *
- * Component styles for the context menu. Consumes tokens from
- * context-menu-tokens.css. Uses native CSS nesting.
+ * Component styles for the context menu items and submenus.
+ * Panel positioning and overlay handled by DanxPopover.
+ * Consumes tokens from context-menu-tokens.css.
+ * Uses native CSS nesting.
  */
 
 @import "./context-menu-tokens.css";
 
 /* ==========================================================================
-   Overlay (full-viewport transparent click-catcher)
-   ========================================================================== */
-
-.danx-context-menu-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-}
-
-/* ==========================================================================
-   Shared panel base (menu + submenu)
-   ========================================================================== */
-
-.danx-context-menu-panel {
-  background: var(--dx-context-menu-bg);
-  border: 1px solid var(--dx-context-menu-border);
-  border-radius: var(--dx-context-menu-border-radius);
-  box-shadow: 0 10px 25px var(--dx-context-menu-shadow);
-  min-width: var(--dx-context-menu-min-width);
-  max-width: var(--dx-context-menu-max-width);
-  padding: 0.25rem 0;
-}
-
-/* ==========================================================================
-   Menu container
+   Menu container (applied to DanxPopover panel via class)
    ========================================================================== */
 
 .danx-context-menu {
-  position: fixed;
-  z-index: 1001;
+  min-width: var(--dx-context-menu-min-width);
+  max-width: var(--dx-context-menu-max-width);
+  padding: 0.25rem 0;
   overflow: visible;
-
-  /* Animation */
-  opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity 0.15s ease-out,
-    transform 0.15s ease-out;
-}
-
-/* Entry animation */
-@starting-style {
-  .danx-context-menu {
-    opacity: 0;
-    transform: translateY(4px);
-  }
 }
 
 /* ==========================================================================
@@ -129,13 +93,22 @@
    Submenu
    ========================================================================== */
 
+.danx-context-menu-panel {
+  background: var(--dx-context-menu-bg);
+  border: 1px solid var(--dx-context-menu-border);
+  border-radius: var(--dx-context-menu-border-radius);
+  box-shadow: 0 10px 25px var(--dx-context-menu-shadow);
+  min-width: var(--dx-context-menu-min-width);
+  max-width: var(--dx-context-menu-max-width);
+  padding: 0.25rem 0;
+}
+
 .danx-context-menu__submenu {
   position: absolute;
   top: 0;
   left: 100%;
   margin-left: 2px;
   overflow: hidden;
-  z-index: 1002;
 
   &.open-left {
     left: auto;

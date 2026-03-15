@@ -36,7 +36,6 @@ export {
   useCodeViewerCollapse,
   useCodeViewerEditor,
 } from "./components/code-viewer";
-export { calculateContextMenuPosition } from "./components/context-menu";
 export { useDialog, useDialogStack } from "./components/dialog";
 export { useToast, useToastTimer } from "./components/toast";
 export { useSplitPanel } from "./components/split-panel";
@@ -108,7 +107,6 @@ export type {
 export type {
   ContextMenuItem,
   ContextMenuPosition,
-  ContextMenuPositionResult,
   DanxContextMenuEmits,
   DanxContextMenuProps,
 } from "./components/context-menu";

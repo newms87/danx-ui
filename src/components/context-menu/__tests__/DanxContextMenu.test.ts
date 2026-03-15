@@ -1,7 +1,37 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
+import { nextTick } from "vue";
 import DanxContextMenu from "../DanxContextMenu.vue";
 import type { ContextMenuItem } from "../types";
+
+/**
+ * Mock native Popover API on HTMLElement.prototype since jsdom doesn't support it.
+ * Tracks open state per element via a WeakMap so dynamically created elements
+ * (from v-if) automatically have the API available.
+ */
+const popoverOpenState = new WeakMap<HTMLElement, boolean>();
+const origMatches = HTMLElement.prototype.matches;
+
+beforeEach(() => {
+  HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+    popoverOpenState.set(this, true);
+    this.dispatchEvent(new Event("toggle"));
+  });
+  HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
+    popoverOpenState.set(this, false);
+    this.dispatchEvent(new Event("toggle"));
+  });
+  HTMLElement.prototype.matches = function (selector: string) {
+    if (selector === ":popover-open") return popoverOpenState.get(this) ?? false;
+    return origMatches.call(this, selector);
+  };
+});
+
+afterEach(() => {
+  HTMLElement.prototype.showPopover = undefined as unknown as () => void;
+  HTMLElement.prototype.hidePopover = undefined as unknown as () => void;
+  HTMLElement.prototype.matches = origMatches;
+});
 
 function createItem(overrides: Partial<ContextMenuItem> = {}): ContextMenuItem {
   return {
@@ -23,35 +53,32 @@ describe("DanxContextMenu", () => {
     vi.useRealTimers();
   });
 
-  function mountMenu(items: ContextMenuItem[] = [], position = { x: 100, y: 200 }) {
+  async function mountMenu(items: ContextMenuItem[] = [], position = { x: 100, y: 200 }) {
     wrapper = mount(DanxContextMenu, {
       props: { items, position },
       attachTo: document.body,
     });
+    await nextTick();
+    await nextTick();
     return wrapper;
   }
 
   describe("rendering", () => {
-    it("renders overlay", () => {
-      mountMenu();
-      expect(wrapper.find(".danx-context-menu-overlay").exists()).toBe(true);
+    it("renders menu via DanxPopover", async () => {
+      await mountMenu();
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(true);
     });
 
-    it("renders menu container", () => {
-      mountMenu();
-      expect(wrapper.find(".danx-context-menu").exists()).toBe(true);
-    });
-
-    it("renders menu items", () => {
-      mountMenu([createItem({ label: "Cut" }), createItem({ id: "item-2", label: "Copy" })]);
+    it("renders menu items", async () => {
+      await mountMenu([createItem({ label: "Cut" }), createItem({ id: "item-2", label: "Copy" })]);
       const items = wrapper.findAll(".danx-context-menu__item");
       expect(items.length).toBe(2);
       expect(items[0]!.find(".danx-context-menu__label").text()).toBe("Cut");
       expect(items[1]!.find(".danx-context-menu__label").text()).toBe("Copy");
     });
 
-    it("renders dividers", () => {
-      mountMenu([
+    it("renders dividers", async () => {
+      await mountMenu([
         createItem(),
         createItem({ id: "div", divider: true }),
         createItem({ id: "item-2" }),
@@ -59,18 +86,18 @@ describe("DanxContextMenu", () => {
       expect(wrapper.findAll(".danx-context-menu__divider").length).toBe(1);
     });
 
-    it("shows shortcut text", () => {
-      mountMenu([createItem({ shortcut: "Ctrl+C" })]);
+    it("shows shortcut text", async () => {
+      await mountMenu([createItem({ shortcut: "Ctrl+C" })]);
       expect(wrapper.find(".danx-context-menu__shortcut").text()).toBe("Ctrl+C");
     });
 
-    it("shows disabled state", () => {
-      mountMenu([createItem({ disabled: true })]);
+    it("shows disabled state", async () => {
+      await mountMenu([createItem({ disabled: true })]);
       expect(wrapper.find(".danx-context-menu__item.is-disabled").exists()).toBe(true);
     });
 
-    it("shows chevron for items with children", () => {
-      mountMenu([
+    it("shows chevron for items with children", async () => {
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", label: "Child" })],
         }),
@@ -78,8 +105,8 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__chevron").exists()).toBe(true);
     });
 
-    it("does not show shortcut for items with children", () => {
-      mountMenu([
+    it("does not show shortcut for items with children", async () => {
+      await mountMenu([
         createItem({
           shortcut: "Ctrl+X",
           children: [createItem({ id: "child-1" })],
@@ -88,8 +115,8 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__shortcut").exists()).toBe(false);
     });
 
-    it("renders icon when provided", () => {
-      mountMenu([
+    it("renders icon when provided", async () => {
+      await mountMenu([
         createItem({
           icon: '<svg class="test-icon"><path d="M0 0"/></svg>',
         }),
@@ -98,28 +125,15 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__icon .test-icon").exists()).toBe(true);
     });
 
-    it("does not render icon when not provided", () => {
-      mountMenu([createItem()]);
+    it("does not render icon when not provided", async () => {
+      await mountMenu([createItem()]);
       expect(wrapper.find(".danx-context-menu__icon").exists()).toBe(false);
     });
   });
 
-  describe("menu positioning", () => {
-    it("positions at given coordinates", () => {
-      mountMenu([], { x: 150, y: 250 });
-      const style = wrapper.find(".danx-context-menu").attributes("style");
-      expect(style).toContain("top: 250px");
-      expect(style).toContain("left: 150px");
-    });
-
-    it("constrains to left edge", () => {
-      mountMenu([], { x: -50, y: 200 });
-      const style = wrapper.find(".danx-context-menu").attributes("style");
-      expect(style).toContain("left: 10px");
-    });
-
+  describe("submenu direction", () => {
     it("adds open-left class to submenu when near right viewport edge", async () => {
-      mountMenu(
+      await mountMenu(
         [
           createItem({
             children: [createItem({ id: "child-1", label: "Child" })],
@@ -139,7 +153,7 @@ describe("DanxContextMenu", () => {
     it("calls action and emits close on item click", async () => {
       const action = vi.fn();
       const item = createItem({ action });
-      mountMenu([item]);
+      await mountMenu([item]);
 
       await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(action).toHaveBeenCalled();
@@ -150,14 +164,14 @@ describe("DanxContextMenu", () => {
 
     it("does not call action on disabled item", async () => {
       const action = vi.fn();
-      mountMenu([createItem({ action, disabled: true })]);
+      await mountMenu([createItem({ action, disabled: true })]);
 
       await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(action).not.toHaveBeenCalled();
     });
 
     it("returns early from onItemClick when item is disabled", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           id: "disabled-no-action",
           label: "Disabled",
@@ -174,7 +188,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("toggles submenu on parent item click instead of closing", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", label: "Child" })],
         }),
@@ -186,7 +200,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("emits close without calling action when item has no action", async () => {
-      mountMenu([createItem({ id: "no-action", label: "No Action" })]);
+      await mountMenu([createItem({ id: "no-action", label: "No Action" })]);
 
       await wrapper.find(".danx-context-menu__item").trigger("click");
       expect(wrapper.emitted("close")).toHaveLength(1);
@@ -194,7 +208,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("clicking parent item again closes submenu", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", label: "Child" })],
         }),
@@ -210,7 +224,7 @@ describe("DanxContextMenu", () => {
 
   describe("submenu hover", () => {
     it("shows submenu after hover delay", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", label: "Sub Item" })],
         }),
@@ -226,7 +240,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("hides submenu on item without children hover", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -244,7 +258,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("hides submenu after leave delay", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -262,7 +276,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("cancels close when entering submenu", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -283,7 +297,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("closes submenu on submenu leave", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -303,7 +317,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("closes submenu on leave when opened via click without prior hover", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -320,7 +334,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("keeps submenu open when mouse enters it without prior leave delay", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -337,7 +351,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("closes submenu when mouse leaves it after being opened via click", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1" })],
         }),
@@ -354,7 +368,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("switches to second parent submenu when hovering rapidly between parents", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           id: "parent-1",
           children: [createItem({ id: "child-1", label: "Child 1" })],
@@ -378,7 +392,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("only shows submenu for active parent, not other parents", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           id: "parent-1",
           children: [createItem({ id: "child-1" })],
@@ -399,7 +413,7 @@ describe("DanxContextMenu", () => {
 
   describe("submenu children rendering", () => {
     it("renders child items in submenu", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [
             createItem({ id: "child-1", label: "Child 1" }),
@@ -417,7 +431,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("renders child dividers", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [
             createItem({ id: "child-1" }),
@@ -434,7 +448,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("renders child shortcuts", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", shortcut: "Ctrl+C" })],
         }),
@@ -447,7 +461,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("handles child disabled state", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", disabled: true })],
         }),
@@ -460,7 +474,7 @@ describe("DanxContextMenu", () => {
     });
 
     it("renders child icon when provided", async () => {
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [
             createItem({
@@ -479,7 +493,7 @@ describe("DanxContextMenu", () => {
 
     it("does not call action or emit events when clicking disabled child", async () => {
       const childAction = vi.fn();
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [createItem({ id: "child-1", action: childAction, disabled: true })],
         }),
@@ -497,7 +511,7 @@ describe("DanxContextMenu", () => {
     it("calls child action and emits close on child click", async () => {
       const childAction = vi.fn();
       const child = createItem({ id: "child-1", action: childAction });
-      mountMenu([
+      await mountMenu([
         createItem({
           children: [child],
         }),
@@ -513,43 +527,20 @@ describe("DanxContextMenu", () => {
   });
 
   describe("close events", () => {
-    it("emits close on overlay click", async () => {
-      mountMenu();
-      await wrapper.find(".danx-context-menu-overlay").trigger("click");
-      expect(wrapper.emitted("close")).toHaveLength(1);
-    });
-
-    it("emits close on Escape key", async () => {
-      mountMenu();
+    it("emits close when popover closes via Escape", async () => {
+      await mountMenu();
       const event = new KeyboardEvent("keydown", { key: "Escape" });
       document.dispatchEvent(event);
+      await nextTick();
       expect(wrapper.emitted("close")).toHaveLength(1);
     });
 
-    it("does not emit close on non-Escape key", () => {
-      mountMenu();
+    it("does not emit close on non-Escape key", async () => {
+      await mountMenu();
       const event = new KeyboardEvent("keydown", { key: "Enter" });
       document.dispatchEvent(event);
+      await nextTick();
       expect(wrapper.emitted("close")).toBeUndefined();
-    });
-  });
-
-  describe("cleanup", () => {
-    it("removes document keydown listener and clears timeouts on unmount", () => {
-      const removeSpy = vi.spyOn(document, "removeEventListener");
-      mountMenu([
-        createItem({
-          children: [createItem({ id: "child-1" })],
-        }),
-      ]);
-
-      wrapper.find(".danx-context-menu__item-wrapper").trigger("mouseenter");
-
-      wrapper.unmount();
-
-      const keydownCalls = removeSpy.mock.calls.filter((c) => c[0] === "keydown");
-      expect(keydownCalls.length).toBeGreaterThan(0);
-      removeSpy.mockRestore();
     });
   });
 });
