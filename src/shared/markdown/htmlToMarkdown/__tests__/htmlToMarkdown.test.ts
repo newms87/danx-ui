@@ -49,7 +49,7 @@ describe("htmlToMarkdown", () => {
 
     it("converts multiple paragraphs", () => {
       expect(htmlToMarkdown("<p>First paragraph</p><p>Second paragraph</p>")).toBe(
-        "First paragraph\n\nSecond paragraph"
+        "First paragraph\nSecond paragraph"
       );
     });
 

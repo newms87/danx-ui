@@ -42,9 +42,11 @@ export function processNode(node: Node, customProcessor?: CustomElementProcessor
       }
 
       switch (tagName) {
-        // Paragraphs
+        // Paragraphs — use single \n so Enter in contenteditable produces
+        // a single newline in the saved markdown (not a paragraph break).
+        // Double-Enter creates an empty <p> which adds an extra \n, yielding \n\n.
         case "p":
-          parts.push(`${processInlineContent(element, customProcessor)}\n\n`);
+          parts.push(`${processInlineContent(element, customProcessor)}\n`);
           break;
 
         // Line breaks

@@ -81,8 +81,10 @@ export function renderTokens(tokens: BlockToken[], sanitize: boolean): string {
 
       case "paragraph": {
         const content = parseInline(token.content, sanitize);
-        // Convert single newlines to <br> within paragraphs
-        const withBreaks = content.replace(/\n/g, "<br />");
+        // parseInline converts hard breaks ("  \n") to "<br />\n".
+        // Strip the trailing \n after <br /> first to avoid doubling,
+        // then convert remaining soft newlines to <br />.
+        const withBreaks = content.replace(/<br \/>\n/g, "<br />").replace(/\n/g, "<br />");
         htmlParts.push(`<p>${withBreaks}</p>`);
         break;
       }
