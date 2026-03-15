@@ -50,6 +50,8 @@ export function createKeyHandler(deps: KeyHandlerDeps): KeyHandlerReturn {
 
     if (isInCodeBlock) {
       if (handleCodeBlockLanguageCycle(event, target, codeBlocks)) return;
+      // Still allow editor hotkeys (e.g., Ctrl+Shift+K to toggle off code block)
+      hotkeys.handleKeyDown(event);
       return;
     }
 

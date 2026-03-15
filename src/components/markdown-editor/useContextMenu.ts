@@ -15,6 +15,26 @@ import { buildTableItems } from "./contextMenuTableBuilder";
 import { buildTextItems } from "./contextMenuTextBuilder";
 
 /**
+ * Save the current browser selection as a Range object.
+ * Used to preserve the editor cursor when focus moves to the context menu.
+ */
+function saveSelectionRange(): Range | null {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return null;
+  return sel.getRangeAt(0).cloneRange();
+}
+
+/**
+ * Restore a previously saved Range into the browser selection.
+ */
+function restoreSelectionRange(range: Range): void {
+  const sel = window.getSelection();
+  if (!sel) return;
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+/**
  * Options for useContextMenu composable
  */
 export interface UseContextMenuOptions {
@@ -43,6 +63,7 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
   const isVisible = ref(false);
   const position = ref({ x: 0, y: 0 });
   const items = ref<ContextMenuItem[]>([]);
+  let savedRange: Range | null = null;
 
   /**
    * Determine the context for the context menu based on cursor position
@@ -55,19 +76,51 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
   }
 
   /**
+   * Wrap a menu item action so the editor selection is restored before it runs.
+   * Without this, clicking a context menu button moves focus away from the
+   * contenteditable, causing window.getSelection() to return a range outside
+   * the editor — which makes every action silently bail out.
+   */
+  function wrapAction(action: () => void): () => void {
+    return () => {
+      if (savedRange) {
+        restoreSelectionRange(savedRange);
+      }
+      action();
+    };
+  }
+
+  /**
+   * Recursively wrap all action callbacks in a menu item tree
+   */
+  function wrapItemActions(menuItems: ContextMenuItem[]): ContextMenuItem[] {
+    return menuItems.map((item) => ({
+      ...item,
+      action: item.action ? wrapAction(item.action) : undefined,
+      children: item.children ? wrapItemActions(item.children) : undefined,
+    }));
+  }
+
+  /**
    * Build menu items by dispatching to the appropriate context builder
    */
   function buildItems(context: ContextMenuContext): ContextMenuItem[] {
+    let menuItems: ContextMenuItem[];
     switch (context) {
       case "code":
-        return buildCodeItems(editor);
+        menuItems = buildCodeItems(editor);
+        break;
       case "table":
-        return buildTableItems(editor);
+        menuItems = buildTableItems(editor);
+        break;
       case "list":
-        return buildListItems(editor);
+        menuItems = buildListItems(editor);
+        break;
       case "text":
-        return buildTextItems(editor);
+        menuItems = buildTextItems(editor);
+        break;
     }
+    return wrapItemActions(menuItems);
   }
 
   /**
@@ -77,6 +130,9 @@ export function useContextMenu(options: UseContextMenuOptions): UseContextMenuRe
     if (readonly?.value) return;
 
     event.preventDefault();
+
+    // Save the editor selection before focus moves to the context menu
+    savedRange = saveSelectionRange();
 
     const context = determineContext();
     const menuItems = buildItems(context);
