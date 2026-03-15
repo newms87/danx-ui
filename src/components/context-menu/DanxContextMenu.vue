@@ -8,6 +8,9 @@
  * or to the left when near the viewport edge.
  *
  * Always visible when mounted — parent controls visibility via v-if.
+ * The internal isOpen ref starts as true so the popover panel renders
+ * immediately on mount. When the popover closes (click-outside, Escape),
+ * isOpen becomes false and the watch emits "close" to the parent.
  *
  * @props
  *   position: PopoverPosition - x/y viewport coordinates for menu placement
@@ -35,29 +38,41 @@
  *     @action="onAction"
  *   />
  */
-import { computed, onUnmounted, ref } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { DanxIcon } from "../icon";
 import { DanxPopover } from "../popover";
-import type { PopoverPosition } from "../popover/types";
-import type { ContextMenuItem } from "./types";
+import type { ContextMenuItem, DanxContextMenuEmits, DanxContextMenuProps } from "./types";
 
-const props = defineProps<{
-  position: PopoverPosition;
-  items: ContextMenuItem[];
-}>();
+const props = defineProps<DanxContextMenuProps>();
 
-const emit = defineEmits<{
-  close: [];
-  action: [item: ContextMenuItem];
-}>();
+const emit = defineEmits<DanxContextMenuEmits>();
 
-const ESTIMATED_MENU_WIDTH = 320;
-
+/**
+ * Always starts true — the menu is visible whenever mounted.
+ * When DanxPopover closes (click-outside or Escape), isOpen becomes false
+ * and the watch below emits "close" so the parent can unmount us.
+ */
 const isOpen = ref(true);
 
 const activeSubmenuId = ref<string | null>(null);
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * Emit close when popover dismisses itself (click-outside or Escape).
+ * Separated from v-model to avoid the double-handling issue of combining
+ * v-model with an explicit @update:model-value listener.
+ */
+watch(isOpen, (val) => {
+  if (!val) emit("close");
+});
+
+/**
+ * Determine submenu direction based on the menu's position.
+ * If a submenu (estimated same width as menu) would overflow the right
+ * viewport edge, submenus open to the left instead.
+ * Uses --dx-context-menu-max-width (320px) as the estimated menu width.
+ */
+const ESTIMATED_MENU_WIDTH = 320;
 const submenuOpenLeft = computed(
   () => props.position.x + ESTIMATED_MENU_WIDTH * 2 > window.innerWidth
 );
@@ -116,10 +131,6 @@ function onItemClick(item: ContextMenuItem): void {
   emit("close");
 }
 
-function onClose(): void {
-  emit("close");
-}
-
 onUnmounted(() => {
   if (hoverTimeout) {
     clearTimeout(hoverTimeout);
@@ -128,12 +139,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DanxPopover
-    v-model="isOpen"
-    :position="position"
-    class="danx-context-menu"
-    @update:model-value="!$event && onClose()"
-  >
+  <DanxPopover v-model="isOpen" :position="position" class="danx-context-menu">
     <template v-for="item in items" :key="item.id">
       <!-- Divider -->
       <div v-if="item.divider" class="danx-context-menu__divider" />

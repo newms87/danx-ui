@@ -66,8 +66,8 @@ export interface DanxContextMenuProps {
  */
 export interface DanxContextMenuEmits {
   /** Fired when the menu should close (overlay click, Escape, item click) */
-  (e: "close"): void;
+  close: [];
 
   /** Fired with the clicked item before executing its action */
-  (e: "action", item: ContextMenuItem): void;
+  action: [item: ContextMenuItem];
 }

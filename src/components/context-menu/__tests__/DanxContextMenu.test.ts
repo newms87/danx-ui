@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
-import DanxContextMenu from "../DanxContextMenu.vue";
+import { DanxContextMenu } from "../index";
 import type { ContextMenuItem } from "../types";
 
 /**
@@ -146,6 +146,22 @@ describe("DanxContextMenu", () => {
       const submenu = wrapper.find(".danx-context-menu__submenu");
       expect(submenu.exists()).toBe(true);
       expect(submenu.classes()).toContain("open-left");
+    });
+
+    it("does not add open-left class when position is far from right edge", async () => {
+      await mountMenu(
+        [
+          createItem({
+            children: [createItem({ id: "child-1", label: "Child" })],
+          }),
+        ],
+        { x: 100, y: 200 }
+      );
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
+      expect(submenu.exists()).toBe(true);
+      expect(submenu.classes()).not.toContain("open-left");
     });
   });
 
@@ -541,6 +557,23 @@ describe("DanxContextMenu", () => {
       document.dispatchEvent(event);
       await nextTick();
       expect(wrapper.emitted("close")).toBeUndefined();
+    });
+  });
+
+  describe("cleanup", () => {
+    it("clears active hover timeout on unmount without errors", async () => {
+      await mountMenu([
+        createItem({
+          children: [createItem({ id: "child-1" })],
+        }),
+      ]);
+
+      // Start a hover timeout (100ms) but unmount before it fires
+      await wrapper.find(".danx-context-menu__item-wrapper").trigger("mouseenter");
+      wrapper.unmount();
+
+      // Advance past the timeout — should not throw or warn
+      vi.advanceTimersByTime(200);
     });
   });
 });
