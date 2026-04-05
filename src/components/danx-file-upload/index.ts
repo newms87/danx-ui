@@ -18,6 +18,12 @@ export {
   // resetFileUploadHandler intentionally not in src/index.ts — test-only utility
   resetFileUploadHandler,
 } from "./fileUploadConfig";
+export {
+  setFileChildrenHandler,
+  getFileChildrenHandler,
+  resetFileChildrenHandler,
+} from "./fileChildrenConfig";
+export type { FileChildrenHandler } from "./fileChildrenConfig";
 export { uploadFileToUrl } from "./uploadFileToUrl";
 export { isAcceptedType } from "./fileValidation";
 export type {

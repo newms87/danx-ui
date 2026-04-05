@@ -71,6 +71,7 @@ import { DanxDialog, useDialog } from "../dialog";
 import { DanxFileViewer } from "../danx-file-viewer";
 import DanxFileUploadDropZone from "./DanxFileUploadDropZone.vue";
 import { useFileUpload } from "./useFileUpload";
+import { getFileChildrenHandler } from "./fileChildrenConfig";
 import type { PreviewFile } from "../danx-file";
 import type { DanxFileUploadProps, DanxFileUploadEmits, DanxFileUploadSlots } from "./types";
 
@@ -141,6 +142,13 @@ function onFileClick(file: PreviewFile) {
   if (!props.viewable || isUploading(file)) return;
   selectedFile.value = file;
   viewerDialog.open();
+}
+
+function onLoadChildren(file: PreviewFile) {
+  const handler = getFileChildrenHandler();
+  if (handler) {
+    handler(file);
+  }
 }
 </script>
 
@@ -214,6 +222,7 @@ function onFileClick(file: PreviewFile) {
       :downloadable="downloadable"
       class="h-full"
       @download="emit('download', $event)"
+      @load-children="onLoadChildren"
     />
   </DanxDialog>
 </template>

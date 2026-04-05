@@ -66,6 +66,8 @@ export {
   useFileUpload,
   setFileUploadHandler,
   getFileUploadHandler,
+  setFileChildrenHandler,
+  getFileChildrenHandler,
   uploadFileToUrl,
   isAcceptedType,
 } from "./components/danx-file-upload";
@@ -216,6 +218,7 @@ export type {
 export type { UseSelectOptions, UseSelectReturn } from "./components/select";
 export type {
   FileUploadHandler,
+  FileChildrenHandler,
   UploadFileToUrlOptions,
   DanxFileUploadProps,
   DanxFileUploadEmits,
