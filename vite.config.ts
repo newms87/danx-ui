@@ -26,7 +26,7 @@ export default defineConfig({
     alias: {
       "@": resolve(__dirname, "src"),
       // Resolve bare "danx-ui" imports (used by demo/DemoPage) to source in dev
-      ...(isDev ? { "danx-ui": resolve(__dirname, "src/index.ts") } : {}),
+      ...(isDev ? { "@thehammer/danx-ui": resolve(__dirname, "src/index.ts") } : {}),
       // Use Vue full build (with runtime template compiler) in dev for live code editing
       ...(isDev ? { vue: "vue/dist/vue.esm-bundler.js" } : {}),
     },
@@ -44,7 +44,10 @@ export default defineConfig({
         "components/dialog/index": resolve(__dirname, "src/components/dialog/index.ts"),
         "components/dialog/useDialog": resolve(__dirname, "src/components/dialog/useDialog.ts"),
         "components/scroll/index": resolve(__dirname, "src/components/scroll/index.ts"),
-        "components/markdown-editor/index": resolve(__dirname, "src/components/markdown-editor/index.ts"),
+        "components/markdown-editor/index": resolve(
+          __dirname,
+          "src/components/markdown-editor/index.ts"
+        ),
       },
       formats: ["es"],
     },

@@ -1,11 +1,8 @@
 #!/bin/bash
 set -e
 
-# NOTE: npm now requires granular tokens with 2FA, max 90-day lifetime
-# Classic tokens have been revoked. If auth fails, you'll need to:
-# 1. Run `npm login` to create a new granular token
-# 2. Complete 2FA verification
-# See: https://gh.io/all-npm-classic-tokens-revoked
+# Authentication uses NPM_TOKEN env var via .npmrc
+# The token is stored in gpt-manager's .env and passed by the Makefile
 
 # Colors for output
 RED='\033[0;31m'
@@ -15,17 +12,9 @@ NC='\033[0m' # No Color
 
 echo -e "${YELLOW}Checking npm authentication...${NC}"
 
-# Check if logged in by trying to get current user
-if ! npm whoami &>/dev/null; then
-    echo -e "${RED}Not logged in to npm or token expired.${NC}"
-    echo -e "${YELLOW}Please log in to npm:${NC}"
-    npm login
-
-    # Verify login succeeded
-    if ! npm whoami &>/dev/null; then
-        echo -e "${RED}Login failed. Aborting.${NC}"
-        exit 1
-    fi
+if [ -z "$NPM_TOKEN" ]; then
+    echo -e "${RED}NPM_TOKEN not set. Pass it via environment or set in .env.${NC}"
+    exit 1
 fi
 
 CURRENT_USER=$(npm whoami)
@@ -55,7 +44,7 @@ echo -e "${GREEN}New version: ${NEW_VERSION}${NC}"
 
 # Publish to npm
 echo -e "${YELLOW}Publishing to npm...${NC}"
-if npm publish; then
+if npm publish --access public; then
     echo -e "${GREEN}Published successfully!${NC}"
 
     # Git operations
