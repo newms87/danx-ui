@@ -16,6 +16,7 @@
 
   &.is-readonly {
     cursor: default;
+    min-height: 0;
   }
 
   /* Placeholder styling when empty */
