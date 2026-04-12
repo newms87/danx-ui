@@ -7,6 +7,7 @@
  */
 
 import type { CustomElementProcessor } from "../../shared/markdown";
+import { uid } from "../../shared/uid";
 import { CodeBlockState } from "./useCodeBlocks";
 import { TokenRenderer, TokenState } from "./types";
 
@@ -17,12 +18,12 @@ export type TokenRegister = (id: string, rendererId: string, groups: string[]) =
 
 /** Generate a unique ID for code blocks */
 export function generateCodeBlockId(): string {
-  return `cb-${crypto.randomUUID()}`;
+  return `cb-${uid()}`;
 }
 
 /** Generate a unique ID for tokens */
 export function generateTokenId(): string {
-  return `tok-${crypto.randomUUID()}`;
+  return `tok-${uid()}`;
 }
 
 /**

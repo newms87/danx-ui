@@ -19,6 +19,7 @@
 import { ref, type Ref } from "vue";
 import type { ToastEntry, ToastOptions, ToastPosition } from "./types";
 import type { VariantType } from "../../shared/types";
+import { uid } from "../../shared/uid";
 
 /** Default values for toast options */
 const DEFAULTS = {
@@ -33,11 +34,8 @@ const DEFAULTS = {
 const toasts = ref<ToastEntry[]>([]);
 const containerMounted = ref(false);
 
-/** Simple incrementing counter for unique IDs */
-let nextId = 1;
-
 function generateId(): string {
-  return `toast-${nextId++}`;
+  return `toast-${uid()}`;
 }
 
 /** Find an existing toast that matches for deduplication.
