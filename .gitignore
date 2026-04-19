@@ -24,6 +24,9 @@ yarn-error.log*
 *.local
 .env*
 
+# npm auth — generated ephemerally by scripts/publish.sh
+.npmrc
+
 # TypeScript cache
 *.tsbuildinfo
 
