@@ -175,13 +175,114 @@ describe("arrayJoin", () => {
   });
 });
 
-describe("getNestedValue (indirect)", () => {
-  it("returns null/undefined obj as-is via arrayFirst", () => {
-    expect(arrayFirst([null], "name")).toBeNull();
+describe("nested-array traversal", () => {
+  const provider = [{ bill: [{ amount: 100 }, { amount: 50 }] }, { bill: [{ amount: 25 }] }];
+
+  it("arraySum traverses nested arrays at every path boundary", () => {
+    expect(arraySum(provider, "bill.amount")).toBe(175);
+  });
+
+  it("arrayAvg averages all leaves across nested arrays", () => {
+    expect(arrayAvg(provider, "bill.amount")).toBeCloseTo(58.3333333, 4);
+  });
+
+  it("arrayMin finds minimum across nested arrays", () => {
+    expect(arrayMin(provider, "bill.amount")).toBe(25);
+  });
+
+  it("arrayMax finds maximum across nested arrays", () => {
+    expect(arrayMax(provider, "bill.amount")).toBe(100);
+  });
+
+  it("arrayFirst returns first leaf across nested arrays", () => {
+    expect(arrayFirst(provider, "bill.amount")).toBe(100);
+  });
+
+  it("arrayLast returns last leaf across nested arrays", () => {
+    expect(arrayLast(provider, "bill.amount")).toBe(25);
+  });
+
+  it("arraySum handles empty inner arrays", () => {
+    const data = [{ bill: [] }, { bill: [{ amount: 10 }] }];
+    expect(arraySum(data, "bill.amount")).toBe(10);
+  });
+
+  it("arrayAvg handles empty inner arrays without including them in count", () => {
+    const data = [{ bill: [] }, { bill: [{ amount: 10 }, { amount: 20 }] }];
+    expect(arrayAvg(data, "bill.amount")).toBe(15);
+  });
+
+  it("arrayMin returns Infinity when all inner arrays are empty", () => {
+    const data = [{ bill: [] }, { bill: [] }];
+    expect(arrayMin(data, "bill.amount")).toBe(Infinity);
+  });
+
+  it("arrayMax returns -Infinity when all inner arrays are empty", () => {
+    const data = [{ bill: [] }, { bill: [] }];
+    expect(arrayMax(data, "bill.amount")).toBe(-Infinity);
+  });
+
+  it("arrayFirst returns undefined when inner arrays are empty", () => {
+    const data = [{ bill: [] }, { bill: [] }];
+    expect(arrayFirst(data, "bill.amount")).toBeUndefined();
+  });
+
+  it("arrayLast returns undefined when inner arrays are empty", () => {
+    const data = [{ bill: [] }, { bill: [] }];
+    expect(arrayLast(data, "bill.amount")).toBeUndefined();
+  });
+
+  it("arraySum skips entries with missing intermediate field", () => {
+    const data = [{ bill: [{ amount: 10 }] }, { other: "x" }, { bill: [{ amount: 5 }] }];
+    expect(arraySum(data, "bill.amount")).toBe(15);
+  });
+
+  it("arrayAvg skips entries with missing intermediate field in the count", () => {
+    const data = [{ bill: [{ amount: 10 }] }, { other: "x" }, { bill: [{ amount: 20 }] }];
+    expect(arrayAvg(data, "bill.amount")).toBe(15);
+  });
+
+  it("arrayFirst skips null leaves and returns first non-null", () => {
+    const data = [{ bill: [{ amount: null }, { amount: 42 }] }, { bill: [{ amount: 99 }] }];
+    expect(arrayFirst(data, "bill.amount")).toBe(42);
+  });
+
+  it("arrayLast skips null leaves and returns last non-null", () => {
+    const data = [{ bill: [{ amount: 42 }] }, { bill: [{ amount: 99 }, { amount: null }] }];
+    expect(arrayLast(data, "bill.amount")).toBe(99);
+  });
+
+  it("arraySum filters non-numeric leaves in mixed-type results", () => {
+    const data = [
+      { bill: [{ amount: 10 }, { amount: "abc" }] },
+      { bill: [{ amount: 5 }, { amount: null }] },
+    ];
+    expect(arraySum(data, "bill.amount")).toBe(15);
+  });
+
+  it("arrayAvg averages only non-NaN leaves in mixed-type results", () => {
+    const data = [{ bill: [{ amount: 10 }, { amount: "abc" }] }, { bill: [{ amount: 20 }] }];
+    expect(arrayAvg(data, "bill.amount")).toBe(15);
+  });
+
+  it("arrayMin filters non-numeric leaves in mixed-type results", () => {
+    const data = [{ bill: [{ amount: 10 }, { amount: "abc" }] }, { bill: [{ amount: 5 }] }];
+    expect(arrayMin(data, "bill.amount")).toBe(5);
+  });
+
+  it("arrayMax filters non-numeric leaves in mixed-type results", () => {
+    const data = [{ bill: [{ amount: 10 }, { amount: "abc" }] }, { bill: [{ amount: 50 }] }];
+    expect(arrayMax(data, "bill.amount")).toBe(50);
+  });
+});
+
+describe("arrayFirst null/undefined handling", () => {
+  it("skips null/undefined array entries when walking a fieldPath", () => {
+    expect(arrayFirst([null], "name")).toBeUndefined();
     expect(arrayFirst([undefined], "name")).toBeUndefined();
   });
 
-  it("returns item itself when path is empty via arrayFirst", () => {
+  it("returns item itself when path is empty", () => {
     expect(arrayFirst([{ name: "test" }])).toEqual({ name: "test" });
   });
 });
