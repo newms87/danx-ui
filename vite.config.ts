@@ -40,6 +40,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, "src/index.ts"),
+        "components/button/index": resolve(__dirname, "src/components/button/index.ts"),
         "components/code-viewer/index": resolve(__dirname, "src/components/code-viewer/index.ts"),
         "components/dialog/index": resolve(__dirname, "src/components/dialog/index.ts"),
         "components/dialog/useDialog": resolve(__dirname, "src/components/dialog/useDialog.ts"),
@@ -49,6 +50,10 @@ export default defineConfig({
           "src/components/markdown-editor/index.ts"
         ),
         "components/toggle/index": resolve(__dirname, "src/components/toggle/index.ts"),
+        "components/range-slider/index": resolve(
+          __dirname,
+          "src/components/range-slider/index.ts"
+        ),
       },
       formats: ["es"],
     },
