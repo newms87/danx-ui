@@ -62,6 +62,11 @@
       "import": "./dist/components/toggle/index.js"
     },
     "./components/toggle/styles": "./dist/components/toggle/toggle.css",
+    "./components/range-slider": {
+      "types": "./dist/components/range-slider/index.d.ts",
+      "import": "./dist/components/range-slider/index.js"
+    },
+    "./components/range-slider/styles": "./dist/components/range-slider/range-slider.css",
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css"
   },

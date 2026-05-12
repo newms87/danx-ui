@@ -30,6 +30,7 @@ export { DanxTextarea } from "./components/textarea";
 export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
 export { DanxToggle } from "./components/toggle";
+export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
 
 // Composables
 export {
@@ -228,6 +229,15 @@ export type {
 } from "./components/danx-file-upload";
 export type { UseFileUploadReturn } from "./components/danx-file-upload";
 export type { DanxToggleProps, DanxToggleSlots, ToggleSize } from "./components/toggle";
+export type {
+  DanxRangeSliderProps,
+  DanxRangeSliderSlots,
+  RangeSliderHandle,
+  RangeSliderModel,
+  RangeSliderValueSlotScope,
+  UseRangeSliderOptions,
+  UseRangeSliderReturn,
+} from "./components/range-slider";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";

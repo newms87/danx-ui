@@ -35,3 +35,5 @@
 @import "./components/textarea/textarea.css" layer(components);
 @import "./components/select/select.css" layer(components);
 @import "./components/danx-file-upload/danx-file-upload.css" layer(components);
+@import "./components/toggle/toggle.css" layer(components);
+@import "./components/range-slider/range-slider.css" layer(components);

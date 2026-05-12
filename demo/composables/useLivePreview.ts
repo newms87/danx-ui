@@ -82,6 +82,7 @@ import {
 } from "../../src/components/scroll";
 import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxToggle } from "../../src/components/toggle";
+import { DanxRangeSlider, useRangeSlider } from "../../src/components/range-slider";
 import { DanxFile, useDanxFile } from "../../src/components/danx-file";
 import {
   DanxFileUpload,
@@ -191,6 +192,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxVirtualScroll,
   DanxSkeleton,
   DanxToggle,
+  DanxRangeSlider,
   DanxInput,
   DanxTextarea,
   DanxSelect,
@@ -329,6 +331,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxSkeleton,
   // Toggle
   DanxToggle,
+  // Range Slider
+  DanxRangeSlider,
+  useRangeSlider,
   // Input
   DanxInput,
   DanxTextarea,

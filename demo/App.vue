@@ -174,6 +174,9 @@ watch(theme, (newTheme) => {
               <li>
                 <RouterLink to="/toggle" class="demo-sidebar__link">Toggle</RouterLink>
               </li>
+              <li>
+                <RouterLink to="/range-slider" class="demo-sidebar__link">Range Slider</RouterLink>
+              </li>
             </ul>
           </li>
           <li>

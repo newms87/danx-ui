@@ -1,0 +1,55 @@
+/**
+ * DanxRangeSlider Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize range-slider appearance.
+ *
+ * CSS Tokens:
+ * --dx-range-slider-font-family       Bubble label font family
+ * --dx-range-slider-transition        Transition timing
+ * --dx-range-slider-track-bg          Off-state (un-filled) track background
+ * --dx-range-slider-track-fill-bg     Filled segment background (between handles or 0→single)
+ * --dx-range-slider-handle-bg         Handle background color
+ * --dx-range-slider-handle-border     Handle border color
+ * --dx-range-slider-handle-shadow     Handle drop shadow
+ * --dx-range-slider-bubble-color      Bubble label text color
+ * --dx-range-slider-bubble-bg         Bubble label background
+ * --dx-range-slider-bubble-font-size  Bubble label font size
+ * --dx-range-slider-disabled-opacity  Opacity applied when disabled
+ * --dx-range-slider-focus-ring        Focus-visible outline color
+ * --dx-range-slider-track-h           Track height
+ * --dx-range-slider-handle-size       Handle diameter
+ * --dx-range-slider-handle-radius     Handle border-radius
+ * --dx-range-slider-track-radius      Track border-radius
+ * --dx-range-slider-padding-y         Vertical padding so the handle does not clip
+ *
+ * Variant tokens (set via --dx-variant-{name}-bg):
+ * Variants are applied automatically via inline styles from the useVariant composable
+ * and override --dx-range-slider-track-fill-bg + --dx-range-slider-handle-border
+ * (the handle's fill stays --color-text-on-color so the thumb reads as a chip on
+ * top of the colored border, not a re-fill of the variant color).
+ */
+
+:root {
+  --dx-range-slider-font-family: var(--font-sans);
+  --dx-range-slider-transition: var(--transition-fast);
+
+  --dx-range-slider-track-bg: var(--color-surface-placeholder);
+  --dx-range-slider-track-fill-bg: var(--color-interactive);
+  --dx-range-slider-handle-bg: var(--color-text-on-color);
+  --dx-range-slider-handle-border: var(--color-interactive);
+  --dx-range-slider-handle-shadow: var(--shadow-sm);
+
+  --dx-range-slider-bubble-color: var(--color-text);
+  --dx-range-slider-bubble-bg: transparent;
+  --dx-range-slider-bubble-font-size: var(--text-xs);
+
+  --dx-range-slider-disabled-opacity: 0.5;
+  --dx-range-slider-focus-ring: var(--color-focus-ring);
+
+  --dx-range-slider-track-h: 4px;
+  --dx-range-slider-handle-size: 16px;
+  --dx-range-slider-handle-radius: 9999px;
+  --dx-range-slider-track-radius: 9999px;
+  --dx-range-slider-padding-y: calc(var(--dx-range-slider-handle-size) / 2);
+}
