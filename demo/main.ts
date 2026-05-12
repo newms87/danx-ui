@@ -23,6 +23,7 @@ import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileViewerPage from "./pages/DanxFileViewerPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
 import SkeletonPage from "./pages/SkeletonPage.vue";
+import TogglePage from "./pages/TogglePage.vue";
 import InputPage from "./pages/InputPage.vue";
 import TextareaPage from "./pages/TextareaPage.vue";
 import SelectPage from "./pages/SelectPage.vue";
@@ -62,6 +63,7 @@ const router = createRouter({
     { path: "/danx-file-viewer", name: "danx-file-viewer", component: DanxFileViewerPage },
     { path: "/scroll", name: "scroll", component: ScrollPage },
     { path: "/skeleton", name: "skeleton", component: SkeletonPage },
+    { path: "/toggle", name: "toggle", component: TogglePage },
     { path: "/input", name: "input", component: InputPage },
     { path: "/textarea", name: "textarea", component: TextareaPage },
     { path: "/select", name: "select", component: SelectPage },

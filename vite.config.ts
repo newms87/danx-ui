@@ -48,6 +48,7 @@ export default defineConfig({
           __dirname,
           "src/components/markdown-editor/index.ts"
         ),
+        "components/toggle/index": resolve(__dirname, "src/components/toggle/index.ts"),
       },
       formats: ["es"],
     },

@@ -29,6 +29,7 @@ export { DanxInput } from "./components/input";
 export { DanxTextarea } from "./components/textarea";
 export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
+export { DanxToggle } from "./components/toggle";
 
 // Composables
 export {
@@ -226,6 +227,7 @@ export type {
   UseFileUploadOptions,
 } from "./components/danx-file-upload";
 export type { UseFileUploadReturn } from "./components/danx-file-upload";
+export type { DanxToggleProps, DanxToggleSlots, ToggleSize } from "./components/toggle";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";

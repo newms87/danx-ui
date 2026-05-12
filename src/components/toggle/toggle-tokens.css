@@ -1,0 +1,76 @@
+/**
+ * DanxToggle Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize toggle appearance.
+ *
+ * CSS Tokens:
+ * --dx-toggle-font-family        Label font family
+ * --dx-toggle-transition         Transition timing
+ * --dx-toggle-track-bg           Off-state track background
+ * --dx-toggle-track-bg-on        On-state track background
+ * --dx-toggle-thumb-bg           Thumb background color
+ * --dx-toggle-thumb-shadow       Thumb drop shadow
+ * --dx-toggle-disabled-opacity   Opacity applied when disabled
+ * --dx-toggle-focus-ring         Focus-visible outline color
+ *
+ * Size tokens (for each size: sm, md, lg):
+ * --dx-toggle-{size}-track-w     Track width
+ * --dx-toggle-{size}-track-h     Track height
+ * --dx-toggle-{size}-thumb-size  Thumb diameter
+ * --dx-toggle-{size}-thumb-inset Padding between thumb and track edge
+ * --dx-toggle-{size}-font-size   Label font size
+ * --dx-toggle-{size}-gap         Gap between toggle and label
+ *
+ * Variant tokens (set via --dx-variant-{name}-bg, --dx-variant-{name}-text):
+ * Variants are applied automatically via inline styles from the useVariant composable.
+ * Define custom variants with --dx-variant-{name}-bg and --dx-variant-{name}-text tokens.
+ */
+
+:root {
+  /* ==========================================================================
+     Global Toggle Tokens
+     ========================================================================== */
+
+  --dx-toggle-font-family: var(--font-sans);
+  --dx-toggle-transition: var(--transition-fast);
+  --dx-toggle-track-bg: var(--color-surface-placeholder);
+  --dx-toggle-track-bg-on: var(--color-interactive);
+  --dx-toggle-thumb-bg: var(--color-text-on-color);
+  --dx-toggle-thumb-shadow: var(--shadow-sm);
+  --dx-toggle-disabled-opacity: 0.5;
+  --dx-toggle-focus-ring: var(--color-focus-ring);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-toggle-sm-track-w: 28px;
+  --dx-toggle-sm-track-h: 16px;
+  --dx-toggle-sm-thumb-size: 12px;
+  --dx-toggle-sm-thumb-inset: 2px;
+  --dx-toggle-sm-font-size: var(--text-xs);
+  --dx-toggle-sm-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-toggle-md-track-w: 36px;
+  --dx-toggle-md-track-h: 20px;
+  --dx-toggle-md-thumb-size: 16px;
+  --dx-toggle-md-thumb-inset: 2px;
+  --dx-toggle-md-font-size: var(--text-sm);
+  --dx-toggle-md-gap: var(--spacing-2-5);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-toggle-lg-track-w: 48px;
+  --dx-toggle-lg-track-h: 26px;
+  --dx-toggle-lg-thumb-size: 22px;
+  --dx-toggle-lg-thumb-inset: 2px;
+  --dx-toggle-lg-font-size: var(--text-base);
+  --dx-toggle-lg-gap: var(--spacing-3);
+}

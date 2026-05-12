@@ -1,0 +1,137 @@
+/**
+ * DanxToggle Styles
+ *
+ * Layout for the visually-hidden native checkbox, the colored track, and the
+ * sliding thumb. Sizes are top-level BEM modifier blocks because Lightning CSS
+ * does not support &--suffix concatenation. Pseudo-classes and descendant
+ * selectors are still nested.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./toggle-tokens.css";
+
+/* ==========================================================================
+   Base Toggle Layout
+   ========================================================================== */
+
+.danx-toggle {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--dx-toggle-font-family);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-none);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity var(--dx-toggle-transition);
+
+  /* Visually hide the underlying native checkbox while keeping it focusable +
+     screen-reader accessible. */
+  .danx-toggle__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+.danx-toggle--disabled {
+  cursor: not-allowed;
+  opacity: var(--dx-toggle-disabled-opacity);
+}
+
+/* ==========================================================================
+   Track + Thumb
+   ========================================================================== */
+
+.danx-toggle__track {
+  position: relative;
+  flex-shrink: 0;
+  background: var(--dx-toggle-track-bg);
+  border-radius: 9999px;
+  transition: background var(--dx-toggle-transition);
+
+  .danx-toggle__thumb {
+    position: absolute;
+    top: 50%;
+    left: var(--dx-toggle-thumb-inset);
+    transform: translateY(-50%);
+    background: var(--dx-toggle-thumb-bg);
+    box-shadow: var(--dx-toggle-thumb-shadow);
+    border-radius: 9999px;
+    transition:
+      left var(--dx-toggle-transition),
+      background var(--dx-toggle-transition);
+  }
+}
+
+/* On-state — background flips to the active token; thumb slides to the right
+   edge of the track. */
+.danx-toggle--on .danx-toggle__track {
+  background: var(--dx-toggle-track-bg-on);
+
+  .danx-toggle__thumb {
+    left: calc(100% - var(--dx-toggle-thumb-size) - var(--dx-toggle-thumb-inset));
+  }
+}
+
+/* Focus ring on keyboard navigation only. The checkbox is visually hidden so
+   the ring is drawn around the track instead. */
+.danx-toggle__input:focus-visible + .danx-toggle__track {
+  outline: 2px solid var(--dx-toggle-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-toggle--sm {
+  font-size: var(--dx-toggle-sm-font-size);
+  gap: var(--dx-toggle-sm-gap);
+
+  .danx-toggle__track {
+    width: var(--dx-toggle-sm-track-w);
+    height: var(--dx-toggle-sm-track-h);
+  }
+
+  .danx-toggle__thumb {
+    width: var(--dx-toggle-sm-thumb-size);
+    height: var(--dx-toggle-sm-thumb-size);
+  }
+}
+
+.danx-toggle--md {
+  font-size: var(--dx-toggle-md-font-size);
+  gap: var(--dx-toggle-md-gap);
+
+  .danx-toggle__track {
+    width: var(--dx-toggle-md-track-w);
+    height: var(--dx-toggle-md-track-h);
+  }
+
+  .danx-toggle__thumb {
+    width: var(--dx-toggle-md-thumb-size);
+    height: var(--dx-toggle-md-thumb-size);
+  }
+}
+
+.danx-toggle--lg {
+  font-size: var(--dx-toggle-lg-font-size);
+  gap: var(--dx-toggle-lg-gap);
+
+  .danx-toggle__track {
+    width: var(--dx-toggle-lg-track-w);
+    height: var(--dx-toggle-lg-track-h);
+  }
+
+  .danx-toggle__thumb {
+    width: var(--dx-toggle-lg-thumb-size);
+    height: var(--dx-toggle-lg-thumb-size);
+  }
+}

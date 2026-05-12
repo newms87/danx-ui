@@ -57,6 +57,11 @@
     },
     "./components/scroll/styles": "./dist/components/scroll/scroll.css",
     "./components/dialog/styles": "./dist/components/dialog/dialog.css",
+    "./components/toggle": {
+      "types": "./dist/components/toggle/index.d.ts",
+      "import": "./dist/components/toggle/index.js"
+    },
+    "./components/toggle/styles": "./dist/components/toggle/toggle.css",
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css"
   },

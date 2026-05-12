@@ -81,6 +81,7 @@ import {
   useScrollWindow,
 } from "../../src/components/scroll";
 import { DanxSkeleton } from "../../src/components/skeleton";
+import { DanxToggle } from "../../src/components/toggle";
 import { DanxFile, useDanxFile } from "../../src/components/danx-file";
 import {
   DanxFileUpload,
@@ -189,6 +190,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxScroll,
   DanxVirtualScroll,
   DanxSkeleton,
+  DanxToggle,
   DanxInput,
   DanxTextarea,
   DanxSelect,
@@ -325,6 +327,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useScrollWindow,
   // Skeleton
   DanxSkeleton,
+  // Toggle
+  DanxToggle,
   // Input
   DanxInput,
   DanxTextarea,
