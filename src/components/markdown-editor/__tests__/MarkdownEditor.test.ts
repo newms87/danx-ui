@@ -5,19 +5,45 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 import MarkdownEditor from "../MarkdownEditor.vue";
 
+/**
+ * Mock the native HTML Popover API on HTMLElement.prototype — happy-dom does
+ * not implement it, and DanxPopover (used by DanxContextMenu / link popover /
+ * table popover inside MarkdownEditor) calls showPopover() in a watcher when
+ * the panel mounts. Without these stubs the watcher throws an unhandled
+ * rejection that corrupts the VueWrapper and cascades into every test below.
+ */
+const popoverOpenState = new WeakMap<HTMLElement, boolean>();
+const origMatches = HTMLElement.prototype.matches;
+
 describe("MarkdownEditor", () => {
   let wrapper: VueWrapper;
 
-  // DanxDialog uses <dialog> element which requires showModal/close mocks
   beforeEach(() => {
+    // DanxDialog uses <dialog> element which requires showModal/close mocks
     HTMLDialogElement.prototype.showModal = vi.fn();
     HTMLDialogElement.prototype.close = vi.fn();
+    // Native Popover API stubs (see comment above the describe block)
+    HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+      popoverOpenState.set(this, true);
+      this.dispatchEvent(new Event("toggle"));
+    });
+    HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
+      popoverOpenState.set(this, false);
+      this.dispatchEvent(new Event("toggle"));
+    });
+    HTMLElement.prototype.matches = function (selector: string) {
+      if (selector === ":popover-open") return popoverOpenState.get(this) ?? false;
+      return origMatches.call(this, selector);
+    };
   });
 
   afterEach(() => {
     wrapper?.unmount();
     // Clean up teleported content (DanxDialog teleports to body)
     document.body.querySelectorAll(".danx-dialog").forEach((el) => el.remove());
+    HTMLElement.prototype.showPopover = undefined as unknown as () => void;
+    HTMLElement.prototype.hidePopover = undefined as unknown as () => void;
+    HTMLElement.prototype.matches = origMatches;
   });
 
   function mountEditor(props: Record<string, unknown> = {}) {

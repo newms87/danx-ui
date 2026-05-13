@@ -168,18 +168,16 @@ describe("DanxTabs", () => {
 
       const countEl = wrapper.find(".danx-tabs__count");
       expect(countEl.exists()).toBe(true);
-      expect(countEl.text()).toBe("(42)");
+      expect(countEl.text()).toBe("42");
     });
 
-    it("renders count of 0", () => {
+    it("does not render count of 0", () => {
       const tabs: DanxTab[] = [{ value: "a", label: "A", count: 0 }];
       const wrapper = mount(DanxTabs, {
         props: { modelValue: "a", "onUpdate:modelValue": () => {}, tabs },
       });
 
-      const countEl = wrapper.find(".danx-tabs__count");
-      expect(countEl.exists()).toBe(true);
-      expect(countEl.text()).toBe("(0)");
+      expect(wrapper.find(".danx-tabs__count").exists()).toBe(false);
     });
 
     it("does not render count when absent", () => {
@@ -376,7 +374,7 @@ describe("DanxTabs", () => {
       });
 
       expect(wrapper.find(".danx-tabs__count").exists()).toBe(true);
-      expect(wrapper.find(".danx-tabs__count").text()).toBe("(5)");
+      expect(wrapper.find(".danx-tabs__count").text()).toBe("5");
     });
 
     it("icon slot replaces icon area only", () => {

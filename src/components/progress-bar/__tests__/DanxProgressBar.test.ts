@@ -151,9 +151,8 @@ describe("DanxProgressBar", () => {
 
       const style = wrapper.attributes("style") ?? "";
       expect(style).toContain("--dx-progress-bar-fill-bg:");
+      expect(style).toContain("--dx-progress-bar-text-color:");
       expect(style).toContain("--dx-progress-bar-glow-color:");
-      expect(style).toContain("--dx-progress-bar-gradient-from:");
-      expect(style).toContain("--dx-progress-bar-gradient-to:");
     });
 
     it("does not add variant style for blank variant", () => {
