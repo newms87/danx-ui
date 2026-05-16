@@ -26,6 +26,7 @@ export { DanxScroll, DanxVirtualScroll } from "./components/scroll";
 export { DanxSkeleton } from "./components/skeleton";
 export { DanxFieldWrapper } from "./components/field-wrapper";
 export { DanxInput } from "./components/input";
+export { DanxColorPicker } from "./components/color-picker";
 export { DanxTextarea } from "./components/textarea";
 export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
@@ -208,6 +209,11 @@ export type {
 export type { UseTouchSwipeOptions, UseTouchSwipeReturn } from "./shared/composables/useTouchSwipe";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
 export type { InputType, DanxInputProps, DanxInputEmits, DanxInputSlots } from "./components/input";
+export type {
+  DanxColorPickerProps,
+  DanxColorPickerEmits,
+  DanxColorPickerSlots,
+} from "./components/color-picker";
 export type { TextareaResize, DanxTextareaProps, DanxTextareaEmits } from "./components/textarea";
 export type {
   DanxSelectEmits,

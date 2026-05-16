@@ -1,0 +1,33 @@
+/**
+ * DanxColorPicker Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens. Override these
+ * to customize color-picker appearance.
+ */
+
+:root {
+  --dx-color-picker-font-family: var(--font-mono);
+  --dx-color-picker-gap: 0.5rem;
+
+  --dx-color-picker-label-color: var(--color-text-muted);
+  --dx-color-picker-label-size: 0.75rem;
+
+  --dx-color-picker-swatch-size: 1.75rem;
+  --dx-color-picker-swatch-radius: 0.25rem;
+  --dx-color-picker-swatch-border: var(--color-border);
+
+  --dx-color-picker-input-bg: var(--color-surface);
+  --dx-color-picker-input-border: var(--color-border);
+  --dx-color-picker-input-border-error: var(--color-danger);
+  --dx-color-picker-input-text: var(--color-text);
+  --dx-color-picker-input-radius: 0.25rem;
+  --dx-color-picker-input-width: 7rem;
+  --dx-color-picker-input-padding-x: 0.5rem;
+  --dx-color-picker-input-padding-y: 0.25rem;
+  --dx-color-picker-input-font-size: 0.75rem;
+
+  --dx-color-picker-error-color: var(--color-danger);
+  --dx-color-picker-error-size: 0.6875rem;
+
+  --dx-color-picker-disabled-opacity: 0.5;
+}

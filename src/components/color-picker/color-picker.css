@@ -1,0 +1,73 @@
+/**
+ * DanxColorPicker Styles
+ *
+ * Layout for the label + native color swatch + hex text input + optional
+ * suffix slot, plus the inline error message that renders below the row
+ * when the draft fails hex validation.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./color-picker-tokens.css";
+
+.danx-color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.danx-color-picker--disabled {
+  opacity: var(--dx-color-picker-disabled-opacity);
+}
+
+.danx-color-picker__row {
+  display: flex;
+  align-items: center;
+  gap: var(--dx-color-picker-gap);
+}
+
+.danx-color-picker__label {
+  font-size: var(--dx-color-picker-label-size);
+  color: var(--dx-color-picker-label-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.danx-color-picker__swatch {
+  width: var(--dx-color-picker-swatch-size);
+  height: var(--dx-color-picker-swatch-size);
+  border: 1px solid var(--dx-color-picker-swatch-border);
+  border-radius: var(--dx-color-picker-swatch-radius);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.danx-color-picker__swatch:disabled {
+  cursor: not-allowed;
+}
+
+.danx-color-picker__input {
+  width: var(--dx-color-picker-input-width);
+  padding: var(--dx-color-picker-input-padding-y) var(--dx-color-picker-input-padding-x);
+  font-family: var(--dx-color-picker-font-family);
+  font-size: var(--dx-color-picker-input-font-size);
+  color: var(--dx-color-picker-input-text);
+  background: var(--dx-color-picker-input-bg);
+  border: 1px solid var(--dx-color-picker-input-border);
+  border-radius: var(--dx-color-picker-input-radius);
+}
+
+.danx-color-picker--error .danx-color-picker__input {
+  border-color: var(--dx-color-picker-input-border-error);
+}
+
+.danx-color-picker__suffix {
+  display: inline-flex;
+  align-items: center;
+}
+
+.danx-color-picker__error {
+  margin: 0;
+  font-size: var(--dx-color-picker-error-size);
+  color: var(--dx-color-picker-error-color);
+}
