@@ -9,7 +9,6 @@
  * Pseudo-classes and descendant selectors are still nested.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./chip-tokens.css";
 
 /* ==========================================================================

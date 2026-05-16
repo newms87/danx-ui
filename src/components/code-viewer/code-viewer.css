@@ -5,8 +5,6 @@
  * All colors reference tokens from code-viewer-tokens.css.
  */
 
-@import "../../shared/tokens/index.css";
-@import "../../shared/tokens/color-swatch.css";
 @import "./code-viewer-tokens.css";
 
 /* ==========================================

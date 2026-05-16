@@ -7,7 +7,6 @@
  * or overridden via external CSS classes (e.g. w-6 h-6).
  */
 
-@import "../../shared/tokens/index.css";
 
 .danx-icon {
   display: inline-flex;

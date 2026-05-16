@@ -7,7 +7,6 @@
  * keyed off `--handle-offset` (percent string set via :style).
  */
 
-@import "../../shared/tokens/index.css";
 @import "./range-slider-tokens.css";
 
 /* ==========================================================================

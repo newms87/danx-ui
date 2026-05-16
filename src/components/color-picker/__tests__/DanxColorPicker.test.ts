@@ -8,30 +8,30 @@ describe("DanxColorPicker", () => {
       const wrapper = mount(DanxColorPicker, {
         props: { modelValue: "#3b82f6", testId: "x" },
       });
-      expect(
-        (wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value,
-      ).toBe("#3b82f6");
-      expect(
-        (wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).value,
-      ).toBe("#3b82f6");
+      expect((wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value).toBe(
+        "#3b82f6"
+      );
+      expect((wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).value).toBe(
+        "#3b82f6"
+      );
     });
 
     it("expands short-form hex (#abc) for the swatch", () => {
       const wrapper = mount(DanxColorPicker, {
         props: { modelValue: "#abc", testId: "x" },
       });
-      expect(
-        (wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).value,
-      ).toBe("#aabbcc");
+      expect((wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).value).toBe(
+        "#aabbcc"
+      );
     });
 
     it("falls back to #000000 for an invalid initial swatch value", () => {
       const wrapper = mount(DanxColorPicker, {
         props: { modelValue: "garbage", testId: "x" },
       });
-      expect(
-        (wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).value,
-      ).toBe("#000000");
+      expect((wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).value).toBe(
+        "#000000"
+      );
     });
 
     it("renders the optional label", () => {
@@ -61,9 +61,7 @@ describe("DanxColorPicker", () => {
       const wrapper = mount(DanxColorPicker, {
         props: { modelValue: "", placeholder: "pick one", testId: "x" },
       });
-      expect(
-        wrapper.get('[data-test="x-input"]').attributes("placeholder"),
-      ).toBe("pick one");
+      expect(wrapper.get('[data-test="x-input"]').attributes("placeholder")).toBe("pick one");
     });
   });
 
@@ -102,9 +100,9 @@ describe("DanxColorPicker", () => {
       await wrapper.setProps({ modelValue: "#deadbe" });
       await input.setValue("notahex");
       await input.trigger("keydown", { key: "Escape" });
-      expect(
-        (wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value,
-      ).toBe("#deadbe");
+      expect((wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value).toBe(
+        "#deadbe"
+      );
       expect(wrapper.emitted("update:modelValue")).toEqual([["#deadbe"]]);
     });
 
@@ -125,9 +123,9 @@ describe("DanxColorPicker", () => {
         props: { modelValue: "#3b82f6", testId: "x" },
       });
       await wrapper.setProps({ modelValue: "#abcdef" });
-      expect(
-        (wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value,
-      ).toBe("#abcdef");
+      expect((wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value).toBe(
+        "#abcdef"
+      );
     });
 
     it("does NOT clobber an active draft when focused", async () => {
@@ -138,9 +136,9 @@ describe("DanxColorPicker", () => {
       await input.trigger("focus");
       await input.setValue("#deadbe");
       await wrapper.setProps({ modelValue: "#abcdef" });
-      expect(
-        (wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value,
-      ).toBe("#deadbe");
+      expect((wrapper.get('[data-test="x-input"]').element as HTMLInputElement).value).toBe(
+        "#deadbe"
+      );
     });
   });
 
@@ -151,7 +149,8 @@ describe("DanxColorPicker", () => {
       });
       const swatch = wrapper.get('[data-test="x-swatch"]');
       await swatch.setValue("#abcdef");
-      expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual(["#abcdef"]);
+      const events = wrapper.emitted("update:modelValue") ?? [];
+      expect(events[events.length - 1]).toEqual(["#abcdef"]);
     });
 
     it("does not emit when the swatch reports the already-bound value", async () => {
@@ -169,12 +168,12 @@ describe("DanxColorPicker", () => {
       const wrapper = mount(DanxColorPicker, {
         props: { modelValue: "#3b82f6", disabled: true, testId: "x" },
       });
-      expect(
-        (wrapper.get('[data-test="x-input"]').element as HTMLInputElement).disabled,
-      ).toBe(true);
-      expect(
-        (wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).disabled,
-      ).toBe(true);
+      expect((wrapper.get('[data-test="x-input"]').element as HTMLInputElement).disabled).toBe(
+        true
+      );
+      expect((wrapper.get('[data-test="x-swatch"]').element as HTMLInputElement).disabled).toBe(
+        true
+      );
       expect(wrapper.find(".danx-color-picker--disabled").exists()).toBe(true);
     });
 

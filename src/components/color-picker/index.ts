@@ -7,8 +7,4 @@
  */
 
 export { default as DanxColorPicker } from "./DanxColorPicker.vue";
-export type {
-  DanxColorPickerProps,
-  DanxColorPickerEmits,
-  DanxColorPickerSlots,
-} from "./types";
+export type { DanxColorPickerProps, DanxColorPickerEmits, DanxColorPickerSlots } from "./types";

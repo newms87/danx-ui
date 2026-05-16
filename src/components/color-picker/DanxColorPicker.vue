@@ -84,7 +84,14 @@ function isValidHex(v: string): boolean {
 function normalizeForSwatch(v: string): string {
   if (!isValidHex(v)) return "#000000";
   if (v.length === 4) {
-    return "#" + v.slice(1).split("").map((c) => c + c).join("");
+    return (
+      "#" +
+      v
+        .slice(1)
+        .split("")
+        .map((c) => c + c)
+        .join("")
+    );
   }
   return v.toLowerCase();
 }
@@ -101,7 +108,7 @@ watch(
     // overwrite whatever the operator has half-typed. The blur-commit
     // cycle re-converges state once the operator leaves the input.
     if (!isFocused.value) draft.value = next;
-  },
+  }
 );
 
 const isInvalid = computed<boolean>(() => draft.value.length > 0 && !isValidHex(draft.value));

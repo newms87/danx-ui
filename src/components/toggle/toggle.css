@@ -7,7 +7,6 @@
  * selectors are still nested.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./toggle-tokens.css";
 
 /* ==========================================================================

@@ -5,7 +5,6 @@
  * See individual files for detailed documentation.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./dialog-tokens.css";
 @import "./dialog-layout.css";
 @import "./dialog-breadcrumbs.css";

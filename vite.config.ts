@@ -26,7 +26,7 @@ export default defineConfig({
     alias: {
       "@": resolve(__dirname, "src"),
       // Resolve bare "danx-ui" imports (used by demo/DemoPage) to source in dev
-      ...(isDev ? { "@thehammer/danx-ui": resolve(__dirname, "src/index.ts") } : {}),
+      ...(isDev ? { "danx-ui": resolve(__dirname, "src/index.ts") } : {}),
       // Use Vue full build (with runtime template compiler) in dev for live code editing
       ...(isDev ? { vue: "vue/dist/vue.esm-bundler.js" } : {}),
     },

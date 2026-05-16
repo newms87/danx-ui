@@ -7,7 +7,6 @@
  * Lightning CSS does not support &--suffix concatenation.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./select-tokens.css";
 
 /* ==========================================================================

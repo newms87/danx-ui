@@ -6,7 +6,6 @@
  * when the draft fails hex validation.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./color-picker-tokens.css";
 
 .danx-color-picker {

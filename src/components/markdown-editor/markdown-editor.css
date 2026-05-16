@@ -13,7 +13,6 @@
 @import "./markdown-editor-tokens.css";
 @import "./markdown-editor-content.css";
 @import "./mde-floating-panel.css";
-@import "../../shared/tokens/color-swatch.css";
 
 /* ====================================================
  * Shared Input Styles for Markdown Editor Popovers

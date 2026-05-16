@@ -10,7 +10,6 @@
  * Lightning CSS does not support &--suffix concatenation.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./editable-div-tokens.css";
 
 .danx-editable-div-wrap {

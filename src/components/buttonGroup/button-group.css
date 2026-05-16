@@ -5,7 +5,6 @@
  * BEM modifiers are top-level blocks per Lightning CSS requirements.
  */
 
-@import "../../shared/tokens/index.css";
 @import "./button-group-tokens.css";
 
 /* ==========================================================================
