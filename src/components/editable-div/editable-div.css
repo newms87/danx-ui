@@ -40,10 +40,6 @@
   min-height: 1em;
   font: inherit;
 
-  &:focus {
-    outline: none;
-  }
-
   &:hover:not(.danx-editable-div--readonly):not(.danx-editable-div--focused):not(.danx-editable-div--invalid) {
     background: var(--dx-editable-div-bg-hover);
     outline-color: var(--dx-editable-div-ring-hover);
