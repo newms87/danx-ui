@@ -1,0 +1,111 @@
+/**
+ * DanxEditableDiv Styles
+ *
+ * Inline-edit primitive that renders as the consumer-chosen tag (div, span,
+ * h1, h2, h3, p) with contenteditable when not readonly. Visual states:
+ * resting (no chrome), hover (subtle ring + bg), focus (stronger ring + bg),
+ * invalid (red ring), saving (translucent overlay + spinner).
+ *
+ * Note: BEM modifiers (`.danx-editable-div--md`) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "../../shared/tokens/index.css";
+@import "./editable-div-tokens.css";
+
+.danx-editable-div-wrap {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
+.danx-editable-div-wrap--block {
+  display: block;
+  width: 100%;
+}
+
+.danx-editable-div {
+  display: block;
+  color: var(--dx-editable-div-text);
+  background: var(--dx-editable-div-bg);
+  border-radius: var(--dx-editable-div-border-radius);
+  outline: 1px solid transparent;
+  outline-offset: 0;
+  transition:
+    background var(--dx-editable-div-transition),
+    outline-color var(--dx-editable-div-transition),
+    box-shadow var(--dx-editable-div-transition);
+  cursor: text;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 1em;
+  font: inherit;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:hover:not(.danx-editable-div--readonly):not(.danx-editable-div--focused):not(.danx-editable-div--invalid) {
+    background: var(--dx-editable-div-bg-hover);
+    outline-color: var(--dx-editable-div-ring-hover);
+  }
+}
+
+.danx-editable-div--focused {
+  background: var(--dx-editable-div-bg-focus);
+  outline: 2px solid var(--dx-editable-div-ring-focus);
+}
+
+.danx-editable-div--invalid {
+  outline: 1px solid var(--dx-editable-div-ring-invalid);
+}
+
+.danx-editable-div--readonly {
+  cursor: default;
+}
+
+/* Placeholder via ::before — kept inside the surface, not absolutely positioned. */
+.danx-editable-div[data-empty="true"]::before {
+  content: attr(data-placeholder);
+  color: var(--dx-editable-div-placeholder);
+  pointer-events: none;
+}
+
+/* Size modifiers */
+.danx-editable-div--sm {
+  font-size: var(--dx-editable-div-sm-font-size);
+  padding: var(--dx-editable-div-sm-padding);
+}
+
+.danx-editable-div--md {
+  font-size: var(--dx-editable-div-md-font-size);
+  padding: var(--dx-editable-div-md-padding);
+}
+
+.danx-editable-div--lg {
+  font-size: var(--dx-editable-div-lg-font-size);
+  padding: var(--dx-editable-div-lg-padding);
+}
+
+/* Saving overlay */
+.danx-editable-div--saving {
+  opacity: 0.5;
+}
+
+.danx-editable-div__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: var(--dx-editable-div-spinner-color);
+  width: 1.25em;
+  height: 1.25em;
+  animation: danx-editable-div-spin 0.8s linear infinite;
+}
+
+@keyframes danx-editable-div-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}

@@ -31,6 +31,7 @@ export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
 export { DanxToggle } from "./components/toggle";
 export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
+export { DanxEditableDiv } from "./components/editable-div";
 
 // Composables
 export {
@@ -238,6 +239,17 @@ export type {
   UseRangeSliderOptions,
   UseRangeSliderReturn,
 } from "./components/range-slider";
+export type {
+  DanxEditableDivEmits,
+  DanxEditableDivExpose,
+  DanxEditableDivProps,
+  EditableDivCommit,
+  EditableDivLayout,
+  EditableDivMode,
+  EditableDivSize,
+  EditableDivTag,
+  EditableDivValidator,
+} from "./components/editable-div";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";

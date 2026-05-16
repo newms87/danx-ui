@@ -83,6 +83,7 @@ import {
 import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxToggle } from "../../src/components/toggle";
 import { DanxRangeSlider, useRangeSlider } from "../../src/components/range-slider";
+import { DanxEditableDiv } from "../../src/components/editable-div";
 import { DanxFile, useDanxFile } from "../../src/components/danx-file";
 import {
   DanxFileUpload,
@@ -198,6 +199,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxSelect,
   DanxFieldWrapper,
   DanxFileUpload,
+  DanxEditableDiv,
 };
 
 /**
@@ -334,6 +336,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   // Range Slider
   DanxRangeSlider,
   useRangeSlider,
+  // Editable Div
+  DanxEditableDiv,
   // Input
   DanxInput,
   DanxTextarea,

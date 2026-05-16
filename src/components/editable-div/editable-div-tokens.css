@@ -1,0 +1,46 @@
+/**
+ * DanxEditableDiv Tokens
+ *
+ * Component tokens (Tier 3) referencing semantic tokens. NEVER hardcode raw
+ * values here — every assignment is a var() reference.
+ *
+ * CSS Tokens:
+ * --dx-editable-div-bg                Resting background (transparent)
+ * --dx-editable-div-bg-hover          Hover background tint
+ * --dx-editable-div-bg-focus          Focus background
+ * --dx-editable-div-text              Text color
+ * --dx-editable-div-placeholder       Placeholder color
+ * --dx-editable-div-ring-hover        Hover ring color
+ * --dx-editable-div-ring-focus        Focus ring color
+ * --dx-editable-div-ring-invalid      Invalid ring color
+ * --dx-editable-div-border-radius     Corner radius
+ * --dx-editable-div-transition        Transition timing
+ * --dx-editable-div-spinner-color     Spinner glyph color
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-editable-div-{size}-font-size  Font size
+ * --dx-editable-div-{size}-padding    Padding (all sides)
+ */
+
+:root {
+  --dx-editable-div-bg: transparent;
+  --dx-editable-div-bg-hover: var(--color-surface-sunken);
+  --dx-editable-div-bg-focus: var(--color-surface-elevated);
+  --dx-editable-div-text: var(--color-text);
+  --dx-editable-div-placeholder: var(--color-text-subtle);
+  --dx-editable-div-ring-hover: var(--color-field-border-hover);
+  --dx-editable-div-ring-focus: var(--color-interactive);
+  --dx-editable-div-ring-invalid: var(--color-danger);
+  --dx-editable-div-border-radius: var(--radius-field);
+  --dx-editable-div-transition: var(--transition-fast);
+  --dx-editable-div-spinner-color: var(--color-interactive);
+
+  --dx-editable-div-sm-font-size: var(--field-sm-font-size);
+  --dx-editable-div-sm-padding: 0.125rem 0.375rem;
+
+  --dx-editable-div-md-font-size: var(--field-md-font-size);
+  --dx-editable-div-md-padding: 0.25rem 0.5rem;
+
+  --dx-editable-div-lg-font-size: var(--field-lg-font-size);
+  --dx-editable-div-lg-padding: 0.375rem 0.75rem;
+}
