@@ -6,6 +6,7 @@
  */
 
 :root {
+  /* Trigger row */
   --dx-color-picker-font-family: var(--font-mono);
   --dx-color-picker-gap: 0.5rem;
 
@@ -30,4 +31,58 @@
   --dx-color-picker-error-size: 0.6875rem;
 
   --dx-color-picker-disabled-opacity: 0.5;
+
+  /* Panel */
+  --dx-color-picker-panel-bg: var(--color-surface-elevated);
+  --dx-color-picker-panel-border: var(--color-border);
+  --dx-color-picker-panel-radius: 0.625rem;
+  --dx-color-picker-panel-padding: 0.75rem;
+  --dx-color-picker-panel-gap: 0.625rem;
+  --dx-color-picker-panel-width: 17rem;
+  --dx-color-picker-panel-shadow: var(--shadow-md);
+
+  /* HSV surface */
+  --dx-color-picker-surface-h: 9rem;
+  --dx-color-picker-surface-radius: 0.375rem;
+  --dx-color-picker-thumb-size: 14px;
+  --dx-color-picker-thumb-border: var(--color-text-on-color);
+  --dx-color-picker-thumb-shadow: var(--shadow-sm);
+
+  /* Hue + alpha strips */
+  --dx-color-picker-strip-h: 0.625rem;
+  --dx-color-picker-strip-radius: 9999px;
+  --dx-color-picker-preview-size: 1.75rem;
+  --dx-color-picker-preview-radius: 9999px;
+
+  /* Tabs */
+  --dx-color-picker-tab-color: var(--color-text-muted);
+  --dx-color-picker-tab-active-color: var(--color-text);
+  --dx-color-picker-tab-active-bar: var(--color-interactive);
+  --dx-color-picker-tab-size: 0.6875rem;
+
+  /* Numeric inputs */
+  --dx-color-picker-number-bg: var(--color-surface);
+  --dx-color-picker-number-border: var(--color-border);
+  --dx-color-picker-number-text: var(--color-text);
+  --dx-color-picker-number-radius: 0.25rem;
+  --dx-color-picker-number-size: 0.75rem;
+
+  /* Palette + recents */
+  --dx-color-picker-palette-gap: 0.25rem;
+  --dx-color-picker-section-label-color: var(--color-text-subtle);
+  --dx-color-picker-section-label-size: 0.625rem;
+  --dx-color-picker-cell-size: 1.25rem;
+  --dx-color-picker-cell-radius: 0.25rem;
+  --dx-color-picker-cell-border: var(--color-border-subtle);
+
+  /* Actions */
+  --dx-color-picker-action-bg: var(--color-surface);
+  --dx-color-picker-action-border: var(--color-border);
+  --dx-color-picker-action-text: var(--color-text);
+  --dx-color-picker-action-radius: 0.25rem;
+  --dx-color-picker-action-size: 0.75rem;
+
+  /* Variant-driven focus + active hint */
+  --dx-color-picker-focus-ring: var(--color-focus-ring);
+  --dx-color-picker-accent: var(--color-interactive);
 }

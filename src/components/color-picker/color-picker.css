@@ -1,9 +1,9 @@
 /**
  * DanxColorPicker Styles
  *
- * Layout for the label + native color swatch + hex text input + optional
- * suffix slot, plus the inline error message that renders below the row
- * when the draft fails hex validation.
+ * Trigger row (swatch button + hex text input + suffix slot) + the popover
+ * panel (HSV surface, hue strip, alpha strip, format tabs, numeric inputs,
+ * recent + palette grids, action buttons).
  */
 
 @import "./color-picker-tokens.css";
@@ -12,10 +12,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-}
 
-.danx-color-picker--disabled {
-  opacity: var(--dx-color-picker-disabled-opacity);
+  &--disabled {
+    opacity: var(--dx-color-picker-disabled-opacity);
+  }
 }
 
 .danx-color-picker__row {
@@ -36,13 +36,45 @@
   height: var(--dx-color-picker-swatch-size);
   border: 1px solid var(--dx-color-picker-swatch-border);
   border-radius: var(--dx-color-picker-swatch-radius);
-  background: transparent;
   padding: 0;
   cursor: pointer;
+  background-color: var(--dx-color-picker-swatch-color, transparent);
+  background-image:
+    linear-gradient(
+      45deg,
+      var(--color-surface-placeholder) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--color-surface-placeholder) 75%
+    ),
+    linear-gradient(
+      45deg,
+      var(--color-surface-placeholder) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--color-surface-placeholder) 75%
+    );
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    4px 4px;
+  position: relative;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-color-picker-focus-ring);
+    outline-offset: 2px;
+  }
 }
 
-.danx-color-picker__swatch:disabled {
-  cursor: not-allowed;
+.danx-color-picker__swatch-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--dx-color-picker-swatch-color, transparent);
 }
 
 .danx-color-picker__input {
@@ -66,6 +98,266 @@
 }
 
 .danx-color-picker__error {
+  margin: 0;
+  font-size: var(--dx-color-picker-error-size);
+  color: var(--dx-color-picker-error-color);
+}
+
+/* ==========================================================================
+   Panel
+   ========================================================================== */
+
+.danx-color-picker__panel {
+  width: var(--dx-color-picker-panel-width);
+  padding: var(--dx-color-picker-panel-padding);
+  background: var(--dx-color-picker-panel-bg);
+  border: 1px solid var(--dx-color-picker-panel-border);
+  border-radius: var(--dx-color-picker-panel-radius);
+  box-shadow: var(--dx-color-picker-panel-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-color-picker-panel-gap);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.danx-color-picker__surface {
+  position: relative;
+  width: 100%;
+  height: var(--dx-color-picker-surface-h);
+  border-radius: var(--dx-color-picker-surface-radius);
+  background-color: var(--dx-color-picker-hue-base, #ff0000);
+  background-image:
+    linear-gradient(to top, rgb(0 0 0 / 1), rgb(0 0 0 / 0)),
+    linear-gradient(to right, rgb(255 255 255 / 1), rgb(255 255 255 / 0));
+  cursor: crosshair;
+}
+
+.danx-color-picker__surface-thumb,
+.danx-color-picker__hue-thumb,
+.danx-color-picker__alpha-thumb {
+  position: absolute;
+  width: var(--dx-color-picker-thumb-size);
+  height: var(--dx-color-picker-thumb-size);
+  border-radius: 9999px;
+  border: 2px solid var(--dx-color-picker-thumb-border);
+  box-shadow: var(--dx-color-picker-thumb-shadow);
+  pointer-events: none;
+  background: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-color-picker-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.danx-color-picker__surface-thumb {
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.danx-color-picker__hue-thumb,
+.danx-color-picker__alpha-thumb {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+.danx-color-picker__strips {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.danx-color-picker__preview {
+  width: var(--dx-color-picker-preview-size);
+  height: var(--dx-color-picker-preview-size);
+  border-radius: var(--dx-color-picker-preview-radius);
+  border: 1px solid var(--dx-color-picker-panel-border);
+  flex-shrink: 0;
+}
+
+.danx-color-picker__strip-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1;
+}
+
+.danx-color-picker__hue {
+  position: relative;
+  height: var(--dx-color-picker-strip-h);
+  border-radius: var(--dx-color-picker-strip-radius);
+  background: linear-gradient(
+    to right,
+    #ff0000 0%,
+    #ffff00 17%,
+    #00ff00 33%,
+    #00ffff 50%,
+    #0000ff 67%,
+    #ff00ff 83%,
+    #ff0000 100%
+  );
+  cursor: pointer;
+}
+
+.danx-color-picker__alpha {
+  position: relative;
+  height: var(--dx-color-picker-strip-h);
+  border-radius: var(--dx-color-picker-strip-radius);
+  background-color: var(--color-surface-placeholder);
+  background-image:
+    linear-gradient(
+      45deg,
+      var(--color-border-subtle) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--color-border-subtle) 75%
+    ),
+    linear-gradient(
+      45deg,
+      var(--color-border-subtle) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--color-border-subtle) 75%
+    );
+  background-size: 6px 6px;
+  background-position:
+    0 0,
+    3px 3px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.danx-color-picker__alpha-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.danx-color-picker__tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--dx-color-picker-panel-border);
+}
+
+.danx-color-picker__tab {
+  flex: 1;
+  padding: 0.375rem 0.25rem;
+  background: transparent;
+  border: 0;
+  font-size: var(--dx-color-picker-tab-size);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dx-color-picker-tab-color);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+
+  &--active {
+    color: var(--dx-color-picker-tab-active-color);
+    border-bottom-color: var(--dx-color-picker-tab-active-bar);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-color-picker-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.danx-color-picker__input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.danx-color-picker__input-label {
+  font-size: var(--dx-color-picker-section-label-size);
+  letter-spacing: 0.05em;
+  color: var(--dx-color-picker-section-label-color);
+  text-transform: uppercase;
+}
+
+.danx-color-picker__number {
+  width: 100%;
+  padding: 0.25rem 0.375rem;
+  border: 1px solid var(--dx-color-picker-number-border);
+  border-radius: var(--dx-color-picker-number-radius);
+  font-size: var(--dx-color-picker-number-size);
+  font-family: var(--dx-color-picker-font-family);
+  color: var(--dx-color-picker-number-text);
+  background: var(--dx-color-picker-number-bg);
+  min-width: 0;
+}
+
+.danx-color-picker__recents,
+.danx-color-picker__palette-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.danx-color-picker__section-label {
+  font-size: var(--dx-color-picker-section-label-size);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dx-color-picker-section-label-color);
+}
+
+.danx-color-picker__recent-strip {
+  display: flex;
+  gap: var(--dx-color-picker-palette-gap);
+  flex-wrap: wrap;
+}
+
+.danx-color-picker__palette {
+  display: grid;
+  gap: var(--dx-color-picker-palette-gap);
+}
+
+.danx-color-picker__swatch-cell {
+  width: var(--dx-color-picker-cell-size);
+  height: var(--dx-color-picker-cell-size);
+  border-radius: var(--dx-color-picker-cell-radius);
+  border: 1px solid var(--dx-color-picker-cell-border);
+  cursor: pointer;
+  padding: 0;
+  background-clip: padding-box;
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-color-picker-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.danx-color-picker__actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.danx-color-picker__action {
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--dx-color-picker-action-border);
+  border-radius: var(--dx-color-picker-action-radius);
+  font-size: var(--dx-color-picker-action-size);
+  color: var(--dx-color-picker-action-text);
+  background: var(--dx-color-picker-action-bg);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-color-picker-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.danx-color-picker__inline-error {
   margin: 0;
   font-size: var(--dx-color-picker-error-size);
   color: var(--dx-color-picker-error-color);

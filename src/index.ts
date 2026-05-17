@@ -26,7 +26,20 @@ export { DanxScroll, DanxVirtualScroll } from "./components/scroll";
 export { DanxSkeleton } from "./components/skeleton";
 export { DanxFieldWrapper } from "./components/field-wrapper";
 export { DanxInput } from "./components/input";
-export { DanxColorPicker } from "./components/color-picker";
+export {
+  DanxColorPicker,
+  useRecentColors,
+  DEFAULT_SWATCHES,
+  parseColor,
+  formatColor,
+  hexToRgb,
+  rgbToHex,
+  rgbToHsv,
+  hsvToRgb,
+  rgbToHsl,
+  hslToRgb,
+  isHex,
+} from "./components/color-picker";
 export { DanxTextarea } from "./components/textarea";
 export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
@@ -213,6 +226,13 @@ export type {
   DanxColorPickerProps,
   DanxColorPickerEmits,
   DanxColorPickerSlots,
+  DanxColorPickerOutputFormat,
+  ColorFormat,
+  RGB,
+  HSV,
+  HSL,
+  UseRecentColorsOptions,
+  UseRecentColorsReturn,
 } from "./components/color-picker";
 export type { TextareaResize, DanxTextareaProps, DanxTextareaEmits } from "./components/textarea";
 export type {

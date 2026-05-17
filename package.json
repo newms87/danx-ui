@@ -67,6 +67,11 @@
       "import": "./dist/components/range-slider/index.js"
     },
     "./components/range-slider/styles": "./dist/components/range-slider/range-slider.css",
+    "./components/color-picker": {
+      "types": "./dist/components/color-picker/index.d.ts",
+      "import": "./dist/components/color-picker/index.js"
+    },
+    "./components/color-picker/styles": "./dist/components/color-picker/color-picker.css",
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css"
   },
