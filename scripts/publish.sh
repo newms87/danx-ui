@@ -49,7 +49,41 @@ echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$NPMRC_PATH"
 trap 'rm -f "$NPMRC_PATH"' EXIT
 
 echo -e "${YELLOW}Checking npm authentication...${NC}"
-CURRENT_USER=$(npm whoami)
+if ! CURRENT_USER=$(npm whoami 2>&1); then
+    cat >&2 <<EOF
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║  NPM PUBLISH BLOCKED — token rejected by registry                        ║
+║  npm whoami response: $(echo "$CURRENT_USER" | tr '\n' ' ' | head -c 80)
+╠══════════════════════════════════════════════════════════════════════════╣
+║                                                                          ║
+║  HUMAN ACTION REQUIRED — NPM_TOKEN expired, wrong scope, or 2FA-locked.  ║
+║                                                                          ║
+║  Steps (~3 min):                                                         ║
+║    1. Browser → https://www.npmjs.com/settings/~/tokens                  ║
+║    2. Generate New Token → "Classic Token" → type "Automation"           ║
+║       (Automation bypasses 2FA. Granular tokens require OTP per          ║
+║       publish — wrong type for CI.)                                      ║
+║    3. Copy the new npm_xxx token (shown ONCE).                           ║
+║    4. Update NPM_TOKEN= in BOTH .env files:                              ║
+║         ~/web/gpt-manager/.env                                           ║
+║         ~/web/danxbot/.env                                               ║
+║    5. Verify:                                                            ║
+║         echo "//registry.npmjs.org/:_authToken=NEW" > /tmp/probe         ║
+║         unset npm_config_registry npm_config_user_agent                  ║
+║         npm whoami --userconfig=/tmp/probe \\                            ║
+║           --registry=https://registry.npmjs.org/                         ║
+║    6. Re-run this publish script.                                        ║
+║                                                                          ║
+║  🛑 LLM AGENTS — STOP. Do not retry, bump versions, or generate          ║
+║     tokens yourself. Stamp \`requires_human\` on the card w/ the steps   ║
+║     above and call danxbot_complete({status: "failed", summary: ...}).   ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+EOF
+    exit 1
+fi
 echo -e "${GREEN}Logged in as: ${CURRENT_USER}${NC}"
 
 if [ "$DRY_RUN" = "1" ]; then
