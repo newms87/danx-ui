@@ -348,29 +348,45 @@
   width: 100%;
   height: 100%;
   outline: none;
+  /* Lets each item size against the viewport via cqw units, so the user can
+     zoom past 100% and the item overflows its scrollport horizontally. */
+  container-type: inline-size;
+
+  &.is-pan-ready {
+    cursor: grab;
+  }
+
+  &.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
 }
 
 .danx-file-continuous {
   width: 100%;
   height: 100%;
   background: var(--dx-file-continuous-bg);
+
+  /* Enable horizontal scroll inside DanxScroll's viewport so items wider
+     than the container (zoom > 100%) can be scrolled into view. The default
+     DanxScroll uses `overflow: auto` per-axis, so this just makes the X-axis
+     visible too. */
+  & :deep(.danx-scroll__viewport) {
+    overflow: auto;
+  }
 }
 
 .danx-file-continuous__item {
-  width: 100%;
+  /* `--zoom-pct` is set inline by DanxFileViewerContinuous (e.g. "150").
+     1cqw = 1% of the continuous-root's container width, so width grows /
+     shrinks with zoom and overflows horizontally past 100%. */
+  width: calc(var(--zoom-pct, 100) * 1cqw);
+  margin: var(--dx-file-continuous-item-gap, 0.5rem) auto;
   padding: var(--dx-file-continuous-item-padding);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.danx-file-continuous__inner {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================

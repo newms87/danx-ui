@@ -85,6 +85,6 @@
      ========================================================================== */
 
   --dx-file-continuous-bg: var(--color-surface);
-  --dx-file-continuous-item-padding: 1rem;
-  --dx-file-continuous-item-min-height: 600px;
+  --dx-file-continuous-item-padding: 0.5rem;
+  --dx-file-continuous-item-gap: 0.5rem;
 }

@@ -10,18 +10,21 @@
  *
  * Built on DanxVirtualScroll so even large file sets render efficiently.
  *
- * Zoom is supported by scaling each rendered item (not the scroll container)
- * so virtualization stays accurate. The item min-height and `transform: scale()`
- * both derive from `zoom`, and DanxVirtualScroll's `defaultItemSize` scales
- * proportionally so the scrollbar stays correctly sized as the user zooms.
- * Ctrl+wheel / Ctrl+`+`/`-`/`=`/`0` zoom gestures are wired via useZoomable
- * with pan disabled (native scroll is the primary gesture).
+ * Zoom resizes each item directly (no CSS transform): the item width is
+ * `${zoom}cqw` (container-query width unit) so 100% fills the viewport,
+ * 200% renders twice as wide and overflows horizontally. The item height
+ * scales with zoom too, and DanxVirtualScroll's `defaultItemSize` mirrors
+ * that height so the scrollbar + virtual window stay accurate.
+ *
+ * When zoomed beyond viewport width, the underlying DanxScroll viewport
+ * gains a horizontal scrollbar. Ctrl/Cmd+drag on the root pans (scrolls
+ * the viewport in both axes) so the user can move large pages around.
  *
  * @props
  *   files: PreviewFile[] - Files to render (required)
  *   activeFileId: string - Current active file ID (v-model)
- *   zoom?: number - Zoom percent (v-model, default 100). When omitted, items render at 100%.
- *   zoomable?: boolean - Enable Ctrl+wheel / keyboard zoom gestures (default false)
+ *   zoom?: number - Zoom percent (v-model, default 100)
+ *   zoomable?: boolean - Enable Ctrl+wheel / keyboard zoom + Ctrl+drag pan (default false)
  *
  * @emits
  *   update:activeFileId(id) - Active file changed via scroll
@@ -31,11 +34,12 @@
  *   --dx-file-continuous-bg - Container background
  *   --dx-file-continuous-item-padding - Padding inside each item
  *   --dx-file-continuous-item-base-height - Base item height (px) before zoom (default 600)
+ *   --dx-file-continuous-item-gap - Vertical gap between items (default 0.5rem)
  */
 -->
 
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue";
 import { DanxFile } from "../danx-file";
 import type { PreviewFile } from "../danx-file";
 import { DanxVirtualScroll } from "../scroll";
@@ -67,12 +71,13 @@ const zoom = defineModel<number>("zoom", { default: 100 });
 const BASE_ITEM_HEIGHT = 600;
 
 const rootRef = ref<HTMLElement | null>(null);
+const scrollRef = ref<{ $el: HTMLElement } | null>(null);
 const panRef = ref({ x: 0, y: 0 });
 
-// Gesture wiring. Pan disabled — native vertical scroll handles position.
-// Ctrl+wheel / keyboard fire even while the scroll container has focus
-// because useZoomable scopes its window-keydown listener to rootRef.
-const panDisabled = ref(true);
+// Pan disabled in useZoomable — we own the drag handler so we can move the
+// scroll viewport's scrollLeft / scrollTop directly (instead of CSS translating
+// the content, which would fight the virtual scroller).
+const panDisabledRef = ref(true);
 const wheelDisabled = computed(() => !props.zoomable);
 const keyboardDisabled = computed(() => !props.zoomable);
 useZoomable({
@@ -82,28 +87,78 @@ useZoomable({
   min: toRef(props, "zoomMin"),
   max: toRef(props, "zoomMax"),
   step: toRef(props, "zoomStep"),
-  panDisabled,
+  panDisabled: panDisabledRef,
   wheelDisabled,
   keyboardDisabled,
 });
 
 const zoomScale = computed(() => zoom.value / 100);
 
-// Per-item height scales linearly with zoom. DanxVirtualScroll uses this as
-// its `defaultItemSize` so the scrollbar + windowed range remain correct.
+// Each item's box height in px — DanxVirtualScroll uses this for both
+// item layout (min-height) AND its windowed defaultItemSize so the scrollbar
+// stays proportional as the user zooms.
 const scaledItemHeight = computed(() => Math.round(BASE_ITEM_HEIGHT * zoomScale.value));
 
+// Item width drives off a CSS custom property so the cqw unit lives in the
+// stylesheet (some test environments strip unknown CSS units from inline
+// style attributes). The `--zoom-pct` value resolves to `${zoom}cqw` via
+// the item's CSS rule against the continuous root's container query context.
 const itemStyle = computed(() => ({
-  minHeight: `${scaledItemHeight.value}px`,
+  "--zoom-pct": String(zoom.value),
+  height: `${scaledItemHeight.value}px`,
 }));
 
-const innerStyle = computed(() => ({
-  transform: `scale(${zoomScale.value})`,
-  transformOrigin: "top center",
-  width: "100%",
-}));
+// --- Ctrl/Cmd + drag → pan the scroll viewport in both axes -------------------
 
-// scrollPosition = first-visible-item index. Bidirectional with activeFileId.
+let viewportEl: HTMLElement | null = null;
+const isDragging = ref(false);
+let dragStartX = 0;
+let dragStartY = 0;
+let dragOriginScrollLeft = 0;
+let dragOriginScrollTop = 0;
+
+function findViewport(): HTMLElement | null {
+  const root = scrollRef.value?.$el;
+  return root?.querySelector(".danx-scroll__viewport") ?? null;
+}
+
+function onMouseDown(event: MouseEvent) {
+  if (!props.zoomable) return;
+  if (event.button !== 0) return;
+  if (!(event.ctrlKey || event.metaKey)) return;
+  if (!viewportEl) viewportEl = findViewport();
+  if (!viewportEl) return;
+  event.preventDefault();
+  isDragging.value = true;
+  dragStartX = event.clientX;
+  dragStartY = event.clientY;
+  dragOriginScrollLeft = viewportEl.scrollLeft;
+  dragOriginScrollTop = viewportEl.scrollTop;
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp, { once: true });
+}
+
+function onMouseMove(event: MouseEvent) {
+  if (!isDragging.value || !viewportEl) return;
+  viewportEl.scrollLeft = dragOriginScrollLeft - (event.clientX - dragStartX);
+  viewportEl.scrollTop = dragOriginScrollTop - (event.clientY - dragStartY);
+}
+
+function onMouseUp() {
+  isDragging.value = false;
+  window.removeEventListener("mousemove", onMouseMove);
+}
+
+onMounted(() => {
+  // viewportEl is queried lazily on first drag — DanxVirtualScroll mounts
+  // its inner DanxScroll after this hook fires, so we can't read it here.
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("mousemove", onMouseMove);
+});
+
+// --- scrollPosition ↔ activeFileId ------------------------------------------
+
 const scrollPosition = computed<number>({
   get() {
     const idx = props.files.findIndex((f) => f.id === props.activeFileId);
@@ -130,8 +185,15 @@ watch(
 </script>
 
 <template>
-  <div ref="rootRef" class="danx-file-continuous-root" tabindex="0">
+  <div
+    ref="rootRef"
+    class="danx-file-continuous-root"
+    :class="{ 'is-pan-ready': zoomable, 'is-dragging': isDragging }"
+    tabindex="0"
+    @mousedown="onMouseDown"
+  >
     <DanxVirtualScroll
+      ref="scrollRef"
       v-model:scroll-position="scrollPosition"
       :items="files"
       direction="vertical"
@@ -141,9 +203,7 @@ watch(
     >
       <template #item="{ item: file }">
         <div class="danx-file-continuous__item" :style="itemStyle">
-          <div class="danx-file-continuous__inner" :style="innerStyle">
-            <DanxFile :file="file" mode="preview" size="auto" fit="contain" disabled />
-          </div>
+          <DanxFile :file="file" mode="preview" size="auto" fit="contain" disabled />
         </div>
       </template>
     </DanxVirtualScroll>
