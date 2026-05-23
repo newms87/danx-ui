@@ -137,8 +137,8 @@ function handleConfirm() {
     v-if="confirm"
     v-model="showConfirmDialog"
     title="Confirm"
-    :close-button="true"
-    :confirm-button="true"
+    close-button
+    confirm-button
     @confirm="handleConfirm"
   >
     {{ confirmText }}

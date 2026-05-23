@@ -58,6 +58,13 @@ export function useScrollWindow<T>(
   const keyFn = options.keyFn ?? ((_item: T, index: number) => index);
   const isHorizontal = direction === "horizontal";
 
+  // Opt-in diagnostics gated by the `debug` option. Single disable documents
+  // the intentional console use (no-console otherwise allows only warn/error).
+  const debugLog = (...args: unknown[]) => {
+    // eslint-disable-next-line no-console
+    if (debug) console.log(...args);
+  };
+
   /** Read the scroll position along the active axis. */
   function scrollPos(el: HTMLElement): number {
     return isHorizontal ? el.scrollLeft : el.scrollTop;
@@ -176,14 +183,12 @@ export function useScrollWindow<T>(
     // triggered recalculates (same scroll position) can oscillate startIndex ±1
     // with variable sizes, causing visible jitter. Keep startIndex stable
     // and only update totalSize/endIndex for scrollbar accuracy.
-    if (debug) {
-      console.log(
-        `[recalc] scrollPos=${currentScrollPos} scrollChanged=${scrollChanged}` +
-          ` result.start=${result.newStart} result.end=${result.newEnd}` +
-          ` result.offset=${result.offset} current.start=${startIndex.value}` +
-          ` totalSize=${result.totalSize} cacheSize=${sizeCache.size}`
-      );
-    }
+    debugLog(
+      `[recalc] scrollPos=${currentScrollPos} scrollChanged=${scrollChanged}` +
+        ` result.start=${result.newStart} result.end=${result.newEnd}` +
+        ` result.offset=${result.offset} current.start=${startIndex.value}` +
+        ` totalSize=${result.totalSize} cacheSize=${sizeCache.size}`
+    );
     if (scrollChanged) {
       startIndex.value = result.newStart;
       startOffset.value = result.offset;
@@ -236,9 +241,7 @@ export function useScrollWindow<T>(
     if (!el) return;
     const size = itemSize(el);
     if (size > 0 && sizeCache.get(key) !== size) {
-      if (debug) {
-        console.log(`[measure] key=${key} old=${sizeCache.get(key) ?? "none"} new=${size}`);
-      }
+      debugLog(`[measure] key=${key} old=${sizeCache.get(key) ?? "none"} new=${size}`);
       sizeCache.set(key, size);
       // Batch measurement-triggered recalculates via microtask so all items
       // measured in a single render cycle produce one recalculate, keeping

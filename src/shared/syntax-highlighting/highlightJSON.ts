@@ -151,7 +151,7 @@ export function highlightJSON(code: string, nestedJsonOptions?: NestedJsonOption
     }
 
     // Punctuation
-    if (/[{}\[\],:]/.test(char!)) {
+    if (/[{}[\],:]/.test(char!)) {
       result.push(`<span class="syntax-punctuation">${escapeHtml(char!)}</span>`);
       i++;
       continue;

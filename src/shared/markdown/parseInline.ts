@@ -108,7 +108,7 @@ export function parseInline(text: string, sanitize: boolean = true): string {
   result = result.replace(/==([^=]+)==/g, "<mark>$1</mark>");
 
   // 12. SUPERSCRIPT: X^2^ - Must be before subscript
-  result = result.replace(/\^([^\^]+)\^/g, "<sup>$1</sup>");
+  result = result.replace(/\^([^^]+)\^/g, "<sup>$1</sup>");
 
   // 13. SUBSCRIPT: H~2~O - Single tilde, use negative lookbehind/lookahead to avoid ~~
   result = result.replace(/(?<!~)~([^~]+)~(?!~)/g, "<sub>$1</sub>");

@@ -164,7 +164,7 @@ describe("useCodeViewerCollapse", () => {
 
   describe("collapsedPreview", () => {
     it("shows null span when content is empty", () => {
-      const modelValue = ref(null);
+      const modelValue = ref<string | null>(null);
       const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json", initialValue: null });
       const displayContent = ref("");
@@ -218,7 +218,7 @@ describe("useCodeViewerCollapse", () => {
     });
 
     it("shows null span for YAML null", () => {
-      const modelValue = ref(null);
+      const modelValue = ref<string | null>(null);
       const formatRef = ref<CodeFormat>("yaml");
       const codeFormat = useCodeFormat({ initialFormat: "yaml", initialValue: null });
       const displayContent = ref("null");
@@ -345,7 +345,7 @@ describe("useCodeViewerCollapse", () => {
     });
 
     it("shows null span for JSON null when modelValue is non-string null", () => {
-      const modelValue = ref(null);
+      const modelValue = ref<string | null>(null);
       const formatRef = ref<CodeFormat>("json");
       const codeFormat = useCodeFormat({ initialFormat: "json" });
       const displayContent = ref("null");

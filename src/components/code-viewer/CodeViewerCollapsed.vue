@@ -15,7 +15,7 @@
  *
  * @emits
  *   expand - Fired when the collapsed row is clicked to restore full view
- *   format-change(format: string) - Fired when a different language is selected via the badge
+ *   formatChange(format: string) - Fired when a different language is selected via the badge
  *
  * @tokens
  *   --dx-code-viewer-collapsed-bg - Background color of the collapsed row
@@ -48,7 +48,7 @@ withDefaults(defineProps<CodeViewerCollapsedProps>(), {
 
 defineEmits<{
   expand: [];
-  "format-change": [format: string];
+  formatChange: [format: string];
 }>();
 </script>
 
@@ -64,7 +64,7 @@ defineEmits<{
       :toggleable="(availableFormats?.length ?? 0) > 1"
       :allow-any-language="allowAnyLanguage"
       @click.stop
-      @change="(fmt: string) => $emit('format-change', fmt)"
+      @change="(fmt: string) => $emit('formatChange', fmt)"
     />
   </div>
 </template>

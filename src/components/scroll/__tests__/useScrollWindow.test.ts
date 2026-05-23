@@ -134,7 +134,7 @@ describe("useScrollWindow", () => {
 
     // Change scrollTop so the scroll event triggers a full recalculate
     // (same scrollTop is treated as measurement-only and keeps startIndex stable)
-    (el as any).scrollTop = 201;
+    el.scrollTop = 201;
     el.dispatchEvent(new Event("scroll"));
     await nextTick();
 

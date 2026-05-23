@@ -774,14 +774,16 @@ describe("DanxFileViewer", () => {
     });
 
     it("clears stored sidebar flag when not in layoutToggles", () => {
+      // Needs 2+ files: a single-file viewer forces sidebar off independently,
+      // which would short-circuit the layoutToggles clobber watcher.
       window.localStorage.setItem("danx-file-viewer-sidebar", "true");
-      const wrapper = mountViewer({ layoutToggles: [] });
+      const wrapper = mountViewer({ layoutToggles: [], relatedFiles: [makeFile("2")] });
       expect(wrapper.classes()).toContain("danx-file-viewer--no-sidebar");
     });
 
     it("clears stored continuous flag when not in layoutToggles", () => {
       window.localStorage.setItem("danx-file-viewer-continuous", "true");
-      const wrapper = mountViewer({ layoutToggles: ["sidebar"] });
+      const wrapper = mountViewer({ layoutToggles: ["sidebar"], relatedFiles: [makeFile("2")] });
       expect(wrapper.classes()).toContain("danx-file-viewer--paged");
     });
 

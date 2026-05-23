@@ -77,12 +77,12 @@ describe("CodeViewerFooter", () => {
     expect(wrapper.findComponent({ name: "DanxButton" }).exists()).toBe(true);
   });
 
-  it("emits toggle-edit when edit button is clicked", async () => {
+  it("emits toggleEdit when edit button is clicked", async () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },
     });
     await wrapper.findComponent({ name: "DanxButton" }).find("button").trigger("click");
-    expect(wrapper.emitted("toggle-edit")).toHaveLength(1);
+    expect(wrapper.emitted("toggleEdit")).toHaveLength(1);
   });
 
   it("applies highlight class to edit button when isEditing", () => {

@@ -8,7 +8,7 @@ import { resetParserState } from "../../state";
  * Renders paragraph tokens with <p> wrapping; other types produce empty string
  */
 const mockRenderTokens = (tokens: BlockToken[], _sanitize: boolean) =>
-  tokens.map((t) => (t.type === "paragraph" ? `<p>${(t as any).content}</p>` : "")).join("");
+  tokens.map((t) => (t.type === "paragraph" ? `<p>${t.content}</p>` : "")).join("");
 
 describe("renderUnorderedList", () => {
   beforeEach(() => {

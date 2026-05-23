@@ -30,12 +30,12 @@ describe("MarkdownEditorFooter", () => {
     expect(tooltip).toBeDefined();
   });
 
-  it("emits show-hotkeys when button is clicked", async () => {
+  it("emits showHotkeys when button is clicked", async () => {
     const wrapper = mount(MarkdownEditorFooter, {
       props: { charCount: 0 },
     });
     await wrapper.find(".hotkey-help-btn").trigger("click");
-    expect(wrapper.emitted("show-hotkeys")).toHaveLength(1);
+    expect(wrapper.emitted("showHotkeys")).toHaveLength(1);
   });
 
   it("displays zero char count", () => {
@@ -68,12 +68,12 @@ describe("MarkdownEditorFooter", () => {
       expect(tooltip).toBeDefined();
     });
 
-    it("emits toggle-raw when raw toggle button is clicked", async () => {
+    it("emits toggleRaw when raw toggle button is clicked", async () => {
       const wrapper = mount(MarkdownEditorFooter, {
         props: { charCount: 0 },
       });
       await wrapper.find(".raw-toggle-btn").trigger("click");
-      expect(wrapper.emitted("toggle-raw")).toHaveLength(1);
+      expect(wrapper.emitted("toggleRaw")).toHaveLength(1);
     });
 
     it("does not have is-active class when isRawMode is false", () => {

@@ -13,7 +13,7 @@
  *   isEditing: boolean - Whether currently in edit mode (highlights edit button)
  *
  * @emits
- *   toggle-edit - Fired when the edit pencil button is clicked
+ *   toggleEdit - Fired when the edit pencil button is clicked
  *
  * @slots
  *   actions - Custom action buttons inserted next to the edit toggle button
@@ -44,7 +44,7 @@ import type { CodeViewerFooterProps } from "./types";
 const props = defineProps<CodeViewerFooterProps>();
 
 defineEmits<{
-  "toggle-edit": [];
+  toggleEdit: [];
 }>();
 
 const hasError = computed(() => props.validationError !== null);
@@ -74,7 +74,7 @@ const hasError = computed(() => props.validationError !== null);
         size="xs"
         class="text-gray-500 hover:text-gray-700"
         :class="{ 'text-sky-500 hover:text-sky-600': isEditing }"
-        @click="$emit('toggle-edit')"
+        @click="$emit('toggleEdit')"
       />
     </div>
   </div>

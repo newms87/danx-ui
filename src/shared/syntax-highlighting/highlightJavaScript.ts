@@ -417,7 +417,7 @@ export function highlightJavaScript(code: string, extraKeywords?: Set<string>): 
     }
 
     // Handle punctuation
-    if (/[{}()\[\];,.]/.test(char!)) {
+    if (/[{}()[\];,.]/.test(char!)) {
       result.push(`<span class="syntax-punctuation">${escapeHtml(char!)}</span>`);
       lastToken = char!;
       i++;

@@ -110,7 +110,7 @@ function formatKey(key: string): string {
 
 <template>
   <DanxDialog
-    :model-value="true"
+    model-value
     title="Keyboard Shortcuts"
     close-x
     class="dx-hotkey-help-popover"

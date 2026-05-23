@@ -49,7 +49,7 @@ function createSelect(
   const wrapper = mount(
     defineComponent({
       setup() {
-        result = useSelect({ model, props, emit: emit as any });
+        result = useSelect({ model, props, emit });
         return {};
       },
       template: "<div />",
@@ -78,7 +78,10 @@ describe("useSelect", () => {
 
     it("normalizes options using custom label/value keys", () => {
       const { result } = createSelect(null, {
-        options: [{ id: 1, name: "One" } as any, { id: 2, name: "Two" } as any],
+        options: [
+          { id: 1, name: "One" } as unknown as SelectOption,
+          { id: 2, name: "Two" } as unknown as SelectOption,
+        ],
         optionLabel: "name",
         optionValue: "id",
       });
@@ -130,12 +133,12 @@ describe("useSelect", () => {
     });
 
     it("coerces array to first element when multiple is false", () => {
-      const { model } = createSelect(["a", "b"] as any, { multiple: false });
+      const { model } = createSelect(["a", "b"] as SelectModelValue, { multiple: false });
       expect(model.value).toBe("a");
     });
 
     it("coerces array to null when empty and multiple is false", () => {
-      const { model } = createSelect([] as any, { multiple: false });
+      const { model } = createSelect([] as SelectModelValue, { multiple: false });
       expect(model.value).toBeNull();
     });
 

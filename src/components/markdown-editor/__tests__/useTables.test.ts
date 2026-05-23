@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { ref } from "vue";
 import { useTables } from "../useTables";
+import type { ShowTablePopoverOptions } from "../useTables";
 import { createTableRowOps } from "../useTableRowOps";
 import type { TableContext } from "../table-types";
 import { createTestEditor, TestEditorResult } from "./editorTestUtils";
@@ -1475,8 +1476,8 @@ describe("useTables", () => {
 
     it("creates table with specified dimensions when popover submits", () => {
       editor = createTestEditor("<p>Insert here</p>");
-      let capturedOptions: any = null;
-      const onShowTablePopover = vi.fn((opts) => {
+      let capturedOptions: ShowTablePopoverOptions | null = null;
+      const onShowTablePopover = vi.fn((opts: ShowTablePopoverOptions) => {
         capturedOptions = opts;
       });
       const tables = useTables({
@@ -1488,7 +1489,7 @@ describe("useTables", () => {
 
       tables.insertTable();
       // Simulate popover submission
-      capturedOptions.onSubmit(4, 5);
+      capturedOptions!.onSubmit(4, 5);
 
       const table = editor.container.querySelector("table");
       expect(table?.querySelector("thead")?.querySelectorAll("th").length).toBe(5);

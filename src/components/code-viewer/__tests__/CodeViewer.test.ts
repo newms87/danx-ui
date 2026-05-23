@@ -186,10 +186,10 @@ describe("CodeViewer", () => {
       expect(badge.props("format")).toBe("json");
     });
 
-    it("emits format-change from collapsed view", async () => {
+    it("emits formatChange from collapsed view", async () => {
       const wrapper = mountCodeViewer({ collapsible: true, defaultCollapsed: true });
       const collapsed = wrapper.findComponent({ name: "CodeViewerCollapsed" });
-      await collapsed.vm.$emit("format-change", "json");
+      await collapsed.vm.$emit("formatChange", "json");
       expect(wrapper.emitted("update:format")).toEqual([["json"]]);
     });
 
@@ -237,7 +237,7 @@ describe("CodeViewer", () => {
     it("emits update:editable when edit toggled via footer", async () => {
       const wrapper = mountCodeViewer({ canEdit: true });
       const footer = wrapper.findComponent({ name: "CodeViewerFooter" });
-      await footer.vm.$emit("toggle-edit");
+      await footer.vm.$emit("toggleEdit");
       expect(wrapper.emitted("update:editable")).toBeTruthy();
     });
 

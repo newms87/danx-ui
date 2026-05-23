@@ -11,8 +11,8 @@
  *   isRawMode?: boolean - Whether raw markdown mode is active (default: false)
  *
  * @emits
- *   show-hotkeys - Fired when the keyboard shortcuts button is clicked
- *   toggle-raw - Fired when the raw toggle button is clicked
+ *   showHotkeys - Fired when the keyboard shortcuts button is clicked
+ *   toggleRaw - Fired when the raw toggle button is clicked
  *
  * @slots
  *   default - Extra content between char count and action buttons (e.g., save indicator)
@@ -35,8 +35,8 @@ withDefaults(defineProps<MarkdownEditorFooterProps>(), {
 });
 
 defineEmits<{
-  "show-hotkeys": [];
-  "toggle-raw": [];
+  showHotkeys: [];
+  toggleRaw: [];
 }>();
 </script>
 
@@ -51,14 +51,14 @@ defineEmits<{
       icon="code"
       size="xxs"
       :tooltip="isRawMode ? 'Show rendered preview' : 'Show raw markdown'"
-      @click="$emit('toggle-raw')"
+      @click="$emit('toggleRaw')"
     />
     <DanxButton
       class="hotkey-help-btn"
       icon="keyboard"
       size="xxs"
       tooltip="Keyboard shortcuts (Ctrl+?)"
-      @click="$emit('show-hotkeys')"
+      @click="$emit('showHotkeys')"
     />
   </div>
 </template>

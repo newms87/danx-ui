@@ -10,8 +10,6 @@ import type { PreviewFile } from "../types";
  * Create a test PreviewFile with sensible defaults.
  * Accepts either `(overrides?)` or `(id, overrides?)`.
  */
-export function makeFile(overrides?: Partial<PreviewFile>): PreviewFile;
-export function makeFile(id: string, overrides?: Partial<PreviewFile>): PreviewFile;
 export function makeFile(
   idOrOverrides?: string | Partial<PreviewFile>,
   maybeOverrides?: Partial<PreviewFile>

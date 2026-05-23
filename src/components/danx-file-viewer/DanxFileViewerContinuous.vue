@@ -139,7 +139,7 @@ function onMouseDown(event: MouseEvent) {
   if (!props.zoomable) return;
   if (event.button !== 0) return;
   if (!(event.ctrlKey || event.metaKey)) return;
-  if (!viewportEl) viewportEl = findViewport();
+  viewportEl = findViewport();
   if (!viewportEl) return;
   event.preventDefault();
   isDragging.value = true;
@@ -177,7 +177,7 @@ let lastEmittedId = "";
 let suppressOwnScrollEcho = false;
 
 function indexAtCenter(): number {
-  if (!viewportEl) viewportEl = findViewport();
+  viewportEl = findViewport();
   if (!viewportEl) return 0;
   const center = viewportEl.scrollTop + viewportEl.clientHeight / 2;
   const itemH = fullItemHeight.value || 1;
@@ -195,7 +195,7 @@ function onViewportScroll() {
 }
 
 function scrollToCenter(idx: number) {
-  if (!viewportEl) viewportEl = findViewport();
+  viewportEl = findViewport();
   if (!viewportEl) return;
   const target =
     idx * fullItemHeight.value + fullItemHeight.value / 2 - viewportEl.clientHeight / 2;

@@ -8,6 +8,8 @@ import {
   arrayMax,
   arrayMin,
   arraySum,
+  collectFieldValues,
+  getNestedValue,
 } from "../arrayUtils";
 
 describe("arrayCount", () => {
@@ -284,5 +286,44 @@ describe("arrayFirst null/undefined handling", () => {
 
   it("returns item itself when path is empty", () => {
     expect(arrayFirst([{ name: "test" }])).toEqual({ name: "test" });
+  });
+});
+
+describe("getNestedValue", () => {
+  it("walks a dot-notation path to a nested value", () => {
+    expect(getNestedValue({ a: { b: { c: 42 } } }, "a.b.c")).toBe(42);
+  });
+
+  it("returns the object itself when path is empty", () => {
+    const obj = { a: 1 };
+    expect(getNestedValue(obj, "")).toBe(obj);
+  });
+
+  it("returns null/undefined input as-is", () => {
+    expect(getNestedValue(null, "a.b")).toBeNull();
+    expect(getNestedValue(undefined, "a.b")).toBeUndefined();
+  });
+
+  it("returns undefined when a segment is missing", () => {
+    expect(getNestedValue({ a: { b: 1 } }, "a.x.y")).toBeUndefined();
+  });
+
+  it("returns undefined when descending past a null segment", () => {
+    expect(getNestedValue({ a: null }, "a.b")).toBeUndefined();
+  });
+});
+
+describe("collectFieldValues", () => {
+  it("returns an array value as-is when no fieldPath", () => {
+    expect(collectFieldValues([1, 2, 3])).toEqual([1, 2, 3]);
+  });
+
+  it("wraps a scalar in a single-element array when no fieldPath", () => {
+    expect(collectFieldValues(5)).toEqual([5]);
+  });
+
+  it("flattens leaf arrays reached via a fieldPath", () => {
+    // Final segment resolves to an array per entry → leaves are spread flat.
+    expect(collectFieldValues([{ items: [1, 2] }, { items: [3] }], "items")).toEqual([1, 2, 3]);
   });
 });

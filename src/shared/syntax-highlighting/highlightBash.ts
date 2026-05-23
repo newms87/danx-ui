@@ -273,7 +273,7 @@ export function highlightBash(code: string): string {
     }
 
     // Handle punctuation: (){}[]
-    if (/[(){}\[\]]/.test(char)) {
+    if (/[(){}[\]]/.test(char)) {
       result.push(`<span class="syntax-punctuation">${escapeHtml(char)}</span>`);
       i++;
       // Opening paren/brace can start a subshell/block with a new command

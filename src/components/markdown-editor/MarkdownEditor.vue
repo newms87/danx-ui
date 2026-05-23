@@ -90,7 +90,7 @@ function onRawInput(event: Event) {
   modelValue.value = target.textContent || "";
 }
 
-// Reference to the contenteditable DOM element (received via container-mounted emit)
+// Reference to the contenteditable DOM element (received via containerMounted emit)
 const contentElementRef = ref<HTMLElement | null>(null);
 
 // Initialize popover managers

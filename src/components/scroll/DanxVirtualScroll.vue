@@ -172,10 +172,16 @@ if (props.infiniteScroll) {
 let scrollPositionUpdating = false;
 let fromScrollEvent = false;
 
+// Opt-in diagnostics gated by the `debug` prop. Single disable documents the
+// intentional console use (no-console otherwise allows only warn/error).
+const debugLog = (...args: unknown[]) => {
+  // eslint-disable-next-line no-console
+  if (props.debug) console.log(...args);
+};
+
 watch(startIndex, (index) => {
   if (!scrollPositionUpdating && index !== scrollPosition.value) {
-    if (props.debug)
-      console.log(`[scroll→model] startIndex=${index} scrollPosition=${scrollPosition.value}`);
+    debugLog(`[scroll→model] startIndex=${index} scrollPosition=${scrollPosition.value}`);
     fromScrollEvent = true;
     scrollPosition.value = index;
   }
@@ -183,15 +189,14 @@ watch(startIndex, (index) => {
 
 watch(scrollPosition, (index) => {
   if (fromScrollEvent) {
-    if (props.debug) console.log(`[model skip] fromScrollEvent, index=${index}`);
+    debugLog(`[model skip] fromScrollEvent, index=${index}`);
     fromScrollEvent = false;
     return;
   }
   if (index !== startIndex.value) {
-    if (props.debug)
-      console.log(
-        `[model→scroll] scrollPosition=${index} startIndex=${startIndex.value} → scrollToIndex`
-      );
+    debugLog(
+      `[model→scroll] scrollPosition=${index} startIndex=${startIndex.value} → scrollToIndex`
+    );
     scrollPositionUpdating = true;
     scrollToIndex(index);
     requestAnimationFrame(() => {

@@ -314,6 +314,22 @@ describe("MarkdownEditor", () => {
       expect(wrapper.find(".dx-markdown-editor-raw").text()).toBe("Second");
     });
 
+    it("emits update:modelValue when raw content is edited", async () => {
+      mountEditor({ modelValue: "First" });
+      await nextTick();
+
+      await wrapper.find(".raw-toggle-btn").trigger("click");
+      await nextTick();
+
+      const raw = wrapper.find(".dx-markdown-editor-raw");
+      raw.element.textContent = "Edited raw";
+      await raw.trigger("input");
+
+      const emitted = wrapper.emitted("update:modelValue");
+      expect(emitted).toBeTruthy();
+      expect(emitted![emitted!.length - 1]).toEqual(["Edited raw"]);
+    });
+
     it("shows active state on raw toggle button when active", async () => {
       mountEditor();
 

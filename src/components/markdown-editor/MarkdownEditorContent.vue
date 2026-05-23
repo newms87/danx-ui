@@ -15,7 +15,7 @@
  *   input - Fired when content changes via user input
  *   keydown - Fired on keydown with the KeyboardEvent
  *   blur - Fired when the editor loses focus
- *   container-mounted - Fired on mount with the contenteditable HTMLElement reference
+ *   containerMounted - Fired on mount with the contenteditable HTMLElement reference
  *
  * @tokens
  *   --dx-mde-content-bg - Background color (default: #1e1e1e)
@@ -54,7 +54,7 @@ const emit = defineEmits<{
   input: [];
   keydown: [event: KeyboardEvent];
   blur: [];
-  "container-mounted": [element: HTMLElement];
+  containerMounted: [element: HTMLElement];
 }>();
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -112,7 +112,7 @@ function handleClick(event: MouseEvent): void {
 // Emit the container element on mount so the parent can pass it to composables
 onMounted(() => {
   // containerRef is guaranteed set in onMounted
-  emit("container-mounted", containerRef.value!);
+  emit("containerMounted", containerRef.value!);
 });
 </script>
 

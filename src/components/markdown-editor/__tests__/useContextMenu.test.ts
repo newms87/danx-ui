@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useContextMenu } from "../useContextMenu";
 import { createMockEditor } from "./mockEditor";
 import { UseMarkdownEditorReturn } from "../useMarkdownEditor";
+import type { ContextMenuItem } from "../types";
 
 describe("useContextMenu", () => {
   let editor: UseMarkdownEditorReturn;
@@ -313,6 +314,68 @@ describe("useContextMenu", () => {
 
       const dividers = menu.items.value.filter((i) => i.divider === true);
       expect(dividers.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("selection preservation", () => {
+    function selectSomeText() {
+      const el = document.createElement("div");
+      el.textContent = "hello world";
+      document.body.appendChild(el);
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(range);
+      return el;
+    }
+
+    // Actions live in nested submenu children; find the first wrapped one.
+    function findAction(items: ContextMenuItem[]): (() => void) | undefined {
+      for (const i of items) {
+        if (typeof i.action === "function") return i.action;
+        if (i.children) {
+          const nested = findAction(i.children);
+          if (nested) return nested;
+        }
+      }
+      return undefined;
+    }
+
+    it("saves the live selection range on show", () => {
+      const el = selectSomeText();
+      const menu = useContextMenu({ editor });
+      // A live selection (rangeCount > 0) → saveSelectionRange clones it.
+      menu.show(createMouseEvent());
+      expect(menu.items.value.length).toBeGreaterThan(0);
+      el.remove();
+    });
+
+    it("restores the saved range before running a wrapped menu action", () => {
+      const el = selectSomeText();
+      const menu = useContextMenu({ editor });
+      menu.show(createMouseEvent());
+      const action = findAction(menu.items.value);
+      expect(action).toBeTruthy();
+      const addRangeSpy = vi.spyOn(window.getSelection()!, "addRange");
+      action!();
+      // wrapAction restored the saved range (restoreSelectionRange → addRange).
+      expect(addRangeSpy).toHaveBeenCalled();
+      addRangeSpy.mockRestore();
+      el.remove();
+    });
+
+    it("wrapped action no-ops the restore when getSelection returns null", () => {
+      const el = selectSomeText();
+      const menu = useContextMenu({ editor });
+      menu.show(createMouseEvent()); // savedRange captured while selection exists
+      const action = findAction(menu.items.value);
+      expect(action).toBeTruthy();
+      // Now selection is unavailable → restoreSelectionRange bails early.
+      const getSelSpy = vi.spyOn(window, "getSelection").mockReturnValue(null);
+      expect(() => action!()).not.toThrow();
+      getSelSpy.mockRestore();
+      el.remove();
     });
   });
 });

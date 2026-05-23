@@ -429,4 +429,95 @@ describe("useZoomable", () => {
       }).not.toThrow();
     });
   });
+
+  describe("edge cases and null guards", () => {
+    it("isFocusInsideRoot returns false when rootRef is null", () => {
+      let zoom!: Ref<number>;
+      let pan!: Ref<Pan>;
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            zoom = ref(100);
+            pan = ref<Pan>({ x: 0, y: 0 });
+            const rootRef = ref<HTMLElement | null>(null);
+            useZoomable({ zoom, pan, rootRef });
+            return {};
+          },
+          template: `<div />`,
+        })
+      );
+      mountedWrappers.push(wrapper);
+      // When rootRef is null, isFocusInsideRoot should return false.
+      // This prevents keyboard zoom when there's no root element.
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "=", ctrlKey: true }));
+      expect(zoom.value).toBe(100);
+    });
+
+    it("isFocusInsideRoot returns false when document.activeElement is null", () => {
+      const h = makeHarness();
+      // Simulate activeElement being null (edge case in some environments)
+      const origActive = Object.getOwnPropertyDescriptor(document, "activeElement");
+      Object.defineProperty(document, "activeElement", { value: null, configurable: true });
+      try {
+        h.rootRef.value!.focus(); // Try to focus root
+        // Even though we tried to focus, activeElement is mocked to null
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "=", ctrlKey: true }));
+        expect(h.zoom.value).toBe(100); // Should not zoom
+      } finally {
+        if (origActive) {
+          Object.defineProperty(document, "activeElement", origActive);
+        }
+      }
+    });
+
+    it("onDragMove no-ops on a trailing mousemove after the drag ended", () => {
+      const h = makeHarness();
+      // Capture the window mousemove handler registered by onDragStart so we can
+      // simulate a browser-queued trailing event firing after the drag ended.
+      const addSpy = vi.spyOn(window, "addEventListener");
+      h.api.onDragStart(
+        new MouseEvent("mousedown", { button: 0, ctrlKey: true, clientX: 10, clientY: 20 })
+      );
+      const moveCall = addSpy.mock.calls.find(([type]) => type === "mousemove");
+      const moveHandler = moveCall![1] as (e: MouseEvent) => void;
+      // End the drag: isDragging → false and the listener is removed.
+      window.dispatchEvent(new MouseEvent("mouseup"));
+      expect(h.api.isDragging.value).toBe(false);
+      // The captured handler still runs for an already-queued event; the
+      // !isDragging guard makes it a no-op, leaving pan untouched.
+      moveHandler(new MouseEvent("mousemove", { clientX: 999, clientY: 999 }));
+      expect(h.pan.value).toEqual({ x: 0, y: 0 });
+      addSpy.mockRestore();
+    });
+
+    it("modifierKeyLabel reflects current platform", () => {
+      const h = makeHarness();
+      // The label should be either "Ctrl" or "⌘" depending on platform
+      const label = h.api.modifierKeyLabel.value;
+      expect(["Ctrl", "⌘"]).toContain(label);
+    });
+
+    it("modifierKeyLabel falls back to Ctrl when navigator is undefined (SSR)", () => {
+      const h = makeHarness();
+      // Stub after mount so the lazy computed evaluates with navigator absent.
+      vi.stubGlobal("navigator", undefined);
+      try {
+        expect(h.api.modifierKeyLabel.value).toBe("Ctrl");
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it("isFocusInsideRoot returns false when document is undefined (SSR)", () => {
+      const h = makeHarness();
+      h.rootRef.value!.focus();
+      vi.stubGlobal("document", undefined);
+      try {
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "=", ctrlKey: true }));
+        expect(h.zoom.value).toBe(100); // no zoom — guard short-circuited
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+  });
 });

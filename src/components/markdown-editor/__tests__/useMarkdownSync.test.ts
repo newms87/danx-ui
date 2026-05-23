@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { defineComponent, nextTick, Ref, ref } from "vue";
+import { type Component, defineComponent, nextTick, Ref, ref } from "vue";
 import { mount } from "@vue/test-utils";
 import { useMarkdownSync, UseMarkdownSyncReturn } from "../useMarkdownSync";
 import type { TokenRenderer } from "../types";
@@ -211,7 +211,7 @@ describe("useMarkdownSync", () => {
           id: "test-token",
           pattern: /\{\{(\d+)\}\}/g,
           toHtml: (_match, groups) => `<span>${groups[0]}</span>`,
-          component: {} as any,
+          component: {} as unknown as Component,
           getProps: (groups) => ({ id: groups[0] }),
           toMarkdown: (el) => `{{${el.getAttribute("data-token-groups")}}}`,
           ...overrides,
@@ -455,7 +455,7 @@ describe("useMarkdownSync", () => {
           id: "test-token",
           pattern: /\{\{(\d+)\}\}/g,
           toHtml: () => "",
-          component: {} as any,
+          component: {} as unknown as Component,
           getProps: () => ({}),
           toMarkdown,
         };
@@ -484,7 +484,7 @@ describe("useMarkdownSync", () => {
           id: "test-token",
           pattern: /\{\{(\d+)\}\}/g,
           toHtml: () => "",
-          component: {} as any,
+          component: {} as unknown as Component,
           getProps: () => ({}),
           toMarkdown: () => "unreachable",
         };

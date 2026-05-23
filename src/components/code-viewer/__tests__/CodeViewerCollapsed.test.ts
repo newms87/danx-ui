@@ -36,7 +36,7 @@ describe("CodeViewerCollapsed", () => {
     expect(wrapper.text()).toContain("JSON");
   });
 
-  it("emits format-change when language badge emits change", async () => {
+  it("emits formatChange when language badge emits change", async () => {
     const wrapper = mount(CodeViewerCollapsed, {
       props: {
         ...defaultProps,
@@ -46,7 +46,7 @@ describe("CodeViewerCollapsed", () => {
     });
     const badge = wrapper.findComponent({ name: "LanguageBadge" });
     await badge.vm.$emit("change", "yaml");
-    expect(wrapper.emitted("format-change")).toEqual([["yaml"]]);
+    expect(wrapper.emitted("formatChange")).toEqual([["yaml"]]);
   });
 
   it("click.stop on LanguageBadge prevents expand event from firing", async () => {

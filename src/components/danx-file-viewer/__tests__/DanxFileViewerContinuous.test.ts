@@ -370,4 +370,92 @@ describe("DanxFileViewerContinuous", () => {
       expect(wrapper.find(".danx-file-continuous-root").classes()).not.toContain("is-dragging");
     });
   });
+
+  describe("viewport resolution guards", () => {
+    // Force findViewport() to return null by stubbing the scroll root's
+    // querySelector — simulates the DanxScroll viewport being unavailable.
+    function stubViewportNull(wrapper: VueWrapper) {
+      const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
+      return vi.spyOn(vs.element, "querySelector").mockReturnValue(null);
+    }
+
+    it("Ctrl+drag is a no-op when the viewport cannot be resolved", async () => {
+      const wrapper = await mountContinuous({ zoomable: true });
+      const spy = stubViewportNull(wrapper);
+      await wrapper.find(".danx-file-continuous-root").trigger("mousedown", {
+        button: 0,
+        ctrlKey: true,
+        clientX: 10,
+        clientY: 10,
+      });
+      // findViewport() returned null → onMouseDown bailed before isDragging.
+      expect(wrapper.find(".danx-file-continuous-root").classes()).not.toContain("is-dragging");
+      spy.mockRestore();
+    });
+
+    it("onMouseMove no-ops on a trailing event after the drag ended", async () => {
+      const wrapper = await mountContinuous({ zoomable: true });
+      const addSpy = vi.spyOn(window, "addEventListener");
+      await wrapper.find(".danx-file-continuous-root").trigger("mousedown", {
+        button: 0,
+        ctrlKey: true,
+        clientX: 10,
+        clientY: 10,
+      });
+      const moveHandler = addSpy.mock.calls.find(([t]) => t === "mousemove")?.[1] as (
+        e: MouseEvent
+      ) => void;
+      expect(moveHandler).toBeTruthy();
+      // End the drag (isDragging → false), then fire a trailing move.
+      window.dispatchEvent(new MouseEvent("mouseup"));
+      expect(() =>
+        moveHandler(new MouseEvent("mousemove", { clientX: 99, clientY: 99 }))
+      ).not.toThrow();
+      addSpy.mockRestore();
+    });
+
+    it("viewport scroll is a no-op when the viewport disappears mid-session", async () => {
+      const files = makeFiles(5);
+      const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
+      const viewport = wrapper.element.querySelector(
+        ".danx-scroll__viewport"
+      ) as HTMLElement | null;
+      if (!viewport) return;
+      const spy = stubViewportNull(wrapper);
+      // indexAtCenter re-queries → null → returns 0 → file === active → no emit.
+      viewport.dispatchEvent(new Event("scroll"));
+      await nextTick();
+      expect(wrapper.emitted("update:activeFileId")).toBeUndefined();
+      spy.mockRestore();
+    });
+
+    it("viewport scroll is a no-op when files is empty", async () => {
+      const files = makeFiles(3);
+      const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
+      const viewport = wrapper.element.querySelector(
+        ".danx-scroll__viewport"
+      ) as HTMLElement | null;
+      if (!viewport) return;
+      await wrapper.setProps({ files: [] });
+      Object.defineProperty(viewport, "clientHeight", { value: 100, configurable: true });
+      Object.defineProperty(viewport, "scrollTop", {
+        value: 0,
+        configurable: true,
+        writable: true,
+      });
+      // indexAtCenter clamps to -1 for an empty set → files[-1] undefined → bail.
+      expect(() => viewport.dispatchEvent(new Event("scroll"))).not.toThrow();
+      await nextTick();
+    });
+
+    it("activeFileId change is a no-op when the viewport cannot be resolved", async () => {
+      const files = makeFiles(5);
+      const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
+      const spy = stubViewportNull(wrapper);
+      // The watcher calls scrollToCenter → findViewport() null → bail, no throw.
+      await expect(wrapper.setProps({ activeFileId: files[3]!.id })).resolves.toBeUndefined();
+      await nextTick();
+      spy.mockRestore();
+    });
+  });
 });

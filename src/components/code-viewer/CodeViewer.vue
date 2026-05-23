@@ -230,7 +230,7 @@ watch(
           v-model:search-open="languageSearchOpen"
           :format="currentFormat"
           :available-formats="availableFormats"
-          :toggleable="true"
+          toggleable
           :allow-any-language="allowAnyLanguage"
           @click.stop
           @change="(fmt: string) => onFormatChange(fmt as CodeFormat)"

@@ -166,10 +166,10 @@ describe("MarkdownEditorContent", () => {
     });
   });
 
-  describe("container-mounted emit", () => {
-    it("emits container-mounted with HTMLElement on mount", () => {
+  describe("containerMounted emit", () => {
+    it("emits containerMounted with HTMLElement on mount", () => {
       mountContent();
-      const emitted = wrapper.emitted("container-mounted");
+      const emitted = wrapper.emitted("containerMounted");
       expect(emitted).toHaveLength(1);
       expect(emitted![0]![0]).toBeInstanceOf(HTMLElement);
     });

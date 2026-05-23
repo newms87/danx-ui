@@ -680,7 +680,7 @@ describe("useMarkdownHotkeys", () => {
 
       expect(handled).toBe(true);
       expect(action).toHaveBeenCalledTimes(1);
-      expect(event.preventDefault as any).toHaveBeenCalled();
+      expect(vi.mocked(event.preventDefault)).toHaveBeenCalled();
     });
 
     it("returns false when no hotkey matches", () => {
@@ -693,7 +693,7 @@ describe("useMarkdownHotkeys", () => {
       const handled = handleKeyDown(event);
 
       expect(handled).toBe(false);
-      expect(event.preventDefault as any).not.toHaveBeenCalled();
+      expect(vi.mocked(event.preventDefault)).not.toHaveBeenCalled();
     });
 
     it("triggers help on ctrl+/", () => {

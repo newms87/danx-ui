@@ -4,6 +4,7 @@ import { markRaw, defineComponent, nextTick } from "vue";
 import DanxFileUpload from "../DanxFileUpload.vue";
 import type { PreviewFile } from "../../danx-file/types";
 import { makeFile } from "../../danx-file/__tests__/test-helpers";
+import { setFileChildrenHandler, resetFileChildrenHandler } from "../fileChildrenConfig";
 
 /** Stub components to avoid deep rendering */
 const DanxFieldWrapperStub = markRaw(
@@ -38,7 +39,7 @@ const DanxDialogStub = markRaw(
 const DanxFileViewerStub = markRaw(
   defineComponent({
     props: ["file", "relatedFiles", "downloadable"],
-    emits: ["download"],
+    emits: ["download", "loadChildren"],
     template: "<div class='danx-file-viewer-stub' :data-file-id='file.id' />",
   })
 );
@@ -347,6 +348,33 @@ describe("DanxFileUpload", () => {
       const emitted = wrapper.emitted("download");
       expect(emitted).toBeTruthy();
       expect(emitted![0]![0]).toEqual(downloadEvent);
+    });
+
+    it("invokes the configured file-children handler on the viewer's loadChildren", async () => {
+      const handler = vi.fn(() => Promise.resolve());
+      setFileChildrenHandler(handler);
+      try {
+        const files = [makeFile("1")];
+        const wrapper = createWrapper({}, files);
+        await wrapper.find(".danx-file-stub").trigger("click");
+        await nextTick();
+        const viewer = wrapper.findComponent(DanxFileViewerStub);
+        viewer.vm.$emit("loadChildren", files[0]);
+        await nextTick();
+        expect(handler).toHaveBeenCalledWith(files[0]);
+      } finally {
+        resetFileChildrenHandler();
+      }
+    });
+
+    it("no-ops the viewer's loadChildren when no handler is configured", async () => {
+      resetFileChildrenHandler();
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({}, files);
+      await wrapper.find(".danx-file-stub").trigger("click");
+      await nextTick();
+      const viewer = wrapper.findComponent(DanxFileViewerStub);
+      expect(() => viewer.vm.$emit("loadChildren", files[0])).not.toThrow();
     });
 
     it("adds cursor-pointer class when viewable and not uploading", () => {
