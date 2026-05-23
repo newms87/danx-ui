@@ -381,12 +381,25 @@
      1cqw = 1% of the continuous-root's container width, so width grows /
      shrinks with zoom and overflows horizontally past 100%. */
   width: calc(var(--zoom-pct, 100) * 1cqw);
-  margin: var(--dx-file-continuous-item-gap, 0.5rem) auto;
-  padding: var(--dx-file-continuous-item-padding);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Vertical inter-item gap lives INSIDE the item via padding-bottom +
+     border-box so DanxVirtualScroll's measureItem (offsetHeight) reads the
+     full per-row stride and start-index math stays accurate. */
+  padding: 0 0 var(--dx-file-continuous-item-gap, 8px) 0;
+  margin: 0 auto;
   box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  /* Continuous mode lets each file blend into the viewer background instead
+     of carrying DanxFile's per-thumb fill. The bg comes from
+     --dx-file-continuous-bg on the scroll root. */
+  & .danx-file {
+    background: transparent;
+    border-radius: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 /* ==========================================================================

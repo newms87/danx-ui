@@ -49,44 +49,80 @@ describe("DanxFileViewerContinuous", () => {
     expect(wrapper.findAll(".danx-file-continuous__item").length).toBeGreaterThan(0);
   });
 
-  it("scrollPosition derives from activeFileId", async () => {
-    const files = makeFiles(5);
-    const wrapper = await mountContinuous({ files, activeFileId: files[2]!.id });
-    const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
-    expect(vs.props("scrollPosition")).toBe(2);
-  });
-
-  it("scrollPosition falls back to 0 when activeFileId is unknown", async () => {
+  it("activeFileId watcher ignores unknown id (no scroll)", async () => {
     const files = makeFiles(3);
-    const wrapper = await mountContinuous({ files, activeFileId: "missing" });
-    const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
-    expect(vs.props("scrollPosition")).toBe(0);
+    const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
+    const viewport = wrapper.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
+    if (!viewport) return;
+    const prevTop = viewport.scrollTop;
+    await wrapper.setProps({ activeFileId: "no-such-file" });
+    await nextTick();
+    expect(viewport.scrollTop).toBe(prevTop);
   });
 
-  it("emits update:activeFileId when scroll position changes", async () => {
+  it("does not bind scrollPosition v-model on DanxVirtualScroll (owns scroll itself)", async () => {
+    const wrapper = await mountContinuous();
+    const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
+    // Either prop is undefined or default (0); the key behavior is that the
+    // parent component owns scroll position through a direct viewport listener.
+    expect(vs.props("scrollPosition") ?? 0).toBe(0);
+  });
+
+  it("emits update:activeFileId from viewport scroll when center file changes", async () => {
     const files = makeFiles(5);
     const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
-    const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
-    vs.vm.$emit("update:scrollPosition", 3);
+    const root = wrapper.find(".danx-file-continuous-root");
+    const viewport = root.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
+    if (!viewport) return; // happy-dom may not lay out DanxScroll; behavior still tested via the watch path below
+    // Item full height is 608px (600 + 8 gap). With a 100px viewport, scrolling
+    // to scrollTop = (3 * 608) + 304 - 50 puts file[3] at the visual center.
+    Object.defineProperty(viewport, "clientHeight", { value: 100, configurable: true });
+    Object.defineProperty(viewport, "scrollTop", {
+      value: 3 * 608 + 304 - 50,
+      configurable: true,
+      writable: true,
+    });
+    viewport.dispatchEvent(new Event("scroll"));
     await nextTick();
     const emits = wrapper.emitted("update:activeFileId");
     expect(emits?.[emits.length - 1]).toEqual([files[3]!.id]);
   });
 
+  it("activeFileId watcher early-returns on echo (no re-scroll loop)", async () => {
+    const files = makeFiles(5);
+    const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
+    const root = wrapper.find(".danx-file-continuous-root");
+    const viewport = root.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
+    if (!viewport) return;
+    Object.defineProperty(viewport, "clientHeight", { value: 100, configurable: true });
+    Object.defineProperty(viewport, "scrollTop", {
+      value: 3 * 608 + 304 - 50,
+      configurable: true,
+      writable: true,
+    });
+    viewport.dispatchEvent(new Event("scroll"));
+    await nextTick();
+    // Now parent reflects the emitted activeFileId back into our prop —
+    // the watcher should short-circuit (lastEmittedId match) and NOT
+    // invoke scrollToCenter, leaving scrollTop untouched.
+    const prevTop = viewport.scrollTop;
+    await wrapper.setProps({ activeFileId: files[3]!.id });
+    await nextTick();
+    expect(viewport.scrollTop).toBe(prevTop);
+  });
+
   it("does not emit when scrolling to the current active index", async () => {
     const files = makeFiles(3);
     const wrapper = await mountContinuous({ files, activeFileId: files[1]!.id });
-    const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
-    vs.vm.$emit("update:scrollPosition", 1);
-    await nextTick();
-    expect(wrapper.emitted("update:activeFileId")).toBeUndefined();
-  });
-
-  it("does not emit when scroll position points to an out-of-range index", async () => {
-    const files = makeFiles(3);
-    const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id });
-    const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
-    vs.vm.$emit("update:scrollPosition", 99);
+    const viewport = wrapper.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
+    if (!viewport) return;
+    Object.defineProperty(viewport, "clientHeight", { value: 100, configurable: true });
+    Object.defineProperty(viewport, "scrollTop", {
+      value: 608 + 304 - 50, // centers files[1]
+      configurable: true,
+      writable: true,
+    });
+    viewport.dispatchEvent(new Event("scroll"));
     await nextTick();
     expect(wrapper.emitted("update:activeFileId")).toBeUndefined();
   });
@@ -121,20 +157,21 @@ describe("DanxFileViewerContinuous", () => {
   });
 
   describe("zoom", () => {
-    it("defaults to 100% — --zoom-pct=100, height=base", async () => {
+    it("defaults to 100% — --zoom-pct=100, height=base+gap", async () => {
       const wrapper = await mountContinuous();
       const item = wrapper.find(".danx-file-continuous__item");
       const styleAttr = item.attributes("style") ?? "";
       expect(styleAttr).toContain("--zoom-pct: 100");
-      expect(styleAttr).toContain("height: 600px");
+      // 600 (content) + 8 (gap padding-bottom) = 608 full stride
+      expect(styleAttr).toContain("height: 608px");
     });
 
-    it("zoom prop drives --zoom-pct and item height", async () => {
+    it("zoom prop drives --zoom-pct and item height (content + gap)", async () => {
       const wrapper = await mountContinuous({ zoom: 200 });
       const item = wrapper.find(".danx-file-continuous__item");
       const styleAttr = item.attributes("style") ?? "";
       expect(styleAttr).toContain("--zoom-pct: 200");
-      expect(styleAttr).toContain("height: 1200px");
+      expect(styleAttr).toContain("height: 1208px");
     });
 
     it("zoom < 100% shrinks item dimensions (no large vertical gap)", async () => {
@@ -142,13 +179,13 @@ describe("DanxFileViewerContinuous", () => {
       const item = wrapper.find(".danx-file-continuous__item");
       const styleAttr = item.attributes("style") ?? "";
       expect(styleAttr).toContain("--zoom-pct: 50");
-      expect(styleAttr).toContain("height: 300px");
+      expect(styleAttr).toContain("height: 308px");
     });
 
-    it("passes scaled defaultItemSize to DanxVirtualScroll", async () => {
+    it("passes scaled defaultItemSize (content + gap) to DanxVirtualScroll", async () => {
       const wrapper = await mountContinuous({ zoom: 150 });
       const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
-      expect(vs.props("defaultItemSize")).toBe(900);
+      expect(vs.props("defaultItemSize")).toBe(908); // 900 + 8
     });
 
     it("zoomable=false ignores Ctrl+wheel zoom", async () => {

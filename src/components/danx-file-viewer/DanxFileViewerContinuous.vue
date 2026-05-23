@@ -39,7 +39,7 @@
 -->
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue";
 import { DanxFile } from "../danx-file";
 import type { PreviewFile } from "../danx-file";
 import { DanxVirtualScroll } from "../scroll";
@@ -69,6 +69,10 @@ const emit = defineEmits<{
 const zoom = defineModel<number>("zoom", { default: 100 });
 
 const BASE_ITEM_HEIGHT = 600;
+// Vertical gap between items, in px. Lives inside each item as padding-bottom
+// (with box-sizing: border-box) so DanxVirtualScroll's measureItem reads the
+// full per-row height via offsetHeight and the start-index calc stays accurate.
+const ITEM_GAP = 8;
 
 const rootRef = ref<HTMLElement | null>(null);
 const scrollRef = ref<{ $el: HTMLElement } | null>(null);
@@ -94,10 +98,13 @@ useZoomable({
 
 const zoomScale = computed(() => zoom.value / 100);
 
-// Each item's box height in px — DanxVirtualScroll uses this for both
-// item layout (min-height) AND its windowed defaultItemSize so the scrollbar
-// stays proportional as the user zooms.
+// Each item's content height in px (image area only).
 const scaledItemHeight = computed(() => Math.round(BASE_ITEM_HEIGHT * zoomScale.value));
+// Full per-row box height including the inter-item gap. DanxVirtualScroll
+// uses this as `defaultItemSize`; the item itself uses it as its CSS height
+// with `box-sizing: border-box` so offsetHeight == this number and
+// measureItem's sizeCache stays correct.
+const fullItemHeight = computed(() => scaledItemHeight.value + ITEM_GAP);
 
 // Item width drives off a CSS custom property so the cqw unit lives in the
 // stylesheet (some test environments strip unknown CSS units from inline
@@ -105,7 +112,7 @@ const scaledItemHeight = computed(() => Math.round(BASE_ITEM_HEIGHT * zoomScale.
 // the item's CSS rule against the continuous root's container query context.
 const itemStyle = computed(() => ({
   "--zoom-pct": String(zoom.value),
-  height: `${scaledItemHeight.value}px`,
+  height: `${fullItemHeight.value}px`,
 }));
 
 // --- Ctrl/Cmd + drag → pan the scroll viewport in both axes -------------------
@@ -149,28 +156,62 @@ function onMouseUp() {
   window.removeEventListener("mousemove", onMouseMove);
 }
 
-onMounted(() => {
-  // viewportEl is queried lazily on first drag — DanxVirtualScroll mounts
-  // its inner DanxScroll after this hook fires, so we can't read it here.
-});
 onBeforeUnmount(() => {
   window.removeEventListener("mousemove", onMouseMove);
 });
 
-// --- scrollPosition ↔ activeFileId ------------------------------------------
+// --- activeFileId ↔ viewport scroll (centered) ------------------------------
+// We don't use DanxVirtualScroll's scrollPosition v-model (= startIndex = top
+// of viewport). The sidebar highlight should follow the file CENTERED in the
+// viewport, so we manage scroll position ourselves: a scroll listener finds
+// the center file + emits update:activeFileId, and a watch on activeFileId
+// scrolls the viewport so that file sits at center.
 
-const scrollPosition = computed<number>({
-  get() {
-    const idx = props.files.findIndex((f) => f.id === props.activeFileId);
-    return idx === -1 ? 0 : idx;
-  },
-  set(idx: number) {
-    const file = props.files[idx];
-    if (file && file.id !== props.activeFileId) {
-      emit("update:activeFileId", file.id);
+let lastEmittedId = "";
+let suppressOwnScrollEcho = false;
+
+function indexAtCenter(): number {
+  if (!viewportEl) viewportEl = findViewport();
+  if (!viewportEl) return 0;
+  const center = viewportEl.scrollTop + viewportEl.clientHeight / 2;
+  const itemH = fullItemHeight.value || 1;
+  return Math.min(props.files.length - 1, Math.max(0, Math.floor(center / itemH)));
+}
+
+function onViewportScroll() {
+  if (suppressOwnScrollEcho) return;
+  const idx = indexAtCenter();
+  const file = props.files[idx];
+  if (!file) return;
+  if (file.id === props.activeFileId) return;
+  lastEmittedId = file.id;
+  emit("update:activeFileId", file.id);
+}
+
+function scrollToCenter(idx: number) {
+  if (!viewportEl) viewportEl = findViewport();
+  if (!viewportEl) return;
+  const target =
+    idx * fullItemHeight.value + fullItemHeight.value / 2 - viewportEl.clientHeight / 2;
+  suppressOwnScrollEcho = true;
+  viewportEl.scrollTop = Math.max(0, target);
+  requestAnimationFrame(() => {
+    suppressOwnScrollEcho = false;
+  });
+}
+
+watch(
+  () => props.activeFileId,
+  (id) => {
+    if (id === lastEmittedId) {
+      lastEmittedId = "";
+      return;
     }
-  },
-});
+    const idx = props.files.findIndex((f) => f.id === id);
+    if (idx < 0) return;
+    scrollToCenter(idx);
+  }
+);
 
 // When files change but activeFileId is no longer in the set, snap to first.
 watch(
@@ -182,6 +223,25 @@ watch(
     }
   }
 );
+
+onMounted(async () => {
+  // DanxVirtualScroll's inner DanxScroll mounts the viewport on its own
+  // onMounted hook (runs in the same tick); wait one nextTick to be safe.
+  await nextTick();
+  viewportEl = findViewport();
+  if (viewportEl) {
+    viewportEl.addEventListener("scroll", onViewportScroll, { passive: true });
+    // Initial sync: scroll to the currently-active file's center.
+    const idx = props.files.findIndex((f) => f.id === props.activeFileId);
+    if (idx > 0) scrollToCenter(idx);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (viewportEl) {
+    viewportEl.removeEventListener("scroll", onViewportScroll);
+  }
+});
 </script>
 
 <template>
@@ -194,10 +254,9 @@ watch(
   >
     <DanxVirtualScroll
       ref="scrollRef"
-      v-model:scroll-position="scrollPosition"
       :items="files"
       direction="vertical"
-      :default-item-size="scaledItemHeight"
+      :default-item-size="fullItemHeight"
       :key-fn="(file) => file.id"
       class="danx-file-continuous"
     >
