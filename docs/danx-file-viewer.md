@@ -73,9 +73,10 @@ const mainFile: PreviewFile = {
 | `defaultZoom` | `number` | `100` | **SEED** — zoom percent when no localStorage preference exists |
 | `sidebar` | `boolean` | `undefined` | **LOCKED** — pins the sidebar state. Bypasses localStorage, hides the sidebar toggle, and the `layoutToggles` watcher will not clear it |
 | `continuous` | `boolean` | `undefined` | **LOCKED** — pins the continuous-scroll state. Bypasses localStorage, hides the continuous toggle, watcher will not clear it |
-| `zoom` | `number` | `undefined` | **LOCKED** — pins the zoom percent. Bypasses localStorage, hides zoom controls and disables zoom gestures; Ctrl+drag pan / drag-scroll still work |
+| `zoom` | `number` | `undefined` | **LOCKED** — pins the zoom percent. Bypasses localStorage, hides zoom controls and disables zoom gestures; Ctrl+drag free pan still works |
 | `layoutToggles` | `LayoutToggle[]` | `[]` | Toggle buttons rendered in the toolbar — subset of `["sidebar", "continuous"]`. Empty hides the group. A locked layout is excluded automatically |
-| `zoomable` | `boolean` | `false` | Enable Photoshop-style zoom + pan (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0) |
+| `zoomable` | `boolean` | `true` | Enable Photoshop-style zoom + pan EVENTS (Ctrl+wheel / Ctrl+drag free pan / Ctrl+/-/0 / dblclick reset). On by default — pass `false` to opt out. Controls only the gestures, not the slider |
+| `zoomControls` | `boolean` | `false` | Show the zoom slider toolbar. Gestures work regardless (they follow `zoomable`); this only toggles the visible slider. No effect when `zoom` is locked |
 | `storageKey` | `string` | `"danx-file-viewer"` | localStorage namespace for sidebar / continuous / zoom / panel widths |
 | `showToolbar` | `boolean` | auto | Override the auto-show toolbar (auto = on when any control is opted in) |
 
@@ -134,17 +135,19 @@ A locked prop is the only way to **force** a layout on while hiding its toggle. 
 
 ## Zoom + Pan
 
-When `zoomable=true`, the active slide is wrapped in a `DanxZoomable` that exposes:
+Zoom + pan gestures are **on by default** (`zoomable`, pass `false` to opt out). In paged mode the active slide is wrapped in a `DanxZoomable`; in continuous mode each item is scaled and the column free-pans via CSS transform. Both expose:
 
 | Gesture | Effect |
 |---------|--------|
 | Ctrl/Cmd + scroll wheel | Zoom in / out |
-| Ctrl/Cmd + drag | Pan |
+| Ctrl/Cmd + drag | Free pan (moves the content anywhere at any zoom — not clamped to bounds) |
 | Ctrl/Cmd + `+` / `=` / `-` / `_` | Zoom step in / out |
 | Ctrl/Cmd + `0` | Reset zoom to 100% |
 | Dblclick | Reset zoom + pan |
 
-The toolbar shows a slider + percent readout + reset button bound to the same zoom model. Zoom is preserved across slide changes; pan resets when the active file or layout changes (different content geometry).
+The drag + modifier-key listeners run in the capture phase, so pan and the grab cursor work even inside containers that stop event propagation (e.g. `DanxDialog`).
+
+The zoom slider toolbar is a **separate opt-in** (`zoomControls`, default off) — the gestures above work whether or not the slider is shown. When shown, it renders a slider + percent readout + reset button bound to the same zoom model. Zoom is preserved across slide changes; pan resets when the active file or layout changes (different content geometry).
 
 `DanxZoomable` and `DanxZoomControls` are exported standalone — see `docs/zoomable.md`.
 

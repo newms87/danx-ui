@@ -345,6 +345,7 @@
    ========================================================================== */
 
 .danx-file-continuous-root {
+  position: relative;
   width: 100%;
   height: 100%;
   outline: none;
@@ -359,6 +360,16 @@
   &.is-dragging {
     cursor: grabbing;
     user-select: none;
+  }
+
+  /* Covers the scrolled content while the modifier key is held so the drag
+     pans the whole column (and the grab/grabbing cursor shows over files)
+     instead of the underlying file stealing the gesture. */
+  .danx-file-continuous-root__drag-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    cursor: inherit;
   }
 }
 

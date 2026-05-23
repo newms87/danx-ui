@@ -20,10 +20,10 @@
   --dx-zoomable-bg: var(--color-surface-sunken);
 
   --dx-zoomable-hint-bg: var(--color-surface-overlay);
-  --dx-zoomable-hint-color: var(--color-text-inverted);
+  --dx-zoomable-hint-color: var(--color-text-on-color);
   --dx-zoomable-hint-border: transparent;
 
-  --dx-zoomable-kbd-bg: var(--color-surface);
+  --dx-zoomable-kbd-bg: var(--color-surface-elevated);
   --dx-zoomable-kbd-color: var(--color-text);
   --dx-zoomable-kbd-border: var(--color-border-strong);
 

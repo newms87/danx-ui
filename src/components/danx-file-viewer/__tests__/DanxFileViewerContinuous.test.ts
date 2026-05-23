@@ -219,7 +219,12 @@ describe("DanxFileViewerContinuous", () => {
     });
   });
 
-  describe("Ctrl+drag pan", () => {
+  describe("Ctrl+drag free pan", () => {
+    /** Read the transform translate() applied to the first rendered item. */
+    function itemTransform(wrapper: VueWrapper): string {
+      return wrapper.find(".danx-file-continuous__item").attributes("style") ?? "";
+    }
+
     it("Ctrl+mousedown without zoomable does not start drag", async () => {
       const wrapper = await mountContinuous({ zoomable: false });
       await wrapper.find(".danx-file-continuous-root").trigger("mousedown", {
@@ -255,84 +260,87 @@ describe("DanxFileViewerContinuous", () => {
       expect(wrapper.find(".danx-file-continuous-root").classes()).not.toContain("is-dragging");
     });
 
-    it("Ctrl+drag mousemove updates the viewport scroll position", async () => {
+    it("Ctrl+drag moves the item column via CSS transform (free pan)", async () => {
       const wrapper = await mountContinuous({ zoomable: true });
       const root = wrapper.find(".danx-file-continuous-root");
-      // The real .danx-scroll__viewport rendered by DanxVirtualScroll lives
-      // inside our root — stub scrollLeft / scrollTop on it as plain values
-      // so we can assert the drag handler wrote them.
-      const viewport = root.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
-      if (!viewport) {
-        // If DanxVirtualScroll didn't mount the viewport in this jsdom env,
-        // we can't exercise the drag path; assert no crash + drag start.
-        await root.trigger("mousedown", {
-          button: 0,
-          ctrlKey: true,
-          clientX: 100,
-          clientY: 100,
-        });
-        window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
-        window.dispatchEvent(new MouseEvent("mouseup"));
-        return;
-      }
-      let scrollLeft = 0;
-      let scrollTop = 0;
-      Object.defineProperty(viewport, "scrollLeft", {
-        get: () => scrollLeft,
-        set: (v: number) => {
-          scrollLeft = v;
-        },
-        configurable: true,
-      });
-      Object.defineProperty(viewport, "scrollTop", {
-        get: () => scrollTop,
-        set: (v: number) => {
-          scrollTop = v;
-        },
-        configurable: true,
-      });
+      // Default pan = no offset.
+      expect(itemTransform(wrapper)).toContain("translate(0px, 0px)");
       await root.trigger("mousedown", { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
       window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
-      expect(scrollLeft).toBe(40);
-      expect(scrollTop).toBe(30);
+      await nextTick();
+      // Delta (60-100, 70-100) = (-40, -30) applied as a free transform — and
+      // EVERY rendered item shares the same offset so the column moves as one.
+      const items = wrapper.findAll(".danx-file-continuous__item");
+      expect(items.length).toBeGreaterThan(0);
+      for (const item of items) {
+        expect(item.attributes("style") ?? "").toContain("translate(-40px, -30px)");
+      }
       window.dispatchEvent(new MouseEvent("mouseup"));
     });
 
     async function expectPanAtZoom(zoomLevel: number) {
       const wrapper = await mountContinuous({ zoomable: true, zoom: zoomLevel });
       const root = wrapper.find(".danx-file-continuous-root");
-      const viewport = root.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
-      if (!viewport) return; // jsdom did not lay out the viewport — pan path untestable here
-      let scrollLeft = 0;
-      let scrollTop = 0;
-      Object.defineProperty(viewport, "scrollLeft", {
-        get: () => scrollLeft,
-        set: (v: number) => {
-          scrollLeft = v;
-        },
-        configurable: true,
-      });
-      Object.defineProperty(viewport, "scrollTop", {
-        get: () => scrollTop,
-        set: (v: number) => {
-          scrollTop = v;
-        },
-        configurable: true,
-      });
       await root.trigger("mousedown", { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
       window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
-      // Pan delta is raw mouse px, independent of zoom.
-      expect(scrollLeft).toBe(40);
-      expect(scrollTop).toBe(30);
+      await nextTick();
+      // Pan delta is raw mouse px, independent of zoom — never clamped to bounds.
+      expect(itemTransform(wrapper)).toContain("translate(-40px, -30px)");
       window.dispatchEvent(new MouseEvent("mouseup"));
     }
 
-    it("Ctrl+drag pans the viewport at low zoom (45%)", async () => {
+    it("pans freely at low zoom (45%)", async () => {
       await expectPanAtZoom(45);
     });
 
-    it("Ctrl+drag pans the viewport at high zoom (150%)", async () => {
+    it("pans freely at high zoom (150%)", async () => {
       await expectPanAtZoom(150);
+    });
+
+    it("dblclick resets the pan offset (and zoom)", async () => {
+      const wrapper = await mountContinuous({ zoomable: true });
+      const root = wrapper.find(".danx-file-continuous-root");
+      await root.trigger("mousedown", { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
+      window.dispatchEvent(new MouseEvent("mouseup"));
+      await nextTick();
+      expect(itemTransform(wrapper)).toContain("translate(-40px, -30px)");
+      await root.trigger("dblclick");
+      await nextTick();
+      expect(itemTransform(wrapper)).toContain("translate(0px, 0px)");
+    });
+
+    it("resets the pan offset when the active file changes", async () => {
+      const files = makeFiles(3);
+      const wrapper = await mountContinuous({ files, activeFileId: files[0]!.id, zoomable: true });
+      const root = wrapper.find(".danx-file-continuous-root");
+      await root.trigger("mousedown", { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
+      window.dispatchEvent(new MouseEvent("mouseup"));
+      await nextTick();
+      expect(itemTransform(wrapper)).toContain("translate(-40px, -30px)");
+      await wrapper.setProps({ activeFileId: files[1]!.id });
+      await nextTick();
+      expect(itemTransform(wrapper)).toContain("translate(0px, 0px)");
+    });
+
+    it("shows the drag overlay (and pan-ready cursor) while the modifier key is held", async () => {
+      const wrapper = await mountContinuous({ zoomable: true });
+      expect(wrapper.find(".danx-file-continuous-root__drag-overlay").exists()).toBe(false);
+      window.dispatchEvent(new KeyboardEvent("keydown", { ctrlKey: true }));
+      await nextTick();
+      expect(wrapper.find(".danx-file-continuous-root__drag-overlay").exists()).toBe(true);
+      expect(wrapper.find(".danx-file-continuous-root").classes()).toContain("is-pan-ready");
+      window.dispatchEvent(new KeyboardEvent("keyup", { ctrlKey: false }));
+      await nextTick();
+      expect(wrapper.find(".danx-file-continuous-root__drag-overlay").exists()).toBe(false);
+    });
+
+    it("does not show the drag overlay when zoomable is off", async () => {
+      const wrapper = await mountContinuous({ zoomable: false });
+      window.dispatchEvent(new KeyboardEvent("keydown", { ctrlKey: true }));
+      await nextTick();
+      expect(wrapper.find(".danx-file-continuous-root__drag-overlay").exists()).toBe(false);
     });
 
     it("lockZoom disables Ctrl+wheel zoom but keeps Ctrl+drag pan", async () => {
@@ -378,41 +386,6 @@ describe("DanxFileViewerContinuous", () => {
       const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
       return vi.spyOn(vs.element, "querySelector").mockReturnValue(null);
     }
-
-    it("Ctrl+drag is a no-op when the viewport cannot be resolved", async () => {
-      const wrapper = await mountContinuous({ zoomable: true });
-      const spy = stubViewportNull(wrapper);
-      await wrapper.find(".danx-file-continuous-root").trigger("mousedown", {
-        button: 0,
-        ctrlKey: true,
-        clientX: 10,
-        clientY: 10,
-      });
-      // findViewport() returned null → onMouseDown bailed before isDragging.
-      expect(wrapper.find(".danx-file-continuous-root").classes()).not.toContain("is-dragging");
-      spy.mockRestore();
-    });
-
-    it("onMouseMove no-ops on a trailing event after the drag ended", async () => {
-      const wrapper = await mountContinuous({ zoomable: true });
-      const addSpy = vi.spyOn(window, "addEventListener");
-      await wrapper.find(".danx-file-continuous-root").trigger("mousedown", {
-        button: 0,
-        ctrlKey: true,
-        clientX: 10,
-        clientY: 10,
-      });
-      const moveHandler = addSpy.mock.calls.find(([t]) => t === "mousemove")?.[1] as (
-        e: MouseEvent
-      ) => void;
-      expect(moveHandler).toBeTruthy();
-      // End the drag (isDragging → false), then fire a trailing move.
-      window.dispatchEvent(new MouseEvent("mouseup"));
-      expect(() =>
-        moveHandler(new MouseEvent("mousemove", { clientX: 99, clientY: 99 }))
-      ).not.toThrow();
-      addSpy.mockRestore();
-    });
 
     it("viewport scroll is a no-op when the viewport disappears mid-session", async () => {
       const files = makeFiles(5);

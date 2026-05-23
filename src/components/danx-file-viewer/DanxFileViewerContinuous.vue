@@ -17,8 +17,11 @@
  * that height so the scrollbar + virtual window stay accurate.
  *
  * When zoomed beyond viewport width, the underlying DanxScroll viewport
- * gains a horizontal scrollbar. Ctrl/Cmd+drag on the root pans (scrolls
- * the viewport in both axes) so the user can move large pages around.
+ * gains a horizontal scrollbar. Ctrl/Cmd+drag pans the rendered column via a
+ * free CSS transform (the same model as the paged DanxZoomable): the page can
+ * be moved anywhere at any zoom — it is NOT clamped to the scroll bounds and
+ * never snaps back to center. dblclick resets zoom + pan. Wheel still scrolls
+ * between files; the pan transform leaves scrollTop / virtualization untouched.
  *
  * @props
  *   files: PreviewFile[] - Files to render (required)
@@ -82,25 +85,29 @@ const rootRef = ref<HTMLElement | null>(null);
 const scrollRef = ref<{ $el: HTMLElement } | null>(null);
 const panRef = ref({ x: 0, y: 0 });
 
-// Pan disabled in useZoomable — we own the drag handler so we can move the
-// scroll viewport's scrollLeft / scrollTop directly (instead of CSS translating
-// the content, which would fight the virtual scroller).
-const panDisabledRef = ref(true);
-// Zoom gestures fire only when zoomable AND not locked. Pan (onMouseDown) is
-// gated on `zoomable` alone so a locked-zoom viewer can still drag-scroll.
+// Pan is a free CSS transform on the rendered item column (same model as the
+// paged DanxZoomable) — the user can drag the page anywhere at any zoom, not
+// just within the scroll bounds. It is enabled whenever `zoomable` is on
+// (independent of lockZoom, so a pinned-zoom viewer still pans).
+const panDisabled = computed(() => !props.zoomable);
+// Zoom gestures fire only when zoomable AND not locked.
 const wheelDisabled = computed(() => !props.zoomable || props.lockZoom);
 const keyboardDisabled = computed(() => !props.zoomable || props.lockZoom);
-useZoomable({
+const { isDragging, panInputActive, onDragStart, onDblClick } = useZoomable({
   zoom,
   pan: panRef,
   rootRef,
   min: toRef(props, "zoomMin"),
   max: toRef(props, "zoomMax"),
   step: toRef(props, "zoomStep"),
-  panDisabled: panDisabledRef,
+  panDisabled,
   wheelDisabled,
   keyboardDisabled,
 });
+
+// Overlay sits above the scrolled content while the modifier key is held so a
+// drag pans the whole column instead of selecting / interacting with a file.
+const showDragOverlay = computed(() => panInputActive.value && !panDisabled.value);
 
 const zoomScale = computed(() => zoom.value / 100);
 
@@ -116,57 +123,23 @@ const fullItemHeight = computed(() => scaledItemHeight.value + ITEM_GAP);
 // stylesheet (some test environments strip unknown CSS units from inline
 // style attributes). The `--zoom-pct` value resolves to `${zoom}cqw` via
 // the item's CSS rule against the continuous root's container query context.
+// Pan offset is a free CSS transform applied uniformly to every visible item,
+// so the whole column shifts together (matching the paged DanxZoomable) while
+// the underlying scrollTop / virtualization stay untouched.
 const itemStyle = computed(() => ({
   "--zoom-pct": String(zoom.value),
   height: `${fullItemHeight.value}px`,
+  transform: `translate(${panRef.value.x}px, ${panRef.value.y}px)`,
 }));
 
-// --- Ctrl/Cmd + drag → pan the scroll viewport in both axes -------------------
+// --- activeFileId ↔ viewport scroll (centered) ------------------------------
 
 let viewportEl: HTMLElement | null = null;
-const isDragging = ref(false);
-let dragStartX = 0;
-let dragStartY = 0;
-let dragOriginScrollLeft = 0;
-let dragOriginScrollTop = 0;
 
 function findViewport(): HTMLElement | null {
   const root = scrollRef.value?.$el;
   return root?.querySelector(".danx-scroll__viewport") ?? null;
 }
-
-function onMouseDown(event: MouseEvent) {
-  if (!props.zoomable) return;
-  if (event.button !== 0) return;
-  if (!(event.ctrlKey || event.metaKey)) return;
-  viewportEl = findViewport();
-  if (!viewportEl) return;
-  event.preventDefault();
-  isDragging.value = true;
-  dragStartX = event.clientX;
-  dragStartY = event.clientY;
-  dragOriginScrollLeft = viewportEl.scrollLeft;
-  dragOriginScrollTop = viewportEl.scrollTop;
-  window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("mouseup", onMouseUp, { once: true });
-}
-
-function onMouseMove(event: MouseEvent) {
-  if (!isDragging.value || !viewportEl) return;
-  viewportEl.scrollLeft = dragOriginScrollLeft - (event.clientX - dragStartX);
-  viewportEl.scrollTop = dragOriginScrollTop - (event.clientY - dragStartY);
-}
-
-function onMouseUp() {
-  isDragging.value = false;
-  window.removeEventListener("mousemove", onMouseMove);
-}
-
-onBeforeUnmount(() => {
-  window.removeEventListener("mousemove", onMouseMove);
-});
-
-// --- activeFileId ↔ viewport scroll (centered) ------------------------------
 // We don't use DanxVirtualScroll's scrollPosition v-model (= startIndex = top
 // of viewport). The sidebar highlight should follow the file CENTERED in the
 // viewport, so we manage scroll position ourselves: a scroll listener finds
@@ -215,6 +188,9 @@ watch(
     }
     const idx = props.files.findIndex((f) => f.id === id);
     if (idx < 0) return;
+    // Navigating to a different page resets the free-pan offset — the previous
+    // offset has no meaning against new content.
+    panRef.value = { x: 0, y: 0 };
     scrollToCenter(idx);
   }
 );
@@ -254,9 +230,10 @@ onBeforeUnmount(() => {
   <div
     ref="rootRef"
     class="danx-file-continuous-root"
-    :class="{ 'is-pan-ready': zoomable, 'is-dragging': isDragging }"
+    :class="{ 'is-pan-ready': panInputActive && !isDragging, 'is-dragging': isDragging }"
     tabindex="0"
-    @mousedown="onMouseDown"
+    @mousedown="onDragStart"
+    @dblclick="onDblClick"
   >
     <DanxVirtualScroll
       ref="scrollRef"
@@ -272,5 +249,14 @@ onBeforeUnmount(() => {
         </div>
       </template>
     </DanxVirtualScroll>
+
+    <!-- Drag overlay — sits above the scrolled content while the modifier key
+         is held so the drag pans the column instead of interacting with a
+         file. Mirrors DanxZoomable's overlay. -->
+    <div
+      v-if="showDragOverlay"
+      class="danx-file-continuous-root__drag-overlay"
+      aria-hidden="true"
+    />
   </div>
 </template>

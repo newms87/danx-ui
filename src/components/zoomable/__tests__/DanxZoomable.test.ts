@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
-import { nextTick } from "vue";
+import { defineComponent, markRaw, nextTick } from "vue";
 import DanxZoomable from "../DanxZoomable.vue";
 
 const attachedWrappers: VueWrapper[] = [];
@@ -127,5 +127,42 @@ describe("DanxZoomable", () => {
     window.dispatchEvent(new MouseEvent("mouseup"));
     await nextTick();
     expect(wrapper.classes()).not.toContain("is-dragging");
+  });
+
+  // Regression: DanxDialog (and similar containers) stop propagation of
+  // mousemove / mouseup on their content. The window-level drag listeners run
+  // in the CAPTURE phase so they fire before any descendant's bubble-phase
+  // stopPropagation — drag-pan must still work inside such a container.
+  it("drag-pan survives an ancestor that stops mousemove propagation (dialog scenario)", async () => {
+    const Trap = defineComponent({
+      components: { DanxZoomable: markRaw(DanxZoomable) },
+      template: `
+        <div class="trap" @mousemove.stop @mouseup.stop @keydown.stop @keyup.stop>
+          <DanxZoomable :zoom="100" :pan="{ x: 0, y: 0 }" />
+        </div>
+      `,
+    });
+    const wrapper = mount(Trap, { attachTo: document.body });
+    attachedWrappers.push(wrapper);
+
+    const zoomable = wrapper.findComponent(DanxZoomable);
+    await zoomable.find(".danx-zoomable").trigger("mousedown", {
+      button: 0,
+      ctrlKey: true,
+      clientX: 0,
+      clientY: 0,
+    });
+    // Dispatch a real bubbling mousemove from inside the trap — the trap's
+    // bubble-phase @mousemove.stop would block a window bubble listener, but
+    // the capture-phase listener fires on the way down regardless.
+    zoomable
+      .find(".danx-zoomable__content")
+      .element.dispatchEvent(
+        new MouseEvent("mousemove", { bubbles: true, clientX: 40, clientY: 30 })
+      );
+    await nextTick();
+    const panEmits = zoomable.emitted("update:pan");
+    expect(panEmits?.[panEmits.length - 1]).toEqual([{ x: 40, y: 30 }]);
+    window.dispatchEvent(new MouseEvent("mouseup"));
   });
 });

@@ -65,10 +65,15 @@
     background: var(--dx-zoomable-hint-bg);
     color: var(--dx-zoomable-hint-color);
     border-radius: 0.25rem;
+    /* Ring + drop shadow keep the opaque chip legible on ANY parent bg:
+       the light inner ring separates it from dark backgrounds, the dark
+       outer shadow separates it from light ones. */
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.15),
+      0 2px 8px rgb(0 0 0 / 0.45);
     font-size: 0.625rem;
     font-weight: 500;
     pointer-events: none;
-    opacity: 0.8;
     transition: opacity 150ms ease;
 
     &.is-dragging {

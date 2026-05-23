@@ -715,9 +715,16 @@ describe("DanxFileViewer", () => {
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
     });
 
-    it("shows toolbar when zoomable=true (even with no layout toggles)", () => {
-      const wrapper = mountViewer({ zoomable: true });
+    it("shows toolbar when zoomControls=true (even with no layout toggles)", () => {
+      const wrapper = mountViewer({ zoomControls: true });
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
+    });
+
+    it("does NOT show toolbar for default zoomable (events on, slider opt-in)", () => {
+      // zoomable defaults to true now, but the zoom slider is a separate opt-in
+      // (`zoomControls`), so the toolbar must stay hidden without layout toggles.
+      const wrapper = mountViewer();
+      expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(false);
     });
 
     it("respects showToolbar=false override", () => {
@@ -901,10 +908,10 @@ describe("DanxFileViewer", () => {
       expect(wrapper.findComponent({ name: "DanxFileViewerContinuous" }).exists()).toBe(true);
     });
 
-    it("toolbar still shows zoom controls for a single zoomable file", async () => {
+    it("toolbar still shows zoom controls for a single file when zoomControls=true", async () => {
       const wrapper = mountViewer({
         file: makeFile("1", { children: [] }),
-        zoomable: true,
+        zoomControls: true,
         sidebar: true,
         layoutToggles: ["sidebar", "continuous"],
       });
@@ -1110,7 +1117,7 @@ describe("DanxFileViewer", () => {
 
     it("toolbar zoom controls stay enabled in continuous mode (item-level scale)", async () => {
       const wrapper = mountViewer({
-        zoomable: true,
+        zoomControls: true,
         defaultContinuous: true,
         layoutToggles: ["continuous"],
         relatedFiles: [makeFile("2")],
@@ -1173,7 +1180,7 @@ describe("DanxFileViewer", () => {
     });
 
     it("toolbar zoom v-model updates persisted zoom", async () => {
-      const wrapper = mountViewer({ zoomable: true });
+      const wrapper = mountViewer({ zoomControls: true });
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
       toolbar.vm.$emit("update:zoom", 200);
       await nextTick();

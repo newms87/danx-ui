@@ -19,14 +19,18 @@
  * and the active file follows the scroll position so the header / metadata /
  * thumbnail highlight stay in sync.
  *
- * Photoshop-style zoom + pan can be enabled via `zoomable`:
- *   - Paged mode wraps the active slide in `DanxZoomable` for Ctrl+wheel,
- *     Ctrl+drag pan, Ctrl+`+`/`-`/`=`/`0` keys, and dblclick reset.
+ * Photoshop-style zoom + pan is ON BY DEFAULT (`zoomable`, opt out with
+ * `:zoomable="false"`). Both modes support Ctrl+wheel zoom, Ctrl+drag free
+ * pan, Ctrl+`+`/`-`/`=`/`0` keys, and dblclick reset:
+ *   - Paged mode wraps the active slide in `DanxZoomable`.
  *   - Continuous mode scales each rendered item via CSS transform (item
  *     height + virtual-scroll defaultItemSize scale with zoom so the
- *     scrollbar stays accurate). Pan is disabled — native scroll owns
- *     vertical position; Ctrl+wheel + keyboard zoom gestures still fire.
- * The zoom value is shared, so switching between modes preserves it.
+ *     scrollbar stays accurate) and applies a free CSS-transform pan to the
+ *     column — the page moves anywhere at any zoom, not clamped to scroll
+ *     bounds. Wheel still scrolls between files.
+ * The zoom value is shared, so switching between modes preserves it. The zoom
+ * slider toolbar is a SEPARATE opt-in (`zoomControls`, default off) — events
+ * work regardless of whether the slider is shown.
  *
  * Two prop families control sidebar / continuous / zoom, with distinct
  * semantics:
@@ -68,7 +72,8 @@
  *   continuous?: boolean - LOCKED continuous state (pins value, bypasses localStorage + toggle)
  *   zoom?: number - LOCKED zoom percent (pins value, hides zoom controls; pan still works)
  *   layoutToggles?: LayoutToggle[] - Toggles user can flip in the toolbar (default: [])
- *   zoomable?: boolean - Enable zoom + pan (default: false)
+ *   zoomable?: boolean - Enable zoom + pan events (default: true, opt out with false)
+ *   zoomControls?: boolean - Show the zoom slider toolbar (default: false; events work regardless)
  *   storageKey?: string - localStorage namespace (default: "danx-file-viewer")
  *   showToolbar?: boolean - Override auto-show toolbar (default: true when controls opted in)
  *
@@ -145,7 +150,8 @@ const props = withDefaults(defineProps<DanxFileViewerProps>(), {
   defaultContinuous: false,
   defaultZoom: 100,
   layoutToggles: () => [],
-  zoomable: false,
+  zoomable: true,
+  zoomControls: false,
   storageKey: "danx-file-viewer",
   showToolbar: undefined,
   sidebar: undefined,
@@ -249,8 +255,12 @@ const effectiveLayoutToggles = computed(() =>
     : []
 );
 
-// Toolbar zoom controls render only when zoom is enabled AND not locked.
-const zoomControlsEnabled = computed(() => props.zoomable && props.zoom === undefined);
+// Toolbar zoom slider renders only when explicitly opted in (`zoomControls`),
+// zoom events are enabled, AND zoom is not locked. Zoom EVENTS (Ctrl+wheel /
+// drag / keys) are independent — they follow `zoomable` (default on).
+const zoomControlsEnabled = computed(
+  () => props.zoomable && props.zoomControls && props.zoom === undefined
+);
 
 // Clamp persisted flags to the consumer's allowed toggle list — a stale
 // localStorage value from a previous configuration shouldn't lock the user

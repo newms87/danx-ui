@@ -92,9 +92,9 @@ export interface DanxFileViewerProps {
    * LOCKED — authoritative zoom percent. When provided (not `undefined`),
    * the zoom model is PINNED to this value: localStorage is bypassed, the
    * toolbar zoom controls and Ctrl+wheel / keyboard zoom gestures are
-   * disabled. Ctrl+drag pan (paged) and drag-scroll (continuous) still work.
-   * Reactively follows prop changes. Leave `undefined` for seed + controls
-   * behavior (see `defaultZoom`).
+   * disabled. Ctrl+drag free pan still works in both paged and continuous
+   * modes. Reactively follows prop changes. Leave `undefined` for seed +
+   * controls behavior (see `defaultZoom`).
    */
   zoom?: number;
   /**
@@ -104,10 +104,18 @@ export interface DanxFileViewerProps {
    */
   layoutToggles?: LayoutToggle[];
   /**
-   * Enable Photoshop-style zoom + pan (Ctrl+wheel, Ctrl+drag, etc.) and show
-   * zoom controls in the toolbar. Default: `false`.
+   * Enable Photoshop-style zoom + pan EVENTS (Ctrl+wheel, Ctrl+drag, Ctrl
+   * +`+`/`-`/`=`/`0`, dblclick reset). ON BY DEFAULT — pass `false` to opt out.
+   * This controls only the gesture handlers; the zoom slider toolbar is a
+   * separate opt-in (see `zoomControls`).
    */
   zoomable?: boolean;
+  /**
+   * Show the zoom slider control bar in the toolbar. Default: `false`. Zoom
+   * gestures work regardless of this flag (they follow `zoomable`); this only
+   * toggles the visible slider. Has no effect when `zoom` is locked.
+   */
+  zoomControls?: boolean;
   /**
    * localStorage namespace for layout / zoom / panel-width preferences.
    * Default: `"danx-file-viewer"`.

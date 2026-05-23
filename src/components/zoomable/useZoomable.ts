@@ -73,6 +73,15 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
   const getMax = () => max?.value ?? 400;
   const getStep = () => step?.value ?? 10;
 
+  // All window-level listeners use the CAPTURE phase. Containers like
+  // DanxDialog stop propagation of mousemove / mouseup / keydown / keyup on
+  // their content (to isolate inner state), which would otherwise prevent
+  // these bubble-phase events from ever reaching `window` — breaking drag-pan
+  // and the modifier-key (grab cursor / keyboard zoom) state inside a dialog.
+  // Capture-phase listeners fire on the way down, before any descendant's
+  // bubble-phase stopPropagation can run.
+  const CAPTURE = { capture: true } as const;
+
   const isDragging = ref(false);
   const panInputActive = ref(false);
 
@@ -172,8 +181,8 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
     dragStartY = event.clientY;
     dragOriginPanX = pan.value.x;
     dragOriginPanY = pan.value.y;
-    window.addEventListener("mousemove", onDragMove);
-    window.addEventListener("mouseup", onDragEnd, { once: true });
+    window.addEventListener("mousemove", onDragMove, CAPTURE);
+    window.addEventListener("mouseup", onDragEnd, { once: true, capture: true });
   }
 
   function onDragMove(event: MouseEvent) {
@@ -186,7 +195,7 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
 
   function onDragEnd() {
     isDragging.value = false;
-    window.removeEventListener("mousemove", onDragMove);
+    window.removeEventListener("mousemove", onDragMove, CAPTURE);
   }
 
   function onDblClick() {
@@ -198,9 +207,9 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
     if (root) {
       root.addEventListener("wheel", onWheel, { passive: false });
     }
-    window.addEventListener("keydown", onZoomKey, { capture: true });
-    window.addEventListener("keydown", onModifierKey);
-    window.addEventListener("keyup", onModifierKey);
+    window.addEventListener("keydown", onZoomKey, CAPTURE);
+    window.addEventListener("keydown", onModifierKey, CAPTURE);
+    window.addEventListener("keyup", onModifierKey, CAPTURE);
     window.addEventListener("blur", onWindowBlur);
   });
 
@@ -209,11 +218,11 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
     if (root) {
       root.removeEventListener("wheel", onWheel);
     }
-    window.removeEventListener("keydown", onZoomKey, { capture: true });
-    window.removeEventListener("keydown", onModifierKey);
-    window.removeEventListener("keyup", onModifierKey);
+    window.removeEventListener("keydown", onZoomKey, CAPTURE);
+    window.removeEventListener("keydown", onModifierKey, CAPTURE);
+    window.removeEventListener("keyup", onModifierKey, CAPTURE);
     window.removeEventListener("blur", onWindowBlur);
-    window.removeEventListener("mousemove", onDragMove);
+    window.removeEventListener("mousemove", onDragMove, CAPTURE);
   });
 
   return {

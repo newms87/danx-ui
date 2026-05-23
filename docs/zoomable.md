@@ -119,7 +119,7 @@ const { isDragging, panInputActive, modifierKeyLabel, onDragStart, onDblClick } 
 });
 ```
 
-The composable owns wheel + keyboard + window mouse listeners. Wheel listener attaches to `rootRef.value` with `{ passive: false }` so `preventDefault` works. Keyboard listeners are window-scoped (capture phase) but only act when focus is inside `rootRef` — multiple Zoomables can coexist.
+The composable owns wheel + keyboard + window mouse listeners. Wheel listener attaches to `rootRef.value` with `{ passive: false }` so `preventDefault` works. Keyboard + window drag listeners are window-scoped in the **capture phase**, so they fire before any descendant container's bubble-phase `stopPropagation` — drag-pan and the grab cursor keep working inside containers like `DanxDialog` that isolate inner events. Keyboard zoom still only acts when focus is inside `rootRef`, so multiple Zoomables can coexist.
 
 ## CSS Tokens
 

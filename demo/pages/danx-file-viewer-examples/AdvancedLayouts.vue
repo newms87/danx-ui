@@ -34,7 +34,7 @@ const activeFile = ref(null);
       v-model:file-in-preview="activeFile"
       :related-files="relatedFiles"
       :layout-toggles="['sidebar', 'continuous']"
-      zoomable
+      zoom-controls
       downloadable
       storage-key="demo-advanced-viewer"
     />
