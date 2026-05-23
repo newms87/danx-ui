@@ -711,7 +711,7 @@ describe("DanxFileViewer", () => {
     });
 
     it("shows toolbar when layoutToggles is non-empty", () => {
-      const wrapper = mountViewer({ layoutToggles: ["sidebar"] });
+      const wrapper = mountViewer({ layoutToggles: ["sidebar"], relatedFiles: [makeFile("2")] });
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
     });
 
@@ -788,7 +788,10 @@ describe("DanxFileViewer", () => {
     it("hydrates sidebar + continuous from localStorage", async () => {
       window.localStorage.setItem("danx-file-viewer-sidebar", "true");
       window.localStorage.setItem("danx-file-viewer-continuous", "true");
-      const wrapper = mountViewer({ layoutToggles: ["sidebar", "continuous"] });
+      const wrapper = mountViewer({
+        layoutToggles: ["sidebar", "continuous"],
+        relatedFiles: [makeFile("2")],
+      });
       await flushPromises();
       expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
       expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
@@ -832,6 +835,85 @@ describe("DanxFileViewer", () => {
     });
   });
 
+  describe("Single-file auto-collapse", () => {
+    it("forces paged + no sidebar with one file even when continuous+sidebar props set", async () => {
+      const wrapper = mountViewer({
+        file: makeFile("1", { children: [] }),
+        continuous: true,
+        sidebar: true,
+        layoutToggles: ["sidebar", "continuous"],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--paged");
+      expect(wrapper.classes()).toContain("danx-file-viewer--no-sidebar");
+      expect(wrapper.findComponent({ name: "DanxFileViewerContinuous" }).exists()).toBe(false);
+    });
+
+    it("hides both layout toggle buttons with a single file", async () => {
+      const wrapper = mountViewer({
+        file: makeFile("1", { children: [] }),
+        continuous: true,
+        sidebar: true,
+        layoutToggles: ["sidebar", "continuous"],
+      });
+      await flushPromises();
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      if (toolbar.exists()) {
+        expect(toolbar.props("layoutToggles")).toEqual([]);
+      }
+      // No layout toggles + no zoom → toolbar should not render at all.
+      expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(false);
+    });
+
+    it("activates continuous + sidebar when more than one file", async () => {
+      const wrapper = mountViewer({
+        continuous: true,
+        sidebar: true,
+        layoutToggles: ["sidebar", "continuous"],
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+      expect(wrapper.findComponent({ name: "DanxFileViewerContinuous" }).exists()).toBe(true);
+    });
+
+    it("reactively enables sidebar/continuous after diving into a multi-page file", async () => {
+      const children = [makeChild("c1"), makeChild("c2")];
+      const wrapper = mountViewer({
+        file: makeFile("1", { children }),
+        continuous: true,
+        sidebar: true,
+        layoutToggles: ["sidebar", "continuous"],
+      });
+      await flushPromises();
+      // Single root file → collapsed.
+      expect(wrapper.classes()).toContain("danx-file-viewer--paged");
+      expect(wrapper.classes()).toContain("danx-file-viewer--no-sidebar");
+
+      // Dive into the 2 children → multi-file → layout becomes available.
+      await findChildrenButton(wrapper)!.trigger("click");
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+      expect(wrapper.findComponent({ name: "DanxFileViewerContinuous" }).exists()).toBe(true);
+    });
+
+    it("toolbar still shows zoom controls for a single zoomable file", async () => {
+      const wrapper = mountViewer({
+        file: makeFile("1", { children: [] }),
+        zoomable: true,
+        sidebar: true,
+        layoutToggles: ["sidebar", "continuous"],
+      });
+      await flushPromises();
+      expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      expect(toolbar.props("zoomable")).toBe(true);
+      expect(toolbar.props("layoutToggles")).toEqual([]);
+    });
+  });
+
   describe("Locked authoritative props", () => {
     it("locked continuous overrides a conflicting localStorage value", async () => {
       window.localStorage.setItem("danx-file-viewer-continuous", "false");
@@ -866,6 +948,7 @@ describe("DanxFileViewer", () => {
       const wrapper = mountViewer({
         layoutToggles: ["sidebar", "continuous"],
         sidebar: true,
+        relatedFiles: [makeFile("2")],
       });
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
       expect(toolbar.props("layoutToggles")).toEqual(["continuous"]);
@@ -878,6 +961,7 @@ describe("DanxFileViewer", () => {
       const wrapper = mountViewer({
         layoutToggles: ["sidebar", "continuous"],
         continuous: true,
+        relatedFiles: [makeFile("2")],
       });
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
       expect(toolbar.props("layoutToggles")).toEqual(["sidebar"]);
@@ -1027,6 +1111,7 @@ describe("DanxFileViewer", () => {
         zoomable: true,
         defaultContinuous: true,
         layoutToggles: ["continuous"],
+        relatedFiles: [makeFile("2")],
       });
       await flushPromises();
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
@@ -1039,6 +1124,7 @@ describe("DanxFileViewer", () => {
         defaultContinuous: true,
         defaultZoom: 175,
         layoutToggles: ["continuous"],
+        relatedFiles: [makeFile("2")],
       });
       await flushPromises();
       const cont = wrapper.findComponent({ name: "DanxFileViewerContinuous" });
@@ -1051,6 +1137,7 @@ describe("DanxFileViewer", () => {
         zoomable: true,
         defaultContinuous: true,
         layoutToggles: ["continuous"],
+        relatedFiles: [makeFile("2")],
       });
       await flushPromises();
       const cont = wrapper.findComponent({ name: "DanxFileViewerContinuous" });

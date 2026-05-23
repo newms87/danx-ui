@@ -39,6 +39,13 @@
  *     corresponding toggle button / zoom controls are hidden, and the
  *     `layoutToggles` watcher will not clear it. Reactively follows the prop.
  *
+ * Single-file override: when the navigable set (`activeFiles` — file +
+ * relatedFiles, or the current children level when dived in) has <= 1 entry,
+ * sidebar + continuous are forced OFF and both layout toggles are hidden,
+ * overriding the LOCKED props and any localStorage preference (there is
+ * nothing to page through or scroll). The toolbar still shows for zoom. This
+ * is reactive: diving into a multi-page file's children re-enables them.
+ *
  * The metadata split panel widths also persist per sidebar state under the
  * same namespace.
  *
@@ -172,19 +179,51 @@ const zoomPref = usePreference<number>(props.storageKey, "zoom", props.defaultZo
   validate: (v): v is number => typeof v === "number" && Number.isFinite(v),
 });
 
+const {
+  currentFile,
+  currentIndex,
+  activeFiles,
+  hasNext,
+  hasPrev,
+  slideLabel,
+  next,
+  prev,
+  goTo,
+  hasParent,
+  hasChildFiles,
+  backFromChild,
+  navigateToAncestor,
+  breadcrumbs,
+  diveIntoChildren,
+} = useDanxFileViewer({
+  file: toRef(props, "file"),
+  relatedFiles: toRef(props, "relatedFiles"),
+  onNavigate: (f) => {
+    fileInPreview.value = f;
+  },
+});
+
+// A single navigable file has nothing to scroll through or page between, so
+// sidebar + continuous layouts are forced off and their toggles hidden,
+// OVERRIDING the authoritative props and any localStorage preference. Reactive
+// — diving into a multi-page file's children (or navigating back to a single
+// root) flips this live.
+const isMultiFile = computed(() => activeFiles.value.length > 1);
+
 // Locked-aware state. When the matching authoritative prop is provided, the
 // getter returns the prop (reactively following prop changes) and the setter
 // is a no-op — the prop is the single source of truth, localStorage is never
 // touched. When the prop is undefined, behavior is identical to today: read /
-// write the persisted preference.
+// write the persisted preference. Either way a single-file set forces the
+// layout off (see isMultiFile).
 const sidebar = computed<boolean>({
-  get: () => props.sidebar ?? sidebarPref.value,
+  get: () => isMultiFile.value && (props.sidebar ?? sidebarPref.value),
   set: (v) => {
     if (props.sidebar === undefined) sidebarPref.value = v;
   },
 });
 const continuous = computed<boolean>({
-  get: () => props.continuous ?? continuousPref.value,
+  get: () => isMultiFile.value && (props.continuous ?? continuousPref.value),
   set: (v) => {
     if (props.continuous === undefined) continuousPref.value = v;
   },
@@ -200,11 +239,14 @@ const zoom = computed<number>({
 const zoomLocked = computed(() => props.zoom !== undefined);
 
 // Layout toggles minus any layout the consumer has locked — a locked layout's
-// toggle button must not render (the consumer owns that state).
+// toggle button must not render (the consumer owns that state). With a single
+// navigable file both layout toggles are hidden entirely (nothing to toggle).
 const effectiveLayoutToggles = computed(() =>
-  props.layoutToggles.filter((t) =>
-    t === "sidebar" ? props.sidebar === undefined : props.continuous === undefined
-  )
+  isMultiFile.value
+    ? props.layoutToggles.filter((t) =>
+        t === "sidebar" ? props.sidebar === undefined : props.continuous === undefined
+      )
+    : []
 );
 
 // Toolbar zoom controls render only when zoom is enabled AND not locked.
@@ -236,30 +278,6 @@ const showToolbar = computed(() => {
 // DanxSplitPanel so the split-panel state remounts cleanly when the user
 // flips sidebar / continuous (different panel set + storage key).
 const layoutId = computed(() => `${sidebar.value ? "s" : "-"}${continuous.value ? "c" : "-"}`);
-
-const {
-  currentFile,
-  currentIndex,
-  activeFiles,
-  hasNext,
-  hasPrev,
-  slideLabel,
-  next,
-  prev,
-  goTo,
-  hasParent,
-  hasChildFiles,
-  backFromChild,
-  navigateToAncestor,
-  breadcrumbs,
-  diveIntoChildren,
-} = useDanxFileViewer({
-  file: toRef(props, "file"),
-  relatedFiles: toRef(props, "relatedFiles"),
-  onNavigate: (f) => {
-    fileInPreview.value = f;
-  },
-});
 
 const { visibleSlides } = useVirtualCarousel(activeFiles, currentIndex);
 
