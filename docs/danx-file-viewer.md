@@ -67,6 +67,55 @@ const mainFile: PreviewFile = {
 | `relatedFiles` | `PreviewFile[]` | `[]` | Related files for carousel |
 | `downloadable` | `boolean` | `false` | Show download button |
 | `closable` | `boolean` | `false` | Show standalone close button (top-right) |
+| `childrenLabel` | `string` | `"Children"` | Label for the children nav button |
+| `defaultLayout` | `"horizontal" \| "vertical" \| "continuous"` | `"horizontal"` | Layout used when no localStorage preference exists |
+| `defaultZoom` | `number` | `100` | Zoom percent when no localStorage preference exists |
+| `availableLayouts` | `Layout[]` | `["horizontal"]` | Layouts the user can switch between via the toolbar toggle |
+| `zoomable` | `boolean` | `false` | Enable Photoshop-style zoom + pan (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0) |
+| `storageKey` | `string` | `"danx-file-viewer"` | localStorage namespace for layout / zoom / panel widths |
+| `showToolbar` | `boolean` | auto | Override the auto-show toolbar (auto = on when any control is opted in) |
+
+## Layout Modes
+
+`DanxFileViewer` supports three opt-in layout modes. Existing callers see no change — the default is `horizontal` and the toolbar is hidden unless `availableLayouts.length > 1` or `zoomable=true`.
+
+| Layout | Description |
+|--------|-------------|
+| `horizontal` | Single active slide with a thin thumbnail strip beneath. Uses a virtual carousel (current ±2 slides with opacity transitions). |
+| `vertical`   | Single active slide with a tall thumbnail column on the left (PDF-style sidebar). Strip width resizes via `DanxSplitPanel`. |
+| `continuous` | Every file rendered as a stacked column inside a virtualized scroll container. The active file follows scroll position so header / metadata / thumbnail highlight update live. Zoom is disabled in this mode (scroll is the primary gesture). |
+
+Preferences (layout, zoom, panel widths) persist to `localStorage` under `storageKey`. Read order:
+
+1. `localStorage[storageKey + "-layout"]` (validated against `availableLayouts`)
+2. `defaultLayout` prop
+3. Built-in `"horizontal"`
+
+```vue
+<DanxFileViewer
+  :file="mainFile"
+  :related-files="relatedFiles"
+  :available-layouts="['horizontal', 'vertical', 'continuous']"
+  zoomable
+  storage-key="my-document-viewer"
+/>
+```
+
+## Zoom + Pan
+
+When `zoomable=true`, the active slide is wrapped in a `DanxZoomable` that exposes:
+
+| Gesture | Effect |
+|---------|--------|
+| Ctrl/Cmd + scroll wheel | Zoom in / out |
+| Ctrl/Cmd + drag | Pan |
+| Ctrl/Cmd + `+` / `=` / `-` / `_` | Zoom step in / out |
+| Ctrl/Cmd + `0` | Reset zoom to 100% |
+| Dblclick | Reset zoom + pan |
+
+The toolbar shows a slider + percent readout + reset button bound to the same zoom model. Zoom is preserved across slide changes; pan resets when the active file or layout changes (different content geometry).
+
+`DanxZoomable` and `DanxZoomControls` are exported standalone — see `docs/zoomable.md`.
 
 ## Models
 

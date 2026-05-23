@@ -217,4 +217,44 @@ describe("DanxFileThumbnailStrip", () => {
       expect(icons.length).toBe(1);
     });
   });
+
+  describe("Orientation", () => {
+    it("defaults to horizontal — no vertical modifier class, horizontal scroll direction", async () => {
+      const wrapper = await mountStrip();
+      const strip = wrapper.find(".danx-file-strip");
+      expect(strip.classes()).not.toContain("danx-file-strip--vertical");
+      const virtualScroll = wrapper.findComponent({ name: "DanxVirtualScroll" });
+      expect(virtualScroll.props("direction")).toBe("horizontal");
+    });
+
+    it("vertical orientation applies modifier class and vertical scroll direction", async () => {
+      const wrapper = await mountStrip({ orientation: "vertical" });
+      const strip = wrapper.find(".danx-file-strip");
+      expect(strip.classes()).toContain("danx-file-strip--vertical");
+      const virtualScroll = wrapper.findComponent({ name: "DanxVirtualScroll" });
+      expect(virtualScroll.props("direction")).toBe("vertical");
+    });
+
+    it("vertical orientation uses a larger default item size", async () => {
+      const wrapper = await mountStrip({ orientation: "vertical" });
+      const virtualScroll = wrapper.findComponent({ name: "DanxVirtualScroll" });
+      expect(virtualScroll.props("defaultItemSize")).toBe(160);
+    });
+
+    it("horizontal orientation uses the compact default item size", async () => {
+      const wrapper = await mountStrip();
+      const virtualScroll = wrapper.findComponent({ name: "DanxVirtualScroll" });
+      expect(virtualScroll.props("defaultItemSize")).toBe(80);
+    });
+
+    it("active highlight works in vertical orientation", async () => {
+      const wrapper = await mountStrip({
+        orientation: "vertical",
+        files: [makeFile("1"), makeFile("2"), makeFile("3")],
+        activeFileId: "2",
+      });
+      const thumbs = wrapper.findAll(".danx-file-strip__thumb");
+      expect(thumbs[1]!.classes()).toContain("danx-file-strip__thumb--active");
+    });
+  });
 });

@@ -46,6 +46,7 @@ export { DanxFileUpload } from "./components/danx-file-upload";
 export { DanxToggle } from "./components/toggle";
 export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
 export { DanxEditableDiv } from "./components/editable-div";
+export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomable";
 
 // Composables
 export {
@@ -212,12 +213,23 @@ export type {
   ScrollWindowReturn,
 } from "./components/scroll";
 export type {
+  DanxZoomableProps,
+  DanxZoomableEmits,
+  DanxZoomableSlots,
+  DanxZoomControlsProps,
+  DanxZoomControlsEmits,
+  Pan as DanxZoomablePan,
+  UseZoomableOptions,
+  UseZoomableReturn,
+} from "./components/zoomable";
+export type {
   UseDanxFileViewerOptions,
   UseDanxFileViewerReturn,
   VirtualSlide,
   DanxFileViewerProps,
   DanxFileViewerEmits,
   DanxFileViewerSlots,
+  Layout as DanxFileViewerLayout,
 } from "./components/danx-file-viewer";
 export type { UseTouchSwipeOptions, UseTouchSwipeReturn } from "./shared/composables/useTouchSwipe";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";

@@ -27,9 +27,7 @@ const file = ref({
 </script>
 
 <template>
-  <div
-    class="w-full h-[500px] border border-border rounded-lg overflow-hidden"
-  >
+  <div class="w-full h-[500px] border border-border rounded-lg overflow-hidden">
     <DanxFileViewer :file="file" downloadable />
   </div>
   <p class="mt-2 text-sm text-text-muted">

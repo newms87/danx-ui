@@ -133,6 +133,24 @@
 }
 
 /* ==========================================================================
+   Toolbar (layout toggle + zoom controls)
+   ========================================================================== */
+
+.danx-file-viewer__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem var(--dx-file-nav-header-padding);
+  background: var(--dx-file-nav-header-bg);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.danx-file-viewer__toolbar-spacer {
+  flex: 1;
+}
+
+/* ==========================================================================
    Body (split panel container)
    ========================================================================== */
 
@@ -257,6 +275,23 @@
   height: calc(var(--dx-file-strip-thumb-size) + 2.5rem);
 }
 
+.danx-file-strip--vertical {
+  /* Vertical strip lives beside the viewer (PDF-style sidebar). Fills the
+     parent column; the parent split panel controls width. Border flips to
+     the trailing edge so it separates from the viewer to its right. */
+  height: 100%;
+  width: 100%;
+  border-top: none;
+  border-right: 1px solid var(--color-border);
+  padding: 0.75rem 0.5rem;
+
+  .danx-file-strip__thumb {
+    width: var(--dx-file-strip-thumb-size-vertical);
+    height: var(--dx-file-strip-thumb-size-vertical);
+    margin: calc(var(--dx-file-strip-gap) / 2 + 0.25rem) auto;
+  }
+}
+
 .danx-file-strip__thumb {
   position: relative;
   width: var(--dx-file-strip-thumb-size);
@@ -303,6 +338,26 @@
   background: var(--dx-file-strip-badge-bg);
   color: var(--dx-file-strip-badge-color);
   pointer-events: none;
+}
+
+/* ==========================================================================
+   Continuous Scroll Body
+   ========================================================================== */
+
+.danx-file-continuous {
+  width: 100%;
+  height: 100%;
+  background: var(--dx-file-continuous-bg);
+}
+
+.danx-file-continuous__item {
+  width: 100%;
+  min-height: var(--dx-file-continuous-item-min-height);
+  padding: var(--dx-file-continuous-item-padding);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 /* ==========================================================================

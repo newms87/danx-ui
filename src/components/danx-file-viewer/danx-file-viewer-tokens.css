@@ -65,6 +65,7 @@
 
   --dx-file-strip-gap: 0.5rem;
   --dx-file-strip-thumb-size: 4rem;
+  --dx-file-strip-thumb-size-vertical: 9rem;
   --dx-file-strip-active-border: 2px solid var(--color-interactive);
   --dx-file-strip-bg: var(--color-surface-sunken);
   --dx-file-strip-inactive-opacity: 0.6;
@@ -79,4 +80,11 @@
   --dx-file-meta-bg: var(--color-surface);
   --dx-file-meta-border-color: var(--color-border);
 
+  /* ==========================================================================
+     Continuous Scroll Body
+     ========================================================================== */
+
+  --dx-file-continuous-bg: var(--color-surface);
+  --dx-file-continuous-item-padding: 1rem;
+  --dx-file-continuous-item-min-height: 600px;
 }

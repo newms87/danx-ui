@@ -1,27 +1,30 @@
 <!--
 /**
- * DanxFileThumbnailStrip - Virtualized horizontal thumbnail row
+ * DanxFileThumbnailStrip - Virtualized thumbnail row or column
  *
- * Internal subcomponent of DanxFileViewer. Renders a horizontal strip
- * of file thumbnails using DanxVirtualScroll for efficient rendering
- * of large file sets. The active file is highlighted with a border and
- * scale transform. Auto-scrolls to keep the active thumbnail visible.
- * Only renders for 2+ files.
- * Index badges appear on thumbnails when there are 3+ files.
+ * Internal subcomponent of DanxFileViewer. Renders a strip of file
+ * thumbnails using DanxVirtualScroll for efficient rendering of large
+ * file sets. The active file is highlighted with a border and scale
+ * transform. Auto-scrolls to keep the active thumbnail visible.
  *
- * Uses DanxFile in thumb mode for consistent rendering.
- * Falls back to a file-type icon when no thumbnail URL is available.
+ * Supports two orientations:
+ * - "horizontal" (default) — thin row beneath the viewer
+ * - "vertical" — taller column beside the viewer (PDF-style)
+ *
+ * Only renders for 2+ files. Index badges appear when there are 3+ files.
  *
  * @props
  *   files: PreviewFile[] - Files to display as thumbnails
  *   activeFileId: string - ID of the currently active file
+ *   orientation?: "horizontal" | "vertical" - Strip orientation (default: "horizontal")
  *
  * @emits
  *   select(file) - Thumbnail clicked
  *
  * @tokens
  *   --dx-file-strip-gap - Gap between thumbnails
- *   --dx-file-strip-thumb-size - Thumbnail width and height
+ *   --dx-file-strip-thumb-size - Thumbnail width and height (horizontal)
+ *   --dx-file-strip-thumb-size-vertical - Thumbnail size (vertical, default 9rem)
  *   --dx-file-strip-active-border - Border for the active thumbnail
  *   --dx-file-strip-bg - Strip background color
  *   --dx-file-strip-inactive-opacity - Inactive thumbnail opacity
@@ -35,10 +38,16 @@ import { DanxFile, fileDisplayNumber } from "../danx-file";
 import type { PreviewFile } from "../danx-file";
 import { DanxVirtualScroll } from "../scroll";
 
-const props = defineProps<{
-  files: PreviewFile[];
-  activeFileId: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    files: PreviewFile[];
+    activeFileId: string;
+    orientation?: "horizontal" | "vertical";
+  }>(),
+  {
+    orientation: "horizontal",
+  }
+);
 
 const emit = defineEmits<{
   select: [file: PreviewFile];
@@ -47,6 +56,12 @@ const emit = defineEmits<{
 const virtualScrollRef = ref<ComponentPublicInstance | null>(null);
 
 const showBadges = computed(() => props.files.length >= 3);
+
+const isVertical = computed(() => props.orientation === "vertical");
+const scrollDirection = computed<"horizontal" | "vertical">(() =>
+  isVertical.value ? "vertical" : "horizontal"
+);
+const defaultItemSize = computed(() => (isVertical.value ? 160 : 80));
 
 // Auto-scroll to keep active thumbnail visible. Uses scrollIntoView with
 // inline: "nearest" so it only scrolls when the thumb is out of viewport
@@ -73,11 +88,12 @@ watch(
     v-if="files.length >= 2"
     ref="virtualScrollRef"
     :items="files"
-    direction="horizontal"
-    :default-item-size="80"
+    :direction="scrollDirection"
+    :default-item-size="defaultItemSize"
     :key-fn="(file) => file.id"
     size="lg"
     class="danx-file-strip"
+    :class="{ 'danx-file-strip--vertical': isVertical }"
   >
     <template #item="{ item: file, index }">
       <div

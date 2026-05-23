@@ -14,6 +14,8 @@ import carouselNavigationCode from "./danx-file-viewer-examples/CarouselNavigati
 import dialogViewerCode from "./danx-file-viewer-examples/DialogViewer.vue?raw";
 import withMetadataCode from "./danx-file-viewer-examples/WithMetadata.vue?raw";
 import withChildrenCode from "./danx-file-viewer-examples/WithChildren.vue?raw";
+import advancedLayoutsCode from "./danx-file-viewer-examples/AdvancedLayouts.vue?raw";
+import zoomableStandaloneCode from "./danx-file-viewer-examples/ZoomableStandalone.vue?raw";
 </script>
 
 <template>
@@ -50,6 +52,18 @@ import withChildrenCode from "./danx-file-viewer-examples/WithChildren.vue?raw";
       title="With Metadata"
       description="File with EXIF metadata. Click the info button to toggle the metadata panel."
       :code="withMetadataCode"
+    />
+
+    <DemoSection
+      title="Advanced Layouts (Vertical + Continuous + Zoom)"
+      description="Opt into the vertical thumbnail sidebar, PDF-style continuous scroll, and Photoshop-style zoom (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0). The layout and zoom preference persist to localStorage per storage-key."
+      :code="advancedLayoutsCode"
+    />
+
+    <DemoSection
+      title="Standalone DanxZoomable"
+      description="The zoom + pan wrapper is reusable on its own — drop any content inside DanxZoomable. DanxZoomControls is a slider + readout + reset bar that binds to the same v-model:zoom."
+      :code="zoomableStandaloneCode"
     />
   </DemoPage>
 </template>

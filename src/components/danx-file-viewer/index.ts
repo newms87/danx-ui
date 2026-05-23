@@ -22,10 +22,12 @@ export {
   FILTERED_KEYS,
 } from "./file-metadata-helpers";
 export { useVirtualCarousel } from "./useVirtualCarousel";
+export { usePreference as useViewerPreference } from "./useViewerPreferences";
 export type {
   BreadcrumbEntry,
   VirtualSlide,
   DanxFileViewerProps,
   DanxFileViewerEmits,
   DanxFileViewerSlots,
+  Layout,
 } from "./types";

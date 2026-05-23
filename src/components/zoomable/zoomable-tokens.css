@@ -1,0 +1,32 @@
+/**
+ * DanxZoomable Tokens
+ *
+ * Component tokens (Tier 3) for DanxZoomable. All values reference
+ * semantic tokens — no raw colors here.
+ *
+ * CSS Tokens:
+ * --dx-zoomable-bg                Container background
+ * --dx-zoomable-hint-bg           Modifier-hint pill background
+ * --dx-zoomable-hint-color        Modifier-hint pill text color
+ * --dx-zoomable-hint-border       Modifier-hint pill border
+ * --dx-zoomable-kbd-bg            Inline <kbd> background
+ * --dx-zoomable-kbd-color         Inline <kbd> text color
+ * --dx-zoomable-kbd-border        Inline <kbd> border
+ * --dx-zoomable-controls-bg       Bundled controls bar background
+ * --dx-zoomable-controls-color    Bundled controls bar text color
+ */
+
+:root {
+  --dx-zoomable-bg: var(--color-surface-sunken);
+
+  --dx-zoomable-hint-bg: var(--color-surface-overlay);
+  --dx-zoomable-hint-color: var(--color-text-inverted);
+  --dx-zoomable-hint-border: transparent;
+
+  --dx-zoomable-kbd-bg: var(--color-surface);
+  --dx-zoomable-kbd-color: var(--color-text);
+  --dx-zoomable-kbd-border: var(--color-border-strong);
+
+  --dx-zoomable-controls-bg: var(--color-surface-sunken);
+  --dx-zoomable-controls-color: var(--color-text);
+}
