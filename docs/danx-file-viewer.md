@@ -68,10 +68,13 @@ const mainFile: PreviewFile = {
 | `downloadable` | `boolean` | `false` | Show download button |
 | `closable` | `boolean` | `false` | Show standalone close button (top-right) |
 | `childrenLabel` | `string` | `"Children"` | Label for the children nav button |
-| `defaultSidebar` | `boolean` | `false` | Initial sidebar flag when no localStorage preference exists |
-| `defaultContinuous` | `boolean` | `false` | Initial continuous-scroll flag when no localStorage preference exists |
-| `defaultZoom` | `number` | `100` | Zoom percent when no localStorage preference exists |
-| `layoutToggles` | `LayoutToggle[]` | `[]` | Toggle buttons rendered in the toolbar — subset of `["sidebar", "continuous"]`. Empty hides the group |
+| `defaultSidebar` | `boolean` | `false` | **SEED** — initial sidebar flag when no localStorage preference exists. User can override via the toolbar |
+| `defaultContinuous` | `boolean` | `false` | **SEED** — initial continuous-scroll flag when no localStorage preference exists. User can override |
+| `defaultZoom` | `number` | `100` | **SEED** — zoom percent when no localStorage preference exists |
+| `sidebar` | `boolean` | `undefined` | **LOCKED** — pins the sidebar state. Bypasses localStorage, hides the sidebar toggle, and the `layoutToggles` watcher will not clear it |
+| `continuous` | `boolean` | `undefined` | **LOCKED** — pins the continuous-scroll state. Bypasses localStorage, hides the continuous toggle, watcher will not clear it |
+| `zoom` | `number` | `undefined` | **LOCKED** — pins the zoom percent. Bypasses localStorage, hides zoom controls and disables zoom gestures; Ctrl+drag pan / drag-scroll still work |
+| `layoutToggles` | `LayoutToggle[]` | `[]` | Toggle buttons rendered in the toolbar — subset of `["sidebar", "continuous"]`. Empty hides the group. A locked layout is excluded automatically |
 | `zoomable` | `boolean` | `false` | Enable Photoshop-style zoom + pan (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0) |
 | `storageKey` | `string` | `"danx-file-viewer"` | localStorage namespace for sidebar / continuous / zoom / panel widths |
 | `showToolbar` | `boolean` | auto | Override the auto-show toolbar (auto = on when any control is opted in) |
@@ -100,6 +103,30 @@ A stored flag that is no longer in `layoutToggles` is cleared on mount so the co
   :file="mainFile"
   :related-files="relatedFiles"
   :layout-toggles="['sidebar', 'continuous']"
+  zoomable
+  storage-key="my-document-viewer"
+/>
+```
+
+### Seed vs Locked props
+
+Two prop families control sidebar / continuous / zoom — choose by who owns the value:
+
+| Family | Props | Semantics |
+|--------|-------|-----------|
+| **Seed** | `defaultSidebar`, `defaultContinuous`, `defaultZoom` | Starting value when localStorage is empty. The user can then flip it via the toolbar and the choice persists. |
+| **Locked** | `sidebar`, `continuous`, `zoom` | Authoritative. When provided, the state is pinned to the prop — localStorage is bypassed (no read, no write), the toggle button / zoom controls are hidden, the `layoutToggles` watcher will not clear it, and the value reactively follows prop changes. |
+
+A locked prop is the only way to **force** a layout on while hiding its toggle. `:layout-toggles="[]"` plus seed props is not enough — the watcher clears seed flags that are absent from `layoutToggles`. Locked props are exempt from that watcher.
+
+```vue
+<!-- Force a continuous PDF reader with a sidebar at 60% zoom — no toggles, no zoom controls. -->
+<DanxFileViewer
+  :file="mainFile"
+  :related-files="relatedFiles"
+  continuous
+  sidebar
+  :zoom="60"
   zoomable
   storage-key="my-document-viewer"
 />

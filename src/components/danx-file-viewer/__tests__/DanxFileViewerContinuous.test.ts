@@ -298,6 +298,67 @@ describe("DanxFileViewerContinuous", () => {
       window.dispatchEvent(new MouseEvent("mouseup"));
     });
 
+    async function expectPanAtZoom(zoomLevel: number) {
+      const wrapper = await mountContinuous({ zoomable: true, zoom: zoomLevel });
+      const root = wrapper.find(".danx-file-continuous-root");
+      const viewport = root.element.querySelector(".danx-scroll__viewport") as HTMLElement | null;
+      if (!viewport) return; // jsdom did not lay out the viewport — pan path untestable here
+      let scrollLeft = 0;
+      let scrollTop = 0;
+      Object.defineProperty(viewport, "scrollLeft", {
+        get: () => scrollLeft,
+        set: (v: number) => {
+          scrollLeft = v;
+        },
+        configurable: true,
+      });
+      Object.defineProperty(viewport, "scrollTop", {
+        get: () => scrollTop,
+        set: (v: number) => {
+          scrollTop = v;
+        },
+        configurable: true,
+      });
+      await root.trigger("mousedown", { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
+      // Pan delta is raw mouse px, independent of zoom.
+      expect(scrollLeft).toBe(40);
+      expect(scrollTop).toBe(30);
+      window.dispatchEvent(new MouseEvent("mouseup"));
+    }
+
+    it("Ctrl+drag pans the viewport at low zoom (45%)", async () => {
+      await expectPanAtZoom(45);
+    });
+
+    it("Ctrl+drag pans the viewport at high zoom (150%)", async () => {
+      await expectPanAtZoom(150);
+    });
+
+    it("lockZoom disables Ctrl+wheel zoom but keeps Ctrl+drag pan", async () => {
+      const wrapper = await mountContinuous({ zoomable: true, lockZoom: true, zoom: 45 });
+      const root = wrapper.find(".danx-file-continuous-root");
+      const evt = new WheelEvent("wheel", { deltaY: -50, bubbles: true, cancelable: true });
+      Object.defineProperty(evt, "ctrlKey", { value: true });
+      root.element.dispatchEvent(evt);
+      await nextTick();
+      expect(wrapper.emitted("update:zoom")).toBeUndefined();
+      // Pan still engages.
+      await root.trigger("mousedown", { button: 0, ctrlKey: true, clientX: 100, clientY: 100 });
+      expect(root.classes()).toContain("is-dragging");
+      window.dispatchEvent(new MouseEvent("mouseup"));
+      await nextTick();
+      expect(root.classes()).not.toContain("is-dragging");
+    });
+
+    it("lockZoom disables Ctrl+= keyboard zoom", async () => {
+      const wrapper = await mountContinuous({ zoomable: true, lockZoom: true, zoom: 45 });
+      (wrapper.find(".danx-file-continuous-root").element as HTMLElement).focus();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "=", ctrlKey: true }));
+      await nextTick();
+      expect(wrapper.emitted("update:zoom")).toBeUndefined();
+    });
+
     it("right-click does not start drag", async () => {
       const wrapper = await mountContinuous({ zoomable: true });
       await wrapper.find(".danx-file-continuous-root").trigger("mousedown", {

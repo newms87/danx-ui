@@ -832,6 +832,149 @@ describe("DanxFileViewer", () => {
     });
   });
 
+  describe("Locked authoritative props", () => {
+    it("locked continuous overrides a conflicting localStorage value", async () => {
+      window.localStorage.setItem("danx-file-viewer-continuous", "false");
+      const wrapper = mountViewer({
+        continuous: true,
+        layoutToggles: ["continuous"],
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+      expect(wrapper.findComponent({ name: "DanxFileViewerContinuous" }).exists()).toBe(true);
+    });
+
+    it("locked sidebar overrides a conflicting localStorage value", async () => {
+      window.localStorage.setItem("danx-file-viewer-sidebar", "false");
+      const wrapper = mountViewer({
+        sidebar: true,
+        layoutToggles: ["sidebar"],
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+    });
+
+    it("locked continuous never writes to localStorage", async () => {
+      mountViewer({ continuous: true, relatedFiles: [makeFile("2")] });
+      await flushPromises();
+      expect(window.localStorage.getItem("danx-file-viewer-continuous")).toBe(null);
+    });
+
+    it("locked sidebar toggle button does not render in toolbar", () => {
+      const wrapper = mountViewer({
+        layoutToggles: ["sidebar", "continuous"],
+        sidebar: true,
+      });
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      expect(toolbar.props("layoutToggles")).toEqual(["continuous"]);
+      const labels = toolbar.findAll(".danx-button-group__button").map((b) => b.text());
+      expect(labels.some((t) => t.includes("Sidebar"))).toBe(false);
+      expect(labels.some((t) => t.includes("Continuous"))).toBe(true);
+    });
+
+    it("locked continuous toggle button does not render in toolbar", () => {
+      const wrapper = mountViewer({
+        layoutToggles: ["sidebar", "continuous"],
+        continuous: true,
+      });
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      expect(toolbar.props("layoutToggles")).toEqual(["sidebar"]);
+    });
+
+    it("layoutToggles=[] + locked continuous still renders continuous (watcher does not clobber)", async () => {
+      const wrapper = mountViewer({
+        layoutToggles: [],
+        continuous: true,
+        relatedFiles: [makeFile("2"), makeFile("3")],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+    });
+
+    it("layoutToggles=[] + locked sidebar still renders sidebar (watcher does not clobber)", async () => {
+      const wrapper = mountViewer({
+        layoutToggles: [],
+        sidebar: true,
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+    });
+
+    it("fully locked viewer hides the toolbar entirely", () => {
+      const wrapper = mountViewer({
+        layoutToggles: ["sidebar", "continuous"],
+        sidebar: true,
+        continuous: true,
+        zoomable: true,
+        zoom: 100,
+      });
+      expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(false);
+    });
+
+    it("locked continuous reacts to prop changes (false → true)", async () => {
+      const wrapper = mountViewer({ continuous: false, relatedFiles: [makeFile("2")] });
+      expect(wrapper.classes()).toContain("danx-file-viewer--paged");
+      await wrapper.setProps({ continuous: true });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+    });
+
+    it("locked zoom pins the zoom model, bypassing localStorage", () => {
+      window.localStorage.setItem("danx-file-viewer-zoom", "175");
+      const wrapper = mountViewer({ zoomable: true, zoom: 45 });
+      const zoomable = wrapper.findComponent({ name: "DanxZoomable" });
+      expect(zoomable.props("zoom")).toBe(45);
+    });
+
+    it("locked zoom ignores update:zoom writes (no localStorage, model stays)", async () => {
+      const wrapper = mountViewer({ zoomable: true, zoom: 45 });
+      const zoomable = wrapper.findComponent({ name: "DanxZoomable" });
+      zoomable.vm.$emit("update:zoom", 200);
+      await nextTick();
+      expect(window.localStorage.getItem("danx-file-viewer-zoom")).toBe(null);
+      expect(zoomable.props("zoom")).toBe(45);
+    });
+
+    it("locked zoom hides toolbar zoom controls but disables zoom gestures on zoomable", () => {
+      const wrapper = mountViewer({ zoomable: true, zoom: 45, showToolbar: true });
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      expect(toolbar.props("zoomable")).toBe(false);
+      const zoomable = wrapper.findComponent({ name: "DanxZoomable" });
+      expect(zoomable.props("wheelDisabled")).toBe(true);
+      expect(zoomable.props("keyboardDisabled")).toBe(true);
+    });
+
+    it("locked zoom passes lockZoom + zoom to continuous body", async () => {
+      const wrapper = mountViewer({
+        zoomable: true,
+        zoom: 45,
+        continuous: true,
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      const cont = wrapper.findComponent({ name: "DanxFileViewerContinuous" });
+      expect(cont.props("zoom")).toBe(45);
+      expect(cont.props("lockZoom")).toBe(true);
+      expect(cont.props("zoomable")).toBe(true);
+    });
+
+    it("undefined locked props preserve seed + toggle behavior (regression guard)", async () => {
+      window.localStorage.setItem("danx-file-viewer-continuous", "true");
+      const wrapper = mountViewer({
+        layoutToggles: ["continuous"],
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      // localStorage seed honored, toggle button present, pref still writable.
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      expect(toolbar.props("layoutToggles")).toEqual(["continuous"]);
+    });
+  });
+
   describe("Zoom integration", () => {
     it("wraps active slide in DanxZoomable when zoomable=true", () => {
       const wrapper = mountViewer({ zoomable: true });

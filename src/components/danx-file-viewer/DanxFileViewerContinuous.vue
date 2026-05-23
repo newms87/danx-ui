@@ -25,6 +25,8 @@
  *   activeFileId: string - Current active file ID (v-model)
  *   zoom?: number - Zoom percent (v-model, default 100)
  *   zoomable?: boolean - Enable Ctrl+wheel / keyboard zoom + Ctrl+drag pan (default false)
+ *   lockZoom?: boolean - Pin zoom: disable Ctrl+wheel / keyboard zoom gestures
+ *     while keeping Ctrl+drag pan active (default false)
  *
  * @emits
  *   update:activeFileId(id) - Active file changed via scroll
@@ -50,12 +52,14 @@ const props = withDefaults(
     files: PreviewFile[];
     activeFileId: string;
     zoomable?: boolean;
+    lockZoom?: boolean;
     zoomMin?: number;
     zoomMax?: number;
     zoomStep?: number;
   }>(),
   {
     zoomable: false,
+    lockZoom: false,
     zoomMin: 25,
     zoomMax: 400,
     zoomStep: 10,
@@ -82,8 +86,10 @@ const panRef = ref({ x: 0, y: 0 });
 // scroll viewport's scrollLeft / scrollTop directly (instead of CSS translating
 // the content, which would fight the virtual scroller).
 const panDisabledRef = ref(true);
-const wheelDisabled = computed(() => !props.zoomable);
-const keyboardDisabled = computed(() => !props.zoomable);
+// Zoom gestures fire only when zoomable AND not locked. Pan (onMouseDown) is
+// gated on `zoomable` alone so a locked-zoom viewer can still drag-scroll.
+const wheelDisabled = computed(() => !props.zoomable || props.lockZoom);
+const keyboardDisabled = computed(() => !props.zoomable || props.lockZoom);
 useZoomable({
   zoom,
   pan: panRef,

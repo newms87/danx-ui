@@ -282,6 +282,26 @@ describe("useZoomable", () => {
       expect(h.api.isDragging.value).toBe(false);
     });
 
+    it("Ctrl+drag pans at low zoom (45%) — delta is zoom-independent", () => {
+      const h = makeHarness({ zoom: 45 });
+      h.api.onDragStart(
+        new MouseEvent("mousedown", { button: 0, ctrlKey: true, clientX: 10, clientY: 20 })
+      );
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 60, clientY: 70 }));
+      expect(h.pan.value).toEqual({ x: 50, y: 50 });
+      window.dispatchEvent(new MouseEvent("mouseup"));
+    });
+
+    it("Ctrl+drag pans at high zoom (150%) — delta is zoom-independent", () => {
+      const h = makeHarness({ zoom: 150 });
+      h.api.onDragStart(
+        new MouseEvent("mousedown", { button: 0, ctrlKey: true, clientX: 10, clientY: 20 })
+      );
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 40, clientY: 5 }));
+      expect(h.pan.value).toEqual({ x: 30, y: -15 });
+      window.dispatchEvent(new MouseEvent("mouseup"));
+    });
+
     it("plain mousedown (no modifier) does not start drag", () => {
       const h = makeHarness();
       h.api.onDragStart(new MouseEvent("mousedown", { button: 0, clientX: 10, clientY: 20 }));

@@ -15,6 +15,7 @@ import dialogViewerCode from "./danx-file-viewer-examples/DialogViewer.vue?raw";
 import withMetadataCode from "./danx-file-viewer-examples/WithMetadata.vue?raw";
 import withChildrenCode from "./danx-file-viewer-examples/WithChildren.vue?raw";
 import advancedLayoutsCode from "./danx-file-viewer-examples/AdvancedLayouts.vue?raw";
+import lockedLayoutCode from "./danx-file-viewer-examples/LockedLayout.vue?raw";
 import zoomableStandaloneCode from "./danx-file-viewer-examples/ZoomableStandalone.vue?raw";
 import zoomableInlineControlsCode from "./danx-file-viewer-examples/ZoomableInlineControls.vue?raw";
 </script>
@@ -59,6 +60,12 @@ import zoomableInlineControlsCode from "./danx-file-viewer-examples/ZoomableInli
       title="Advanced Layouts (Sidebar + Continuous + Zoom)"
       description="Two independent toggles compose into four layouts — toggle vertical sidebar and continuous scroll in any combination. Photoshop-style zoom (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0) is wired in too. Each toggle and the zoom value persist to localStorage per storage-key."
       :code="advancedLayoutsCode"
+    />
+
+    <DemoSection
+      title="Locked Layout (Forced Continuous + Sidebar + Zoom)"
+      description="Authoritative props pin the layout: continuous + sidebar are forced on and zoom is locked at 60%. The toggle buttons and zoom controls are hidden and localStorage is bypassed — the consumer owns these states regardless of any stored preference. Ctrl+drag still pans the document at the locked zoom. Contrast with the seed-only default-* props, which the user can override."
+      :code="lockedLayoutCode"
     />
 
     <DemoSection

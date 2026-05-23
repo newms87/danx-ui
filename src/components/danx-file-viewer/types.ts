@@ -52,21 +52,51 @@ export interface DanxFileViewerProps {
   /** Label for the children navigation button (default: "Children") */
   childrenLabel?: string;
   /**
-   * Initial sidebar flag when no localStorage preference exists. When `true`,
-   * the thumbnail strip renders as a tall left-hand column (PDF-style).
-   * Default: `false`.
+   * SEED — initial sidebar flag when no localStorage preference exists. When
+   * `true`, the thumbnail strip renders as a tall left-hand column (PDF-style).
+   * A stored preference or the user toggling the toolbar overrides this.
+   * Default: `false`. For a value the consumer cannot override, use `sidebar`.
    */
   defaultSidebar?: boolean;
   /**
-   * Initial continuous-scroll flag when no localStorage preference exists.
-   * When `true`, every file renders in a virtualized scrolling column instead
-   * of a paged carousel. Default: `false`.
+   * SEED — initial continuous-scroll flag when no localStorage preference
+   * exists. When `true`, every file renders in a virtualized scrolling column
+   * instead of a paged carousel. A stored preference or the toolbar toggle
+   * overrides this. Default: `false`. For a locked value, use `continuous`.
    */
   defaultContinuous?: boolean;
   /**
-   * Zoom percent used when no localStorage preference exists. Default: `100`.
+   * SEED — zoom percent used when no localStorage preference exists.
+   * Default: `100`. For a locked value, use `zoom`.
    */
   defaultZoom?: number;
+  /**
+   * LOCKED — authoritative sidebar state. When provided (not `undefined`),
+   * the sidebar is PINNED to this value: localStorage is bypassed entirely
+   * (no read, no write), the sidebar toggle button does not render, and the
+   * `layoutToggles` watcher will not clear it. The state reactively follows
+   * prop changes. Leave `undefined` for the seed + toggle behavior (see
+   * `defaultSidebar`).
+   */
+  sidebar?: boolean;
+  /**
+   * LOCKED — authoritative continuous-scroll state. When provided (not
+   * `undefined`), continuous mode is PINNED to this value: localStorage is
+   * bypassed, the continuous toggle button does not render, and the
+   * `layoutToggles` watcher will not clear it. Reactively follows prop
+   * changes. Leave `undefined` for seed + toggle behavior (see
+   * `defaultContinuous`).
+   */
+  continuous?: boolean;
+  /**
+   * LOCKED — authoritative zoom percent. When provided (not `undefined`),
+   * the zoom model is PINNED to this value: localStorage is bypassed, the
+   * toolbar zoom controls and Ctrl+wheel / keyboard zoom gestures are
+   * disabled. Ctrl+drag pan (paged) and drag-scroll (continuous) still work.
+   * Reactively follows prop changes. Leave `undefined` for seed + controls
+   * behavior (see `defaultZoom`).
+   */
+  zoom?: number;
   /**
    * Toggles the user can flip via the toolbar. `[]` (default) hides the
    * layout toggle group entirely. Pass `["sidebar", "continuous"]` (or any

@@ -28,10 +28,19 @@
  *     vertical position; Ctrl+wheel + keyboard zoom gestures still fire.
  * The zoom value is shared, so switching between modes preserves it.
  *
- * `sidebar`, `continuous`, and `zoom` each persist to localStorage under
- * `storageKey`. Reading order: `localStorage[key] ?? defaultProp ?? built-in
- * default`. The metadata split panel widths also persist per sidebar state
- * under the same namespace.
+ * Two prop families control sidebar / continuous / zoom, with distinct
+ * semantics:
+ *   - SEED (`defaultSidebar` / `defaultContinuous` / `defaultZoom`): the
+ *     starting value when localStorage is empty. The user can then override
+ *     via the toolbar, and the choice persists. Reading order:
+ *     `localStorage[key] ?? defaultProp ?? built-in default`.
+ *   - LOCKED (`sidebar` / `continuous` / `zoom`): when provided, the state is
+ *     PINNED to the prop — localStorage is bypassed (no read, no write), the
+ *     corresponding toggle button / zoom controls are hidden, and the
+ *     `layoutToggles` watcher will not clear it. Reactively follows the prop.
+ *
+ * The metadata split panel widths also persist per sidebar state under the
+ * same namespace.
  *
  * Metadata is displayed in a resizable split panel beside the file preview,
  * toggled via the info button in the header. Touch/swipe gestures are handled
@@ -45,9 +54,12 @@
  *   relatedFiles?: PreviewFile[] - Related files for carousel navigation
  *   downloadable?: boolean - Show download button in header
  *   childrenLabel?: string - Label for children nav button (default: "Children")
- *   defaultSidebar?: boolean - Initial sidebar flag when localStorage empty (default: false)
- *   defaultContinuous?: boolean - Initial continuous-scroll flag when empty (default: false)
- *   defaultZoom?: number - Zoom fallback (default: 100)
+ *   defaultSidebar?: boolean - SEED sidebar flag when localStorage empty (default: false)
+ *   defaultContinuous?: boolean - SEED continuous-scroll flag when empty (default: false)
+ *   defaultZoom?: number - SEED zoom fallback (default: 100)
+ *   sidebar?: boolean - LOCKED sidebar state (pins value, bypasses localStorage + toggle)
+ *   continuous?: boolean - LOCKED continuous state (pins value, bypasses localStorage + toggle)
+ *   zoom?: number - LOCKED zoom percent (pins value, hides zoom controls; pan still works)
  *   layoutToggles?: LayoutToggle[] - Toggles user can flip in the toolbar (default: [])
  *   zoomable?: boolean - Enable zoom + pan (default: false)
  *   storageKey?: string - localStorage namespace (default: "danx-file-viewer")
@@ -129,6 +141,9 @@ const props = withDefaults(defineProps<DanxFileViewerProps>(), {
   zoomable: false,
   storageKey: "danx-file-viewer",
   showToolbar: undefined,
+  sidebar: undefined,
+  continuous: undefined,
+  zoom: undefined,
 });
 
 const emit = defineEmits<DanxFileViewerEmits>();
@@ -141,32 +156,80 @@ defineSlots<DanxFileViewerSlots>();
 
 const isBool = (v: unknown): v is boolean => typeof v === "boolean";
 
-// Persisted preferences — read from localStorage with prop fallback.
-const sidebar = usePreference<boolean>(props.storageKey, "sidebar", props.defaultSidebar, {
+// Persisted preferences — read from localStorage with prop fallback. These
+// back the SEED + toggle behavior (default-* props). The LOCKED props
+// (`sidebar` / `continuous` / `zoom`) bypass these entirely when provided.
+const sidebarPref = usePreference<boolean>(props.storageKey, "sidebar", props.defaultSidebar, {
   validate: isBool,
 });
-const continuous = usePreference<boolean>(props.storageKey, "continuous", props.defaultContinuous, {
-  validate: isBool,
-});
-const zoom = usePreference<number>(props.storageKey, "zoom", props.defaultZoom, {
+const continuousPref = usePreference<boolean>(
+  props.storageKey,
+  "continuous",
+  props.defaultContinuous,
+  { validate: isBool }
+);
+const zoomPref = usePreference<number>(props.storageKey, "zoom", props.defaultZoom, {
   validate: (v): v is number => typeof v === "number" && Number.isFinite(v),
 });
 
+// Locked-aware state. When the matching authoritative prop is provided, the
+// getter returns the prop (reactively following prop changes) and the setter
+// is a no-op — the prop is the single source of truth, localStorage is never
+// touched. When the prop is undefined, behavior is identical to today: read /
+// write the persisted preference.
+const sidebar = computed<boolean>({
+  get: () => props.sidebar ?? sidebarPref.value,
+  set: (v) => {
+    if (props.sidebar === undefined) sidebarPref.value = v;
+  },
+});
+const continuous = computed<boolean>({
+  get: () => props.continuous ?? continuousPref.value,
+  set: (v) => {
+    if (props.continuous === undefined) continuousPref.value = v;
+  },
+});
+const zoom = computed<number>({
+  get: () => props.zoom ?? zoomPref.value,
+  set: (v) => {
+    if (props.zoom === undefined) zoomPref.value = v;
+  },
+});
+
+// Zoom is locked (pinned) when the authoritative prop is provided.
+const zoomLocked = computed(() => props.zoom !== undefined);
+
+// Layout toggles minus any layout the consumer has locked — a locked layout's
+// toggle button must not render (the consumer owns that state).
+const effectiveLayoutToggles = computed(() =>
+  props.layoutToggles.filter((t) =>
+    t === "sidebar" ? props.sidebar === undefined : props.continuous === undefined
+  )
+);
+
+// Toolbar zoom controls render only when zoom is enabled AND not locked.
+const zoomControlsEnabled = computed(() => props.zoomable && props.zoom === undefined);
+
 // Clamp persisted flags to the consumer's allowed toggle list — a stale
 // localStorage value from a previous configuration shouldn't lock the user
-// into a mode the consumer has disabled.
+// into a mode the consumer has disabled. Skipped for locked layouts (the prop
+// owns the value, not the toggle list).
 watch(
   () => props.layoutToggles,
   (allowed) => {
-    if (sidebar.value && !allowed.includes("sidebar")) sidebar.value = false;
-    if (continuous.value && !allowed.includes("continuous")) continuous.value = false;
+    if (props.sidebar === undefined && sidebar.value && !allowed.includes("sidebar")) {
+      sidebar.value = false;
+    }
+    if (props.continuous === undefined && continuous.value && !allowed.includes("continuous")) {
+      continuous.value = false;
+    }
   },
   { immediate: true }
 );
 
 const showToolbar = computed(() => {
   if (typeof props.showToolbar === "boolean") return props.showToolbar;
-  return props.layoutToggles.length > 0 || props.zoomable;
+  return effectiveLayoutToggles.value.length > 0 || zoomControlsEnabled.value;
 });
 
 // Distinct identity per layout combination — drives the :key on
@@ -351,8 +414,8 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
       v-model:sidebar="sidebar"
       v-model:continuous="continuous"
       v-model:zoom="zoom"
-      :layout-toggles="layoutToggles"
-      :zoomable="zoomable"
+      :layout-toggles="effectiveLayoutToggles"
+      :zoomable="zoomControlsEnabled"
     />
 
     <!-- Main content area with optional metadata + (sidebar mode) thumbnail
@@ -381,6 +444,7 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
               :files="activeFiles"
               :active-file-id="currentFile.id"
               :zoomable="isContinuousZoomActive"
+              :lock-zoom="zoomLocked"
               @update:active-file-id="onContinuousActiveChange"
             />
           </template>
@@ -406,6 +470,8 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
                 v-if="isPagedZoomActive && slide.isActive"
                 v-model:zoom="zoom"
                 v-model:pan="pan"
+                :wheel-disabled="zoomLocked"
+                :keyboard-disabled="zoomLocked"
                 class="danx-file-viewer__zoom"
               >
                 <DanxFile :file="slide.file" mode="preview" size="auto" fit="contain" disabled />
