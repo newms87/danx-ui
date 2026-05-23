@@ -16,6 +16,7 @@ import withMetadataCode from "./danx-file-viewer-examples/WithMetadata.vue?raw";
 import withChildrenCode from "./danx-file-viewer-examples/WithChildren.vue?raw";
 import advancedLayoutsCode from "./danx-file-viewer-examples/AdvancedLayouts.vue?raw";
 import zoomableStandaloneCode from "./danx-file-viewer-examples/ZoomableStandalone.vue?raw";
+import zoomableInlineControlsCode from "./danx-file-viewer-examples/ZoomableInlineControls.vue?raw";
 </script>
 
 <template>
@@ -64,6 +65,12 @@ import zoomableStandaloneCode from "./danx-file-viewer-examples/ZoomableStandalo
       title="Standalone DanxZoomable"
       description="The zoom + pan wrapper is reusable on its own — drop any content inside DanxZoomable. DanxZoomControls is a slider + readout + reset bar that binds to the same v-model:zoom."
       :code="zoomableStandaloneCode"
+    />
+
+    <DemoSection
+      title="DanxZoomable with Inline Controls Slot"
+      description="Render DanxZoomControls inside the controls slot for an inline overlay anchored to the wrapper instead of a separate toolbar."
+      :code="zoomableInlineControlsCode"
     />
   </DemoPage>
 </template>
