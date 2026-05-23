@@ -879,7 +879,7 @@ describe("DanxFileViewer", () => {
       expect(zoomable.props("zoom")).toBe(150);
     });
 
-    it("toolbar disables zoom controls when continuous is on", async () => {
+    it("toolbar zoom controls stay enabled in continuous mode (item-level scale)", async () => {
       const wrapper = mountViewer({
         zoomable: true,
         defaultContinuous: true,
@@ -887,7 +887,33 @@ describe("DanxFileViewer", () => {
       });
       await flushPromises();
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
-      expect(toolbar.props("zoomable")).toBe(false);
+      expect(toolbar.props("zoomable")).toBe(true);
+    });
+
+    it("continuous body receives zoom + zoomable from parent", async () => {
+      const wrapper = mountViewer({
+        zoomable: true,
+        defaultContinuous: true,
+        defaultZoom: 175,
+        layoutToggles: ["continuous"],
+      });
+      await flushPromises();
+      const cont = wrapper.findComponent({ name: "DanxFileViewerContinuous" });
+      expect(cont.props("zoom")).toBe(175);
+      expect(cont.props("zoomable")).toBe(true);
+    });
+
+    it("continuous body update:zoom round-trips through parent persistence", async () => {
+      const wrapper = mountViewer({
+        zoomable: true,
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
+      });
+      await flushPromises();
+      const cont = wrapper.findComponent({ name: "DanxFileViewerContinuous" });
+      cont.vm.$emit("update:zoom", 220);
+      await nextTick();
+      expect(window.localStorage.getItem("danx-file-viewer-zoom")).toBe("220");
     });
 
     it("toolbar update:sidebar v-model toggles the sidebar flag", async () => {

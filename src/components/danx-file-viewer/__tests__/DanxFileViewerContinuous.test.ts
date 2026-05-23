@@ -119,4 +119,58 @@ describe("DanxFileViewerContinuous", () => {
     await nextTick();
     expect(wrapper.emitted("update:activeFileId")).toBeUndefined();
   });
+
+  describe("zoom", () => {
+    it("defaults to 100% (transform scale=1, default item size)", async () => {
+      const wrapper = await mountContinuous();
+      const item = wrapper.find(".danx-file-continuous__item");
+      expect((item.element as HTMLElement).style.minHeight).toBe("600px");
+      const inner = wrapper.find(".danx-file-continuous__inner");
+      expect((inner.element as HTMLElement).style.transform).toContain("scale(1)");
+    });
+
+    it("zoom prop scales item min-height + inner transform", async () => {
+      const wrapper = await mountContinuous({ zoom: 200 });
+      const item = wrapper.find(".danx-file-continuous__item");
+      expect((item.element as HTMLElement).style.minHeight).toBe("1200px");
+      const inner = wrapper.find(".danx-file-continuous__inner");
+      expect((inner.element as HTMLElement).style.transform).toContain("scale(2)");
+    });
+
+    it("passes scaled defaultItemSize to DanxVirtualScroll", async () => {
+      const wrapper = await mountContinuous({ zoom: 150 });
+      const vs = wrapper.findComponent({ name: "DanxVirtualScroll" });
+      expect(vs.props("defaultItemSize")).toBe(900);
+    });
+
+    it("zoomable=false ignores Ctrl+wheel zoom", async () => {
+      const wrapper = await mountContinuous({ zoom: 100, zoomable: false });
+      const root = wrapper.find(".danx-file-continuous-root");
+      const evt = new WheelEvent("wheel", { deltaY: -50, bubbles: true, cancelable: true });
+      Object.defineProperty(evt, "ctrlKey", { value: true });
+      root.element.dispatchEvent(evt);
+      await nextTick();
+      expect(wrapper.emitted("update:zoom")).toBeUndefined();
+    });
+
+    it("zoomable=true emits update:zoom from Ctrl+wheel", async () => {
+      const wrapper = await mountContinuous({ zoom: 100, zoomable: true });
+      const root = wrapper.find(".danx-file-continuous-root");
+      const evt = new WheelEvent("wheel", { deltaY: -50, bubbles: true, cancelable: true });
+      Object.defineProperty(evt, "ctrlKey", { value: true });
+      root.element.dispatchEvent(evt);
+      await nextTick();
+      const emits = wrapper.emitted("update:zoom");
+      expect(emits?.[emits.length - 1]).toEqual([110]);
+    });
+
+    it("zoomable=true emits update:zoom from Ctrl+= keyboard", async () => {
+      const wrapper = await mountContinuous({ zoom: 100, zoomable: true });
+      (wrapper.find(".danx-file-continuous-root").element as HTMLElement).focus();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "=", ctrlKey: true }));
+      await nextTick();
+      const emits = wrapper.emitted("update:zoom");
+      expect(emits?.[emits.length - 1]).toEqual([110]);
+    });
+  });
 });

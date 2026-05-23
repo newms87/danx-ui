@@ -19,10 +19,14 @@
  * and the active file follows the scroll position so the header / metadata /
  * thumbnail highlight stay in sync.
  *
- * Photoshop-style zoom + pan can be enabled via `zoomable`: the active slide
- * is wrapped in a `DanxZoomable` that responds to Ctrl+wheel, Ctrl+drag,
- * Ctrl+`+`/`-`/`=`/`0`, and dblclick reset. Continuous mode disables zoom
- * (scroll is the primary gesture there).
+ * Photoshop-style zoom + pan can be enabled via `zoomable`:
+ *   - Paged mode wraps the active slide in `DanxZoomable` for Ctrl+wheel,
+ *     Ctrl+drag pan, Ctrl+`+`/`-`/`=`/`0` keys, and dblclick reset.
+ *   - Continuous mode scales each rendered item via CSS transform (item
+ *     height + virtual-scroll defaultItemSize scale with zoom so the
+ *     scrollbar stays accurate). Pan is disabled — native scroll owns
+ *     vertical position; Ctrl+wheel + keyboard zoom gestures still fire.
+ * The zoom value is shared, so switching between modes preserves it.
  *
  * `sidebar`, `continuous`, and `zoom` each persist to localStorage under
  * `storageKey`. Reading order: `localStorage[key] ?? defaultProp ?? built-in
@@ -242,10 +246,13 @@ const activePanels = computed({
 });
 const showMetadata = computed(() => activePanels.value.includes("metadata"));
 
-// Zoom + pan models. Continuous mode disables the wrapper (scroll = pan); zoom
-// value is still preserved so switching back to a paged body restores it.
+// Zoom + pan models. In paged mode the active slide gets a DanxZoomable
+// wrapper (full pan + zoom). In continuous mode the body component handles
+// zoom via item-level CSS scale + Ctrl+wheel/keyboard listeners; pan is
+// inactive (native scroll owns vertical movement).
 const pan = ref<Pan>({ x: 0, y: 0 });
-const isZoomActive = computed(() => props.zoomable && !continuous.value);
+const isPagedZoomActive = computed(() => props.zoomable && !continuous.value);
+const isContinuousZoomActive = computed(() => props.zoomable && continuous.value);
 
 // Reset pan when the active file or any layout toggle changes — different
 // content geometry means the previous offset no longer makes sense.
@@ -345,7 +352,7 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
       v-model:continuous="continuous"
       v-model:zoom="zoom"
       :layout-toggles="layoutToggles"
-      :zoomable="zoomable && !continuous"
+      :zoomable="zoomable"
     />
 
     <!-- Main content area with optional metadata + (sidebar mode) thumbnail
@@ -370,8 +377,10 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
         <div class="danx-file-viewer__content">
           <template v-if="continuous">
             <DanxFileViewerContinuous
+              v-model:zoom="zoom"
               :files="activeFiles"
               :active-file-id="currentFile.id"
+              :zoomable="isContinuousZoomActive"
               @update:active-file-id="onContinuousActiveChange"
             />
           </template>
@@ -394,7 +403,7 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
               :class="{ 'danx-file-viewer__slide--active': slide.isActive }"
             >
               <DanxZoomable
-                v-if="isZoomActive && slide.isActive"
+                v-if="isPagedZoomActive && slide.isActive"
                 v-model:zoom="zoom"
                 v-model:pan="pan"
                 class="danx-file-viewer__zoom"
