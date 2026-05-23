@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import DanxFileViewerToolbar from "../DanxFileViewerToolbar.vue";
-import type { Layout } from "../types";
+import type { LayoutToggle } from "../types";
 
 const wrappers: VueWrapper[] = [];
 let warnSpy: ReturnType<typeof vi.spyOn>;
@@ -22,9 +22,10 @@ afterEach(() => {
 function mountToolbar(props: Partial<Record<string, unknown>> = {}) {
   const wrapper = mount(DanxFileViewerToolbar, {
     props: {
-      layout: "horizontal" as Layout,
+      sidebar: false,
+      continuous: false,
       zoom: 100,
-      availableLayouts: ["horizontal", "vertical", "continuous"] as Layout[],
+      layoutToggles: ["sidebar", "continuous"] as LayoutToggle[],
       zoomable: true,
       ...props,
     },
@@ -35,19 +36,24 @@ function mountToolbar(props: Partial<Record<string, unknown>> = {}) {
 }
 
 describe("DanxFileViewerToolbar", () => {
-  it("renders layout button group with one button per available layout", () => {
-    const wrapper = mountToolbar({ availableLayouts: ["horizontal", "vertical"] });
+  it("renders one button per available toggle", () => {
+    const wrapper = mountToolbar({ layoutToggles: ["sidebar"] });
     const group = wrapper.findComponent({ name: "DanxButtonGroup" });
     expect(group.exists()).toBe(true);
     expect((group.props("buttons") as Array<{ value: string }>).map((b) => b.value)).toEqual([
-      "horizontal",
-      "vertical",
+      "sidebar",
     ]);
   });
 
-  it("hides layout button group when only one layout is available", () => {
-    const wrapper = mountToolbar({ availableLayouts: ["horizontal"] });
+  it("hides the toggle group when layoutToggles is empty", () => {
+    const wrapper = mountToolbar({ layoutToggles: [] });
     expect(wrapper.findComponent({ name: "DanxButtonGroup" }).exists()).toBe(false);
+  });
+
+  it("renders the button group in multi-select mode (any combination)", () => {
+    const wrapper = mountToolbar();
+    const group = wrapper.findComponent({ name: "DanxButtonGroup" });
+    expect(group.props("multiple")).toBe(true);
   });
 
   it("renders zoom controls when zoomable=true", () => {
@@ -60,12 +66,42 @@ describe("DanxFileViewerToolbar", () => {
     expect(wrapper.findComponent({ name: "DanxZoomControls" }).exists()).toBe(false);
   });
 
-  it("emits update:layout when a layout button is selected", async () => {
-    const wrapper = mountToolbar();
+  it("emits update:sidebar when sidebar is toggled on", async () => {
+    const wrapper = mountToolbar({ sidebar: false, continuous: false });
     const group = wrapper.findComponent({ name: "DanxButtonGroup" });
-    group.vm.$emit("select", "vertical");
-    const emits = wrapper.emitted("update:layout");
-    expect(emits?.[emits.length - 1]).toEqual(["vertical"]);
+    group.vm.$emit("update:modelValue", ["sidebar"]);
+    const emits = wrapper.emitted("update:sidebar");
+    expect(emits?.[emits.length - 1]).toEqual([true]);
+  });
+
+  it("emits update:continuous when continuous is toggled on", async () => {
+    const wrapper = mountToolbar({ sidebar: false, continuous: false });
+    const group = wrapper.findComponent({ name: "DanxButtonGroup" });
+    group.vm.$emit("update:modelValue", ["continuous"]);
+    const emits = wrapper.emitted("update:continuous");
+    expect(emits?.[emits.length - 1]).toEqual([true]);
+  });
+
+  it("supports both toggles selected at once", async () => {
+    const wrapper = mountToolbar({ sidebar: false, continuous: false });
+    const group = wrapper.findComponent({ name: "DanxButtonGroup" });
+    group.vm.$emit("update:modelValue", ["sidebar", "continuous"]);
+    expect(wrapper.emitted("update:sidebar")?.[0]).toEqual([true]);
+    expect(wrapper.emitted("update:continuous")?.[0]).toEqual([true]);
+  });
+
+  it("emits both toggles off when group is cleared", async () => {
+    const wrapper = mountToolbar({ sidebar: true, continuous: true });
+    const group = wrapper.findComponent({ name: "DanxButtonGroup" });
+    group.vm.$emit("update:modelValue", []);
+    expect(wrapper.emitted("update:sidebar")?.[0]).toEqual([false]);
+    expect(wrapper.emitted("update:continuous")?.[0]).toEqual([false]);
+  });
+
+  it("active toggles reflect current sidebar/continuous prop state", () => {
+    const wrapper = mountToolbar({ sidebar: true, continuous: false });
+    const group = wrapper.findComponent({ name: "DanxButtonGroup" });
+    expect(group.props("modelValue")).toEqual(["sidebar"]);
   });
 
   it("emits update:zoom when zoom controls update", async () => {

@@ -33,7 +33,7 @@ const activeFile = ref(null);
       :file="mainFile"
       v-model:file-in-preview="activeFile"
       :related-files="relatedFiles"
-      :available-layouts="['horizontal', 'vertical', 'continuous']"
+      :layout-toggles="['sidebar', 'continuous']"
       zoomable
       downloadable
       storage-key="demo-advanced-viewer"

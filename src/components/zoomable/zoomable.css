@@ -108,7 +108,9 @@
     text-align: right;
   }
 
-  .danx-zoom-controls__bubble {
+  /* Hide the range-slider's built-in handle bubble — the readout to the
+     right of the slider already shows the current zoom percent. */
+  .danx-range-slider__bubble {
     display: none;
   }
 }

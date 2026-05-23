@@ -58,6 +58,10 @@ import gearSvg from "danx-icon/src/fontawesome/solid/gear.svg?raw";
 import handleSvg from "danx-icon/src/fontawesome/solid/grip-vertical.svg?raw";
 import musicSvg from "danx-icon/src/fontawesome/solid/music.svg?raw";
 import filePdfSvg from "danx-icon/src/fontawesome/solid/file-pdf.svg?raw";
+import imageSvg from "danx-icon/src/fontawesome/solid/image.svg?raw";
+import imagesSvg from "danx-icon/src/fontawesome/solid/images.svg?raw";
+import barsSvg from "danx-icon/src/fontawesome/solid/bars.svg?raw";
+import tableColumnsSvg from "danx-icon/src/fontawesome/solid/table-columns.svg?raw";
 
 // Destructive
 export const trashIcon = trashSvg;
@@ -110,6 +114,10 @@ export const gearIcon = gearSvg;
 export const handleIcon = handleSvg;
 export const musicIcon = musicSvg;
 export const filePdfIcon = filePdfSvg;
+export const imageIcon = imageSvg;
+export const imagesIcon = imagesSvg;
+export const barsIcon = barsSvg;
+export const tableColumnsIcon = tableColumnsSvg;
 
 /**
  * Lookup map from icon name to SVG string.
@@ -158,6 +166,10 @@ export const iconRegistry = {
   handle: handleIcon,
   music: musicIcon,
   "file-pdf": filePdfIcon,
+  image: imageIcon,
+  images: imagesIcon,
+  bars: barsIcon,
+  "table-columns": tableColumnsIcon,
 } satisfies Record<string, string>;
 
 /** Union of all built-in icon names available in the iconRegistry lookup map */

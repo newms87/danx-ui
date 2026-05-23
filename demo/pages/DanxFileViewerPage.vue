@@ -56,8 +56,8 @@ import zoomableInlineControlsCode from "./danx-file-viewer-examples/ZoomableInli
     />
 
     <DemoSection
-      title="Advanced Layouts (Vertical + Continuous + Zoom)"
-      description="Opt into the vertical thumbnail sidebar, PDF-style continuous scroll, and Photoshop-style zoom (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0). The layout and zoom preference persist to localStorage per storage-key."
+      title="Advanced Layouts (Sidebar + Continuous + Zoom)"
+      description="Two independent toggles compose into four layouts — toggle vertical sidebar and continuous scroll in any combination. Photoshop-style zoom (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0) is wired in too. Each toggle and the zoom value persist to localStorage per storage-key."
       :code="advancedLayoutsCode"
     />
 

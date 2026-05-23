@@ -229,7 +229,7 @@ export type {
   DanxFileViewerProps,
   DanxFileViewerEmits,
   DanxFileViewerSlots,
-  Layout as DanxFileViewerLayout,
+  LayoutToggle as DanxFileViewerLayoutToggle,
 } from "./components/danx-file-viewer";
 export type { UseTouchSwipeOptions, UseTouchSwipeReturn } from "./shared/composables/useTouchSwipe";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";

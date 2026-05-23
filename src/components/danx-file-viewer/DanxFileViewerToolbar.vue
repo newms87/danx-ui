@@ -2,26 +2,23 @@
 /**
  * DanxFileViewerToolbar - Optional control bar for DanxFileViewer
  *
- * Renders a layout-mode toggle (button group) and zoom controls when the
- * parent viewer opts into either feature. Sits beneath the header.
+ * Renders two independent multi-select toggle buttons (sidebar +
+ * continuous scroll) plus optional zoom controls. The toggles are
+ * orthogonal: any combination is valid, so the user can mix-and-match
+ * a vertical thumbnail sidebar with paged or continuous body.
  *
- * Layout toggle only renders the modes listed in `availableLayouts`. If
- * only one mode is available, the toggle is hidden (no point picking from
- * a list of one). Zoom controls only render when `zoomable=true`.
+ * @models
+ *   sidebar: boolean      - Render the thumbnail strip as a vertical sidebar
+ *   continuous: boolean   - Render the body as a virtualized scroll column
+ *   zoom: number          - Current zoom percent (only meaningful when zoomable)
  *
  * @props
- *   layout: Layout - Current layout (v-model)
- *   zoom: number - Current zoom percent (v-model, only used when zoomable)
- *   availableLayouts: Layout[] - Modes the user can switch between
+ *   layoutToggles: LayoutToggle[] - Which toggle buttons render (subset of ["sidebar","continuous"]).
  *   zoomable: boolean - Show zoom controls
- *   zoomMin?: number - Minimum zoom percent (default 25)
- *   zoomMax?: number - Maximum zoom percent (default 400)
- *   zoomStep?: number - Zoom step (default 10)
+ *   zoomMin?: number / zoomMax?: number / zoomStep?: number - Zoom bounds + step
  *
  * @emits
- *   update:layout(layout) - Layout toggle changed
- *   update:zoom(value)    - Zoom slider changed
- *   resetZoom            - Zoom reset button clicked
+ *   resetZoom - Zoom reset button clicked
  *
  * @tokens
  *   Inherits viewer header tokens for background + border.
@@ -32,11 +29,11 @@
 import { computed } from "vue";
 import { DanxButtonGroup } from "../buttonGroup";
 import DanxZoomControls from "../zoomable/DanxZoomControls.vue";
-import type { Layout } from "./types";
+import type { LayoutToggle } from "./types";
 
 const props = withDefaults(
   defineProps<{
-    availableLayouts: Layout[];
+    layoutToggles: LayoutToggle[];
     zoomable: boolean;
     zoomMin?: number;
     zoomMax?: number;
@@ -50,34 +47,40 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  "update:layout": [layout: Layout];
-  "update:zoom": [value: number];
   resetZoom: [];
 }>();
 
-const layout = defineModel<Layout>("layout", { required: true });
+const sidebar = defineModel<boolean>("sidebar", { default: false });
+const continuous = defineModel<boolean>("continuous", { default: false });
 const zoom = defineModel<number>("zoom", { default: 100 });
 
-const showLayoutToggle = computed(() => props.availableLayouts.length > 1);
-
-const LAYOUT_LABELS: Record<Layout, { label: string; icon: string }> = {
-  horizontal: { label: "Carousel", icon: "image" },
-  vertical: { label: "Vertical", icon: "list" },
-  continuous: { label: "Continuous", icon: "menu" },
+const TOGGLE_LABELS: Record<LayoutToggle, { label: string; icon: string }> = {
+  sidebar: { label: "Sidebar", icon: "table-columns" },
+  continuous: { label: "Continuous", icon: "bars" },
 };
 
-const layoutButtons = computed(() =>
-  props.availableLayouts.map((id) => ({
+const toggleButtons = computed(() =>
+  props.layoutToggles.map((id) => ({
     value: id,
-    label: LAYOUT_LABELS[id].label,
-    icon: LAYOUT_LABELS[id].icon,
+    label: TOGGLE_LABELS[id].label,
+    icon: TOGGLE_LABELS[id].icon,
   }))
 );
 
-function onLayoutSelect(value: string) {
-  layout.value = value as Layout;
-  emit("update:layout", value as Layout);
-}
+const activeToggles = computed<string[]>({
+  get() {
+    const result: string[] = [];
+    if (sidebar.value) result.push("sidebar");
+    if (continuous.value) result.push("continuous");
+    return result;
+  },
+  set(values) {
+    sidebar.value = values.includes("sidebar");
+    continuous.value = values.includes("continuous");
+  },
+});
+
+const showToggles = computed(() => props.layoutToggles.length > 0);
 
 function onResetZoom() {
   emit("resetZoom");
@@ -86,13 +89,7 @@ function onResetZoom() {
 
 <template>
   <div class="danx-file-viewer__toolbar">
-    <DanxButtonGroup
-      v-if="showLayoutToggle"
-      :model-value="layout"
-      :buttons="layoutButtons"
-      required
-      @select="onLayoutSelect"
-    />
+    <DanxButtonGroup v-if="showToggles" v-model="activeToggles" :buttons="toggleButtons" multiple />
     <div class="danx-file-viewer__toolbar-spacer" />
     <DanxZoomControls
       v-if="zoomable"

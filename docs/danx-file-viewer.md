@@ -68,34 +68,38 @@ const mainFile: PreviewFile = {
 | `downloadable` | `boolean` | `false` | Show download button |
 | `closable` | `boolean` | `false` | Show standalone close button (top-right) |
 | `childrenLabel` | `string` | `"Children"` | Label for the children nav button |
-| `defaultLayout` | `"horizontal" \| "vertical" \| "continuous"` | `"horizontal"` | Layout used when no localStorage preference exists |
+| `defaultSidebar` | `boolean` | `false` | Initial sidebar flag when no localStorage preference exists |
+| `defaultContinuous` | `boolean` | `false` | Initial continuous-scroll flag when no localStorage preference exists |
 | `defaultZoom` | `number` | `100` | Zoom percent when no localStorage preference exists |
-| `availableLayouts` | `Layout[]` | `["horizontal"]` | Layouts the user can switch between via the toolbar toggle |
+| `layoutToggles` | `LayoutToggle[]` | `[]` | Toggle buttons rendered in the toolbar — subset of `["sidebar", "continuous"]`. Empty hides the group |
 | `zoomable` | `boolean` | `false` | Enable Photoshop-style zoom + pan (Ctrl+wheel / Ctrl+drag / Ctrl+/-/0) |
-| `storageKey` | `string` | `"danx-file-viewer"` | localStorage namespace for layout / zoom / panel widths |
+| `storageKey` | `string` | `"danx-file-viewer"` | localStorage namespace for sidebar / continuous / zoom / panel widths |
 | `showToolbar` | `boolean` | auto | Override the auto-show toolbar (auto = on when any control is opted in) |
 
-## Layout Modes
+## Layout Toggles
 
-`DanxFileViewer` supports three opt-in layout modes. Existing callers see no change — the default is `horizontal` and the toolbar is hidden unless `availableLayouts.length > 1` or `zoomable=true`.
+`DanxFileViewer` exposes two independent boolean flags that compose into four visual modes — pick any combination:
 
-| Layout | Description |
-|--------|-------------|
-| `horizontal` | Single active slide with a thin thumbnail strip beneath. Uses a virtual carousel (current ±2 slides with opacity transitions). |
-| `vertical`   | Single active slide with a tall thumbnail column on the left (PDF-style sidebar). Strip width resizes via `DanxSplitPanel`. |
-| `continuous` | Every file rendered as a stacked column inside a virtualized scroll container. The active file follows scroll position so header / metadata / thumbnail highlight update live. Zoom is disabled in this mode (scroll is the primary gesture). |
+| `sidebar` | `continuous` | Result |
+|-----------|--------------|--------|
+| off | off | Carousel slide with bottom thumbnail strip (default, original behavior) |
+| on  | off | Carousel slide with left-hand vertical strip (PDF reader) |
+| off | on  | Virtualized scrolling column with bottom strip |
+| on  | on  | Virtualized scrolling column with left-hand vertical strip |
 
-Preferences (layout, zoom, panel widths) persist to `localStorage` under `storageKey`. Read order:
+The toolbar renders them as a multi-select button group; only the toggles listed in `layoutToggles` appear. Preferences (each flag + zoom + panel widths) persist to `localStorage` under `storageKey`. Read order:
 
-1. `localStorage[storageKey + "-layout"]` (validated against `availableLayouts`)
-2. `defaultLayout` prop
-3. Built-in `"horizontal"`
+1. `localStorage[storageKey + "-sidebar"]` / `-continuous` / `-zoom`
+2. `defaultSidebar` / `defaultContinuous` / `defaultZoom` props
+3. Built-in defaults (`false` / `false` / `100`)
+
+A stored flag that is no longer in `layoutToggles` is cleared on mount so the consumer can lock the viewer to a subset.
 
 ```vue
 <DanxFileViewer
   :file="mainFile"
   :related-files="relatedFiles"
-  :available-layouts="['horizontal', 'vertical', 'continuous']"
+  :layout-toggles="['sidebar', 'continuous']"
   zoomable
   storage-key="my-document-viewer"
 />

@@ -7,24 +7,27 @@
  * Supports image and video preview, navigation between related files,
  * keyboard navigation, and download.
  *
- * Three layout modes are supported (all opt-in via props):
- *   - `horizontal` (default) — single active slide with a thumbnail strip beneath.
- *     Uses a virtual carousel that renders current ±2 slides with opacity
- *     transitions for smooth navigation.
- *   - `vertical` — single active slide with a tall thumbnail column on the left
- *     (PDF-style sidebar). Widths resize via DanxSplitPanel.
- *   - `continuous` — every file rendered as a stacked column inside a
- *     virtualized scroll container. The active file follows the scroll position
- *     so the header / metadata / thumbnail highlight update live.
+ * Two independent layout toggles compose into four visual modes:
+ *   - sidebar off + paged (default) → carousel slide with bottom thumbnail strip.
+ *   - sidebar on  + paged           → carousel slide with left-hand vertical strip (PDF reader).
+ *   - sidebar off + continuous      → virtualized scrolling column with bottom strip.
+ *   - sidebar on  + continuous      → virtualized scrolling column with left-hand strip.
+ *
+ * Each toggle is an independent boolean — the user picks any combination via
+ * the toolbar (a multi-select button group). Carousel uses a virtual buffer
+ * (current ±2 slides) with opacity transitions; continuous uses DanxVirtualScroll
+ * and the active file follows the scroll position so the header / metadata /
+ * thumbnail highlight stay in sync.
  *
  * Photoshop-style zoom + pan can be enabled via `zoomable`: the active slide
  * is wrapped in a `DanxZoomable` that responds to Ctrl+wheel, Ctrl+drag,
  * Ctrl+`+`/`-`/`=`/`0`, and dblclick reset. Continuous mode disables zoom
  * (scroll is the primary gesture there).
  *
- * Both `layout` and `zoom` persist to localStorage under `storageKey`. Reading
- * order: `localStorage[key] ?? defaultProp ?? built-in default`. The metadata
- * split panel widths also persist (per layout) under the same namespace.
+ * `sidebar`, `continuous`, and `zoom` each persist to localStorage under
+ * `storageKey`. Reading order: `localStorage[key] ?? defaultProp ?? built-in
+ * default`. The metadata split panel widths also persist per sidebar state
+ * under the same namespace.
  *
  * Metadata is displayed in a resizable split panel beside the file preview,
  * toggled via the info button in the header. Touch/swipe gestures are handled
@@ -38,9 +41,10 @@
  *   relatedFiles?: PreviewFile[] - Related files for carousel navigation
  *   downloadable?: boolean - Show download button in header
  *   childrenLabel?: string - Label for children nav button (default: "Children")
- *   defaultLayout?: Layout - Layout fallback when localStorage is empty (default: "horizontal")
+ *   defaultSidebar?: boolean - Initial sidebar flag when localStorage empty (default: false)
+ *   defaultContinuous?: boolean - Initial continuous-scroll flag when empty (default: false)
  *   defaultZoom?: number - Zoom fallback (default: 100)
- *   availableLayouts?: Layout[] - Layouts available in toolbar toggle (default: ["horizontal"])
+ *   layoutToggles?: LayoutToggle[] - Toggles user can flip in the toolbar (default: [])
  *   zoomable?: boolean - Enable zoom + pan (default: false)
  *   storageKey?: string - localStorage namespace (default: "danx-file-viewer")
  *   showToolbar?: boolean - Override auto-show toolbar (default: true when controls opted in)
@@ -82,7 +86,7 @@
  *     :file="mainFile"
  *     v-model:file-in-preview="activeFile"
  *     :related-files="relatedFiles"
- *     :available-layouts="['horizontal', 'vertical', 'continuous']"
+ *     :layout-toggles="['sidebar', 'continuous']"
  *     zoomable
  *     downloadable
  *   />
@@ -98,12 +102,7 @@ import { DanxSplitPanel } from "../split-panel";
 import type { SplitPanelConfig } from "../split-panel";
 import { DanxZoomable } from "../zoomable";
 import type { Pan } from "../zoomable";
-import type {
-  DanxFileViewerEmits,
-  DanxFileViewerProps,
-  DanxFileViewerSlots,
-  Layout,
-} from "./types";
+import type { DanxFileViewerEmits, DanxFileViewerProps, DanxFileViewerSlots } from "./types";
 import { useDanxFileViewer } from "./useDanxFileViewer";
 import { useTouchSwipe } from "../../shared/composables/useTouchSwipe";
 import { hasAnyInfo, metaCount, exifCount } from "./file-metadata-helpers";
@@ -119,9 +118,10 @@ const props = withDefaults(defineProps<DanxFileViewerProps>(), {
   relatedFiles: () => [],
   downloadable: false,
   childrenLabel: "Children",
-  defaultLayout: "horizontal",
+  defaultSidebar: false,
+  defaultContinuous: false,
   defaultZoom: 100,
-  availableLayouts: () => ["horizontal"],
+  layoutToggles: () => [],
   zoomable: false,
   storageKey: "danx-file-viewer",
   showToolbar: undefined,
@@ -135,35 +135,40 @@ const fileInPreview = defineModel<PreviewFile | null>("fileInPreview", {
 
 defineSlots<DanxFileViewerSlots>();
 
-const VALID_LAYOUTS: Layout[] = ["horizontal", "vertical", "continuous"];
-const isLayout = (v: unknown): v is Layout =>
-  typeof v === "string" && (VALID_LAYOUTS as string[]).includes(v);
+const isBool = (v: unknown): v is boolean => typeof v === "boolean";
 
 // Persisted preferences — read from localStorage with prop fallback.
-const layout = usePreference<Layout>(props.storageKey, "layout", props.defaultLayout, {
-  validate: isLayout,
+const sidebar = usePreference<boolean>(props.storageKey, "sidebar", props.defaultSidebar, {
+  validate: isBool,
+});
+const continuous = usePreference<boolean>(props.storageKey, "continuous", props.defaultContinuous, {
+  validate: isBool,
 });
 const zoom = usePreference<number>(props.storageKey, "zoom", props.defaultZoom, {
   validate: (v): v is number => typeof v === "number" && Number.isFinite(v),
 });
 
-// Clamp persisted layout into the consumer's available list — a stale
+// Clamp persisted flags to the consumer's allowed toggle list — a stale
 // localStorage value from a previous configuration shouldn't lock the user
-// into an unsupported mode.
+// into a mode the consumer has disabled.
 watch(
-  () => props.availableLayouts,
-  (avail) => {
-    if (!avail.includes(layout.value)) {
-      layout.value = avail[0] ?? "horizontal";
-    }
+  () => props.layoutToggles,
+  (allowed) => {
+    if (sidebar.value && !allowed.includes("sidebar")) sidebar.value = false;
+    if (continuous.value && !allowed.includes("continuous")) continuous.value = false;
   },
   { immediate: true }
 );
 
 const showToolbar = computed(() => {
   if (typeof props.showToolbar === "boolean") return props.showToolbar;
-  return props.availableLayouts.length > 1 || props.zoomable;
+  return props.layoutToggles.length > 0 || props.zoomable;
 });
+
+// Distinct identity per layout combination — drives the :key on
+// DanxSplitPanel so the split-panel state remounts cleanly when the user
+// flips sidebar / continuous (different panel set + storage key).
+const layoutId = computed(() => `${sidebar.value ? "s" : "-"}${continuous.value ? "c" : "-"}`);
 
 const {
   currentFile,
@@ -207,28 +212,23 @@ const hasMetadata = computed(() => hasAnyInfo(currentFile.value));
 const infoCount = computed(() => metaCount(currentFile.value) + exifCount(currentFile.value));
 const metadataEnabled = ref(false);
 
-// Outer split panel reconfigures per layout. The horizontal mode keeps the
-// original two-panel [viewer, metadata] layout; vertical / continuous add a
+// Outer split panel reconfigures based on whether the sidebar is enabled.
+// Sidebar off → original two-panel [viewer, metadata]. Sidebar on → adds a
 // thumbnail strip panel on the left.
-const SPLIT_PANEL_CONFIG: Record<Layout, SplitPanelConfig[]> = {
-  horizontal: [
-    { id: "viewer", label: "Viewer", defaultWidth: 70 },
-    { id: "metadata", label: "Info", defaultWidth: 30 },
-  ],
-  vertical: [
-    { id: "strip", label: "Pages", defaultWidth: 18 },
-    { id: "viewer", label: "Viewer", defaultWidth: 52 },
-    { id: "metadata", label: "Info", defaultWidth: 30 },
-  ],
-  continuous: [
-    { id: "strip", label: "Pages", defaultWidth: 18 },
-    { id: "viewer", label: "Viewer", defaultWidth: 52 },
-    { id: "metadata", label: "Info", defaultWidth: 30 },
-  ],
-};
+const PANELS_NO_SIDEBAR: SplitPanelConfig[] = [
+  { id: "viewer", label: "Viewer", defaultWidth: 70 },
+  { id: "metadata", label: "Info", defaultWidth: 30 },
+];
+const PANELS_WITH_SIDEBAR: SplitPanelConfig[] = [
+  { id: "strip", label: "Pages", defaultWidth: 18 },
+  { id: "viewer", label: "Viewer", defaultWidth: 52 },
+  { id: "metadata", label: "Info", defaultWidth: 30 },
+];
 
-const panelsForLayout = computed(() => SPLIT_PANEL_CONFIG[layout.value]);
-const panelsStorageKey = computed(() => `${props.storageKey}-panels-${layout.value}`);
+const panelsForLayout = computed(() => (sidebar.value ? PANELS_WITH_SIDEBAR : PANELS_NO_SIDEBAR));
+const panelsStorageKey = computed(
+  () => `${props.storageKey}-panels-${sidebar.value ? "sidebar" : "default"}`
+);
 
 const activePanels = computed({
   get: () => {
@@ -243,13 +243,13 @@ const activePanels = computed({
 const showMetadata = computed(() => activePanels.value.includes("metadata"));
 
 // Zoom + pan models. Continuous mode disables the wrapper (scroll = pan); zoom
-// value is still preserved so switching back to a slide-based layout restores it.
+// value is still preserved so switching back to a paged body restores it.
 const pan = ref<Pan>({ x: 0, y: 0 });
-const isZoomActive = computed(() => props.zoomable && layout.value !== "continuous");
+const isZoomActive = computed(() => props.zoomable && !continuous.value);
 
-// Reset pan when the active file changes or layout changes — different
+// Reset pan when the active file or any layout toggle changes — different
 // content geometry means the previous offset no longer makes sense.
-watch([currentFile, layout], () => {
+watch([currentFile, sidebar, continuous], () => {
   pan.value = { x: 0, y: 0 };
 });
 
@@ -280,7 +280,7 @@ function onContinuousActiveChange(id: string) {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (layout.value === "continuous") return; // scroll handles navigation
+  if (continuous.value) return; // scroll handles navigation
   if (e.key === "ArrowLeft") {
     e.preventDefault();
     prev();
@@ -294,10 +294,10 @@ function onKeydown(e: KeyboardEvent) {
 
 const { onTouchStart, onTouchEnd } = useTouchSwipe({
   onSwipeLeft: () => {
-    if (layout.value !== "continuous") next();
+    if (!continuous.value) next();
   },
   onSwipeRight: () => {
-    if (layout.value !== "continuous") prev();
+    if (!continuous.value) prev();
   },
 });
 </script>
@@ -305,7 +305,10 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
 <template>
   <div
     class="danx-file-viewer"
-    :class="`danx-file-viewer--${layout}`"
+    :class="[
+      sidebar ? 'danx-file-viewer--sidebar' : 'danx-file-viewer--no-sidebar',
+      continuous ? 'danx-file-viewer--continuous' : 'danx-file-viewer--paged',
+    ]"
     tabindex="0"
     @keydown="onKeydown"
     @touchstart.passive="onTouchStart"
@@ -334,26 +337,27 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
       </template>
     </DanxFileViewerHeader>
 
-    <!-- Optional toolbar (layout toggle + zoom controls). Auto-shows when any
+    <!-- Optional toolbar (layout toggles + zoom controls). Auto-shows when any
          control is opted in; consumer can force on/off via showToolbar. -->
     <DanxFileViewerToolbar
       v-if="showToolbar"
-      v-model:layout="layout"
+      v-model:sidebar="sidebar"
+      v-model:continuous="continuous"
       v-model:zoom="zoom"
-      :available-layouts="availableLayouts"
-      :zoomable="zoomable && layout !== 'continuous'"
+      :layout-toggles="layoutToggles"
+      :zoomable="zoomable && !continuous"
     />
 
-    <!-- Main content area with optional metadata + (for vertical/continuous)
-         thumbnail strip split panels. -->
+    <!-- Main content area with optional metadata + (sidebar mode) thumbnail
+         strip split panels. -->
     <DanxSplitPanel
-      :key="layout"
+      :key="layoutId"
       v-model="activePanels"
       :panels="panelsForLayout"
       :storage-key="panelsStorageKey"
       class="danx-file-viewer__body"
     >
-      <template v-if="layout !== 'horizontal'" #strip>
+      <template v-if="sidebar" #strip>
         <DanxFileThumbnailStrip
           :files="activeFiles"
           :active-file-id="currentFile.id"
@@ -364,7 +368,7 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
 
       <template #viewer>
         <div class="danx-file-viewer__content">
-          <template v-if="layout === 'continuous'">
+          <template v-if="continuous">
             <DanxFileViewerContinuous
               :files="activeFiles"
               :active-file-id="currentFile.id"
@@ -425,10 +429,10 @@ const { onTouchStart, onTouchEnd } = useTouchSwipe({
       </template>
     </DanxSplitPanel>
 
-    <!-- Bottom thumbnail strip — only in horizontal layout. Vertical/continuous
-         render the strip inside the split panel as a sidebar. -->
+    <!-- Bottom thumbnail strip — only when sidebar is off. Sidebar mode
+         renders the strip inside the split panel as a left column. -->
     <DanxFileThumbnailStrip
-      v-if="layout === 'horizontal'"
+      v-if="!sidebar"
       :files="activeFiles"
       :active-file-id="currentFile.id"
       @select="goTo"

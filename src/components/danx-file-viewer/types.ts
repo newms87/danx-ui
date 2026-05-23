@@ -7,13 +7,16 @@
 import type { DanxFileDownloadEvent, PreviewFile } from "../danx-file";
 
 /**
- * Layout modes for DanxFileViewer.
+ * Layout toggles for DanxFileViewer.
  *
- * - `horizontal` — single active slide with a thin thumbnail strip beneath (default carousel).
- * - `vertical`   — single active slide with a tall thumbnail column to the left (PDF sidebar).
- * - `continuous` — virtualized scrolling column of every file, PDF-reader style.
+ * Two independent boolean flags compose into four visual layouts:
+ *
+ * - neither              → horizontal carousel with bottom thumbnail strip (default).
+ * - `sidebar`            → carousel body with left-hand vertical thumbnail sidebar.
+ * - `continuous`         → virtualized PDF-style scroll body with bottom thumbnail strip.
+ * - `sidebar`+`continuous` → continuous scroll body with left-hand vertical sidebar.
  */
-export type Layout = "horizontal" | "vertical" | "continuous";
+export type LayoutToggle = "sidebar" | "continuous";
 
 /**
  * A virtual slide descriptor for the carousel buffer.
@@ -49,20 +52,27 @@ export interface DanxFileViewerProps {
   /** Label for the children navigation button (default: "Children") */
   childrenLabel?: string;
   /**
-   * Layout used when no localStorage preference exists.
-   * Persisted preference always wins. Default: `"horizontal"`.
+   * Initial sidebar flag when no localStorage preference exists. When `true`,
+   * the thumbnail strip renders as a tall left-hand column (PDF-style).
+   * Default: `false`.
    */
-  defaultLayout?: Layout;
+  defaultSidebar?: boolean;
+  /**
+   * Initial continuous-scroll flag when no localStorage preference exists.
+   * When `true`, every file renders in a virtualized scrolling column instead
+   * of a paged carousel. Default: `false`.
+   */
+  defaultContinuous?: boolean;
   /**
    * Zoom percent used when no localStorage preference exists. Default: `100`.
    */
   defaultZoom?: number;
   /**
-   * Layouts the user can switch between via the toolbar. Limiting this list
-   * locks the viewer to a subset (e.g. `["horizontal"]` matches the original
-   * behavior with no toolbar). Default: `["horizontal"]`.
+   * Toggles the user can flip via the toolbar. `[]` (default) hides the
+   * layout toggle group entirely. Pass `["sidebar", "continuous"]` (or any
+   * subset) to let the user enable each independently.
    */
-  availableLayouts?: Layout[];
+  layoutToggles?: LayoutToggle[];
   /**
    * Enable Photoshop-style zoom + pan (Ctrl+wheel, Ctrl+drag, etc.) and show
    * zoom controls in the toolbar. Default: `false`.

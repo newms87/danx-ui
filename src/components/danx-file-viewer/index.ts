@@ -29,5 +29,5 @@ export type {
   DanxFileViewerProps,
   DanxFileViewerEmits,
   DanxFileViewerSlots,
-  Layout,
+  LayoutToggle,
 } from "./types";

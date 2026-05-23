@@ -702,29 +702,27 @@ describe("DanxFileViewer", () => {
     });
   });
 
-  describe("Layout modes", () => {
-    it("defaults to horizontal layout (no toolbar, strip at bottom)", () => {
+  describe("Layout toggles", () => {
+    it("defaults to no-sidebar + paged (no toolbar, bottom strip)", () => {
       const wrapper = mountViewer({ relatedFiles: [makeFile("2")] });
-      expect(wrapper.classes()).toContain("danx-file-viewer--horizontal");
+      expect(wrapper.classes()).toContain("danx-file-viewer--no-sidebar");
+      expect(wrapper.classes()).toContain("danx-file-viewer--paged");
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(false);
-      expect(wrapper.findComponent({ name: "DanxFileViewerToolbar" }).exists()).toBe(false);
     });
 
-    it("shows toolbar when 2+ availableLayouts are opted in", () => {
-      const wrapper = mountViewer({
-        availableLayouts: ["horizontal", "vertical"],
-      });
+    it("shows toolbar when layoutToggles is non-empty", () => {
+      const wrapper = mountViewer({ layoutToggles: ["sidebar"] });
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
     });
 
-    it("shows toolbar when zoomable=true (even with single layout)", () => {
+    it("shows toolbar when zoomable=true (even with no layout toggles)", () => {
       const wrapper = mountViewer({ zoomable: true });
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
     });
 
     it("respects showToolbar=false override", () => {
       const wrapper = mountViewer({
-        availableLayouts: ["horizontal", "vertical"],
+        layoutToggles: ["sidebar", "continuous"],
         showToolbar: false,
       });
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(false);
@@ -735,23 +733,22 @@ describe("DanxFileViewer", () => {
       expect(wrapper.find(".danx-file-viewer__toolbar").exists()).toBe(true);
     });
 
-    it("switches to vertical layout when defaultLayout=vertical", async () => {
+    it("defaultSidebar=true renders vertical thumbnail sidebar", async () => {
       const wrapper = mountViewer({
-        defaultLayout: "vertical",
-        availableLayouts: ["horizontal", "vertical"],
+        defaultSidebar: true,
+        layoutToggles: ["sidebar"],
         relatedFiles: [makeFile("2")],
       });
       await flushPromises();
-      expect(wrapper.classes()).toContain("danx-file-viewer--vertical");
-      // Vertical mode renders the strip inside the split panel as sidebar.
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
       const stripComps = wrapper.findAllComponents({ name: "DanxFileThumbnailStrip" });
       expect(stripComps.some((s) => s.props("orientation") === "vertical")).toBe(true);
     });
 
-    it("switches to continuous layout: renders DanxFileViewerContinuous + no slides", async () => {
+    it("defaultContinuous=true renders DanxFileViewerContinuous + no slides", async () => {
       const wrapper = mountViewer({
-        defaultLayout: "continuous",
-        availableLayouts: ["horizontal", "continuous"],
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
         relatedFiles: [makeFile("2"), makeFile("3")],
       });
       await flushPromises();
@@ -761,36 +758,57 @@ describe("DanxFileViewer", () => {
       expect(wrapper.find(".danx-file-viewer__arrow--next").exists()).toBe(false);
     });
 
-    it("ignores stored layout that is not in availableLayouts", () => {
-      window.localStorage.setItem("danx-file-viewer-layout", JSON.stringify("continuous"));
-      const wrapper = mountViewer({ availableLayouts: ["horizontal"] });
-      expect(wrapper.classes()).toContain("danx-file-viewer--horizontal");
+    it("supports both toggles on at the same time (sidebar + continuous)", async () => {
+      const wrapper = mountViewer({
+        defaultSidebar: true,
+        defaultContinuous: true,
+        layoutToggles: ["sidebar", "continuous"],
+        relatedFiles: [makeFile("2")],
+      });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+      expect(wrapper.findComponent({ name: "DanxFileViewerContinuous" }).exists()).toBe(true);
+      const stripComps = wrapper.findAllComponents({ name: "DanxFileThumbnailStrip" });
+      expect(stripComps.some((s) => s.props("orientation") === "vertical")).toBe(true);
     });
 
-    it("hydrates layout from localStorage when present and valid", () => {
-      window.localStorage.setItem("danx-file-viewer-layout", JSON.stringify("vertical"));
-      const wrapper = mountViewer({
-        availableLayouts: ["horizontal", "vertical"],
-      });
-      expect(wrapper.classes()).toContain("danx-file-viewer--vertical");
+    it("clears stored sidebar flag when not in layoutToggles", () => {
+      window.localStorage.setItem("danx-file-viewer-sidebar", "true");
+      const wrapper = mountViewer({ layoutToggles: [] });
+      expect(wrapper.classes()).toContain("danx-file-viewer--no-sidebar");
+    });
+
+    it("clears stored continuous flag when not in layoutToggles", () => {
+      window.localStorage.setItem("danx-file-viewer-continuous", "true");
+      const wrapper = mountViewer({ layoutToggles: ["sidebar"] });
+      expect(wrapper.classes()).toContain("danx-file-viewer--paged");
+    });
+
+    it("hydrates sidebar + continuous from localStorage", async () => {
+      window.localStorage.setItem("danx-file-viewer-sidebar", "true");
+      window.localStorage.setItem("danx-file-viewer-continuous", "true");
+      const wrapper = mountViewer({ layoutToggles: ["sidebar", "continuous"] });
+      await flushPromises();
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
     });
 
     it("continuous mode ignores ArrowRight/Left keyboard nav (scroll owns it)", async () => {
       const wrapper = mountViewer({
-        defaultLayout: "continuous",
-        availableLayouts: ["horizontal", "continuous"],
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
         relatedFiles: [makeFile("2")],
       });
       await flushPromises();
       await wrapper.find(".danx-file-viewer").trigger("keydown", { key: "ArrowRight" });
-      // currentFile unchanged
       expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
 
-    it("continuous emits update:activeFileId from scroll updates the current file", async () => {
+    it("continuous emits update:activeFileId → updates currentFile", async () => {
       const wrapper = mountViewer({
-        defaultLayout: "continuous",
-        availableLayouts: ["horizontal", "continuous"],
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
         relatedFiles: [makeFile("2"), makeFile("3")],
       });
       await flushPromises();
@@ -802,8 +820,8 @@ describe("DanxFileViewer", () => {
 
     it("continuous mode ignores swipe navigation", async () => {
       const wrapper = mountViewer({
-        defaultLayout: "continuous",
-        availableLayouts: ["horizontal", "continuous"],
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
         relatedFiles: [makeFile("2")],
       });
       await flushPromises();
@@ -825,11 +843,11 @@ describe("DanxFileViewer", () => {
       expect(wrapper.findComponent({ name: "DanxZoomable" }).exists()).toBe(false);
     });
 
-    it("does not wrap in DanxZoomable in continuous mode", async () => {
+    it("does not wrap in DanxZoomable when continuous is on", async () => {
       const wrapper = mountViewer({
         zoomable: true,
-        defaultLayout: "continuous",
-        availableLayouts: ["horizontal", "continuous"],
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
         relatedFiles: [makeFile("2")],
       });
       await flushPromises();
@@ -861,29 +879,39 @@ describe("DanxFileViewer", () => {
       expect(zoomable.props("zoom")).toBe(150);
     });
 
-    it("toolbar zoom controls hide when in continuous layout", async () => {
+    it("toolbar disables zoom controls when continuous is on", async () => {
       const wrapper = mountViewer({
         zoomable: true,
-        defaultLayout: "continuous",
-        availableLayouts: ["horizontal", "continuous"],
+        defaultContinuous: true,
+        layoutToggles: ["continuous"],
       });
       await flushPromises();
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
       expect(toolbar.props("zoomable")).toBe(false);
     });
 
-    it("toolbar layout v-model updates the active layout", async () => {
+    it("toolbar update:sidebar v-model toggles the sidebar flag", async () => {
       const wrapper = mountViewer({
-        availableLayouts: ["horizontal", "vertical"],
+        layoutToggles: ["sidebar"],
         relatedFiles: [makeFile("2")],
       });
       const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
-      toolbar.vm.$emit("update:layout", "vertical");
+      toolbar.vm.$emit("update:sidebar", true);
       await nextTick();
-      expect(wrapper.classes()).toContain("danx-file-viewer--vertical");
-      expect(window.localStorage.getItem("danx-file-viewer-layout")).toBe(
-        JSON.stringify("vertical")
-      );
+      expect(wrapper.classes()).toContain("danx-file-viewer--sidebar");
+      expect(window.localStorage.getItem("danx-file-viewer-sidebar")).toBe("true");
+    });
+
+    it("toolbar update:continuous v-model toggles the continuous flag", async () => {
+      const wrapper = mountViewer({
+        layoutToggles: ["continuous"],
+        relatedFiles: [makeFile("2")],
+      });
+      const toolbar = wrapper.findComponent({ name: "DanxFileViewerToolbar" });
+      toolbar.vm.$emit("update:continuous", true);
+      await nextTick();
+      expect(wrapper.classes()).toContain("danx-file-viewer--continuous");
+      expect(window.localStorage.getItem("danx-file-viewer-continuous")).toBe("true");
     });
 
     it("toolbar zoom v-model updates persisted zoom", async () => {
