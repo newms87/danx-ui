@@ -1,0 +1,106 @@
+{
+  "overrides": {
+    "slack": {
+      "enabled": null
+    },
+    "issuePoller": {
+      "enabled": true
+    },
+    "dispatchApi": {
+      "enabled": null
+    },
+    "ideator": {
+      "enabled": null
+    },
+    "autoTriage": {
+      "enabled": null
+    },
+    "trelloSync": {
+      "enabled": null
+    }
+  },
+  "agents": {
+    "ephrum": {
+      "type": "agent",
+      "bio": "",
+      "capabilities": [
+        "issue-worker"
+      ],
+      "schedule": {
+        "tz": "America/Chicago",
+        "always_on": true,
+        "mon": [
+          "09:00-17:00"
+        ],
+        "tue": [
+          "09:00-17:00"
+        ],
+        "wed": [
+          "09:00-17:00"
+        ],
+        "thu": [
+          "09:00-17:00"
+        ],
+        "fri": [
+          "09:00-17:00"
+        ],
+        "sat": [],
+        "sun": []
+      },
+      "enabled": true,
+      "broken": null,
+      "strikes": {
+        "count": 0,
+        "history": []
+      },
+      "created_at": "2026-05-26T01:40:37.884Z",
+      "updated_at": "2026-05-26T01:40:37.884Z"
+    }
+  },
+  "agentDefaults": {
+    "prepMode": "combined"
+  },
+  "effortLevels": [
+    {
+      "name": "min",
+      "model": "claude-haiku-4-5",
+      "effort": "minimal"
+    },
+    {
+      "name": "very_low",
+      "model": "claude-haiku-4-5",
+      "effort": "low"
+    },
+    {
+      "name": "low",
+      "model": "claude-haiku-4-5",
+      "effort": "high"
+    },
+    {
+      "name": "medium",
+      "model": "claude-sonnet-4-6",
+      "effort": "low"
+    },
+    {
+      "name": "high",
+      "model": "claude-sonnet-4-6",
+      "effort": "medium"
+    },
+    {
+      "name": "very_high",
+      "model": "claude-sonnet-4-6",
+      "effort": "high"
+    },
+    {
+      "name": "max",
+      "model": "claude-opus-4-7",
+      "effort": "high"
+    }
+  ],
+  "effortAssignmentPrompt": "Pick the LOWEST effort level that can plausibly complete the card.\n\nLevels are an ordered ladder: min, very_low, low, medium, high, very_high, max.\n\nDefault: medium. Bump UP only when the card genuinely needs deeper reasoning —\nmulti-file refactor, architectural decision, subtle concurrency.\nBump DOWN aggressively for mechanical edits, single-file fixes, doc tweaks,\nwell-scoped renames.\n\nFewer phase cards is better than more. Combine phases when the combined unit\nstill fits one commit + one TDD pass. Every phase is a fresh dispatch, fresh\ncontext load, fresh review cycle — phase fan-out is a cost multiplier.",
+  "selfRepair": {},
+  "meta": {
+    "updatedAt": "2026-05-26T01:52:06.782Z",
+    "updatedBy": "dashboard:dan"
+  }
+}

@@ -1,0 +1,81 @@
+# Danxbot worker for the danx-ui repo.
+#
+# danx-ui is a pure frontend library (Vite/Vue) — no backend DB or Sail
+# stack — so this worker joins ONLY danxbot-net (shared MySQL + dashboard).
+# Worker port is sourced from DANXBOT_WORKER_PORT, exported by
+# make launch-worker before compose up.
+#
+# Usage: make launch-worker REPO=danx-ui (from danxbot/)
+
+services:
+  danxbot-worker:
+    # Image: prod injects DANXBOT_WORKER_IMAGE=<ECR URL>; local falls back to the built danxbot:latest.
+    image: ${DANXBOT_WORKER_IMAGE:-danxbot:latest}
+    container_name: danxbot-worker-danx-ui
+    restart: always
+    stop_grace_period: 120s
+    env_file:
+      - ../.env
+    environment:
+      DANXBOT_REPO_NAME: danx-ui
+      DANXBOT_WORKER_PORT: ${DANXBOT_WORKER_PORT:?Set DANXBOT_WORKER_PORT in repos/danx-ui/.danxbot/.env}
+      # Canonical absolute path of the repo on the HOST — see
+      # `src/agent/portable-path.ts`. Worktree metadata + spawn cwd use
+      # this path so worktrees survive a host↔docker swap.
+      DANXBOT_REPO_HOST_PATH: ${DANXBOT_REPO_ROOT}
+      DANXBOT_DB_HOST: mysql
+      DANXBOT_DB_USER: danxbot
+      DANXBOT_DB_PASSWORD: danxbot
+      DANXBOT_DB_NAME: danxbot_danx_ui
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      CLAUDE_AUTH_MODE: ${CLAUDE_AUTH_MODE:-subscription}
+      POLLER_INTERVAL_MS: ${POLLER_INTERVAL_MS:-60000}
+      TRELLO_REVIEW_MIN_CARDS: ${TRELLO_REVIEW_MIN_CARDS:-10}
+      DANXBOT_GIT_EMAIL: ${DANXBOT_GIT_EMAIL:-danxbot@example.com}
+      REPOS: ${REPOS}
+    volumes:
+      # Repo bind: ../.. resolves to /home/newms/web/danx-ui (dev) or /danxbot/repos/danx-ui (prod).
+      - ../..:/danxbot/app/repos/danx-ui
+      # Portable repo path (DX-230) — mirror-bind same source at host
+      # abs path inside container so git realpath() bakes a runtime-agnostic path.
+      - ../..:${DANXBOT_REPO_HOST_PATH:?Set DANXBOT_REPO_HOST_PATH (worker-env.sh exports it from DANXBOT_REPO_ROOT)}
+      # Claude auth — split mount (file-bind for .claude.json, dir-bind for
+      # .claude/). MUST be :rw and use :? required-var syntax. See gpt-manager
+      # compose for the full rationale; enforced by
+      # src/__tests__/unit/worker-compose-mounts.test.ts.
+      - ${CLAUDE_CONFIG_FILE:?CLAUDE_CONFIG_FILE must point at the live host .claude.json — set in danxbot's .env}:/danxbot/app/claude-auth/.claude.json
+      - ${CLAUDE_CREDS_DIR:?CLAUDE_CREDS_DIR must point at the live host .claude/ dir containing .credentials.json — set in danxbot's .env}:/danxbot/app/claude-auth/.claude
+      # Claude Code session logs — static relative path so the dashboard's
+      # per-repo path resolver finds JSONL under the correct namespace
+      # (Trello cjAyJpgr). Never re-introduce ${CLAUDE_PROJECTS_DIR}.
+      - ../../claude-projects:/home/danxbot/.claude/projects
+      # Host docker socket — worker docker CLI resolves to host daemon.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # DX-682 — worker-owned runtime volume (per-repo, per-host). Pinned
+      # name so the dashboard project can attach via external: true.
+      - danxbot-runtime-danx-ui:/var/lib/danxbot/danx-ui
+    ports:
+      - "${DANXBOT_WORKER_PORT}:${DANXBOT_WORKER_PORT}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - danxbot-net
+    healthcheck:
+      test: curl -f http://localhost:${DANXBOT_WORKER_PORT}/health || exit 1
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  danxbot-runtime-danx-ui:
+    name: danxbot-runtime-danx-ui
+
+networks:
+  danxbot-net:
+    external: true

@@ -1,0 +1,32 @@
+# Danx UI — Danxbot Connected Repo Configuration
+# @thehammer/danx-ui — Vue 3 + TypeScript component library (Vite build).
+
+name: "danx-ui"
+issue_prefix: DXUI
+url: "git@github-newms87:newms87/danx-ui.git"
+runtime: docker
+language: typescript
+framework: vue
+git_mode: auto-merge
+
+# Build and test commands (from package.json)
+commands:
+  test: "npm run test:run"
+  test_filter: "npx vitest run {filter}"
+  lint: "npm run lint"
+  type_check: "npm run typecheck"
+  dev: "npm run dev"
+
+# Docker service
+docker:
+  compose_file: "compose.yml"
+  service_name: "danxbot-worker"
+  project_name: "danxbot-worker-danx-ui"
+  network: "danxbot-net"
+
+# Key paths
+paths:
+  backend: ""
+  frontend: "src/"
+  tests: "src/"
+  migrations: ""

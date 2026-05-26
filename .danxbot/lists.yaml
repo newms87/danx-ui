@@ -1,0 +1,38 @@
+lists:
+  - id: 7d6d9d9b-edd2-4088-b0b8-ba2ff4248b48
+    name: Backlog
+    type: archived
+    order: 0
+    is_default_for_type: true
+    color: "#64748b"
+  - id: a4486e07-2f66-4f66-9c2b-f50b9f044b9c
+    name: Review
+    type: review
+    order: 1
+    is_default_for_type: true
+    color: "#3b82f6"
+  - id: 80488f67-0d91-46d1-b444-3ae113f2ceb5
+    name: To Do
+    type: ready
+    order: 2
+    is_default_for_type: true
+    color: "#22d3ee"
+  - id: a776570f-1276-4562-8933-53fc30055744
+    name: In Progress
+    type: in_progress
+    order: 3
+    is_default_for_type: true
+    color: "#f59e0b"
+  - id: 4e125aa2-6fa7-46b7-b4d3-3a35c2ac9a21
+    name: Done
+    type: completed
+    order: 4
+    is_default_for_type: true
+    color: "#22c55e"
+  - id: 2c1f4016-999b-4aa4-be37-44a988ac4051
+    name: Cancelled
+    type: cancelled
+    order: 5
+    is_default_for_type: true
+    color: "#71717a"
+tombstone_ids: []
