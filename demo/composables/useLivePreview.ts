@@ -161,6 +161,18 @@ import {
 } from "../../src/shared/arrayUtils";
 import { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "../../src/shared/autoColor";
 import {
+  storeObject,
+  storeObjects,
+  hasRecentUpdates,
+  registerList,
+  unregisterList,
+  removeObjectFromLists,
+  autoRefreshObject,
+  stopAutoRefreshObject,
+} from "../../src/shared/objectStore";
+import { request, fetchResourceListWithSelected, getUrlParam } from "../../src/shared/request";
+import { configureRequest, requestConfig } from "../../src/shared/requestConfig";
+import {
   getPreferredStructuredDataFormat,
   setPreferredStructuredDataFormat,
   isStructuredDataFormat,
@@ -366,6 +378,21 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   // Log demo helpers
   useLogDemo,
   levelColor,
+  // Object store
+  storeObject,
+  storeObjects,
+  hasRecentUpdates,
+  registerList,
+  unregisterList,
+  removeObjectFromLists,
+  autoRefreshObject,
+  stopAutoRefreshObject,
+  // Request
+  request,
+  fetchResourceListWithSelected,
+  getUrlParam,
+  configureRequest,
+  requestConfig,
 };
 
 const DEBOUNCE_MS = 250;

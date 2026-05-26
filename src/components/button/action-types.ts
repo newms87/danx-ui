@@ -1,39 +1,15 @@
 import type { DanxButtonProps } from "./types";
+import type { ActionTarget, ResourceAction } from "../action/types";
 
 /**
  * DanxActionButton Type Definitions
  *
- * Minimal types for the action system integration.
- * The full action system (onAction callbacks, batch support, optimistic updates)
- * lives in the consumer's action factory, not in danx-ui.
+ * The action system contract (ActionTarget, ActionTargetItem, ResourceAction)
+ * is owned by `src/components/action`. These re-exports keep the historical
+ * `@thehammer/danx-ui` import surface stable for button consumers.
  */
 
-/** A single item that can be the target of an action */
-export interface ActionTargetItem {
-  /** Whether this item is currently being saved */
-  isSaving?: boolean;
-}
-
-/** Target of an action: a single item, array of items, or null */
-export type ActionTarget<T extends ActionTargetItem = ActionTargetItem> = T | T[] | null;
-
-/** A resource action that can be triggered on a target */
-export interface ResourceAction<T extends ActionTargetItem = ActionTargetItem> {
-  /** Whether this action is currently being applied */
-  isApplying: boolean;
-
-  /** Trigger the action, optionally with a target and input data */
-  trigger(target?: ActionTarget<T>, input?: Record<string, unknown>): Promise<unknown>;
-
-  /** Machine-readable action name */
-  name: string;
-
-  /** Human-readable label */
-  label?: string;
-
-  /** Icon name or SVG string */
-  icon?: string;
-}
+export type { ActionTarget, ActionTargetItem, ResourceAction } from "../action/types";
 
 export interface DanxActionButtonProps extends Pick<
   DanxButtonProps,

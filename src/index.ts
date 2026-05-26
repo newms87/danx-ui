@@ -95,15 +95,12 @@ export * from "./components/icon/icons";
 
 // Types
 export type {
-  ActionTarget,
-  ActionTargetItem,
   ButtonSize,
   DanxActionButtonEmits,
   DanxActionButtonProps,
   DanxButtonEmits,
   DanxButtonProps,
   DanxButtonSlots,
-  ResourceAction,
 } from "./components/button";
 export type { DanxIconProps } from "./components/icon";
 export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
@@ -382,3 +379,43 @@ export {
 export type { StructuredDataFormat } from "./shared/useStructuredDataPreference";
 
 export type * from "./shared";
+
+// Reactive object store
+export {
+  storeObject,
+  storeObjects,
+  registerList,
+  unregisterList,
+  hasRecentUpdates,
+  removeObjectFromLists,
+  autoRefreshObject,
+  stopAutoRefreshObject,
+} from "./shared/objectStore";
+export type { AnyObject, TypedObject } from "./shared/types";
+
+// HTTP request helper
+export { request, fetchResourceListWithSelected, getUrlParam } from "./shared/request";
+export type { ActiveRequest, RequestApi, RequestCallOptions } from "./shared/request";
+export { configureRequest, requestConfig } from "./shared/requestConfig";
+export type { RequestConfig } from "./shared/requestConfig";
+
+// Action system
+export {
+  useActions,
+  withDefaultActions,
+  activeActionVnode,
+  useActionStore,
+  ConfirmActionDialog,
+  CreateNewWithNameDialog,
+} from "./components/action";
+export type {
+  ActionOptions,
+  ActionGlobalOptions,
+  ResourceAction,
+  UseActionsReturn,
+  ActionTarget,
+  ActionTargetItem,
+  ListController,
+  ListControllerRoutes,
+  UseActionStoreReturn,
+} from "./components/action";

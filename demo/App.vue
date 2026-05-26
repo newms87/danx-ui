@@ -191,6 +191,9 @@ watch(theme, (newTheme) => {
               <li>
                 <RouterLink to="/formatters" class="demo-sidebar__link">Formatters</RouterLink>
               </li>
+              <li>
+                <RouterLink to="/object-store" class="demo-sidebar__link">Object Store</RouterLink>
+              </li>
             </ul>
           </li>
         </ul>
