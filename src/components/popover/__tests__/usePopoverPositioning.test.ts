@@ -21,6 +21,24 @@ function mockElement(rect: Partial<DOMRect>): HTMLElement {
   return el;
 }
 
+/** Create a mock SVG element (instanceof SVGElement, not HTMLElement) with a controllable rect */
+function mockSvgElement(rect: Partial<DOMRect>): SVGElement {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  el.getBoundingClientRect = () => ({
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => {},
+    ...rect,
+  });
+  return el;
+}
+
 describe("usePopoverPositioning", () => {
   let scope: ReturnType<typeof effectScope>;
 
@@ -385,6 +403,53 @@ describe("usePopoverPositioning", () => {
     await nextTick();
 
     // Should use child's rect, not the wrapper's (which has no box)
+    expect(result!.style.top).toBe("138px");
+    expect(result!.style.left).toBe("180px");
+
+    vi.mocked(window.getComputedStyle).mockRestore();
+  });
+
+  it("measures SVG first child when display:contents trigger wraps an icon", async () => {
+    // Regression: icon-only triggers render an SVG, which is an SVGElement but
+    // NOT an HTMLElement. The old instanceof HTMLElement guard fell through to
+    // the display:contents wrapper, whose getBoundingClientRect returns a zero
+    // rect, pinning the panel to the viewport corner (clamped to 20px padding).
+    const wrapper = document.createElement("div");
+    // Wrapper itself has no box (display:contents) — zero rect is the default.
+    const child = mockSvgElement({
+      top: 100,
+      left: 200,
+      bottom: 130,
+      right: 260,
+      width: 60,
+      height: 30,
+    });
+    wrapper.appendChild(child);
+
+    // jsdom doesn't compute inline styles via getComputedStyle, so mock it
+    const origGetComputedStyle = window.getComputedStyle;
+    vi.spyOn(window, "getComputedStyle").mockImplementation((el) => {
+      if (el === wrapper) {
+        return { display: "contents" } as CSSStyleDeclaration;
+      }
+      return origGetComputedStyle(el);
+    });
+
+    const panel = mockElement({ width: 100, height: 50 });
+    const triggerRef = ref<HTMLElement | null>(wrapper);
+    const panelRef = ref<HTMLElement | null>(panel);
+    const placement = ref<PopoverPlacement>("bottom");
+    const isOpen = ref(true);
+
+    scope = effectScope();
+    let result: ReturnType<typeof usePopoverPositioning>;
+    scope.run(() => {
+      result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+    });
+
+    await nextTick();
+
+    // Uses the SVG child's rect (138/180), NOT the zero-rect wrapper (clamped to 20/20)
     expect(result!.style.top).toBe("138px");
     expect(result!.style.left).toBe("180px");
 

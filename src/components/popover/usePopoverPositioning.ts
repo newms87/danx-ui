@@ -38,13 +38,15 @@ export function usePopoverPositioning(
 ): UsePopoverPositioningReturn {
   const style = reactive<CSSProperties>({});
 
-  function getTriggerElement(): HTMLElement | null {
+  function getTriggerElement(): Element | null {
     const el = trigger.value;
     if (!el) return null;
     // If the trigger wrapper uses display:contents it has no box of its own,
-    // so measure the first child element instead.
+    // so measure the first child element instead. The child may be an SVG
+    // (icon-only triggers), which is an Element but not an HTMLElement;
+    // getBoundingClientRect() is defined on Element so both work.
     const computed = getComputedStyle(el);
-    if (computed.display === "contents" && el.firstElementChild instanceof HTMLElement) {
+    if (computed.display === "contents" && el.firstElementChild instanceof Element) {
       return el.firstElementChild;
     }
     return el;
