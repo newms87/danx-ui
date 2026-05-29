@@ -1,0 +1,21 @@
+/**
+ * FileExplorer Component Tokens (Tier 3)
+ *
+ * Component-specific CSS custom properties for DanxFileExplorer.
+ * Only var() references to semantic tokens — no raw values.
+ * Override these on any ancestor element to customize appearance.
+ */
+
+.danx-file-explorer {
+  --dx-file-explorer-bg: transparent;
+  --dx-file-explorer-text: var(--color-text);
+  --dx-file-explorer-indent: 1.25rem;
+  --dx-file-explorer-row-height: 1.875rem;
+  --dx-file-explorer-row-radius: var(--radius-sm);
+  --dx-file-explorer-row-hover-bg: var(--color-surface-sunken);
+  --dx-file-explorer-row-selected-bg: var(--color-interactive-subtle);
+  --dx-file-explorer-row-selected-text: var(--color-interactive);
+  --dx-file-explorer-icon-color: var(--color-text-subtle);
+  --dx-file-explorer-icon-size: 1rem;
+  --dx-file-explorer-gap: 0.375rem;
+}

@@ -1,0 +1,158 @@
+/**
+ * FileExplorer Component Styles
+ *
+ * Layout + presentation for DanxFileExplorer and its recursive nodes.
+ * Token defaults live in file-explorer-tokens.css. Dark mode is handled by
+ * the semantic layer — there are no .dark overrides here.
+ */
+
+@import "./file-explorer-tokens.css";
+
+.danx-file-explorer {
+  width: 100%;
+  height: 100%;
+  background: var(--dx-file-explorer-bg);
+  color: var(--dx-file-explorer-text);
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+.danx-file-explorer__tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.danx-file-explorer__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--color-text-subtle);
+  text-align: center;
+}
+
+.danx-file-explorer__empty-icon {
+  --dx-icon-size: 1.5rem;
+  opacity: 0.6;
+}
+
+.danx-file-explorer-node {
+  list-style: none;
+}
+
+.danx-file-explorer-node__children {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.danx-file-explorer-node__row {
+  display: flex;
+  align-items: center;
+  gap: var(--dx-file-explorer-gap);
+  min-height: var(--dx-file-explorer-row-height);
+  padding-block: 0.125rem;
+  padding-inline-end: 0.5rem;
+  border-radius: var(--dx-file-explorer-row-radius);
+  outline: none;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  .danx-file-explorer-node__icon {
+    --dx-icon-size: var(--dx-file-explorer-icon-size);
+    flex-shrink: 0;
+    color: var(--dx-file-explorer-icon-color);
+  }
+
+  .danx-file-explorer-node__name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .danx-file-explorer-node__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover .danx-file-explorer-node__actions,
+  &:focus-visible .danx-file-explorer-node__actions,
+  &.is-selected .danx-file-explorer-node__actions {
+    opacity: 1;
+  }
+
+  &.is-clickable {
+    cursor: pointer;
+  }
+
+  &.is-clickable:hover {
+    background: var(--dx-file-explorer-row-hover-bg);
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--color-interactive);
+  }
+
+  &.is-selected {
+    background: var(--dx-file-explorer-row-selected-bg);
+    color: var(--dx-file-explorer-row-selected-text);
+  }
+
+  &.is-selected .danx-file-explorer-node__icon {
+    color: var(--dx-file-explorer-row-selected-text);
+  }
+
+  &.is-disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+/* Depth-based indentation — the row left padding grows with nesting depth. */
+.danx-file-explorer-node__indent {
+  flex-shrink: 0;
+  width: calc(var(--dx-file-explorer-depth, 0) * var(--dx-file-explorer-indent));
+}
+
+.danx-file-explorer-node__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--dx-file-explorer-icon-color);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform 150ms ease;
+
+  .danx-icon {
+    --dx-icon-size: 0.75rem;
+  }
+
+  &:hover {
+    color: var(--color-interactive);
+  }
+}
+
+.danx-file-explorer-node__chevron.is-open {
+  transform: rotate(90deg);
+}
+
+.danx-file-explorer-node__chevron-spacer {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+}

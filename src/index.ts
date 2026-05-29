@@ -47,6 +47,7 @@ export { DanxToggle } from "./components/toggle";
 export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
 export { DanxEditableDiv } from "./components/editable-div";
 export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomable";
+export { DanxFileExplorer, FileExplorerNode } from "./components/file-explorer";
 
 // Composables
 export {
@@ -77,6 +78,7 @@ export {
   useDanxFile,
 } from "./components/danx-file";
 export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
+export { useFileExplorer, isFolderNode } from "./components/file-explorer";
 export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
 export { useDanxScroll, useScrollInfinite, useScrollWindow } from "./components/scroll";
 export { downloadFile } from "./shared/download";
@@ -130,6 +132,17 @@ export type {
   DanxContextMenuEmits,
   DanxContextMenuProps,
 } from "./components/context-menu";
+export type {
+  FileNode,
+  DanxFileExplorerProps,
+  DanxFileExplorerEmits,
+  DanxFileExplorerSlots,
+  FileExplorerContext,
+  FileExplorerNodeSlotProps,
+  FileExplorerStorageState,
+  UseFileExplorerOptions,
+  UseFileExplorerReturn,
+} from "./components/file-explorer";
 export type {
   DanxDialogEmits,
   DanxDialogProps,

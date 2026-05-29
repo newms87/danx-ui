@@ -74,6 +74,12 @@ import { DanxTooltip } from "../../src/components/tooltip";
 import { DanxProgressBar } from "../../src/components/progress-bar";
 import { DanxSplitPanel, SplitPanelHandle, useSplitPanel } from "../../src/components/split-panel";
 import {
+  DanxFileExplorer,
+  FileExplorerNode,
+  useFileExplorer,
+  isFolderNode,
+} from "../../src/components/file-explorer";
+import {
   DanxScroll,
   DanxVirtualScroll,
   useDanxScroll,
@@ -191,6 +197,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxProgressBar,
   DanxSplitPanel,
   SplitPanelHandle,
+  DanxFileExplorer,
+  FileExplorerNode,
   DanxScroll,
   DanxVirtualScroll,
   DanxSkeleton,
@@ -332,6 +340,11 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxSplitPanel,
   SplitPanelHandle,
   useSplitPanel,
+  // FileExplorer
+  DanxFileExplorer,
+  FileExplorerNode,
+  useFileExplorer,
+  isFolderNode,
   // Scroll
   DanxScroll,
   DanxVirtualScroll,
