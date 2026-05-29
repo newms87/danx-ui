@@ -153,6 +153,11 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
               </li>
               <li>
+                <RouterLink to="/file-explorer" class="demo-sidebar__link"
+                  >File Explorer</RouterLink
+                >
+              </li>
+              <li>
                 <RouterLink to="/toast" class="demo-sidebar__link">Toast</RouterLink>
               </li>
               <li>

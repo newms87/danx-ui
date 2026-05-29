@@ -29,6 +29,8 @@ import documentSvg from "danx-icon/src/fontawesome/solid/file-lines.svg?raw";
 import usersSvg from "danx-icon/src/fontawesome/solid/users.svg?raw";
 import databaseSvg from "danx-icon/src/fontawesome/solid/database.svg?raw";
 import folderSvg from "danx-icon/src/fontawesome/solid/folder.svg?raw";
+import folderOpenSvg from "danx-icon/src/fontawesome/solid/folder-open.svg?raw";
+import fileSvg from "danx-icon/src/fontawesome/solid/file.svg?raw";
 import searchSvg from "danx-icon/src/fontawesome/solid/magnifying-glass.svg?raw";
 import circleInfoSvg from "danx-icon/src/fontawesome/solid/circle-info.svg?raw";
 import circleQuestionSvg from "danx-icon/src/fontawesome/solid/circle-question.svg?raw";
@@ -84,6 +86,8 @@ export const documentIcon = documentSvg;
 export const usersIcon = usersSvg;
 export const databaseIcon = databaseSvg;
 export const folderIcon = folderSvg;
+export const folderOpenIcon = folderOpenSvg;
+export const fileIcon = fileSvg;
 export const searchIcon = searchSvg;
 export const infoIcon = circleInfoSvg;
 export const questionIcon = circleQuestionSvg;
@@ -138,6 +142,8 @@ export const iconRegistry = {
   users: usersIcon,
   database: databaseIcon,
   folder: folderIcon,
+  "folder-open": folderOpenIcon,
+  file: fileIcon,
   search: searchIcon,
   cancel: cancelIcon,
   back: backIcon,
