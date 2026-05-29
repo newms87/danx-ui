@@ -28,6 +28,12 @@ services:
       DANXBOT_DB_PASSWORD: danxbot
       DANXBOT_DB_NAME: danxbot_danx_ui
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      # Shared dispatch token — the v2 dispatcher loop authenticates to the
+      # dashboard with this. It MUST be the SHARED canonical token (the value
+      # the dashboard validates against), threaded from the shared --env-file
+      # like ANTHROPIC_API_KEY above — NOT the per-repo env_file value, which
+      # can be stale/missing and yields 401 / "token not set" in the poller.
+      DANXBOT_DISPATCH_TOKEN: ${DANXBOT_DISPATCH_TOKEN}
       CLAUDE_AUTH_MODE: ${CLAUDE_AUTH_MODE:-subscription}
       POLLER_INTERVAL_MS: ${POLLER_INTERVAL_MS:-60000}
       TRELLO_REVIEW_MIN_CARDS: ${TRELLO_REVIEW_MIN_CARDS:-10}
