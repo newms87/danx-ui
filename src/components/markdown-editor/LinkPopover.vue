@@ -141,27 +141,3 @@ watch(
     <div v-if="isEditing" class="edit-hint">Enter an empty URL to remove the link.</div>
   </MdeFloatingPanel>
 </template>
-
-<style>
-.dx-link-popover {
-  width: 320px;
-
-  .mde-floating-panel__content {
-    gap: 0.875rem;
-  }
-
-  .input-group {
-    gap: 0.375rem;
-
-    input {
-      width: 100%;
-    }
-  }
-
-  .edit-hint {
-    font-size: 0.75rem;
-    color: var(--dx-mde-popover-dimmed);
-    font-style: italic;
-  }
-}
-</style>

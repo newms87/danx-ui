@@ -6,13 +6,20 @@
  * - Rendered markdown content styles (from markdown.scss)
  * - Editor component chrome styles
  *
- * Note: Component-level styles are in each .vue file's <style> block.
- * This file provides the rendered content theme (dx-markdown-content).
+ * Note: Component layout styles live in sibling standalone .css files
+ * (relocated from each .vue file's unscoped <style> block so they actually
+ * load for consumers). This aggregate imports them all plus the rendered
+ * content theme (dx-markdown-content) and shared popover input styles.
  */
 
 @import "./markdown-editor-tokens.css";
 @import "./markdown-editor-content.css";
 @import "./mde-floating-panel.css";
+@import "./markdown-editor-layout.css";
+@import "./markdown-editor-footer.css";
+@import "./link-popover.css";
+@import "./table-popover.css";
+@import "./hotkey-help-popover.css";
 
 /* ====================================================
  * Shared Input Styles for Markdown Editor Popovers
