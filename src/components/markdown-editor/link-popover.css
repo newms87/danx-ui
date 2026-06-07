@@ -1,0 +1,32 @@
+/**
+ * LinkPopover Styles
+ *
+ * Layout for the link-edit floating popover.
+ *
+ * Relocated from LinkPopover.vue's unscoped <style> block so the rules
+ * actually load for consumers. Shared input-group styling for the popovers
+ * lives in markdown-editor.css. Matches the dialog component's
+ * standalone-layout-css convention.
+ */
+
+.dx-link-popover {
+  width: 320px;
+
+  .mde-floating-panel__content {
+    gap: 0.875rem;
+  }
+
+  .input-group {
+    gap: 0.375rem;
+
+    input {
+      width: 100%;
+    }
+  }
+
+  .edit-hint {
+    font-size: 0.75rem;
+    color: var(--dx-mde-popover-dimmed);
+    font-style: italic;
+  }
+}

@@ -62,21 +62,3 @@ defineEmits<{
     />
   </div>
 </template>
-
-<style>
-.dx-markdown-editor-footer {
-  background-color: var(--dx-mde-footer-bg);
-  border-radius: 0 0 0.375rem 0.375rem;
-  flex-shrink: 0;
-
-  .raw-toggle-btn,
-  .hotkey-help-btn {
-    color: var(--dx-mde-popover-dimmed);
-    --dx-button-hover-bg: var(--dx-mde-menu-item-hover);
-  }
-
-  .raw-toggle-btn.is-active {
-    color: var(--dx-mde-color, #e0e0e0);
-  }
-}
-</style>
