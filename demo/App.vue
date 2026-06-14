@@ -194,6 +194,11 @@ watch(theme, (newTheme) => {
               <li>
                 <RouterLink to="/formatters" class="demo-sidebar__link">Formatters</RouterLink>
               </li>
+              <li>
+                <RouterLink to="/reactive-store" class="demo-sidebar__link"
+                  >Reactive Store</RouterLink
+                >
+              </li>
             </ul>
           </li>
         </ul>

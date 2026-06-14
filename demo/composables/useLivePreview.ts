@@ -122,6 +122,20 @@ import {
 import { downloadFile } from "../../src/shared/download";
 import { useVariant } from "../../src/shared/composables/useVariant";
 import {
+  storeObject,
+  storeObjects,
+  hasRecentUpdates,
+  registerList,
+  unregisterList,
+  removeObjectFromLists,
+} from "../../src/shared/objectStore";
+import { request } from "../../src/shared/request";
+import { setDanxOptions, getDanxOptions } from "../../src/shared/config";
+import { FlashMessages } from "../../src/shared/flashMessages";
+import { useActions, withDefaultActions } from "../../src/shared/actions";
+import { useActionRoutes } from "../../src/shared/actionRoutes";
+import { useActionStore } from "../../src/shared/actionStore";
+import {
   fCurrency,
   fCurrencyNoCents,
   fNumber,
@@ -369,6 +383,21 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   // Log demo helpers
   useLogDemo,
   levelColor,
+  // Reactive data layer
+  storeObject,
+  storeObjects,
+  hasRecentUpdates,
+  registerList,
+  unregisterList,
+  removeObjectFromLists,
+  request,
+  setDanxOptions,
+  getDanxOptions,
+  FlashMessages,
+  useActions,
+  withDefaultActions,
+  useActionRoutes,
+  useActionStore,
 };
 
 const DEBOUNCE_MS = 250;

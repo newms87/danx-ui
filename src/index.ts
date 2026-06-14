@@ -383,4 +383,57 @@ export {
 } from "./shared/useStructuredDataPreference";
 export type { StructuredDataFormat } from "./shared/useStructuredDataPreference";
 
+// Reactive data layer — configuration singleton
+export { setDanxOptions, getDanxOptions } from "./shared/config";
+export type {
+  DanxOptions,
+  DanxRequestOptions,
+  DanxFlashMessageOptions,
+} from "./shared/config-types";
+
+// Reactive data layer — utilities
+export { sleep } from "./shared/sleep";
+export { FlashMessages } from "./shared/flashMessages";
+export type { FlashSeverity, FlashMessageInput } from "./shared/flashMessages";
+
+// Reactive data layer — request helper
+export { request } from "./shared/request";
+export type { ActiveRequest, RequestApi, RequestCallOptions } from "./shared/request-types";
+
+// Reactive data layer — object store
+export {
+  storeObject,
+  storeObjects,
+  registerList,
+  unregisterList,
+  hasRecentUpdates,
+  removeObjectFromLists,
+  autoRefreshObject,
+  stopAutoRefreshObject,
+} from "./shared/objectStore";
+export type { TypedObject, AnyObject, LabelValueItem } from "./shared/store-types";
+
+// Reactive data layer — actions
+export { useActions, withDefaultActions, activeActionVnode } from "./shared/actions";
+export { useActionStore } from "./shared/actionStore";
+export { useActionRoutes } from "./shared/actionRoutes";
+export type {
+  ActionOptions,
+  ActionGlobalOptions,
+  ActionController,
+  ActionStore,
+  ActiveActionVnode,
+  ListController,
+  ListControlsRoutes,
+  ListControlsOptions,
+  ListControlsFilter,
+  ListControlsPagination,
+  ListSortItem,
+  ControlsFieldsList,
+  FilterGroup,
+  FilterableField,
+  PagedItems,
+  ApplyActionResponse,
+} from "./shared/action-types";
+
 export type * from "./shared";
