@@ -22,7 +22,7 @@ import type { Ref } from "vue";
 import { copyIcon, editIcon, trashIcon } from "../components/icon/icons";
 import { uid } from "./uid";
 import { FlashMessages } from "./flashMessages";
-import { storeObject } from "./objectStore";
+import { storeObject, canonicalizeResult } from "./objectStore";
 import type {
   ActionController,
   ActionGlobalOptions,
@@ -183,12 +183,7 @@ export function useActions(
     setTargetSavingState(target, false);
     if (aliasedAction) aliasedAction.isApplying = false;
 
-    if (resultRecord?.item) {
-      resultRecord.item = storeObject(resultRecord.item as ActionTargetItem);
-    }
-    if (asRecord(resultRecord?.result)?.__type) {
-      resultRecord!.result = storeObject(resultRecord!.result as ActionTargetItem);
-    }
+    canonicalizeResult(result);
 
     return result;
   }
@@ -279,9 +274,7 @@ async function onConfirmAction(
   }
 
   if (result === undefined || result === true || resultRecord?.success) {
-    if (resultRecord?.item) {
-      resultRecord.item = storeObject(resultRecord.item as ActionTargetItem);
-    }
+    canonicalizeResult(result);
     if (resultRecord?.success && Array.isArray(target)) {
       FlashMessages.success(
         `Successfully performed action ${action.label} on ${target.length} items`

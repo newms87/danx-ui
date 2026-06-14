@@ -32,6 +32,7 @@ import type { Ref } from "vue";
 import { uid } from "./uid";
 import { FlashMessages } from "./flashMessages";
 import type { TypedObject } from "./store-types";
+import type { ActionTargetItem } from "./action-types";
 
 /** Identity map: `${__type}:${id ?? name}` → shared reactive object. */
 const store = new Map<string, TypedObject>();
@@ -289,6 +290,24 @@ export function hasRecentUpdates(newObject: TypedObject, oldObject: TypedObject 
 }
 
 /**
+ * Canonicalize result.item and result.result TypedObjects into the shared store,
+ * mutating the result record in place. Used across actions and actionRoutes to
+ * ensure consistent handling of action response payloads.
+ */
+export function canonicalizeResult(result: unknown): void {
+  if (typeof result !== "object" || result === null) {
+    return;
+  }
+  const resultRecord = result as Record<string, unknown>;
+  if (resultRecord.item) {
+    resultRecord.item = storeObject(resultRecord.item as ActionTargetItem);
+  }
+  if (typeof (resultRecord.result as Record<string, unknown> | undefined)?.__type === "string") {
+    resultRecord.result = storeObject(resultRecord.result as ActionTargetItem);
+  }
+}
+
+/**
  * Remove an object from every array property of every stored object, and from
  * all registered external list refs.
  */
@@ -314,7 +333,9 @@ export function removeObjectFromLists<T extends TypedObject>(object: T): void {
   for (const listRef of registeredLists) {
     const arr = listRef.value;
     if (arr.length > 0) {
-      const index = arr.findIndex((v) => v.__id === object.__id && v.__type === object.__type);
+      const index = arr.findIndex(
+        (v) => isTypedObjectValue(v) && v.__id === object.__id && v.__type === object.__type
+      );
       if (index !== -1) {
         arr.splice(index, 1);
       }

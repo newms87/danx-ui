@@ -225,11 +225,21 @@ describe("request", () => {
   });
 
   describe("useMostRecentResponse (monotonic ordering, fix #3)", () => {
-    it("resolves same-millisecond requests to the truly-latest response", async () => {
-      // Freeze the wall clock: ordering must come from the monotonic counter,
-      // not Date.now(). With the old Date.now() tie-break this test would fail.
-      vi.spyOn(Date, "now").mockReturnValue(1_000_000);
+    it("uses a monotonic counter to order same-millisecond requests", () => {
+      // Ordering must come from the monotonic counter, not Date.now().
+      // Capture sequences synchronously during call() (before any async operation).
+      const opts = { requestKey: "k" };
+      request.call("x", { ...opts });
+      const seq1 = request.activeRequests["k"]?.sequence;
+      request.call("x", { ...opts });
+      const seq2 = request.activeRequests["k"]?.sequence;
 
+      expect(typeof seq1).toBe("number");
+      expect(typeof seq2).toBe("number");
+      expect(seq2 as number).toBeGreaterThan(seq1 as number);
+    });
+
+    it("resolves same-millisecond requests to the truly-latest response", async () => {
       const d1 = deferred<Response>();
       const d2 = deferred<Response>();
       let call = 0;
@@ -251,7 +261,6 @@ describe("request", () => {
     });
 
     it("resolves through multiple supersessions to the final response", async () => {
-      vi.spyOn(Date, "now").mockReturnValue(1_000_000);
       const d1 = deferred<Response>();
       const d2 = deferred<Response>();
       const d3 = deferred<Response>();

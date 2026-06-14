@@ -103,61 +103,81 @@ export const request: RequestApi = {
       }
     }
 
-    let response: Response;
     try {
-      response = await fetch(request.url(url), options);
-    } catch (e) {
-      if (options.ignoreAbort && String(e).match(/Request was aborted/)) {
-        const abortResponse = { abort: true };
-        resolvePromise(abortResponse);
-        return abortResponse;
+      let response: Response;
+      try {
+        response = await fetch(request.url(url), options);
+      } catch (e) {
+        if (options.ignoreAbort && String(e).match(/Request was aborted/)) {
+          const abortResponse = { abort: true };
+          resolvePromise(abortResponse);
+          return abortResponse;
+        }
+        rejectPromise(e);
+        throw e;
       }
-      rejectPromise(e);
-      throw e;
-    }
 
-    checkAppVersion(response);
+      checkAppVersion(response);
 
-    // Another same-key request may have started after this one.
-    let mostRecentRequest = request.activeRequests[requestKey]!;
+      // Another same-key request may have started after this one.
+      let mostRecentRequest = request.activeRequests[requestKey]!;
 
-    let responseJson: unknown = await response.json();
+      let responseJson: unknown = await response.json();
 
-    // Resolve our own promise so any request waiting on us can proceed.
-    resolvePromise(responseJson);
+      // Resolve our own promise so any request waiting on us can proceed.
+      resolvePromise(responseJson);
 
-    // If we are no longer the most recent request for this key...
-    if (mostRecentRequest.sequence !== sequence) {
-      if (shouldAbortPrevious) {
-        // We were superseded but finished too late to be aborted in time.
-        responseJson = { abort: true };
-      } else if (useMostRecentResponse) {
-        // Resolve forward to the freshest response, re-checking each iteration
-        // in case still-newer requests start while we await.
-        do {
-          mostRecentRequest = request.activeRequests[requestKey]!;
-          responseJson = await mostRecentRequest.requestPromise;
-          if (request.activeRequests[requestKey]!.sequence === mostRecentRequest.sequence) {
-            break;
-          }
-        } while (mostRecentRequest.sequence !== request.activeRequests[requestKey]!.sequence);
+      // If we are no longer the most recent request for this key...
+      if (mostRecentRequest.sequence !== sequence) {
+        if (shouldAbortPrevious) {
+          // We were superseded but finished too late to be aborted in time.
+          responseJson = { abort: true };
+        } else if (useMostRecentResponse) {
+          // Resolve forward to the freshest response, re-checking each iteration
+          // in case still-newer requests start while we await.
+          do {
+            mostRecentRequest = request.activeRequests[requestKey]!;
+            responseJson = await mostRecentRequest.requestPromise;
+            // Check if the entry still exists (it may be deleted by a completed request's finally).
+            // If deleted, the superseding request is done and we've gotten its response.
+            if (
+              !request.activeRequests[requestKey] ||
+              request.activeRequests[requestKey]!.sequence === mostRecentRequest.sequence
+            ) {
+              break;
+            }
+          } while (
+            request.activeRequests[requestKey] &&
+            mostRecentRequest.sequence !== request.activeRequests[requestKey]!.sequence
+          );
+        }
+      }
+
+      if (response.status === 401) {
+        const onUnauthorized = danxOptions.value.request?.onUnauthorized;
+        return onUnauthorized
+          ? onUnauthorized(responseJson, response)
+          : {
+              error: true,
+              message: "Unauthorized",
+              ...(isObject(responseJson) ? responseJson : {}),
+            };
+      }
+
+      if (response.status > 400 && isObject(responseJson)) {
+        if (responseJson.exception && !responseJson.error) {
+          responseJson.error = true;
+        }
+      }
+
+      return responseJson;
+    } finally {
+      // Clean up the active request entry only if we are still the current one.
+      // Do not delete a newer superseding request's entry.
+      if (request.activeRequests[requestKey]?.sequence === sequence) {
+        delete request.activeRequests[requestKey];
       }
     }
-
-    if (response.status === 401) {
-      const onUnauthorized = danxOptions.value.request?.onUnauthorized;
-      return onUnauthorized
-        ? onUnauthorized(responseJson, response)
-        : { error: true, message: "Unauthorized", ...(isObject(responseJson) ? responseJson : {}) };
-    }
-
-    if (response.status > 400 && isObject(responseJson)) {
-      if (responseJson.exception && !responseJson.error) {
-        responseJson.error = true;
-      }
-    }
-
-    return responseJson;
   },
 
   async poll(url, options, interval, fnUntil) {

@@ -475,6 +475,18 @@ describe("registered lists + removeObjectFromLists", () => {
     storeObject({ ...child, __deleted_at: "2026-01-01T00:00:00Z", __timestamp: 100 });
     expect(parent.items as TypedObject[]).toHaveLength(0);
   });
+
+  it("handles a registered list with a non-typed-object entry", () => {
+    const type = freshType();
+    const item = storeObject({ id: 1, __type: type, __timestamp: 1 });
+    const listRef = ref<TypedObject[]>([item, 5] as unknown as TypedObject[]);
+    listRefs.push(listRef);
+    registerList(listRef);
+    // Should not throw when encountering the non-typed entry (5).
+    expect(() => removeObjectFromLists(item)).not.toThrow();
+    // The typed item is removed, non-typed entry is untouched.
+    expect(listRef.value).toEqual([5]);
+  });
 });
 
 describe("autoRefreshObject / stopAutoRefreshObject", () => {

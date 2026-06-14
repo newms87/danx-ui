@@ -15,7 +15,7 @@
  */
 
 import { ref } from "vue";
-import { registerList, storeObject, storeObjects } from "./objectStore";
+import { registerList, storeObject, storeObjects, canonicalizeResult } from "./objectStore";
 import { request } from "./request";
 import type {
   ActionTargetItem,
@@ -80,13 +80,7 @@ export function useActionRoutes<T extends ActionTargetItem = ActionTargetItem>(
         options
       )) as ApplyActionResponse<T>;
 
-      if (response.item) {
-        response.item = storeObject(response.item);
-      }
-      const resultRecord = response.result as Record<string, unknown> | undefined;
-      if (resultRecord && typeof resultRecord.__type === "string" && resultRecord.id) {
-        response.result = storeObject(resultRecord as unknown as T);
-      }
+      canonicalizeResult(response);
 
       return response;
     },
