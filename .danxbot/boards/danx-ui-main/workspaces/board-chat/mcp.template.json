@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "danx_dashboard": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@thehammer/danx-dashboard-mcp"],
+      "env": {
+        "DANXBOT_DASHBOARD_URL": "${DANXBOT_DASHBOARD_URL}",
+        "DANXBOT_DISPATCH_TOKEN": "${DANXBOT_DISPATCH_TOKEN}",
+        "DANX_REPO_NAME": "${DANX_REPO_NAME}",
+        "DANXBOT_BOARD_NAME": "${DANXBOT_BOARD_NAME}"
+      }
+    }
+  }
+}

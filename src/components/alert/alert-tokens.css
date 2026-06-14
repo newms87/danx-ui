@@ -1,0 +1,35 @@
+/**
+ * DanxAlert Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize alert appearance.
+ *
+ * CSS Tokens:
+ * --dx-alert-bg                 Background color (overridden per variant)
+ * --dx-alert-text               Text color (overridden per variant)
+ * --dx-alert-border             Border color (overridden per variant)
+ * --dx-alert-padding-y          Vertical padding
+ * --dx-alert-padding-x          Horizontal padding
+ * --dx-alert-gap                Gap between icon, body, and dismiss
+ * --dx-alert-border-width       Border width
+ * --dx-alert-border-radius      Corner radius
+ * --dx-alert-font-size          Body font size
+ * --dx-alert-title-weight       Title font weight
+ * --dx-alert-icon-size          Leading + dismiss icon size
+ *
+ * Variant colors are applied via inline styles from the useVariant composable.
+ */
+
+:root {
+  --dx-alert-bg: var(--color-surface);
+  --dx-alert-text: var(--color-text);
+  --dx-alert-border: var(--color-border);
+  --dx-alert-padding-y: 0.75rem;
+  --dx-alert-padding-x: 1rem;
+  --dx-alert-gap: 0.625rem;
+  --dx-alert-border-width: 1px;
+  --dx-alert-border-radius: 0.5rem;
+  --dx-alert-font-size: 0.875rem;
+  --dx-alert-title-weight: var(--font-semibold);
+  --dx-alert-icon-size: 1.125rem;
+}

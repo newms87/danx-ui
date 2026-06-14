@@ -1,0 +1,19 @@
+name: slack-worker
+description: Slack deep-agent dispatch — read-only codebase Q&A with replies via MCP
+required-placeholders:
+  - DANXBOT_STOP_URL
+  - DANXBOT_WORKER_PORT
+  - DANXBOT_SLACK_REPLY_URL
+  - DANXBOT_SLACK_UPDATE_URL
+  - DANXBOT_LINK_THREAD_TO_ISSUE_URL
+  - DANXBOT_DASHBOARD_URL
+  - DANXBOT_DISPATCH_TOKEN
+  - DANX_REPO_NAME
+  - DANXBOT_BOARD_NAME
+  - DANXBOT_PLAYWRIGHT_URL
+optional-placeholders:
+  - DANX_AGENT_WORKTREE
+# DX-1025: Slack enablement is gated by the board's `board_slack_settings.enabled`
+# DB row, checked by the listener before it ever dispatches this workspace, so no
+# file-based slack gate is declared here — the DB row is the single source.
+required-gates: []

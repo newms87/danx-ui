@@ -1,0 +1,67 @@
+/**
+ * DanxAlert Styles
+ *
+ * Inline banner: a flex row of leading icon, body column, and optional
+ * dismiss button. Colors come from variant inline styles (useVariant);
+ * layout and spacing come from the component tokens below.
+ *
+ * Note: BEM modifiers are top-level blocks because Lightning CSS
+ * does not support &--suffix concatenation.
+ */
+
+@import "./alert-tokens.css";
+
+.danx-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--dx-alert-gap);
+  padding: var(--dx-alert-padding-y) var(--dx-alert-padding-x);
+  font-size: var(--dx-alert-font-size);
+  line-height: 1.4;
+  background: var(--dx-alert-bg);
+  color: var(--dx-alert-text);
+  border: var(--dx-alert-border-width) solid var(--dx-alert-border);
+  border-radius: var(--dx-alert-border-radius);
+
+  .danx-alert__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: var(--dx-alert-icon-size);
+    line-height: 1;
+  }
+
+  .danx-alert__body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .danx-alert__title {
+    margin: 0;
+    font-weight: var(--dx-alert-title-weight);
+  }
+
+  .danx-alert__content {
+    min-width: 0;
+  }
+
+  .danx-alert__dismiss {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    font-size: var(--dx-alert-icon-size);
+    line-height: 1;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

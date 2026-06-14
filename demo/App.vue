@@ -92,6 +92,9 @@ watch(theme, (newTheme) => {
             <span class="demo-sidebar__section">Components</span>
             <ul>
               <li>
+                <RouterLink to="/alert" class="demo-sidebar__link">Alert</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/badge" class="demo-sidebar__link">Badge</RouterLink>
               </li>
               <li>

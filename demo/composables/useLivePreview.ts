@@ -35,6 +35,7 @@ import {
   watch,
   watchEffect,
 } from "vue";
+import { DanxAlert } from "../../src/components/alert";
 import { DanxBadge } from "../../src/components/badge";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
@@ -170,6 +171,7 @@ import { useLogDemo, levelColor } from "../pages/scroll-examples/useLogDemo.js";
 
 /** Components available in compiled templates via the `components` option */
 const REGISTERED_COMPONENTS: Record<string, Component> = {
+  DanxAlert,
   DanxBadge,
   DanxButton,
   DanxActionButton,
@@ -220,6 +222,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   onMounted,
   onUnmounted,
   nextTick,
+  DanxAlert,
   DanxBadge,
   DanxButton,
   DanxActionButton,

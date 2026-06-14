@@ -120,6 +120,27 @@
   --dx-variant-dialog-muted-border: var(--color-border);
   --dx-variant-dialog-muted-header-bg: var(--color-surface-sunken);
 
+  /* ==========================================================================
+     Alert - Component-Specific Overrides (tinted inline banner: subtle bg,
+     saturated text + border — matches the conventional status-banner look)
+     ========================================================================== */
+
+  --dx-variant-alert-danger-bg: var(--color-danger-tint);
+  --dx-variant-alert-danger-text: var(--color-danger);
+  --dx-variant-alert-danger-border: var(--color-danger);
+
+  --dx-variant-alert-warning-bg: var(--color-warning-tint);
+  --dx-variant-alert-warning-text: var(--color-warning);
+  --dx-variant-alert-warning-border: var(--color-warning);
+
+  --dx-variant-alert-success-bg: var(--color-success-tint);
+  --dx-variant-alert-success-text: var(--color-success);
+  --dx-variant-alert-success-border: var(--color-success);
+
+  --dx-variant-alert-info-bg: var(--color-info-tint);
+  --dx-variant-alert-info-text: var(--color-info);
+  --dx-variant-alert-info-border: var(--color-info);
+
 }
 
 /* ==========================================================================

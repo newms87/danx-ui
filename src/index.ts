@@ -6,6 +6,7 @@
 
 // Components
 export { DanxActionButton, DanxButton } from "./components/button";
+export { DanxAlert } from "./components/alert";
 export { DanxBadge } from "./components/badge";
 export { DanxChip } from "./components/chip";
 export { DanxIcon } from "./components/icon";
@@ -106,6 +107,7 @@ export type {
   ResourceAction,
 } from "./components/button";
 export type { DanxIconProps } from "./components/icon";
+export type { DanxAlertProps, DanxAlertEmits, DanxAlertSlots } from "./components/alert";
 export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
 export type { ChipSize, DanxChipEmits, DanxChipProps, DanxChipSlots } from "./components/chip";
 export type {
