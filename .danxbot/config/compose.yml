@@ -43,6 +43,16 @@ services:
       # like ANTHROPIC_API_KEY above — NOT the per-repo env_file value, which
       # can be stale/missing and yields 401 / "token not set" in the poller.
       DANXBOT_DISPATCH_TOKEN: ${DANXBOT_DISPATCH_TOKEN}
+      # DX-1361 — inbound Slack files are persisted to S3 by THIS worker
+      # (the Socket-Mode listener runs in the worker, not the dashboard). The
+      # bucket name lives in the shared root /danxbot/.env (deploy/secrets.ts
+      # buildTargetOverrides materializes DANX_S3_ATTACHMENTS_BUCKET there);
+      # thread it into the container env from the shared --env-file exactly like
+      # ANTHROPIC_API_KEY / DANXBOT_DISPATCH_TOKEN above. Without it the worker's
+      # S3 PutObject throws "no bucket configured" and the inbound Slack file is
+      # silently dropped (the dashboard had the var; the worker did not).
+      DANX_S3_ATTACHMENTS_BUCKET: ${DANX_S3_ATTACHMENTS_BUCKET}
+      DANX_S3_ATTACHMENTS_REGION: ${DANX_S3_ATTACHMENTS_REGION}
       CLAUDE_AUTH_MODE: ${CLAUDE_AUTH_MODE:-subscription}
       POLLER_INTERVAL_MS: ${POLLER_INTERVAL_MS:-60000}
       TRELLO_REVIEW_MIN_CARDS: ${TRELLO_REVIEW_MIN_CARDS:-10}
