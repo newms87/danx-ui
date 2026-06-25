@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { DanxContextMenu } from "../index";
+import { DanxPopover } from "../../popover";
 import type { ContextMenuItem } from "../types";
 
 /**
@@ -131,34 +132,43 @@ describe("DanxContextMenu", () => {
     });
   });
 
+  /**
+   * Mock the rendered menu panel's bounding rect so the rect-derived submenu
+   * direction (which replaced the old props.position.x read) is deterministic
+   * under happy-dom (where getBoundingClientRect returns zeros by default).
+   * open-left fires when panel.right + ESTIMATED_MENU_WIDTH(320) > innerWidth.
+   */
+  function mockPanelRight(right: number): void {
+    const panel = wrapper.find(".danx-popover.danx-context-menu").element;
+    panel.getBoundingClientRect = vi.fn(
+      () => ({ right, left: 0, top: 0, bottom: 0, width: right, height: 0, x: 0, y: 0 }) as DOMRect
+    );
+  }
+
   describe("submenu direction", () => {
-    it("adds open-left class to submenu when near right viewport edge", async () => {
-      await mountMenu(
-        [
-          createItem({
-            children: [createItem({ id: "child-1", label: "Child" })],
-          }),
-        ],
-        { x: 900, y: 200 }
-      );
+    it("adds open-left class to submenu when panel is near right viewport edge", async () => {
+      await mountMenu([createItem({ children: [createItem({ id: "child-1", label: "Child" })] })], {
+        x: 900,
+        y: 200,
+      });
+      mockPanelRight(window.innerWidth - 50);
 
       await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
       const submenu = wrapper.find(".danx-context-menu__submenu");
       expect(submenu.exists()).toBe(true);
       expect(submenu.classes()).toContain("open-left");
     });
 
-    it("does not add open-left class when position is far from right edge", async () => {
-      await mountMenu(
-        [
-          createItem({
-            children: [createItem({ id: "child-1", label: "Child" })],
-          }),
-        ],
-        { x: 100, y: 200 }
-      );
+    it("does not add open-left class when panel is far from right edge", async () => {
+      await mountMenu([createItem({ children: [createItem({ id: "child-1", label: "Child" })] })], {
+        x: 100,
+        y: 200,
+      });
+      mockPanelRight(100);
 
       await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
       const submenu = wrapper.find(".danx-context-menu__submenu");
       expect(submenu.exists()).toBe(true);
       expect(submenu.classes()).not.toContain("open-left");
@@ -574,6 +584,186 @@ describe("DanxContextMenu", () => {
 
       // Advance past the timeout — should not throw or warn
       vi.advanceTimersByTime(200);
+    });
+  });
+
+  // Mount in button-anchored (dropdown) mode: a #trigger slot, NO position.
+  async function mountAnchored(items: ContextMenuItem[] = [], props: Record<string, unknown> = {}) {
+    wrapper = mount(DanxContextMenu, {
+      props: { items, ...props },
+      slots: { trigger: '<button class="trigger-btn">Open</button>' },
+      attachTo: document.body,
+    });
+    await nextTick();
+    await nextTick();
+    return wrapper;
+  }
+
+  describe("anchored open mode (#trigger, no position)", () => {
+    it("renders the trigger inline and the panel anchored, forwarding NO position", async () => {
+      await mountAnchored([createItem({ label: "Sort" })]);
+
+      // Trigger element is rendered inline inside DanxPopover's trigger wrapper.
+      expect(wrapper.find(".danx-popover-trigger .trigger-btn").exists()).toBe(true);
+
+      // Panel renders (open model defaults true), anchored to the trigger.
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(true);
+
+      // No explicit position is forwarded — DanxPopover anchors to the trigger,
+      // so no rect math runs in the consumer or in DanxContextMenu.
+      expect(wrapper.findComponent(DanxPopover).props("position")).toBeUndefined();
+    });
+
+    it("forwards placement to DanxPopover", async () => {
+      await mountAnchored([createItem()], { placement: "top" });
+      expect(wrapper.findComponent(DanxPopover).props("placement")).toBe("top");
+    });
+  });
+
+  describe("open model (v-model:open)", () => {
+    it("renders the panel by default when no open is bound", async () => {
+      await mountMenu([createItem()]);
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(true);
+    });
+
+    it("does not render the panel when open is false", async () => {
+      wrapper = mount(DanxContextMenu, {
+        props: { items: [createItem()], position: { x: 100, y: 200 }, open: false },
+        attachTo: document.body,
+      });
+      await nextTick();
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(false);
+    });
+
+    it("renders when open toggles false→true and removes when true→false", async () => {
+      wrapper = mount(DanxContextMenu, {
+        props: { items: [createItem()], position: { x: 100, y: 200 }, open: false },
+        attachTo: document.body,
+      });
+      await nextTick();
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(false);
+
+      await wrapper.setProps({ open: true });
+      await nextTick();
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(true);
+
+      await wrapper.setProps({ open: false });
+      await nextTick();
+      expect(wrapper.find(".danx-popover.danx-context-menu").exists()).toBe(false);
+    });
+
+    it("emits update:open false AND close when dismissed via Escape", async () => {
+      await mountMenu([createItem()]);
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      await nextTick();
+      expect(wrapper.emitted("update:open")).toEqual([[false]]);
+      expect(wrapper.emitted("close")).toHaveLength(1);
+    });
+  });
+
+  describe("submenu direction in anchored mode (panel rect, no position)", () => {
+    it("does not throw and derives open-left from the panel rect when near right edge", async () => {
+      await mountAnchored([
+        createItem({ children: [createItem({ id: "child-1", label: "Child" })] }),
+      ]);
+      mockPanelRight(window.innerWidth - 50);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
+      const submenu = wrapper.find(".danx-context-menu__submenu");
+      expect(submenu.exists()).toBe(true);
+      expect(submenu.classes()).toContain("open-left");
+    });
+
+    it("omits open-left when the panel rect is far from the right edge", async () => {
+      await mountAnchored([
+        createItem({ children: [createItem({ id: "child-1", label: "Child" })] }),
+      ]);
+      mockPanelRight(100);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
+      const submenu = wrapper.find(".danx-context-menu__submenu");
+      expect(submenu.exists()).toBe(true);
+      expect(submenu.classes()).not.toContain("open-left");
+    });
+  });
+
+  describe("anchored-mode close paths", () => {
+    it("closes on outside-click (pointerdown outside trigger + panel)", async () => {
+      await mountAnchored([createItem()]);
+      const outside = document.createElement("div");
+      document.body.appendChild(outside);
+
+      outside.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+      await nextTick();
+
+      expect(wrapper.emitted("close")).toHaveLength(1);
+      expect(wrapper.emitted("update:open")).toEqual([[false]]);
+      outside.remove();
+    });
+
+    it("closes on Escape", async () => {
+      await mountAnchored([createItem()]);
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      await nextTick();
+      expect(wrapper.emitted("close")).toHaveLength(1);
+      expect(wrapper.emitted("update:open")).toEqual([[false]]);
+    });
+
+    it("closes on item-click", async () => {
+      await mountAnchored([createItem({ action: vi.fn() })]);
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      expect(wrapper.emitted("close")).toHaveLength(1);
+    });
+  });
+
+  describe("active item indicator", () => {
+    it("renders is-active class and a check indicator on an active item", async () => {
+      await mountMenu([createItem({ active: true })]);
+      const item = wrapper.find(".danx-context-menu__item");
+      expect(item.classes()).toContain("is-active");
+      expect(wrapper.find(".danx-context-menu__check").exists()).toBe(true);
+    });
+
+    it("renders no indicator on a non-active item", async () => {
+      await mountMenu([createItem()]);
+      const item = wrapper.find(".danx-context-menu__item");
+      expect(item.classes()).not.toContain("is-active");
+      expect(wrapper.find(".danx-context-menu__check").exists()).toBe(false);
+    });
+
+    it("renders the active indicator on an active child inside an opened submenu", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent",
+          label: "Sort",
+          children: [
+            createItem({ id: "child-asc", label: "Ascending", active: true }),
+            createItem({ id: "child-desc", label: "Descending" }),
+          ],
+        }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      const submenu = wrapper.find(".danx-context-menu__submenu");
+      const activeChild = submenu.findAll(".danx-context-menu__item")[0]!;
+      expect(activeChild.classes()).toContain("is-active");
+      expect(activeChild.find(".danx-context-menu__check").exists()).toBe(true);
+    });
+
+    it("reflects active state on a submenu parent whose child is active", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent",
+          label: "Sort",
+          children: [createItem({ id: "child-asc", label: "Ascending", active: true })],
+        }),
+      ]);
+
+      const parent = wrapper.find(".danx-context-menu__item");
+      expect(parent.classes()).toContain("is-active");
+      expect(parent.find(".danx-context-menu__check").exists()).toBe(true);
     });
   });
 });

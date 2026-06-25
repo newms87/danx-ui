@@ -1,6 +1,6 @@
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
-import type { PopoverPosition } from "../popover/types";
+import type { PopoverPlacement, PopoverPosition } from "../popover/types";
 
 /**
  * DanxContextMenu Type Definitions
@@ -42,6 +42,13 @@ export interface ContextMenuItem {
 
   /** When true, renders as a visual divider instead of a clickable item */
   divider?: boolean;
+
+  /**
+   * When true, the item renders an active/selected indicator (leading check
+   * glyph + is-active style). A submenu parent reflects active state when any
+   * of its descendants is active. Replaces the icon-as-checkmark workaround.
+   */
+  active?: boolean;
 }
 
 /**
@@ -54,11 +61,23 @@ export type ContextMenuPosition = PopoverPosition;
  * Props for DanxContextMenu component.
  */
 export interface DanxContextMenuProps {
-  /** Viewport coordinates where the menu should appear */
-  position: ContextMenuPosition;
+  /**
+   * Viewport coordinates where the menu should appear (right-click mode).
+   * OPTIONAL: when omitted, the menu anchors to the `#trigger` slot element
+   * via DanxPopover's trigger-relative positioning (button-dropdown mode) —
+   * no rect math in the consumer or this component.
+   */
+  position?: ContextMenuPosition;
 
   /** Menu items to display */
   items: ContextMenuItem[];
+
+  /**
+   * Panel placement relative to the trigger in anchored mode.
+   * Forwarded to DanxPopover; defaults to "bottom" (suits a button dropdown).
+   * Ignored when an explicit `position` is provided.
+   */
+  placement?: PopoverPlacement;
 }
 
 /**
@@ -70,4 +89,16 @@ export interface DanxContextMenuEmits {
 
   /** Fired with the clicked item before executing its action */
   action: [item: ContextMenuItem];
+}
+
+/**
+ * Slots for DanxContextMenu component.
+ */
+export interface DanxContextMenuSlots {
+  /**
+   * Inline anchor element for button-anchored (dropdown) open mode.
+   * Forwarded to DanxPopover's `#trigger` slot; when provided with no
+   * `position`, the menu auto-positions off this element.
+   */
+  trigger?: () => unknown;
 }

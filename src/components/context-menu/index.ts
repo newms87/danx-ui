@@ -10,4 +10,5 @@ export type {
   ContextMenuPosition,
   DanxContextMenuEmits,
   DanxContextMenuProps,
+  DanxContextMenuSlots,
 } from "./types";

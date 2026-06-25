@@ -11,6 +11,7 @@
   --dx-context-menu-shadow: rgb(0 0 0 / 0.4);
   --dx-context-menu-text: var(--color-text);
   --dx-context-menu-text-muted: var(--color-text-muted);
+  --dx-context-menu-active-text: var(--color-interactive);
   --dx-context-menu-item-hover: var(--color-surface-hover);
   --dx-context-menu-divider: var(--color-border);
   --dx-context-menu-min-width: 200px;

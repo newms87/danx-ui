@@ -54,6 +54,22 @@
   &.has-children {
     padding-right: 0.5rem;
   }
+
+  &.is-active {
+    color: var(--dx-context-menu-active-text);
+    font-weight: 600;
+  }
+}
+
+.danx-context-menu__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-context-menu-icon-size);
+  flex-shrink: 0;
+  color: var(--dx-context-menu-active-text);
+  font-size: 0.875rem;
+  line-height: 1;
 }
 
 .danx-context-menu__icon {

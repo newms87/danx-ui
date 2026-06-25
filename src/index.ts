@@ -133,6 +133,7 @@ export type {
   ContextMenuPosition,
   DanxContextMenuEmits,
   DanxContextMenuProps,
+  DanxContextMenuSlots,
 } from "./components/context-menu";
 export type {
   FileNode,
