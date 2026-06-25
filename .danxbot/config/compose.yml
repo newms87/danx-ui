@@ -22,6 +22,10 @@ services:
       - ../.env
     environment:
       DANXBOT_REPO_NAME: danx-ui
+      # Docker worker is always container runtime (host mode = the separate
+      # `DANX_RUNTIME=host` that `make launch-worker-host` exports). config.ts
+      # requires this — without it the worker exits(1) on boot. Mirrors gpt-manager.
+      DANX_RUNTIME: container
       # DX-962 / DX-966 / DX-979 — per-process board identity. loadBoardContext
       # (src/board-context.ts) reads this; the picker + cron tick scope to it so
       # two boards' workers operate on disjoint queues. DX-979 retired the silent
