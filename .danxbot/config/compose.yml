@@ -39,7 +39,7 @@ services:
       DANXBOT_DB_HOST: mysql
       DANXBOT_DB_USER: danxbot
       DANXBOT_DB_PASSWORD: danxbot
-      DANXBOT_DB_NAME: danxbot_danx_ui
+      DANXBOT_DB_NAME: danxbot_chat
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       # Shared dispatch token — the v2 dispatcher loop authenticates to the
       # dashboard with this. It MUST be the SHARED canonical token (the value
