@@ -51,6 +51,25 @@ title="$3"
 shift 3
 bullets=("$@")
 
+# DX-1511 — run EVERY git op against the agent's worktree explicitly via
+# `git -C "$WT"`, never bare `git` relying on the process cwd being inside the
+# worktree. The clean-room launch path (DX-1511) spawns the agent in an
+# EXTERNAL cwd (`/var/tmp/danxbot-clean-room/<install-hash>/<key>/`, outside any repo), so a bare
+# `git` here would target the wrong tree (or fail with "not a git repository").
+# `$DANX_AGENT_WORKTREE` is set by the dispatch layer for every agent-bound
+# dispatch (the same path the worktree-guard hook enforces). This is SAFE on
+# the OLD in-worktree path too: `git -C <worktree>` when already inside that
+# worktree is a no-op. Fall back to the process cwd ("") only when the env var
+# is unset (non-agent dispatch) — there the agent already runs inside its tree.
+WT="${DANX_AGENT_WORKTREE:-}"
+git() {
+  if [[ -n "$WT" ]]; then
+    command git -C "$WT" "$@"
+  else
+    command git "$@"
+  fi
+}
+
 # Card id shape — `<PREFIX>-<N>` (e.g. `DX-162`). The id lands inside the
 # Conventional Commits scope `feat(<card>):`; an unconstrained value could
 # inject parens, spaces, or shell-meta chars into the commit subject and
