@@ -40,3 +40,8 @@ coverage/
 
 .claude/code-review-plans/
 node_modules
+
+# Danxbot worker session-log mount (runtime state, regenerated per dispatch).
+# Bound by .danxbot/config/compose.yml → /home/danxbot/.claude/projects; never
+# tracked. Mirrors gpt-manager + platform, which already ignore this.
+/claude-projects/
