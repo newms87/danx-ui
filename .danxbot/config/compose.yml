@@ -57,6 +57,12 @@ services:
       # silently dropped (the dashboard had the var; the worker did not).
       DANX_S3_ATTACHMENTS_BUCKET: ${DANX_S3_ATTACHMENTS_BUCKET}
       DANX_S3_ATTACHMENTS_REGION: ${DANX_S3_ATTACHMENTS_REGION}
+      # DX-1459 — per-user mirror OAuth creds are encrypted at rest with this
+      # SHARED key; the worker threads it from the shared --env-file (same family
+      # as DANXBOT_DISPATCH_TOKEN / DANX_S3_ATTACHMENTS_*) so its at-rest
+      # resolveKey can decrypt them for as-user comment projection. Omit it and
+      # resolveKey throws → every mirror OAuth callback / as-user projection 500s.
+      DANX_MIRROR_ENCRYPTION_KEY: ${DANX_MIRROR_ENCRYPTION_KEY}
       CLAUDE_AUTH_MODE: ${CLAUDE_AUTH_MODE:-subscription}
       POLLER_INTERVAL_MS: ${POLLER_INTERVAL_MS:-60000}
       TRELLO_REVIEW_MIN_CARDS: ${TRELLO_REVIEW_MIN_CARDS:-10}
