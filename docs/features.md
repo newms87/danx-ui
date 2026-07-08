@@ -54,6 +54,7 @@ vueuse already ships `useClipboard` (DXUI-12), `onKeyStroke`/`useMagicKeys` (DXU
 | DanxFile / DanxFileViewer | Complete | File preview by MIME, virtual carousel, download helpers, resolveFileUrl config. |
 | DanxFileUpload | Complete | Drag-drop, progress, presigned URL, pluggable upload handler. |
 | DanxFileExplorer | Complete | Tree file browser (covers roadmap TreeView for file trees). |
+| Dark mode token system | Complete | Three-tier tokens; `semantic-dark.css` activated by `.dark` on `<html>`/`<body>` (class strategy, intentional — no `prefers-color-scheme` by design). NOTE: tokens exist but NO JS composable to toggle/persist/auto-detect → see DXUI-36. |
 
 ### Shared / Data Layer (shipped — Complete)
 
@@ -95,6 +96,9 @@ coverage gate enforced via /flow-verify.
 | `yaml` hard runtime dependency | Incomplete | DXUI-30 (Bug). `package.json` has `"dependencies": {"yaml":"^2.4.5"}` — a MANDATORY runtime dep shipped to every consumer, contradicting the README "Zero Runtime Dependencies" headline and CLAUDE.md "NEVER add runtime dependencies". Used at runtime in `code-viewer/useCodeFormat.ts` + `shared/dataFormat.ts`. Should be optional peer (like luxon) + graceful degradation. |
 | Optional peers eagerly imported by main entry | Incomplete | DXUI-35 (Bug). `@vueuse/core` + `luxon` are marked OPTIONAL peers but are statically re-exported by the main barrel: `index.ts:431 → shared/actions.ts:19` (useDebounceFn from @vueuse/core) and `index.ts:390 → shared → formatters/index.ts:11 → datetime.ts` (imports + re-exports Luxon's `DateTime`). So `import 'danx-ui'` crashes without them in any non-tree-shaking env (dev servers, SSR, Vitest/Jest, Node ESM). "optional" is false for the main entry. DISTINCT from DXUI-30 (yaml in `dependencies`) and DXUI-29 (subpath exports). Fix: keep peer-dependent re-exports out of the eager main barrel (opt-in subpath/lazy) OR promote peers to required; add clean-install smoke test. |
 | Incomplete `exports` map | Incomplete | DXUI-29. README advertises granular `danx-ui/components/<x>` imports (headline tree-shaking), but `package.json` `exports` defines subpaths for only 8 of 31 components. The other 23 (input, select, chip, tabs, tooltip, popover, toast, alert, file*, etc.) have NO subpath/styles export — those documented imports fail for published consumers. Hand-maintained → drifted. Needs generation + drift check. |
+| useColorScheme (dark-mode toggle) | Missing | DXUI-36. Dark tokens ship (`semantic-dark.css`, `.dark` class) but ZERO JS to activate/persist/auto-detect. Consumers hand-roll `prefers-color-scheme` + localStorage + `.dark` toggle. `@vueuse/core` (peer dep) ships `useDark`/`usePreferredDark` → thin wrapper. Grounded: grep of src/ finds no dark-mode composable. |
+| Automated a11y regression testing | Missing | DXUI-37. README markets a11y; 3 point-fix cards (DXUI-19/32/34) but nothing prevents regressions. No `axe-core`/`vitest-axe`/`jest-axe` in devDeps; ~200-file suite has zero a11y assertions. Distinct from DXUI-28 (runs existing tests). |
+| Incomplete npm package metadata | Incomplete | DXUI-38. package.json has repository/keywords/description/author/license but MISSING `homepage`, `bugs`, `engines`. Verified. Trivial fix; coordinate `homepage` with DXUI-33, release hygiene with DXUI-27. |
 | No CI pipeline | Missing | DXUI-28. No `.github/`, no CI anywhere. Published lib with a 100% coverage gate + lint + typecheck enforced ONLY locally via /flow-verify. Nothing blocks a PR/publish shipping broken tests/types. Complementary to DXUI-27 (CHANGELOG). |
 | ARIA on interactive widgets | Incomplete | DXUI-19. DanxTabs (no role=tab/tablist/aria-selected), DanxButtonGroup (no role/aria-pressed), DanxTooltip (no role=tooltip/aria-describedby) lack ARIA. 9 dirs have zero `aria-`; tabs/buttonGroup/tooltip are the interactive ones that matter. Select already models role=listbox — pattern exists, applied inconsistently. |
 | Toast live-region (screen-reader announce) | Incomplete | DXUI-34 (Bug). `DanxToastContainer` regions + `DanxToast` items have ZERO `aria-live`/`role=status`/`role=alert`/`aria-atomic` (`grep aria-live src/` = empty). SR users get no announcement when a toast fires. DISTINCT from DXUI-19 (Tabs/ButtonGroup/Tooltip). DanxAlert already has the variant→polite/assertive mapping to copy. Verified clean elsewhere: progress-bar (role=progressbar+valuenow/min/max), range-slider (role=slider per handle + orientation), input/useFormField (aria-invalid/required/describedby fully wired), alert/skeleton/field-wrapper all correct. |
@@ -144,6 +148,10 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Publish hosted demo/playground site | Carded (Valuable) | 150 (5×6×5) | DXUI-33. Demo SPA (33 pages) never deployed; add demo build mode + Pages workflow + README link. Complements DXUI-25/28, no overlap. |
 | Toast aria-live live region | Carded (Bug/a11y) | 432 (6×9×8) | DXUI-34. Persistent live region per toast-region; variant→polite/assertive + aria-atomic + region aria-label. Highest-ICE card on the board. Grounded: 0 aria-live in src/ vs full ARIA elsewhere. |
 | Fix optional peers eagerly loaded by main entry | Carded (Bug/packaging) | 252 (6×7×6) | DXUI-35. @vueuse/core + luxon marked optional but statically re-exported by main barrel (index.ts:431/390 → shared/actions + shared/formatters/datetime). `import 'danx-ui'` throws without them in dev/SSR/test. Distinct from DXUI-30 (yaml in `dependencies`) & DXUI-29 (subpath exports). |
+| useColorScheme dark-mode toggle composable | Carded (Valuable) | 336 (6×8×7) | DXUI-36. Wrap vueuse useDark/usePreferredDark for `.dark` selector; isDark, light/dark/auto mode, toggle(), localStorage persist, SSR guard. Dark tokens exist but no JS to drive them. |
+| Automated a11y regression testing (axe-core) | Carded (Maintenance) | 252 (6×7×6) | DXUI-37. Add axe devDep + shared expectNoA11yViolations helper across interactive components; violations fail vitest. Guards DXUI-19/32/34 from regressing. |
+| Complete npm package metadata | Carded (Maintenance) | 300 (3×10×10) | DXUI-38. Add homepage/bugs/engines to package.json. Trivial, grounded quick win. |
+| Visual regression / screenshot testing | Exploratory (not carded) | — | UI lib with 31 visual components has zero screenshot/visual tooling. Genuine but heavier + lower confidence; overlaps demo-site (DXUI-33). Card only if pixel-regressions become a pain. |
 | Reconcile composable roadmap with @vueuse/core | Note (not carded) | — | vueuse is now a peer dep; DXUI-8/12/24 should wrap vueuse (useClipboard/onKeyStroke/useSortable) not hand-roll. Update those cards' approach when built rather than adding a new card. |
 | RTL / logical CSS properties | Exploratory (not carded) | — | 74 physical vs 1 logical CSS prop. Large Epic, uncertain demand. Card only if RTL demand surfaces. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
@@ -152,38 +160,42 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 10)** — Tenth ideator pass on danx-ui (scope: repo). Verification-first.
+**2026-07-08 (session 11)** — Eleventh ideator pass on danx-ui (scope: repo). Verification-first.
 
-- Verified reality: dashboard API `GET /api/issues?board=danx-ui:danx-ui-main` → 31 cards DXUI-4..34,
-  ALL Review, ALL ac 0/N — NONE built. `git log` since session 9 = only ideator note-update commits
-  (last feature commit is still `feat(DXUI-3)` @ 7023a67). `git diff --stat 7023a67 HEAD -- src/` = empty:
-  zero src changes since DXUI-3. `src/components` unchanged (31 dirs). Backlog stays fully carded.
-- Honored the standing "do NOT pad an exhausted queue" directive but ran fresh diligence for any NEW
-  grounded defect. Probed: TODO/FIXME/HACK (0), components missing `__tests__` (0 — all covered),
-  `dist` tracked in git (0 — gitignored), module-level runtime `document.`/`window.` (0 — no SSR hazard),
-  vite build (`minify:false`+`sourcemap:true` — noted, judged intentional/low-value, NOT carded).
-- Found exactly ONE genuine, grounded, non-duplicate defect → carded it:
-  - **DXUI-35** (Bug) Optional peers eagerly imported by main entry. `@vueuse/core` + `luxon` are marked
-    OPTIONAL peers yet statically re-exported by the main barrel: `index.ts:431 → shared/actions.ts:19`
-    (useDebounceFn from @vueuse/core) and `index.ts:390 → shared → formatters/index.ts:11 → datetime.ts`
-    (imports + re-exports Luxon's `DateTime`). So `import 'danx-ui'` throws without them in any
-    non-tree-shaking env (dev servers, SSR, Vitest/Jest, Node ESM). DISTINCT from DXUI-30 (yaml sits in
-    `dependencies`) and DXUI-29 (subpath exports). ICE 252 (6×7×6). Fix: keep peer-dependent re-exports
-    out of the eager main barrel (opt-in subpath/lazy) OR promote peers to required; add clean-install
-    smoke test.
+- Verified reality: dashboard API → 32 cards DXUI-4..35, ALL Review, ALL unbuilt. `git log` since
+  session 10 = only ideator note-update commits (last feature commit still `feat(DXUI-3)` @ 7023a67).
+  `git diff --stat 7023a67 HEAD -- src/` = empty: zero src changes. `src/components` unchanged (31 dirs).
+  Version still 0.8.17. Backlog stays fully carded — nothing shipped.
+- Fresh diligence (all grounded probes): test.skip/only (0 real — false positives on var names),
+  TODO/FIXME/HACK (0), stray console (0 — all legit: gated `debug` logs, misuse `warn`, caught `error`),
+  `sideEffects:["**/*.css"]` CORRECT, subpath exports DO carry `types` field, SSR module-level hazards (0).
+  Reconfirmed DXUI-29 still valid: `exports` map has subpaths for only 8/31 components (button, dialog,
+  code-viewer, markdown-editor, scroll, toggle, range-slider, color-picker) — 20 keys total incl. styles/shared.
+- Found THREE genuine, grounded, non-duplicate items → carded all three (Features, all Review):
+  - **DXUI-36** (Valuable, ICE 336=6×8×7) `useColorScheme` dark-mode toggle composable. Dark theme tokens
+    fully ship (`semantic-dark.css` via `tokens/index.css`, `.dark` class strategy) but ZERO JS to
+    activate/persist/auto-detect — consumers hand-roll it. `@vueuse/core` (peer) ships `useDark`/
+    `usePreferredDark` → thin wrapper. Grep of src/ confirms no dark-mode composable exists.
+  - **DXUI-37** (Maintenance, ICE 252=6×7×6) Automated a11y regression testing w/ axe-core. No
+    axe/vitest-axe/jest-axe in devDeps; ~200-file suite has zero a11y assertions. Guards DXUI-19/32/34
+    from regressing. Distinct from DXUI-28 (runs existing tests).
+  - **DXUI-38** (Maintenance, ICE 300=3×10×10) Complete npm package metadata. package.json missing
+    `homepage`, `bugs`, `engines` (has repository/keywords/description/author/license). Trivial quick win.
+- Inventory corrections: added Dark-mode token system as Complete (was undocumented); noted its missing
+  JS toggle → DXUI-36. Metadata gaps (homepage/bugs/engines) & no `engines` field = DXUI-38.
 - **API NOTE:** `mcp__danx_dashboard__*` MCP tools STILL absent from toolset (only Bash/Read/Edit/Write).
-  Used python urllib → `POST $DANXBOT_DASHBOARD_URL/api/issues`, board `danx-ui:danx-ui-main`, Bearer
-  $DANXBOT_DISPATCH_TOKEN; created id returned at `issue.issue.id`. `type:"Bug"` REQUIRES
-  `gate_decisions:[{gate,enabled,note}]` for plan-dependency/plan-architecture/plan-tdd (non-empty note);
-  Feature auto-seeds them (no gate_decisions needed). `ac` items are `{title}`.
+  Used `curl POST $DANXBOT_DASHBOARD_URL/api/issues`, board `danx-ui:danx-ui-main`, Bearer
+  $DANXBOT_DISPATCH_TOKEN; created id at `issue.issue.id`; list projects `ac` as 0 but detail
+  `GET /api/issues/DXUI-NN` confirms ac persisted. `ac` items are `{title}`. Feature auto-seeds gates
+  (no gate_decisions needed); Bug still requires gate_decisions.
 
-**Next session:** 32 cards at Review (DXUI-4..35), none built. Queue is exhausted across components,
-composables, forms, packaging/release-hygiene, a11y (ARIA DXUI-19 + motion DXUI-32 + toast DXUI-34),
-i18n formatters, demo hosting, and now peer-dependency packaging correctness (DXUI-30 + DXUI-35). Do NOT
-add cards unless something ships OR a genuine new defect surfaces. Best move next time: verification-only —
-re-scan `git log`/`git diff 7023a67 HEAD -- src/` for which DXUI-* shipped, then retire/refresh. Only
-uncarded ideas remain: CommandPalette (Dependent on useHotkeys/DXUI-8) and RTL (Exploratory — 74 physical
-vs 1 logical CSS prop, card only if demand surfaces). When DXUI-8/12/24 are built, lean on @vueuse/core
-rather than hand-rolling. Note re DXUI-35: fixing it may interact with DXUI-29 (exports) & DXUI-30 (yaml)
-— coordinate the packaging/entry-point restructuring.
+**Next session:** 35 cards at Review (DXUI-4..38), none built. Queue is exhausted across components,
+composables, forms, packaging/release-hygiene, a11y (ARIA DXUI-19 + motion DXUI-32 + toast DXUI-34 +
+axe-regression DXUI-37), theming (dark-mode toggle DXUI-36), i18n formatters, demo hosting, peer-dep
+packaging (DXUI-30/35), and npm metadata (DXUI-38). Do NOT add cards unless something ships OR a genuine
+new defect surfaces. Best move next time: verification-only — re-scan `git log`/`git diff 7023a67 HEAD
+-- src/` for which DXUI-* shipped, then retire/refresh. Remaining uncarded: CommandPalette (Dependent on
+useHotkeys/DXUI-8), RTL (Exploratory — 74 physical vs 1 logical CSS prop), Visual-regression testing
+(Exploratory — heavier, overlaps DXUI-33). When DXUI-8/12/24/36 are built, lean on @vueuse/core rather
+than hand-rolling.
 
