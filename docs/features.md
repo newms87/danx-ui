@@ -92,6 +92,9 @@ coverage gate enforced via /flow-verify.
 | DanxDatePicker | Missing | date/datetime/range. Large gap; luxon already a peer dep. |
 | useDragAndDrop (reorder) | Missing | List reordering composable + drag handle. |
 | useClipboard | Missing | Copy-to-clipboard composable; copy logic lives ad-hoc in editable-div/code-viewer. |
+| `yaml` hard runtime dependency | Incomplete | DXUI-30 (Bug). `package.json` has `"dependencies": {"yaml":"^2.4.5"}` — a MANDATORY runtime dep shipped to every consumer, contradicting the README "Zero Runtime Dependencies" headline and CLAUDE.md "NEVER add runtime dependencies". Used at runtime in `code-viewer/useCodeFormat.ts` + `shared/dataFormat.ts`. Should be optional peer (like luxon) + graceful degradation. |
+| Incomplete `exports` map | Incomplete | DXUI-29. README advertises granular `danx-ui/components/<x>` imports (headline tree-shaking), but `package.json` `exports` defines subpaths for only 8 of 31 components. The other 23 (input, select, chip, tabs, tooltip, popover, toast, alert, file*, etc.) have NO subpath/styles export — those documented imports fail for published consumers. Hand-maintained → drifted. Needs generation + drift check. |
+| No CI pipeline | Missing | DXUI-28. No `.github/`, no CI anywhere. Published lib with a 100% coverage gate + lint + typecheck enforced ONLY locally via /flow-verify. Nothing blocks a PR/publish shipping broken tests/types. Complementary to DXUI-27 (CHANGELOG). |
 | ARIA on interactive widgets | Incomplete | DXUI-19. DanxTabs (no role=tab/tablist/aria-selected), DanxButtonGroup (no role/aria-pressed), DanxTooltip (no role=tooltip/aria-describedby) lack ARIA. 9 dirs have zero `aria-`; tabs/buttonGroup/tooltip are the interactive ones that matter. Select already models role=listbox — pattern exists, applied inconsistently. |
 
 ---
@@ -126,6 +129,9 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Fix README docs index (link all 34 docs) | Carded (Maintenance) | 324 (4×9×9) | DXUI-25. README links 3/34 docs; add grouped alphabetized index + contributing reminder. |
 | DanxNumberInput (stepper + clamp) | Carded (Valuable) | 240 (5×8×6) | DXUI-26. +/- steppers, clamp, decimal-safe step, hold-repeat, keyboard; reuses input/field infra. |
 | CHANGELOG + release discipline | Carded (Maintenance) | 192 (4×8×6) | DXUI-27. Keep-a-Changelog file, backfill recent versions, wire into publish flow. |
+| CI pipeline (test/lint/typecheck gate) | Carded (Maintenance) | 360 (5×9×8) | DXUI-28. GitHub Actions on PR/push runs yarn lint/typecheck/test:coverage as required checks. Complements DXUI-27. |
+| Complete + auto-generate exports map | Carded (Maintenance) | 288 (6×8×6) | DXUI-29. Only 8/31 components have subpath exports; generate from src/components + drift check. Grounded in package.json. |
+| Fix yaml hard runtime dependency | Carded (Bug/Maintenance) | 180 (6×6×5) | DXUI-30. Move yaml to optional peer (like luxon) + guard 2 import sites; fixes false "zero-dependency" claim. |
 | Reconcile composable roadmap with @vueuse/core | Note (not carded) | — | vueuse is now a peer dep; DXUI-8/12/24 should wrap vueuse (useClipboard/onKeyStroke/useSortable) not hand-roll. Update those cards' approach when built rather than adding a new card. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
 
@@ -133,35 +139,34 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 6)** — Sixth ideator pass on danx-ui (scope: repo).
+**2026-07-08 (session 7)** — Seventh ideator pass on danx-ui (scope: repo).
 
-- Verified reality via dashboard API (`GET /api/issues?board=danx-ui:danx-ui-main`): 21 cards
-  DXUI-4..24, ALL still Review, ALL ac 0/N — NONE built. Git log confirms no new component since
-  DXUI-3 context-menu; `src/components` dir list is unchanged (31 dirs). Backlog remains fully
-  carded down to ICE 144. Saturation persists exactly as session 5 predicted.
-- Rather than pad duplicates, mined UNexplored areas and found 3 genuinely new, grounded,
-  non-duplicate items and carded them:
-  - **DXUI-25** Fix: README docs index links only 3 of 34 docs (Bug, Maintenance) — ICE 324.
-  - **DXUI-26** DanxNumberInput stepper+clamp (Feature, Valuable) — ICE 240. Grounded: DanxInput
-    type=number exposes only native spinners; no custom stepper anywhere in src.
-  - **DXUI-27** CHANGELOG + release discipline (Feature, Maintenance) — ICE 192. No CHANGELOG for a
-    published lib at v0.8.17 with 20 entry points.
-- **New inventory insight:** `@vueuse/core ^14.0` is now a PEER DEP (lib is no longer literally
-  "zero-dependency"). Used in only 2 real spots (useInfiniteScroll, useDebounceFn). This reconsiders
-  DXUI-8 (useHotkeys → onKeyStroke/useMagicKeys), DXUI-12 (useClipboard → vueuse useClipboard),
-  DXUI-24 (useDragAndDrop → useSortable): wrap vueuse, don't hand-roll. Noted, not carded.
-- Clean-code re-scan: still zero TODO/FIXME/HACK in src; no module-scope window/document (SSR-safe
-  enough, 2 typeof-window guards present); demo/ has one page per component but is not deployed as a
-  docs site (no CI/.github). Coverage gate unchanged.
-- **API CHANGE (schema v30):** `POST /api/issues` now REQUIRES `gate_decisions: [{gate, enabled,
-  note}]` for the board-optional plan gates (plan-dependency, plan-architecture, plan-tdd); non-empty
-  `note` mandatory or 400. Response echoes new id at `issue.issue.id`. Board must be qualified
-  `danx-ui:danx-ui-main`. `mcp__danx_dashboard__*` tools STILL absent from toolset — used curl+Bear
-  er $DANXBOT_DISPATCH_TOKEN against $DANXBOT_DASHBOARD_URL.
+- Verified reality via dashboard API (`GET /api/issues?board=danx-ui:danx-ui-main`): 24 cards
+  DXUI-4..27, ALL still Review, ALL ac 0/N — NONE built. Git log since session 6 = only ideator
+  note-update commits + danxbot infra; NO new component since DXUI-3. `src/components` unchanged
+  (31 dirs). Component/composable feature backlog stays fully carded down to ICE 144.
+- Per session-6 guidance (no padding), mined PACKAGING/RELEASE-HYGIENE surface — an area the prior
+  6 sessions never inspected — and found 3 genuinely new, grounded, non-duplicate items; carded all:
+  - **DXUI-30** Fix: `yaml` is a HARD runtime dependency (`"dependencies":{"yaml":"^2.4.5"}`),
+    contradicting the README "Zero Runtime Dependencies" headline + CLAUDE.md forbidden-pattern rule.
+    Used at runtime in code-viewer/useCodeFormat.ts + shared/dataFormat.ts. Move to optional peer
+    (like luxon) + graceful degradation. Bug, ICE 180. NEW insight beyond the session-6 @vueuse note.
+  - **DXUI-29** Complete + auto-generate the `exports` map: only 8 of 31 components have subpath
+    exports, so 23 documented `danx-ui/components/<x>` imports fail for published consumers.
+    Feature (Maintenance), ICE 288.
+  - **DXUI-28** Add CI pipeline (GitHub Actions: lint/typecheck/test:coverage on PR/push). No
+    `.github/` exists. Feature (Maintenance), ICE 360. Complements DXUI-27 (CHANGELOG).
+- **API NOTE (schema v30):** `mcp__danx_dashboard__*` tools STILL absent from my toolset — used
+  curl + Bearer $DANXBOT_DISPATCH_TOKEN against $DANXBOT_DASHBOARD_URL, board qualified
+  `danx-ui:danx-ui-main`, id echoed at `issue.issue.id`. IMPORTANT REFINEMENT of session-6's claim:
+  `gate_decisions` is required ONLY for type=Bug (plan-dependency/architecture/tdd are board-OPTIONAL
+  there → 400 with `required_gate_decisions` hint if omitted). type=Feature auto-seeds those gates as
+  `required:false` and needs NO gate_decisions. `ac` items are `{title}` (NOT `{text,checked}`).
 
-**Next session:** 24 cards at Review (DXUI-4..27), none built — queue still EXHAUSTED of grounded
-new ideas at reasonable ICE. Do NOT add cards unless something gets built OR a genuine new defect
-surfaces. Best move next time is verification-only: re-scan git log/src for which DXUI-* shipped,
-retire/refresh accordingly, and consider revising DXUI-8/12/24 to lean on @vueuse/core. Only
-remaining uncarded desired feature: CommandPalette (Dependent — blocked on useHotkeys/DXUI-8).
+**Next session:** 27 cards at Review (DXUI-4..30), none built. Queue is now EXHAUSTED across BOTH
+the component/composable surface AND the packaging/release-hygiene surface. Do NOT add cards unless
+something gets built OR a genuine new defect surfaces. Best move: verification-only — re-scan git
+log/src for which DXUI-* shipped and retire/refresh. Remaining uncarded desired feature:
+CommandPalette (Dependent — blocked on useHotkeys/DXUI-8). When DXUI-8/12/24 are eventually built,
+lean on @vueuse/core (onKeyStroke/useClipboard/useSortable) rather than hand-rolling.
 
