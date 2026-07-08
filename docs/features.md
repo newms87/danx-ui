@@ -4,10 +4,17 @@ Living feature knowledge base maintained by the ideator agent. The root `feature
 is the original v1.0 roadmap/design doc; THIS file tracks current shipped reality,
 gaps, ICE-scored desired features, and session state.
 
-danx-ui is a zero-dependency Vue 3 + Tailwind v4 component library (`@thehammer/danx-ui`,
-v0.8.17). Note: the "reactive data layer" (object store, actions, request helper,
-action routes, list controller) originally planned as a separate `@danx/toolkit`
-package has instead been built directly INTO danx-ui under `src/shared/`.
+danx-ui is a Vue 3 + Tailwind v4 component library (`danx-ui`, v0.8.17). Note: the
+"reactive data layer" (object store, actions, request helper, action routes, list
+controller) originally planned as a separate `@danx/toolkit` package has instead been
+built directly INTO danx-ui under `src/shared/`.
+
+**Peer deps (package.json):** `vue ^3.5`, `@vueuse/core ^14.0` (NEW — not "zero-dependency"
+anymore for the two composables that use it), `luxon ^3.0` (optional). vueuse is imported
+in only 2 real spots today: `scroll/useScrollInfinite.ts` (useInfiniteScroll) and
+`shared/actions.ts` (useDebounceFn). This materially reconsiders three composable cards —
+vueuse already ships `useClipboard` (DXUI-12), `onKeyStroke`/`useMagicKeys` (DXUI-8), and
+`useSortable`/`useDraggable` (DXUI-24). Prefer wrapping vueuse over hand-rolling for those.
 
 ---
 
@@ -79,6 +86,9 @@ coverage gate enforced via /flow-verify.
 | DanxBreadcrumbs (general) | Missing | Only DialogBreadcrumbs exists; no general path trail. |
 | DanxStepper | Missing | Multi-step workflow indicator. |
 | DanxPopconfirm | Missing | Inline confirm popover for destructive actions. |
+| DanxNumberInput | Missing | DXUI-26. DanxInput type=number exposes only native browser spinners; no visible +/- stepper, clamp-on-blur, hold-to-repeat, or decimal-safe stepping. |
+| README docs index | Incomplete | DXUI-25. `docs/` has 34 md files; README "Documentation" links only 3. ~30 component docs undiscoverable from the published package. |
+| CHANGELOG | Missing | DXUI-27. Published npm lib v0.8.17 with 20 entry points and publish:* scripts, but no CHANGELOG/release notes for consumers. |
 | DanxDatePicker | Missing | date/datetime/range. Large gap; luxon already a peer dep. |
 | useDragAndDrop (reorder) | Missing | List reordering composable + drag handle. |
 | useClipboard | Missing | Copy-to-clipboard composable; copy logic lives ad-hoc in editable-div/code-viewer. |
@@ -113,47 +123,45 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxDatePicker | Carded (Valuable) | 144 (8×6×3) | DXUI-22. Calendar grid, datetime, range, keyboard. Phased delivery in one Feature. Infra grounded: luxon peer dep + dateTimeParsers.ts. |
 | useDragAndDrop reorder + DragHandle | Carded (Valuable) | 144 (6×6×4) | DXUI-24. Reorder array v-model w/ FLIP + keyboard a11y; DanxDragHandle affordance. |
 | useClipboard | Carded (Maintenance) | 336 (6×8×7) | DXUI-12. Extract copy logic (code-viewer, editable-div) into shared composable w/ fallback. |
+| Fix README docs index (link all 34 docs) | Carded (Maintenance) | 324 (4×9×9) | DXUI-25. README links 3/34 docs; add grouped alphabetized index + contributing reminder. |
+| DanxNumberInput (stepper + clamp) | Carded (Valuable) | 240 (5×8×6) | DXUI-26. +/- steppers, clamp, decimal-safe step, hold-repeat, keyboard; reuses input/field infra. |
+| CHANGELOG + release discipline | Carded (Maintenance) | 192 (4×8×6) | DXUI-27. Keep-a-Changelog file, backfill recent versions, wire into publish flow. |
+| Reconcile composable roadmap with @vueuse/core | Note (not carded) | — | vueuse is now a peer dep; DXUI-8/12/24 should wrap vueuse (useClipboard/onKeyStroke/useSortable) not hand-roll. Update those cards' approach when built rather than adding a new card. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 5)** — Fifth ideator pass on danx-ui.
+**2026-07-08 (session 6)** — Sixth ideator pass on danx-ui (scope: repo).
 
-- Verified state: board `danx-ui:danx-ui-main` (prefix DXUI) has 18 open issues DXUI-4..21,
-  ALL still at Review, NONE built. Git log confirms no new components since DXUI-3 context-menu
-  (the ideator sessions only touched docs/features.md). Queue remains heavily saturated.
-- Applied last session's plan: carded the top three UNCARDED backlog items (all genuinely new,
-  deduped against DXUI-4..21 and against src/ — none exist in code). Chose depth over volume
-  (3 cards, not 5) given saturation.
-- DatePicker grounding confirmed: luxon is a declared optional peer dep and
-  `src/shared/formatters/dateTimeParsers.ts` already exports parseDateTime/parseSqlDateTime/
-  parseSlashDate/parseGenericDateTime + datetime.ts/dateTimeTimezone.ts. Framed as a single
-  phased Feature (grid → datetime → range → bounds) rather than an Epic, since the HTTP create
-  path only makes flat Features and the parent task restricted to Feature|Bug.
-- Table grounding: no `<table>`/DataGrid component anywhere in src/components (31 dirs). Pairs
-  with existing ListController + proposed DXUI-13 Pagination — completes the list-rendering story.
-- Reinforced DXUI-8 (useHotkeys): found ANOTHER duplicated keyboard handler
-  `src/components/select/useSelectKeyboard.ts` — the dedup case keeps growing.
-- Still clean: no TODO/FIXME/HACK in src; still no CHANGELOG (minor, not carded);
-  coverage gate 100% lines/functions/statements, 85% branches (SFC template limitation).
-- API UPDATE vs session 4 note: dashboard schema is now v30 and POST /api/issues DOES echo the
-  new id in the response body at `issue.issue.id` — no longer need a follow-up GET. Board must be
-  the QUALIFIED id `danx-ui:danx-ui-main` (bare slug now rejected as ambiguous, 400). Auth still
-  `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN`; create shape `{board,type,title,description,ac:[{title}]}`.
-  `mcp__danx_dashboard__*` tools STILL absent from the toolset (Bash/Read/Edit/Write only).
+- Verified reality via dashboard API (`GET /api/issues?board=danx-ui:danx-ui-main`): 21 cards
+  DXUI-4..24, ALL still Review, ALL ac 0/N — NONE built. Git log confirms no new component since
+  DXUI-3 context-menu; `src/components` dir list is unchanged (31 dirs). Backlog remains fully
+  carded down to ICE 144. Saturation persists exactly as session 5 predicted.
+- Rather than pad duplicates, mined UNexplored areas and found 3 genuinely new, grounded,
+  non-duplicate items and carded them:
+  - **DXUI-25** Fix: README docs index links only 3 of 34 docs (Bug, Maintenance) — ICE 324.
+  - **DXUI-26** DanxNumberInput stepper+clamp (Feature, Valuable) — ICE 240. Grounded: DanxInput
+    type=number exposes only native spinners; no custom stepper anywhere in src.
+  - **DXUI-27** CHANGELOG + release discipline (Feature, Maintenance) — ICE 192. No CHANGELOG for a
+    published lib at v0.8.17 with 20 entry points.
+- **New inventory insight:** `@vueuse/core ^14.0` is now a PEER DEP (lib is no longer literally
+  "zero-dependency"). Used in only 2 real spots (useInfiniteScroll, useDebounceFn). This reconsiders
+  DXUI-8 (useHotkeys → onKeyStroke/useMagicKeys), DXUI-12 (useClipboard → vueuse useClipboard),
+  DXUI-24 (useDragAndDrop → useSortable): wrap vueuse, don't hand-roll. Noted, not carded.
+- Clean-code re-scan: still zero TODO/FIXME/HACK in src; no module-scope window/document (SSR-safe
+  enough, 2 typeof-window guards present); demo/ has one page per component but is not deployed as a
+  docs site (no CI/.github). Coverage gate unchanged.
+- **API CHANGE (schema v30):** `POST /api/issues` now REQUIRES `gate_decisions: [{gate, enabled,
+  note}]` for the board-optional plan gates (plan-dependency, plan-architecture, plan-tdd); non-empty
+  `note` mandatory or 400. Response echoes new id at `issue.issue.id`. Board must be qualified
+  `danx-ui:danx-ui-main`. `mcp__danx_dashboard__*` tools STILL absent from toolset — used curl+Bear
+  er $DANXBOT_DISPATCH_TOKEN against $DANXBOT_DASHBOARD_URL.
 
-**Cards created this session (Review status):**
-1. DXUI-22 `[danx-ui > Forms] Add DanxDatePicker calendar date/datetime/range input` — ICE 144 (Valuable, highest impact uncarded)
-2. DXUI-23 `[danx-ui > Data] Add DanxTable declarative column/slot data table` — ICE 168 (Valuable, highest ICE uncarded)
-3. DXUI-24 `[danx-ui > Composables] Add useDragAndDrop list-reorder composable + DanxDragHandle` — ICE 144 (Valuable)
+**Next session:** 24 cards at Review (DXUI-4..27), none built — queue still EXHAUSTED of grounded
+new ideas at reasonable ICE. Do NOT add cards unless something gets built OR a genuine new defect
+surfaces. Best move next time is verification-only: re-scan git log/src for which DXUI-* shipped,
+retire/refresh accordingly, and consider revising DXUI-8/12/24 to lean on @vueuse/core. Only
+remaining uncarded desired feature: CommandPalette (Dependent — blocked on useHotkeys/DXUI-8).
 
-**Backlog now fully carded down to ICE 144.** Only remaining uncarded desired feature:
-CommandPalette (Dependent — blocked on useHotkeys/DXUI-8 shipping).
-
-**Next session:** 21 cards at Review (DXUI-4..24), none built — the queue is EXHAUSTED of new
-grounded ideas at reasonable ICE and fully saturated. Do NOT create more cards unless something
-gets picked up/built, OR you find a genuine NEW defect. The right move next time is verification-only:
-re-scan git log / src for which DXUI-* got built, retire/refresh cards accordingly, and re-rank.
-If truly nothing moved, add zero cards and report the saturation rather than padding.
