@@ -109,9 +109,9 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxStepper | Carded (Valuable) | 240 (5×8×6) | DXUI-20. Step indicator; pairs with multi-step forms. |
 | DanxDrawer / DanxSidebar | Carded (Valuable) | 210 (6×7×5) | DXUI-21. Slide-out overlay; extract reusable SlideTransition; reuse dialog focus/scroll-lock. |
 | ARIA semantics for Tabs/ButtonGroup/Tooltip | Carded (Valuable) | 336 (7×8×6) | DXUI-19. Interactive widgets missing role/aria-selected/aria-pressed/role=tooltip+aria-describedby. Grounded in code; Select already models role=listbox so pattern exists but is inconsistent. |
-| DanxTable (simple) | Valuable | 168 (7×6×4) | Static styled table w/ column slots. |
-| DanxDatePicker | Dependent/Valuable | 144 (8×6×3) | Big: calendar grid, range, keyboard, timezones. Highest impact but low ease — split into phased Epic later. |
-| useDragAndDrop reorder + DragHandle | Valuable | 144 (6×6×4) | Reorder lists w/ FLIP animation. |
+| DanxTable (simple) | Carded (Valuable) | 168 (7×6×4) | DXUI-23. Static styled table w/ column/cell slots; pairs with ListController + DXUI-13 Pagination. |
+| DanxDatePicker | Carded (Valuable) | 144 (8×6×3) | DXUI-22. Calendar grid, datetime, range, keyboard. Phased delivery in one Feature. Infra grounded: luxon peer dep + dateTimeParsers.ts. |
+| useDragAndDrop reorder + DragHandle | Carded (Valuable) | 144 (6×6×4) | DXUI-24. Reorder array v-model w/ FLIP + keyboard a11y; DanxDragHandle affordance. |
 | useClipboard | Carded (Maintenance) | 336 (6×8×7) | DXUI-12. Extract copy logic (code-viewer, editable-div) into shared composable w/ fallback. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
 
@@ -119,41 +119,41 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 4)** — Fourth ideator pass on danx-ui.
+**2026-07-08 (session 5)** — Fifth ideator pass on danx-ui.
 
-- Verified state: DXUI-4..18 (15 cards) ALL still at Review, none built. Re-scanned
-  `src/components/` (31 dirs) + `src/shared/`; no prior-carded gap has been implemented.
-  Queue is saturated → exercised restraint, created 3 (not 5) cards.
-- NEW grounded finding — accessibility gap. Grepped ARIA usage: 9 component dirs have zero
-  `aria-` (badge/button/buttonGroup/code-viewer/icon/popover/scroll/tabs/tooltip). Of these,
-  the interactive widgets are non-conformant: `DanxTabs` buttons have no role=tab / role=tablist /
-  aria-selected; `DanxButtonGroup` toggle has no role/aria-pressed; `DanxTooltip` panel has no
-  role=tooltip / aria-describedby trigger linkage. `DanxSelect` DOES model role=listbox +
-  aria-multiselectable, so the pattern exists but is applied inconsistently. Higher ICE (336)
-  than the remaining component backlog → carded DXUI-19, led the batch with it.
-- Also confirmed: no TODO/FIXME/HACK markers anywhere in src (clean); no CHANGELOG despite npm
-  publish scripts (minor, not carded); coverage gate 100% lines/functions/statements, 85% branches.
-- Dashboard access: `mcp__danx_dashboard__*` tools STILL not in the session toolset
-  (only Bash/Read/Edit/Write). Used HTTP API directly. IMPORTANT auth gotcha discovered this
-  session: writes (POST /api/issues) go through `requireUser` which accepts
-  `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN` — SAME token/band as GET. Earlier 401s were
-  a self-inflicted bug (double "Authorization:" prefix in the header VALUE), NOT a real auth wall.
-  Correct header value is literally `Bearer <token>`. Create shape `{board,type,title,description,
-  ac:[{title}]}`; POST returns 201 but the body does NOT echo the id — re-GET the list to capture ids.
-- Deduped against DXUI-4..18 (all Review) before creating.
+- Verified state: board `danx-ui:danx-ui-main` (prefix DXUI) has 18 open issues DXUI-4..21,
+  ALL still at Review, NONE built. Git log confirms no new components since DXUI-3 context-menu
+  (the ideator sessions only touched docs/features.md). Queue remains heavily saturated.
+- Applied last session's plan: carded the top three UNCARDED backlog items (all genuinely new,
+  deduped against DXUI-4..21 and against src/ — none exist in code). Chose depth over volume
+  (3 cards, not 5) given saturation.
+- DatePicker grounding confirmed: luxon is a declared optional peer dep and
+  `src/shared/formatters/dateTimeParsers.ts` already exports parseDateTime/parseSqlDateTime/
+  parseSlashDate/parseGenericDateTime + datetime.ts/dateTimeTimezone.ts. Framed as a single
+  phased Feature (grid → datetime → range → bounds) rather than an Epic, since the HTTP create
+  path only makes flat Features and the parent task restricted to Feature|Bug.
+- Table grounding: no `<table>`/DataGrid component anywhere in src/components (31 dirs). Pairs
+  with existing ListController + proposed DXUI-13 Pagination — completes the list-rendering story.
+- Reinforced DXUI-8 (useHotkeys): found ANOTHER duplicated keyboard handler
+  `src/components/select/useSelectKeyboard.ts` — the dedup case keeps growing.
+- Still clean: no TODO/FIXME/HACK in src; still no CHANGELOG (minor, not carded);
+  coverage gate 100% lines/functions/statements, 85% branches (SFC template limitation).
+- API UPDATE vs session 4 note: dashboard schema is now v30 and POST /api/issues DOES echo the
+  new id in the response body at `issue.issue.id` — no longer need a follow-up GET. Board must be
+  the QUALIFIED id `danx-ui:danx-ui-main` (bare slug now rejected as ambiguous, 400). Auth still
+  `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN`; create shape `{board,type,title,description,ac:[{title}]}`.
+  `mcp__danx_dashboard__*` tools STILL absent from the toolset (Bash/Read/Edit/Write only).
 
 **Cards created this session (Review status):**
-1. DXUI-19 `[danx-ui > Accessibility] Add missing ARIA roles/state to DanxTabs, DanxButtonGroup, DanxTooltip` — ICE 336 (Valuable, NEW finding)
-2. DXUI-20 `[danx-ui > Navigation] Add DanxStepper multi-step workflow indicator` — ICE 240 (Valuable)
-3. DXUI-21 `[danx-ui > Layout] Add DanxDrawer slide-out overlay panel` — ICE 210 (Valuable)
+1. DXUI-22 `[danx-ui > Forms] Add DanxDatePicker calendar date/datetime/range input` — ICE 144 (Valuable, highest impact uncarded)
+2. DXUI-23 `[danx-ui > Data] Add DanxTable declarative column/slot data table` — ICE 168 (Valuable, highest ICE uncarded)
+3. DXUI-24 `[danx-ui > Composables] Add useDragAndDrop list-reorder composable + DanxDragHandle` — ICE 144 (Valuable)
 
-**Backlog carded through ICE ≥ 210.** Remaining uncarded desired features:
-DanxTable simple (168), DanxDatePicker (144, needs phased Epic decomposition),
-useDragAndDrop reorder (144), CommandPalette (Dependent on useHotkeys/DXUI-8).
+**Backlog now fully carded down to ICE 144.** Only remaining uncarded desired feature:
+CommandPalette (Dependent — blocked on useHotkeys/DXUI-8 shipping).
 
-**Next session:** 21 cards now at Review, none built. The queue is heavily saturated — do NOT
-add volume unless cards start getting picked up/built. Prefer re-verifying which DXUI-* got built
-and refreshing priorities. If still saturated, the highest-value move is decomposing DanxDatePicker
-into a phased Epic (highest impact, low ease) rather than carding more thin components. Consider a
-follow-on a11y sweep of the remaining zero-aria dirs (dialog focus-trap already handled by native
-`<dialog>`; check code-viewer/scroll interactive affordances).
+**Next session:** 21 cards at Review (DXUI-4..24), none built — the queue is EXHAUSTED of new
+grounded ideas at reasonable ICE and fully saturated. Do NOT create more cards unless something
+gets picked up/built, OR you find a genuine NEW defect. The right move next time is verification-only:
+re-scan git log / src for which DXUI-* got built, retire/refresh cards accordingly, and re-rank.
+If truly nothing moved, add zero cards and report the saturation rather than padding.
