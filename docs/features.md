@@ -99,11 +99,12 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxAvatar | Carded (Valuable) | 360 (5×9×8) | DXUI-9. Image + initials fallback, autoColor background. Easy. |
 | DanxCard | Carded (Valuable) | 360 (5×9×8) | DXUI-10. header/body/footer slots + tokens. Easy. |
 | DanxEmptyState | Carded (Valuable) | 360 (5×9×8) | DXUI-11. Icon/illustration + message + action slot. Easy. |
-| DanxAccordion + CollapseTransition | Valuable | 288 (6×8×6) | Single/multi expand; transition reusable for drawers. |
-| DanxTagInput | Valuable | 288 (6×8×6) | Input + Chip composition, autocomplete. |
+| DanxAccordion + CollapseTransition | Carded (Valuable) | 288 (6×8×6) | DXUI-14. Single/multi expand; CollapseTransition reusable for drawers. |
+| DanxTagInput | Carded (Valuable) | 288 (6×8×6) | DXUI-15. Input + Chip composition, duplicate/validate hook. |
 | DanxPagination | Carded (Valuable) | 288 (6×8×6) | DXUI-13. Pairs with ListController; page/per-page/goto. |
-| DanxPopconfirm | Valuable | 288 (6×8×6) | Popover + confirm buttons for inline destructive actions. |
-| DanxBreadcrumbs (general) | Valuable | 280 (5×8×7) | Generalize DialogBreadcrumbs to routes. |
+| DanxPopconfirm | Carded (Valuable) | 288 (6×8×6) | DXUI-16. Popover + confirm buttons for inline destructive actions; async confirm. |
+| DanxBreadcrumbs (general) | Carded (Valuable) | 280 (5×8×7) | DXUI-18. Generalize DialogBreadcrumbs; items/separator slot/overflow. |
+| Promote shared floating primitives to src/shared | Carded (Maintenance) | 280 (5×8×7) | DXUI-17. usePopoverPositioning/useClickOutside/placement types live in components/popover but imported cross-component by tooltip/toast/context-menu/color-picker — layering/coupling smell. |
 | DanxStepper | Valuable | 240 (5×8×6) | Step indicator; pairs with multi-step forms. |
 | DanxDrawer / DanxSidebar | Valuable | 210 (6×7×5) | Slide-out + collapsible layout; SlideTransition. |
 | DanxTable (simple) | Valuable | 168 (7×6×4) | Static styled table w/ column slots. |
@@ -116,30 +117,39 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 2)** — Second ideator pass on danx-ui.
+**2026-07-08 (session 3)** — Third ideator pass on danx-ui.
 
-- Re-verified `src/components/` (32 dirs) and `src/shared/` against inventory: matches.
-  Found DanxAlert shipped but missing from the inventory table — added it as Complete.
-- Prior session's cards DXUI-4..8 are all still at Review (none picked up / built).
-  The gaps they cover (checkbox/radio, dropdown, spinner+divider, form-validation,
-  useHotkeys) remain unbuilt in `src/`.
-- Dashboard access note: the `mcp__danx_dashboard__*` tools were NOT wired into this
-  session. Used the dashboard HTTP API directly instead:
-  `POST/GET {DANXBOT_DASHBOARD_URL}/api/issues` with `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN`,
-  qualified board id `danx-ui:danx-ui-main`. Create shape:
-  `{board,type,title,description,ac:[{title}]}` (ac items use `title`, NOT `text`).
-- Deduped against live issues (only DXUI-4..8 existed). Created 5 new Feature cards
-  from the highest-ICE uncarded features — a Valuable + Maintenance mix (see below).
+- Re-verified `src/components/` (32 dirs), `src/shared/` and `src/shared/composables/`
+  against inventory: still matches. None of DXUI-4..13's gaps have been built
+  (no checkbox/radio, dropdown, spinner/divider, validation, hotkeys, avatar, card,
+  empty-state, clipboard, pagination in `src/`). All 13 prior cards remain at Review.
+- New finding grounded in code: `usePopoverPositioning`, `useClickOutside`, and
+  `PopoverPlacement`/`PopoverPosition` types live under `src/components/popover/` but are
+  imported cross-component via `../popover/...` by tooltip, toast, context-menu, and
+  color-picker. Real layering/coupling smell for a tree-shakeable lib → carded as DXUI-17.
+  (Positioning is otherwise already DRY — tooltip/toast reuse popover's composable rather
+  than duplicating, so no separate consolidation needed beyond the relocation.)
+- Dashboard access: `mcp__danx_dashboard__*` tools STILL not wired into the session's
+  toolset (only Bash/Read/Edit/Write). Used the HTTP API directly, same as session 2:
+  `POST/GET {DANXBOT_DASHBOARD_URL}/api/issues`, `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN`,
+  board `danx-ui:danx-ui-main`. Create shape `{board,type,title,description,ac:[{title}]}`
+  (ac items use `title`). GET list at `?board=danx-ui:danx-ui-main`. Confirmed working.
+- Deduped against all live issues (DXUI-4..13, all Review). Created 5 new cards from the
+  highest-ICE uncarded features — Valuable + one Maintenance.
 
 **Cards created this session (Review status):**
-1. DXUI-9  `[danx-ui > Display] Add DanxAvatar image-with-initials-fallback component` — ICE 360 (Valuable)
-2. DXUI-10 `[danx-ui > Layout] Add DanxCard header/body/footer container` — ICE 360 (Valuable)
-3. DXUI-11 `[danx-ui > Display] Add DanxEmptyState no-data placeholder` — ICE 360 (Valuable)
-4. DXUI-12 `[danx-ui > Composables] Extract useClipboard copy-to-clipboard composable` — ICE 336 (Maintenance)
-5. DXUI-13 `[danx-ui > Data] Add DanxPagination controls` — ICE 288 (Valuable)
+1. DXUI-14 `[danx-ui > Layout] Add DanxAccordion with reusable CollapseTransition` — ICE 288 (Valuable)
+2. DXUI-15 `[danx-ui > Forms] Add DanxTagInput chip-entry field` — ICE 288 (Valuable)
+3. DXUI-16 `[danx-ui > Overlays] Add DanxPopconfirm inline confirmation popover` — ICE 288 (Valuable)
+4. DXUI-17 `[danx-ui > Architecture] Promote shared floating primitives out of components/popover into src/shared` — ICE 280 (Maintenance)
+5. DXUI-18 `[danx-ui > Navigation] Add general DanxBreadcrumbs path trail` — ICE 280 (Valuable)
 
-**Next session:** remaining uncarded Valuable: DanxAccordion+CollapseTransition (288),
-DanxTagInput (288), DanxPopconfirm (288), DanxBreadcrumbs general (280), DanxStepper (240),
-DanxDrawer/Sidebar (210), DanxTable simple (168). Consider a phased DanxDatePicker Epic
-(highest impact, needs decomposition) and useDragAndDrop reorder (144). Re-check whether
-any of DXUI-4..13 were picked up/built before re-carding.
+**Backlog now fully carded through ICE ≥ 280.** Remaining uncarded desired features:
+DanxStepper (240), DanxDrawer/Sidebar (210 — will reuse DXUI-14's CollapseTransition),
+DanxTable simple (168), DanxDatePicker (144, needs phased Epic decomposition),
+useDragAndDrop reorder (144), CommandPalette (Dependent on useHotkeys/DXUI-8).
+
+**Next session:** 18 cards now sit at Review, none built. Before carding more, check whether
+any DXUI-4..18 got picked up/built. If the Review queue is still saturated, prefer refreshing
+priorities over adding volume. Next-highest uncarded: DanxStepper (240), then DanxDrawer/Sidebar
+(210). Consider decomposing DanxDatePicker into a phased Epic when a builder is available.
