@@ -82,6 +82,7 @@ coverage gate enforced via /flow-verify.
 | DanxDatePicker | Missing | date/datetime/range. Large gap; luxon already a peer dep. |
 | useDragAndDrop (reorder) | Missing | List reordering composable + drag handle. |
 | useClipboard | Missing | Copy-to-clipboard composable; copy logic lives ad-hoc in editable-div/code-viewer. |
+| ARIA on interactive widgets | Incomplete | DXUI-19. DanxTabs (no role=tab/tablist/aria-selected), DanxButtonGroup (no role/aria-pressed), DanxTooltip (no role=tooltip/aria-describedby) lack ARIA. 9 dirs have zero `aria-`; tabs/buttonGroup/tooltip are the interactive ones that matter. Select already models role=listbox — pattern exists, applied inconsistently. |
 
 ---
 
@@ -105,8 +106,9 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxPopconfirm | Carded (Valuable) | 288 (6×8×6) | DXUI-16. Popover + confirm buttons for inline destructive actions; async confirm. |
 | DanxBreadcrumbs (general) | Carded (Valuable) | 280 (5×8×7) | DXUI-18. Generalize DialogBreadcrumbs; items/separator slot/overflow. |
 | Promote shared floating primitives to src/shared | Carded (Maintenance) | 280 (5×8×7) | DXUI-17. usePopoverPositioning/useClickOutside/placement types live in components/popover but imported cross-component by tooltip/toast/context-menu/color-picker — layering/coupling smell. |
-| DanxStepper | Valuable | 240 (5×8×6) | Step indicator; pairs with multi-step forms. |
-| DanxDrawer / DanxSidebar | Valuable | 210 (6×7×5) | Slide-out + collapsible layout; SlideTransition. |
+| DanxStepper | Carded (Valuable) | 240 (5×8×6) | DXUI-20. Step indicator; pairs with multi-step forms. |
+| DanxDrawer / DanxSidebar | Carded (Valuable) | 210 (6×7×5) | DXUI-21. Slide-out overlay; extract reusable SlideTransition; reuse dialog focus/scroll-lock. |
+| ARIA semantics for Tabs/ButtonGroup/Tooltip | Carded (Valuable) | 336 (7×8×6) | DXUI-19. Interactive widgets missing role/aria-selected/aria-pressed/role=tooltip+aria-describedby. Grounded in code; Select already models role=listbox so pattern exists but is inconsistent. |
 | DanxTable (simple) | Valuable | 168 (7×6×4) | Static styled table w/ column slots. |
 | DanxDatePicker | Dependent/Valuable | 144 (8×6×3) | Big: calendar grid, range, keyboard, timezones. Highest impact but low ease — split into phased Epic later. |
 | useDragAndDrop reorder + DragHandle | Valuable | 144 (6×6×4) | Reorder lists w/ FLIP animation. |
@@ -117,39 +119,41 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 3)** — Third ideator pass on danx-ui.
+**2026-07-08 (session 4)** — Fourth ideator pass on danx-ui.
 
-- Re-verified `src/components/` (32 dirs), `src/shared/` and `src/shared/composables/`
-  against inventory: still matches. None of DXUI-4..13's gaps have been built
-  (no checkbox/radio, dropdown, spinner/divider, validation, hotkeys, avatar, card,
-  empty-state, clipboard, pagination in `src/`). All 13 prior cards remain at Review.
-- New finding grounded in code: `usePopoverPositioning`, `useClickOutside`, and
-  `PopoverPlacement`/`PopoverPosition` types live under `src/components/popover/` but are
-  imported cross-component via `../popover/...` by tooltip, toast, context-menu, and
-  color-picker. Real layering/coupling smell for a tree-shakeable lib → carded as DXUI-17.
-  (Positioning is otherwise already DRY — tooltip/toast reuse popover's composable rather
-  than duplicating, so no separate consolidation needed beyond the relocation.)
-- Dashboard access: `mcp__danx_dashboard__*` tools STILL not wired into the session's
-  toolset (only Bash/Read/Edit/Write). Used the HTTP API directly, same as session 2:
-  `POST/GET {DANXBOT_DASHBOARD_URL}/api/issues`, `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN`,
-  board `danx-ui:danx-ui-main`. Create shape `{board,type,title,description,ac:[{title}]}`
-  (ac items use `title`). GET list at `?board=danx-ui:danx-ui-main`. Confirmed working.
-- Deduped against all live issues (DXUI-4..13, all Review). Created 5 new cards from the
-  highest-ICE uncarded features — Valuable + one Maintenance.
+- Verified state: DXUI-4..18 (15 cards) ALL still at Review, none built. Re-scanned
+  `src/components/` (31 dirs) + `src/shared/`; no prior-carded gap has been implemented.
+  Queue is saturated → exercised restraint, created 3 (not 5) cards.
+- NEW grounded finding — accessibility gap. Grepped ARIA usage: 9 component dirs have zero
+  `aria-` (badge/button/buttonGroup/code-viewer/icon/popover/scroll/tabs/tooltip). Of these,
+  the interactive widgets are non-conformant: `DanxTabs` buttons have no role=tab / role=tablist /
+  aria-selected; `DanxButtonGroup` toggle has no role/aria-pressed; `DanxTooltip` panel has no
+  role=tooltip / aria-describedby trigger linkage. `DanxSelect` DOES model role=listbox +
+  aria-multiselectable, so the pattern exists but is applied inconsistently. Higher ICE (336)
+  than the remaining component backlog → carded DXUI-19, led the batch with it.
+- Also confirmed: no TODO/FIXME/HACK markers anywhere in src (clean); no CHANGELOG despite npm
+  publish scripts (minor, not carded); coverage gate 100% lines/functions/statements, 85% branches.
+- Dashboard access: `mcp__danx_dashboard__*` tools STILL not in the session toolset
+  (only Bash/Read/Edit/Write). Used HTTP API directly. IMPORTANT auth gotcha discovered this
+  session: writes (POST /api/issues) go through `requireUser` which accepts
+  `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN` — SAME token/band as GET. Earlier 401s were
+  a self-inflicted bug (double "Authorization:" prefix in the header VALUE), NOT a real auth wall.
+  Correct header value is literally `Bearer <token>`. Create shape `{board,type,title,description,
+  ac:[{title}]}`; POST returns 201 but the body does NOT echo the id — re-GET the list to capture ids.
+- Deduped against DXUI-4..18 (all Review) before creating.
 
 **Cards created this session (Review status):**
-1. DXUI-14 `[danx-ui > Layout] Add DanxAccordion with reusable CollapseTransition` — ICE 288 (Valuable)
-2. DXUI-15 `[danx-ui > Forms] Add DanxTagInput chip-entry field` — ICE 288 (Valuable)
-3. DXUI-16 `[danx-ui > Overlays] Add DanxPopconfirm inline confirmation popover` — ICE 288 (Valuable)
-4. DXUI-17 `[danx-ui > Architecture] Promote shared floating primitives out of components/popover into src/shared` — ICE 280 (Maintenance)
-5. DXUI-18 `[danx-ui > Navigation] Add general DanxBreadcrumbs path trail` — ICE 280 (Valuable)
+1. DXUI-19 `[danx-ui > Accessibility] Add missing ARIA roles/state to DanxTabs, DanxButtonGroup, DanxTooltip` — ICE 336 (Valuable, NEW finding)
+2. DXUI-20 `[danx-ui > Navigation] Add DanxStepper multi-step workflow indicator` — ICE 240 (Valuable)
+3. DXUI-21 `[danx-ui > Layout] Add DanxDrawer slide-out overlay panel` — ICE 210 (Valuable)
 
-**Backlog now fully carded through ICE ≥ 280.** Remaining uncarded desired features:
-DanxStepper (240), DanxDrawer/Sidebar (210 — will reuse DXUI-14's CollapseTransition),
+**Backlog carded through ICE ≥ 210.** Remaining uncarded desired features:
 DanxTable simple (168), DanxDatePicker (144, needs phased Epic decomposition),
 useDragAndDrop reorder (144), CommandPalette (Dependent on useHotkeys/DXUI-8).
 
-**Next session:** 18 cards now sit at Review, none built. Before carding more, check whether
-any DXUI-4..18 got picked up/built. If the Review queue is still saturated, prefer refreshing
-priorities over adding volume. Next-highest uncarded: DanxStepper (240), then DanxDrawer/Sidebar
-(210). Consider decomposing DanxDatePicker into a phased Epic when a builder is available.
+**Next session:** 21 cards now at Review, none built. The queue is heavily saturated — do NOT
+add volume unless cards start getting picked up/built. Prefer re-verifying which DXUI-* got built
+and refreshing priorities. If still saturated, the highest-value move is decomposing DanxDatePicker
+into a phased Epic (highest impact, low ease) rather than carding more thin components. Consider a
+follow-on a11y sweep of the remaining zero-aria dirs (dialog focus-trap already handled by native
+`<dialog>`; check code-viewer/scroll interactive affordances).
