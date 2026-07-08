@@ -28,6 +28,7 @@ package has instead been built directly INTO danx-ui under `src/shared/`.
 | DanxDialog + DialogBreadcrumbs | Complete | Native `<dialog>`, confirm/cancel, fullscreen, stack (useDialogStack). |
 | DanxContextMenu | Complete | Floating menu, keyboard nav, button-anchored mode + active-item indicator (DXUI-3). |
 | DanxToast + Container | Complete | Semantic types, auto-dismiss, useToast/useToastTimer. |
+| DanxAlert | Complete | Inline semantic alert banner (types, dismissible). Was omitted from prior inventory. |
 | CodeViewer | Complete | Multi-language syntax highlight + editor mode, collapse. |
 | MarkdownEditor | Complete | Full editor, hotkeys, table editing, useMarkdownEditor. |
 | DanxSplitPanel + Handle | Complete | Resizable panels (covers roadmap "ResizablePanels"), persisted state. |
@@ -95,12 +96,12 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Extract standalone DanxSpinner + add DanxDivider | Carded (Maintenance) | 360 (5×9×8) | Pull spinner out of button.css into a primitive; add trivial divider. |
 | useFormValidation | Carded (Valuable) | 210 (7×6×5) | Rules composable feeding FieldWrapper error state; async support. |
 | useHotkeys (general scoped composable) | Carded (Maintenance) | 336 (6×8×7) | De-dupe ~10 keydown handlers; foundation for CommandPalette. |
-| DanxAvatar | Valuable | 360 (5×9×8) | Image + initials fallback, autoColor background. Easy. |
-| DanxCard | Valuable | 360 (5×9×8) | header/body/footer slots + tokens. Easy. |
-| DanxEmptyState | Valuable | 360 (5×9×8) | Icon/illustration + message + action slot. Easy. |
+| DanxAvatar | Carded (Valuable) | 360 (5×9×8) | DXUI-9. Image + initials fallback, autoColor background. Easy. |
+| DanxCard | Carded (Valuable) | 360 (5×9×8) | DXUI-10. header/body/footer slots + tokens. Easy. |
+| DanxEmptyState | Carded (Valuable) | 360 (5×9×8) | DXUI-11. Icon/illustration + message + action slot. Easy. |
 | DanxAccordion + CollapseTransition | Valuable | 288 (6×8×6) | Single/multi expand; transition reusable for drawers. |
 | DanxTagInput | Valuable | 288 (6×8×6) | Input + Chip composition, autocomplete. |
-| DanxPagination | Valuable | 288 (6×8×6) | Pairs with ListController; page/per-page/goto. |
+| DanxPagination | Carded (Valuable) | 288 (6×8×6) | DXUI-13. Pairs with ListController; page/per-page/goto. |
 | DanxPopconfirm | Valuable | 288 (6×8×6) | Popover + confirm buttons for inline destructive actions. |
 | DanxBreadcrumbs (general) | Valuable | 280 (5×8×7) | Generalize DialogBreadcrumbs to routes. |
 | DanxStepper | Valuable | 240 (5×8×6) | Step indicator; pairs with multi-step forms. |
@@ -108,35 +109,37 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxTable (simple) | Valuable | 168 (7×6×4) | Static styled table w/ column slots. |
 | DanxDatePicker | Dependent/Valuable | 144 (8×6×3) | Big: calendar grid, range, keyboard, timezones. Highest impact but low ease — split into phased Epic later. |
 | useDragAndDrop reorder + DragHandle | Valuable | 144 (6×6×4) | Reorder lists w/ FLIP animation. |
-| useClipboard | Maintenance | 336 (6×8×7) | Extract copy logic into shared composable. Fold into useHotkeys card scope or standalone. |
+| useClipboard | Carded (Maintenance) | 336 (6×8×7) | DXUI-12. Extract copy logic (code-viewer, editable-div) into shared composable w/ fallback. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08** — First ideator pass on danx-ui.
+**2026-07-08 (session 2)** — Second ideator pass on danx-ui.
 
-- Reconciled roadmap (root `features.md`) against actual `src/`. Library is far more
-  complete than the roadmap implies: 31 components shipped, reactive data layer built
-  into danx-ui (not a separate toolkit), ~200 test files, 33 doc pages, per-component demos.
-- Roadmap items now DONE that were "BUILD": Input, Textarea, Select, ColorPicker,
-  Toggle(switch), FileUpload, RangeSlider, EditableDiv(inline edit), FileExplorer(tree),
-  SplitPanel(resizable panels), VirtualScroll, Toast, object store / actions / request.
-- Confirmed genuine gaps: checkbox/radio (toggle is switch-only), dropdown menu,
-  form-validation rules engine, standalone spinner, divider, accordion, pagination,
-  date picker, avatar/card/empty-state, tag-input, drawer/sidebar, general breadcrumbs,
-  stepper, popconfirm, drag-and-drop reorder, useHotkeys/useClipboard extraction.
-- Dashboard board `danx-ui:danx-ui-main` had ZERO existing issues — no dedup conflicts.
-- Created 5 Feature cards at Review (see below).
+- Re-verified `src/components/` (32 dirs) and `src/shared/` against inventory: matches.
+  Found DanxAlert shipped but missing from the inventory table — added it as Complete.
+- Prior session's cards DXUI-4..8 are all still at Review (none picked up / built).
+  The gaps they cover (checkbox/radio, dropdown, spinner+divider, form-validation,
+  useHotkeys) remain unbuilt in `src/`.
+- Dashboard access note: the `mcp__danx_dashboard__*` tools were NOT wired into this
+  session. Used the dashboard HTTP API directly instead:
+  `POST/GET {DANXBOT_DASHBOARD_URL}/api/issues` with `Authorization: Bearer $DANXBOT_DISPATCH_TOKEN`,
+  qualified board id `danx-ui:danx-ui-main`. Create shape:
+  `{board,type,title,description,ac:[{title}]}` (ac items use `title`, NOT `text`).
+- Deduped against live issues (only DXUI-4..8 existed). Created 5 new Feature cards
+  from the highest-ICE uncarded features — a Valuable + Maintenance mix (see below).
 
 **Cards created this session (Review status):**
-1. DXUI-4 `[danx-ui > Forms] Add DanxCheckbox and DanxRadioGroup form primitives` — ICE 336
-2. DXUI-5 `[danx-ui > Menus] Add DanxDropdownMenu button-triggered action menu` — ICE 336
-3. DXUI-6 `[danx-ui > Primitives] Extract standalone DanxSpinner and add DanxDivider` — ICE 360
-4. DXUI-7 `[danx-ui > Forms] Add useFormValidation rules composable` — ICE 210
-5. DXUI-8 `[danx-ui > Composables] Extract general-purpose useHotkeys composable` — ICE 336
+1. DXUI-9  `[danx-ui > Display] Add DanxAvatar image-with-initials-fallback component` — ICE 360 (Valuable)
+2. DXUI-10 `[danx-ui > Layout] Add DanxCard header/body/footer container` — ICE 360 (Valuable)
+3. DXUI-11 `[danx-ui > Display] Add DanxEmptyState no-data placeholder` — ICE 360 (Valuable)
+4. DXUI-12 `[danx-ui > Composables] Extract useClipboard copy-to-clipboard composable` — ICE 336 (Maintenance)
+5. DXUI-13 `[danx-ui > Data] Add DanxPagination controls` — ICE 288 (Valuable)
 
-**Next session:** promote easy Valuable primitives (Avatar/Card/EmptyState, ICE 360)
-and Accordion/TagInput/Pagination. Consider a phased DanxDatePicker Epic (highest
-impact, needs decomposition). Re-check whether any cards were picked up.
+**Next session:** remaining uncarded Valuable: DanxAccordion+CollapseTransition (288),
+DanxTagInput (288), DanxPopconfirm (288), DanxBreadcrumbs general (280), DanxStepper (240),
+DanxDrawer/Sidebar (210), DanxTable simple (168). Consider a phased DanxDatePicker Epic
+(highest impact, needs decomposition) and useDragAndDrop reorder (144). Re-check whether
+any of DXUI-4..13 were picked up/built before re-carding.
