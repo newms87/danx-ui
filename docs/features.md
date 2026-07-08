@@ -96,6 +96,11 @@ coverage gate enforced via /flow-verify.
 | Incomplete `exports` map | Incomplete | DXUI-29. README advertises granular `danx-ui/components/<x>` imports (headline tree-shaking), but `package.json` `exports` defines subpaths for only 8 of 31 components. The other 23 (input, select, chip, tabs, tooltip, popover, toast, alert, file*, etc.) have NO subpath/styles export — those documented imports fail for published consumers. Hand-maintained → drifted. Needs generation + drift check. |
 | No CI pipeline | Missing | DXUI-28. No `.github/`, no CI anywhere. Published lib with a 100% coverage gate + lint + typecheck enforced ONLY locally via /flow-verify. Nothing blocks a PR/publish shipping broken tests/types. Complementary to DXUI-27 (CHANGELOG). |
 | ARIA on interactive widgets | Incomplete | DXUI-19. DanxTabs (no role=tab/tablist/aria-selected), DanxButtonGroup (no role/aria-pressed), DanxTooltip (no role=tooltip/aria-describedby) lack ARIA. 9 dirs have zero `aria-`; tabs/buttonGroup/tooltip are the interactive ones that matter. Select already models role=listbox — pattern exists, applied inconsistently. |
+| prefers-reduced-motion support | Incomplete | DXUI-32. ZERO `prefers-reduced-motion` refs in all of src/ while 47 CSS files use transition/animation. 4 components ship infinite-loop animations (skeleton pulse/wave, progress-bar indeterminate, button spinner, editable-div spinner) — the exact vestibular-trigger (WCAG 2.3.3) case. Distinct axis from DXUI-19 (ARIA). README markets accessibility. |
+| Configurable locale/currency in formatters | Incomplete | DXUI-31. `numbers.ts` hardcodes `Intl.NumberFormat("en-US")` + `currency:"USD"` in fCurrency/fCurrencyNoCents/fNumber. `options` can't override the locale STRING, so fNumber's "locale-aware" docstring is false. No locale config exists (dates have setServerTimezone precedent). International consumers get wrong output. |
+| Hosted demo/playground site | Missing | DXUI-33. `demo/` is a full 33-page Vite SPA (useLivePreview live editing) served on `yarn dev` but NEVER built/deployed — `build` emits lib only, no demo build script, no `.github/`, no README live link. Published npm consumers can't try before install. Distinct from DXUI-25 (md docs) / DXUI-28 (CI gate). |
+| RTL / logical CSS properties | Incomplete (Exploratory, uncarded) | 74 physical `left/right/margin-left/...` CSS props vs 1 logical (inline-start/end) across components. Real RTL gap but large cross-cutting Epic (~74 spots) with uncertain demand → Exploratory, low ICE, not carded. Note for future if RTL demand appears. |
+| focus-visible consistency | Minor (uncarded) | 12 `:focus-visible` vs 8 plain `:focus` in component CSS — mostly correct, minor inconsistency. Not worth a card. |
 
 ---
 
@@ -132,41 +137,50 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | CI pipeline (test/lint/typecheck gate) | Carded (Maintenance) | 360 (5×9×8) | DXUI-28. GitHub Actions on PR/push runs yarn lint/typecheck/test:coverage as required checks. Complements DXUI-27. |
 | Complete + auto-generate exports map | Carded (Maintenance) | 288 (6×8×6) | DXUI-29. Only 8/31 components have subpath exports; generate from src/components + drift check. Grounded in package.json. |
 | Fix yaml hard runtime dependency | Carded (Bug/Maintenance) | 180 (6×6×5) | DXUI-30. Move yaml to optional peer (like luxon) + guard 2 import sites; fixes false "zero-dependency" claim. |
+| Configurable locale/currency for number formatters | Carded (Valuable/i18n) | 336 (6×8×7) | DXUI-31. Add setDefaultLocale/Currency (mirror setServerTimezone); fCurrency/fCurrencyNoCents/fNumber read defaults + per-call locale override; fix "$-" placeholder + fNumber docstring. Grounded in numbers.ts. |
+| prefers-reduced-motion across animated components | Carded (Valuable/a11y) | 288 (6×8×6) | DXUI-32. Global @media(reduce) rule + overrides for 4 infinite-loop animations. Distinct from DXUI-19 (ARIA). Grounded: 0 refs / 47 animated CSS files. |
+| Publish hosted demo/playground site | Carded (Valuable) | 150 (5×6×5) | DXUI-33. Demo SPA (33 pages) never deployed; add demo build mode + Pages workflow + README link. Complements DXUI-25/28, no overlap. |
 | Reconcile composable roadmap with @vueuse/core | Note (not carded) | — | vueuse is now a peer dep; DXUI-8/12/24 should wrap vueuse (useClipboard/onKeyStroke/useSortable) not hand-roll. Update those cards' approach when built rather than adding a new card. |
+| RTL / logical CSS properties | Exploratory (not carded) | — | 74 physical vs 1 logical CSS prop. Large Epic, uncertain demand. Card only if RTL demand surfaces. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 7)** — Seventh ideator pass on danx-ui (scope: repo).
+**2026-07-08 (session 8)** — Eighth ideator pass on danx-ui (scope: repo).
 
-- Verified reality via dashboard API (`GET /api/issues?board=danx-ui:danx-ui-main`): 24 cards
-  DXUI-4..27, ALL still Review, ALL ac 0/N — NONE built. Git log since session 6 = only ideator
-  note-update commits + danxbot infra; NO new component since DXUI-3. `src/components` unchanged
-  (31 dirs). Component/composable feature backlog stays fully carded down to ICE 144.
-- Per session-6 guidance (no padding), mined PACKAGING/RELEASE-HYGIENE surface — an area the prior
-  6 sessions never inspected — and found 3 genuinely new, grounded, non-duplicate items; carded all:
-  - **DXUI-30** Fix: `yaml` is a HARD runtime dependency (`"dependencies":{"yaml":"^2.4.5"}`),
-    contradicting the README "Zero Runtime Dependencies" headline + CLAUDE.md forbidden-pattern rule.
-    Used at runtime in code-viewer/useCodeFormat.ts + shared/dataFormat.ts. Move to optional peer
-    (like luxon) + graceful degradation. Bug, ICE 180. NEW insight beyond the session-6 @vueuse note.
-  - **DXUI-29** Complete + auto-generate the `exports` map: only 8 of 31 components have subpath
-    exports, so 23 documented `danx-ui/components/<x>` imports fail for published consumers.
-    Feature (Maintenance), ICE 288.
-  - **DXUI-28** Add CI pipeline (GitHub Actions: lint/typecheck/test:coverage on PR/push). No
-    `.github/` exists. Feature (Maintenance), ICE 360. Complements DXUI-27 (CHANGELOG).
-- **API NOTE (schema v30):** `mcp__danx_dashboard__*` tools STILL absent from my toolset — used
-  curl + Bearer $DANXBOT_DISPATCH_TOKEN against $DANXBOT_DASHBOARD_URL, board qualified
-  `danx-ui:danx-ui-main`, id echoed at `issue.issue.id`. IMPORTANT REFINEMENT of session-6's claim:
-  `gate_decisions` is required ONLY for type=Bug (plan-dependency/architecture/tdd are board-OPTIONAL
-  there → 400 with `required_gate_decisions` hint if omitted). type=Feature auto-seeds those gates as
-  `required:false` and needs NO gate_decisions. `ac` items are `{title}` (NOT `{text,checked}`).
+- Verified reality via dashboard API (`GET /api/issues?board=danx-ui:danx-ui-main`): 27 cards
+  DXUI-4..30, ALL still Review, ALL ac 0/N — NONE built. Git log since session 7 = only ideator
+  note-update commits + danxbot infra; NO new component/feature since DXUI-3. `src/components`
+  unchanged (31 dirs). The prior component/composable/packaging backlog stays fully carded.
+- Session 7 said the queue was "exhausted" — so I refused to pad with duplicates and instead mined
+  THREE surfaces the prior 7 sessions never inspected (motion a11y, i18n formatters, demo hosting).
+  Found 3 genuinely new, grounded, non-duplicate items; carded all:
+  - **DXUI-31** Configurable default locale/currency for number formatters. `numbers.ts` hardcodes
+    `Intl.NumberFormat("en-US")` + `currency:"USD"`; `options` can't override the locale STRING, so
+    fNumber's "locale-aware" docstring is FALSE. No locale config exists (dates have setServerTimezone
+    precedent). Feature (Valuable/i18n), ICE 336 (6×8×7). Strongest new card.
+  - **DXUI-32** Honor prefers-reduced-motion. ZERO refs in all of src/ vs 47 animated CSS files; 4
+    infinite-loop animations (skeleton/progress-bar/button/editable-div). WCAG 2.3.3; distinct axis
+    from DXUI-19 (ARIA). README markets accessibility. Feature (Valuable/a11y), ICE 288 (6×8×6).
+  - **DXUI-33** Publish hosted demo/playground. `demo/` is a full 33-page Vite SPA but never built
+    or deployed (build emits lib only, no `.github/`, no README live link). Feature (Valuable),
+    ICE 150 (5×6×5). Complements DXUI-25/28, no overlap.
+- Also confirmed (no new card): `vite.config.ts` `build.lib.entry` lists the SAME 8 entries as the
+  package.json exports map — reinforces DXUI-29's root cause. RTL gap (74 physical vs 1 logical CSS
+  prop) noted as Exploratory/uncarded (large Epic, uncertain demand). focus-visible minor
+  inconsistency (12 vs 8) — not carded.
+- **API NOTE:** `mcp__danx_dashboard__*` MCP tools STILL absent from my toolset (only Bash/Read/Edit/
+  Write). Used curl + Bearer $DANXBOT_DISPATCH_TOKEN → `POST $DANXBOT_DASHBOARD_URL/api/issues`,
+  board `danx-ui:danx-ui-main`; created id echoed at `issue.issue_id`. Feature auto-seeds gates
+  (plan-*) as required:false — NO gate_decisions needed. `ac` items are `{title}`. Build payload
+  incrementally: 400 errors name the next missing field (type → title → description).
 
-**Next session:** 27 cards at Review (DXUI-4..30), none built. Queue is now EXHAUSTED across BOTH
-the component/composable surface AND the packaging/release-hygiene surface. Do NOT add cards unless
-something gets built OR a genuine new defect surfaces. Best move: verification-only — re-scan git
-log/src for which DXUI-* shipped and retire/refresh. Remaining uncarded desired feature:
-CommandPalette (Dependent — blocked on useHotkeys/DXUI-8). When DXUI-8/12/24 are eventually built,
-lean on @vueuse/core (onKeyStroke/useClipboard/useSortable) rather than hand-rolling.
+**Next session:** 30 cards at Review (DXUI-4..33), none built. Queue is again exhausted across
+components, composables, packaging/release-hygiene, a11y (ARIA + motion), i18n formatters, and demo
+hosting. Do NOT add cards unless something gets built OR a genuine new defect surfaces. Best move:
+verification-only — re-scan git log/src for which DXUI-* shipped and retire/refresh. Only remaining
+uncarded ideas: CommandPalette (Dependent on useHotkeys/DXUI-8) and RTL (Exploratory, needs demand).
+When DXUI-8/12/24 are built, lean on @vueuse/core rather than hand-rolling.
 
