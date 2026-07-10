@@ -94,6 +94,7 @@ coverage gate enforced via /flow-verify.
 | useDragAndDrop (reorder) | Missing | List reordering composable + drag handle. |
 | useClipboard | Missing | Copy-to-clipboard composable; copy logic lives ad-hoc in editable-div/code-viewer. |
 | `yaml` hard runtime dependency | Incomplete | DXUI-30 (Bug). `package.json` has `"dependencies": {"yaml":"^2.4.5"}` — a MANDATORY runtime dep shipped to every consumer, contradicting the README "Zero Runtime Dependencies" headline and CLAUDE.md "NEVER add runtime dependencies". Used at runtime in `code-viewer/useCodeFormat.ts` + `shared/dataFormat.ts`. Should be optional peer (like luxon) + graceful degradation. |
+| Unguarded localStorage write in useSplitPanel | Incomplete | DXUI-40 (Bug). `useSplitPanel.saveToStorage()` (useSplitPanel.ts:100) calls `localStorage.setItem` with NO try/catch, unlike its own guarded `loadFromStorage()` (66-92) and every sibling persistence composable (useViewerPreferences `safeWrite`, useRecentColors, useFileExplorer:101-104, useStructuredDataPreference:39-41 — all wrap read AND write). Called from togglePanel(146), watch(activePanelIds)(224), resize pointer-up(215) → an uncaught throw (Safari private mode, QuotaExceededError, storage disabled, SSR) breaks the interaction. One-line try/catch fix matching the established safeWrite pattern. Distinct from DXUI-35 (eager vueuse/luxon barrel import). |
 | Build ships bundled deps in dist/node_modules | Incomplete | DXUI-39 (Bug). `vite.config` `rollupOptions.external` lists only vue/vue-router/luxon/@vueuse/core; `danx-icon` (`?raw` SVGs in icons.ts/DanxInput/DanxEditableDiv) + `yaml` are NOT external, so `preserveModules:true` emits them as separate modules under `dist/node_modules/` (1.4M, ~250 files) + 912 sourcemaps (dist ~9.7M). `files:["dist"]` publishes it all. `danx-icon` is ALSO a hard runtime `dependencies` entry (package.json:129) — a SECOND zero-dep violation after yaml (`?raw` SVGs should inline → danx-icon = devDep). DISTINCT from DXUI-30 (yaml dependency declaration), DXUI-35 (vueuse/luxon eager import — those ARE external), DXUI-29 (exports map). Fix: externalize/inline + narrow published files + npm pack smoke test. |
 | Optional peers eagerly imported by main entry | Incomplete | DXUI-35 (Bug). `@vueuse/core` + `luxon` are marked OPTIONAL peers but are statically re-exported by the main barrel: `index.ts:431 → shared/actions.ts:19` (useDebounceFn from @vueuse/core) and `index.ts:390 → shared → formatters/index.ts:11 → datetime.ts` (imports + re-exports Luxon's `DateTime`). So `import 'danx-ui'` crashes without them in any non-tree-shaking env (dev servers, SSR, Vitest/Jest, Node ESM). "optional" is false for the main entry. DISTINCT from DXUI-30 (yaml in `dependencies`) and DXUI-29 (subpath exports). Fix: keep peer-dependent re-exports out of the eager main barrel (opt-in subpath/lazy) OR promote peers to required; add clean-install smoke test. |
 | Incomplete `exports` map | Incomplete | DXUI-29. README advertises granular `danx-ui/components/<x>` imports (headline tree-shaking), but `package.json` `exports` defines subpaths for only 8 of 31 components. The other 23 (input, select, chip, tabs, tooltip, popover, toast, alert, file*, etc.) have NO subpath/styles export — those documented imports fail for published consumers. Hand-maintained → drifted. Needs generation + drift check. |
@@ -152,6 +153,7 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | useColorScheme dark-mode toggle composable | Carded (Valuable) | 336 (6×8×7) | DXUI-36. Wrap vueuse useDark/usePreferredDark for `.dark` selector; isDark, light/dark/auto mode, toggle(), localStorage persist, SSR guard. Dark tokens exist but no JS to drive them. |
 | Automated a11y regression testing (axe-core) | Carded (Maintenance) | 252 (6×7×6) | DXUI-37. Add axe devDep + shared expectNoA11yViolations helper across interactive components; violations fail vitest. Guards DXUI-19/32/34 from regressing. |
 | Complete npm package metadata | Carded (Maintenance) | 300 (3×10×10) | DXUI-38. Add homepage/bugs/engines to package.json. Trivial, grounded quick win. |
+| Guard localStorage write in useSplitPanel.saveToStorage | Carded (Bug/robustness) | 360 (4×9×10) | DXUI-40. Wrap unguarded `localStorage.setItem` (useSplitPanel.ts:100) in try/catch matching the codebase's own safeWrite pattern (4 sibling composables). Only unguarded persistence write in src/. |
 | Fix dist/node_modules bundled-deps publishing | Carded (Bug/packaging) | 175 (5×7×5) | DXUI-39. danx-icon+yaml not externalized → preserveModules dumps them in dist/node_modules (1.4M) + 912 maps, all shipped via files:["dist"]. danx-icon is a 2nd hard runtime dep (should be devDep — `?raw` SVGs inline). Distinct from DXUI-30/35/29. Externalize/inline + trim files + pack smoke test. |
 | Visual regression / screenshot testing | Exploratory (not carded) | — | UI lib with 31 visual components has zero screenshot/visual tooling. Genuine but heavier + lower confidence; overlaps demo-site (DXUI-33). Card only if pixel-regressions become a pain. |
 | Reconcile composable roadmap with @vueuse/core | Note (not carded) | — | vueuse is now a peer dep; DXUI-8/12/24 should wrap vueuse (useClipboard/onKeyStroke/useSortable) not hand-roll. Update those cards' approach when built rather than adding a new card. |
@@ -162,39 +164,38 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-08 (session 12)** — Twelfth ideator pass on danx-ui (scope: repo). Verification-first.
+**2026-07-10 (session 13)** — Thirteenth ideator pass on danx-ui (scope: repo). Verification-first.
 
-- Verified reality: dashboard API → 35 cards DXUI-4..38, ALL Review, ALL unbuilt. `git log` shows only
-  ideator note-update commits since session 11; last feature commit still `feat(DXUI-3)` @ 7023a67.
+- Verified reality: dashboard API → 36 cards DXUI-4..39, ALL Review, ALL unbuilt. `git log` shows only
+  ideator note-update commits since session 12; last feature commit still `feat(DXUI-3)` @ 7023a67.
   `git diff --stat 7023a67 HEAD -- src/` = EMPTY: zero src changes. 31 components. Version still 0.8.17.
-  Backlog stays fully carded — nothing shipped.
-- Fresh diligence found ONE genuine, grounded, non-duplicate DEFECT → carded it:
-  - **DXUI-39** (Bug/packaging, ICE 175=5×7×5) Build ships bundled deps in `dist/node_modules`.
-    Traced mechanism: `vite.config` `rollupOptions.external=[vue,vue-router,luxon,@vueuse/core]` omits
-    `danx-icon` + `yaml`; `output.preserveModules:true` therefore emits them as separate modules under
-    `dist/node_modules/` (1.4M, ~250 files) + 912 sourcemaps (dist ~9.7M total). `files:["dist"]`
-    publishes the lot to npm. `danx-icon` is ALSO a hard runtime `dependencies` entry (package.json:129)
-    — a 2nd zero-dep violation after yaml; its `?raw` SVG imports (icons.ts/DanxInput/DanxEditableDiv)
-    are static strings that SHOULD inline → danx-icon belongs in devDependencies. Distinct from DXUI-30
-    (yaml dependency declaration), DXUI-35 (vueuse/luxon eager import — those ARE external & crash),
-    DXUI-29 (exports subpath coverage). Fix: externalize/inline + narrow published files + npm pack smoke test.
-- Reconfirmed still-valid grounded facts: `sideEffects:["**/*.css"]` correct; peers vueuse ^14 + luxon ^3
-  optional; `engines`/`homepage`/`bugs` still absent (DXUI-38); exports subpaths still 8/31 (DXUI-29);
-  sourcemaps embed `sourcesContent` (self-contained, so functional but bloat — folded into DXUI-39).
-  publish.sh does NOT prune dist/node_modules or maps → confirms they ship.
-- **API NOTE:** `mcp__danx_dashboard__*` MCP tools STILL absent from toolset (only Bash/Read/Edit/Write).
-  Used `curl POST $DANXBOT_DASHBOARD_URL/api/issues`, board `danx-ui:danx-ui-main`, Bearer
-  $DANXBOT_DISPATCH_TOKEN; new id at `issue.issue.id`. `ac` items are `{title}`. Feature auto-seeds gates;
-  **Bug REQUIRES `gate_decisions`** — array of `{gate, enabled, note}` (non-empty note) for the three
-  board-optional plan gates: `plan-dependency`, `plan-architecture`, `plan-tdd`. First POST without them
-  returned `error` + `required_gate_decisions`; retry with the array succeeded.
+  Backlog stays fully carded — nothing shipped since session 11.
+- Fresh diligence sweep for NEW grounded defects (console/TODO/debugger scan clean; addEventListener 31 /
+  removeEventListener 33 → cleanup healthy; resize path removes pointer listeners on pointerup and saves
+  once, not per-move → no perf/leak bug). Found ONE genuine, grounded, non-duplicate DEFECT → carded it:
+  - **DXUI-40** (Bug/robustness, ICE 360=4×9×10) Unguarded localStorage write in `useSplitPanel`.
+    `saveToStorage()` (useSplitPanel.ts:100) does `localStorage.setItem(...)` with NO try/catch, while its
+    own `loadFromStorage()` (66-92) IS guarded and EVERY sibling persistence composable guards both read
+    and write: useViewerPreferences `safeWrite`, useRecentColors (44-47), useFileExplorer (101-104),
+    useStructuredDataPreference (39-41). Called from togglePanel(146), watch(activePanelIds)(224), resize
+    pointer-up(215) → uncaught throw (Safari private mode / QuotaExceededError / disabled storage / SSR)
+    breaks the interaction. One-line try/catch fix matching the established safeWrite pattern. DISTINCT from
+    DXUI-35 (eager vueuse/luxon barrel import crash). Sole unguarded persistence write remaining in src/.
+- Reconfirmed still-valid grounded facts unchanged from session 12: version 0.8.17, 31 components, backlog
+  DXUI-4..39 all Review/unbuilt; peers vueuse ^14 + luxon ^3 optional; exports subpaths still 8/31 (DXUI-29);
+  `engines`/`homepage`/`bugs` still absent (DXUI-38).
+- **API NOTE (unchanged):** `mcp__danx_dashboard__*` MCP tools STILL absent from toolset (only
+  Bash/Read/Edit/Write). Used `curl POST $DANXBOT_DASHBOARD_URL/api/issues` (via python3 urllib), board
+  `danx-ui:danx-ui-main`, Bearer $DANXBOT_DISPATCH_TOKEN; new id returned at `issue.issue.id`. `ac` items
+  are `{title}`. **Bug REQUIRES `gate_decisions`** — array of `{gate, enabled, note}` (non-empty note) for
+  `plan-dependency`, `plan-architecture`, `plan-tdd`. DXUI-40 POST succeeded 201 first try with the array.
 
-**Next session:** 36 cards at Review (DXUI-4..39), none built. Queue is FULLY EXHAUSTED across components,
+**Next session:** 37 cards at Review (DXUI-4..40), none built. Queue is FULLY EXHAUSTED across components,
 composables, forms, packaging/release-hygiene, a11y (DXUI-19/32/34/37), theming (DXUI-36), i18n formatters,
-demo hosting, peer-dep packaging (DXUI-30/35/39), and npm metadata (DXUI-38). Do NOT add cards unless
-something ships OR a genuine new defect surfaces. Best move next time: verification-only — re-scan
-`git log`/`git diff 7023a67 HEAD -- src/` for which DXUI-* shipped, then retire/refresh. Remaining uncarded:
-CommandPalette (Dependent on useHotkeys/DXUI-8), RTL (Exploratory — 74 physical vs 1 logical CSS prop),
-Visual-regression testing (Exploratory — heavier, overlaps DXUI-33). When DXUI-8/12/24/36 are built, lean
-on @vueuse/core rather than hand-rolling.
+demo hosting, peer-dep packaging (DXUI-30/35/39), npm metadata (DXUI-38), robustness (DXUI-40). Do NOT add
+cards unless something ships OR a genuine new defect surfaces. Best move next time: verification-only —
+re-scan `git log`/`git diff 7023a67 HEAD -- src/` for which DXUI-* shipped, then retire/refresh. Remaining
+uncarded: CommandPalette (Dependent on useHotkeys/DXUI-8), RTL (Exploratory — 74 physical vs 1 logical CSS
+prop), Visual-regression testing (Exploratory — heavier, overlaps DXUI-33). When DXUI-8/12/24/36 are built,
+lean on @vueuse/core rather than hand-rolling.
 
