@@ -129,6 +129,10 @@ coverage gate enforced via /flow-verify.
 | No action button in DanxToast (e.g. "Undo") | Missing | Session 28, new find. `toast/types.ts` `ToastOptions` has `message`/`variant`/`position`/`duration`/`dismissible`/`target`/`targetPlacement` but no `action` field; `DanxToast.vue` renders only a close button (grep confirms no other `<button>`/action slot). Common toast UX pattern (e.g. "File deleted — Undo") is unsupported; consumers can't offer an inline recovery action from a toast today. |
 | `request.call` silently discards a consumer-supplied `AbortSignal` | Incomplete (Bug) | Session 29, new find. `RequestCallOptions extends RequestInit` (request-types.ts:22) so the public type advertises `signal` as settable, but `request.ts:70` unconditionally does `options.signal = abortController.signal;` whenever `shouldAbortPrevious` is true (the default, i.e. `waitOnPrevious` not set — the common case). Any `signal` a consumer passed in (e.g. to cancel a request on component unmount, or to compose with their own timeout AbortController) is clobbered with no merge/compose, and no test in `request.test.ts` (320 lines) exercises consumer-supplied `signal` at all. Verified via grep: zero internal call sites currently pass `signal`, so the bug has shipped unnoticed. |
 | `request.poll` has no cancellation / max-attempts / max-duration escape hatch | Incomplete | Session 29, new find. `request.ts:183-192`'s `poll()` loops `do { await request.call(...); await sleep(interval) } while (!until(response))` with only the caller-supplied `fnUntil` predicate as an exit condition — no `AbortSignal`, `maxAttempts`, or `maxDuration` option (`request-types.ts:42-47` confirms the signature has none). If a component unmounts or a workflow is cancelled while polling, the only way to stop is a hacky external ref mutated inside `fnUntil` to force it `true`, and a predicate that never resolves loops forever. Grep confirms zero current internal consumers of `poll`, so the gap is currently latent/untested-in-practice public API surface. |
+| `objectStore`'s process-global identity `Map` has no eviction/disposal API | Incomplete (Bug) | Session 30, new find. `objectStore.ts`'s module-level `store = new Map<string, TypedObject>()` (line 38) is written to via `storeObject`/`storeObjects` but grep-confirmed (`grep -rn "store.delete\|store.clear" src/`) there is NO code path that ever removes an entry — not even `removeObjectFromLists` (line 314), which only splices the object out of array *properties* and registered list refs, never calls `store.delete(objectKey)`. Every object ever stored (including soft-deleted `__deleted_at` ones) lives in memory for the lifetime of the page. In a long-running SPA session (e.g. a chat app accumulating messages/threads/actions over hours), this is unbounded memory growth with no way for a consumer to opt out. |
+| `useActions` permanently leaks a fresh `__Action:<uid>` record into the object store on every controller instantiation | Incomplete (Bug) | Session 30, new find. `actions.ts`'s `useActions()` generates `const namespace = uid()` (line 60) once per call, then every `getAction`/`extendAction`/`modifyAction` persists its action seed into the SAME global `objectStore` map (via `persist()` → `storeObject`) under `__Action:${namespace}` (line 78) — grep-confirmed no `dispose`/`cleanup`/`unmount` reference anywhere in `actions.ts` or `action-types.ts`. Because `namespace` is a fresh `uid()` every call, entries can never even collide/be reused — each mount of any component/composable calling `useActions()` (list controllers, action-bound buttons/tables) permanently grows the store by one more untouchable identity-map entry. Compounds the general `objectStore` leak above with a concrete, everyday trigger. |
+| `useActionStore.refreshItems` has no try/catch — a failed request permanently wedges `isRefreshing` | Incomplete (Bug) | Session 30, new find. `actionStore.ts:28-34`'s `refreshItems()` sets `isRefreshing.value = true`, awaits `routes.list(...)` with no try/catch/finally, then sets `isRefreshing.value = false` only on the line after the await. If `routes.list` rejects (network failure, aborted request, server error), `isRefreshing` is stuck `true` forever — the `if (isRefreshing.value) return;` guard at the top of `refreshItems` then silently no-ops on every future call, and `loadItems()`'s `hasLoadedItems` never gets set either, so the load-once cache is permanently and silently broken with no error surfaced to the caller or `FlashMessages`. Trivial, well-isolated fix (wrap in try/finally). |
+| `useAutoColor` reads dark-mode via non-reactive `document.documentElement.classList.contains("dark")` inside a Vue `computed` | Minor/Dependent (documented limitation) | Session 30, new find. `autoColor.ts:150-153` docstring already self-documents: "If dark mode is toggled while the component is mounted, the style will only update when `value` changes" — Vue's `computed` doesn't track DOM class mutations, so a Chip/ButtonGroup's auto-color won't refresh when dark mode flips unless its hashed `value` prop also changes. Currently low-severity because there is no runtime dark-mode *toggle* composable yet (`useColorScheme`, DXUI-36, still Missing) — this becomes user-visible the moment DXUI-36 ships a live toggle. Not carded standalone; note to fold into DXUI-36's AC (e.g. have the toggle dispatch a class-change signal `useAutoColor` can watch, or expose a shared reactive `isDark` ref instead of ad-hoc `classList.contains` checks in each composable). |
 
 ---
 
@@ -197,66 +201,81 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxToast action button (e.g. "Undo") | Drafted this session (Valuable) | 294 (7×7×6) | Session 28 fresh find, NOT YET CARDED. Add optional `action: {label, onClick}` to ToastOptions/ToastEntry; render an inline action button in DanxToast.vue alongside the close button; clicking should not require canceling auto-dismiss (or should, per design decision documented in AC). I:7 (common toast UX pattern, affects any consumer needing inline recovery actions) C:7 (clear approach, composes existing button/toast primitives) E:6 (half-day: types + render + wiring + docs + tests). |
 | Fix `request.call` overwriting consumer-supplied `AbortSignal` | Drafted this session (Bug) | 320 (8×8×5) | Session 29 fresh find, NOT YET CARDED. Merge/compose an incoming `options.signal` with the internal abort-previous controller (e.g. via an `AbortSignal.any([...])` polyfill-safe helper, or only install the internal signal when the caller didn't supply one) instead of unconditionally clobbering it at request.ts:70. I:8 (silent data-loss-of-intent bug in a core, widely-used primitive — any consumer relying on the public `signal` option is silently broken) C:8 (root cause fully understood, fix is localized) E:5 (needs care: must preserve existing abort-previous/useMostRecentResponse semantics + add signal-composition tests, touches concurrency-sensitive code). |
 | Add cancellation/max-attempts to `request.poll` | Drafted this session (Maintenance) | 210 (6×7×5) | Session 29 fresh find, NOT YET CARDED. Extend poll's signature with an optional `{ signal?, maxAttempts?, maxDuration? }` so callers have a real way to stop polling (component unmount, workflow cancel) beyond mutating state inside `fnUntil`; reject/resolve appropriately on limit reached. I:6 (currently zero internal consumers so blast radius is contained, but it's a public API footgun — infinite-loop risk for any real consumer) C:7 (well-understood polling-cancellation pattern) E:5 (touches request.ts + request-types.ts + new tests, moderate care needed to keep default behavior unchanged). |
+| Add `objectStore` eviction/disposal API (`disposeObject`/`clearStore`) | Drafted this session (Bug) | 245 (7×7×5) | Session 30 fresh find, NOT YET CARDED. Export a `disposeObject(type, id)` (removes one identity + purges it from registered lists/array refs) and a `clearStore()` (full reset, e.g. for logout/tenant switch) from `objectStore.ts`. I:7 (unbounded memory growth in any long-running consumer app — a chat app accumulating messages/threads/actions over a session — with zero opt-out today) C:7 (root cause fully understood via grep; must preserve the existing per-field causality model and not break in-flight merges) E:5 (core file, several existing call sites to consider, needs careful tests around the causality invariants). |
+| Give `useActions` a disposal path for its per-namespace object-store entries | Drafted this session (Bug) | 252 (6×7×6) | Session 30 fresh find, NOT YET CARDED. Export a `disposeActions(controller)` (or auto-integrate with the `disposeObject`/`clearStore` API above) so a component/composable that calls `useActions()` can clean up its `__Action:<uid>` entries on unmount, instead of growing the global store by one untouchable entry per mount forever. I:6 (every mount of a list controller or action-bound component leaks — concrete, everyday trigger for the general objectStore leak) C:7 (grounded via grep, clear approach: expose the namespace + a cleanup export) E:6 (isolated to actions.ts + action-types.ts, add export + docs + tests, pairs naturally with the objectStore disposal API). |
+| Fix `useActionStore.refreshItems` stuck `isRefreshing` on request failure | Drafted this session (Bug) | 486 (6×9×9) | Session 30 fresh find, NOT YET CARDED. Wrap `refreshItems()`'s `routes.list(...)` call in try/catch/finally so `isRefreshing.value = false` always runs (and surface the error, e.g. via `FlashMessages.error` or a returned/thrown error) instead of silently wedging the load-once cache forever on any network failure. I:6 (silently and permanently breaks a commonly-used load-once list cache on any transient network error, no error surfaced) C:9 (trivial, fully understood root cause — missing try/finally) E:9 (single function, ~5 line change, isolated to actionStore.ts). Highest-ICE draft this session — smallest, most certain fix. |
+| `useAutoColor` non-reactive dark-mode check (fold into DXUI-36) | Note (not carded standalone) | — | Session 30 fresh find. Docstring-acknowledged limitation in `autoColor.ts` — `computed()` reads `document.documentElement.classList.contains("dark")` which Vue can't track, so auto-colored Chips/ButtonGroups won't refresh on a live dark-mode toggle. Currently low severity (no toggle composable exists yet); becomes visible the moment DXUI-36 (`useColorScheme`) ships. Recommend folding a fix into DXUI-36's AC (shared reactive `isDark` signal) rather than a standalone card. |
 
 ---
 
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 29, drafts-only dispatch — no MCP tool use, `mcp__danx_dashboard__*` not
-available this session either)** — Dispatched into the isolated
+**2026-07-11 (session 30, drafts-only dispatch — explicitly told this dispatch has NO
+`issue_list`/`issue_create` MCP access; Bash/Read/Edit/Write only)** — Dispatched into the isolated
 `danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there; only
-`.claude/` config exists there). Read/wrote the canonical checkout at `/home/newms/web/danx-ui`
-instead, per the worktree's own mirror notes. Confirmed toolset is Bash/Read/Edit/Write only.
+`.claude/` config + this file's read-only mirror exist there). Read/wrote the canonical checkout at
+`/home/newms/web/danx-ui` instead, per the worktree's own mirror notes.
 
-Re-verified reality (12th+ consecutive confirming session):
+Re-verified reality (13th+ consecutive confirming session):
 - `git log --oneline -3 -- src/ package.json`: still tip `6524fa1` (v0.8.17, 2026-06-25) — no
   `src/` change in 2.5+ weeks. `ls src/components` still 31 dirs, matches Section 1 inventory.
-- Did not have dashboard/API access this session to re-check the 46-card Review-backlog-dispatch
-  status (no curl target given); assume unchanged from session 28's confirmed 46/46 Review, 0%
-  dispatched until re-verified next session.
+- No dashboard/API access this session either (no MCP tools, no curl target given) — could not
+  re-check the 46-card Review-backlog-dispatch status; assume unchanged from session 28's last
+  confirmed 46/46 Review, 0% dispatched until re-verified.
 
-**New ground covered this session:** rather than re-grepping component-level gaps already
-exhaustively covered by 28 prior sessions (components/, shared/composables/), focused this pass on
-`src/shared/request.ts` (the core fetch wrapper) and adjacent `src/shared/` files not previously
-scrutinized this deeply. Found 2 new, grounded findings (added to Section 1 gaps table + Section 2
-scratchpad):
-1. `request.call` unconditionally overwrites any consumer-supplied `options.signal` with its own
-   internal abort-previous `AbortController` (request.ts:70) whenever `shouldAbortPrevious` is true
-   (the default case, i.e. `waitOnPrevious` not set). The public `RequestCallOptions` type extends
-   `RequestInit` so `signal` is advertised as settable, but it's silently clobbered — no merge, no
-   test coverage of this path in the 320-line `request.test.ts`. Currently zero internal call sites
-   pass `signal`, so this bug has shipped unnoticed. ICE 320 (8×8×5), Bug.
-2. `request.poll` has no cancellation/max-attempts/max-duration escape hatch — only exit condition
-   is the caller's `fnUntil` predicate; no `AbortSignal` or attempt/duration limit option exists on
-   its signature. Infinite-loop risk if the predicate never resolves; zero current internal
-   consumers (untested-in-practice public API surface). ICE 210 (6×7×5), Maintenance.
+**New ground covered this session:** per session 29's own recommendation, scrutinized
+`src/shared/objectStore.ts`, `actionStore.ts`, `actions.ts` (`useActions`), `actionRoutes.ts`,
+`config.ts`, `nestedJson.ts`, `download.ts`, `autoColor.ts`, and `hexColor.ts` in depth — areas not
+previously read this closely across 29 prior sessions. Found 4 new, grounded findings (added to
+Section 1 gaps table + Section 2 scratchpad):
+1. `objectStore.ts`'s module-level `store` Map (line 38) has NO eviction/disposal path anywhere —
+   grep-confirmed zero `store.delete`/`store.clear` in src/; `removeObjectFromLists` only splices
+   array *properties*, never removes the identity-map entry itself. Unbounded memory growth for
+   any long-running consumer session. ICE 245 (7×7×5), Bug.
+2. `useActions()` (actions.ts:60) mints a fresh `uid()` namespace every call and persists every
+   action seed into that SAME global objectStore under `__Action:<uid>` with zero
+   dispose/cleanup/unmount hook anywhere in actions.ts or action-types.ts (grep-confirmed) — a
+   concrete, everyday trigger for finding #1: every mount of a list controller or action-bound
+   component leaks one more permanent, never-reusable entry. ICE 252 (6×7×6), Bug.
+3. `useActionStore.refreshItems` (actionStore.ts:28-34) has no try/catch/finally around its
+   `await routes.list(...)` — any request failure permanently wedges `isRefreshing.value = true`,
+   silently and permanently breaking the load-once list cache with no error surfaced anywhere.
+   Trivial, isolated, highest-confidence fix. ICE 486 (6×9×9), Bug — highest ICE this session.
+4. `useAutoColor` (autoColor.ts:150-181) reads dark-mode via a non-reactive
+   `document.documentElement.classList.contains("dark")` inside a Vue `computed` — already
+   self-documented as a known limitation in its own docstring. Low severity today (no dark-mode
+   toggle composable exists yet, DXUI-36 still Missing) but will surface the moment DXUI-36 ships.
+   Recommended as a fold-in to DXUI-36's AC rather than a standalone card — not carded.
 
-Ruled out as non-gaps after inspection: `arrayUtils.ts` (complete for its narrow YAML-template
-aggregate-function purpose); `flashMessages.ts` (thin, complete facade over `useToast`);
-`useVariant.ts`/`useFieldInteraction.ts` (complete, well-documented); `useTouchSwipe.ts` (complete
-for its stated horizontal-swipe-only scope — not a pinch-zoom gap, since `DanxZoomable` already
-owns pinch/zoom separately); `DanxFileUpload`'s `useFileUpload.ts` already has abort/retry per-file
-(confirmed via reading the file, not a gap); color-picker/range-slider/zoomable/file-explorer/
-toggle/danx-file-viewer all already have `aria-*` wiring (grep-confirmed, no new a11y gap there).
+Ruled out as non-gaps after inspection: `download.ts` (complete download.js-derived port, browser
+fallbacks intact); `hexColor.ts`/`nestedJson.ts` (small, complete, single-purpose utilities);
+`config.ts`/`config-types.ts` (complete singleton pattern, matches its own documented "single
+source of truth, no second config path" design — a `resetDanxOptions()` would only matter for
+test-isolation/SSR edge cases, not worth a card); `actionRoutes.ts` (complete, consistent
+store-through-request wiring, no gaps found).
 
-**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): the 2 items
-above — request.ts signal-overwrite bug (ICE 320, Bug) and poll cancellation gap (ICE 210,
-Maintenance). Smaller find count than session 28's 4, but both are genuinely new, well-grounded,
-and surface a previously-unscrutinized area (`shared/request.ts`, the core data-fetching layer)
-rather than re-treading component-level ground already covered by 28 prior sessions.
+**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): the 3 Bug
+items above (objectStore disposal API ICE 245, useActions disposal ICE 252, useActionStore
+try/finally ICE 486) plus 1 note-only fold-in (useAutoColor dark-mode staleness, recommend
+attaching to DXUI-36 rather than a new card). All 3 primary drafts are genuinely new, well-grounded
+in the previously-unscrutinized `shared/` reactive-data-layer files, and distinct from all 6 prior
+undispatched drafts (session 28's 4 + session 29's 2 — still not yet cards per this file).
 
-**Primary finding (still holds, now 12th+ consecutive confirmation):** idea supply is not the
+**Primary finding (still holds, now 13th+ consecutive confirmation):** idea supply is not the
 bottleneck for the EXISTING 46-card backlog (as of session 28's last confirmed check) — it sat
-100% in Review with 0% dispatched for 2.5+ weeks. This session's 2 new drafts are additive
+100% in Review with 0% dispatched for 2.5+ weeks. This session's 3 new drafts are additive
 scratchpad material, not a signal to deprioritize the existing backlog. Recommend the human
-operator prioritize triaging the existing 46+ cards into ToDo/In Progress.
+operator prioritize triaging the existing 46+ cards into ToDo/In Progress, and separately
+prioritize the objectStore/useActions memory-leak pair (findings #1/#2) given they compound (every
+consumer app running danx-ui accrues this growth from day one, worsening the longer a session runs).
 
 **Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, run
-`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then create the 6
-outstanding drafts as real cards (session 28's 4 + this session's 2 — none are cards yet, only
+`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then create the 9 outstanding
+drafts as real cards (session 28's 4 + session 29's 2 + this session's 3 — none are cards yet, only
 proposals in this log). (2) Re-verify the 46-card backlog dispatch status via the dashboard API if
-reachable. (3) If `src/` is still unchanged, this session shows deep `shared/` exploration (request
-layer, composables) still yields fresh material — consider next scrutinizing `objectStore.ts`,
-`actionStore.ts`/`actionRoutes.ts`, and `config.ts` in similar depth, since this session did not
-have time to fully audit those.
+reachable. (3) If `src/` is still unchanged, remaining unaudited-in-depth `shared/` surface is now
+small (config-types.ts, action-types.ts, form-types.ts, request-types.ts, store-types.ts, types.ts —
+mostly type-only files); consider next revisiting `components/` directories with the LOWEST prior
+scrutiny (check which dirs haven't had a dedicated deep-dive session vs. ones repeatedly grepped)
+rather than re-treading `shared/`, which is now close to exhausted.
