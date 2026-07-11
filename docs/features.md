@@ -123,6 +123,10 @@ coverage gate enforced via /flow-verify.
 | Generic DanxTreeView (data-driven tree) | Missing | DXUI-47 (session 17, new find). Only `DanxFileExplorer` exists, hardcoded to `FileNode` file/folder semantics. No tree component for arbitrary hierarchical data (org charts, category trees, comment threads, permission trees). Verified via `grep -rli treeview src` = empty. |
 | Password strength meter | Missing | DXUI-48 (session 17, new find). `DanxInput` has a show/hide toggle for `type="password"` but zero strength scoring/feedback anywhere in src. Verified via `grep -rli password.*strength src` = empty. |
 | useBreakpoints / useMediaQuery composable | Missing | DXUI-49 (session 17, new find). No viewport/media-query reactivity composable exists (`grep -rli usemediaquery\|usebreakpoint\|matchmedia src` = empty) despite `@vueuse/core` (peer dep) shipping `useBreakpoints`/`useMediaQuery` directly — same "wrap vueuse, don't hand-roll" pattern already applied to DXUI-8/12/24. Foundation for responsive behavior in Drawer (DXUI-21)/Tabs/SplitPanel. |
+| Duplicated hand-rolled ResizeObserver + missing element-resize repositioning | Incomplete | Session 28, new find. `useSelect.ts` (line ~103) and `useDanxScroll.ts` (line ~199) each independently instantiate + manage a raw `ResizeObserver`. Meanwhile `usePopoverPositioning.ts` only listens to `window` `resize`/`scroll` events (lines 101/109) — it does NOT observe the anchor/panel element itself, so popover/tooltip/context-menu content growing (e.g. async content loading inside a popover) without a window resize leaves the panel mispositioned. `@vueuse/core` (peer dep) ships `useResizeObserver`/`useElementSize` — same "wrap vueuse, don't hand-roll" pattern as DXUI-8/12/24/49. |
+| No clipboard-paste-to-upload in DanxFileUpload | Missing | Session 28, new find. `DanxFileUpload.vue`/`useFileUpload.ts`/`useDragDrop.ts` (grep verified) only accept files via drag-drop or the native file input — no `paste` event handler anywhere in `danx-file-upload/`. Users cannot Ctrl+V a copied screenshot/file directly into the drop zone, a common expectation (Slack/GitHub-style paste-to-attach). |
+| Hand-rolled setTimeout debounce (code-viewer, markdown-editor) vs vueuse useDebounceFn | Incomplete | Session 28, new find. `code-viewer/codeViewerDebounce.ts` (`debouncedEmit`/`debouncedValidate`/`debouncedHighlight`, 3 manually-tracked `setTimeout`/`clearTimeout` pairs) and `markdown-editor/useMarkdownSync.ts` (`debouncedSyncFromHtml`) hand-roll debounce/timeout bookkeeping, while `shared/actions.ts` already uses vueuse's `useDebounceFn` for the same purpose. Same "wrap vueuse, don't hand-roll" pattern as DXUI-8/12/24/49 — dedupe reduces bug surface (each hand-rolled copy must independently get cancel-on-unmount right). |
+| No action button in DanxToast (e.g. "Undo") | Missing | Session 28, new find. `toast/types.ts` `ToastOptions` has `message`/`variant`/`position`/`duration`/`dismissible`/`target`/`targetPlacement` but no `action` field; `DanxToast.vue` renders only a close button (grep confirms no other `<button>`/action slot). Common toast UX pattern (e.g. "File deleted — Undo") is unsupported; consumers can't offer an inline recovery action from a toast today. |
 
 ---
 
@@ -185,58 +189,68 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Generic DanxTreeView (data-driven tree) | Carded (Valuable) | 252 (6×7×6) | DXUI-47. Session 17 fresh find. Generalizes useFileExplorer's proven expand/collapse/keyboard-nav pattern to arbitrary TreeNode<T> data; FileExplorer stays file-specific, optional refactor onto it later out of scope. |
 | Password strength meter for DanxInput | Carded (Valuable) | 216 (6×6×6) | DXUI-48. Session 17 fresh find. Opt-in showStrength prop + headless passwordStrength() pure function in src/shared/; rule-based scoring (no zxcvbn dep) to preserve zero-runtime-dependency goal. |
 | useBreakpoints/useMediaQuery composable | Carded (Maintenance/Valuable) | 280 (7×8×5) | DXUI-49. Session 17 fresh find. Thin wrapper over @vueuse/core's useBreakpoints/useMediaQuery pre-configured with danx-ui's Tailwind breakpoint tokens; SSR-guarded. Foundation for responsive Drawer/Tabs/SplitPanel behavior. |
+| useResizeObserver/useElementSize composable (dedupe + fix popover repositioning) | Drafted this session (Maintenance) | 320 (5×8×8) | Session 28 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Wraps vueuse's useResizeObserver/useElementSize; replaces hand-rolled ResizeObserver in useSelect.ts + useDanxScroll.ts; adds element-resize awareness to usePopoverPositioning.ts (currently window resize/scroll only, misses in-place content growth). I:5 (internal + indirectly fixes a real popover mispositioning edge case) C:8 (proven wrap-vueuse pattern, 4 prior cards) E:8 (thin wrapper, 2-3 files). |
+| DanxFileUpload clipboard paste-to-upload | Drafted this session (Valuable) | 252 (7×6×6) | Session 28 fresh find, NOT YET CARDED. Add `paste` event handling to DanxFileUploadDropZone/useFileUpload reusing existing fileValidation.ts pipeline. I:7 (common expected UX, affects all upload consumers) C:6 (standard ClipboardEvent API, some focus/edge-case nuance) E:6 (half-day, 2-3 files + tests). |
+| Replace hand-rolled setTimeout debounce with vueuse useDebounceFn (code-viewer, markdown-editor) | Drafted this session (Maintenance) | 192 (4×8×6) | Session 28 fresh find, NOT YET CARDED. Replace codeViewerDebounce.ts's 3 manual timeout pairs + useMarkdownSync.ts's debouncedSyncFromHtml with vueuse's useDebounceFn (already used in shared/actions.ts). I:4 (internal cleanup, no user-visible change) C:8 (proven pattern already in codebase) E:6 (touches 2 files, several call sites, must preserve debounceMs===0 immediate-mode behavior). |
+| DanxToast action button (e.g. "Undo") | Drafted this session (Valuable) | 294 (7×7×6) | Session 28 fresh find, NOT YET CARDED. Add optional `action: {label, onClick}` to ToastOptions/ToastEntry; render an inline action button in DanxToast.vue alongside the close button; clicking should not require canceling auto-dismiss (or should, per design decision documented in AC). I:7 (common toast UX pattern, affects any consumer needing inline recovery actions) C:7 (clear approach, composes existing button/toast primitives) E:6 (half-day: types + render + wiring + docs + tests). |
 
 ---
 
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 27, dispatched from a different orchestrator: `danx-ideate` skill variant
-instructing NO MCP tool use, drafts-only handoff)** — Dispatched into the isolated
-`danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there; only
-`.claude/` config + a mirror `docs/features.md`); read/wrote the canonical checkout at
-`/home/newms/web/danx-ui` instead, per the worktree's own mirror notes. Unlike sessions 18-26, this
-session's launch prompt explicitly said the ideator has NO `issue_create`/`issue_list` access and
-to hand back drafts for the orchestrator to create — consistent with the actual toolset available
-(Bash/Read/Edit/Write only, no `mcp__danx_dashboard__*`).
+**2026-07-11 (session 28, same drafts-only dispatch contract as session 27 — no MCP tool use)** —
+Dispatched into the isolated `danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no
+`.git`, no `src/` there; only `.claude/` config + a mirror `docs/features.md`); read/wrote the
+canonical checkout at `/home/newms/web/danx-ui` instead, per the worktree's own mirror notes.
+Confirmed toolset is Bash/Read/Edit/Write only — no `mcp__danx_dashboard__*` — matching the launch
+prompt's explicit statement.
 
-Re-verified reality:
-- `git log --oneline -5 -- src/ package.json`: still `6524fa1` (v0.8.17 bump only), commit date
-  `2026-06-25` — **no `src/` change in over 2.5 weeks**, 10th+ consecutive session confirming this.
-  `ls src/components` still 31 dirs, matches Section 1 inventory exactly.
-- `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
-  "$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"` (read-only, token was present in
-  this session's env): confirms **46/46 issues still `status: Review`, 0% dispatched** (40 Feature /
-  6 Bug, DXUI-4..49) — byte-for-byte unchanged from sessions 19-26.
-- Spot-checked for combobox/autocomplete/wizard components not already in the inventory — grep
-  confirms `autocomplete` hits are just native HTML attribute usage (input/textarea/select), not a
-  dedicated Combobox component; DanxSelect's searchable mode already covers most of that need, so
-  not added as a new gap.
-- Re-confirmed the same 2 not-yet-carded Exploratory scratchpad items (ImageCropper, DanxCalendar)
-  and 2 others (Figma tokens export, visual-regression testing) remain genuinely un-built and
-  un-carded. No changes to Section 1/2 content — nothing new shipped to reclassify, no new gaps
-  found worth adding to the inventory.
+Re-verified reality (11th+ consecutive confirming session):
+- `git log --oneline -5 -- src/ package.json`: still `6524fa1` (v0.8.17), `2026-06-25` — no `src/`
+  change in 2.5+ weeks. `ls src/components` still 31 dirs, matches Section 1 inventory.
+- `curl .../api/issues?board=danx-ui:danx-ui-main`: confirms **46/46 issues still `status:
+  Review`, 0% dispatched** (40 Feature / 6 Bug, DXUI-4..49) — unchanged from sessions 19-27.
 
-**Drafts handed to orchestrator this session** (since this dispatch cannot call `issue_create`
-itself): pulled the 4 highest-ICE not-yet-carded Exploratory scratchpad entries (visual-regression
-testing ~100, ImageCropper ~80, Figma tokens export ~60, DanxCalendar full grid ~48) as draft
-Feature cards, explicitly flagged as LOW PRIORITY relative to the existing backlog. CommandPalette
-was NOT drafted — it is `Dependent` on DXUI-8 (useHotkeys), which is itself still un-dispatched in
-Review, so promoting it now would violate the ideator's own "only promote Dependent once
-dependencies are done" rule. RTL/logical-CSS was considered and rejected (ICE ~18, large
-cross-cutting Epic, no demand signal) — noted to orchestrator but not drafted as one of the 3-5.
+**New ground actually covered this session** (unlike 19-27, which mostly re-verified): grepped for
+genuinely un-inventoried gaps rather than re-checking the same known-absent items, and found 4 real,
+grounded, NOT-previously-tracked findings (added to Section 1 gaps table + Section 2 scratchpad):
+1. Duplicated hand-rolled `ResizeObserver` (useSelect.ts, useDanxScroll.ts) + `usePopoverPositioning`
+   only listens to window resize/scroll, missing element-resize repositioning — vueuse
+   `useResizeObserver`/`useElementSize` wrap, same pattern as DXUI-8/12/24/49. ICE 320 (5×8×8).
+2. `DanxFileUpload` has no clipboard-paste-to-upload (`paste` event) — grep-verified absent across
+   `danx-file-upload/*`. ICE 252 (7×6×6).
+3. Hand-rolled `setTimeout` debounce in `code-viewer/codeViewerDebounce.ts` (3 timeout pairs) +
+   `markdown-editor/useMarkdownSync.ts`, vs. `shared/actions.ts` already using vueuse's
+   `useDebounceFn` — same wrap-vueuse pattern. ICE 192 (4×8×6).
+4. `DanxToast` `ToastOptions` has no `action` field (e.g. inline "Undo") — only a close button
+   exists (`toast/types.ts`, `DanxToast.vue` grep-verified). ICE 294 (7×7×6).
+Also checked and ruled out as non-gaps: DanxFile.vue already has native `loading="lazy"` (no lazy-
+load gap); DanxEditableDiv's `el.textContent =` write is external-sync-only per its own code
+comment, doesn't clobber native undo during typing (not a bug); no OTP/signature-pad/masonry/
+combobox/wizard/beforeunload-guard gaps found via targeted grep (combobox hits were just
+DanxSelect's existing searchable mode, not a separate component).
 
-**Primary finding (repeats sessions 18-26, now 10th+ consecutive confirmation):** idea supply is
-NOT the bottleneck. 46 fully-scored, deduplicated cards have sat 100% in Review with 0% dispatched
-for 2.5+ weeks. The 4 drafts handed back this session are intentionally lower-ICE than all 46
-existing cards (which is exactly why they were never carded across 26 prior sessions) — they exist
-only because this session's contract required 3-5 drafts regardless of backlog state, not because
-they compete with the existing Review queue. Recommend the human operator prioritize triaging the
-existing 46 cards into ToDo/In Progress over creating these 4 (or any other) new cards.
+**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): the 4 items
+above, ordered by ICE — useResizeObserver/useElementSize (320, Maintenance), DanxToast action
+button (294, Valuable), DanxFileUpload paste-to-upload (252, Valuable), debounce dedupe (192,
+Maintenance). All 4 are genuinely new (not in the existing 46-card Review backlog) and mix
+Valuable + Maintenance per prioritization strategy. Did NOT re-draft the previously-flagged
+low-ICE Exploratory items (ImageCropper, DanxCalendar, Figma export, visual-regression) since this
+session found fresher, better-grounded, higher-or-comparable-ICE material instead — those remain
+noted in Section 2 for a future session if this material runs out.
 
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability FIRST in the ideator
-subagent's own declared toolset. If present, run `issue_list({status_derived:'Review'|'ToDo'|'In
-Progress'})` for real dedup before creating anything — including against these 4 drafts, which are
-NOT yet cards, only proposals in this log. (2) If `src/` is still unchanged and the 46-card Review
-backlog is still undispatched, do not draft more new cards — the finding is fully confirmed;
-recommend dispatch/review triage to the operator instead of further ideation.
+**Primary finding (still holds, now 11th+ consecutive confirmation):** idea supply is not the
+bottleneck for the EXISTING 46-card backlog — it has sat 100% in Review with 0% dispatched for
+2.5+ weeks. This session's 4 new drafts are additive scratchpad material, not a signal that the
+existing backlog should be deprioritized. Recommend the human operator prioritize triaging the
+existing 46 cards into ToDo/In Progress; add these 4 new drafts to the same Review queue once
+`issue_create` is available.
+
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first. If present, run
+`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then actually create the 4
+drafts above as cards (they are NOT yet cards, only proposals in this log). (2) If `src/` is still
+unchanged and the 46-card Review backlog is still undispatched, keep prioritizing dispatch/review
+triage over further ideation — but this session shows there is still fresh, grounded gap material
+to find via targeted grep (ResizeObserver dedup, clipboard paste, debounce dedup, toast actions)
+when the well seems dry; don't assume "nothing new" without actually grepping for it first.
