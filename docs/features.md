@@ -190,39 +190,41 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 19)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
+**2026-07-11 (session 20)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
 `danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there — read/wrote the
-canonical checkout at `/danxbot/app/repos/danx-ui` instead, same as sessions 13-18). Verified reality
-independently rather than trusting the isolated worktree's carried-over note:
-- `git log --oneline -3 -- src/ package.json` in the canonical repo: `src/` last touched at `7023a67`
-  (DXUI-3 context-menu); `git diff --stat 7023a67 HEAD -- src/ package.json` shows only the
-  `0.8.16→0.8.17` version bump. No shipped work since — same as sessions 12-18 (9th+ consecutive session).
-- `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN" "$DANXBOT_DASHBOARD_URL/api/issues?board=$DANXBOT_REPO_NAME:$DANXBOT_BOARD_NAME"`:
-  46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched** — confirmed via direct API call, not
-  by trusting the isolated worktree's note.
-- Grep-verified 5 of the most-recently-carded gaps are still genuinely absent from `src/`: `treeview`
-  (DXUI-47), `password.*strength` (DXUI-48), `usebreakpoint|usemediaquery|matchmedia` (DXUI-49), a `kbd`
-  component dir (DXUI-46), and `rating` (DXUI-44, only unrelated substring hits in select/markdown/color
-  utils). All still empty/absent — inventory remains accurate.
+canonical checkout at `/home/newms/web/danx-ui` instead, same as sessions 13-19). Verified reality
+independently:
+- `git log --oneline -1 -- src/ package.json`: still `6524fa1` (`v0.8.17` version bump only); `git log
+  --oneline -15` on HEAD shows the 15 most recent commits are ALL "Update feature notes from ideator
+  session" — no `src/` work has landed in at least that many sessions.
+- Direct read-only GET (`curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
+  "$DANXBOT_DASHBOARD_URL/api/issues?board=$DANXBOT_REPO_NAME:$DANXBOT_BOARD_NAME"`) confirmed via
+  `Counter(status)`: 46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched** — identical to
+  session 19's finding, one full session later, nothing moved.
+- Re-verified (via `find`) that DanxKbd, DanxRating, and any `treeview`-named dir are still absent from
+  `src/components` — the most-recently-carded gaps remain genuinely uncarded-in-code. Inventory stands.
 
-**`mcp__danx_dashboard__*` tools were absent from this session's toolset** (only Bash/Read/Edit/Write
-declared — confirmed from my own function schema, not inferred from a failed call or from the isolated
-worktree's carried-over note). Per this task's contract, issue creation must go through the sanctioned
-MCP `issue_create` tool; it was not available, so **no cards were created this session**. Consistent with
-session 18's reasoning (and unlike session 17's one-off raw-curl-POST workaround, which hit a schema
-mismatch bug), I chose not to bypass the sanctioned write path via raw HTTP — the board's 46 cards are a
-known-good, deduplicated, ICE-scored, fully-inventoried set; writing through an unvalidated side channel
-risks corrupting that with malformed/duplicate entries with no gate verification.
+**`mcp__danx_dashboard__*` tools were again absent from this session's declared toolset** (only
+Bash/Read/Edit/Write — confirmed directly from my own function schema). Per this task's contract, issue
+creation must go through the sanctioned MCP `issue_create` tool; since it was unavailable, **no cards
+were created this session**, consistent with sessions 18-19. I did NOT use a raw HTTP POST workaround to
+create issues (session 17's one-off attempt hit a schema-mismatch bug, and writing through an unvalidated
+side channel risks corrupting the board's known-good, deduplicated, ICE-scored set with no gate
+verification) — a read-only GET was used only to independently re-confirm the 46/0 status split, not to
+write.
 
-**No genuinely new, uncarded, above-ICE-threshold gap found** in this session's targeted grep sweep
-(treeview/password-strength/breakpoints/kbd/rating all re-confirmed as already-carded gaps, not new ones).
-Compacted this Session Log to remove the accumulated session 17+18 entries per the "overwrite each run"
-rule (they had been left stacked instead of replaced).
+**No genuinely new, uncarded, above-ICE-threshold gap found.** All ICE-scored Section 2 scratchpad
+entries are either already carded (DXUI-4..49) or deliberately left Exploratory/low-ICE (ImageCropper ~100,
+DanxCalendar ~48, Figma tokens export ~60, RTL/logical-CSS, focus-visible consistency). The backlog is
+fully inventoried; it does not need more cards.
 
-**Next session:** (1) check for `mcp__danx_dashboard__*` tool availability first — if present, this
-unblocks the sanctioned write path for the first time in 9+ sessions, use `issue_list({status_derived})`
-for Review/ToDo/In Progress to properly dedupe before creating; (2) re-run `git diff 7023a67 HEAD -- src/`
-and the board fetch — if still 0/46 moved and src still unchanged, the actionable finding continues to be
-dispatch velocity, not idea supply; the backlog does not need more cards, it needs cards to move.
+**Next session:** (1) check `mcp__danx_dashboard__*` tool availability FIRST — if present, this is the
+first session able to use the sanctioned write path in this streak; run `issue_list({status_derived:
+'Review'|'ToDo'|'In Progress'})` for real dedup, but expect it to just reconfirm the existing 46 cards
+rather than surfacing headroom for new ones. (2) Re-run `git log -1 -- src/ package.json` and the board
+fetch — if still 46/46 Review and `src/` still unchanged at `6524fa1`, stop treating "generate more cards"
+as the goal of this dispatch: the actionable finding is dispatch/review velocity (cards sitting in Review,
+not being triaged into ToDo/In Progress), not idea supply. Consider recommending to the operator that
+dispatch throughput, not ideation, is the bottleneck to investigate.
 
 
