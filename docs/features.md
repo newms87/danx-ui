@@ -243,8 +243,12 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 | Fix `useFormField`'s `fieldIdCounter` SSR hydration-mismatch risk (swap to Vue 3.5's `useId()`) | Carded (Bug) | 280 (5×7×8) | DXUI-76. Session 38 fresh find, now carded. Replace the module-level `let fieldIdCounter = 0` counter in `useFormField.ts` with Vue 3.5's built-in SSR-safe `useId()` composable (already within the package's own `vue ^3.5` peer-dep floor) for the fallback `id` used by `DanxInput`/`DanxTextarea`/`DanxSelect`/`DanxFileUpload` when no explicit `id` prop is passed. I:5 (SSR/Nuxt consumers only, but a real hydration-mismatch + broken `label[for]`/`aria-describedby` wiring post-hydration when render order diverges between server and client) C:7 (root cause fully understood, Vue's own `useId()` exists specifically for this) E:8 (isolated to one small composable, drop-in replacement). |
 | Fix `fPhone` returning a raw `number` instead of coercing to `string` for numeric input | Carded (Bug) | 288 (4×8×9) | DXUI-75. Session 38 fresh find, now carded. In `strings.ts`'s `fPhone`, change the early-return branch `return (value as string) || ""` to `return String(value ?? "")` (or reuse the numeric-input branch to still run digit-formatting) so the function's actual runtime behavior matches its declared `string` return type — currently `fPhone(5551234567)` returns the JS number `5551234567`, not a string, confirmed by the function's own test asserting `.toBe(5551234567)` (a number literal). I:4 (narrow — numeric input to a phone formatter is an edge case, but it's a real type-contract violation with no compile-time guard) C:8 (trivial root cause, one-line fix, sibling formatters in the same file already show the correct `String(value)` pattern) E:9 (single line, single file). |
 | Fix `fLocalizedDateTime`/`localizedDateTime` showing literal `"invalid datetime"` for malformed input instead of the standard empty-fallback | Carded (Bug) | 384 (6×8×8) | DXUI-74. Session 38 fresh find, now carded. Add an `.isValid` check inside `localizedDateTime()`/`remoteDateTime()` (`dateTimeTimezone.ts`) mirroring every sibling parser in `dateTimeParsers.ts`, returning `null`-equivalent (or letting the caller's own empty-fallback take over) on invalid input, instead of letting an invalid Luxon `DateTime` flow through `parseDateTime`'s pass-through branch into `.toFormat()` (which renders the literal `"Invalid DateTime"` → lowercased `"invalid datetime"`, NOT the `empty` option's `"- -"` default that `fDateTime`/`fDate` otherwise show consistently). I:6 (real user-visible incorrect text shown in place of the library's own consistent empty-state convention, for any consumer piping unvalidated/malformed server date strings through `fLocalizedDateTime`) C:8 (root cause fully understood via full-file read across both files; fix mirrors an existing, proven pattern already used by 4 sibling parsers) E:8 (isolated to `dateTimeTimezone.ts` + a defensive check in `datetime.ts`'s `fDateTime`, small, well-testable). Highest-ICE new finding this session. |
-| Fix `downloadFile` cache-busting query param breaking signed/presigned download URLs | Drafted this session (Bug) | 392 (7×7×8) | Session 39 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Skip (or make opt-in via a param) the `?no-cache=<timestamp>` append in `downloadFile()`'s URL-string branch (`shared/download.ts:96`) when the URL already carries query params that look like a signed-URL scheme (or simplest: just stop appending it unconditionally — the XHR request itself is not browser-cached across reloads in a way that matters for a one-shot user-triggered download), and add an `xhr.status` 2xx check in `xhr.onload` before treating the response as a downloadable blob, falling back to `xhr.onerror`'s `window.open` behavior on non-2xx. I:7 (breaks the file-download button entirely, not an edge case, for any consumer on S3/GCS/Azure-style signed-URL backends — the same signed-URL pattern `DanxFileUpload`'s own docs already assume for uploads) C:7 (root cause fully understood and reproducible; exact fix has a small design choice — remove vs. make conditional) E:8 (isolated to one function in `download.ts` + a status check, 1 file, easy to test with a mocked XHR). |
-| Fix `FlashMessages` severity methods letting configured defaults override per-call options | Drafted this session (Bug) | 405 (5×9×9) | Session 39 fresh find, NOT YET CARDED. Swap the spread order in `success`/`info`/`warning`/`error` (`shared/flashMessages.ts:47-81`) from `{variant, ...options, ...configured}` to `{variant, ...configured, ...options}`, matching `send()`'s already-correct precedence in the same file. I:5 (only affects consumers who both configure global `flashMessages` defaults per-severity AND pass per-call overrides — real but not universal) C:9 (trivial, obviously-wrong precedence, directly comparable to the correct sibling method 5 lines above in the same file) E:9 (4 one-line spread-order swaps, single file, existing tests should already cover most of the behavior change). Highest-ICE new finding this session. |
+| Fix `downloadFile` cache-busting query param breaking signed/presigned download URLs | Carded (Bug) | 392 (7×7×8) | DXUI-78. Session 39 fresh find, confirmed carded via read-only dashboard API in session 40. Skip (or make opt-in via a param) the `?no-cache=<timestamp>` append in `downloadFile()`'s URL-string branch (`shared/download.ts:96`) when the URL already carries query params that look like a signed-URL scheme (or simplest: just stop appending it unconditionally — the XHR request itself is not browser-cached across reloads in a way that matters for a one-shot user-triggered download), and add an `xhr.status` 2xx check in `xhr.onload` before treating the response as a downloadable blob, falling back to `xhr.onerror`'s `window.open` behavior on non-2xx. I:7 (breaks the file-download button entirely, not an edge case, for any consumer on S3/GCS/Azure-style signed-URL backends — the same signed-URL pattern `DanxFileUpload`'s own docs already assume for uploads) C:7 (root cause fully understood and reproducible; exact fix has a small design choice — remove vs. make conditional) E:8 (isolated to one function in `download.ts` + a status check, 1 file, easy to test with a mocked XHR). |
+| Fix `FlashMessages` severity methods letting configured defaults override per-call options | Carded (Bug) | 405 (5×9×9) | DXUI-77. Session 39 fresh find, confirmed carded via read-only dashboard API in session 40. Swap the spread order in `success`/`info`/`warning`/`error` (`shared/flashMessages.ts:47-81`) from `{variant, ...options, ...configured}` to `{variant, ...configured, ...options}`, matching `send()`'s already-correct precedence in the same file. I:5 (only affects consumers who both configure global `flashMessages` defaults per-severity AND pass per-call overrides — real but not universal) C:9 (trivial, obviously-wrong precedence, directly comparable to the correct sibling method 5 lines above in the same file) E:9 (4 one-line spread-order swaps, single file, existing tests should already cover most of the behavior change). Highest-ICE new finding this session. |
+| `autoRefreshObject` permanently stops polling (no reschedule) on any callback error or malformed response | Incomplete (Bug) | Session 40, new find. `objectStore.ts`'s `autoRefreshObject()` (lines 354-385, read in full) has NO `try/catch` around `await callback(object)` — if the consumer's refresh callback throws or its returned promise rejects (e.g. a transient network error during periodic status polling), the entire recursive async function rejects and the `registeredAutoRefreshes[name] = setTimeout(...)` reschedule line (384) is NEVER reached, silently and permanently killing the polling loop with an unhandled promise rejection (no `FlashMessages` call, nothing visible to the user beyond a possible browser console warning). Separately, the already-present `if (!refreshedObject.id) { FlashMessages.error(...); return; }` branch (lines 371-376) also `return`s BEFORE the reschedule line, so even a single malformed (but non-throwing) response permanently and silently stops the polling — the one `FlashMessages.error` call is easy to miss and there is no automatic recovery. Grep-confirmed zero internal consumers (`grep -rn "autoRefreshObject" src --include="*.ts" --include="*.vue" \| grep -v __tests__` = only the re-export in `index.ts`), so this is a latent public-API gap (same class as DXUI-54's `request.poll`, found session 29) rather than a currently-live production bug. The test suite (`objectStore.test.ts:551-561`, "reschedules itself after the interval") only exercises the successful-callback path — no test exercises a thrown/rejected callback. |
+| `useActionRoutes` registers its list ref via `registerList` but never calls `unregisterList`, leaking forever | Incomplete (Bug) | Session 40, new find. `actionRoutes.ts:33-35`: `const listRef = ref<TypedObject[]>([]); registerList(listRef);` with the comment "Lives for the controller's lifetime — no unregister needed." But `objectStore.ts`'s own `registerList` JSDoc (lines 72-75) explicitly says: "Always pair with `unregisterList` (e.g. in `onBeforeUnmount`) to avoid leaks." `useActionRoutes()` is the standard REST-routes factory used by every `ListController`-backed list/table in a consumer app — every mount of a component that calls it (directly, or via `useActions`' typical `{routes}` wiring) adds one more `Ref<TypedObject[]>` to the module-level `registeredLists` Set (`objectStore.ts:44`) that is NEVER removed, even after the owning component unmounts. This is a second, distinct leak source alongside the already-tracked `store` Map leak (DXUI-57) — `removeObjectFromLists` (objectStore.ts:314-344) iterates every entry in `registeredLists` on every optimistic delete, so the Set also accumulates dead work over a long-running SPA session. Directly contradicts the sibling composable's own documented contract one file over — a first-party inconsistency, not just an app-author footgun. |
+| Fix `autoRefreshObject` permanently stopping polling on callback error/malformed response | Drafted this session (Bug) | 320 (6×8×7) | Session 40 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Wrap `await callback(object)` in `objectStore.ts`'s `autoRefreshObject()` in try/catch so a thrown/rejected callback still reaches the `setTimeout` reschedule (with the error optionally surfaced via `FlashMessages`), and move the existing `!refreshedObject.id` branch's `FlashMessages.error` + early `return` to ALSO reschedule the next attempt instead of permanently killing the loop. I:6 (permanent, silent death of a periodic-refresh public-API primitive on any transient error — currently zero internal consumers so latent rather than live, same class as DXUI-54's `request.poll`) C:8 (root cause fully understood, fix is a straightforward try/catch + reschedule-on-error) E:7 (isolated to one function in `objectStore.ts`, needs tests for thrown/rejected callback + the malformed-response branch continuing to reschedule). |
+| Fix `useActionRoutes` never calling `unregisterList`, leaking its list ref forever | Drafted this session (Bug) | 252 (6×7×6) | Session 40 fresh find, NOT YET CARDED. `actionRoutes.ts` registers its `listRef` via `registerList` but never calls the sibling `unregisterList` — contradicts `registerList`'s own JSDoc ("Always pair with `unregisterList`... to avoid leaks") one file over in `objectStore.ts`. Every `useActionRoutes()`-backed list/table component leaks one `Ref` into the module-level `registeredLists` Set forever, a second leak source alongside the already-carded `store` Map leak (DXUI-57). Fix requires `onBeforeUnmount(() => unregisterList(listRef))` guarded for non-component call sites (e.g. `getCurrentInstance()` check), or documenting/exposing a returned `dispose()` from `useActionRoutes`. I:6 (every ListController-backed list in a consumer app leaks on unmount; compounds DXUI-57/58's object-store leak family; contradicts the library's own documented contract) C:7 (root cause clear, but needs a design decision on the non-component-context guard) E:6 (isolated to `actionRoutes.ts`, add lifecycle hook/dispose + tests for mount/unmount). |
 | `markdown-editor`'s LinkPopover/`linkDomUtils.ts` let a user set an anchor's `href` to a `javascript:` URI with no validation | Incomplete (Bug/security) | Session 36, new find. `linkDomUtils.ts`'s `createLinkElement()` (line 50-56) and `completeEditLink()` (line 30-45) call `link.setAttribute("href", url.trim())` directly on whatever string the user typed into `LinkPopover.vue`'s URL `<input>` (`LinkPopover.vue` read in full — no `type="url"`, no scheme check, `onSubmit` at line 82-86 just trims and emits the raw string) or into the `window.prompt` fallback path in `linkPopoverHandlers.ts` (lines 52/94/134, used when `onShowLinkPopover` isn't wired). A user (or paste/import flow) can create a live, clickable `<a href="javascript:...">` directly inside the WYSIWYG editor's `contenteditable` surface, which is then rendered via `v-html="html"` in `MarkdownEditorContent.vue:130` and round-tripped through `useMarkdownSync.ts`'s HTML↔Markdown conversion — meaning a malicious link typed once in the editor can also get exported as markdown and re-rendered elsewhere (compounding with the `shared/markdown` finding above). Same root cause class (no URL-scheme allowlist before use as `href`) but a different file/component (interactive editor vs. the markdown render library) — recommend fixing with a small shared `isSafeUrl(url)` helper (allowlist `http:`, `https:`, `mailto:`, `tel:`, relative/`#`/no-scheme) reused by both this editor path and the `shared/markdown` renderer. |
 
 ---
@@ -252,81 +256,74 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 39, cardless dispatch — Bash/Read/Edit/Write only, no
-`mcp__danx_dashboard__*` tools in this dispatch's toolset)** — Dispatched into the isolated
-`danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (confirmed via `ls`: no repo checkout,
-not a git repo, only `.claude/` config + this mirrored `docs/features.md`). Read/wrote the canonical
-checkout at `/home/newms/web/danx-ui` directly, per established multi-session pattern. Confirmed via
-this session's actual tool list (Bash/Read/Edit/Write only, no `mcp__danx_dashboard__*` functions
-offered) that the tooling gap is a real environment constraint this dispatch, not an artifact to
-second-guess from the mirrored file's own claims.
+**2026-07-11 (session 40, cardless dispatch — Bash/Read/Edit/Write only, no
+`mcp__danx_dashboard__*` tools in this dispatch's toolset, per explicit task instructions)** —
+Confirmed via actual tool list that no `mcp__danx_dashboard__*` functions are offered this dispatch;
+per task instructions did not attempt to call them. Read/wrote the canonical checkout at
+`/home/newms/web/danx-ui` directly (this sandbox has no repo checkout, only `.claude/` config +
+mirrored `docs/features.md`).
 
-**Major finding: all prior "drafted, not yet carded" items ARE now carded.** Used the dashboard's
-read API directly (`curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
-"$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"`, read-only) to list all 73 live
-issues — **DXUI-4 through DXUI-76, 100% status `Review`, 0% dispatched to ToDo/In Progress.** Matched
-all 26 "Drafted this session (...) NOT YET CARDED" entries accumulated across sessions 28-38 against
-these titles by content — every single one now has a corresponding `DXUI-*` id (the orchestrator
-created them after prior sessions' reports). Updated all 26 Section 2 rows from
-`Drafted this session` to `Carded` with their `DXUI-N` id, and trimmed their `NOT YET CARDED`
-verbiage per the compaction rule.
+**Confirmed via read-only dashboard API** (`curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
+"$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"`) that both of session 39's drafts
+are now live cards: **DXUI-77** (FlashMessages precedence fix) and **DXUI-78** (downloadFile
+cache-busting fix). Board is now **75 cards total, 100% status `Review`, 0% dispatched to
+ToDo/In Progress** (up from 73 last session — confirms the orchestrator continues converting
+handed-off drafts into real cards; idea capture is working, dispatch is not happening). Updated
+both Section 2 rows from `Drafted this session` to `Carded` with their `DXUI-N` ids.
 
-Re-verified reality (**22nd+ consecutive confirming session**): `git log --oneline -3 -- src/
+Re-verified reality (**23rd+ consecutive confirming session**): `git log --oneline -3 -- src/
 package.json` in the canonical repo still shows `6524fa1` (v0.8.17) as the last `src/`-touching
-commit — `src/` unchanged for 22+ consecutive sessions.
+commit, `HEAD` unrelated to `src/` — `src/` unchanged for 23+ consecutive sessions.
 
-**New ground covered this session:** read in full the 3 files flagged as never-yet-read by session
-38's "next session" note — `shared/download.ts`, `shared/flashMessages.ts`,
-`shared/formatters/numbers.ts` (all read in full).
+**New ground covered this session:** per the prior session's "next session" note, did the
+`shared/actions.ts` (380 lines) / `shared/objectStore.ts` (393 lines) deep-dive, both read in full,
+plus `shared/actionRoutes.ts` (99 lines, previously unread) and `shared/arrayUtils.ts` (142 lines,
+previously unread; no new finding — clean).
 
-**Found 2 new grounded, well-isolated bugs** (grepped `docs/features.md` for `no-cache`/`downloadFile`/
-`flashMessages` first — zero prior hits, confirmed non-duplicate):
+**Found 2 new grounded, well-isolated bugs** (grepped `docs/features.md` for `autoRefreshObject`/
+`registerList`/`unregisterList` first — zero prior hits, confirmed non-duplicate; also
+double-checked `actions.ts`'s `performAction`'s abort-early-return-without-resetting-`isApplying`
+path, which LOOKED like a bug but is explicitly intentional/tested —
+`actions.test.ts:117-124` asserts `expect(action.isApplying).toBe(true); // not reset on abort` —
+correctly discarded as a non-finding):
 
-1. **`FlashMessages.success/info/warning/error` let configured defaults silently override per-call
-   options (Bug, highest new-finding ICE this session, 405 = 5×9×9):** `shared/flashMessages.ts`'s
-   `send()` correctly spreads `{...configured, ...options}` (caller wins), but the 4 severity methods
-   spread the OPPOSITE order — `{variant, ...options, ...configured}` — so an app's global
-   `setDanxOptions({flashMessages:{error:{...}}})` silently overrides a caller's own per-call
-   override (e.g. `duration: 0` to make one error persistent). Directly comparable/contradictory to
-   `send()` 5 lines above in the same file.
-2. **`downloadFile` appends an unconditional `?no-cache=<timestamp>` query param, breaking
-   signed/presigned download URLs (Bug, 392 = 7×7×8):** `shared/download.ts:96`'s URL-string branch
-   appends the cache-buster to ANY `http(s)://` URL before XHR-fetching it, with no opt-out.
-   `components/danx-file/file-download-helpers.ts`'s `triggerFileDownload()` (wired into
-   `DanxFile`/`DanxFileViewer`/`DanxFileActions`' download button) calls
-   `downloadFile(resolveFileUrl(file), ...)` — for a signed URL (S3/GCS/Azure SAS-style, the same
-   pattern `DanxFileUpload`'s own docs already assume for uploads) this invalidates the signature, and
-   `xhr.onload` has no status check so it silently "downloads" the resulting 403 error body as a
-   corrupt file instead of surfacing a failure.
-
-Also read `shared/formatters/numbers.ts` in full: found one additional minor/cosmetic boundary bug
-(`fShortNumber`/`fShortSize`'s strict-`<` comparisons mean exact powers-of-1000/1024, e.g.
-`fShortNumber(1000)`, fall through to the plain-number branch instead of shortening to `"1K"`) — real
-but low-severity/cosmetic, not drafted standalone this session (below current card threshold, similar
-treatment to session 38's `fNameOrCount` note).
+1. **`autoRefreshObject` permanently and silently stops polling on any callback error or malformed
+   response (Bug, 320 = 6×8×7):** `objectStore.ts`'s `autoRefreshObject()` has no `try/catch` around
+   `await callback(object)` — a thrown/rejected callback (e.g. transient network error during status
+   polling) kills the recursive reschedule forever with an unhandled rejection; separately, the
+   existing `!refreshedObject.id` branch's early `return` also skips the reschedule on a single
+   malformed response. Zero internal consumers (grep-confirmed), so latent public-API gap, same class
+   as DXUI-54 (`request.poll`).
+2. **`useActionRoutes` never calls `unregisterList`, leaking its list ref forever (Bug, 252 =
+   6×7×6):** `actionRoutes.ts:33-35` registers its `listRef` via `objectStore.ts`'s `registerList` but
+   never calls the sibling `unregisterList` — directly contradicts `registerList`'s own JSDoc ("Always
+   pair with `unregisterList`... to avoid leaks") one file over. Every `useActionRoutes()`-backed
+   list/table leaks one `Ref` into the module-level `registeredLists` Set on every mount, forever — a
+   second, distinct leak source alongside the already-carded `store` Map leak (DXUI-57/58).
 
 **Drafts handed to orchestrator this session** (no `issue_create`/`issue_list` MCP tools exposed to
 this dispatch): 2 candidate cards, ordered by ICE (full text in the final report):
-1. Fix `FlashMessages` severity methods' reversed options-vs-config precedence (405, Bug)
-2. Fix `downloadFile` cache-busting query param breaking signed URLs (392, Bug)
+1. Fix `autoRefreshObject` permanently stopping polling on callback error/malformed response (320, Bug)
+2. Fix `useActionRoutes` never calling `unregisterList`, leaking its list ref forever (252, Bug)
 
-**Primary finding (22nd+ consecutive confirmation, but with an update):** idea supply is still not
-the bottleneck — `src/` has been static for 22+ sessions and the board now sits at **73 cards, 100%
-Review, 0% dispatched** (up from ~70 last session). However, this session's dedup pass against the
-live API confirms the orchestrator IS successfully converting prior sessions' handed-off drafts into
-real cards (all 26 pending drafts from sessions 28-38 are now DXUI-50 through DXUI-76) — idea supply
-is being captured, not lost, it's just piling up at Review with nothing moving to ToDo/In Progress.
-Fresh first-read ground in `src/` is now very thin (most files have been read at least once across
-39 sessions); remaining unread/under-scrutinized areas: `shared/actions.ts` (380 lines, beyond the
-already-tracked leak findings) and `shared/objectStore.ts` (393 lines, beyond DXUI-57/58) for
-concurrent-write/race-condition edge cases not yet examined line-by-line, and the `demo/` app's own
-composables/pages (out of package scope for consumer-facing cards today, relevant only if DXUI-33
-ships).
+**Primary finding (23rd+ consecutive confirmation): idea supply is conclusively no longer the
+bottleneck — this is now a triage/dispatch problem, full stop.** `src/` has been static for 23+
+sessions; the board sits at **75 cards, 100% Review, 0% ever dispatched to ToDo/In Progress**. This
+session's dedup pass again confirms the orchestrator faithfully converts every handed-off draft into
+a real card (both of session 39's drafts are now DXUI-77/78) — so idea capture is not the failure
+mode. Fresh first-read ground in `src/` is now essentially exhausted: `shared/actions.ts`,
+`shared/objectStore.ts`, and `shared/actionRoutes.ts` (this session's deep-dive) plus every file
+flagged in the last ~10 sessions' "next session" notes have now been read in full at least once,
+most multiple times across 40 sessions. Recommend the next dispatch into this project prioritize a
+triage/dispatch pass (promoting a batch of the highest-ICE Review cards to ToDo) over further
+ideation, unless the orchestrator has a specific reason idea supply must keep growing (e.g. a policy
+requiring a constant minimum queue depth regardless of dispatch rate).
 
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup this
-session's 2 new drafts against Review/ToDo/In Progress before creating, then strongly consider
-recommending a triage/dispatch pass on the 73-deep Review backlog over generating yet more ideas —
-this is now a stronger, evidence-backed recommendation than prior sessions' since idea capture is
-confirmed working. (2) If `src/` is still unchanged, try `shared/actions.ts`/`shared/objectStore.ts`
-race-condition deep-dive, or pivot toward re-reading "Complete" components for third-pass detail
-(a11y/edge-case) scrutiny given first/second-pass ground is largely exhausted.
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup
+this session's 2 new drafts against Review/ToDo/In Progress before creating, then strongly consider
+recommending/performing a triage/dispatch pass on the 75-deep Review backlog instead of generating
+yet more ideas. (2) If `src/` is still unchanged and idea generation is still requested, remaining
+under-scrutinized angles: `shared/composables/` third-pass edge-case review, `demo/` app's own
+composables (out of package scope for consumer cards, relevant only if DXUI-33 ships), or a
+systematic re-read of "Complete" components for a11y/edge-case detail given first/second-pass
+ground is exhausted.
