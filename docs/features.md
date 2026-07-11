@@ -275,38 +275,38 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 60).** Dispatched from the isolated `cardless` worktree
+**2026-07-11 (session 61).** Dispatched from the isolated `cardless` worktree
 (`/var/tmp/danxbot-clean-room/.../danx-ui__danx-ui-main__ideator__ideator__cardless`
-— no repo checkout there, only `.claude/` config); worked directly in the
-canonical checkout at `/home/newms/web/danx-ui` (found via `find / -iname
-danx-ui*`, confirmed by `.mcp.json`'s `DANX_REPO_ROOT=/home/newms/web/danxbot/repos/danx-ui`
-symlink target). Tool list this dispatch was again ONLY Bash/Read/Edit/Write —
-no `mcp__danx_dashboard__*` functions present — confirmed by inspecting the
-actual available-tools list before doing any work (matches
-`project_ideator_tooling_gap`, same as sessions 50-59). Could not call
-`issue_list`/`issue_create`; producing drafts as final-response text for the
-orchestrator to card instead, per standing convention for cardless dispatches.
+— no repo checkout there, only `.claude/` config, `.claude/mcp.json` is absent
+— only `mcp.template.json` present); worked directly in the canonical checkout
+at `/danxbot/app/repos/danx-ui` (== `/home/newms/web/danx-ui` host mount, per
+`DANX_REPO_ROOT` env var). Tool list this dispatch was again ONLY
+Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` functions present —
+confirmed by inspecting the actual available-tools list before doing any work
+(matches `project_ideator_tooling_gap`, same as sessions 50-60, now **12
+consecutive cardless dispatches**). Could not call `issue_list`/`issue_create`;
+producing drafts as final-response text for the orchestrator to card instead,
+per standing convention for cardless dispatches.
 
-`git log -1 --oneline` = `51a686c` (session 59, docs-only commit). `git log -1
---oneline -- src/` still `7023a67` (DXUI-3) — **43+ consecutive sessions with
+`git log -1 --oneline` = `f058e28` (session 60, docs-only commit). `git log -1
+--oneline -- src/` still `7023a67` (DXUI-3) — **44+ consecutive sessions with
 zero `src/` changes.**
 
 Re-verified all 4 outstanding uncarded drafts live by actually running the tools
-(unchanged since sessions 50-59):
+(unchanged since sessions 50-60):
 1. `npx vitest run --coverage` (full run) — identical failure:
    `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
    isolated to `context-menu` (98.33% stmts / 93.1% branches, uncovered lines
-   `110-115,206,246` unchanged).
+   `110-115,206,246` unchanged, re-confirmed by isolated `context-menu`-only run).
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero
-   matches (34 files total in `docs/`).
-3. Read `useTokenManager.ts:75-90` directly — line 82's
-   `JSON.parse(groupsAttr)` still unguarded, no try/catch.
-4. Read `onConfirmAction` in `shared/actions.ts` (lines 208-266) in full again —
-   confirmed `storeObject(...)` for `optimisticDelete`/`optimistic` (lines
-   239-256) still has no revert path in the `catch` block or caller's error
-   branch.
+   matches (exit 1, 34 files total in `docs/`).
+3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` —
+   line 82 still unguarded, no try/catch.
+4. `grep -n "rollback|revert|previousState" src/shared/actions.ts` — zero
+   matches, confirming `onConfirmAction`'s optimistic write still has no
+   failure-path revert.
 
-No new findings this session — re-verification pass only, given 43+ session
+No new findings this session — re-verification pass only, given 44+ session
 static `src/` and materially diminishing returns from further static/grep
 analysis against an unchanging tree. Did not re-run the broader repo scan
 (package.json, exports map, ARIA grep sweep, etc.) given the prior 10+ sessions'
@@ -318,16 +318,21 @@ verbatim the moment real `issue_create` access is available — check `issue_lis
 across Review/ToDo/In Progress first in case the orchestrator already created some
 from this or a prior handoff; (2) per `project_danx_ui_backlog_bottleneck`, the
 primary lever remaining is triage/dispatch of the ~90+ already-Carded Review-status
-items, not additional idea generation; (3) `src/` has now been static for 43+
+items, not additional idea generation; (3) `src/` has now been static for 44+
 sessions — worth confirming with the user whether active development on danx-ui
 has paused, since further static/grep bug-hunting against an unchanging tree has
-materially diminishing returns; recommend spacing out future ideator dispatches
-until the Review queue drains or `src/` moves again.
+materially diminishing returns; (4) this is the 12th consecutive dispatch with no
+`mcp__danx_dashboard__*` tools available — worth investigating why this specific
+dispatch path (`ideator__ideator__cardless` worktree) never receives dashboard MCP
+tool access, since every session's work product is currently stranded as
+final-response text rather than actual board state; recommend spacing out future
+ideator dispatches until the Review queue drains, `src/` moves again, or the MCP
+tooling gap is fixed.
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
 1. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
-   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (9 sessions).
+   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (10 sessions).
 2. **Bug** — `onConfirmAction`'s optimistic update/delete has no rollback on action
    failure (`shared/actions.ts`). ICE 245 (7×7×5). Re-confirmed live, unchanged since
    session 57.
