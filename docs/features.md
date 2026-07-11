@@ -275,21 +275,24 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 59).** Dispatched from the isolated `cardless` worktree (no
-repo checkout there — only `.claude/` config, `docs/features.md` is a read-only
-mirror not committed there); worked directly in the canonical checkout
-`DANX_REPO_ROOT=/danxbot/app/repos/danx-ui` (symlink `/home/newms/web/danx-ui`).
-Tool list this dispatch was ONLY Bash/Read/Edit/Write — no `mcp__danx_dashboard__*`
-functions present — confirmed by inspecting the actual available-tools list before
-doing any work (matches `project_ideator_tooling_gap`). Could not call
-`issue_list`/`issue_create`; produced drafts as final-response text for the
+**2026-07-11 (session 60).** Dispatched from the isolated `cardless` worktree
+(`/var/tmp/danxbot-clean-room/.../danx-ui__danx-ui-main__ideator__ideator__cardless`
+— no repo checkout there, only `.claude/` config); worked directly in the
+canonical checkout at `/home/newms/web/danx-ui` (found via `find / -iname
+danx-ui*`, confirmed by `.mcp.json`'s `DANX_REPO_ROOT=/home/newms/web/danxbot/repos/danx-ui`
+symlink target). Tool list this dispatch was again ONLY Bash/Read/Edit/Write —
+no `mcp__danx_dashboard__*` functions present — confirmed by inspecting the
+actual available-tools list before doing any work (matches
+`project_ideator_tooling_gap`, same as sessions 50-59). Could not call
+`issue_list`/`issue_create`; producing drafts as final-response text for the
 orchestrator to card instead, per standing convention for cardless dispatches.
 
-`git log -1 --oneline` = `12904d7` (session 58). `git log -1 -- src/` still
-`7023a67` (DXUI-3) — **41+ consecutive sessions with zero `src/` changes.**
+`git log -1 --oneline` = `51a686c` (session 59, docs-only commit). `git log -1
+--oneline -- src/` still `7023a67` (DXUI-3) — **43+ consecutive sessions with
+zero `src/` changes.**
 
 Re-verified all 4 outstanding uncarded drafts live by actually running the tools
-(unchanged since sessions 50-58):
+(unchanged since sessions 50-59):
 1. `npx vitest run --coverage` (full run) — identical failure:
    `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
    isolated to `context-menu` (98.33% stmts / 93.1% branches, uncovered lines
@@ -297,39 +300,29 @@ Re-verified all 4 outstanding uncarded drafts live by actually running the tools
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero
    matches (34 files total in `docs/`).
 3. Read `useTokenManager.ts:75-90` directly — line 82's
-   `JSON.parse(groupsAttr)` still unguarded; cross-checked against all 15
-   `JSON.parse` call sites in `src/` (excluding tests) — still the sole outlier
-   without a try/catch or `isJSON`-style guard.
-4. Read `onConfirmAction` in `shared/actions.ts` (lines 213-266) in full again —
+   `JSON.parse(groupsAttr)` still unguarded, no try/catch.
+4. Read `onConfirmAction` in `shared/actions.ts` (lines 208-266) in full again —
    confirmed `storeObject(...)` for `optimisticDelete`/`optimistic` (lines
    239-256) still has no revert path in the `catch` block or caller's error
    branch.
 
-Additional checks this session (new angle, still no new finding): ran
-`npx eslint src` (the actual `package.json` `lint` script target) — clean, zero
-errors. (Note: running `npx eslint .` including `demo/` — not part of the lint
-script — surfaces ~395 pre-existing `demo/` errors, mostly
-`vue/require-typed-ref`/`vue/prefer-true-attribute-shorthand`; these are outside
-the enforced `lint` script's scope and the demo app isn't in the library's own
-coverage/lint gate, so not treated as a new finding — flagging here only so a
-future session doesn't rediscover it as "395 lint errors" without this context.)
-
-No new findings this session — re-verification pass only, given 41+ session
-static `src/` and diminishing returns from further static/grep analysis against
-an unchanging tree.
+No new findings this session — re-verification pass only, given 43+ session
+static `src/` and materially diminishing returns from further static/grep
+analysis against an unchanging tree. Did not re-run the broader repo scan
+(package.json, exports map, ARIA grep sweep, etc.) given the prior 10+ sessions'
+exhaustive coverage of this exact codebase and the standing recommendation below
+to space out dispatches.
 
 **Recommendation for next dispatch:** (1) the 4 drafts below are ready to card
 verbatim the moment real `issue_create` access is available — check `issue_list`
 across Review/ToDo/In Progress first in case the orchestrator already created some
 from this or a prior handoff; (2) per `project_danx_ui_backlog_bottleneck`, the
 primary lever remaining is triage/dispatch of the ~90+ already-Carded Review-status
-items, not additional idea generation; (3) `src/` has now been static for 41+
-sessions — worth confirming with the user whether active development on danx-ui has
-paused, since further static/grep bug-hunting against an unchanging tree has
+items, not additional idea generation; (3) `src/` has now been static for 43+
+sessions — worth confirming with the user whether active development on danx-ui
+has paused, since further static/grep bug-hunting against an unchanging tree has
 materially diminishing returns; recommend spacing out future ideator dispatches
-until the Review queue drains or `src/` moves again; (4) if `demo/` is ever brought
-into scope for lint enforcement, note the ~395 `eslint .`-only errors found this
-session (not currently gated, not carded).
+until the Review queue drains or `src/` moves again.
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
