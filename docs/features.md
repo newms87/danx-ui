@@ -275,57 +275,59 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 57).** No scope override given this dispatch; treated as a
-normal (non-conservative) pass. Tool list again contained ONLY Bash/Read/Edit/Write —
-no `mcp__danx_dashboard__*` functions — matching `project_ideator_tooling_gap`; could
-not run `issue_list` to dedupe against live Review/ToDo/In-Progress cards this
-session (noted as a limitation, same as every prior session under this gap).
+**2026-07-11 (session 58).** Dispatched from the isolated `cardless` worktree (no
+repo checkout there — only `.claude/` config); worked directly in the canonical
+checkout `DANX_REPO_ROOT=/danxbot/app/repos/danx-ui` (symlink `/home/newms/web/danx-ui`).
+Tool list again ONLY Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` functions —
+matching `project_ideator_tooling_gap`; per explicit dispatch instructions this
+session did NOT attempt `issue_list`/`issue_create` and instead produced 3-5 drafts
+as final-response text for the orchestrator to card.
 
-Worked in the canonical checkout `DANX_REPO_ROOT=/danxbot/app/repos/danx-ui`
-(symlink `/home/newms/web/danx-ui`). `git log -1 --oneline` = `33ebb6d` (session 56).
-`git log -1 -- src/` still `7023a67` (DXUI-3) — **39+ consecutive sessions with zero
-`src/` changes.**
+`git log -1 --oneline` = `aee92ce` (session 57). `git log -1 -- src/` still `7023a67`
+(DXUI-3) — **40+ consecutive sessions with zero `src/` changes.**
 
-Re-verified all 3 outstanding uncarded drafts live by actually running the tools
-(unchanged since sessions 50-56):
+Re-verified all 4 outstanding uncarded drafts live by actually running the tools
+(unchanged since sessions 50-57):
 1. `npx vitest run --coverage` (full run) — identical failure:
    `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
-   isolated to `context-menu` (`98.33%`/`93.1%`, uncovered lines `110-115,206,246`).
-2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero matches.
-3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` — line 82
-   still unguarded.
+   isolated to `context-menu` (uncovered lines `110-115,206,246` unchanged:
+   `getMenuPanel()`'s `?? menuRef.value` fallback, `updateSubmenuDirection()`'s
+   `if (!panel) return` guard, the `#trigger` slot `v-if`, and the nested-submenu
+   `v-if`).
+2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero
+   matches (34 files total in `docs/`).
+3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` — line
+   82 still unguarded (`const groups = groupsAttr ? JSON.parse(groupsAttr) : [];`).
+4. `grep -n "optimistic\|onConfirmAction\|storeObject" src/shared/actions.ts` +
+   read of `onConfirmAction` (lines 213-266) — confirmed `storeObject(...)` for
+   `optimisticDelete`/`optimistic` still applied pre-emptively (lines 240,249,251)
+   with no revert in the `catch` block (255-263) or the caller's error branch.
 
-Did a fresh targeted scan of previously-unexplored angles (`shared/actions.ts`'s
-optimistic-update failure path, since prior sessions had covered its precedence/leak
-bugs but never traced what happens to the store when an optimistic action fails) and
-found one new, well-grounded bug: `onConfirmAction()` applies `storeObject(...)` for
-both `optimisticDelete` and `optimistic` BEFORE awaiting `action.onAction(...)`, but
-neither the `catch` block nor the caller's error-handling branch ever reverts the
-store — a failed optimistic delete/update leaves the shared object permanently
-mutated (`__deleted_at` set, or the rejected new field values) with only a transient
-`FlashMessages.error` toast as the user-facing signal. Full detail in Section 1/2
-(new row, ICE 245 = 7×7×5).
+No new findings this session (re-verification pass only, no fresh angle explored
+given the 40+ session static `src/` and the instruction to produce drafts directly
+rather than continue open-ended exploration). Did not re-run `vue-tsc`/`eslint` this
+pass (no `src/` diff since last clean run, session 57).
 
-`yarn` not on PATH this session (only `node`/`npm`); used `npx vitest` directly
-(same underlying binary, works fine). Ran `npx vue-tsc --noEmit` and `npx eslint src`
-— both clean, no new `src/` diff to check beyond the read-only exploration above.
-
-**Recommendation for next dispatch:** (1) hand the 4 drafts below to the orchestrator
-for `issue_create` verbatim — check `issue_list` across Review/ToDo/In Progress first
-in case any were already created from a prior handoff; (2) per
-`project_danx_ui_backlog_bottleneck`, the primary lever remaining is triage/dispatch
-of the ~85+ already-Carded Review-status items, not additional idea generation; (3)
-`src/` has now been static for 39+ sessions — worth confirming with the user whether
-active development on danx-ui has paused, since bug-hunting via static/grep analysis
-against an unchanging tree has diminishing returns.
+**Recommendation for next dispatch:** (1) the 4 drafts below are ready to card
+verbatim the moment real `issue_create` access is available — check `issue_list`
+across Review/ToDo/In Progress first in case the orchestrator already created some
+from this or a prior handoff; (2) per `project_danx_ui_backlog_bottleneck`, the
+primary lever remaining is triage/dispatch of the ~85+ already-Carded Review-status
+items, not additional idea generation; (3) `src/` has now been static for 40+
+sessions — worth confirming with the user whether active development on danx-ui has
+paused, since further static/grep bug-hunting against an unchanging tree has
+materially diminishing returns; recommend spacing out future ideator dispatches
+until the Review queue drains or `src/` moves again.
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
-1. **Bug** — `onConfirmAction`'s optimistic update/delete has no rollback on action
-   failure (`shared/actions.ts`). ICE 245 (7×7×5). NEW finding, session 57.
-2. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
-   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (7 sessions).
+1. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
+   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (8 sessions).
+2. **Bug** — `onConfirmAction`'s optimistic update/delete has no rollback on action
+   failure (`shared/actions.ts`). ICE 245 (7×7×5). Re-confirmed live, unchanged since
+   session 57.
 3. **Feature/Maintenance** — Write docs pages for DanxSelect, DanxInput, DanxTextarea,
    DanxFieldWrapper. ICE 288 (6×8×6). Re-confirmed live, unchanged since session 47.
 4. **Bug** — `useTokenManager.mountToken` unguarded `JSON.parse(groupsAttr)`. ICE 288
    (4×8×9). Re-confirmed live, unchanged since session 52.
+
