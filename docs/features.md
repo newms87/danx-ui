@@ -228,8 +228,12 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Wire `useFileUpload.retryFile` to the UI (retry button on errored files) | Drafted this session (Feature) | 336 (6×8×7) | Session 35 fresh find, NOT YET CARDED. Add a `retry` emit to `DanxFile`/`DanxFileError` (a retry button/icon alongside the existing error message, likely reusing the compact-popover vs. inline-text branching `DanxFileError.vue` already has) and wire it through `DanxFileUpload.vue` to the composable's already-implemented `retryFile(fileId)`. I:6 (currently the only recovery path for a failed upload is remove + re-select from scratch — real friction for flaky-network/transient-server-error cases, and the composable was clearly built to support one-click retry but the UI was never finished) C:8 (composable API already exists and is well-tested via `_fileMap`; this is UI wiring, not new logic) E:7 (touches `DanxFileError.vue` + `DanxFile.vue` emit chain + `DanxFileUpload.vue`, no changes needed to `useFileUpload.ts` itself). |
 | Sanitize `href`/`src` URL schemes in `shared/markdown` link/image rendering | Drafted this session (Bug/security) | 448 (7×8×8) | Session 36 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Add a shared `isSafeUrl(url)` allowlist helper (http/https/mailto/tel/relative/#/no-scheme; reject javascript:/data:/vbscript:/etc.) and apply it in `parseInline.ts`'s 5 link/image regex-replace sites (lines 64/67/75/85/96), falling back to a neutralized href (e.g. `href="#"` or stripping the anchor) for disallowed schemes. I:7 (real click-to-execute XSS in a public, exported component — `MarkdownContent` — reachable by any consumer rendering untrusted/API-sourced markdown even with the documented `sanitize:true` default) C:8 (root cause fully understood via grep + full-file read, fix is a small pure-function allowlist reused at 5 call sites) E:8 (isolated to `shared/markdown/parseInline.ts` + one new small helper + tests for each of the 5 sites).
 | Sanitize URL scheme when inserting/editing links in the markdown-editor WYSIWYG (`LinkPopover`/`linkDomUtils.ts`) | Drafted this session (Bug/security) | 336 (6×8×7) | Session 36 fresh find, NOT YET CARDED. Reuse the same `isSafeUrl(url)` helper proposed above in `linkDomUtils.ts`'s `createLinkElement()`/`completeEditLink()` before calling `setAttribute("href", ...)`, and reject/no-op (with a small inline validation message in `LinkPopover.vue`) on disallowed schemes; also guard the two `window.prompt(...)` fallback paths in `linkPopoverHandlers.ts`. I:6 (a user can create a live clickable `javascript:` link directly inside the editor's `contenteditable` surface, which is both rendered via `v-html` in `MarkdownEditorContent.vue` and exportable as markdown via `useMarkdownSync.ts` — compounding with the renderer-side finding above) C:8 (same well-understood fix pattern, shares the helper) E:7 (touches `linkDomUtils.ts` + `linkPopoverHandlers.ts` + `LinkPopover.vue` for user-facing validation feedback, 3 files).
+| Fix MarkdownEditor keyboard trap: Tab always `preventDefault`'d with no escape hatch | Drafted this session (Bug/a11y) | 448 (8×8×7) | Session 37 fresh find, NOT YET CARDED. In `editorKeyHandlers.ts`'s `onKeyDown`, only `preventDefault()`+intercept Tab when in a table/list context (delegate to `tables.handleTableTab`/`lists.indentListItem`/`outdentListItem`) or when the caller has opted into tab-trapping; otherwise let Tab move focus natively out of the contenteditable (or add an explicit documented escape, e.g. Escape-then-Tab, matching common rich-text-editor conventions e.g. Slate/Lexical/Draft.js all ship an explicit "release focus" affordance). I:8 (total, unconditional keyboard trap — WCAG 2.1.2 failure — in a public, widely-reused component; keyboard-only users cannot leave the editor by keyboard at all) C:8 (root cause fully understood and localized to one function; the table/list Tab-handling logic that SHOULD stay intercepted already exists and is unaffected) E:7 (isolated to `editorKeyHandlers.ts`'s Tab branch + a docs/AC decision on the exact non-trapped default, plus tests for both trapped-in-table/list and released-elsewhere cases).
+| Unify MarkdownEditor's `.theme-light`/`--dx-mde-*` tokens with the library-wide dark-mode system (fold into DXUI-36) | Drafted this session (Maintenance, low ICE — likely AC addition rather than standalone) | 120 (4×6×5) | Session 37 fresh find, NOT YET CARDED. `markdown-editor-tokens.css`'s ~50 `--dx-mde-*` tokens + manually-applied `.theme-light` class root are entirely separate from the library's `.dark`-class semantic token system and the still-unbuilt `useColorScheme` (DXUI-36) — a global dark-mode toggle won't affect MarkdownEditor at all today. I:4 (real but low-visibility until DXUI-36 ships a live toggle; workaround today is trivial — just don't add `.theme-light`) C:6 (clear root cause, but the "right" fix depends on DXUI-36's own design, e.g. whether it exposes a shared reactive `isDark` other components/tokens can key off) E:5 (touches token wiring + DXUI-36's own scope, not purely isolated). Recommend folding into DXUI-36's AC rather than a standalone card, same treatment as the earlier `useAutoColor` dark-mode note (session 30).
 | DanxSelect has no letter-key type-ahead when `filterable` is false | Incomplete | Session 34 fresh find. `useSelectKeyboard.ts`'s `handleKeydown` switch (lines 105-169, read in full) handles ArrowDown/Up/Enter/Space/Escape/Tab/Home/End only — grep-confirmed (`grep -n "key.length === 1\|charCode\|typeahead" src/components/select/*.ts`) zero single-character key handling anywhere. A native `<select>` (and most select-widget libraries) lets a focused-but-closed dropdown jump to the first option starting with a typed letter, repeated presses cycling matches — `DanxSelect` has NO such behavior when `filterable` is unset/false (the common case for short option lists where a search box is overkill), so keyboard users must Arrow-key through the entire list one item at a time. `filterable=true` mode has a real text input as a workaround, but that's an opt-in, different UX. |
 | `shared/markdown` renders `javascript:`/`data:`-scheme link and image URLs unsanitized, even with `sanitize:true` | Incomplete (Bug/security) | Session 36, new find. `parseInline.ts` (read in full) has 5 regex-replace sites that inject a captured markdown URL directly into an emitted `href`/`src` attribute with NO scheme/protocol validation: inline links (line 67, `[text](url)` → `<a href="$2">`), images (line 64, `![alt](url)` → `<img src="$2">`), and all 3 reference-link forms (lines 75/85/96, `<a href="${ref.url}">`). `sanitize:true` (the default, `index.ts:79`) only runs `escapeHtml()` on the surrounding TEXT before markdown parsing (`parseInline.ts:22`) — it does not validate or allowlist the URL scheme captured by these link/image patterns. `[click me](javascript:alert(document.cookie))` renders as a clickable `<a href="javascript:alert(document.cookie)">click me</a>`. Grep-confirmed this output is consumed via `v-html` in `code-viewer/MarkdownContent.vue` (7 call sites: lines 138/158/166/175/183/195/205/214/218/229/238, all via `parseInlineContent`/`renderBlockquote`/`renderListItem`) — any consumer rendering user- or API-sourced markdown through `MarkdownContent` (a public, exported component) with default options gets a real click-to-execute XSS vector. Distinct from DXUI-65 (DanxIcon's unsanitized `innerHTML` for icon strings) — this is the markdown link/image renderer, a different file and a different injection primitive (`href`/`src` scheme vs `innerHTML`). Other `v-html` sites in the codebase (`CodeViewer.vue:264`, `CodeViewerCollapsed.vue:58`) were checked and are clean — `shared/syntax-highlighting/*.ts` correctly runs `escapeHtml()` on all token text before wrapping in `<span>`. |
+MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preventDefault()`'d inside the contenteditable | Incomplete (Bug/a11y) | Session 37, new find. `editorKeyHandlers.ts`'s `onKeyDown` (lines 118-135, read in full) handles `Tab` by ALWAYS calling `event.preventDefault()`, then either table-cell nav, list indent/outdent, or (the fallback, `insertTabCharacter()`) inserting a literal tab character — there is no code path where Tab is allowed to move focus out of the editor. Grep-confirmed (`grep -n "Escape\|blur\|Tab" src/components/markdown-editor/hotkeyDefinitions.ts src/components/markdown-editor/MarkdownEditorContent.vue`) there is no Escape-to-blur or any other keyboard escape hatch — `MarkdownEditorContent.vue` only forwards a native `blur` event (mouse-click-away or programmatic). A keyboard-only user who tabs into the editor (or clicks in, then wants to Tab forward) can NEVER leave via keyboard — a textbook WCAG 2.1.2 "No Keyboard Trap" violation. This is distinct from all previously-tracked markdown-editor findings (link-popover URL sanitization, dialog/popover ARIA, hotkey duplication) — nobody has looked at Tab-trapping before. |
+| MarkdownEditor's own `--dx-mde-*` theme system is fully disconnected from the rest of danx-ui's dark-mode tokens/toggle | Incomplete (Minor/consistency) | Session 37, new find. `markdown-editor-tokens.css` defines ~50 `--dx-mde-*` custom properties with a hardcoded dark palette under `:root` and a separate light palette gated behind a manually-applied `.theme-light` class on the component root (`MarkdownEditor.vue`'s own JSDoc example: `<MarkdownEditor v-model="content" class="theme-light">`) — this is completely independent of the library-wide `.dark` class / semantic `--color-*` token system documented in Section 1's "Dark mode token system" row, and has zero relationship to the still-Missing `useColorScheme` composable (DXUI-36): even once DXUI-36 ships a global light/dark toggle, MarkdownEditor will NOT follow it without also toggling this separate `.theme-light` class. Compounding: `MarkdownEditorFooter.vue`'s char-count span hardcodes Tailwind's `text-gray-500` utility (`<span class="char-count text-xs text-gray-500">`) instead of one of the file's own `--dx-mde-popover-dimmed`/`--dx-mde-menu-trigger-color` tokens used by every sibling button in the same file (`markdown-editor-footer.css`) — the one element in the footer that does NOT re-color between the dark/light `.theme-light` variants. Low severity today (no live toggle exists yet) but should be folded into DXUI-36's scope so `useColorScheme` drives both the global `.dark` class AND markdown-editor's `.theme-light` class from one source of truth, and the footer's hardcoded color gets a one-line token swap. |
 | `markdown-editor`'s LinkPopover/`linkDomUtils.ts` let a user set an anchor's `href` to a `javascript:` URI with no validation | Incomplete (Bug/security) | Session 36, new find. `linkDomUtils.ts`'s `createLinkElement()` (line 50-56) and `completeEditLink()` (line 30-45) call `link.setAttribute("href", url.trim())` directly on whatever string the user typed into `LinkPopover.vue`'s URL `<input>` (`LinkPopover.vue` read in full — no `type="url"`, no scheme check, `onSubmit` at line 82-86 just trims and emits the raw string) or into the `window.prompt` fallback path in `linkPopoverHandlers.ts` (lines 52/94/134, used when `onShowLinkPopover` isn't wired). A user (or paste/import flow) can create a live, clickable `<a href="javascript:...">` directly inside the WYSIWYG editor's `contenteditable` surface, which is then rendered via `v-html="html"` in `MarkdownEditorContent.vue:130` and round-tripped through `useMarkdownSync.ts`'s HTML↔Markdown conversion — meaning a malicious link typed once in the editor can also get exported as markdown and re-rendered elsewhere (compounding with the `shared/markdown` finding above). Same root cause class (no URL-scheme allowlist before use as `href`) but a different file/component (interactive editor vs. the markdown render library) — recommend fixing with a small shared `isSafeUrl(url)` helper (allowlist `http:`, `https:`, `mailto:`, `tel:`, relative/`#`/no-scheme) reused by both this editor path and the `shared/markdown` renderer. |
 
 ---
@@ -237,89 +241,75 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 36, drafts-only dispatch — no `mcp__danx_dashboard__*`/`issue_list`/
-`issue_create` tools exposed to this agent's toolset; Bash/Read/Edit/Write only, per explicit launch
-prompt constraint)** — Dispatched into the isolated
-`danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (confirmed again: no repo checkout
-there, only `.claude/` config + this file existed as a read-only mirror, not a git repo). Read/wrote
-the canonical checkout at `/home/newms/web/danx-ui` (via `/danxbot/app/repos/danx-ui` symlink)
-directly, per established multi-session pattern.
+**2026-07-11 (session 37, cardless dispatch — Bash/Read/Edit/Write only, no
+`mcp__danx_dashboard__*` tools exposed; per explicit launch prompt this session hands drafts back to
+the orchestrator in the report rather than calling `issue_create`/`issue_list` directly)** —
+Dispatched into the isolated `danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo
+checkout there, git rev-parse confirms not a git repo). Read/wrote the canonical checkout at
+`/home/newms/web/danx-ui` directly, per established multi-session pattern.
 
-**Board status (read-only check via** `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
-$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"`**):** now **67 issues (DXUI-4 through
-DXUI-70), 100% status `Review`, 0% dispatched.** DXUI-68 through DXUI-70 map 1:1 onto session 35's 3
-drafts — confirmed created since. The "idea supply isn't the bottleneck, triage is" observation now
-holds even more strongly: 67 cards, 100% Review, 0% ToDo/In Progress.
+Re-verified reality (**20th+ consecutive confirming session**):
+- `git diff 6524fa1 HEAD -- src/` and `git log --oneline 6524fa1..HEAD -- src/` are both EMPTY —
+  `src/` is unchanged since commit `6524fa1` (v0.8.17), 20+ consecutive sessions running.
 
-Re-verified reality (19th+ consecutive confirming session):
-- `git log --oneline -5 -- src/ package.json` still `6524fa1` (v0.8.17), last commit "2 minutes ago"
-  per `git log -1 --format=%cd --date=relative` (container/mirror clock artifact, not a real new
-  commit — HEAD sha unchanged) — `src/` unchanged for weeks.
+**New ground covered this session:** finished off the last of session 35/36's flagged unread
+files: `skeleton/DanxSkeleton.vue` (read in full — clean, matches its own inventory row, no gaps),
+`danx-file-viewer/DanxFileThumbnailStrip.vue`, `DanxFileViewerToolbar.vue`, `useViewerPreferences.ts`,
+`useDanxFileViewer.ts`, `DanxFileViewerContinuous.vue`, `DanxFileMetadata.vue` (all read in full —
+clean; `DanxFileViewerContinuous.vue` composes `useZoomable` so it inherits the already-tracked
+touch/pinch gap, not a new finding), and `markdown-editor/`'s remaining unread files:
+`MarkdownEditorFooter.vue`, `useCodeBlockManager.ts`, `useDomObserver.ts`, `hexColorDecorator.ts`,
+`editorKeyHandlers.ts` (read in full — found the keyboard trap below), `hotkeyDefinitions.ts` (spot
+read, clean, no new findings). Also read `markdown-editor-tokens.css`, `markdown-editor-footer.css`,
+and `vite.config.ts`/`vitest.config.ts` (build config — confirms the already-tracked DXUI-29 8/31
+entry-point gap, no new build-config finding).
 
-**New ground covered this session:** per session 35's own recommendation, deep-dived
-`markdown-editor/`'s previously-unscrutinized UI/popover layer: `LinkPopover.vue` (read in full),
-`useLinks.ts` (read in full), `linkPopoverHandlers.ts` (read in full), `linkDomUtils.ts` (read in
-full), `TablePopover.vue` (read in full, clean), `MdeFloatingPanel.vue` (read in full, clean besides
-a minor uncarded a11y note below), `HotkeyHelpPopover.vue` (read in full, clean — uses `DanxDialog`
-so gets native focus-trap for free). Also, prompted by the link-URL finding below, read
-`shared/markdown/parseInline.ts` in full (the markdown render library, not previously
-deep-scrutinized at this granularity) and spot-checked `danx-file-viewer/DanxFileViewerHeader.vue` +
-`useVirtualCarousel.ts` (both clean) and `shared/syntax-highlighting/*.ts` (clean — all token text
-correctly runs through `escapeHtml()`).
+**Found 2 new grounded findings, 1 minor consistency note** (added to Section 1 gaps table +
+Section 2 scratchpad):
 
-**Found 2 new grounded, related security findings** (added to Section 1 gaps table + Section 2
-scratchpad):
+1. **MarkdownEditor keyboard trap (Bug/a11y, highest new-finding ICE this session, 448 = 8×8×7):**
+   `editorKeyHandlers.ts`'s `onKeyDown` unconditionally `preventDefault()`s the `Tab` key inside the
+   editor's contenteditable — table/list contexts get real Tab handling (cell nav / indent-outdent),
+   but the fallback branch is `insertTabCharacter()`, i.e. Tab NEVER moves focus out of the editor.
+   Grep-confirmed zero Escape-to-blur or any other keyboard escape hatch exists
+   (`MarkdownEditorContent.vue` only forwards native `blur`, i.e. mouse-click-away or programmatic
+   blur). A textbook WCAG 2.1.2 "No Keyboard Trap" failure in a public, widely-composed component.
+2. **MarkdownEditor's `.theme-light`/`--dx-mde-*` tokens disconnected from library dark-mode
+   (Minor/consistency, 120 = 4×6×5, recommend folding into DXUI-36 rather than standalone):**
+   `markdown-editor-tokens.css` runs an entirely separate theming system (hardcoded dark `:root` +
+   manually-applied `.theme-light` class) with zero relationship to the library's `.dark`-class
+   token system or the still-unbuilt `useColorScheme` (DXUI-36) — a future global dark-mode toggle
+   won't affect MarkdownEditor at all without also toggling `.theme-light`. Compounding:
+   `MarkdownEditorFooter.vue`'s char-count span hardcodes Tailwind `text-gray-500` instead of the
+   file's own `--dx-mde-*` tokens used by every sibling button in the same component.
 
-1. `shared/markdown/parseInline.ts`'s 5 link/image regex-replace sites (inline links line 67, images
-   line 64, all 3 reference-link forms lines 75/85/96) inject the captured markdown URL directly
-   into an emitted `href`/`src` attribute with NO scheme/protocol validation — `sanitize:true` (the
-   default) only `escapeHtml()`s the surrounding text, never validates the URL scheme.
-   `[x](javascript:alert(1))` renders as a clickable `<a href="javascript:alert(1)">` even in
-   "sanitized" mode. Grep-confirmed this reaches `v-html` in the public, exported
-   `code-viewer/MarkdownContent.vue` component (10 call sites). ICE 448 (7×8×8), Bug/security.
-2. `markdown-editor/linkDomUtils.ts`'s `createLinkElement()`/`completeEditLink()` call
-   `link.setAttribute("href", url.trim())` on whatever a user types into `LinkPopover.vue`'s URL
-   input (no `type="url"`, no scheme check) or the `window.prompt` fallback in
-   `linkPopoverHandlers.ts` — same root cause, different component (interactive WYSIWYG editor vs.
-   the render library), compounding with finding #1 since the editor's `contenteditable` content is
-   both rendered live via `v-html` (`MarkdownEditorContent.vue:130`) and exportable as markdown via
-   `useMarkdownSync.ts`. ICE 336 (6×8×7), Bug/security.
+Everything else inspected this session was ruled out as a non-gap: `DanxSkeleton.vue`,
+`DanxFileThumbnailStrip.vue`, `DanxFileViewerToolbar.vue`, `useViewerPreferences.ts` (safe
+localStorage read/write, matches the established `safeWrite` pattern), `useDanxFileViewer.ts`,
+`DanxFileMetadata.vue`, `useDomObserver.ts`, `hexColorDecorator.ts`, `useCodeBlockManager.ts` (Vue-
+app-island mount/unmount lifecycle is correctly paired) all have no new gaps. `vite.config.ts`/
+`vitest.config.ts` reviewed, no new build-config finding beyond already-tracked DXUI-29.
 
-Recommended fix for both: one small shared `isSafeUrl(url)` allowlist helper (http/https/mailto/
-tel/relative/#/no-scheme; reject javascript:/data:/vbscript:), reused at both sites.
+**Drafts handed to orchestrator this session** (cannot call `issue_create`/`issue_list` — no MCP
+tools exposed): 2 candidate cards, ordered by ICE (full text in the final report):
+1. Fix MarkdownEditor keyboard trap — Tab always intercepted with no escape hatch (448, Bug/a11y)
+2. (Optional/lower-priority, likely fold into DXUI-36 rather than standalone) Unify MarkdownEditor's
+   `.theme-light` token system with the library dark-mode toggle (120, Maintenance)
 
-Everything else inspected this session was ruled out as a non-gap: `TablePopover.vue`'s grid
-selector + manual row/col clamping is correct; `MdeFloatingPanel.vue` has proper Escape-to-close
-wiring (minor note, not carded: no focus trap/initial-focus management unlike native-`<dialog>`-
-backed `DanxDialog`, lower priority than the security findings); `HotkeyHelpPopover.vue` composes
-`DanxDialog` correctly (native focus trap inherited); `shared/syntax-highlighting/*.ts` correctly
-escapes all token text before wrapping in `<span>` (the `CodeViewer.vue`/`CodeViewerCollapsed.vue`
-`v-html` sites are clean); `DanxFileViewerHeader.vue` and `useVirtualCarousel.ts` have no new gaps.
+**Primary finding (20th+ consecutive confirmation):** idea supply is still not the bottleneck.
+`src/` has been static for 20+ sessions; per the user's memory notes the board sat at 67 cards, 100%
+Review, 0% dispatched as of last session — triage/dispatch into ToDo/In Progress, not idea
+generation, remains the actual constraint for this codebase.
 
-**Drafts handed to orchestrator this session** (cannot call `issue_create` itself — no MCP tools
-exposed): 2 new security cards recommended, ordered by ICE, alongside re-flagging the still-undrafted
-session-35 recommendation to look at `skeleton/` and `danx-file-viewer/` more deeply next time:
-1. Sanitize URL schemes in `shared/markdown/parseInline.ts` link/image rendering (448, Bug/security)
-2. Sanitize URL scheme in markdown-editor's LinkPopover/`linkDomUtils.ts` link insertion (336,
-   Bug/security)
-
-**Primary finding (19th+ consecutive confirmation):** idea supply is still not the bottleneck.
-`src/` has been static for weeks across 19+ sessions; the board now sits at 67 cards, 100% Review,
-0% dispatched (up from 64 last session, confirming DXUI-68/69/70 were created from session 35's
-drafts but nothing has moved past Review). Triage/dispatch into ToDo/In Progress, not idea
-generation, remains the actual bottleneck for this codebase.
-
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup
-this session's 2 new drafts against Review/ToDo/In Progress before creating, then strongly consider
-recommending a triage pass on the growing Review backlog over generating yet more ideas. (2) If
-`src/` is still unchanged, remaining unscrutinized ground: `skeleton/` (`DanxSkeleton.vue` still
-never read in full), `danx-file-viewer/` (`DanxFileMetadata.vue`, `DanxFileThumbnailStrip.vue`,
-`DanxFileViewerContinuous.vue`, `DanxFileViewerToolbar.vue`, `useDanxFileViewer.ts`,
-`useViewerPreferences.ts`, `file-metadata-helpers.ts` — only the header + virtual-carousel logic
-were read this session), `markdown-editor/`'s remaining unread files (`MarkdownEditorFooter.vue`,
-`useCodeBlockManager.ts`, `hotkeyDefinitions.ts`, `editorKeyHandlers.ts`, `hexColorDecorator.ts`,
-`useDomObserver.ts`) — before re-treading the extensively-covered `shared/`, `zoomable/`,
-`split-panel/`, `color-picker/`, `scroll/`, `editable-div/`, `context-menu/`, `file-explorer/`,
-`code-viewer/`, `dialog/`, `toast/`, `tooltip/`, `tabs/`, `buttonGroup/`, `badge/`, `icon/`, `alert/`,
-`chip/`, `button/`, `popover/`, `select/`, `input/`, `field-wrapper/`, `toggle/`, `textarea/`,
-`progress-bar/`, `range-slider/`, `danx-file/`, `danx-file-upload/`.
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup this
+session's 2 new drafts (esp. #1, the keyboard-trap bug — high ICE, should be prioritized) against
+Review/ToDo/In Progress before creating, then strongly consider recommending a triage/dispatch pass
+on the growing Review backlog over generating yet more ideas. (2) If `src/` is still unchanged, this
+session closes out essentially all previously-flagged "unread file" ground across
+`danx-file-viewer/`, `skeleton/`, and `markdown-editor/`. Remaining genuinely fresh ground to try:
+`shared/composables/` (`useFieldInteraction.ts`, `useFormField.ts`, `useTouchSwipe.ts`,
+`useVariant.ts` — inventoried at a high level as "Complete" but not each individually read in full
+this deep), `shared/formatters/` internals beyond `numbers.ts` (already covered) — e.g. `duration.ts`/
+`string.ts`/`array.ts` for edge-case bugs, and the `demo/` app's own composables/pages (out of
+package scope for consumer-facing cards, but could surface demo-specific bugs worth a Maintenance
+card if the hosted-demo-site card, DXUI-33, ever ships).
