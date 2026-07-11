@@ -55,6 +55,8 @@ vueuse already ships `useClipboard` (DXUI-12), `onKeyStroke`/`useMagicKeys` (DXU
 | DanxFileUpload | Complete | Drag-drop, progress, presigned URL, pluggable upload handler. |
 | DanxFileExplorer | Complete | Tree file browser (covers roadmap TreeView for file trees). |
 | Dark mode token system | Complete | Three-tier tokens; `semantic-dark.css` activated by `.dark` on `<html>`/`<body>` (class strategy, intentional — no `prefers-color-scheme` by design). NOTE: tokens exist but NO JS composable to toggle/persist/auto-detect → see DXUI-36. |
+| MarkdownContent | Complete | Render-only markdown display (`code-viewer/MarkdownContent.vue`, exported from `src/index.ts`). Previously omitted from this inventory — was already shipped, not a gap. |
+| Focus trap (Dialog) | Complete | `DanxDialog` uses native `<dialog>.showModal()` (DanxDialog.vue:204,262), which browsers focus-trap natively. Roadmap Tier 2.6 item already satisfied — not a gap. |
 
 ### Shared / Data Layer (shipped — Complete)
 
@@ -109,6 +111,12 @@ coverage gate enforced via /flow-verify.
 | Hosted demo/playground site | Missing | DXUI-33. `demo/` is a full 33-page Vite SPA (useLivePreview live editing) served on `yarn dev` but NEVER built/deployed — `build` emits lib only, no demo build script, no `.github/`, no README live link. Published npm consumers can't try before install. Distinct from DXUI-25 (md docs) / DXUI-28 (CI gate). |
 | RTL / logical CSS properties | Incomplete (Exploratory, uncarded) | 74 physical `left/right/margin-left/...` CSS props vs 1 logical (inline-start/end) across components. Real RTL gap but large cross-cutting Epic (~74 spots) with uncertain demand → Exploratory, low ICE, not carded. Note for future if RTL demand appears. |
 | focus-visible consistency | Minor (uncarded) | 12 `:focus-visible` vs 8 plain `:focus` in component CSS — mostly correct, minor inconsistency. Not worth a card. |
+| DanxLoadingOverlay | Incomplete | DXUI-41 (session 14, new find). Roadmap Tier 2.3 Feedback item never inventoried/carded. Verified absent via grep. Semi-transparent scrim + spinner over existing content — gap alongside Skeleton/ProgressBar/Spinner trio. |
+| DanxTimeline | Incomplete | DXUI-42 (session 14, new find). Roadmap Tier 3.2 Advanced Data item never inventoried/carded. Verified absent via grep. Vertical activity/changelog timeline; also covers unbuilt Toolkit `AuditHistoryItem`. |
+| Shared safe localStorage getItem/setItem utility | Incomplete | DXUI-43 (session 14, new find). Roadmap Toolkit T.7 item never built/tracked. 5 composables (useViewerPreferences, useRecentColors, useFileExplorer, useStructuredDataPreference, useSplitPanel) each hand-roll the same guarded read/write pattern — DXUI-40 fixed ONE unguarded instance but didn't extract the shared helper that would prevent repeats. |
+| ImageCropper | Missing (Exploratory, uncarded) | Roadmap Tier 3.1. Verified absent. ICE ~100 (5×5×4) — canvas/drag-handle complexity untested in codebase, moderate value. Below current card threshold; note for future. |
+| DanxCalendar (full month/week/day grid) | Missing (Exploratory, uncarded) | Roadmap Tier 3.2. Verified absent. ICE ~48 (4×4×3) — primary calendar need already covered by DanxDatePicker (DXUI-22); a full multi-view calendar grid is high effort, low incremental value. Not carded. |
+| Figma tokens export | Missing (Exploratory, uncarded) | Roadmap Tier 3.4. Verified absent. ICE ~60 (3×4×5) — dev-tooling for designers only, narrow audience. Not carded. |
 
 ---
 
@@ -159,43 +167,72 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Reconcile composable roadmap with @vueuse/core | Note (not carded) | — | vueuse is now a peer dep; DXUI-8/12/24 should wrap vueuse (useClipboard/onKeyStroke/useSortable) not hand-roll. Update those cards' approach when built rather than adding a new card. |
 | RTL / logical CSS properties | Exploratory (not carded) | — | 74 physical vs 1 logical CSS prop. Large Epic, uncertain demand. Card only if RTL demand surfaces. |
 | CommandPalette (Ctrl+K) | Dependent | — | Depends on useHotkeys. Card once hotkeys ships. |
+| DanxLoadingOverlay | Carded (Valuable) | 384 (6×8×8) | DXUI-41. Scrim + spinner over existing content mid-async-op. New find, session 14 — previously uninventoried roadmap Tier 2.3 gap. |
+| DanxTimeline | Carded (Valuable) | 280 (5×8×7) | DXUI-42. Vertical activity/changelog timeline; DanxIcon/Chip/autoColor building blocks already exist. New find, session 14 — previously uninventoried roadmap Tier 3.2 gap. |
+| Shared safe localStorage getItem/setItem utility | Carded (Maintenance) | 192 (4×8×6) | DXUI-43. Extract the safeWrite pattern duplicated 5x (incl. the DXUI-40 bug site) into one shared helper. New find, session 14 — previously uninventoried roadmap Toolkit T.7 gap. |
+| ImageCropper | Exploratory (not carded) | 100 (5×5×4) | Roadmap Tier 3.1. Real gap, moderate value, untested canvas/crop-handle approach. Below current threshold. |
+| DanxCalendar (full grid view) | Exploratory (not carded) | 48 (4×4×3) | Roadmap Tier 3.2. DatePicker (DXUI-22) already covers primary date-picking need; full calendar grid is high effort/low incremental value. |
+| Figma tokens export | Exploratory (not carded) | 60 (3×4×5) | Roadmap Tier 3.4. Dev-tooling, narrow (designer-only) audience. |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-10 (session 13)** — Thirteenth ideator pass on danx-ui (scope: repo). Verification-first.
+**2026-07-11 (session 14)** — Fourteenth ideator pass on danx-ui (scope: repo). Verification-first, then
+re-diligence for genuinely NEW (previously uninventoried) gaps since the component/composable/packaging/a11y
+surface was already fully carded.
 
-- Verified reality: dashboard API → 36 cards DXUI-4..39, ALL Review, ALL unbuilt. `git log` shows only
-  ideator note-update commits since session 12; last feature commit still `feat(DXUI-3)` @ 7023a67.
-  `git diff --stat 7023a67 HEAD -- src/` = EMPTY: zero src changes. 31 components. Version still 0.8.17.
-  Backlog stays fully carded — nothing shipped since session 11.
-- Fresh diligence sweep for NEW grounded defects (console/TODO/debugger scan clean; addEventListener 31 /
-  removeEventListener 33 → cleanup healthy; resize path removes pointer listeners on pointerup and saves
-  once, not per-move → no perf/leak bug). Found ONE genuine, grounded, non-duplicate DEFECT → carded it:
-  - **DXUI-40** (Bug/robustness, ICE 360=4×9×10) Unguarded localStorage write in `useSplitPanel`.
-    `saveToStorage()` (useSplitPanel.ts:100) does `localStorage.setItem(...)` with NO try/catch, while its
-    own `loadFromStorage()` (66-92) IS guarded and EVERY sibling persistence composable guards both read
-    and write: useViewerPreferences `safeWrite`, useRecentColors (44-47), useFileExplorer (101-104),
-    useStructuredDataPreference (39-41). Called from togglePanel(146), watch(activePanelIds)(224), resize
-    pointer-up(215) → uncaught throw (Safari private mode / QuotaExceededError / disabled storage / SSR)
-    breaks the interaction. One-line try/catch fix matching the established safeWrite pattern. DISTINCT from
-    DXUI-35 (eager vueuse/luxon barrel import crash). Sole unguarded persistence write remaining in src/.
-- Reconfirmed still-valid grounded facts unchanged from session 12: version 0.8.17, 31 components, backlog
-  DXUI-4..39 all Review/unbuilt; peers vueuse ^14 + luxon ^3 optional; exports subpaths still 8/31 (DXUI-29);
-  `engines`/`homepage`/`bugs` still absent (DXUI-38).
-- **API NOTE (unchanged):** `mcp__danx_dashboard__*` MCP tools STILL absent from toolset (only
-  Bash/Read/Edit/Write). Used `curl POST $DANXBOT_DASHBOARD_URL/api/issues` (via python3 urllib), board
-  `danx-ui:danx-ui-main`, Bearer $DANXBOT_DISPATCH_TOKEN; new id returned at `issue.issue.id`. `ac` items
-  are `{title}`. **Bug REQUIRES `gate_decisions`** — array of `{gate, enabled, note}` (non-empty note) for
-  `plan-dependency`, `plan-architecture`, `plan-tdd`. DXUI-40 POST succeeded 201 first try with the array.
+- Verified reality: dashboard API → 37 cards DXUI-4..40, ALL status Review (confirmed via `Counter` over the
+  full unfiltered issue list — the `status_derived` query param did not actually filter in this session's
+  API responses, so a raw status tally was used instead). `git log` shows only ideator note-update commits
+  since session 13; last feature commit still `feat(DXUI-3)` @ 7023a67. `git diff --stat 7023a67 HEAD -- src/`
+  = EMPTY. `git log -- package.json` also unchanged since v0.8.17. Version still 0.8.17, 31 component dirs.
+  Nothing shipped since session 11.
+- Corrected an inherited factual error while re-verifying DXUI-39's premise: `danx-icon` is NOT a hard
+  runtime dependency — `package.json:129` is inside `devDependencies`, not `dependencies` (only `yaml` is a
+  runtime dep, confirmed at package.json:103-105). Left DXUI-39 as-is (the dist/node_modules bundling issue
+  for `danx-icon`'s `?raw` SVG imports at build time is still real regardless of dependency classification)
+  but flagging here so a future session tightens DXUI-39's wording if it's picked up.
+- Since the previously-tracked Valuable/Maintenance backlog is fully carded and unshipped, per the
+  prioritization rule ("promote Exploratory only when no obvious Valuable/Maintenance remain"), re-read the
+  root roadmap `features.md` (v1.0 design doc) end-to-end against current `src/components/` and found THREE
+  roadmap items that were scoped in the original design doc but never made it into this ideator's gap
+  inventory or the card backlog — genuinely new, non-duplicate, grounded via grep:
+  - **DXUI-41** (Feature/Valuable, ICE 384=6×8×8) `DanxLoadingOverlay` — Tier 2.3 Feedback. Scrim+spinner
+    over existing content; verified absent (`grep -rli loadingoverlay src` empty).
+  - **DXUI-42** (Feature/Valuable, ICE 280=5×8×7) `DanxTimeline` — Tier 3.2 Advanced Data. Vertical
+    activity/changelog timeline; verified absent (`grep -rli timeline src` empty). Also covers the unbuilt
+    Toolkit `AuditHistoryItem`.
+  - **DXUI-43** (Feature/Maintenance, ICE 192=4×8×6) Shared safe localStorage `getItem`/`setItem` — Toolkit
+    T.7. Five composables each hand-roll the same guarded-write pattern that DXUI-40 had to fix in ONE
+    unguarded instance; extracting it once prevents future repeats. Verified absent (`grep -rn "export
+    function getItem\|export function setItem" src` empty).
+  Also confirmed `MarkdownContent` (render-only markdown) and Dialog focus-trap (native `<dialog
+  showModal()`) were ALREADY shipped/satisfied but missing from the Complete inventory — added them, no
+  cards needed.
+- Evaluated and explicitly declined to card (ICE too low / Exploratory, noted in scratchpad instead):
+  `ImageCropper` (100=5×5×4), `DanxCalendar` full grid (48=4×4×3, DatePicker/DXUI-22 already covers the
+  primary need), Figma tokens export (60=3×4×5, narrow designer-only audience).
+- Diligence sweep for code-level defects (setTimeout/clearTimeout balance, console/debugger) found nothing
+  new — the two apparent setTimeout imbalances (`editable-div`, `shared/download.ts`) are both correctly
+  guarded (`onBeforeUnmount` + `clearDebounce()`, and fire-and-forget non-lifecycle-bound download helpers
+  respectively) — false positives, not carded.
+- **API NOTE:** `mcp__danx_dashboard__*` MCP tools STILL absent from this session's toolset (only
+  Bash/Read/Edit/Write). Used `curl`/python3 `urllib` POST to `$DANXBOT_DASHBOARD_URL/api/issues`, board
+  `danx-ui:danx-ui-main`, Bearer `$DANXBOT_DISPATCH_TOKEN`. **`ac` items use key `title`, NOT `text`**
+  (`{"title": "...", "checked": false}`) — `text` fails with `ac[0].title must be a string`; corrected this
+  session, all 3 POSTs succeeded 201 on retry. Feature-type cards do NOT require `gate_decisions` (quality
+  gates default to `optional`/empty `decision_note`, unlike Bug type which requires non-empty notes for
+  plan-dependency/plan-architecture/plan-tdd, confirmed via DXUI-40 diff). New id at `issue.issue.id`.
 
-**Next session:** 37 cards at Review (DXUI-4..40), none built. Queue is FULLY EXHAUSTED across components,
-composables, forms, packaging/release-hygiene, a11y (DXUI-19/32/34/37), theming (DXUI-36), i18n formatters,
-demo hosting, peer-dep packaging (DXUI-30/35/39), npm metadata (DXUI-38), robustness (DXUI-40). Do NOT add
-cards unless something ships OR a genuine new defect surfaces. Best move next time: verification-only —
-re-scan `git log`/`git diff 7023a67 HEAD -- src/` for which DXUI-* shipped, then retire/refresh. Remaining
-uncarded: CommandPalette (Dependent on useHotkeys/DXUI-8), RTL (Exploratory — 74 physical vs 1 logical CSS
-prop), Visual-regression testing (Exploratory — heavier, overlaps DXUI-33). When DXUI-8/12/24/36 are built,
-lean on @vueuse/core rather than hand-rolling.
+**Next session:** 40 cards at Review (DXUI-4..43), none built (git diff -- src/ still empty vs 7023a67).
+Component/composable/packaging/a11y/theming/i18n/demo-hosting surface is now DOUBLY verified exhausted —
+two consecutive sessions (13, 14) found nothing shippable had landed. Before adding more cards next time:
+(1) re-verify `git diff 7023a67 HEAD -- src/` and package.json for what shipped, retire/refresh accordingly;
+(2) if still nothing shipped, do NOT re-scan the roadmap doc again (session 14 exhausted it) — instead look
+for either (a) newly-introduced code since 7023a67 if a build finally lands, or (b) promote next-tier
+Exploratory items (RTL, visual-regression testing, ImageCropper, DanxCalendar, Figma tokens — all noted with
+ICE above) only if the Valuable/Maintenance queue has actually started clearing. CommandPalette stays
+Dependent on useHotkeys/DXUI-8. Fix the inherited DXUI-39 wording (danx-icon is a devDependency, not
+"hard runtime dependency") if that card is ever picked up for planning.
 
