@@ -120,6 +120,9 @@ coverage gate enforced via /flow-verify.
 | DanxRating | Missing | DXUI-44 (session 16, new find). No star/numeric rating input or display component; verified absent via grep. Review/feedback/quality-score UIs have no primitive to reach for. |
 | Circular/radial DanxProgressBar variant | Incomplete | DXUI-45 (session 16, new find). `DanxProgressBar` is linear-only (`types.ts` has no circular/radial shape); verified absent via grep. Distinct from DXUI-6 DanxSpinner (indeterminate, not a determinate-value ring). |
 | DanxKbd (keyboard-shortcut display) | Missing | DXUI-46 (session 16, new find). Key-cap styling is hard-coded/duplicated only inside `markdown-editor/HotkeyHelpPopover.vue` + `hotkey-help-popover.css`; no shared, reusable primitive for docs/tooltips/future CommandPalette. Verified via grep — only markdown-editor and zoomable CSS reference "kbd". |
+| Generic DanxTreeView (data-driven tree) | Missing | DXUI-47 (session 17, new find). Only `DanxFileExplorer` exists, hardcoded to `FileNode` file/folder semantics. No tree component for arbitrary hierarchical data (org charts, category trees, comment threads, permission trees). Verified via `grep -rli treeview src` = empty. |
+| Password strength meter | Missing | DXUI-48 (session 17, new find). `DanxInput` has a show/hide toggle for `type="password"` but zero strength scoring/feedback anywhere in src. Verified via `grep -rli password.*strength src` = empty. |
+| useBreakpoints / useMediaQuery composable | Missing | DXUI-49 (session 17, new find). No viewport/media-query reactivity composable exists (`grep -rli usemediaquery\|usebreakpoint\|matchmedia src` = empty) despite `@vueuse/core` (peer dep) shipping `useBreakpoints`/`useMediaQuery` directly — same "wrap vueuse, don't hand-roll" pattern already applied to DXUI-8/12/24. Foundation for responsive behavior in Drawer (DXUI-21)/Tabs/SplitPanel. |
 
 ---
 
@@ -179,58 +182,61 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxRating (star/numeric rating) | Carded (Valuable) | 224 (4×7×8) | DXUI-44. Session 16 fresh find via grep — no rating component existed anywhere. Star/numeric, half-step, hover-preview, arrow-key nav, defineModel. |
 | Circular/radial DanxProgressBar variant | Carded (Valuable) | 280 (5×8×7) | DXUI-45. Session 16 fresh find. SVG stroke-dasharray ring reusing existing value/percentage + ARIA wiring; distinct from DXUI-6 spinner (indeterminate). |
 | DanxKbd (keyboard-shortcut badge) | Carded (Maintenance) | 252 (4×7×9) | DXUI-46. Session 16 fresh find. Generalizes the key-cap styling currently hard-coded only inside markdown-editor's HotkeyHelpPopover; presentation-only, no dependency on DXUI-8 useHotkeys so it isn't blocked. |
+| Generic DanxTreeView (data-driven tree) | Carded (Valuable) | 252 (6×7×6) | DXUI-47. Session 17 fresh find. Generalizes useFileExplorer's proven expand/collapse/keyboard-nav pattern to arbitrary TreeNode<T> data; FileExplorer stays file-specific, optional refactor onto it later out of scope. |
+| Password strength meter for DanxInput | Carded (Valuable) | 216 (6×6×6) | DXUI-48. Session 17 fresh find. Opt-in showStrength prop + headless passwordStrength() pure function in src/shared/; rule-based scoring (no zxcvbn dep) to preserve zero-runtime-dependency goal. |
+| useBreakpoints/useMediaQuery composable | Carded (Maintenance/Valuable) | 280 (7×8×5) | DXUI-49. Session 17 fresh find. Thin wrapper over @vueuse/core's useBreakpoints/useMediaQuery pre-configured with danx-ui's Tailwind breakpoint tokens; SSR-guarded. Foundation for responsive Drawer/Tabs/SplitPanel behavior. |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 16)** — Sixteenth ideator pass on danx-ui (scope: repo). Verified reality first
-(identical to sessions 12-15: `git diff --stat 7023a67 HEAD -- src/` empty, `git diff 7023a67 HEAD --
-package.json` only the 0.8.16→0.8.17 version bump, dashboard shows all 40 prior cards DXUI-4..43 still
-`Review`, zero dispatched). This session's task explicitly required generating 3-5 new cards regardless of
-the backlog-clearing gate sessions 12-15 self-imposed, so — rather than re-scanning the already-exhausted
-roadmap doc (confirmed exhausted by sessions 13/14) — ran a fresh independent grep sweep across `src/` for
-concrete, ungrounded-until-now gaps not already covered by any of the 40 existing titles or the "Exploratory,
-not carded" scratchpad entries (ImageCropper/DanxCalendar/Figma-tokens/RTL/visual-regression/CommandPalette):
+**2026-07-11 (session 17)** — Seventeenth ideator pass on danx-ui (scope: repo). Verified reality first:
+`git diff --stat 7023a67 HEAD -- src/` still empty, `package.json` diff only the 0.8.16→0.8.17 version bump
+(same as sessions 12-16). Fetched the live board via `GET /api/issues?board=danx-ui:danx-ui-main` (Bearer
+`$DANXBOT_DISPATCH_TOKEN` against `$DANXBOT_DASHBOARD_URL`) — 43 cards (DXUI-4..46), ALL still `status:
+Review`, zero dispatched, matching session 16's exact state (0% throughput across 6+ consecutive sessions).
+`mcp__danx_dashboard__*` MCP tools were again absent from this session's toolset; only Bash/Read/Edit/Write
+available, so all reads/writes went through the dashboard HTTP API directly via curl, same as sessions 13-16.
 
-- `grep -rli rating src` → zero component hits (only substring matches in unrelated files: hexColorDecorator,
-  autoColor test, select keyboard, config-types, YAML highlighter, flashMessages) — confirmed genuinely
-  absent. No star/numeric rating primitive exists anywhere.
-- `grep -rli circular\|radial src/components/progress-bar` → empty. `DanxProgressBar` (`types.ts`) only
-  models a linear horizontal track; no circular/radial shape. Distinct from DXUI-6 `DanxSpinner`
-  (indeterminate-only, extracted from button.css) — this is a determinate-value ring, a different need.
-- `grep -rli kbd\|keycap src` → only `zoomable` (unrelated CSS var naming) and
-  `markdown-editor/hotkey-help-popover.css` + `HotkeyHelpPopover.vue`, which hard-code key-cap styling and a
-  markdown-editor-specific `HotkeyDefinition`/`HotkeyGroup` model with no reusable primitive for other
-  consumers (docs, tooltips, a future CommandPalette gated on DXUI-8).
-- Also checked and found genuinely absent but explicitly declined (below current threshold / already
-  effectively covered): `countdown`/`count-up` (only toast-timer substring hits, not a countdown widget —
-  real gap but no obvious immediate demand, not carded), `qrcode`, `split-button`, `segmented` control (would
-  overlap conceptually with existing `DanxButtonGroup` toggle pattern — not a distinct gap), toast
-  max-queue-length (re-confirmed a design choice, not a documented gap, matches session 15's finding).
-- **Created 3 new cards** (deduplicated against the live 40-card list fetched via
-  `GET /api/issues?board=danx-ui:danx-ui-main` — Bearer `$DANXBOT_DISPATCH_TOKEN` against
-  `$DANXBOT_DASHBOARD_URL`; `mcp__danx_dashboard__*` MCP tools were STILL absent from this session's toolset,
-  only Bash/Read/Edit/Write, consistent with sessions 13-15):
-  - **DXUI-44** (Feature/Valuable, ICE 224=4×7×8) `DanxRating` — star/numeric rating input+display,
-    half-step, hover-preview, arrow-key nav, `defineModel()`.
-  - **DXUI-45** (Feature/Valuable, ICE 280=5×8×7) Circular/radial `DanxProgressBar` variant — SVG
-    stroke-dasharray ring reusing existing value/percentage calc + ARIA wiring.
-  - **DXUI-46** (Feature/Maintenance, ICE 252=4×7×9) `DanxKbd` — generic keyboard-shortcut display badge,
-    generalizes the hard-coded markdown-editor key-cap styling; presentation-only, NOT dependent on DXUI-8
-    useHotkeys so it isn't blocked and can land independently.
-  - POST body shape confirmed from session 14's note: `ac` items use key `title` (not `text`); all 3 POSTs
-    returned `201` on the first try this session, ids at `issue.issue.id`.
-- Board is now 43 cards (DXUI-4..46), all still status `Review` (dispatch velocity remains 0% — none of the
-  prior 40 have moved to ToDo/In Progress across 5+ consecutive sessions).
+This session's task explicitly required generating 3-5 new cards, so — continuing session 16's approach of
+running fresh independent grep sweeps rather than re-scanning the already-exhausted roadmap doc — checked a
+new batch of candidate gaps not covered by any of the 46 live titles or prior "Exploratory, not carded"
+entries:
+
+- `grep -rli treeview src` → empty. `DanxFileExplorer` exists but is hardcoded to file/folder `FileNode`
+  semantics; no generic hierarchical-data tree component. Genuine, distinct gap.
+- `grep -rli password.*strength\|strength.*meter src` → empty. `DanxInput` password type has a visibility
+  toggle (confirmed via docstring in DanxInput.vue) but zero strength scoring/UI anywhere.
+- `grep -rli usemediaquery\|usebreakpoint\|matchmedia src` → empty. `@vueuse/core` (peer dep) ships
+  `useBreakpoints`/`useMediaQuery` directly but nothing in src wraps it — matches the codebase's own
+  "wrap vueuse, don't hand-roll" precedent (DXUI-8/12/24).
+- Also checked and found genuinely absent but declined (noise or below threshold): `countdown`/`count-up`
+  (only toast-timer/objectStore counter substring noise, same finding as session 16 — still not carded),
+  `qrcode`, `segmented` control (overlaps DanxButtonGroup, not distinct), `cropper`/`imagecrop` (still
+  Exploratory per prior sessions), `tour`/`onboard`/`walkthrough`, `masonry`, `undo`/`redo`/history-stack
+  (only editable-div/split-panel/select/markdown-editor cursor-offset substring hits, no real undo-stack
+  gap — browser-native undo covers textareas/contenteditable today), lazy-image-loading (`DanxFile.vue:162`
+  already uses native `loading="lazy"`, not a gap).
+- **Created 3 new cards** (deduplicated against the live 43-card list; POST body confirmed `ac` items use
+  key `title` not `text`, per session 14+ note; one POST failed on the first attempt due to shell backtick
+  quoting in the description heredoc — fixed by writing the JSON body to a temp file and posting with
+  `curl -d @file.json` instead of inline `-d '...'`):
+  - **DXUI-47** (Feature/Valuable, ICE 252=6×7×6) Generic `DanxTreeView` — arbitrary `TreeNode<T>` data,
+    generalizes useFileExplorer's proven expand/collapse/keyboard-nav pattern.
+  - **DXUI-48** (Feature/Valuable, ICE 216=6×6×6) Password strength meter for `DanxInput` — opt-in
+    `showStrength` prop + headless `passwordStrength()` pure function, rule-based (no zxcvbn dep).
+  - **DXUI-49** (Feature/Maintenance-Valuable, ICE 280=7×8×5) `useBreakpoints`/`useMediaQuery` composable —
+    thin wrapper over `@vueuse/core`, pre-configured with danx-ui's Tailwind breakpoint tokens, SSR-guarded.
+- Board is now 46 cards (DXUI-4..49), all still status `Review`.
 
 **Next session:** re-verify `git diff 7023a67 HEAD -- src/` and the dashboard issue list first. If still
-nothing has shipped and still 0/43 cards have moved off Review, the backlog-clearing gate from sessions
-12-15 still applies for FURTHER card creation unless again explicitly instructed otherwise — do not
-manufacture cards just to hit a quota. If instructed to card again despite zero throughput, the next
-least-bad fresh finds (real but declined this session) are: a `DanxCountdown`/count-up number component
-(no existing hits beyond toast-timer substring noise) and, failing new finds, promoting `ImageCropper`
-(100=5×5×4) from Exploratory. `useHotkeys`/DXUI-8 remains the CommandPalette dependency gate; DXUI-46
-(DanxKbd) deliberately does NOT depend on it.
+nothing has shipped and still 0/46 cards have moved off Review, seriously consider whether continuing to
+manufacture new cards (now spanning 3 sessions of a self-noted "backlog-clearing gate") is still the right
+call vs. flagging the zero-dispatch pattern itself as the actionable finding — the board has 46 well-scored,
+zero-overlap Feature/Bug cards sitting idle; the bottleneck appears to be dispatch velocity, not idea supply.
+If instructed to card again regardless, remaining ungrounded candidates from this session's declined list
+(all below current threshold or design choices, not carded): `DanxCountdown`/count-up widget, promoting
+`ImageCropper` (100=5×5×4) from Exploratory. `useHotkeys`/DXUI-8 remains the CommandPalette dependency gate;
+DXUI-46 (DanxKbd) deliberately does NOT depend on it.
 
 
