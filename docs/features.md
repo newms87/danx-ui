@@ -260,56 +260,71 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 42, cardless dispatch — Bash/Read/Edit/Write only, explicitly no
+**2026-07-11 (session 43, cardless dispatch — Bash/Read/Edit/Write only, explicitly no
 `mcp__danx_dashboard__*` tools per launch prompt; orchestrator handles dedup/issue_create)** —
-Read/wrote the canonical checkout at `/home/newms/web/danx-ui` directly (the isolated sandbox
-worktree for this dispatch has no repo checkout, only `.claude/` config).
+Read/wrote the canonical checkout at `/home/newms/web/danx-ui` directly (isolated sandbox
+worktree for this dispatch again has no repo checkout, only `.claude/` config).
 
-Re-verified reality: `git log --oneline -- src/` in the canonical repo still bottoms out at
-`6524fa1` (v0.8.17) as the last commit that touched `src/` — **25th+ consecutive confirming
-session that `src/` is unchanged.** HEAD is now `730e96d` (session 41's feature-notes commit);
-every commit since `6524fa1` is a `docs/features.md`-only "Update feature notes" commit (41 of
-them, one per session so far). Session 41 left two drafted-but-not-yet-carded findings in the
-scratchpad: "Add keyboard support to DanxScroll/DanxVirtualScroll" (288, Bug/a11y) and "Fix
-DanxEditableDiv's plaintext-only contenteditable fallback" (175, Bug) — re-confirmed both are
-still real, still grounded, still absent from the codebase, and are re-forwarded here as this
-session's top-priority create-card candidates (no dashboard read access this dispatch to check
-whether they were created between sessions).
+Re-verified reality: `git status` shows only a modified `.danxbot/scripts/agent-finalize.sh` and
+an untracked `.claude/settings.local.json` (both dashboard/tooling-harness files, not `src/`) —
+**`src/` is unchanged since session 42's HEAD (`fe62f8d`).** `git log -1 -- src/` bottoms out at
+`7023a67` (DXUI-3 button-anchored context menu); every commit after that touching the repo is a
+`docs/features.md`-only "Update feature notes" commit. This is now 26+ consecutive sessions with
+zero `src/` changes.
 
-**This session's exploration** (targeting the "genuinely thin" remaining angles session 41
-flagged as not-yet-exhausted):
-1. Full re-read of `shared/composables/` — confirmed already exhausted (3rd+ pass), nothing new.
-2. `useScrollWindow.ts`'s `sizeCache` Map (flagged by session 41 as a possible 3rd leak-family
-   entry, not drafted): read in full — it is declared *inside* the `useScrollWindow()` function
-   body (per-instance closure, not module-level), so it is garbage-collected with the composable
-   instance on unmount like any other local variable. **Not a leak** — distinct from the genuine
-   module-level `Map`/`Set` leaks in `objectStore.ts` (DXUI-57) and `actionRoutes.ts` (drafted
-   session 40). Correctly left un-carded.
-3. Spot-diffed `docs/badge.md`'s props table against `badge/types.ts`'s `DanxBadgeProps`, and
-   `docs/scroll.md` against `scroll/types.ts` — both fully accurate, no stale prop/default drift
-   found (session 41's "next session" idea #3 — systematic docs-vs-code diff — partially
-   attempted; no discrepancies found in the 2 files sampled).
-4. Checked `tsconfig.json`, `vitest.config.ts`, `eslint.config.js`, and `package.json`'s
-   `exports` map for anything not already tracked — all consistent with already-carded findings
-   (DXUI-29 exports-map gap, DXUI-37 no axe-core, etc.); nothing new.
-5. Re-read `README.md` and `CLAUDE.md` in full — no new gaps beyond the already-carded DXUI-25
-   (docs index) / DXUI-27 (CHANGELOG) / DXUI-38 (package metadata).
+**This session's exploration**, per the launch prompt's explicit steer toward "genuinely thin"
+areas (test files, docs/examples, config) rather than re-reading `src/components`/`src/shared`:
+1. `demo/composables/useIsDark.ts` — read in full. Confirms the demo app itself hand-rolls a
+   `MutationObserver`-based dark-mode watcher as a workaround for the still-Missing `useColorScheme`
+   (DXUI-36) — consistent with, not additive to, the existing DXUI-36 finding. Not a new item.
+2. `scripts/publish.sh` — read in full. Solid, defensive release script (npm-token fallback,
+   dry-run mode, rollback-on-failure); no library-facing gap, out of scope for a danx-ui feature
+   card (it's release tooling, already covered conceptually by DXUI-27/28).
+3. `vite.config.ts` — read in full with fresh eyes. Confirmed `build.lib.entry` explicitly lists
+   only 9 entries (index + button/code-viewer/dialog+useDialog/scroll/markdown-editor/toggle/
+   range-slider/color-picker) to get isolated per-component CSS via `cssCodeSplit`; the other 22
+   components only exist in `dist/` as `preserveModules` side-effects of being imported by the
+   main barrel, with no isolated CSS entry. This is an *implementation detail clarifying* DXUI-29
+   (exports-map gap) — completing DXUI-29 requires ALSO adding vite lib.entry rows per component,
+   not just package.json exports — but is the same root cause/card, not a new bug. Noted as an AC
+   hint for DXUI-29 rather than a new draft.
+4. `vitest.config.ts` — re-read. Coverage `exclude` list omits `escapeHtml.ts` from the 100%
+   gate; checked `shared/escapeHtml.ts` + its test file in full — implementation is correct
+   (5 entities, ordering avoids double-unescaping bugs) and already has thorough dedicated tests
+   despite the coverage-gate exclusion. Not a gap.
+5. Diffed `docs/toggle.md`'s props/tokens tables against `toggle/types.ts` — fully accurate, no
+   drift (3rd doc sampled this way across sessions 42-43, after badge.md/scroll.md; zero
+   discrepancies found in any of the 3).
+6. Skimmed `docs/superpowers/specs/` (1 file, a design spec for file-viewer zoom modes, already
+   shipped/reflected in DXUI-59/session-31 zoomable findings) and `scripts/` (only `publish.sh`
+   exists) — nothing further to mine.
 
-**No new grounded, non-duplicate findings this session.** Every angle explored either confirmed
-prior findings (docs accuracy, exports gap) or ruled out a candidate (`sizeCache` is not a leak).
-This is the first session in recent memory to close with **zero fresh drafts** — a stronger
-saturation signal than sessions 36-41, each of which still found 1-2 new items.
+**No new grounded, non-duplicate findings this session.** Every fresh area checked either
+confirmed/clarified an already-carded item (DXUI-29's vite.config coupling, DXUI-36's demo
+workaround) or came back clean (escapeHtml, toggle docs, publish.sh). **This is the second
+consecutive session (42, now 43) to close with zero new draftable findings** — a stronger
+saturation signal than any prior run of the series, which through session 41 had never gone two
+sessions in a row without at least one new item.
 
-**Honest assessment, unhedged: this ideation series is fully saturated.** 42 sessions in, `src/`
-static for 25+ of them, virtually every file in `src/components/` and `src/shared/` read multiple
-times, multiple full docs-vs-code and grep sweeps completed, and this session's dedicated attempt
-at the specific "unexhausted angles" the previous session named came up empty. The board (per
-session 41's last read) sits at **80 cards, 100% Review, 0% ever dispatched to ToDo/In Progress**,
-plus 2 outstanding drafts (re-forwarded this session) waiting to become cards ~82-83. Continuing
-to commission pure-ideation sessions here is now low-value: the marginal cost of finding anything
-genuinely new is high and rising, while the actual constraint — zero throughput from Review to
-ToDo/In Progress — remains completely unaddressed by adding more cards to an already 80-deep
-backlog nobody is triaging. **Recommend stopping or drastically slowing this series and
-redirecting effort to triaging/dispatching the existing backlog.** If sessions must continue
-regardless, expect increasingly speculative/Exploratory-tier finds rather than clean,
-high-confidence Bug/a11y discoveries like sessions 30-41 produced.
+**Two items remain drafted-but-not-yet-carded from session 40/41** (still not confirmed created —
+no dashboard read access this dispatch): "Fix `autoRefreshObject` permanently stopping polling on
+callback error/malformed response" (320, Bug) and "Fix `useActionRoutes` never calling
+`unregisterList`, leaking its list ref forever" (252, Bug), plus session 41's "Add keyboard support
+to DanxScroll/DanxVirtualScroll" (288, Bug/a11y) and "Fix DanxEditableDiv's plaintext-only
+fallback" (175, Bug). All four are re-forwarded below as this session's card candidates (no NEW
+items to add on top).
+
+**Honest assessment, unhedged, now stronger than session 42's: this ideation series is fully
+saturated and actively past the point of diminishing returns.** 43 sessions in, `src/` static for
+26+ of them, two consecutive sessions (42 and 43) closing with zero fresh findings despite this
+session deliberately targeting previously-unexplored file categories (demo composables, publish
+script, vite build config internals, coverage-exclusion list) exactly as instructed. The board
+sits at ~80-83 cards (depending on whether sessions 40/41's drafts were ever carded), 100% Review,
+0% ever dispatched to ToDo/In Progress. **Recommend the operator pause ideation entirely now** —
+not just "slow it down" — and redirect 100% of effort to triaging/dispatching the existing
+backlog. Continuing to commission ideation sessions against a static codebase with an 80+-deep,
+0%-dispatched backlog produces no value: there is no idea-supply problem to solve, and each
+additional session either re-confirms saturation (this one) or, per session 42's prediction,
+would have to reach for increasingly speculative/Exploratory-tier material to manufacture the
+appearance of progress. If `src/` starts changing again (a real code change lands), a fresh
+ideation session at that point would be genuinely useful; until then, this series should stop.
