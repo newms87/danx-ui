@@ -226,91 +226,100 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Guard DanxFileUploadDropZone against disabled/readonly drag-drop | Drafted this session (Bug) | 486 (6×9×9) | Session 35 fresh find, NOT YET CARDED. Check `props.disabled` at the top of `onDragEnter`/`onDrop` in `DanxFileUploadDropZone.vue` (and ideally also gate `onDragEnter`'s `emit` so the `--active` hover styling doesn't even flash) so dropped files are silently ignored on a disabled/readonly field, matching the already-correct guard on the "Add card" button. I:6 (violates the documented `disabled`/`readonly` prop contract — a consumer relying on `readonly` to lock a field can have it silently mutated via drag-drop) C:9 (root cause fully understood, trivial guard) E:9 (single small component, ~3-line fix + a test). |
 | Fix `useDanxFile` text-content fetch race condition | Drafted this session (Bug) | 196 (4×7×7) | Session 35 fresh find, NOT YET CARDED. Add a request-token or `AbortController` guard in `useTextContent()`'s watcher so a stale, slower-resolving `fetch` from a previous `file` value cannot overwrite `textContent.value` after the user has already navigated to a different file. I:4 (narrow — only text-type files in preview mode with rapid file-prop changes, e.g. carousel/viewer quick-stepping) C:7 (well-understood race-condition pattern, standard fix) E:7 (isolated to `useDanxFile.ts`'s `useTextContent` helper + a test simulating out-of-order resolution). |
 | Wire `useFileUpload.retryFile` to the UI (retry button on errored files) | Drafted this session (Feature) | 336 (6×8×7) | Session 35 fresh find, NOT YET CARDED. Add a `retry` emit to `DanxFile`/`DanxFileError` (a retry button/icon alongside the existing error message, likely reusing the compact-popover vs. inline-text branching `DanxFileError.vue` already has) and wire it through `DanxFileUpload.vue` to the composable's already-implemented `retryFile(fileId)`. I:6 (currently the only recovery path for a failed upload is remove + re-select from scratch — real friction for flaky-network/transient-server-error cases, and the composable was clearly built to support one-click retry but the UI was never finished) C:8 (composable API already exists and is well-tested via `_fileMap`; this is UI wiring, not new logic) E:7 (touches `DanxFileError.vue` + `DanxFile.vue` emit chain + `DanxFileUpload.vue`, no changes needed to `useFileUpload.ts` itself). |
+| Sanitize `href`/`src` URL schemes in `shared/markdown` link/image rendering | Drafted this session (Bug/security) | 448 (7×8×8) | Session 36 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Add a shared `isSafeUrl(url)` allowlist helper (http/https/mailto/tel/relative/#/no-scheme; reject javascript:/data:/vbscript:/etc.) and apply it in `parseInline.ts`'s 5 link/image regex-replace sites (lines 64/67/75/85/96), falling back to a neutralized href (e.g. `href="#"` or stripping the anchor) for disallowed schemes. I:7 (real click-to-execute XSS in a public, exported component — `MarkdownContent` — reachable by any consumer rendering untrusted/API-sourced markdown even with the documented `sanitize:true` default) C:8 (root cause fully understood via grep + full-file read, fix is a small pure-function allowlist reused at 5 call sites) E:8 (isolated to `shared/markdown/parseInline.ts` + one new small helper + tests for each of the 5 sites).
+| Sanitize URL scheme when inserting/editing links in the markdown-editor WYSIWYG (`LinkPopover`/`linkDomUtils.ts`) | Drafted this session (Bug/security) | 336 (6×8×7) | Session 36 fresh find, NOT YET CARDED. Reuse the same `isSafeUrl(url)` helper proposed above in `linkDomUtils.ts`'s `createLinkElement()`/`completeEditLink()` before calling `setAttribute("href", ...)`, and reject/no-op (with a small inline validation message in `LinkPopover.vue`) on disallowed schemes; also guard the two `window.prompt(...)` fallback paths in `linkPopoverHandlers.ts`. I:6 (a user can create a live clickable `javascript:` link directly inside the editor's `contenteditable` surface, which is both rendered via `v-html` in `MarkdownEditorContent.vue` and exportable as markdown via `useMarkdownSync.ts` — compounding with the renderer-side finding above) C:8 (same well-understood fix pattern, shares the helper) E:7 (touches `linkDomUtils.ts` + `linkPopoverHandlers.ts` + `LinkPopover.vue` for user-facing validation feedback, 3 files).
 | DanxSelect has no letter-key type-ahead when `filterable` is false | Incomplete | Session 34 fresh find. `useSelectKeyboard.ts`'s `handleKeydown` switch (lines 105-169, read in full) handles ArrowDown/Up/Enter/Space/Escape/Tab/Home/End only — grep-confirmed (`grep -n "key.length === 1\|charCode\|typeahead" src/components/select/*.ts`) zero single-character key handling anywhere. A native `<select>` (and most select-widget libraries) lets a focused-but-closed dropdown jump to the first option starting with a typed letter, repeated presses cycling matches — `DanxSelect` has NO such behavior when `filterable` is unset/false (the common case for short option lists where a search box is overkill), so keyboard users must Arrow-key through the entire list one item at a time. `filterable=true` mode has a real text input as a workaround, but that's an opt-in, different UX. |
+| `shared/markdown` renders `javascript:`/`data:`-scheme link and image URLs unsanitized, even with `sanitize:true` | Incomplete (Bug/security) | Session 36, new find. `parseInline.ts` (read in full) has 5 regex-replace sites that inject a captured markdown URL directly into an emitted `href`/`src` attribute with NO scheme/protocol validation: inline links (line 67, `[text](url)` → `<a href="$2">`), images (line 64, `![alt](url)` → `<img src="$2">`), and all 3 reference-link forms (lines 75/85/96, `<a href="${ref.url}">`). `sanitize:true` (the default, `index.ts:79`) only runs `escapeHtml()` on the surrounding TEXT before markdown parsing (`parseInline.ts:22`) — it does not validate or allowlist the URL scheme captured by these link/image patterns. `[click me](javascript:alert(document.cookie))` renders as a clickable `<a href="javascript:alert(document.cookie)">click me</a>`. Grep-confirmed this output is consumed via `v-html` in `code-viewer/MarkdownContent.vue` (7 call sites: lines 138/158/166/175/183/195/205/214/218/229/238, all via `parseInlineContent`/`renderBlockquote`/`renderListItem`) — any consumer rendering user- or API-sourced markdown through `MarkdownContent` (a public, exported component) with default options gets a real click-to-execute XSS vector. Distinct from DXUI-65 (DanxIcon's unsanitized `innerHTML` for icon strings) — this is the markdown link/image renderer, a different file and a different injection primitive (`href`/`src` scheme vs `innerHTML`). Other `v-html` sites in the codebase (`CodeViewer.vue:264`, `CodeViewerCollapsed.vue:58`) were checked and are clean — `shared/syntax-highlighting/*.ts` correctly runs `escapeHtml()` on all token text before wrapping in `<span>`. |
+| `markdown-editor`'s LinkPopover/`linkDomUtils.ts` let a user set an anchor's `href` to a `javascript:` URI with no validation | Incomplete (Bug/security) | Session 36, new find. `linkDomUtils.ts`'s `createLinkElement()` (line 50-56) and `completeEditLink()` (line 30-45) call `link.setAttribute("href", url.trim())` directly on whatever string the user typed into `LinkPopover.vue`'s URL `<input>` (`LinkPopover.vue` read in full — no `type="url"`, no scheme check, `onSubmit` at line 82-86 just trims and emits the raw string) or into the `window.prompt` fallback path in `linkPopoverHandlers.ts` (lines 52/94/134, used when `onShowLinkPopover` isn't wired). A user (or paste/import flow) can create a live, clickable `<a href="javascript:...">` directly inside the WYSIWYG editor's `contenteditable` surface, which is then rendered via `v-html="html"` in `MarkdownEditorContent.vue:130` and round-tripped through `useMarkdownSync.ts`'s HTML↔Markdown conversion — meaning a malicious link typed once in the editor can also get exported as markdown and re-rendered elsewhere (compounding with the `shared/markdown` finding above). Same root cause class (no URL-scheme allowlist before use as `href`) but a different file/component (interactive editor vs. the markdown render library) — recommend fixing with a small shared `isSafeUrl(url)` helper (allowlist `http:`, `https:`, `mailto:`, `tel:`, relative/`#`/no-scheme) reused by both this editor path and the `shared/markdown` renderer. |
 
 ---
 
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 35, drafts-only dispatch — no `mcp__danx_dashboard__*` tools exposed to this
-agent's toolset; Bash/Read/Edit/Write only)** — Dispatched into the isolated
-`danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo checkout there; confirmed only
-`.claude/` config + a read-only mirror `docs/features.md` exist in that worktree, not a git repo).
-Read/wrote the canonical checkout at `/home/newms/web/danx-ui` directly, per orchestrator instruction.
+**2026-07-11 (session 36, drafts-only dispatch — no `mcp__danx_dashboard__*`/`issue_list`/
+`issue_create` tools exposed to this agent's toolset; Bash/Read/Edit/Write only, per explicit launch
+prompt constraint)** — Dispatched into the isolated
+`danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (confirmed again: no repo checkout
+there, only `.claude/` config + this file existed as a read-only mirror, not a git repo). Read/wrote
+the canonical checkout at `/home/newms/web/danx-ui` (via `/danxbot/app/repos/danx-ui` symlink)
+directly, per established multi-session pattern.
 
-**Major status change this session:** all 18 previously-undispatched drafts from sessions 28-34 are
-now REAL CARDS. Confirmed via read-only dashboard API
-(`curl $DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main` with the `DANXBOT_DISPATCH_TOKEN`
-bearer header — this worked this session, unlike session 34 which had no access) — the board now has
-**64 issues (DXUI-4 through DXUI-67), 100% status `Review`, 0% dispatched**. DXUI-50 through DXUI-67
-map 1:1 onto the 18 "Drafted this session, NOT YET CARDED" scratchpad entries from sessions 28-34, so
-the orchestrator (or another session) has since created them all. The "idea supply isn't the
-bottleneck, backlog isn't being triaged" observation from sessions 28-34 still holds even more
-strongly now: 64 cards sitting 100% in Review, 0% in ToDo/In Progress.
+**Board status (read-only check via** `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
+$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"`**):** now **67 issues (DXUI-4 through
+DXUI-70), 100% status `Review`, 0% dispatched.** DXUI-68 through DXUI-70 map 1:1 onto session 35's 3
+drafts — confirmed created since. The "idea supply isn't the bottleneck, triage is" observation now
+holds even more strongly: 67 cards, 100% Review, 0% ToDo/In Progress.
 
-Re-verified reality (18th+ consecutive confirming session):
-- `git log --oneline -3 -- src/ package.json` still `6524fa1` (v0.8.17) — `src/` unchanged for
-  weeks.
+Re-verified reality (19th+ consecutive confirming session):
+- `git log --oneline -5 -- src/ package.json` still `6524fa1` (v0.8.17), last commit "2 minutes ago"
+  per `git log -1 --format=%cd --date=relative` (container/mirror clock artifact, not a real new
+  commit — HEAD sha unchanged) — `src/` unchanged for weeks.
 
-**New ground covered this session:** per session 34's own recommendation, deep-dived the
-previously-unscrutinized `danx-file/` + `danx-file-upload/` composable/logic files (not just the
-Vue components): `useDanxFile.ts` (read in full), `DanxFileActions.vue`/`DanxFileProgress.vue`/
-`DanxFileError.vue` (read in full), `useFileUpload.ts` (read in full), `useDragDrop.ts` (read in
-full), `DanxFileUploadDropZone.vue` (re-read in full — session 34 had already read this file but
-apparently missed the `disabled` gap below), `DanxFileUpload.vue` (read in full). Also spot-checked
-`markdown-editor/useTables.ts` (read in full, clean — no gap found).
+**New ground covered this session:** per session 35's own recommendation, deep-dived
+`markdown-editor/`'s previously-unscrutinized UI/popover layer: `LinkPopover.vue` (read in full),
+`useLinks.ts` (read in full), `linkPopoverHandlers.ts` (read in full), `linkDomUtils.ts` (read in
+full), `TablePopover.vue` (read in full, clean), `MdeFloatingPanel.vue` (read in full, clean besides
+a minor uncarded a11y note below), `HotkeyHelpPopover.vue` (read in full, clean — uses `DanxDialog`
+so gets native focus-trap for free). Also, prompted by the link-URL finding below, read
+`shared/markdown/parseInline.ts` in full (the markdown render library, not previously
+deep-scrutinized at this granularity) and spot-checked `danx-file-viewer/DanxFileViewerHeader.vue` +
+`useVirtualCarousel.ts` (both clean) and `shared/syntax-highlighting/*.ts` (clean — all token text
+correctly runs through `escapeHtml()`).
 
-Found 3 new grounded findings (added to Section 1 gaps table + Section 2 scratchpad):
+**Found 2 new grounded, related security findings** (added to Section 1 gaps table + Section 2
+scratchpad):
 
-1. `DanxFileUploadDropZone.vue`'s `onDragEnter`/`onDragLeave`/`onDrop` handlers never check the
-   component's own `disabled` prop — grep-confirmed zero `disabled` reference in the `<script>`
-   block. `DanxFileUpload.vue` passes `disabled`/`readonly` in but the drop-zone's drag/drop path
-   ignores it entirely (only the "Add card" button and CSS class are correctly gated), so files can
-   be drag-dropped onto a disabled/readonly field and get uploaded. ICE 486 (6×9×9), Bug.
-2. `useDanxFile.ts`'s `useTextContent()` watcher has no stale-response guard (`AbortController`/
-   request token) before writing `textContent.value` from a `fetch` — rapid `props.file` changes
-   (e.g. carousel stepping through text files) can race, with the slower/older fetch's response
-   overwriting the correct current file's content. ICE 196 (4×7×7), Bug.
-3. `useFileUpload.ts` fully implements `retryFile(fileId)` (kept in `_fileMap` for exactly this
-   purpose) but grep-confirmed zero UI wiring anywhere — `DanxFileUpload.vue` never
-   destructures/calls it, `DanxFileError.vue` has no retry button, `DanxFile.vue`'s emits have no
-   `retry` event. Only recovery path today for a failed upload is remove + re-select from scratch.
-   ICE 336 (6×8×7), Feature/UI-gap.
+1. `shared/markdown/parseInline.ts`'s 5 link/image regex-replace sites (inline links line 67, images
+   line 64, all 3 reference-link forms lines 75/85/96) inject the captured markdown URL directly
+   into an emitted `href`/`src` attribute with NO scheme/protocol validation — `sanitize:true` (the
+   default) only `escapeHtml()`s the surrounding text, never validates the URL scheme.
+   `[x](javascript:alert(1))` renders as a clickable `<a href="javascript:alert(1)">` even in
+   "sanitized" mode. Grep-confirmed this reaches `v-html` in the public, exported
+   `code-viewer/MarkdownContent.vue` component (10 call sites). ICE 448 (7×8×8), Bug/security.
+2. `markdown-editor/linkDomUtils.ts`'s `createLinkElement()`/`completeEditLink()` call
+   `link.setAttribute("href", url.trim())` on whatever a user types into `LinkPopover.vue`'s URL
+   input (no `type="url"`, no scheme check) or the `window.prompt` fallback in
+   `linkPopoverHandlers.ts` — same root cause, different component (interactive WYSIWYG editor vs.
+   the render library), compounding with finding #1 since the editor's `contenteditable` content is
+   both rendered live via `v-html` (`MarkdownEditorContent.vue:130`) and exportable as markdown via
+   `useMarkdownSync.ts`. ICE 336 (6×8×7), Bug/security.
 
-Everything else inspected this session was ruled out as a non-gap: `DanxFileActions.vue`'s two-step
-remove-confirm (arm/disarm with 3s timeout) is clean, has proper `onUnmounted` timer cleanup, and
-uses a tooltip to communicate the armed state; `DanxFileProgress.vue`/`DanxFileError.vue` are
-presentation-only and correct for what they do (compact-popover vs. inline branching is sound);
-`useDragDrop.ts`'s drag-depth counter correctly handles nested-element `dragenter`/`dragleave`
-churn; `useFileUpload.ts`'s `addFiles`/`clearFiles`/`removeFile` correctly abort in-flight uploads
-and revoke `blobUrl`s (no memory leak); `useTables.ts`'s `insertTable`/`createTable` correctly
-guard `contentRef` null checks and selection-range containment before DOM mutation.
+Recommended fix for both: one small shared `isSafeUrl(url)` allowlist helper (http/https/mailto/
+tel/relative/#/no-scheme; reject javascript:/data:/vbscript:), reused at both sites.
+
+Everything else inspected this session was ruled out as a non-gap: `TablePopover.vue`'s grid
+selector + manual row/col clamping is correct; `MdeFloatingPanel.vue` has proper Escape-to-close
+wiring (minor note, not carded: no focus trap/initial-focus management unlike native-`<dialog>`-
+backed `DanxDialog`, lower priority than the security findings); `HotkeyHelpPopover.vue` composes
+`DanxDialog` correctly (native focus trap inherited); `shared/syntax-highlighting/*.ts` correctly
+escapes all token text before wrapping in `<span>` (the `CodeViewer.vue`/`CodeViewerCollapsed.vue`
+`v-html` sites are clean); `DanxFileViewerHeader.vue` and `useVirtualCarousel.ts` have no new gaps.
 
 **Drafts handed to orchestrator this session** (cannot call `issue_create` itself — no MCP tools
-exposed): 3 new cards recommended, ordered by ICE:
-1. Guard `DanxFileUploadDropZone` against disabled/readonly drag-drop (486, Bug)
-2. Wire `useFileUpload.retryFile` to the UI (336, Feature)
-3. Fix `useDanxFile` text-content fetch race condition (196, Bug)
+exposed): 2 new security cards recommended, ordered by ICE, alongside re-flagging the still-undrafted
+session-35 recommendation to look at `skeleton/` and `danx-file-viewer/` more deeply next time:
+1. Sanitize URL schemes in `shared/markdown/parseInline.ts` link/image rendering (448, Bug/security)
+2. Sanitize URL scheme in markdown-editor's LinkPopover/`linkDomUtils.ts` link insertion (336,
+   Bug/security)
 
-**Primary finding (updated, 18th+ consecutive confirmation of the `src/` staleness half; NEW status
-on the backlog half):** idea supply is still not the bottleneck. `src/` has been static for weeks
-across 18+ sessions. What changed THIS session: the 18-draft backlog from sessions 28-34 has been
-fully converted to real cards (DXUI-50 through DXUI-67) — so the board now sits at 64 cards, 100%
-Review, 0% dispatched. This is strong, now-directly-confirmed evidence (not just inferred from stale
-`src/`) that triage/dispatch into ToDo/In Progress, not idea generation, is the actual bottleneck for
-this codebase.
+**Primary finding (19th+ consecutive confirmation):** idea supply is still not the bottleneck.
+`src/` has been static for weeks across 19+ sessions; the board now sits at 67 cards, 100% Review,
+0% dispatched (up from 64 last session, confirming DXUI-68/69/70 were created from session 35's
+drafts but nothing has moved past Review). Triage/dispatch into ToDo/In Progress, not idea
+generation, remains the actual bottleneck for this codebase.
 
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup this
-session's 3 new drafts against Review/ToDo/In Progress before creating, then strongly consider
-recommending a triage pass on the 64-card Review backlog over generating yet more ideas. (2) If
-`src/` is still unchanged, remaining unscrutinized ground: `markdown-editor/`'s UI/popover layer
-(`TablePopover.vue`, `HotkeyHelpPopover.vue`, `MdeFloatingPanel.vue`, `MarkdownEditorFooter.vue`,
-`useCodeBlockManager.ts`, `hotkeyDefinitions.ts`, `editorKeyHandlers.ts` — the `useTables.ts` logic
-layer is now clean per this session, but its popover UI siblings are still unread), `skeleton/`
-(`DanxSkeleton.vue` still never read this deep), `danx-file-viewer/` (grepped/spot-checked in prior
-sessions but never read end-to-end) — before re-treading the extensively-covered `shared/`,
-`zoomable/`, `split-panel/`, `color-picker/`, `scroll/`, `editable-div/`, `context-menu/`,
-`file-explorer/`, `code-viewer/`, `dialog/`, `toast/`, `tooltip/`, `tabs/`, `buttonGroup/`, `badge/`,
-`icon/`, `alert/`, `chip/`, `button/`, `popover/`, `select/`, `input/`, `field-wrapper/`, `toggle/`,
-`textarea/`, `progress-bar/`, `range-slider/`, `danx-file/`, `danx-file-upload/`.
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup
+this session's 2 new drafts against Review/ToDo/In Progress before creating, then strongly consider
+recommending a triage pass on the growing Review backlog over generating yet more ideas. (2) If
+`src/` is still unchanged, remaining unscrutinized ground: `skeleton/` (`DanxSkeleton.vue` still
+never read in full), `danx-file-viewer/` (`DanxFileMetadata.vue`, `DanxFileThumbnailStrip.vue`,
+`DanxFileViewerContinuous.vue`, `DanxFileViewerToolbar.vue`, `useDanxFileViewer.ts`,
+`useViewerPreferences.ts`, `file-metadata-helpers.ts` — only the header + virtual-carousel logic
+were read this session), `markdown-editor/`'s remaining unread files (`MarkdownEditorFooter.vue`,
+`useCodeBlockManager.ts`, `hotkeyDefinitions.ts`, `editorKeyHandlers.ts`, `hexColorDecorator.ts`,
+`useDomObserver.ts`) — before re-treading the extensively-covered `shared/`, `zoomable/`,
+`split-panel/`, `color-picker/`, `scroll/`, `editable-div/`, `context-menu/`, `file-explorer/`,
+`code-viewer/`, `dialog/`, `toast/`, `tooltip/`, `tabs/`, `buttonGroup/`, `badge/`, `icon/`, `alert/`,
+`chip/`, `button/`, `popover/`, `select/`, `input/`, `field-wrapper/`, `toggle/`, `textarea/`,
+`progress-bar/`, `range-slider/`, `danx-file/`, `danx-file-upload/`.
