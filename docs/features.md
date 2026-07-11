@@ -275,54 +275,66 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 58).** Dispatched from the isolated `cardless` worktree (no
-repo checkout there — only `.claude/` config); worked directly in the canonical
-checkout `DANX_REPO_ROOT=/danxbot/app/repos/danx-ui` (symlink `/home/newms/web/danx-ui`).
-Tool list again ONLY Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` functions —
-matching `project_ideator_tooling_gap`; per explicit dispatch instructions this
-session did NOT attempt `issue_list`/`issue_create` and instead produced 3-5 drafts
-as final-response text for the orchestrator to card.
+**2026-07-11 (session 59).** Dispatched from the isolated `cardless` worktree (no
+repo checkout there — only `.claude/` config, `docs/features.md` is a read-only
+mirror not committed there); worked directly in the canonical checkout
+`DANX_REPO_ROOT=/danxbot/app/repos/danx-ui` (symlink `/home/newms/web/danx-ui`).
+Tool list this dispatch was ONLY Bash/Read/Edit/Write — no `mcp__danx_dashboard__*`
+functions present — confirmed by inspecting the actual available-tools list before
+doing any work (matches `project_ideator_tooling_gap`). Could not call
+`issue_list`/`issue_create`; produced drafts as final-response text for the
+orchestrator to card instead, per standing convention for cardless dispatches.
 
-`git log -1 --oneline` = `aee92ce` (session 57). `git log -1 -- src/` still `7023a67`
-(DXUI-3) — **40+ consecutive sessions with zero `src/` changes.**
+`git log -1 --oneline` = `12904d7` (session 58). `git log -1 -- src/` still
+`7023a67` (DXUI-3) — **41+ consecutive sessions with zero `src/` changes.**
 
 Re-verified all 4 outstanding uncarded drafts live by actually running the tools
-(unchanged since sessions 50-57):
+(unchanged since sessions 50-58):
 1. `npx vitest run --coverage` (full run) — identical failure:
    `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
-   isolated to `context-menu` (uncovered lines `110-115,206,246` unchanged:
-   `getMenuPanel()`'s `?? menuRef.value` fallback, `updateSubmenuDirection()`'s
-   `if (!panel) return` guard, the `#trigger` slot `v-if`, and the nested-submenu
-   `v-if`).
+   isolated to `context-menu` (98.33% stmts / 93.1% branches, uncovered lines
+   `110-115,206,246` unchanged).
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero
    matches (34 files total in `docs/`).
-3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` — line
-   82 still unguarded (`const groups = groupsAttr ? JSON.parse(groupsAttr) : [];`).
-4. `grep -n "optimistic\|onConfirmAction\|storeObject" src/shared/actions.ts` +
-   read of `onConfirmAction` (lines 213-266) — confirmed `storeObject(...)` for
-   `optimisticDelete`/`optimistic` still applied pre-emptively (lines 240,249,251)
-   with no revert in the `catch` block (255-263) or the caller's error branch.
+3. Read `useTokenManager.ts:75-90` directly — line 82's
+   `JSON.parse(groupsAttr)` still unguarded; cross-checked against all 15
+   `JSON.parse` call sites in `src/` (excluding tests) — still the sole outlier
+   without a try/catch or `isJSON`-style guard.
+4. Read `onConfirmAction` in `shared/actions.ts` (lines 213-266) in full again —
+   confirmed `storeObject(...)` for `optimisticDelete`/`optimistic` (lines
+   239-256) still has no revert path in the `catch` block or caller's error
+   branch.
 
-No new findings this session (re-verification pass only, no fresh angle explored
-given the 40+ session static `src/` and the instruction to produce drafts directly
-rather than continue open-ended exploration). Did not re-run `vue-tsc`/`eslint` this
-pass (no `src/` diff since last clean run, session 57).
+Additional checks this session (new angle, still no new finding): ran
+`npx eslint src` (the actual `package.json` `lint` script target) — clean, zero
+errors. (Note: running `npx eslint .` including `demo/` — not part of the lint
+script — surfaces ~395 pre-existing `demo/` errors, mostly
+`vue/require-typed-ref`/`vue/prefer-true-attribute-shorthand`; these are outside
+the enforced `lint` script's scope and the demo app isn't in the library's own
+coverage/lint gate, so not treated as a new finding — flagging here only so a
+future session doesn't rediscover it as "395 lint errors" without this context.)
+
+No new findings this session — re-verification pass only, given 41+ session
+static `src/` and diminishing returns from further static/grep analysis against
+an unchanging tree.
 
 **Recommendation for next dispatch:** (1) the 4 drafts below are ready to card
 verbatim the moment real `issue_create` access is available — check `issue_list`
 across Review/ToDo/In Progress first in case the orchestrator already created some
 from this or a prior handoff; (2) per `project_danx_ui_backlog_bottleneck`, the
-primary lever remaining is triage/dispatch of the ~85+ already-Carded Review-status
-items, not additional idea generation; (3) `src/` has now been static for 40+
+primary lever remaining is triage/dispatch of the ~90+ already-Carded Review-status
+items, not additional idea generation; (3) `src/` has now been static for 41+
 sessions — worth confirming with the user whether active development on danx-ui has
 paused, since further static/grep bug-hunting against an unchanging tree has
 materially diminishing returns; recommend spacing out future ideator dispatches
-until the Review queue drains or `src/` moves again.
+until the Review queue drains or `src/` moves again; (4) if `demo/` is ever brought
+into scope for lint enforcement, note the ~395 `eslint .`-only errors found this
+session (not currently gated, not carded).
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
 1. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
-   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (8 sessions).
+   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (9 sessions).
 2. **Bug** — `onConfirmAction`'s optimistic update/delete has no rollback on action
    failure (`shared/actions.ts`). ICE 245 (7×7×5). Re-confirmed live, unchanged since
    session 57.
