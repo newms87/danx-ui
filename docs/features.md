@@ -91,6 +91,7 @@ coverage gate enforced via /flow-verify.
 | DanxPopconfirm | Missing | Inline confirm popover for destructive actions. |
 | DanxNumberInput | Missing | DXUI-26. DanxInput type=number exposes only native browser spinners; no visible +/- stepper, clamp-on-blur, hold-to-repeat, or decimal-safe stepping. |
 | README docs index | Incomplete | DXUI-25. `docs/` has 34 md files; README "Documentation" links only 3. ~30 component docs undiscoverable from the published package. |
+| No docs page for DanxSelect / DanxInput / DanxTextarea / DanxFieldWrapper | Incomplete | Session 47, new find. `docs/` has 34 `.md` files covering toggle, range-slider, color-picker, chip, etc., but grep-confirmed ZERO doc page and ZERO mention anywhere in `docs/` (including `getting-started.md`) for `DanxSelect`, `DanxInput`, `DanxTextarea`, or `DanxFieldWrapper` — the core text/select/textarea form primitives and the wrapper every form field composes (`useFormField` infra). Distinct from DXUI-25 (README links only 3/34 EXISTING docs) — this is 4 doc FILES that don't exist at all, for widely-used components, not a linking gap. |
 | CHANGELOG | Missing | DXUI-27. Published npm lib v0.8.17 with 20 entry points and publish:* scripts, but no CHANGELOG/release notes for consumers. |
 | DanxDatePicker | Missing | date/datetime/range. Large gap; luxon already a peer dep. |
 | useDragAndDrop (reorder) | Missing | List reordering composable + drag handle. |
@@ -255,6 +256,7 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 | Add keyboard support to `DanxScroll`/`DanxVirtualScroll` (focusable viewport + scrollbar thumb keyboard control) | Drafted this session (Bug/a11y) | 288 (6×8×6) | Session 41 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Add `tabindex="0"` (when content overflows) + `role="region"`/`aria-label` (or accept a consumer-supplied label) to the viewport, with a `@keydown` handler for ArrowUp/Down/Left/Right/PageUp/PageDown/Home/End calling the same `setScrollPos`-style logic `useDanxScroll.ts` already has for drag/click-to-jump; add `role="scrollbar"` + `aria-valuenow/min/max` + arrow-key handlers to the thumb divs, mirroring the codebase's own proven `role="slider"` pattern in `color-picker/DanxColorPickerPanel.vue`. I:6 (keyboard-only users cannot scroll ANY `DanxScroll`/`DanxVirtualScroll` consumer today without an incidental focusable descendant — a foundational, widely-used container, not a niche widget) C:8 (root cause fully grounded via grep — zero tabindex/role anywhere in `scroll/` — and the fix pattern is proven elsewhere in this same codebase) E:6 (touches `DanxScroll.vue` + `useDanxScroll.ts`, possibly `DanxVirtualScroll.vue`; needs keydown wiring + tests, a few files). |
 | Fix `DanxEditableDiv`'s `contenteditable="plaintext-only"` lacking a feature-detection fallback | Drafted this session (Bug) | 175 (5×5×7) | Session 41 fresh find, NOT YET CARDED. Add a small feature-detect (try setting `el.contentEditable = "plaintext-only"` then read it back, or `CSS.supports`) once on mount/setup and fall back to `contenteditable="true"` (keeping the existing single-line `handlePaste` sanitizer as the safety net) when unsupported, instead of relying on the browser's spec-mandated `"inherit"` invalid-value fallback which silently makes the whole surface non-editable. I:5 (narrow but severe when hit — total, silent feature failure rather than degraded UX, in a widely-reused core primitive) C:5 (failure mode is spec-grounded and clear, but current real-world browser-support coverage for `plaintext-only` is a genuine unknown — likely improving over time, so actual user impact today is uncertain) E:7 (small, isolated fix — one feature-detect + fallback branch in `DanxEditableDiv.vue`, plus a test forcing the unsupported path). |
 | `markdown-editor`'s LinkPopover/`linkDomUtils.ts` let a user set an anchor's `href` to a `javascript:` URI with no validation | Incomplete (Bug/security) | Session 36, new find. `linkDomUtils.ts`'s `createLinkElement()` (line 50-56) and `completeEditLink()` (line 30-45) call `link.setAttribute("href", url.trim())` directly on whatever string the user typed into `LinkPopover.vue`'s URL `<input>` (`LinkPopover.vue` read in full — no `type="url"`, no scheme check, `onSubmit` at line 82-86 just trims and emits the raw string) or into the `window.prompt` fallback path in `linkPopoverHandlers.ts` (lines 52/94/134, used when `onShowLinkPopover` isn't wired). A user (or paste/import flow) can create a live, clickable `<a href="javascript:...">` directly inside the WYSIWYG editor's `contenteditable` surface, which is then rendered via `v-html="html"` in `MarkdownEditorContent.vue:130` and round-tripped through `useMarkdownSync.ts`'s HTML↔Markdown conversion — meaning a malicious link typed once in the editor can also get exported as markdown and re-rendered elsewhere (compounding with the `shared/markdown` finding above). Same root cause class (no URL-scheme allowlist before use as `href`) but a different file/component (interactive editor vs. the markdown render library) — recommend fixing with a small shared `isSafeUrl(url)` helper (allowlist `http:`, `https:`, `mailto:`, `tel:`, relative/`#`/no-scheme) reused by both this editor path and the `shared/markdown` renderer. |
+| Write docs pages for DanxSelect, DanxInput, DanxTextarea, DanxFieldWrapper | Drafted this session (Maintenance) | 288 (6×8×6) | Session 47 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). See Section 1 row above. Add `docs/select.md`, `docs/input.md`, `docs/textarea.md`, `docs/field-wrapper.md` following the established doc-page format (props table, events, slots, usage examples — mirror `docs/toggle.md`/`docs/range-slider.md` structure) documenting `DanxSelectProps`/`DanxInputProps`/`DanxTextareaProps`/`DanxFieldWrapperProps` from `src/components/{select,input,textarea,field-wrapper}/types.ts`, and add all 4 to README's docs index alongside DXUI-25's fix. I:6 (these are the most commonly reached-for form primitives in any consumer app — a new consumer literally cannot find usage docs for basic text/select inputs today) C:8 (doc-page format/structure is an established, proven pattern across 34 existing pages; content is a straightforward prop/event/slot transcription) E:6 (4 new doc files, half-day, no code changes — purely additive docs work). |
 | CodeViewer hardcodes Tailwind gray/red text colors instead of using its own token system | Incomplete (Bug/theming) | Session 45, new find. `code-viewer-tokens.css` defines a full dark/light (`.theme-light`) token pair for `--dx-code-viewer-collapsed-text`, `--dx-code-viewer-content-text`, `--dx-code-viewer-footer-bg`, etc., but never defines a footer-text or collapse-toggle-text token. As a result 3 files hardcode raw Tailwind utility classes instead of a token: `CodeViewerFooter.vue:58` (`text-red-400`/`text-gray-500`), `CodeViewerFooter.vue:75` (`text-gray-500 hover:text-gray-700`), `CodeViewer.vue:242` (`text-gray-500 hover:text-gray-300`), and `CodeViewerCollapsed.vue:57` (`text-gray-500`). Grep-confirmed (`grep -rln "text-gray-\|bg-gray-\|border-gray-\|text-red-\|bg-red-\|text-blue-\|bg-blue-\|text-green-\|bg-green-" src --include="*.vue"`) these 3 code-viewer files plus `MarkdownEditorFooter.vue` (already tracked, session 37) are the ONLY 4 files in the entire codebase with this anti-pattern — code-viewer's instance was not previously inventoried. Because these classes are static, they render identically regardless of `.theme-light` — e.g. `CodeViewer.vue`'s `hover:text-gray-300` assumes a dark background (brighten-on-hover) and would be low-contrast against the light theme's white-family background once a consumer applies `.theme-light`. Distinct from the session-37 MarkdownEditorFooter finding (different component, different token file). |
 
 ---
@@ -262,42 +264,41 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 46, cardless dispatch — Bash/Read/Edit/Write only, no
+**2026-07-11 (session 47, cardless dispatch — Bash/Read/Edit/Write only, no
 `mcp__danx_dashboard__*` tools per launch prompt; orchestrator handles dedup/issue_create)** —
 Ran from the isolated sandbox worktree (no repo checkout there, only `.claude/` config) but
 read/wrote this canonical checkout at `/home/newms/web/danx-ui` directly.
 
-Re-verified reality: `git log -3 --oneline` / `git log -1 -- package.json` / `git log -1 --
-src/` all still bottom out at `6524fa1` (v0.8.17); HEAD is `5421ee4` (session 45's docs-only
-commit) — **`src/` (and `package.json`) unchanged for 29+ consecutive sessions.**
+Re-verified reality: `git log -1 --oneline` = `4186f78` (session 46's docs-only commit);
+`git log -1 -- src/` / `git log -1 -- package.json` still bottom out at `6524fa1` (v0.8.17) —
+**`src/` (and `package.json`) unchanged for 30+ consecutive sessions.**
 
-**This session's approach:** per the launch prompt, explicitly avoided re-sweeping
-`src/components`/`src/shared`. Targeted: (1) `scripts/publish.sh` full read — publish/release
-tooling, nothing new (overlaps DXUI-27); (2) `package.json` scripts + full dependency/peerDep/
-sideEffects/exports fields read directly; (3) docs-vs-types spot check on `color-picker.md`
-(full field-by-field diff against `color-picker/types.ts` — clean, no drift) and `toast.md`
-vs `toast/types.ts` (clean, matches known DXUI-51 gap, no new drift); (4) `vitest.config.ts`
-coverage config read in full (branches threshold is 85% not 100%, but documented/intentional
-re: Vue SFC template coverage limitations — not a new finding); (5) `vite.config.ts` full
-read, cross-checked against the actual built `dist/` output; (6) `docs/superpowers/` —
-one internal design-spec doc, not a product gap; (7) `demo/` directory listing — matches
-existing DXUI-33 inventory, nothing new; (8) `.gitignore` read, nothing notable.
+**This session's approach:** per the launch prompt's explicit saturation-avoidance
+instructions, did NOT re-sweep `src/components`/`src/shared` source code. Targeted: (1)
+`tsconfig.json` + `eslint.config.js` full reads — standard config, nothing new; (2) test-file
+sweep across all 200 `*.test.ts` files for skip/todo markers, trivial/tautological assertions,
+and stray `console.log`/`console.debug` — found only false positives (a `grep "xit("` hit was
+a substring match inside `handleCodeBlockExit(`, not an actual `xit`; the 2 real
+`console.log`s in `src/components/scroll/` are intentional, prop-gated `debug` output, not
+leftover debugging); (3) doc-page inventory cross-check: compared the 23 components under
+`src/components/` against the 34 files in `docs/` by component name — **found DanxSelect,
+DanxInput, DanxTextarea, and DanxFieldWrapper have NO doc page at all** (grep-confirmed zero
+mentions anywhere in `docs/`, including `getting-started.md`), a genuinely fresh finding
+distinct from the already-carded DXUI-25 (which is about README not linking 3/34 EXISTING
+docs — this is about 4 doc files that don't exist); (4) spot-checked `package.json`'s
+`exports` map to confirm select/input/textarea/field-wrapper are also among DXUI-29's already-
+tracked 23 missing subpath exports (not a new finding, just confirms overlap); (5) briefly
+scanned `demo/` file sizes looking for an entry point to spot-check for bugs, but with 269
+files and a low per-file hit-rate in prior sessions' broader demo review, did not do a full
+demo-code read this session — flagging as still-thin ground for a future session with more
+budget.
 
-**One finding this session — a correction to an already-carded issue, not a new gap.**
-DXUI-39 (dist/node_modules bundled-deps bug) currently claims `danx-icon` "is ALSO a hard
-runtime `dependencies` entry (package.json:129) — a SECOND zero-dep violation... should be
-devDep." Verified directly against the live `package.json`: `danx-icon` is at line 129 but
-INSIDE `devDependencies`, not `dependencies` (only `yaml` is under `dependencies`). This
-sub-claim is factually wrong as currently worded in the card. The broader bundling problem
-DXUI-39 describes IS still real and confirmed present in the built `dist/` (`du -sh
-dist/node_modules/danx-icon` = 408K, `dist/node_modules/yaml` = 972K, both non-external in
-`vite.config.ts`'s `rollupOptions.external`) — `preserveModules` still emits a module per
-resolved `?raw`-import id even from a devDependency, so the fix (externalize/inline the SVG
-imports) is unaffected. Only the "should be devDep, currently isn't" framing is wrong and
-should be dropped/corrected when DXUI-39 is picked up for implementation, to avoid an
-implementer wasting time looking for a dependencies-section entry that doesn't exist.
-Recorded as a correction note on DXUI-39's Section-1 inventory row (not filed as a new
-card — nothing to card here, just a description-accuracy fix for whoever dispatches DXUI-39).
+**One new grounded finding this session, drafted below** (see Section 1 "No docs page for
+DanxSelect / DanxInput / DanxTextarea / DanxFieldWrapper" and Section 2 "Write docs pages for
+DanxSelect, DanxInput, DanxTextarea, DanxFieldWrapper", ICE 288 = 6×8×6). This is real,
+verified via grep + directory diff, and not a duplicate of any Review/ToDo/In-Progress card
+this dispatch could locate in `docs/features.md`'s history (no `issue_list` access this
+dispatch — orchestrator must dedupe against the live board before creating).
 
 **Still-undispatched drafts from sessions 40/41/45** (re-forwarded, not independently
 re-verified again this session): "Fix `autoRefreshObject` permanently stopping polling on
@@ -307,15 +308,19 @@ callback error/malformed response" (320, Bug), "Fix `useActionRoutes` never call
 lacking a feature-detection fallback" (175, Bug), "Fix CodeViewer hardcoded Tailwind gray/red
 text colors" (256, Bug/Maintenance, session 45).
 
-**Honest assessment:** Zero new feature/bug findings this session — only a factual correction
-to an existing card's description. `src/` and `package.json` are both unchanged after 29+
-sessions; every genuinely fresh angle attempted this session (release scripts, package
-metadata fields, docs-vs-types drift spot checks, coverage/build config, demo structure)
-came back clean or re-confirmed prior work. This concurs strongly with sessions 42-45's
-assessment: the repo is saturated for ideation. The remaining unswept ground is now thin
-enough that sessions are spending most of their budget confirming absence-of-findings rather
-than surfacing anything actionable. Recommend the operator shift fully to triage/dispatch of
-the ~80+ Review-status backlog (per `project_danx_ui_backlog_bottleneck` memory note — 0%
-ever dispatched to ToDo/In Progress) rather than continuing ideation sessions on this repo.
-Only resume ideation here once `src/` actually changes (a real code change lands) or the
-backlog is meaningfully worked down.
+**Honest assessment:** One new, genuinely fresh, well-grounded finding this session (missing
+docs pages for 4 core form components) — the deliberate pivot away from re-sweeping
+`src/components`/`src/shared` toward docs-inventory diffing paid off where session 46's
+narrower docs-vs-types spot checks (color-picker.md, toast.md) had come back clean. This
+does NOT overturn the standing saturation conclusion for `src/` itself (still unchanged 30+
+sessions) — it suggests the remaining unswept surface is specifically in docs/demo/tooling
+completeness rather than source-code bugs, which is a narrower and thinner vein than `src/`
+ever was. Recommend: (1) the operator create the one new draft above plus the 5 still-
+undispatched drafts from prior sessions if not already on the live board; (2) continue
+prioritizing triage/dispatch of the ~80+ Review-status backlog (per
+`project_danx_ui_backlog_bottleneck` memory note) over further ideation sessions on this
+repo — idea supply, while not fully zero, is now producing at most ~1 finding per session
+on non-`src/` ground, an order of magnitude below what triaging the existing backlog would
+unlock; (3) a future session with more time budget could still attempt a genuine `demo/`
+(269 files) code-bug sweep, which this session only partially scoped due to low expected
+hit-rate vs. effort.
