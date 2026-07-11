@@ -215,88 +215,97 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Add copy-to-clipboard button to CodeViewer footer | Drafted this session (Valuable) | 384 (6×8×8) | Session 32 fresh find, NOT YET CARDED (no MCP tool access this dispatch). Add a copy icon-button to `CodeViewerFooter.vue`'s actions area, wired to a small `navigator.clipboard.writeText` helper (with `document.execCommand('copy')` fallback for non-secure contexts) that copies the current displayed code content; brief "Copied!" tooltip/icon-swap feedback. I:6 (extremely common, expected default UX for any code display; no current workaround except consumer-built via the `actions` slot) C:8 (trivial, well-understood Clipboard API, no ambiguity in approach) E:8 (single component + tiny helper, isolated to `code-viewer/`, no cross-cutting changes). Highest-ICE new finding this session. |
 | DanxContextMenu arrow-key navigation + role="menu"/"menuitem" | Drafted this session (Bug/a11y) | 288 (6×8×6) | Session 32 fresh find, NOT YET CARDED. Add `role="menu"` to the panel + `role="menuitem"` per item, a roving-tabindex model (only the active/first item is `tabindex="0"`, rest `-1`), and `@keydown` handling for ArrowUp/ArrowDown (move focus within the current list), ArrowRight (open+enter submenu), ArrowLeft (close submenu, return focus to parent), Home/End (jump to first/last item) — mirroring the existing `DanxSelect` listbox keyboard pattern (`DanxSelect.vue:264,331,343`). I:6 (core interactive widget, used directly and via `markdown-editor/MarkdownEditor.vue`'s table/text context menu; currently only Tab-per-item + native button Enter/Space works, no proper menu semantics for AT users) C:8 (proven in-codebase pattern to copy from Select) E:6 (isolated to `DanxContextMenu.vue` + `types.ts`, moderate care needed for the submenu nesting + existing hover-open timers). |
 | DanxFileExplorer tree arrow-key navigation (roving tabindex) | Drafted this session (Bug/a11y) | 252 (6×7×6) | Session 32 fresh find, NOT YET CARDED. Replace `FileExplorerNode.vue`'s per-node `tabindex="0"` with a roving-tabindex model driven by `DanxFileExplorer`'s existing flattened `explorer.visibleNodes` computed (`DanxFileExplorer.vue:130`), and add `@keydown` for ArrowDown/ArrowUp (move focus to next/prev visible row), ArrowRight (expand folder or move into first child), ArrowLeft (collapse folder or move to parent), Home/End (jump to first/last visible row) — per the WAI-ARIA APG Tree View pattern the component's own `role="tree"`/`role="treeitem"` already advertise. I:6 (keyboard users must currently Tab once per row to traverse a tree of any size; AT announces tree semantics the widget doesn't fully support) C:7 (well-understood roving-tabindex/tree-nav pattern, but the recursive `FileExplorerNode` component structure needs the focus-management logic centralized in `useFileExplorer.ts`/the provided context rather than each node managing its own) E:6 (touches `FileExplorerNode.vue` + `useFileExplorer.ts`, no template/visual changes). Distinct from DXUI-47 (separate, still-Missing generic `DanxTreeView` for arbitrary data). |
+| DanxToast auto-dismiss timer doesn't pause on keyboard focus | Drafted this session (Bug/a11y) | 320 (5×8×8) | Session 33 fresh find, NOT YET CARDED. `DanxToast.vue:95` wires `@mouseenter="pause" @mouseleave="resume"` only — grep-confirmed zero `focusin`/`focusout` on `.danx-toast` root. A keyboard user tabbing toward the toast's close button (`entry.dismissible`, line 107-114) gets no pause; the toast can auto-dismiss out from under them mid-navigation. WCAG 2.2.1 (Timing Adjustable) gap, distinct from the already-carded DXUI-34 (aria-live announcement — a different axis: hearing vs. having time to act). I:5 (affects keyboard-only users interacting with any dismissible/actionable toast) C:8 (root cause fully understood, mirrors the existing mouseenter/leave wiring exactly) E:8 (one-line handler addition to a single component + a test). |
+| DanxIcon renders arbitrary strings via unsanitized innerHTML | Drafted this session (Bug/security) | 294 (6×7×7) | Session 33 fresh find, NOT YET CARDED. `DanxIcon.vue:55-57`: `const svg = iconRegistry[props.icon as IconName] ?? props.icon; return { render: () => h("span", { innerHTML: svg }) };` — any string that isn't a recognized icon-registry key is injected via `innerHTML` with ZERO validation that it's even an `<svg>`, no `<script>`/`on*`-attribute stripping. Equivalent to unguarded `v-html`. DanxIcon is consumed by nearly every other component (chip, badge, tabs, button-group, alert, toast, tooltip, dialog...) so any consumer deriving `icon` from user/CMS/API data has an XSS vector. Inconsistent with the codebase's own security posture elsewhere — `shared/markdown/` defaults `sanitize: true` (`shared/markdown/index.ts:79`) and ships `shared/escapeHtml.ts` specifically to prevent this. Grep-confirmed: zero `sanitiz`/`DOMPurify` references anywhere near `icon/`. I:6 (real XSS class in a component used everywhere, though exploitability depends on a consumer passing untrusted data as `icon`) C:7 (clear fix — validate `<svg>` root + strip script/event-handler attrs, small design call on strictness) E:7 (isolated to `DanxIcon.vue` + a small shared helper). |
+| DanxBadge indicator has no accessible label for screen readers | Drafted this session (Bug/a11y) | 224 (4×7×8) | Session 33 fresh find, NOT YET CARDED. `DanxBadge.vue:150-152` renders the count/label/dot indicator as a bare `<span>{{ displayText }}</span>` with no `aria-label`/sr-only text — grep-confirmed zero `aria-` anywhere in the component. `<DanxBadge :value="5"><DanxButton>Messages</DanxButton></DanxBadge>` announces "Messages" then a context-free "5"; `dot` mode announces nothing at all (`displayText` is empty string for dot), silently dropping the status signal for screen reader users. I:4 (real but narrower than DXUI-19's interactive-widget gaps — Badge is presentation-adjacent, not itself interactive) C:7 (established visually-hidden-text pattern) E:8 (isolated, small prop + template addition). |
+| MarkdownEditor has no explicit paste handling/normalization | Exploratory (not carded, lower confidence) | 120 (6×5×4) | Session 33 fresh find. Grep-confirmed zero `paste`/`clipboardData` references anywhere in `markdown-editor/*.ts`/`*.vue` (`MarkdownEditorContent.vue` is a plain `contenteditable` div, line 124). Pasting from Word/Google Docs/a web page relies entirely on the browser's default rich-paste-into-contenteditable behavior, then `useMarkdownSync.ts`'s `syncFromHtml`/`htmlToMarkdown` (designed to round-trip the editor's OWN generated markup) tries to convert whatever the browser inserted — no explicit interception/normalization/plain-text fallback, and pasted images are silently dropped (no upload wiring). Real, common WYSIWYG-editor friction point, but I (6, common complaint) × C (5, approach genuinely uncertain — strip-all vs. selective-preserve vs. image-upload-on-paste needs a product decision) × E (4, touches paste event + HTML normalization + possibly image upload, multi-file) keeps this below the current card threshold; needs requirement-gathering before carding as a Feature. |
 
 ---
 
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 32, drafts-only dispatch — explicitly told this dispatch has NO
-`mcp__danx_dashboard__*` tool access; Bash/Read/Edit/Write only)** — Dispatched into the isolated
+**2026-07-11 (session 33, drafts-only dispatch — no `mcp__danx_dashboard__*` tools exposed to this
+agent's toolset; Bash/Read/Edit/Write only)** — Dispatched into the isolated
 `danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo checkout there). Read/wrote the
 canonical checkout at `/home/newms/web/danx-ui` directly, per orchestrator instruction.
 
-Re-verified reality (15th+ consecutive confirming session):
+Re-verified reality (16th+ consecutive confirming session):
 - `git log --oneline -3 -- src/ package.json`: still tip `6524fa1` (v0.8.17, 2026-06-25) — no
   `src/` change since. `ls src/components` still 31 dirs, matches Section 1 inventory.
-- No dashboard/API access this session (no MCP tools) — could not re-check live card counts/status
-  in Review/ToDo/In Progress; orchestrator is responsible for dedup + creation this round.
+- No dashboard/API access this session — could not re-check live card counts/status in
+  Review/ToDo/In Progress; orchestrator is responsible for dedup + creation this round.
 
-**New ground covered this session:** per session 31's own recommendation, deep-dived the previously
-only-lightly-grepped dirs: `context-menu/` (`DanxContextMenu.vue` full read + its test file),
-`file-explorer/` (`FileExplorerNode.vue`, `DanxFileExplorer.vue`, `useFileExplorer.ts` — grepped),
-`code-viewer/` (`CodeViewerFooter.vue` full read + grepped the rest of the dir), `select/`
-(`DanxSelect.vue` grepped as the a11y pattern baseline/reference), `danx-file-upload/`
-(`DanxFileUploadDropZone.vue` full read — confirmed no new finding beyond the already-drafted
-session-28 paste-to-upload item). Found 3 new, grounded findings (added to Section 1 gaps table +
-Section 2 scratchpad):
-1. `DanxContextMenu.vue` (full read, 282 lines) renders items as plain `<button>`s with
-   click/mouseenter/mouseleave only — grep-confirmed zero arrow-key handling and zero
-   `role="menu"`/`role="menuitem"` in the component or its test file. Only Escape-to-close works
-   (inherited free from `DanxPopover`'s `useEscapeKey`); the test file's own "Enter" test
-   (`DanxContextMenu.test.ts:564-570`) only asserts Enter does NOT close, not that it navigates.
-   `DanxSelect` already models the correct arrow-key/`role="listbox"` pattern
-   (`DanxSelect.vue:264,331,343`) this should mirror. Also affects `markdown-editor/MarkdownEditor.vue`,
-   the only other consumer of `DanxContextMenu` (its right-click table/text-formatting menu).
-   ICE 288 (6×8×6), Bug/a11y.
-2. `FileExplorerNode.vue:87-94` sets `role="treeitem"` + full aria-expanded/selected/disabled and
-   Enter/Space activation, but EVERY node gets `tabindex="0"` unconditionally (no roving tabindex) and
-   grep-confirmed zero ArrowUp/Down/Left/Right/Home/End handling anywhere in `file-explorer/`. Per the
-   WAI-ARIA APG Tree View pattern the component's own `role="tree"` already implies, a keyboard user
-   must currently Tab once per row to traverse any tree. `DanxFileExplorer.vue:130`'s existing
-   `explorer.visibleNodes` flattened computed is the natural backing list for roving focus. Distinct
-   from DXUI-47 (separate, still-Missing generic `DanxTreeView`). ICE 252 (6×7×6), Bug/a11y.
-3. `CodeViewerFooter.vue` (full read) + grep of the whole `code-viewer/` dir confirms ZERO
-   copy-to-clipboard code anywhere — only a char-count display, a consumer `actions` slot, and an edit
-   toggle. A code viewer with no built-in copy button is a real, common-expectation gap (GitHub/MDN/
-   Stack Overflow all ship one by default). Related to but distinct from `useClipboard` (DXUI-12,
-   still Missing) — that item extracts EXISTING ad-hoc copy code from editable-div/code-viewer, but
-   code-viewer has no copy code to extract; this is net-new UI, ideally sequenced after DXUI-12 ships.
-   ICE 384 (6×8×8) — highest-ICE new finding this session.
+**New ground covered this session:** per session 32's own recommendation, deep-dived the previously
+never-deep-dived dirs: `dialog/` (`DanxDialog.vue`, `useDialog.ts`, `useDialogStack.ts`,
+`DialogBreadcrumbs.vue` — all read in full), `toast/` (`DanxToast.vue`, `DanxToastContainer.vue`,
+`DanxToastTargetRegion.vue`, `useToast.ts`, `useToastTimer.ts` — all read in full), `tooltip/`
+(`DanxTooltip.vue`, `useTooltipInteraction.ts` — read in full), `tabs/` (`DanxTabs.vue`),
+`buttonGroup/` (`DanxButtonGroup.vue`), `badge/` (`DanxBadge.vue`), `icon/` (`DanxIcon.vue`),
+`alert/` (`DanxAlert.vue`), `chip/` (`DanxChip.vue`), plus a targeted grep pass over
+`markdown-editor/` for paste/clipboard handling. Found 4 new grounded findings + 1 lower-confidence
+exploratory note (added to Section 1 gaps table + Section 2 scratchpad):
 
-Ruled out as non-gaps after inspection: `DanxSelect.vue` keyboard/listbox wiring (fully correct,
-used above as the reference pattern the two new findings are measured against);
-`DanxFileUploadDropZone.vue` (purely presentational drag-drop event forwarding, correctly
-`event.preventDefault()`-guarded; confirmed the drop zone has no paste handling either, but that's
-already the session-28 draft, not new ground).
+1. `DanxToast.vue:95` wires `@mouseenter="pause" @mouseleave="resume"` only — zero
+   `focusin`/`focusout` handlers on the root. A keyboard user tabbing toward the dismiss button
+   (line 107-114) gets no pause; the toast can auto-dismiss mid-navigation. WCAG 2.2.1 gap, distinct
+   from the already-carded DXUI-34 (aria-live is about *hearing* the toast; this is about *having
+   time to act* on it). ICE 320 (5×8×8) — highest-ICE new finding this session.
+2. `DanxIcon.vue:55-57`: any `icon` string not in the built-in registry is injected via
+   `h("span", { innerHTML: svg })` with zero validation/sanitization — equivalent to unguarded
+   `v-html`. DanxIcon is consumed by nearly every other component, so any consumer deriving `icon`
+   from user/CMS/API data has an XSS vector. Inconsistent with `shared/markdown/`'s own
+   `sanitize: true` default + `shared/escapeHtml.ts` precedent. ICE 294 (6×7×7), Bug/security.
+3. `DanxBadge.vue:150-152` renders the indicator as a bare `<span>{{ displayText }}</span>` with
+   zero `aria-`/sr-only text — grep-confirmed. Count mode announces a context-free number; dot mode
+   announces nothing at all. ICE 224 (4×7×8), Bug/a11y.
+4. `markdown-editor/` has zero `paste`/`clipboardData` references anywhere (grep-confirmed) —
+   `MarkdownEditorContent.vue:124` is a plain `contenteditable`, so paste relies entirely on browser
+   default rich-paste + `useMarkdownSync.ts`'s `htmlToMarkdown` (built to round-trip the editor's OWN
+   markup, not arbitrary third-party HTML). Pasted images are silently dropped. Real friction but
+   genuinely uncertain approach (strip-all vs. selective-preserve vs. image-upload-on-paste needs a
+   product decision) — kept Exploratory, ICE 120 (6×5×4), below current card threshold.
 
-**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): 3 new items — (1)
-CodeViewer copy-to-clipboard button, ICE 384, Feature/Valuable, highest-ICE new finding this session,
-small/isolated/high-confidence; (2) DanxContextMenu arrow-key nav + role=menu/menuitem, ICE 288,
-Bug/a11y, proven pattern to copy from Select; (3) DanxFileExplorer tree arrow-key nav (roving
-tabindex), ICE 252, Bug/a11y, distinct from the still-uncarded generic-TreeView idea (DXUI-47). All
-three are genuinely new, grounded in previously-unscrutinized `context-menu/`, `file-explorer/`, and
-`code-viewer/` files, and distinct from all prior undispatched drafts (sessions 28-31, 11 items, still
-not confirmed as cards per this file — no dashboard access this session to check).
+Ruled out as non-gaps after inspection: `DanxAlert.vue` (already correctly wires
+`role="alert"`/`role="status"` per variant — this is the reference pattern DXUI-34's toast fix should
+copy); `DialogBreadcrumbs.vue`/`useDialogStack.ts` (correct `aria-current="step"` +
+`aria-label="Dialog navigation"`, no gap found); `DanxTooltip`/`useTooltipInteraction.ts` (hover/
+click/focus modes all correctly implemented and cleaned up on unmount — the only gap is the
+already-carded DXUI-19 `role="tooltip"` absence, not a new finding); `DanxChip.vue` (tooltip
+integration, removable button, auto-color all correctly wired, no new gap).
 
-**Primary finding (still holds, now 15th+ consecutive confirmation):** idea supply is not the
-bottleneck — `src/` has been static for 2.5+ weeks across 15+ sessions while the board has
-accumulated 14 total undispatched drafts across sessions 28-32 with no dashboard access to create
+**Drafts handed to orchestrator this session** (cannot call `issue_create` itself — no MCP tools
+exposed): 3 new cards recommended — (1) DanxToast pause-on-focus, ICE 320, Bug/a11y, smallest/most-
+certain fix; (2) DanxIcon unsanitized innerHTML, ICE 294, Bug/security, real XSS-class gap in a
+pervasively-used component; (3) DanxBadge accessible label, ICE 224, Bug/a11y. A 4th
+(markdown-editor paste normalization, ICE 120) is noted but left Exploratory pending product
+requirements — not recommended for immediate carding. All four are genuinely new, grounded in
+previously-unscrutinized `toast/`, `icon/`, `badge/`, and `markdown-editor/` files, and distinct from
+all prior undispatched drafts (sessions 28-32, 14 items, still not confirmed as cards per this file —
+no dashboard access this session to check).
+
+**Primary finding (still holds, now 16th+ consecutive confirmation):** idea supply is not the
+bottleneck — `src/` has been static for 2.5+ weeks across 16+ sessions while the board has
+accumulated 17 total undispatched drafts across sessions 28-33 with no dashboard access to create
 them. Recommend the orchestrator (which does have dashboard access): (1) run `issue_list` across
-Review/ToDo/In Progress to dedup against ALL 14 drafts on file (not just this session's 3), (2) create
-cards for the highest-ICE outstanding drafts first — this session's CodeViewer copy button (384) and
-session 30's useActionStore try/finally fix (486, still highest-ICE draft on file) are the smallest,
-most-certain, highest-value fixes to prioritize, (3) separately confirm whether the existing large
-Review backlog is being triaged into ToDo/In Progress at all, since that — not new idea supply —
-remains the actual bottleneck this codebase faces.
+Review/ToDo/In Progress to dedup against ALL 17 drafts on file (not just this session's 3), (2) create
+cards for the highest-ICE outstanding drafts first — session 30's useActionStore try/finally fix (486,
+still highest-ICE draft on file), this session's DanxToast focus-pause (320), and session 32's
+CodeViewer copy button (384) are the smallest, most-certain, highest-value fixes to prioritize,
+(3) separately confirm whether the existing large Review backlog is being triaged into ToDo/In
+Progress at all, since that — not new idea supply — remains the actual bottleneck this codebase
+faces.
 
 **Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, run
 `issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then create cards for the now
-14 outstanding drafts (sessions 28-31's 11 + this session's 3 — none confirmed as cards yet in this
+17 outstanding drafts (sessions 28-32's 14 + this session's 3 — none confirmed as cards yet in this
 file). (2) If `src/` is still unchanged, remaining unscrutinized ground: `markdown-editor/` (huge,
-~50 files, only ever grepped for hotkey-help/context-menu-reuse patterns — never read end-to-end),
-`dialog/useDialogStack.ts` + `DialogBreadcrumbs.vue` (grepped for focus-trap only, not read in full),
-`toast/` internals beyond the already-carded aria-live gap (DXUI-34), `tooltip/`, `tabs/`,
-`buttonGroup/`, `badge/`, `icon/` (none deep-dived yet in 32 sessions) — before re-treading the
-extensively-covered `shared/`, `zoomable/`, `split-panel/`, `color-picker/`, `scroll/`,
-`danx-file-viewer/`, `editable-div/`, `select/`, `context-menu/`, `file-explorer/`, `code-viewer/`.
+~50 files, only ever grepped, never read end-to-end — deep-dive `LinkPopover.vue`, `TablePopover.vue`,
+`useTables.ts`, `useCodeBlockManager.ts`), `button/`, `danx-file/`, `danx-file-upload/`,
+`field-wrapper/`, `input/`, `popover/` (only `usePopoverPositioning`/`useClickOutside` grepped as
+cross-component deps, never read as a standalone feature surface), `progress-bar/`, `range-slider/`,
+`select/` (only grepped as the a11y reference baseline, never read end-to-end for its OWN gaps),
+`skeleton/`, `textarea/`, `toggle/` — before re-treading the extensively-covered `shared/`,
+`zoomable/`, `split-panel/`, `color-picker/`, `scroll/`, `danx-file-viewer/`, `editable-div/`,
+`context-menu/`, `file-explorer/`, `code-viewer/`, `dialog/`, `toast/`, `tooltip/`, `tabs/`,
+`buttonGroup/`, `badge/`, `icon/`, `alert/`, `chip/`.
