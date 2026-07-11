@@ -190,98 +190,39 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 18)** — Ideator pass on danx-ui (scope: repo), dispatched from an isolated
-worktree (`danx-ui__danx-ui-main__ideator__ideator__cardless`, no `.git` there). Verified reality first:
-`git log --oneline -3 -- src/ package.json` in the canonical repo (`/danxbot/app/repos/danx-ui`) still
-shows `7023a67` (DXUI-3 context-menu) as the last `src/` commit; `git diff 7023a67 HEAD -- src/ package.json`
-is empty except the `0.8.16→0.8.17` version bump — identical to sessions 12-17. Board fetch via
-`GET /api/issues?board=danx-ui:danx-ui-main` (curl, Bearer `$DANXBOT_DISPATCH_TOKEN`): still 46 cards
-(DXUI-4..49), **100% status `Review`, 0% dispatched** — same as session 17's own just-recorded count,
-now an 8th+ consecutive session with zero throughput.
+**2026-07-11 (session 19)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
+`danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there — read/wrote the
+canonical checkout at `/danxbot/app/repos/danx-ui` instead, same as sessions 13-18). Verified reality
+independently rather than trusting the isolated worktree's carried-over note:
+- `git log --oneline -3 -- src/ package.json` in the canonical repo: `src/` last touched at `7023a67`
+  (DXUI-3 context-menu); `git diff --stat 7023a67 HEAD -- src/ package.json` shows only the
+  `0.8.16→0.8.17` version bump. No shipped work since — same as sessions 12-18 (9th+ consecutive session).
+- `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN" "$DANXBOT_DASHBOARD_URL/api/issues?board=$DANXBOT_REPO_NAME:$DANXBOT_BOARD_NAME"`:
+  46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched** — confirmed via direct API call, not
+  by trusting the isolated worktree's note.
+- Grep-verified 5 of the most-recently-carded gaps are still genuinely absent from `src/`: `treeview`
+  (DXUI-47), `password.*strength` (DXUI-48), `usebreakpoint|usemediaquery|matchmedia` (DXUI-49), a `kbd`
+  component dir (DXUI-46), and `rating` (DXUI-44, only unrelated substring hits in select/markdown/color
+  utils). All still empty/absent — inventory remains accurate.
 
 **`mcp__danx_dashboard__*` tools were absent from this session's toolset** (only Bash/Read/Edit/Write
-available — confirmed by inspecting the actual tool list, not just by a failed call). Unlike session 17
-(which fell back to raw `curl -d @file.json` POSTs against the dashboard HTTP API to create DXUI-47/48/49),
-this session chose **not** to write via that side channel, matching the reasoning already recorded by the
-immediately-prior dispatch into this same isolated worktree: issue creation is contracted to go through the
-sanctioned MCP tool (which enforces gates like Epic/Feature-requires-children, id assignment, `ac` key
-shape) and a raw HTTP POST bypasses that validation. Session 17 already hit exactly this class of bug once
-(an `ac` key-name mismatch caught only after the fact). Given the board is a fully-saturated, zero-overlap,
-zero-dispatch backlog, manufacturing more cards through an unsanctioned channel trades a known-good, fully
-inventoried set of 46 cards for the risk of injecting malformed/duplicate ones with no verification path.
+declared — confirmed from my own function schema, not inferred from a failed call or from the isolated
+worktree's carried-over note). Per this task's contract, issue creation must go through the sanctioned
+MCP `issue_create` tool; it was not available, so **no cards were created this session**. Consistent with
+session 18's reasoning (and unlike session 17's one-off raw-curl-POST workaround, which hit a schema
+mismatch bug), I chose not to bypass the sanctioned write path via raw HTTP — the board's 46 cards are a
+known-good, deduplicated, ICE-scored, fully-inventoried set; writing through an unvalidated side channel
+risks corrupting that with malformed/duplicate entries with no gate verification.
 
-Ran a fresh independent verification sweep for gaps not covered by any of the 46 live titles or existing
-scratchpad entries, to confirm nothing new needed to be flagged even in read-only form:
-- `command palette` / `commandpalette` — no hits (still gated behind DXUI-8 useHotkeys, as previously noted;
-  not re-carded).
-- `virtual*scroll` — **already implemented** (`src/components/scroll/DanxVirtualScroll.vue` +
-  `useScrollWindow.ts` + `scroll-strategies.ts`, with tests). Not a gap.
-- `focus trap` — dialog (`DanxDialog.vue`) already has focus-trap-style handling per prior session notes on
-  dialog a11y being clean.
-- No genuinely new, uncarded, above-threshold gap found this session.
+**No genuinely new, uncarded, above-ICE-threshold gap found** in this session's targeted grep sweep
+(treeview/password-strength/breakpoints/kbd/rating all re-confirmed as already-carded gaps, not new ones).
+Compacted this Session Log to remove the accumulated session 17+18 entries per the "overwrite each run"
+rule (they had been left stacked instead of replaced).
 
-**No new cards created** (no sanctioned write path available). **No cards drafted** for a future session to
-create verbatim, since the existing Desired-Features scratchpad above already contains 46 carded,
-deduplicated, ICE-scored entries plus a handful of intentionally-not-carded Exploratory items (ImageCropper,
-DanxCalendar, Figma tokens export, RTL/logical-CSS, visual-regression testing, CommandPalette-pending-DXUI-8)
-— nothing in this session's sweep beat those on ICE or novelty.
-
-**Next session:** before doing anything else, (1) confirm whether `mcp__danx_dashboard__*` tools are present
-in the toolset this time — if so, this is the first session able to actually use the sanctioned write path,
-which should also let it check `issue_list({status_derived:'ToDo'})` / `'In Progress'` / `'Done'` properly
-instead of inferring from the HTTP `status` field; (2) re-check `git diff 7023a67 HEAD -- src/` and the board
-counts — if still 0/46+ moved and still no MCP tools, the operationally useful action remains flagging the
-dispatch-velocity bottleneck (not idea supply) rather than adding a 50th+ idle card. The prior session's
-one-off decision to bypass the sanctioned tool via raw curl POST (session 17: DXUI-47/48/49) should not be
-treated as precedent — prefer the MCP tool or, absent it, a no-write read-only pass like this one.
-
-**2026-07-11 (session 17)** — Seventeenth ideator pass on danx-ui (scope: repo). Verified reality first:
-`git diff --stat 7023a67 HEAD -- src/` still empty, `package.json` diff only the 0.8.16→0.8.17 version bump
-(same as sessions 12-16). Fetched the live board via `GET /api/issues?board=danx-ui:danx-ui-main` (Bearer
-`$DANXBOT_DISPATCH_TOKEN` against `$DANXBOT_DASHBOARD_URL`) — 43 cards (DXUI-4..46), ALL still `status:
-Review`, zero dispatched, matching session 16's exact state (0% throughput across 6+ consecutive sessions).
-`mcp__danx_dashboard__*` MCP tools were again absent from this session's toolset; only Bash/Read/Edit/Write
-available, so all reads/writes went through the dashboard HTTP API directly via curl, same as sessions 13-16.
-
-This session's task explicitly required generating 3-5 new cards, so — continuing session 16's approach of
-running fresh independent grep sweeps rather than re-scanning the already-exhausted roadmap doc — checked a
-new batch of candidate gaps not covered by any of the 46 live titles or prior "Exploratory, not carded"
-entries:
-
-- `grep -rli treeview src` → empty. `DanxFileExplorer` exists but is hardcoded to file/folder `FileNode`
-  semantics; no generic hierarchical-data tree component. Genuine, distinct gap.
-- `grep -rli password.*strength\|strength.*meter src` → empty. `DanxInput` password type has a visibility
-  toggle (confirmed via docstring in DanxInput.vue) but zero strength scoring/UI anywhere.
-- `grep -rli usemediaquery\|usebreakpoint\|matchmedia src` → empty. `@vueuse/core` (peer dep) ships
-  `useBreakpoints`/`useMediaQuery` directly but nothing in src wraps it — matches the codebase's own
-  "wrap vueuse, don't hand-roll" precedent (DXUI-8/12/24).
-- Also checked and found genuinely absent but declined (noise or below threshold): `countdown`/`count-up`
-  (only toast-timer/objectStore counter substring noise, same finding as session 16 — still not carded),
-  `qrcode`, `segmented` control (overlaps DanxButtonGroup, not distinct), `cropper`/`imagecrop` (still
-  Exploratory per prior sessions), `tour`/`onboard`/`walkthrough`, `masonry`, `undo`/`redo`/history-stack
-  (only editable-div/split-panel/select/markdown-editor cursor-offset substring hits, no real undo-stack
-  gap — browser-native undo covers textareas/contenteditable today), lazy-image-loading (`DanxFile.vue:162`
-  already uses native `loading="lazy"`, not a gap).
-- **Created 3 new cards** (deduplicated against the live 43-card list; POST body confirmed `ac` items use
-  key `title` not `text`, per session 14+ note; one POST failed on the first attempt due to shell backtick
-  quoting in the description heredoc — fixed by writing the JSON body to a temp file and posting with
-  `curl -d @file.json` instead of inline `-d '...'`):
-  - **DXUI-47** (Feature/Valuable, ICE 252=6×7×6) Generic `DanxTreeView` — arbitrary `TreeNode<T>` data,
-    generalizes useFileExplorer's proven expand/collapse/keyboard-nav pattern.
-  - **DXUI-48** (Feature/Valuable, ICE 216=6×6×6) Password strength meter for `DanxInput` — opt-in
-    `showStrength` prop + headless `passwordStrength()` pure function, rule-based (no zxcvbn dep).
-  - **DXUI-49** (Feature/Maintenance-Valuable, ICE 280=7×8×5) `useBreakpoints`/`useMediaQuery` composable —
-    thin wrapper over `@vueuse/core`, pre-configured with danx-ui's Tailwind breakpoint tokens, SSR-guarded.
-- Board is now 46 cards (DXUI-4..49), all still status `Review`.
-
-**Next session:** re-verify `git diff 7023a67 HEAD -- src/` and the dashboard issue list first. If still
-nothing has shipped and still 0/46 cards have moved off Review, seriously consider whether continuing to
-manufacture new cards (now spanning 3 sessions of a self-noted "backlog-clearing gate") is still the right
-call vs. flagging the zero-dispatch pattern itself as the actionable finding — the board has 46 well-scored,
-zero-overlap Feature/Bug cards sitting idle; the bottleneck appears to be dispatch velocity, not idea supply.
-If instructed to card again regardless, remaining ungrounded candidates from this session's declined list
-(all below current threshold or design choices, not carded): `DanxCountdown`/count-up widget, promoting
-`ImageCropper` (100=5×5×4) from Exploratory. `useHotkeys`/DXUI-8 remains the CommandPalette dependency gate;
-DXUI-46 (DanxKbd) deliberately does NOT depend on it.
+**Next session:** (1) check for `mcp__danx_dashboard__*` tool availability first — if present, this
+unblocks the sanctioned write path for the first time in 9+ sessions, use `issue_list({status_derived})`
+for Review/ToDo/In Progress to properly dedupe before creating; (2) re-run `git diff 7023a67 HEAD -- src/`
+and the board fetch — if still 0/46 moved and src still unchanged, the actionable finding continues to be
+dispatch velocity, not idea supply; the backlog does not need more cards, it needs cards to move.
 
 
