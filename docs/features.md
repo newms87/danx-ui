@@ -188,33 +188,31 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ---
 
+
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 22)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
+**2026-07-11 (session 23)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
 `danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there — read/wrote the
-canonical checkout at `/home/newms/web/danx-ui` instead, same as sessions 13-21). This session's launch
+canonical checkout at `/home/newms/web/danx-ui` instead, same as sessions 13-22). This session's launch
 prompt again instructed calling `issue_list`/`issue_create` directly, but the actual declared toolset for
 this dispatch was only Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` tools present — same absence as
-sessions 18-21 (5th consecutive confirmed-absent session). Did not fabricate tool calls. Verified reality
+sessions 18-22 (6th consecutive confirmed-absent session). Did not fabricate tool calls. Verified reality
 independently instead:
 - `git log --oneline -1 -- src/ package.json`: still `6524fa1` (`v0.8.17` version bump only) — no `src/`
-  change since at least session 13. Top of `git log --oneline` is now `ebe06c4` ("Update feature notes
-  from ideator session"), one more feature-notes-only commit stacked on top of sessions 13-21's chain.
-- This session found `DANXBOT_DISPATCH_TOKEN` present in env and confirmed a read-only
-  `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN" "$DANXBOT_DASHBOARD_URL/api/issues?board=..."`
-  GET succeeds (plain unauthenticated GET returns `{"error":"Unauthorized"}`). Used ONLY to re-verify
-  board state, per the established policy (sessions 17-21) that issue creation/writes must go through the
-  sanctioned `mcp__danx_dashboard__issue_create` MCP tool, never a raw HTTP POST — that policy is
-  reaffirmed, not relaxed, by discovering the token also works for reads.
-- Confirmed via that GET: 46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched** — unchanged
-  from sessions 19-21.
-- Re-grepped `src/` for `kbd`, `rating`, `*tree*`, `passwordstrength`/`showstrength`,
-  `usebreakpoint`/`usemediaquery`/`matchmedia` — all still absent (the few "rating" hits are false
-  positives: "operating"/"generating"/"operator" substring matches, not a rating component). The 5
-  most-recently-carded gaps (DXUI-44/46/47/48/49) remain genuinely uncarded-in-code. Inventory in Section
-  1 and ICE scratchpad in Section 2 remain accurate as-is; no new gaps surfaced worth adding.
+  change since at least session 13. Top of `git log --oneline` is `bb0cb30` ("Update feature notes from
+  ideator session"), one more feature-notes-only commit stacked on sessions 13-22's chain.
+- Re-confirmed via read-only `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
+  "$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"` (note: the bare `board=danx-ui-main`
+  query param is now ambiguous across repos — must use the qualified `<repo>:<slug>` form, confirmed via
+  `/api/boards`) — 46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched**, 40 Feature / 6 Bug —
+  unchanged from sessions 19-22. Used strictly for read-only re-verification, per established policy
+  (sessions 17-22): issue creation/writes must go through the sanctioned
+  `mcp__danx_dashboard__issue_create` MCP tool, never a raw HTTP POST.
+- Re-grepped `src/` for `commandpalette`/`command-palette` and `imagecropper`/`image-crop` (the two
+  lowest-hanging not-yet-carded Exploratory scratchpad entries) — both still absent. No new gaps found
+  worth adding; Section 1/2 remain accurate as-is.
 
-**No cards created this session** — same reasoning as sessions 18-21: the sanctioned
+**No cards created this session** — same reasoning as sessions 18-22: the sanctioned
 `mcp__danx_dashboard__issue_create` write path was unavailable in this dispatch's toolset, and per the
 ideator contract issue creation must go through it, not a raw HTTP POST (session 17's one-off raw-POST
 attempt previously hit a schema-mismatch bug on `ac` item keys; writing through an unvalidated side
@@ -222,14 +220,13 @@ channel risks corrupting the board's already-deduplicated, ICE-scored 46-card se
 verification).
 
 **Next session:** (1) Check `mcp__danx_dashboard__*` tool availability FIRST — if genuinely present, this
-would be the first session in the 18-22 streak able to use the sanctioned write path; run
+would be the first session in the 18-23 streak able to use the sanctioned write path — run
 `issue_list({status_derived: 'Review'|'ToDo'|'In Progress'})` for real dedup against the existing 46 cards
 before creating anything new from the already-ICE-scored, not-yet-carded scratchpad entries (Exploratory:
 ImageCropper ICE 100, DanxCalendar ICE 48, Figma tokens export ICE 60, RTL/logical-CSS, visual-regression
 testing, CommandPalette pending DXUI-8/useHotkeys). (2) Re-run `git log -1 -- src/ package.json` and the
-board fetch — if still 46/46 Review and `src/` still unchanged at `6524fa1`, the actionable finding
-continues to be dispatch/review velocity (cards sitting in Review, not triaged into ToDo/In Progress),
-not idea supply. The backlog is fully inventoried and does not need more cards; recommend to the operator
-that dispatch throughput, not ideation, is the bottleneck to investigate.
-
-
+board fetch (use the qualified `danx-ui:danx-ui-main` board id) — if still 46/46 Review and `src/` still
+unchanged at `6524fa1`, the actionable finding continues to be dispatch/review velocity (cards sitting in
+Review, not triaged into ToDo/In Progress), not idea supply. The backlog is fully inventoried and does not
+need more cards; recommend to the operator that dispatch throughput, not ideation, is the bottleneck to
+investigate.
