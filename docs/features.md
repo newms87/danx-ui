@@ -190,41 +190,37 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 20)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
+**2026-07-11 (session 21)** — Ideator pass on danx-ui (scope: repo), dispatched into the isolated
 `danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there — read/wrote the
-canonical checkout at `/home/newms/web/danx-ui` instead, same as sessions 13-19). Verified reality
-independently:
-- `git log --oneline -1 -- src/ package.json`: still `6524fa1` (`v0.8.17` version bump only); `git log
-  --oneline -15` on HEAD shows the 15 most recent commits are ALL "Update feature notes from ideator
-  session" — no `src/` work has landed in at least that many sessions.
-- Direct read-only GET (`curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
-  "$DANXBOT_DASHBOARD_URL/api/issues?board=$DANXBOT_REPO_NAME:$DANXBOT_BOARD_NAME"`) confirmed via
-  `Counter(status)`: 46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched** — identical to
-  session 19's finding, one full session later, nothing moved.
-- Re-verified (via `find`) that DanxKbd, DanxRating, and any `treeview`-named dir are still absent from
-  `src/components` — the most-recently-carded gaps remain genuinely uncarded-in-code. Inventory stands.
+canonical checkout at `/home/newms/web/danx-ui` instead, same as sessions 13-20). This session's
+launch prompt explicitly instructed calling `issue_list`/`issue_create` as tools, but no
+`mcp__danx_dashboard__*` tools were present in the actual declared toolset (only Bash/Read/Edit/Write,
+confirmed from the function schema available to the agent) — same absence as sessions 18-20. Did not
+fabricate tool calls or use a raw-write workaround; verified reality independently instead:
+- `git log --oneline -1 -- src/ package.json`: still `6524fa1` (`v0.8.17` version bump only) — no
+  `src/` change landed since at least session 13. `git log --oneline -5` on HEAD: top 5 commits are all
+  "Update feature notes from ideator session" (`c296003`, `d689528`, `fefdc64`, `c22f20e`, `b5b6e22`).
+- Read-only GET against `$DANXBOT_DASHBOARD_URL/api/issues?board=$DANXBOT_REPO_NAME:$DANXBOT_BOARD_NAME`:
+  46 issues (DXUI-4..49), **100% `status: Review`, 0% dispatched** — unchanged from sessions 19-20.
+- Re-grepped `src/components` and `src/` for DanxKbd, DanxRating, any `*tree*` component dir,
+  `passwordStrength`/`showStrength`, and `*breakpoint*`/`*media-query*` files — all absent. The 5
+  most-recently-carded gaps (DXUI-44, 46, 47, 48, 49) remain genuinely uncarded-in-code; inventory in
+  Section 1 and the ICE scratchpad in Section 2 remain accurate as-is. No new gaps surfaced worth adding.
 
-**`mcp__danx_dashboard__*` tools were again absent from this session's declared toolset** (only
-Bash/Read/Edit/Write — confirmed directly from my own function schema). Per this task's contract, issue
-creation must go through the sanctioned MCP `issue_create` tool; since it was unavailable, **no cards
-were created this session**, consistent with sessions 18-19. I did NOT use a raw HTTP POST workaround to
-create issues (session 17's one-off attempt hit a schema-mismatch bug, and writing through an unvalidated
-side channel risks corrupting the board's known-good, deduplicated, ICE-scored set with no gate
-verification) — a read-only GET was used only to independently re-confirm the 46/0 status split, not to
-write.
+**No cards created this session** — the sanctioned `mcp__danx_dashboard__issue_create` write path was
+unavailable, and per the ideator contract issue creation must go through it, not a raw HTTP POST (session
+17's one-off raw-POST attempt previously hit a schema-mismatch bug on `ac` item keys, and writing through
+an unvalidated side channel risks corrupting the board's already-deduplicated, ICE-scored 46-card set
+with no gate verification). The read-only GET above was used only to reconfirm status, not to write.
 
-**No genuinely new, uncarded, above-ICE-threshold gap found.** All ICE-scored Section 2 scratchpad
-entries are either already carded (DXUI-4..49) or deliberately left Exploratory/low-ICE (ImageCropper ~100,
-DanxCalendar ~48, Figma tokens export ~60, RTL/logical-CSS, focus-visible consistency). The backlog is
-fully inventoried; it does not need more cards.
-
-**Next session:** (1) check `mcp__danx_dashboard__*` tool availability FIRST — if present, this is the
-first session able to use the sanctioned write path in this streak; run `issue_list({status_derived:
-'Review'|'ToDo'|'In Progress'})` for real dedup, but expect it to just reconfirm the existing 46 cards
-rather than surfacing headroom for new ones. (2) Re-run `git log -1 -- src/ package.json` and the board
-fetch — if still 46/46 Review and `src/` still unchanged at `6524fa1`, stop treating "generate more cards"
-as the goal of this dispatch: the actionable finding is dispatch/review velocity (cards sitting in Review,
-not being triaged into ToDo/In Progress), not idea supply. Consider recommending to the operator that
-dispatch throughput, not ideation, is the bottleneck to investigate.
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability FIRST, before assuming the launch
+prompt's instructions to call `issue_list`/`issue_create` can be followed literally — if the tools are
+genuinely present this time, this is the first session in the 18-21 streak able to use the sanctioned
+write path; run `issue_list({status_derived: 'Review'|'ToDo'|'In Progress'})` for real dedup against the
+existing 46 cards before creating anything new. (2) Re-run `git log -1 -- src/ package.json` and the
+board fetch — if still 46/46 Review and `src/` still unchanged at `6524fa1`, the actionable finding
+continues to be dispatch/review velocity (cards sitting in Review, not being triaged into ToDo/In
+Progress), not idea supply. The backlog is fully inventoried and does not need more cards; recommend to
+the operator that dispatch throughput, not ideation, is the bottleneck to investigate.
 
 
