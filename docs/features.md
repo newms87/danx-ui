@@ -137,6 +137,9 @@ coverage gate enforced via /flow-verify.
 | SplitPanelHandle has `role="separator"` but no keyboard resize / focus / aria-value* | Incomplete | Session 31, new find. `SplitPanelHandle.vue:37-43` sets `role="separator"` and `aria-orientation`, but has NO `tabindex`, NO `aria-valuenow`/`aria-valuemin`/`aria-valuemax`, and NO `@keydown` handler — grep-confirmed only `pointerdown` is wired (`useSplitPanel.ts` drag logic is pointer-only). Per the WAI-ARIA "window splitter" pattern, a *movable* separator must be focusable and support arrow-key resizing with `aria-valuenow` reflecting the current split. Keyboard-only users cannot resize a `DanxSplitPanel` at all today. This codebase already knows the correct pattern elsewhere — `color-picker/DanxColorPickerPanel.vue` implements `role="slider"` + `aria-valuemin/max/now` + `@keydown` for its saturation/hue/alpha sliders (lines 394-453) — so the gap is an inconsistency, not a missing pattern. Distinct from DXUI-19 (Tabs/ButtonGroup/Tooltip) and DXUI-40 (unguarded localStorage write, same file, different concern). |
 | DanxContextMenu has no arrow-key navigation or `role="menu"`/`role="menuitem"` semantics | Incomplete | Session 32, new find. `DanxContextMenu.vue` (read in full, lines 1-282) renders items as plain `<button>` elements with click/mouseenter/mouseleave handlers only — grep-confirmed (`grep -n "keydown\|role=\"menu\|ArrowDown\|ArrowUp" src/components/context-menu/`) zero arrow-key handling and zero `role="menu"`/`role="menuitem"` anywhere in the component or its test file. The only keyboard interaction wired is Escape-to-close, inherited for free from `DanxPopover`'s `useEscapeKey` (`context-menu/__tests__/DanxContextMenu.test.ts:556-570` — the "Enter" test at line 566 only asserts Enter does NOT close the menu, not that it navigates/activates via arrows). Because items are native `<button>`s, Tab+Enter/Space *does* technically work, but that means a keyboard user must Tab through every item individually (no roving tabindex, no Home/End/Left-Right-for-submenu per the WAI-ARIA Menu/Menu Button pattern), and screen readers announce it as an unordered list of buttons rather than a menu widget — `DanxSelect` already models the correct `role="listbox"` + arrow-key pattern (`DanxSelect.vue:264,331,343`) that this component should mirror. Compounds: `markdown-editor/MarkdownEditor.vue` is the only other consumer of `DanxContextMenu` (its right-click table/text-formatting menu), so the gap affects two surfaces. Distinct from DXUI-19 (Tabs/ButtonGroup/Tooltip) and the split-panel keyboard finding above (different widget). |
 | DanxFileExplorer tree has `role="tree"`/`role="treeitem"` but no arrow-key navigation (non-roving tabindex) | Incomplete | Session 32, new find. `FileExplorerNode.vue:87-94` sets `role="treeitem"` + full `aria-expanded`/`aria-selected`/`aria-disabled`, and wires `@keydown.enter`/`@keydown.space` to activate — but every node unconditionally gets `:tabindex="node.disabled ? -1 : 0"` (line 91), i.e. ALL nodes are independently Tab-stops rather than a single roving tabindex within the tree. Grep-confirmed (`grep -n "Arrow\|keydown" src/components/file-explorer/*.ts src/components/file-explorer/*.vue`) zero ArrowUp/Down/Left/Right/Home/End handling anywhere. Per the WAI-ARIA APG Tree View pattern, `role="tree"` implies exactly one focusable node at a time with arrow keys moving focus (Down/Up between visible rows, Right expands/moves into a folder, Left collapses/moves to parent) — a keyboard user today must Tab once per row to traverse a tree of any size, and AT announces "tree" semantics the widget doesn't actually support. `DanxFileExplorer.vue:130` already exposes a flattened `explorer.visibleNodes` computed (used for the container's `v-if`), which is the natural backing list for a roving-focus index. Distinct from DXUI-47 (a separate, still-Missing generic `DanxTreeView` for arbitrary data — this finding is about the existing file-specific `DanxFileExplorer`'s own incomplete keyboard support). |
+| DanxFileUploadDropZone accepts drag-drop uploads while `disabled`/`readonly` | Incomplete (Bug) | Session 35, new find. `DanxFileUploadDropZone.vue`'s `onDragEnter`/`onDragLeave`/`onDrop` handlers (lines 37-53) never read the component's own `disabled` prop — only the CSS class `danx-file-upload-drop-zone--disabled` reflects it visually. `DanxFileUpload.vue` passes `:disabled="!!disabled \|\| !!readonly"` (line 167) into the zone and wires `@drop="onDropZoneDrop"` (line 170) → `onDropZoneDrop` (lines 128-131) calls `addFiles(files)` unconditionally, with no `disabled`/`readonly` guard anywhere in the call chain. A user can drag-and-drop files onto a `disabled` or `readonly` `DanxFileUpload` and have them accepted/uploaded, violating the documented prop contract (`disabled: boolean - Disables the field`, `readonly: boolean - Makes the field read-only` in the component's own JSDoc). The "Add card" button IS correctly gated (`v-if="canAddMore && !disabled && !readonly"`, line 190) — only the drop-zone path is missed. |
+| `useDanxFile` text-content fetch has no stale-response guard (race condition) | Incomplete (Bug) | Session 35, new find. `useDanxFile.ts`'s `useTextContent()` (lines 73-101) `watch(() => props.file, async (file) => { ...; const response = await fetch(url); textContent.value = await response.text(); ... })` has no request token, `AbortController`, or "is this still the current file" check before writing `textContent.value`. If `props.file` changes rapidly (e.g. a carousel/viewer stepping through multiple text files quickly, or a fast double-click), two fetches can be in-flight simultaneously and whichever network response resolves LAST wins — even if it corresponds to a file the user has already navigated away from — silently showing the wrong file's content. No other async-then-write site in the codebase this session exhibited the same gap (contrast with the codebase's otherwise careful abort-on-unmount patterns in `useFileUpload.ts`'s per-file `AbortController`s). |
+| `useFileUpload.retryFile` implemented but never wired to any UI | Missing (UI gap) | Session 35, new find. `useFileUpload.ts` fully implements `retryFile(fileId)` (lines 216-223, exported in `UseFileUploadReturn`) — resets the errored temp file's `progress`/`error` and re-calls `startUpload` using the file kept in `_fileMap` for exactly this purpose. But grep-confirmed (`grep -rn "retryFile\|retry" src/components/danx-file-upload/*.vue src/components/danx-file/*.vue` = empty) `DanxFileUpload.vue` never destructures/uses `retryFile` from the composable, `DanxFileError.vue` renders only an icon + message (no retry button/emit), and `DanxFile.vue`'s `DanxFileEmits` has no `retry` event. Today the ONLY end-user recovery path for a failed upload (bad network, server 500, timeout) is remove + re-select-and-re-upload the file from scratch — losing the one-click retry the composable was clearly built to support. |
 | CodeViewer has no copy-to-clipboard button | Missing | Session 32, new find. `CodeViewerFooter.vue` (full file read) renders only a char-count/error display, an `actions` slot for consumer-supplied buttons, and a pencil edit-toggle button — grep-confirmed (`grep -rln "copy\|Copy" src/components/code-viewer/`) zero references to copy/clipboard anywhere in `code-viewer/`. Copying a displayed code snippet is one of the most common expectations for any code viewer (GitHub, MDN, Stack Overflow all ship one by default) and currently requires every consumer to build their own via the `actions` slot. Related to but distinct from the still-Missing `useClipboard` composable (DXUI-12, scratchpad) — that item is about extracting shared copy logic from `editable-div`/`code-viewer`'s *existing* ad-hoc copy code, but `code-viewer` itself has NO copy code to extract; this is a net-new user-facing button, best sequenced as a consumer of DXUI-12 once it ships (or shipped standalone with its own small clipboard-write helper if DXUI-12 isn't picked up first). |
 
 ---
@@ -220,6 +223,9 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxIcon renders arbitrary strings via unsanitized innerHTML | Drafted this session (Bug/security) | 294 (6×7×7) | Session 33 fresh find, NOT YET CARDED. `DanxIcon.vue:55-57`: `const svg = iconRegistry[props.icon as IconName] ?? props.icon; return { render: () => h("span", { innerHTML: svg }) };` — any string that isn't a recognized icon-registry key is injected via `innerHTML` with ZERO validation that it's even an `<svg>`, no `<script>`/`on*`-attribute stripping. Equivalent to unguarded `v-html`. DanxIcon is consumed by nearly every other component (chip, badge, tabs, button-group, alert, toast, tooltip, dialog...) so any consumer deriving `icon` from user/CMS/API data has an XSS vector. Inconsistent with the codebase's own security posture elsewhere — `shared/markdown/` defaults `sanitize: true` (`shared/markdown/index.ts:79`) and ships `shared/escapeHtml.ts` specifically to prevent this. Grep-confirmed: zero `sanitiz`/`DOMPurify` references anywhere near `icon/`. I:6 (real XSS class in a component used everywhere, though exploitability depends on a consumer passing untrusted data as `icon`) C:7 (clear fix — validate `<svg>` root + strip script/event-handler attrs, small design call on strictness) E:7 (isolated to `DanxIcon.vue` + a small shared helper). |
 | DanxBadge indicator has no accessible label for screen readers | Drafted this session (Bug/a11y) | 224 (4×7×8) | Session 33 fresh find, NOT YET CARDED. `DanxBadge.vue:150-152` renders the count/label/dot indicator as a bare `<span>{{ displayText }}</span>` with no `aria-label`/sr-only text — grep-confirmed zero `aria-` anywhere in the component. `<DanxBadge :value="5"><DanxButton>Messages</DanxButton></DanxBadge>` announces "Messages" then a context-free "5"; `dot` mode announces nothing at all (`displayText` is empty string for dot), silently dropping the status signal for screen reader users. I:4 (real but narrower than DXUI-19's interactive-widget gaps — Badge is presentation-adjacent, not itself interactive) C:7 (established visually-hidden-text pattern) E:8 (isolated, small prop + template addition). |
 | MarkdownEditor has no explicit paste handling/normalization | Exploratory (not carded, lower confidence) | 120 (6×5×4) | Session 33 fresh find. Grep-confirmed zero `paste`/`clipboardData` references anywhere in `markdown-editor/*.ts`/`*.vue` (`MarkdownEditorContent.vue` is a plain `contenteditable` div, line 124). Pasting from Word/Google Docs/a web page relies entirely on the browser's default rich-paste-into-contenteditable behavior, then `useMarkdownSync.ts`'s `syncFromHtml`/`htmlToMarkdown` (designed to round-trip the editor's OWN generated markup) tries to convert whatever the browser inserted — no explicit interception/normalization/plain-text fallback, and pasted images are silently dropped (no upload wiring). Real, common WYSIWYG-editor friction point, but I (6, common complaint) × C (5, approach genuinely uncertain — strip-all vs. selective-preserve vs. image-upload-on-paste needs a product decision) × E (4, touches paste event + HTML normalization + possibly image upload, multi-file) keeps this below the current card threshold; needs requirement-gathering before carding as a Feature. |
+| Guard DanxFileUploadDropZone against disabled/readonly drag-drop | Drafted this session (Bug) | 486 (6×9×9) | Session 35 fresh find, NOT YET CARDED. Check `props.disabled` at the top of `onDragEnter`/`onDrop` in `DanxFileUploadDropZone.vue` (and ideally also gate `onDragEnter`'s `emit` so the `--active` hover styling doesn't even flash) so dropped files are silently ignored on a disabled/readonly field, matching the already-correct guard on the "Add card" button. I:6 (violates the documented `disabled`/`readonly` prop contract — a consumer relying on `readonly` to lock a field can have it silently mutated via drag-drop) C:9 (root cause fully understood, trivial guard) E:9 (single small component, ~3-line fix + a test). |
+| Fix `useDanxFile` text-content fetch race condition | Drafted this session (Bug) | 196 (4×7×7) | Session 35 fresh find, NOT YET CARDED. Add a request-token or `AbortController` guard in `useTextContent()`'s watcher so a stale, slower-resolving `fetch` from a previous `file` value cannot overwrite `textContent.value` after the user has already navigated to a different file. I:4 (narrow — only text-type files in preview mode with rapid file-prop changes, e.g. carousel/viewer quick-stepping) C:7 (well-understood race-condition pattern, standard fix) E:7 (isolated to `useDanxFile.ts`'s `useTextContent` helper + a test simulating out-of-order resolution). |
+| Wire `useFileUpload.retryFile` to the UI (retry button on errored files) | Drafted this session (Feature) | 336 (6×8×7) | Session 35 fresh find, NOT YET CARDED. Add a `retry` emit to `DanxFile`/`DanxFileError` (a retry button/icon alongside the existing error message, likely reusing the compact-popover vs. inline-text branching `DanxFileError.vue` already has) and wire it through `DanxFileUpload.vue` to the composable's already-implemented `retryFile(fileId)`. I:6 (currently the only recovery path for a failed upload is remove + re-select from scratch — real friction for flaky-network/transient-server-error cases, and the composable was clearly built to support one-click retry but the UI was never finished) C:8 (composable API already exists and is well-tested via `_fileMap`; this is UI wiring, not new logic) E:7 (touches `DanxFileError.vue` + `DanxFile.vue` emit chain + `DanxFileUpload.vue`, no changes needed to `useFileUpload.ts` itself). |
 | DanxSelect has no letter-key type-ahead when `filterable` is false | Incomplete | Session 34 fresh find. `useSelectKeyboard.ts`'s `handleKeydown` switch (lines 105-169, read in full) handles ArrowDown/Up/Enter/Space/Escape/Tab/Home/End only — grep-confirmed (`grep -n "key.length === 1\|charCode\|typeahead" src/components/select/*.ts`) zero single-character key handling anywhere. A native `<select>` (and most select-widget libraries) lets a focused-but-closed dropdown jump to the first option starting with a typed letter, repeated presses cycling matches — `DanxSelect` has NO such behavior when `filterable` is unset/false (the common case for short option lists where a search box is overkill), so keyboard users must Arrow-key through the entire list one item at a time. `filterable=true` mode has a real text input as a workaround, but that's an opt-in, different UX. |
 
 ---
@@ -227,80 +233,84 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 34, drafts-only dispatch — no `mcp__danx_dashboard__*` tools exposed to this
+**2026-07-11 (session 35, drafts-only dispatch — no `mcp__danx_dashboard__*` tools exposed to this
 agent's toolset; Bash/Read/Edit/Write only)** — Dispatched into the isolated
-`danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo checkout there). Read/wrote the
-canonical checkout at `/home/newms/web/danx-ui` directly, per orchestrator instruction.
+`danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo checkout there; confirmed only
+`.claude/` config + a read-only mirror `docs/features.md` exist in that worktree, not a git repo).
+Read/wrote the canonical checkout at `/home/newms/web/danx-ui` directly, per orchestrator instruction.
 
-Re-verified reality (17th+ consecutive confirming session):
-- `ls src/components` still 31 dirs, matches Section 1 inventory. No `git log` diff check this
-  session (skipped, prior 16 sessions already exhaustively confirmed `src/` is static).
-- No dashboard/API access this session — could not re-check live card counts/status in
-  Review/ToDo/In Progress; orchestrator is responsible for dedup + creation this round.
+**Major status change this session:** all 18 previously-undispatched drafts from sessions 28-34 are
+now REAL CARDS. Confirmed via read-only dashboard API
+(`curl $DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main` with the `DANXBOT_DISPATCH_TOKEN`
+bearer header — this worked this session, unlike session 34 which had no access) — the board now has
+**64 issues (DXUI-4 through DXUI-67), 100% status `Review`, 0% dispatched**. DXUI-50 through DXUI-67
+map 1:1 onto the 18 "Drafted this session, NOT YET CARDED" scratchpad entries from sessions 28-34, so
+the orchestrator (or another session) has since created them all. The "idea supply isn't the
+bottleneck, backlog isn't being triaged" observation from sessions 28-34 still holds even more
+strongly now: 64 cards sitting 100% in Review, 0% in ToDo/In Progress.
 
-**New ground covered this session:** per session 33's own recommendation, deep-dived previously
-never-deep-dived dirs: `button/` (`DanxButton.vue`, `DanxActionButton.vue` — read in full), `popover/`
-(`DanxPopover.vue`, `usePopoverTrigger.ts` — read in full), `select/` (`useSelect.ts`,
-`useSelectKeyboard.ts`, `DanxSelect.vue` — all read in full, previously only grepped as an a11y
-reference baseline), `input/` (`DanxInput.vue` — read in full), `field-wrapper/`
-(`DanxFieldWrapper.vue` — read in full), `toggle/` (`DanxToggle.vue` — read in full), `textarea/`
-(`DanxTextarea.vue` — read in full), `progress-bar/` (`DanxProgressBar.vue` — read in full),
-`danx-file-upload/` (`DanxFileUploadDropZone.vue` — read in full, cross-checked against the still-
-undispatched session-28 paste-to-upload draft), plus a targeted read of `range-slider/`
-(`useRangeSlider.ts`) and a spot-check of `markdown-editor/LinkPopover.vue` +
-`linkPopoverHandlers.ts` for URL-validation bugs.
+Re-verified reality (18th+ consecutive confirming session):
+- `git log --oneline -3 -- src/ package.json` still `6524fa1` (v0.8.17) — `src/` unchanged for
+  weeks.
 
-Found 1 new grounded finding (added to Section 1 gaps table + Section 2 scratchpad):
+**New ground covered this session:** per session 34's own recommendation, deep-dived the
+previously-unscrutinized `danx-file/` + `danx-file-upload/` composable/logic files (not just the
+Vue components): `useDanxFile.ts` (read in full), `DanxFileActions.vue`/`DanxFileProgress.vue`/
+`DanxFileError.vue` (read in full), `useFileUpload.ts` (read in full), `useDragDrop.ts` (read in
+full), `DanxFileUploadDropZone.vue` (re-read in full — session 34 had already read this file but
+apparently missed the `disabled` gap below), `DanxFileUpload.vue` (read in full). Also spot-checked
+`markdown-editor/useTables.ts` (read in full, clean — no gap found).
 
-1. `useSelectKeyboard.ts`'s `handleKeydown` switch (lines 105-169, read in full) handles
-   ArrowDown/Up/Enter/Space/Escape/Tab/Home/End only — grep-confirmed zero single-character-key
-   (type-ahead) handling anywhere in `select/`. A native `<select>` lets a focused, closed dropdown
-   jump to the first option starting with a typed letter; `DanxSelect` has no equivalent when
-   `filterable` is false (the common case for short lists), so keyboard users must Arrow-key through
-   every item one at a time. ICE 210 (5×7×6), Maintenance/a11y.
+Found 3 new grounded findings (added to Section 1 gaps table + Section 2 scratchpad):
 
-Everything else inspected this session was ruled out as a non-gap — the codebase's `button/`,
-`popover/`, `select/`, `input/`, `field-wrapper/`, `toggle/`, `textarea/`, `progress-bar/`,
-`danx-file-upload/DanxFileUploadDropZone.vue`, `range-slider/useRangeSlider.ts`, and
-`markdown-editor/LinkPopover.vue`+`linkPopoverHandlers.ts` are all cleanly implemented with no new
-bugs/gaps found: `DanxSelect`'s ARIA (combobox/listbox/option roles, aria-activedescendant),
-keyboard nav, ResizeObserver cleanup, and multi-select coercion are all correct; `DanxToggle` and
-`DanxFieldWrapper` are textbook-correct a11y (role=switch, label-for wiring, aria-invalid via
-`inputAriaAttrs`); `DanxTextarea`'s auto-resize (collapse-then-measure pattern) is sound;
-`DanxProgressBar`'s ARIA (role=progressbar + valuenow/min/max) already confirmed correct in a prior
-session, re-verified here; `linkPopoverHandlers.ts`'s `completeNewLink`/`completeWrapSelection` both
-correctly guard against empty/whitespace URLs before inserting a link (no unvalidated-empty-href bug,
-as initially suspected from `LinkPopover.vue`'s own submit handler alone — the guard lives one layer
-up in the handler, not the popover component). `DanxButton`'s always-present `DanxTooltip` wrapper
-(even when no `tooltip` prop given) is intentional/low-cost — `disabled="!tooltip"` short-circuits it,
-not a gap.
+1. `DanxFileUploadDropZone.vue`'s `onDragEnter`/`onDragLeave`/`onDrop` handlers never check the
+   component's own `disabled` prop — grep-confirmed zero `disabled` reference in the `<script>`
+   block. `DanxFileUpload.vue` passes `disabled`/`readonly` in but the drop-zone's drag/drop path
+   ignores it entirely (only the "Add card" button and CSS class are correctly gated), so files can
+   be drag-dropped onto a disabled/readonly field and get uploaded. ICE 486 (6×9×9), Bug.
+2. `useDanxFile.ts`'s `useTextContent()` watcher has no stale-response guard (`AbortController`/
+   request token) before writing `textContent.value` from a `fetch` — rapid `props.file` changes
+   (e.g. carousel stepping through text files) can race, with the slower/older fetch's response
+   overwriting the correct current file's content. ICE 196 (4×7×7), Bug.
+3. `useFileUpload.ts` fully implements `retryFile(fileId)` (kept in `_fileMap` for exactly this
+   purpose) but grep-confirmed zero UI wiring anywhere — `DanxFileUpload.vue` never
+   destructures/calls it, `DanxFileError.vue` has no retry button, `DanxFile.vue`'s emits have no
+   `retry` event. Only recovery path today for a failed upload is remove + re-select from scratch.
+   ICE 336 (6×8×7), Feature/UI-gap.
+
+Everything else inspected this session was ruled out as a non-gap: `DanxFileActions.vue`'s two-step
+remove-confirm (arm/disarm with 3s timeout) is clean, has proper `onUnmounted` timer cleanup, and
+uses a tooltip to communicate the armed state; `DanxFileProgress.vue`/`DanxFileError.vue` are
+presentation-only and correct for what they do (compact-popover vs. inline branching is sound);
+`useDragDrop.ts`'s drag-depth counter correctly handles nested-element `dragenter`/`dragleave`
+churn; `useFileUpload.ts`'s `addFiles`/`clearFiles`/`removeFile` correctly abort in-flight uploads
+and revoke `blobUrl`s (no memory leak); `useTables.ts`'s `insertTable`/`createTable` correctly
+guard `contentRef` null checks and selection-range containment before DOM mutation.
 
 **Drafts handed to orchestrator this session** (cannot call `issue_create` itself — no MCP tools
-exposed): 1 new card recommended — DanxSelect letter-key type-ahead, ICE 210, Maintenance/a11y. Lower
-ICE than most of the 20 prior undispatched drafts (sessions 28-33) still on file, so NOT a priority
-pick for this round — flagging for completeness, not urgency.
+exposed): 3 new cards recommended, ordered by ICE:
+1. Guard `DanxFileUploadDropZone` against disabled/readonly drag-drop (486, Bug)
+2. Wire `useFileUpload.retryFile` to the UI (336, Feature)
+3. Fix `useDanxFile` text-content fetch race condition (196, Bug)
 
-**Primary finding (still holds, now 17th+ consecutive confirmation):** idea supply is not the
-bottleneck — `src/` has been static for weeks across 17+ sessions while the board has accumulated 18
-total undispatched drafts across sessions 28-34 with no dashboard access to create them. Recommend the
-orchestrator (which does have dashboard access): (1) run `issue_list` across Review/ToDo/In Progress to
-dedup against ALL 18 drafts on file (not just this session's 1), (2) create cards for the highest-ICE
-outstanding drafts first — session 30's `useActionStore` try/finally fix (486, still highest-ICE draft
-on file), session 32's CodeViewer copy button (384), and session 33's DanxToast focus-pause (320) are
-the smallest, most-certain, highest-value fixes to prioritize, (3) separately confirm whether the
-existing large Review backlog is being triaged into ToDo/In Progress at all, since that — not new idea
-supply — remains the actual bottleneck this codebase faces.
+**Primary finding (updated, 18th+ consecutive confirmation of the `src/` staleness half; NEW status
+on the backlog half):** idea supply is still not the bottleneck. `src/` has been static for weeks
+across 18+ sessions. What changed THIS session: the 18-draft backlog from sessions 28-34 has been
+fully converted to real cards (DXUI-50 through DXUI-67) — so the board now sits at 64 cards, 100%
+Review, 0% dispatched. This is strong, now-directly-confirmed evidence (not just inferred from stale
+`src/`) that triage/dispatch into ToDo/In Progress, not idea generation, is the actual bottleneck for
+this codebase.
 
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, run
-`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then create cards for the now 18
-outstanding drafts (sessions 28-33's 17 + this session's 1 — none confirmed as cards yet in this file).
-(2) If `src/` is still unchanged, remaining unscrutinized ground: `markdown-editor/` (huge, ~50 files,
-only ever grepped or single-file-spot-checked, never read end-to-end — deep-dive `TablePopover.vue`,
-`useTables.ts`, `useCodeBlockManager.ts`, `hotkeyDefinitions.ts`, `editorKeyHandlers.ts`), `danx-file/`
-(DanxFile.vue, DanxFileActions.vue, DanxFileError.vue, DanxFileProgress.vue, useDanxFile.ts — grepped
-for paste support but never read for own gaps), `skeleton/`, `useFileUpload.ts`/`useDragDrop.ts` (only
-their sibling drop-zone component read this session) — before re-treading the extensively-covered
-`shared/`, `zoomable/`, `split-panel/`, `color-picker/`, `scroll/`, `danx-file-viewer/`,
-`editable-div/`, `context-menu/`, `file-explorer/`, `code-viewer/`, `dialog/`, `toast/`, `tooltip/`,
-`tabs/`, `buttonGroup/`, `badge/`, `icon/`, `alert/`, `chip/`, `button/`, `popover/`, `select/`,
-`input/`, `field-wrapper/`, `toggle/`, `textarea/`, `progress-bar/`, `range-slider/`.
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup this
+session's 3 new drafts against Review/ToDo/In Progress before creating, then strongly consider
+recommending a triage pass on the 64-card Review backlog over generating yet more ideas. (2) If
+`src/` is still unchanged, remaining unscrutinized ground: `markdown-editor/`'s UI/popover layer
+(`TablePopover.vue`, `HotkeyHelpPopover.vue`, `MdeFloatingPanel.vue`, `MarkdownEditorFooter.vue`,
+`useCodeBlockManager.ts`, `hotkeyDefinitions.ts`, `editorKeyHandlers.ts` — the `useTables.ts` logic
+layer is now clean per this session, but its popover UI siblings are still unread), `skeleton/`
+(`DanxSkeleton.vue` still never read this deep), `danx-file-viewer/` (grepped/spot-checked in prior
+sessions but never read end-to-end) — before re-treading the extensively-covered `shared/`,
+`zoomable/`, `split-panel/`, `color-picker/`, `scroll/`, `editable-div/`, `context-menu/`,
+`file-explorer/`, `code-viewer/`, `dialog/`, `toast/`, `tooltip/`, `tabs/`, `buttonGroup/`, `badge/`,
+`icon/`, `alert/`, `chip/`, `button/`, `popover/`, `select/`, `input/`, `field-wrapper/`, `toggle/`,
+`textarea/`, `progress-bar/`, `range-slider/`, `danx-file/`, `danx-file-upload/`.
