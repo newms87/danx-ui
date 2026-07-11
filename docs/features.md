@@ -135,6 +135,9 @@ coverage gate enforced via /flow-verify.
 | `useAutoColor` reads dark-mode via non-reactive `document.documentElement.classList.contains("dark")` inside a Vue `computed` | Minor/Dependent (documented limitation) | Session 30, new find. `autoColor.ts:150-153` docstring already self-documents: "If dark mode is toggled while the component is mounted, the style will only update when `value` changes" — Vue's `computed` doesn't track DOM class mutations, so a Chip/ButtonGroup's auto-color won't refresh when dark mode flips unless its hashed `value` prop also changes. Currently low-severity because there is no runtime dark-mode *toggle* composable yet (`useColorScheme`, DXUI-36, still Missing) — this becomes user-visible the moment DXUI-36 ships a live toggle. Not carded standalone; note to fold into DXUI-36's AC (e.g. have the toggle dispatch a class-change signal `useAutoColor` can watch, or expose a shared reactive `isDark` ref instead of ad-hoc `classList.contains` checks in each composable). |
 | DanxZoomable / useZoomable has zero touch/pinch/pan support on touch devices | Incomplete | Session 31, new find. `useZoomable.ts` (zoom/pan module backing `DanxZoomable`, wrapped by `DanxFileViewer`) implements zoom/pan/reset EXCLUSIVELY via desktop input: `onWheel` (Ctrl/Cmd+wheel), `onDragStart`/`onDragMove`/`onDragEnd` (mouse `mousedown`/`mousemove`/`mouseup`, gated on `event.ctrlKey \|\| event.metaKey`), and `onZoomKey` (Ctrl/Cmd + `+`/`-`/`0`). Grep-confirmed zero `touch`/`Touch`/`pointer`/`Pointer`/`pinch`/`touch-action` references anywhere in `src/components/zoomable/`. `DanxZoomable.vue`'s own hint text literally instructs `⌘/Ctrl + drag to pan · + scroll to zoom` — there is no touch-equivalent affordance at all. On a touch device (tablet/phone), a `DanxFileViewer` image can be swiped prev/next (`useTouchSwipe`, confirmed wired in `DanxFileViewer.vue:393`) but CANNOT be pinch-zoomed or panned once zoomed — the "Photoshop-style zoom" headline feature is unusable without a physical mouse+keyboard. |
 | SplitPanelHandle has `role="separator"` but no keyboard resize / focus / aria-value* | Incomplete | Session 31, new find. `SplitPanelHandle.vue:37-43` sets `role="separator"` and `aria-orientation`, but has NO `tabindex`, NO `aria-valuenow`/`aria-valuemin`/`aria-valuemax`, and NO `@keydown` handler — grep-confirmed only `pointerdown` is wired (`useSplitPanel.ts` drag logic is pointer-only). Per the WAI-ARIA "window splitter" pattern, a *movable* separator must be focusable and support arrow-key resizing with `aria-valuenow` reflecting the current split. Keyboard-only users cannot resize a `DanxSplitPanel` at all today. This codebase already knows the correct pattern elsewhere — `color-picker/DanxColorPickerPanel.vue` implements `role="slider"` + `aria-valuemin/max/now` + `@keydown` for its saturation/hue/alpha sliders (lines 394-453) — so the gap is an inconsistency, not a missing pattern. Distinct from DXUI-19 (Tabs/ButtonGroup/Tooltip) and DXUI-40 (unguarded localStorage write, same file, different concern). |
+| DanxContextMenu has no arrow-key navigation or `role="menu"`/`role="menuitem"` semantics | Incomplete | Session 32, new find. `DanxContextMenu.vue` (read in full, lines 1-282) renders items as plain `<button>` elements with click/mouseenter/mouseleave handlers only — grep-confirmed (`grep -n "keydown\|role=\"menu\|ArrowDown\|ArrowUp" src/components/context-menu/`) zero arrow-key handling and zero `role="menu"`/`role="menuitem"` anywhere in the component or its test file. The only keyboard interaction wired is Escape-to-close, inherited for free from `DanxPopover`'s `useEscapeKey` (`context-menu/__tests__/DanxContextMenu.test.ts:556-570` — the "Enter" test at line 566 only asserts Enter does NOT close the menu, not that it navigates/activates via arrows). Because items are native `<button>`s, Tab+Enter/Space *does* technically work, but that means a keyboard user must Tab through every item individually (no roving tabindex, no Home/End/Left-Right-for-submenu per the WAI-ARIA Menu/Menu Button pattern), and screen readers announce it as an unordered list of buttons rather than a menu widget — `DanxSelect` already models the correct `role="listbox"` + arrow-key pattern (`DanxSelect.vue:264,331,343`) that this component should mirror. Compounds: `markdown-editor/MarkdownEditor.vue` is the only other consumer of `DanxContextMenu` (its right-click table/text-formatting menu), so the gap affects two surfaces. Distinct from DXUI-19 (Tabs/ButtonGroup/Tooltip) and the split-panel keyboard finding above (different widget). |
+| DanxFileExplorer tree has `role="tree"`/`role="treeitem"` but no arrow-key navigation (non-roving tabindex) | Incomplete | Session 32, new find. `FileExplorerNode.vue:87-94` sets `role="treeitem"` + full `aria-expanded`/`aria-selected`/`aria-disabled`, and wires `@keydown.enter`/`@keydown.space` to activate — but every node unconditionally gets `:tabindex="node.disabled ? -1 : 0"` (line 91), i.e. ALL nodes are independently Tab-stops rather than a single roving tabindex within the tree. Grep-confirmed (`grep -n "Arrow\|keydown" src/components/file-explorer/*.ts src/components/file-explorer/*.vue`) zero ArrowUp/Down/Left/Right/Home/End handling anywhere. Per the WAI-ARIA APG Tree View pattern, `role="tree"` implies exactly one focusable node at a time with arrow keys moving focus (Down/Up between visible rows, Right expands/moves into a folder, Left collapses/moves to parent) — a keyboard user today must Tab once per row to traverse a tree of any size, and AT announces "tree" semantics the widget doesn't actually support. `DanxFileExplorer.vue:130` already exposes a flattened `explorer.visibleNodes` computed (used for the container's `v-if`), which is the natural backing list for a roving-focus index. Distinct from DXUI-47 (a separate, still-Missing generic `DanxTreeView` for arbitrary data — this finding is about the existing file-specific `DanxFileExplorer`'s own incomplete keyboard support). |
+| CodeViewer has no copy-to-clipboard button | Missing | Session 32, new find. `CodeViewerFooter.vue` (full file read) renders only a char-count/error display, an `actions` slot for consumer-supplied buttons, and a pencil edit-toggle button — grep-confirmed (`grep -rln "copy\|Copy" src/components/code-viewer/`) zero references to copy/clipboard anywhere in `code-viewer/`. Copying a displayed code snippet is one of the most common expectations for any code viewer (GitHub, MDN, Stack Overflow all ship one by default) and currently requires every consumer to build their own via the `actions` slot. Related to but distinct from the still-Missing `useClipboard` composable (DXUI-12, scratchpad) — that item is about extracting shared copy logic from `editable-div`/`code-viewer`'s *existing* ad-hoc copy code, but `code-viewer` itself has NO copy code to extract; this is a net-new user-facing button, best sequenced as a consumer of DXUI-12 once it ships (or shipped standalone with its own small clipboard-write helper if DXUI-12 isn't picked up first). |
 
 ---
 
@@ -209,82 +212,91 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Keyboard resize + ARIA for SplitPanelHandle | Drafted this session (Bug/a11y) | 336 (6×8×7) | Session 31 fresh find, NOT YET CARDED. Add `tabindex="0"`, `aria-valuenow`/`aria-valuemin`/`aria-valuemax` (reflecting current split ratio/px), and a `@keydown` handler (ArrowLeft/Right or Up/Down per orientation, step by a configurable px/percent, Home/End for min/max) to `SplitPanelHandle.vue`, wired into `useSplitPanel.ts`'s existing resize logic. I:6 (keyboard-only users cannot resize a split panel at all today — a real, total a11y blocker for one interaction) C:8 (codebase already has a proven ARIA-slider+keydown pattern to copy verbatim from `color-picker/DanxColorPickerPanel.vue`) E:7 (isolated to 2 files, `SplitPanelHandle.vue` + `useSplitPanel.ts`, no cross-cutting changes). |
 | Touch/pinch support for DanxZoomable (useZoomable) | Drafted this session (Valuable) | 240 (6×5×8) | Session 31 fresh find, NOT YET CARDED. Add touch/pointer handling to `useZoomable.ts`: two-finger pinch-to-zoom (distance-delta → `setZoom`), single-finger drag-to-pan when `zoom > 100` (reuse existing `onDragMove`/`onDragEnd` math with touch coordinates), and a touch-appropriate hint (currently the hint pill hardcodes `⌘/Ctrl + drag/scroll`, useless on touch). Should coexist with `DanxFileViewer`'s existing `useTouchSwipe` prev/next gestures (`DanxFileViewer.vue:393`) — needs a clear precedence rule (e.g. two-finger = zoom/pan, one-finger swipe = navigate, matching iOS Photos-app conventions) documented in AC. I:6 (the component's own "Photoshop-style zoom" headline feature is completely unusable on any touch device today — tablets/phones can swipe between files but never zoom/pan one) C:5 (touch-gesture math is well-understood but the swipe-vs-pinch-vs-pan interaction/precedence with the existing `useTouchSwipe` composable needs care to avoid gesture conflicts) E:8 (isolated to `useZoomable.ts` + `DanxZoomable.vue` hint text, no changes needed to `DanxFileViewer.vue` itself since it composes `DanxZoomable`). |
 | `useAutoColor` non-reactive dark-mode check (fold into DXUI-36) | Note (not carded standalone) | — | Session 30 fresh find. Docstring-acknowledged limitation in `autoColor.ts` — `computed()` reads `document.documentElement.classList.contains("dark")` which Vue can't track, so auto-colored Chips/ButtonGroups won't refresh on a live dark-mode toggle. Currently low severity (no toggle composable exists yet); becomes visible the moment DXUI-36 (`useColorScheme`) ships. Recommend folding a fix into DXUI-36's AC (shared reactive `isDark` signal) rather than a standalone card. |
+| Add copy-to-clipboard button to CodeViewer footer | Drafted this session (Valuable) | 384 (6×8×8) | Session 32 fresh find, NOT YET CARDED (no MCP tool access this dispatch). Add a copy icon-button to `CodeViewerFooter.vue`'s actions area, wired to a small `navigator.clipboard.writeText` helper (with `document.execCommand('copy')` fallback for non-secure contexts) that copies the current displayed code content; brief "Copied!" tooltip/icon-swap feedback. I:6 (extremely common, expected default UX for any code display; no current workaround except consumer-built via the `actions` slot) C:8 (trivial, well-understood Clipboard API, no ambiguity in approach) E:8 (single component + tiny helper, isolated to `code-viewer/`, no cross-cutting changes). Highest-ICE new finding this session. |
+| DanxContextMenu arrow-key navigation + role="menu"/"menuitem" | Drafted this session (Bug/a11y) | 288 (6×8×6) | Session 32 fresh find, NOT YET CARDED. Add `role="menu"` to the panel + `role="menuitem"` per item, a roving-tabindex model (only the active/first item is `tabindex="0"`, rest `-1`), and `@keydown` handling for ArrowUp/ArrowDown (move focus within the current list), ArrowRight (open+enter submenu), ArrowLeft (close submenu, return focus to parent), Home/End (jump to first/last item) — mirroring the existing `DanxSelect` listbox keyboard pattern (`DanxSelect.vue:264,331,343`). I:6 (core interactive widget, used directly and via `markdown-editor/MarkdownEditor.vue`'s table/text context menu; currently only Tab-per-item + native button Enter/Space works, no proper menu semantics for AT users) C:8 (proven in-codebase pattern to copy from Select) E:6 (isolated to `DanxContextMenu.vue` + `types.ts`, moderate care needed for the submenu nesting + existing hover-open timers). |
+| DanxFileExplorer tree arrow-key navigation (roving tabindex) | Drafted this session (Bug/a11y) | 252 (6×7×6) | Session 32 fresh find, NOT YET CARDED. Replace `FileExplorerNode.vue`'s per-node `tabindex="0"` with a roving-tabindex model driven by `DanxFileExplorer`'s existing flattened `explorer.visibleNodes` computed (`DanxFileExplorer.vue:130`), and add `@keydown` for ArrowDown/ArrowUp (move focus to next/prev visible row), ArrowRight (expand folder or move into first child), ArrowLeft (collapse folder or move to parent), Home/End (jump to first/last visible row) — per the WAI-ARIA APG Tree View pattern the component's own `role="tree"`/`role="treeitem"` already advertise. I:6 (keyboard users must currently Tab once per row to traverse a tree of any size; AT announces tree semantics the widget doesn't fully support) C:7 (well-understood roving-tabindex/tree-nav pattern, but the recursive `FileExplorerNode` component structure needs the focus-management logic centralized in `useFileExplorer.ts`/the provided context rather than each node managing its own) E:6 (touches `FileExplorerNode.vue` + `useFileExplorer.ts`, no template/visual changes). Distinct from DXUI-47 (separate, still-Missing generic `DanxTreeView` for arbitrary data). |
 
 ---
 
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 31, drafts-only dispatch — explicitly told this dispatch has NO
+**2026-07-11 (session 32, drafts-only dispatch — explicitly told this dispatch has NO
 `mcp__danx_dashboard__*` tool access; Bash/Read/Edit/Write only)** — Dispatched into the isolated
 `danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo checkout there). Read/wrote the
 canonical checkout at `/home/newms/web/danx-ui` directly, per orchestrator instruction.
 
-Re-verified reality (14th+ consecutive confirming session):
-- `git log --oneline -5 -- src/ package.json`: still tip `6524fa1` (v0.8.17, 2026-06-25) — no
+Re-verified reality (15th+ consecutive confirming session):
+- `git log --oneline -3 -- src/ package.json`: still tip `6524fa1` (v0.8.17, 2026-06-25) — no
   `src/` change since. `ls src/components` still 31 dirs, matches Section 1 inventory.
 - No dashboard/API access this session (no MCP tools) — could not re-check live card counts/status
   in Review/ToDo/In Progress; orchestrator is responsible for dedup + creation this round.
 
-**New ground covered this session:** per session 30's own recommendation to move off `shared/` (now
-close to exhausted) onto lower-scrutiny `components/` dirs, read in depth: `zoomable/` (`DanxZoomable.vue`,
-`useZoomable.ts`), `danx-file-viewer/` (`useVirtualCarousel.ts`, `DanxFileViewer.vue` keyboard/touch
-wiring), `color-picker/` (`DanxColorPickerPanel.vue`, `useRecentColors.ts` — used as an a11y/pattern
-reference baseline), `split-panel/` (`SplitPanelHandle.vue`, cross-checked against `useSplitPanel.ts`),
-`scroll/` (`useScrollInfinite.ts`, `DanxVirtualScroll.vue`), `editable-div/DanxEditableDiv.vue`. Found 2
-new, grounded findings (added to Section 1 gaps table + Section 2 scratchpad):
-1. `useZoomable.ts` (backs `DanxZoomable`, composed by `DanxFileViewer`) implements zoom/pan/reset
-   exclusively via desktop input — Ctrl/Cmd+wheel, Ctrl/Cmd+mousedown-drag, Ctrl/Cmd+keyboard.
-   Grep-confirmed zero `touch`/`pointer`/`pinch`/`touch-action` refs in `src/components/zoomable/`.
-   `DanxFileViewer` already wires `useTouchSwipe` for prev/next swipe (`DanxFileViewer.vue:393`), but
-   the "Photoshop-style zoom" headline feature itself is entirely unreachable on a touch device — no
-   pinch-zoom, no pan-when-zoomed. ICE 240 (6×5×8), Feature/Valuable.
-2. `SplitPanelHandle.vue` sets `role="separator"` + `aria-orientation` but has NO `tabindex`, NO
-   `aria-valuenow`/`min`/`max`, and NO `@keydown` — only `pointerdown` is wired (grep-confirmed).
-   Keyboard-only users cannot resize a `DanxSplitPanel` at all. Notably NOT a missing-pattern problem —
-   `color-picker/DanxColorPickerPanel.vue` already implements the correct `role="slider"` +
-   `aria-value*` + `@keydown` pattern for its saturation/hue/alpha sliders (lines 394-453), so this is
-   an inconsistency to copy the existing pattern into, not new ground to invent. Distinct from DXUI-19
-   (Tabs/ButtonGroup/Tooltip) and DXUI-40 (unguarded localStorage write, same file, different concern).
-   ICE 336 (6×8×7), Bug/a11y — highest ICE new finding this session.
+**New ground covered this session:** per session 31's own recommendation, deep-dived the previously
+only-lightly-grepped dirs: `context-menu/` (`DanxContextMenu.vue` full read + its test file),
+`file-explorer/` (`FileExplorerNode.vue`, `DanxFileExplorer.vue`, `useFileExplorer.ts` — grepped),
+`code-viewer/` (`CodeViewerFooter.vue` full read + grepped the rest of the dir), `select/`
+(`DanxSelect.vue` grepped as the a11y pattern baseline/reference), `danx-file-upload/`
+(`DanxFileUploadDropZone.vue` full read — confirmed no new finding beyond the already-drafted
+session-28 paste-to-upload item). Found 3 new, grounded findings (added to Section 1 gaps table +
+Section 2 scratchpad):
+1. `DanxContextMenu.vue` (full read, 282 lines) renders items as plain `<button>`s with
+   click/mouseenter/mouseleave only — grep-confirmed zero arrow-key handling and zero
+   `role="menu"`/`role="menuitem"` in the component or its test file. Only Escape-to-close works
+   (inherited free from `DanxPopover`'s `useEscapeKey`); the test file's own "Enter" test
+   (`DanxContextMenu.test.ts:564-570`) only asserts Enter does NOT close, not that it navigates.
+   `DanxSelect` already models the correct arrow-key/`role="listbox"` pattern
+   (`DanxSelect.vue:264,331,343`) this should mirror. Also affects `markdown-editor/MarkdownEditor.vue`,
+   the only other consumer of `DanxContextMenu` (its right-click table/text-formatting menu).
+   ICE 288 (6×8×6), Bug/a11y.
+2. `FileExplorerNode.vue:87-94` sets `role="treeitem"` + full aria-expanded/selected/disabled and
+   Enter/Space activation, but EVERY node gets `tabindex="0"` unconditionally (no roving tabindex) and
+   grep-confirmed zero ArrowUp/Down/Left/Right/Home/End handling anywhere in `file-explorer/`. Per the
+   WAI-ARIA APG Tree View pattern the component's own `role="tree"` already implies, a keyboard user
+   must currently Tab once per row to traverse any tree. `DanxFileExplorer.vue:130`'s existing
+   `explorer.visibleNodes` flattened computed is the natural backing list for roving focus. Distinct
+   from DXUI-47 (separate, still-Missing generic `DanxTreeView`). ICE 252 (6×7×6), Bug/a11y.
+3. `CodeViewerFooter.vue` (full read) + grep of the whole `code-viewer/` dir confirms ZERO
+   copy-to-clipboard code anywhere — only a char-count display, a consumer `actions` slot, and an edit
+   toggle. A code viewer with no built-in copy button is a real, common-expectation gap (GitHub/MDN/
+   Stack Overflow all ship one by default). Related to but distinct from `useClipboard` (DXUI-12,
+   still Missing) — that item extracts EXISTING ad-hoc copy code from editable-div/code-viewer, but
+   code-viewer has no copy code to extract; this is net-new UI, ideally sequenced after DXUI-12 ships.
+   ICE 384 (6×8×8) — highest-ICE new finding this session.
 
-Ruled out as non-gaps after inspection: `useVirtualCarousel.ts` (clean, correct buffered-window
-computed); `useScrollInfinite.ts` (thin correct vueuse wrapper, matches DXUI-8/12/24/49's "wrap
-vueuse" precedent already); `DanxVirtualScroll.vue` (no ARIA on the container itself, but it is a
-fully generic/unopinionated slot-based renderer — item markup and any roles are entirely
-consumer-supplied, not a danx-ui gap); `useRecentColors.ts` (bounded `limit`-capped array + guarded
-localStorage read/write, correct pattern, no leak — useful as the "this is what fixed DXUI-40/43 code
-looks like" positive reference); `DanxColorPickerPanel.vue` (fully correct ARIA slider pattern — used
-above as the reference the split-panel finding is measured against); `DanxEditableDiv.vue`
-(role="textbox" + aria-multiline/invalid/readonly all present, correct); `DanxFileViewer.vue` keyboard
-nav (ArrowLeft/Right prev/next already wired, correct); `split-panel`'s drag mechanism itself
-(`pointerdown` correctly unifies mouse+touch+pen for the DRAG path — only the missing keyboard path is
-the gap).
+Ruled out as non-gaps after inspection: `DanxSelect.vue` keyboard/listbox wiring (fully correct,
+used above as the reference pattern the two new findings are measured against);
+`DanxFileUploadDropZone.vue` (purely presentational drag-drop event forwarding, correctly
+`event.preventDefault()`-guarded; confirmed the drop zone has no paste handling either, but that's
+already the session-28 draft, not new ground).
 
-**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): 2 new items — (1)
-SplitPanelHandle keyboard resize + ARIA, ICE 336, Bug/a11y, highest-confidence/highest-ICE of the two;
-(2) DanxZoomable touch/pinch support, ICE 240, Feature/Valuable, lower confidence due to gesture-
-precedence design work needed against the existing `useTouchSwipe` swipe-nav. Both are genuinely new,
-grounded in previously-unscrutinized `components/zoomable/` and `components/split-panel/` files, and
-distinct from all prior undispatched drafts (sessions 28-30, 9 items, still not cards per this file
-as of this session's read — no dashboard access to confirm/deny).
+**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): 3 new items — (1)
+CodeViewer copy-to-clipboard button, ICE 384, Feature/Valuable, highest-ICE new finding this session,
+small/isolated/high-confidence; (2) DanxContextMenu arrow-key nav + role=menu/menuitem, ICE 288,
+Bug/a11y, proven pattern to copy from Select; (3) DanxFileExplorer tree arrow-key nav (roving
+tabindex), ICE 252, Bug/a11y, distinct from the still-uncarded generic-TreeView idea (DXUI-47). All
+three are genuinely new, grounded in previously-unscrutinized `context-menu/`, `file-explorer/`, and
+`code-viewer/` files, and distinct from all prior undispatched drafts (sessions 28-31, 11 items, still
+not confirmed as cards per this file — no dashboard access this session to check).
 
-**Primary finding (still holds, now 14th+ consecutive confirmation):** idea supply is not the
-bottleneck — `src/` has been static for 2.5+ weeks across 14+ sessions while the board has
-accumulated many Review-status drafts across sessions with no dashboard access to create them.
-Recommend the orchestrator (which does have dashboard access): (1) run `issue_list` across
-Review/ToDo/In Progress to dedup, (2) create cards for the highest-ICE outstanding drafts — this
-session's SplitPanelHandle a11y fix (336) and useActionStore try/finally fix (486, session 30,
-still highest-ICE draft on file) should be prioritized first as small/certain/high-value fixes, (3)
-separately confirm whether the existing large Review backlog is being triaged into ToDo/In Progress,
-since that — not new idea supply — remains the actual bottleneck this codebase faces.
+**Primary finding (still holds, now 15th+ consecutive confirmation):** idea supply is not the
+bottleneck — `src/` has been static for 2.5+ weeks across 15+ sessions while the board has
+accumulated 14 total undispatched drafts across sessions 28-32 with no dashboard access to create
+them. Recommend the orchestrator (which does have dashboard access): (1) run `issue_list` across
+Review/ToDo/In Progress to dedup against ALL 14 drafts on file (not just this session's 3), (2) create
+cards for the highest-ICE outstanding drafts first — this session's CodeViewer copy button (384) and
+session 30's useActionStore try/finally fix (486, still highest-ICE draft on file) are the smallest,
+most-certain, highest-value fixes to prioritize, (3) separately confirm whether the existing large
+Review backlog is being triaged into ToDo/In Progress at all, since that — not new idea supply —
+remains the actual bottleneck this codebase faces.
 
 **Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, run
 `issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then create cards for the now
-11 outstanding drafts (sessions 28-30's 9 + this session's 2 — none confirmed as cards yet in this
-file). (2) If `src/` is still unchanged, remaining unscrutinized `components/` dirs worth a deep-dive:
-`code-viewer/`, `markdown-editor/`, `context-menu/`, `dialog/`, `select/`, `file-explorer/`,
-`danx-file-upload/` (all previously only lightly grepped for specific patterns, not read end-to-end
-this session) — before re-treading `shared/` (near-exhausted) or the already-deep-dived
-`zoomable/`/`split-panel/`/`color-picker/`/`scroll/`/`danx-file-viewer/`/`editable-div/` from this
-session.
+14 outstanding drafts (sessions 28-31's 11 + this session's 3 — none confirmed as cards yet in this
+file). (2) If `src/` is still unchanged, remaining unscrutinized ground: `markdown-editor/` (huge,
+~50 files, only ever grepped for hotkey-help/context-menu-reuse patterns — never read end-to-end),
+`dialog/useDialogStack.ts` + `DialogBreadcrumbs.vue` (grepped for focus-trap only, not read in full),
+`toast/` internals beyond the already-carded aria-live gap (DXUI-34), `tooltip/`, `tabs/`,
+`buttonGroup/`, `badge/`, `icon/` (none deep-dived yet in 32 sessions) — before re-treading the
+extensively-covered `shared/`, `zoomable/`, `split-panel/`, `color-picker/`, `scroll/`,
+`danx-file-viewer/`, `editable-div/`, `select/`, `context-menu/`, `file-explorer/`, `code-viewer/`.
