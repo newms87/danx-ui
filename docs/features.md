@@ -275,31 +275,31 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 64).** Dispatched from the same isolated `cardless`
-worktree as sessions 50-63
+**2026-07-11 (session 65).** Dispatched from the same isolated `cardless`
+worktree as sessions 50-64
 (`/var/tmp/danxbot-clean-room/ec38b862183fe282/danx-ui__danx-ui-main__ideator__ideator__cardless`
 — no repo checkout there, only `.claude/` config); worked directly in the
 canonical checkout at `/danxbot/app/repos/danx-ui` (==
 `/home/newms/web/danx-ui` host mount, per `DANX_REPO_ROOT` env var). Tool list
 this dispatch was again ONLY Bash/Read/Edit/Write — no
 `mcp__danx_dashboard__*` functions present (confirmed via the declared tool
-list). Same `project_ideator_tooling_gap` root cause sessions 50-63 already
+list). Same `project_ideator_tooling_gap` root cause sessions 50-64 already
 diagnosed (`.claude/settings.json` in this cardless worktree has no
-`mcpServers` block) — now **15 consecutive cardless dispatches**. Could not
-call `issue_list`/`issue_create`; producing the same 4 drafts as final-response
-text for the orchestrator to card, per standing convention.
+`mcpServers` block, unlike the target repo's own `.mcp.json` which correctly
+declares `danx_dashboard`) — now **16 consecutive cardless dispatches**. Could
+not call `issue_list`/`issue_create`; producing the same 4 drafts as
+final-response text for the orchestrator to card, per standing convention.
 
-`git log -1 --oneline` = `0a10a87` (session 63, docs-only commit). `git log -1
---oneline -- src/` still `7023a67` (DXUI-3) — **47+ consecutive sessions with
+`git log -1 --oneline` = `5bb4ce8` (session 64, docs-only commit). `git log -1
+--oneline -- src/` still `7023a67` (DXUI-3) — **48+ consecutive sessions with
 zero `src/` changes.**
 
 Re-verified all 4 outstanding uncarded drafts live by actually running the tools
-(unchanged since sessions 50-63):
+(unchanged since sessions 50-64):
 1. `npx vitest run --coverage` (full run) — identical failure:
    `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
-   isolated to `context-menu` (98.33% stmts / 93.1% branches, uncovered lines
-   `110-115,206,246` unchanged, re-confirmed by an isolated
-   `vitest run --coverage src/components/context-menu` rerun too).
+   isolated to `context-menu` (uncovered lines still present; full-suite run
+   confirms the gate is still red).
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero
    matches (exit 1, 34 files total in `docs/`).
 3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` —
@@ -308,27 +308,27 @@ Re-verified all 4 outstanding uncarded drafts live by actually running the tools
    matches, confirming `onConfirmAction`'s optimistic write still has no
    failure-path revert.
 
-No new findings this session — re-verification pass only, given 47+ session
+No new findings this session — re-verification pass only, given 48+ session
 static `src/` and materially diminishing returns from further static/grep
 analysis against an unchanging tree. Did not re-run the broader repo scan
-(package.json, exports map, ARIA grep sweep, etc.) given the prior 13+ sessions'
+(package.json, exports map, ARIA grep sweep, etc.) given the prior 14+ sessions'
 exhaustive coverage of this exact codebase.
 
-**Recommendation for next dispatch:** unchanged from session 63 — (1) the 4
+**Recommendation for next dispatch:** unchanged from session 64 — (1) the 4
 drafts below are ready to card verbatim the moment real `issue_create` access
 is available — check `issue_list` across Review/ToDo/In Progress first in case
 the orchestrator already created some from a prior handoff; (2) per
 `project_danx_ui_backlog_bottleneck`, the primary lever remaining is
 triage/dispatch of the ~90+ already-Carded Review-status items, not additional
-idea generation; (3) `src/` has now been static for 47+ sessions — worth
+idea generation; (3) `src/` has now been static for 48+ sessions — worth
 confirming with the user whether active development on danx-ui has paused;
-(4) this is the 15th consecutive dispatch with no `mcp__danx_dashboard__*`
+(4) this is the 16th consecutive dispatch with no `mcp__danx_dashboard__*`
 tools available — the cardless worktree's `.claude/settings.json` still has no
-`mcpServers` block (unlike the target repo's own `.mcp.json`, which correctly
-declares `danx_dashboard`) — recommend fixing the cardless worktree's settings
-to include the `danx_dashboard` MCP server, or routing ideator dispatches
-through a worktree that already has it, and spacing out future dispatches
-until the Review queue drains or `src/` moves again.
+`mcpServers` block — recommend fixing the cardless worktree's settings to
+include the `danx_dashboard` MCP server (copy the block from the target repo's
+`.mcp.json`), or routing ideator dispatches through a worktree that already has
+it, and spacing out future dispatches until the Review queue drains or `src/`
+moves again.
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
