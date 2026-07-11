@@ -141,6 +141,10 @@ coverage gate enforced via /flow-verify.
 | `useDanxFile` text-content fetch has no stale-response guard (race condition) | Incomplete (Bug) | Session 35, new find. `useDanxFile.ts`'s `useTextContent()` (lines 73-101) `watch(() => props.file, async (file) => { ...; const response = await fetch(url); textContent.value = await response.text(); ... })` has no request token, `AbortController`, or "is this still the current file" check before writing `textContent.value`. If `props.file` changes rapidly (e.g. a carousel/viewer stepping through multiple text files quickly, or a fast double-click), two fetches can be in-flight simultaneously and whichever network response resolves LAST wins — even if it corresponds to a file the user has already navigated away from — silently showing the wrong file's content. No other async-then-write site in the codebase this session exhibited the same gap (contrast with the codebase's otherwise careful abort-on-unmount patterns in `useFileUpload.ts`'s per-file `AbortController`s). |
 | `useFileUpload.retryFile` implemented but never wired to any UI | Missing (UI gap) | Session 35, new find. `useFileUpload.ts` fully implements `retryFile(fileId)` (lines 216-223, exported in `UseFileUploadReturn`) — resets the errored temp file's `progress`/`error` and re-calls `startUpload` using the file kept in `_fileMap` for exactly this purpose. But grep-confirmed (`grep -rn "retryFile\|retry" src/components/danx-file-upload/*.vue src/components/danx-file/*.vue` = empty) `DanxFileUpload.vue` never destructures/uses `retryFile` from the composable, `DanxFileError.vue` renders only an icon + message (no retry button/emit), and `DanxFile.vue`'s `DanxFileEmits` has no `retry` event. Today the ONLY end-user recovery path for a failed upload (bad network, server 500, timeout) is remove + re-select-and-re-upload the file from scratch — losing the one-click retry the composable was clearly built to support. |
 | CodeViewer has no copy-to-clipboard button | Missing | Session 32, new find. `CodeViewerFooter.vue` (full file read) renders only a char-count/error display, an `actions` slot for consumer-supplied buttons, and a pencil edit-toggle button — grep-confirmed (`grep -rln "copy\|Copy" src/components/code-viewer/`) zero references to copy/clipboard anywhere in `code-viewer/`. Copying a displayed code snippet is one of the most common expectations for any code viewer (GitHub, MDN, Stack Overflow all ship one by default) and currently requires every consumer to build their own via the `actions` slot. Related to but distinct from the still-Missing `useClipboard` composable (DXUI-12, scratchpad) — that item is about extracting shared copy logic from `editable-div`/`code-viewer`'s *existing* ad-hoc copy code, but `code-viewer` itself has NO copy code to extract; this is a net-new user-facing button, best sequenced as a consumer of DXUI-12 once it ships (or shipped standalone with its own small clipboard-write helper if DXUI-12 isn't picked up first). |
+| `useFormField`'s module-level `fieldIdCounter` risks SSR hydration ID mismatches | Incomplete (Bug) | Session 38, new find. `useFormField.ts:20,43`: `let fieldIdCounter = 0;` is a module-level (process-global) counter incremented once per `useFormField()` call, producing `danx-field-${n}` as the fallback `id` (used for the native input's `id`, its `<label for>`, and `aria-describedby`) whenever a consumer doesn't pass an explicit `id` prop. Consumed by `DanxInput`, `DanxTextarea`, `DanxSelect`, and `DanxFileUpload` (grep-confirmed 4 call sites). In any SSR/hydration environment (Nuxt, or a Vite SSR setup), the counter's value depends on render/mount ORDER — any divergence between server-render order and client-hydration order (conditional `v-if` fields, async-loaded siblings, `<Suspense>`, route-level code splitting) produces a client `id` that doesn't match the server-rendered HTML, causing a real Vue hydration mismatch warning and a `label[for]`/`aria-describedby` pointing at the wrong (or a nonexistent) element post-hydration. Vue 3.5+ (already the package's own peer dep floor, `vue ^3.5`) ships a built-in `useId()` composable specifically designed to be SSR-safe (seeded from the app's SSR context so server and client always agree) — this codebase doesn't use it anywhere (`grep -rn "useId" src/` = empty). Distinct from the already-tracked `useAutoColor` non-reactive dark-mode note and from DXUI-36 — this is a forms-layer SSR primitive gap, not a theming one. |
+| `fPhone` returns a raw `number` for numeric input despite its `string` return-type signature | Incomplete (Bug/type-safety) | Session 38, new find. `strings.ts:59`: `export function fPhone(value: string | number): string` declares a `string` return type, but the function's own guard clause `if (!value \|\| typeof value !== "string") { return (value as string) || ""; }` returns the raw `number` unmodified (just type-cast, not converted) whenever a truthy number is passed — confirmed by the function's OWN test (`strings.test.ts:191-193`): `expect(fPhone(5551234567)).toBe(5551234567)`, asserting equality against a JS number literal, not a string. Any downstream code trusting the declared `string` return type (e.g. calling `.slice()`/`.padStart()`, concatenating in a template, or a stricter consumer's own type-checking) can silently receive a `number` at runtime — TypeScript can't catch this because the function lies about its own signature. Every other formatter in the same file (`fTruncate`, `fUppercase`, `fLowercase`) correctly does `String(value)` before falsy/type checks; `fPhone` is the one outlier that skips coercion on this branch. |
+| `fLocalizedDateTime` shows literal `"invalid datetime"` instead of the standard empty-fallback for malformed input | Incomplete (Bug) | Session 38, new find. `dateTimeTimezone.ts:23-26`'s `localizedDateTime()` does `DateTime.fromSQL(normalized, { zone: serverTz }).setZone("local")` with NO `.isValid` check (unlike its sibling parsers in `dateTimeParsers.ts` — `parseSqlDateTime`/`parseSlashDate`/`parseSlashDateTime`/`parseGenericDateTime` ALL check `.isValid` and return `null` on failure). `datetime.ts:21-26`'s `fLocalizedDateTime()` calls `fDateTime(localizedDateTime(dateTimeString), options)`, and `fDateTime` (`datetime.ts:29-35`) does `parseDateTime(dateTime)?.toFormat(format).toLowerCase()` — `parseDateTime` (`dateTimeParsers.ts:11-19`) passes a `DateTime` instance straight through untouched (`return (dateTime as DateTime) || null`), so an INVALID Luxon `DateTime` object (truthy) sails through unchanged. Calling `.toFormat(...)` on an invalid Luxon `DateTime` returns the literal string `"Invalid DateTime"`, which `.toLowerCase()` turns into `"invalid datetime"` — NOT the `empty` fallback (`"- -"` by default) that every other formatter in the file (`fDateTime`, `fDate`, `fDateTimeMs` called with a plain string/null) consistently shows for missing/unparseable input. Grep-confirmed no test in `datetime.test.ts`/`dateTimeTimezone.test.ts` exercises a malformed/unparseable `dateTimeString` through `fLocalizedDateTime`/`localizedDateTime` — the gap is untested. `remoteDateTime` (`dateTimeTimezone.ts:29-32`, the inverse local→server conversion) has the identical unguarded-`.isValid` root cause but is lower-severity since it's typically fed a known-good local `DateTime`, not raw external string input. |
+| `fNameOrCount` has no singular/plural label handling | Minor (uncarded, lower ICE) | Session 38, new find. `strings.ts:100-104`: `fNameOrCount(items, label)` always appends the SAME `label` string regardless of count — `fNameOrCount([{name:"a"}], "items")` renders `"1 items"` (grammatically wrong), confirmed by the function's own behavior (no singular param exists to opt out). Real but cosmetic; a simple fix (optional `singularLabel` param, or naive `label.replace(/s$/, "")` for count===1) is easy but ICE lands below this session's top drafts — noted for a future session or as a quick add-on to whichever formatters card gets picked up next, not drafted standalone this session. |
 
 ---
 
@@ -234,6 +238,9 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | `shared/markdown` renders `javascript:`/`data:`-scheme link and image URLs unsanitized, even with `sanitize:true` | Incomplete (Bug/security) | Session 36, new find. `parseInline.ts` (read in full) has 5 regex-replace sites that inject a captured markdown URL directly into an emitted `href`/`src` attribute with NO scheme/protocol validation: inline links (line 67, `[text](url)` → `<a href="$2">`), images (line 64, `![alt](url)` → `<img src="$2">`), and all 3 reference-link forms (lines 75/85/96, `<a href="${ref.url}">`). `sanitize:true` (the default, `index.ts:79`) only runs `escapeHtml()` on the surrounding TEXT before markdown parsing (`parseInline.ts:22`) — it does not validate or allowlist the URL scheme captured by these link/image patterns. `[click me](javascript:alert(document.cookie))` renders as a clickable `<a href="javascript:alert(document.cookie)">click me</a>`. Grep-confirmed this output is consumed via `v-html` in `code-viewer/MarkdownContent.vue` (7 call sites: lines 138/158/166/175/183/195/205/214/218/229/238, all via `parseInlineContent`/`renderBlockquote`/`renderListItem`) — any consumer rendering user- or API-sourced markdown through `MarkdownContent` (a public, exported component) with default options gets a real click-to-execute XSS vector. Distinct from DXUI-65 (DanxIcon's unsanitized `innerHTML` for icon strings) — this is the markdown link/image renderer, a different file and a different injection primitive (`href`/`src` scheme vs `innerHTML`). Other `v-html` sites in the codebase (`CodeViewer.vue:264`, `CodeViewerCollapsed.vue:58`) were checked and are clean — `shared/syntax-highlighting/*.ts` correctly runs `escapeHtml()` on all token text before wrapping in `<span>`. |
 MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preventDefault()`'d inside the contenteditable | Incomplete (Bug/a11y) | Session 37, new find. `editorKeyHandlers.ts`'s `onKeyDown` (lines 118-135, read in full) handles `Tab` by ALWAYS calling `event.preventDefault()`, then either table-cell nav, list indent/outdent, or (the fallback, `insertTabCharacter()`) inserting a literal tab character — there is no code path where Tab is allowed to move focus out of the editor. Grep-confirmed (`grep -n "Escape\|blur\|Tab" src/components/markdown-editor/hotkeyDefinitions.ts src/components/markdown-editor/MarkdownEditorContent.vue`) there is no Escape-to-blur or any other keyboard escape hatch — `MarkdownEditorContent.vue` only forwards a native `blur` event (mouse-click-away or programmatic). A keyboard-only user who tabs into the editor (or clicks in, then wants to Tab forward) can NEVER leave via keyboard — a textbook WCAG 2.1.2 "No Keyboard Trap" violation. This is distinct from all previously-tracked markdown-editor findings (link-popover URL sanitization, dialog/popover ARIA, hotkey duplication) — nobody has looked at Tab-trapping before. |
 | MarkdownEditor's own `--dx-mde-*` theme system is fully disconnected from the rest of danx-ui's dark-mode tokens/toggle | Incomplete (Minor/consistency) | Session 37, new find. `markdown-editor-tokens.css` defines ~50 `--dx-mde-*` custom properties with a hardcoded dark palette under `:root` and a separate light palette gated behind a manually-applied `.theme-light` class on the component root (`MarkdownEditor.vue`'s own JSDoc example: `<MarkdownEditor v-model="content" class="theme-light">`) — this is completely independent of the library-wide `.dark` class / semantic `--color-*` token system documented in Section 1's "Dark mode token system" row, and has zero relationship to the still-Missing `useColorScheme` composable (DXUI-36): even once DXUI-36 ships a global light/dark toggle, MarkdownEditor will NOT follow it without also toggling this separate `.theme-light` class. Compounding: `MarkdownEditorFooter.vue`'s char-count span hardcodes Tailwind's `text-gray-500` utility (`<span class="char-count text-xs text-gray-500">`) instead of one of the file's own `--dx-mde-popover-dimmed`/`--dx-mde-menu-trigger-color` tokens used by every sibling button in the same file (`markdown-editor-footer.css`) — the one element in the footer that does NOT re-color between the dark/light `.theme-light` variants. Low severity today (no live toggle exists yet) but should be folded into DXUI-36's scope so `useColorScheme` drives both the global `.dark` class AND markdown-editor's `.theme-light` class from one source of truth, and the footer's hardcoded color gets a one-line token swap. |
+| Fix `useFormField`'s `fieldIdCounter` SSR hydration-mismatch risk (swap to Vue 3.5's `useId()`) | Drafted this session (Bug) | 280 (5×7×8) | Session 38 fresh find, NOT YET CARDED (no MCP tool access this dispatch). Replace the module-level `let fieldIdCounter = 0` counter in `useFormField.ts` with Vue 3.5's built-in SSR-safe `useId()` composable (already within the package's own `vue ^3.5` peer-dep floor) for the fallback `id` used by `DanxInput`/`DanxTextarea`/`DanxSelect`/`DanxFileUpload` when no explicit `id` prop is passed. I:5 (SSR/Nuxt consumers only, but a real hydration-mismatch + broken `label[for]`/`aria-describedby` wiring post-hydration when render order diverges between server and client) C:7 (root cause fully understood, Vue's own `useId()` exists specifically for this) E:8 (isolated to one small composable, drop-in replacement). |
+| Fix `fPhone` returning a raw `number` instead of coercing to `string` for numeric input | Drafted this session (Bug) | 288 (4×8×9) | Session 38 fresh find, NOT YET CARDED. In `strings.ts`'s `fPhone`, change the early-return branch `return (value as string) || ""` to `return String(value ?? "")` (or reuse the numeric-input branch to still run digit-formatting) so the function's actual runtime behavior matches its declared `string` return type — currently `fPhone(5551234567)` returns the JS number `5551234567`, not a string, confirmed by the function's own test asserting `.toBe(5551234567)` (a number literal). I:4 (narrow — numeric input to a phone formatter is an edge case, but it's a real type-contract violation with no compile-time guard) C:8 (trivial root cause, one-line fix, sibling formatters in the same file already show the correct `String(value)` pattern) E:9 (single line, single file). |
+| Fix `fLocalizedDateTime`/`localizedDateTime` showing literal `"invalid datetime"` for malformed input instead of the standard empty-fallback | Drafted this session (Bug) | 384 (6×8×8) | Session 38 fresh find, NOT YET CARDED. Add an `.isValid` check inside `localizedDateTime()`/`remoteDateTime()` (`dateTimeTimezone.ts`) mirroring every sibling parser in `dateTimeParsers.ts`, returning `null`-equivalent (or letting the caller's own empty-fallback take over) on invalid input, instead of letting an invalid Luxon `DateTime` flow through `parseDateTime`'s pass-through branch into `.toFormat()` (which renders the literal `"Invalid DateTime"` → lowercased `"invalid datetime"`, NOT the `empty` option's `"- -"` default that `fDateTime`/`fDate` otherwise show consistently). I:6 (real user-visible incorrect text shown in place of the library's own consistent empty-state convention, for any consumer piping unvalidated/malformed server date strings through `fLocalizedDateTime`) C:8 (root cause fully understood via full-file read across both files; fix mirrors an existing, proven pattern already used by 4 sibling parsers) E:8 (isolated to `dateTimeTimezone.ts` + a defensive check in `datetime.ts`'s `fDateTime`, small, well-testable). Highest-ICE new finding this session. |
 | `markdown-editor`'s LinkPopover/`linkDomUtils.ts` let a user set an anchor's `href` to a `javascript:` URI with no validation | Incomplete (Bug/security) | Session 36, new find. `linkDomUtils.ts`'s `createLinkElement()` (line 50-56) and `completeEditLink()` (line 30-45) call `link.setAttribute("href", url.trim())` directly on whatever string the user typed into `LinkPopover.vue`'s URL `<input>` (`LinkPopover.vue` read in full — no `type="url"`, no scheme check, `onSubmit` at line 82-86 just trims and emits the raw string) or into the `window.prompt` fallback path in `linkPopoverHandlers.ts` (lines 52/94/134, used when `onShowLinkPopover` isn't wired). A user (or paste/import flow) can create a live, clickable `<a href="javascript:...">` directly inside the WYSIWYG editor's `contenteditable` surface, which is then rendered via `v-html="html"` in `MarkdownEditorContent.vue:130` and round-tripped through `useMarkdownSync.ts`'s HTML↔Markdown conversion — meaning a malicious link typed once in the editor can also get exported as markdown and re-rendered elsewhere (compounding with the `shared/markdown` finding above). Same root cause class (no URL-scheme allowlist before use as `href`) but a different file/component (interactive editor vs. the markdown render library) — recommend fixing with a small shared `isSafeUrl(url)` helper (allowlist `http:`, `https:`, `mailto:`, `tel:`, relative/`#`/no-scheme) reused by both this editor path and the `shared/markdown` renderer. |
 
 ---
@@ -241,75 +248,89 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 37, cardless dispatch — Bash/Read/Edit/Write only, no
+**2026-07-11 (session 38, cardless dispatch — Bash/Read/Edit/Write only, no
 `mcp__danx_dashboard__*` tools exposed; per explicit launch prompt this session hands drafts back to
 the orchestrator in the report rather than calling `issue_create`/`issue_list` directly)** —
 Dispatched into the isolated `danx-ui__danx-ui-main__ideator__ideator__cardless` sandbox (no repo
-checkout there, git rev-parse confirms not a git repo). Read/wrote the canonical checkout at
-`/home/newms/web/danx-ui` directly, per established multi-session pattern.
+checkout there — confirmed via `ls`/ideator config only, not a git repo). Read/wrote the canonical
+checkout at `/home/newms/web/danx-ui` directly, per established multi-session pattern.
 
-Re-verified reality (**20th+ consecutive confirming session**):
-- `git diff 6524fa1 HEAD -- src/` and `git log --oneline 6524fa1..HEAD -- src/` are both EMPTY —
-  `src/` is unchanged since commit `6524fa1` (v0.8.17), 20+ consecutive sessions running.
+Re-verified reality (**21st+ consecutive confirming session**):
+- `git log --oneline -5 -- src/ package.json` in the canonical repo still shows `6524fa1` (v0.8.17)
+  as the last `src/`-touching commit — `src/` unchanged for 21+ consecutive sessions.
+- `git log --oneline -3` shows only feature-notes commits since (`a371eac`, `5015cce`, `1fc4c9d`) —
+  confirms no MCP dashboard tool access has been available across recent sessions either, matching
+  the user's memory note on the `ideator_tooling_gap` project.
 
-**New ground covered this session:** finished off the last of session 35/36's flagged unread
-files: `skeleton/DanxSkeleton.vue` (read in full — clean, matches its own inventory row, no gaps),
-`danx-file-viewer/DanxFileThumbnailStrip.vue`, `DanxFileViewerToolbar.vue`, `useViewerPreferences.ts`,
-`useDanxFileViewer.ts`, `DanxFileViewerContinuous.vue`, `DanxFileMetadata.vue` (all read in full —
-clean; `DanxFileViewerContinuous.vue` composes `useZoomable` so it inherits the already-tracked
-touch/pinch gap, not a new finding), and `markdown-editor/`'s remaining unread files:
-`MarkdownEditorFooter.vue`, `useCodeBlockManager.ts`, `useDomObserver.ts`, `hexColorDecorator.ts`,
-`editorKeyHandlers.ts` (read in full — found the keyboard trap below), `hotkeyDefinitions.ts` (spot
-read, clean, no new findings). Also read `markdown-editor-tokens.css`, `markdown-editor-footer.css`,
-and `vite.config.ts`/`vitest.config.ts` (build config — confirms the already-tracked DXUI-29 8/31
-entry-point gap, no new build-config finding).
+**Second-pass ground covered this session** (per launch prompt's explicit steer toward second-pass
+detail-scrutiny since first-pass `src/` coverage is likely exhausted): read in full the last
+genuinely-unread `shared/composables/` files flagged by session 37's "next session" note —
+`useFieldInteraction.ts`, `useFormField.ts`, `useTouchSwipe.ts`, `useVariant.ts` (all clean/Complete
+except the `useFormField` finding below) — plus `shared/formatters/strings.ts`,
+`dateTimeParsers.ts`, `dateTimeTimezone.ts`, and `datetime.ts` (all read in full, cross-referencing
+each other's call chains), and `shared/arrayUtils.ts` + `shared/nestedJson.ts` (both clean, no
+findings). Cross-checked all new findings against existing test files (`strings.test.ts`,
+`datetime.test.ts`, `dateTimeTimezone.test.ts`) to confirm each gap is genuinely untested, not
+already covered.
 
-**Found 2 new grounded findings, 1 minor consistency note** (added to Section 1 gaps table +
-Section 2 scratchpad):
+**Found 4 new grounded findings** (added to Section 1 gaps table + Section 2 scratchpad), none
+overlapping any of the 70 items already tracked (grepped `docs/features.md` for
+`fPhone`/`fLocalizedDateTime`/`fieldIdCounter`/`fNameOrCount`/`useId` first — zero prior hits):
 
-1. **MarkdownEditor keyboard trap (Bug/a11y, highest new-finding ICE this session, 448 = 8×8×7):**
-   `editorKeyHandlers.ts`'s `onKeyDown` unconditionally `preventDefault()`s the `Tab` key inside the
-   editor's contenteditable — table/list contexts get real Tab handling (cell nav / indent-outdent),
-   but the fallback branch is `insertTabCharacter()`, i.e. Tab NEVER moves focus out of the editor.
-   Grep-confirmed zero Escape-to-blur or any other keyboard escape hatch exists
-   (`MarkdownEditorContent.vue` only forwards native `blur`, i.e. mouse-click-away or programmatic
-   blur). A textbook WCAG 2.1.2 "No Keyboard Trap" failure in a public, widely-composed component.
-2. **MarkdownEditor's `.theme-light`/`--dx-mde-*` tokens disconnected from library dark-mode
-   (Minor/consistency, 120 = 4×6×5, recommend folding into DXUI-36 rather than standalone):**
-   `markdown-editor-tokens.css` runs an entirely separate theming system (hardcoded dark `:root` +
-   manually-applied `.theme-light` class) with zero relationship to the library's `.dark`-class
-   token system or the still-unbuilt `useColorScheme` (DXUI-36) — a future global dark-mode toggle
-   won't affect MarkdownEditor at all without also toggling `.theme-light`. Compounding:
-   `MarkdownEditorFooter.vue`'s char-count span hardcodes Tailwind `text-gray-500` instead of the
-   file's own `--dx-mde-*` tokens used by every sibling button in the same component.
+1. **`fLocalizedDateTime`/`localizedDateTime` show literal `"invalid datetime"` instead of the
+   standard empty-fallback (Bug, highest new-finding ICE this session, 384 = 6×8×8):**
+   `dateTimeTimezone.ts`'s `localizedDateTime()`/`remoteDateTime()` skip the `.isValid` check every
+   sibling parser in `dateTimeParsers.ts` performs, so a malformed `dateTimeString` produces an
+   invalid Luxon `DateTime` that sails through `parseDateTime`'s pass-through branch into
+   `.toFormat()`, rendering `"invalid datetime"` instead of the `empty` option's `"- -"` default that
+   `fDateTime`/`fDate` otherwise show consistently for bad input.
+2. **`fPhone` returns a raw `number`, not a `string`, for numeric input (Bug/type-safety, 288 =
+   4×8×9):** `strings.ts`'s `fPhone` early-return branch `return (value as string) || ""` skips
+   `String()` coercion (unlike its sibling formatters in the same file), confirmed by the function's
+   own test asserting `.toBe(5551234567)` — a number literal — against a function whose signature
+   declares `: string`.
+3. **`useFormField`'s module-level `fieldIdCounter` risks SSR hydration ID mismatches (Bug, 280 =
+   5×7×8):** consumed by `DanxInput`/`DanxTextarea`/`DanxSelect`/`DanxFileUpload` for the fallback
+   `id`/`label[for]`/`aria-describedby` wiring; a process-global counter's value depends on
+   render/mount order, which can diverge between SSR and client hydration. Vue 3.5's built-in
+   `useId()` (already within this package's own `vue ^3.5` peer-dep floor) exists specifically to
+   solve this and is unused anywhere in `src/`.
+4. **`fNameOrCount` has no singular/plural label handling (Minor, uncarded, ICE ~126):** always
+   appends the same label regardless of count (`"1 items"`), cosmetic and low-ICE — noted in
+   Section 1 as a future quick add-on, not drafted as a standalone card this session.
 
-Everything else inspected this session was ruled out as a non-gap: `DanxSkeleton.vue`,
-`DanxFileThumbnailStrip.vue`, `DanxFileViewerToolbar.vue`, `useViewerPreferences.ts` (safe
-localStorage read/write, matches the established `safeWrite` pattern), `useDanxFileViewer.ts`,
-`DanxFileMetadata.vue`, `useDomObserver.ts`, `hexColorDecorator.ts`, `useCodeBlockManager.ts` (Vue-
-app-island mount/unmount lifecycle is correctly paired) all have no new gaps. `vite.config.ts`/
-`vitest.config.ts` reviewed, no new build-config finding beyond already-tracked DXUI-29.
+Everything else read this session was ruled out as a non-gap: `useFieldInteraction.ts`,
+`useTouchSwipe.ts`, `useVariant.ts` (all clean, matches inventory), `arrayUtils.ts`/`nestedJson.ts`
+(clean, well-guarded against empty/oversized/malformed input), `dateTimeParsers.ts`'s
+`parseGenericDateTime` (ambiguous MM/dd vs dd/MM ordering is a known, already-documented tradeoff,
+not a fresh bug), `uid.ts` (counter+random combo, lower hydration risk than `fieldIdCounter` since
+`uid()` output isn't rendered as a DOM `id`/`for` attribute).
 
 **Drafts handed to orchestrator this session** (cannot call `issue_create`/`issue_list` — no MCP
-tools exposed): 2 candidate cards, ordered by ICE (full text in the final report):
-1. Fix MarkdownEditor keyboard trap — Tab always intercepted with no escape hatch (448, Bug/a11y)
-2. (Optional/lower-priority, likely fold into DXUI-36 rather than standalone) Unify MarkdownEditor's
-   `.theme-light` token system with the library dark-mode toggle (120, Maintenance)
+tools exposed): 3 candidate cards, ordered by ICE (full text in the final report):
+1. Fix `fLocalizedDateTime`/`localizedDateTime` invalid-input display (384, Bug)
+2. Fix `fPhone` numeric-input return-type violation (288, Bug/type-safety)
+3. Fix `useFormField` SSR hydration-mismatch risk via Vue's `useId()` (280, Bug)
+(`fNameOrCount` pluralization noted in Section 1/2 but not drafted standalone — ICE too low this
+round, ~126.)
 
-**Primary finding (20th+ consecutive confirmation):** idea supply is still not the bottleneck.
-`src/` has been static for 20+ sessions; per the user's memory notes the board sat at 67 cards, 100%
-Review, 0% dispatched as of last session — triage/dispatch into ToDo/In Progress, not idea
-generation, remains the actual constraint for this codebase.
+**Primary finding (21st+ consecutive confirmation):** idea supply is still not the bottleneck.
+`src/` has been static for 21+ sessions; per the user's memory notes the board sat at ~70 cards,
+100% Review, 0% dispatched as of the prior session — triage/dispatch into ToDo/In Progress, not idea
+generation, remains the actual constraint for this codebase. This session leaned into second-pass
+detail-scrutiny (composables + formatters internals) per the launch prompt's explicit steer, and
+still surfaced 3 genuinely fresh, non-duplicate, well-grounded bugs — confirming detailed second-pass
+review of "Complete"-rated files remains productive, but the fresh-ground supply is visibly thinning
+(4 findings this session vs. the broader sweeps of early sessions).
 
 **Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup this
-session's 2 new drafts (esp. #1, the keyboard-trap bug — high ICE, should be prioritized) against
-Review/ToDo/In Progress before creating, then strongly consider recommending a triage/dispatch pass
-on the growing Review backlog over generating yet more ideas. (2) If `src/` is still unchanged, this
-session closes out essentially all previously-flagged "unread file" ground across
-`danx-file-viewer/`, `skeleton/`, and `markdown-editor/`. Remaining genuinely fresh ground to try:
-`shared/composables/` (`useFieldInteraction.ts`, `useFormField.ts`, `useTouchSwipe.ts`,
-`useVariant.ts` — inventoried at a high level as "Complete" but not each individually read in full
-this deep), `shared/formatters/` internals beyond `numbers.ts` (already covered) — e.g. `duration.ts`/
-`string.ts`/`array.ts` for edge-case bugs, and the `demo/` app's own composables/pages (out of
-package scope for consumer-facing cards, but could surface demo-specific bugs worth a Maintenance
-card if the hosted-demo-site card, DXUI-33, ever ships).
+session's 3 new drafts against Review/ToDo/In Progress before creating, then strongly consider
+recommending a triage/dispatch pass on the growing Review backlog over generating yet more ideas.
+(2) If `src/` is still unchanged, remaining fresh ground to try: `shared/formatters/numbers.ts`
+internals beyond the already-tracked locale gap (DXUI-31) — edge cases in `fCurrency`/`fNumber`
+rounding/negative-number handling not yet scrutinized line-by-line; `shared/objectStore.ts` and
+`shared/actions.ts` beyond the already-tracked leak findings (sessions 30) — e.g. concurrent-write/
+race-condition edge cases; `shared/download.ts` and `shared/flashMessages.ts` (never yet read in
+full per any session log to date); and the `demo/` app's own composables/pages (out of package scope
+for consumer-facing cards, but could surface demo-specific Maintenance-card bugs if DXUI-33 ever
+ships).
