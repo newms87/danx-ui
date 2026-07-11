@@ -246,9 +246,13 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 | Fix `downloadFile` cache-busting query param breaking signed/presigned download URLs | Carded (Bug) | 392 (7×7×8) | DXUI-78. Session 39 fresh find, confirmed carded via read-only dashboard API in session 40. Skip (or make opt-in via a param) the `?no-cache=<timestamp>` append in `downloadFile()`'s URL-string branch (`shared/download.ts:96`) when the URL already carries query params that look like a signed-URL scheme (or simplest: just stop appending it unconditionally — the XHR request itself is not browser-cached across reloads in a way that matters for a one-shot user-triggered download), and add an `xhr.status` 2xx check in `xhr.onload` before treating the response as a downloadable blob, falling back to `xhr.onerror`'s `window.open` behavior on non-2xx. I:7 (breaks the file-download button entirely, not an edge case, for any consumer on S3/GCS/Azure-style signed-URL backends — the same signed-URL pattern `DanxFileUpload`'s own docs already assume for uploads) C:7 (root cause fully understood and reproducible; exact fix has a small design choice — remove vs. make conditional) E:8 (isolated to one function in `download.ts` + a status check, 1 file, easy to test with a mocked XHR). |
 | Fix `FlashMessages` severity methods letting configured defaults override per-call options | Carded (Bug) | 405 (5×9×9) | DXUI-77. Session 39 fresh find, confirmed carded via read-only dashboard API in session 40. Swap the spread order in `success`/`info`/`warning`/`error` (`shared/flashMessages.ts:47-81`) from `{variant, ...options, ...configured}` to `{variant, ...configured, ...options}`, matching `send()`'s already-correct precedence in the same file. I:5 (only affects consumers who both configure global `flashMessages` defaults per-severity AND pass per-call overrides — real but not universal) C:9 (trivial, obviously-wrong precedence, directly comparable to the correct sibling method 5 lines above in the same file) E:9 (4 one-line spread-order swaps, single file, existing tests should already cover most of the behavior change). Highest-ICE new finding this session. |
 | `autoRefreshObject` permanently stops polling (no reschedule) on any callback error or malformed response | Incomplete (Bug) | Session 40, new find. `objectStore.ts`'s `autoRefreshObject()` (lines 354-385, read in full) has NO `try/catch` around `await callback(object)` — if the consumer's refresh callback throws or its returned promise rejects (e.g. a transient network error during periodic status polling), the entire recursive async function rejects and the `registeredAutoRefreshes[name] = setTimeout(...)` reschedule line (384) is NEVER reached, silently and permanently killing the polling loop with an unhandled promise rejection (no `FlashMessages` call, nothing visible to the user beyond a possible browser console warning). Separately, the already-present `if (!refreshedObject.id) { FlashMessages.error(...); return; }` branch (lines 371-376) also `return`s BEFORE the reschedule line, so even a single malformed (but non-throwing) response permanently and silently stops the polling — the one `FlashMessages.error` call is easy to miss and there is no automatic recovery. Grep-confirmed zero internal consumers (`grep -rn "autoRefreshObject" src --include="*.ts" --include="*.vue" \| grep -v __tests__` = only the re-export in `index.ts`), so this is a latent public-API gap (same class as DXUI-54's `request.poll`, found session 29) rather than a currently-live production bug. The test suite (`objectStore.test.ts:551-561`, "reschedules itself after the interval") only exercises the successful-callback path — no test exercises a thrown/rejected callback. |
+| `DanxScroll`/`DanxVirtualScroll` viewport and custom scrollbar thumbs have zero keyboard support | Incomplete (Bug/a11y) | Session 41, new find. Grep-confirmed (`grep -rn "tabindex\|role=" src/components/scroll/`) zero hits anywhere in `scroll/` — the scrolling `.danx-scroll__viewport` div has no `tabindex`, and the custom drag thumbs (`DanxScroll.vue` lines 190-196/207-213) are bare `<div>`s with only `@pointerdown/move/up` handlers, no `role="scrollbar"`/`aria-valuenow`/keydown. A keyboard-only user cannot scroll a `DanxScroll`/`DanxVirtualScroll` container at all unless a focusable descendant happens to exist and receives Tab focus (incidental, not intentional keyboard support) — no arrow/Page Up/Page Down/Home/End on the container itself, and the visible scrollbar thumb (the whole point of this component) has no keyboard equivalent whatsoever. Distinct from DXUI-60 (SplitPanelHandle) and DXUI-50 (ResizeObserver) — different widget, different concern. |
+| `DanxEditableDiv` sets `contenteditable="plaintext-only"` with no feature-detection fallback | Incomplete (Bug) | Session 41, new find. `DanxEditableDiv.vue:317`: `:contenteditable="editable ? 'plaintext-only' : 'false'"` with no runtime check that the browser recognizes the `plaintext-only` keyword. Per the HTML spec, an unrecognized enumerated-attribute value falls back to the *invalid value default* for `contenteditable`, which is `"inherit"` — NOT `"true"` — so in a browser/webview that doesn't yet implement `plaintext-only`, the surface silently becomes non-editable entirely (inherits from its non-editable ancestor) rather than degrading to rich-text editing. No `CSS.supports`/`document.queryCommandSupported`/try-set-and-verify guard exists anywhere in the component. Existing `handlePaste` (single-line mode only) already strips rich content on paste, so the natural fallback (`contenteditable="true"` + keep the existing paste sanitizer as the safety net) is a small, low-risk addition. Severity depends on current real-world browser-support coverage, which is genuinely uncertain (evergreen browsers have been adding `plaintext-only` support over the past couple years) — flagged as a real spec-grounded failure mode, not confirmed as currently widely user-visible. |
 | `useActionRoutes` registers its list ref via `registerList` but never calls `unregisterList`, leaking forever | Incomplete (Bug) | Session 40, new find. `actionRoutes.ts:33-35`: `const listRef = ref<TypedObject[]>([]); registerList(listRef);` with the comment "Lives for the controller's lifetime — no unregister needed." But `objectStore.ts`'s own `registerList` JSDoc (lines 72-75) explicitly says: "Always pair with `unregisterList` (e.g. in `onBeforeUnmount`) to avoid leaks." `useActionRoutes()` is the standard REST-routes factory used by every `ListController`-backed list/table in a consumer app — every mount of a component that calls it (directly, or via `useActions`' typical `{routes}` wiring) adds one more `Ref<TypedObject[]>` to the module-level `registeredLists` Set (`objectStore.ts:44`) that is NEVER removed, even after the owning component unmounts. This is a second, distinct leak source alongside the already-tracked `store` Map leak (DXUI-57) — `removeObjectFromLists` (objectStore.ts:314-344) iterates every entry in `registeredLists` on every optimistic delete, so the Set also accumulates dead work over a long-running SPA session. Directly contradicts the sibling composable's own documented contract one file over — a first-party inconsistency, not just an app-author footgun. |
 | Fix `autoRefreshObject` permanently stopping polling on callback error/malformed response | Drafted this session (Bug) | 320 (6×8×7) | Session 40 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Wrap `await callback(object)` in `objectStore.ts`'s `autoRefreshObject()` in try/catch so a thrown/rejected callback still reaches the `setTimeout` reschedule (with the error optionally surfaced via `FlashMessages`), and move the existing `!refreshedObject.id` branch's `FlashMessages.error` + early `return` to ALSO reschedule the next attempt instead of permanently killing the loop. I:6 (permanent, silent death of a periodic-refresh public-API primitive on any transient error — currently zero internal consumers so latent rather than live, same class as DXUI-54's `request.poll`) C:8 (root cause fully understood, fix is a straightforward try/catch + reschedule-on-error) E:7 (isolated to one function in `objectStore.ts`, needs tests for thrown/rejected callback + the malformed-response branch continuing to reschedule). |
 | Fix `useActionRoutes` never calling `unregisterList`, leaking its list ref forever | Drafted this session (Bug) | 252 (6×7×6) | Session 40 fresh find, NOT YET CARDED. `actionRoutes.ts` registers its `listRef` via `registerList` but never calls the sibling `unregisterList` — contradicts `registerList`'s own JSDoc ("Always pair with `unregisterList`... to avoid leaks") one file over in `objectStore.ts`. Every `useActionRoutes()`-backed list/table component leaks one `Ref` into the module-level `registeredLists` Set forever, a second leak source alongside the already-carded `store` Map leak (DXUI-57). Fix requires `onBeforeUnmount(() => unregisterList(listRef))` guarded for non-component call sites (e.g. `getCurrentInstance()` check), or documenting/exposing a returned `dispose()` from `useActionRoutes`. I:6 (every ListController-backed list in a consumer app leaks on unmount; compounds DXUI-57/58's object-store leak family; contradicts the library's own documented contract) C:7 (root cause clear, but needs a design decision on the non-component-context guard) E:6 (isolated to `actionRoutes.ts`, add lifecycle hook/dispose + tests for mount/unmount). |
+| Add keyboard support to `DanxScroll`/`DanxVirtualScroll` (focusable viewport + scrollbar thumb keyboard control) | Drafted this session (Bug/a11y) | 288 (6×8×6) | Session 41 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). Add `tabindex="0"` (when content overflows) + `role="region"`/`aria-label` (or accept a consumer-supplied label) to the viewport, with a `@keydown` handler for ArrowUp/Down/Left/Right/PageUp/PageDown/Home/End calling the same `setScrollPos`-style logic `useDanxScroll.ts` already has for drag/click-to-jump; add `role="scrollbar"` + `aria-valuenow/min/max` + arrow-key handlers to the thumb divs, mirroring the codebase's own proven `role="slider"` pattern in `color-picker/DanxColorPickerPanel.vue`. I:6 (keyboard-only users cannot scroll ANY `DanxScroll`/`DanxVirtualScroll` consumer today without an incidental focusable descendant — a foundational, widely-used container, not a niche widget) C:8 (root cause fully grounded via grep — zero tabindex/role anywhere in `scroll/` — and the fix pattern is proven elsewhere in this same codebase) E:6 (touches `DanxScroll.vue` + `useDanxScroll.ts`, possibly `DanxVirtualScroll.vue`; needs keydown wiring + tests, a few files). |
+| Fix `DanxEditableDiv`'s `contenteditable="plaintext-only"` lacking a feature-detection fallback | Drafted this session (Bug) | 175 (5×5×7) | Session 41 fresh find, NOT YET CARDED. Add a small feature-detect (try setting `el.contentEditable = "plaintext-only"` then read it back, or `CSS.supports`) once on mount/setup and fall back to `contenteditable="true"` (keeping the existing single-line `handlePaste` sanitizer as the safety net) when unsupported, instead of relying on the browser's spec-mandated `"inherit"` invalid-value fallback which silently makes the whole surface non-editable. I:5 (narrow but severe when hit — total, silent feature failure rather than degraded UX, in a widely-reused core primitive) C:5 (failure mode is spec-grounded and clear, but current real-world browser-support coverage for `plaintext-only` is a genuine unknown — likely improving over time, so actual user impact today is uncertain) E:7 (small, isolated fix — one feature-detect + fallback branch in `DanxEditableDiv.vue`, plus a test forcing the unsupported path). |
 | `markdown-editor`'s LinkPopover/`linkDomUtils.ts` let a user set an anchor's `href` to a `javascript:` URI with no validation | Incomplete (Bug/security) | Session 36, new find. `linkDomUtils.ts`'s `createLinkElement()` (line 50-56) and `completeEditLink()` (line 30-45) call `link.setAttribute("href", url.trim())` directly on whatever string the user typed into `LinkPopover.vue`'s URL `<input>` (`LinkPopover.vue` read in full — no `type="url"`, no scheme check, `onSubmit` at line 82-86 just trims and emits the raw string) or into the `window.prompt` fallback path in `linkPopoverHandlers.ts` (lines 52/94/134, used when `onShowLinkPopover` isn't wired). A user (or paste/import flow) can create a live, clickable `<a href="javascript:...">` directly inside the WYSIWYG editor's `contenteditable` surface, which is then rendered via `v-html="html"` in `MarkdownEditorContent.vue:130` and round-tripped through `useMarkdownSync.ts`'s HTML↔Markdown conversion — meaning a malicious link typed once in the editor can also get exported as markdown and re-rendered elsewhere (compounding with the `shared/markdown` finding above). Same root cause class (no URL-scheme allowlist before use as `href`) but a different file/component (interactive editor vs. the markdown render library) — recommend fixing with a small shared `isSafeUrl(url)` helper (allowlist `http:`, `https:`, `mailto:`, `tel:`, relative/`#`/no-scheme) reused by both this editor path and the `shared/markdown` renderer. |
 
 ---
@@ -256,74 +260,75 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 40, cardless dispatch — Bash/Read/Edit/Write only, no
-`mcp__danx_dashboard__*` tools in this dispatch's toolset, per explicit task instructions)** —
-Confirmed via actual tool list that no `mcp__danx_dashboard__*` functions are offered this dispatch;
-per task instructions did not attempt to call them. Read/wrote the canonical checkout at
-`/home/newms/web/danx-ui` directly (this sandbox has no repo checkout, only `.claude/` config +
-mirrored `docs/features.md`).
+**2026-07-11 (session 41, cardless dispatch — Bash/Read/Edit/Write only, explicitly no
+`mcp__danx_dashboard__*` tools per launch prompt; orchestrator handles dedup/issue_create)** —
+Read/wrote the canonical checkout at `/home/newms/web/danx-ui` directly (this sandbox has no repo
+checkout, only `.claude/` config + a read-only mirrored `docs/features.md`).
 
 **Confirmed via read-only dashboard API** (`curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
-"$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"`) that both of session 39's drafts
-are now live cards: **DXUI-77** (FlashMessages precedence fix) and **DXUI-78** (downloadFile
-cache-busting fix). Board is now **75 cards total, 100% status `Review`, 0% dispatched to
-ToDo/In Progress** (up from 73 last session — confirms the orchestrator continues converting
-handed-off drafts into real cards; idea capture is working, dispatch is not happening). Updated
-both Section 2 rows from `Drafted this session` to `Carded` with their `DXUI-N` ids.
+"$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"`) that both of session 40's drafts
+are now live cards: **DXUI-79** (`autoRefreshObject` reschedule-on-error) and **DXUI-80**
+(`useActionRoutes` `unregisterList` leak). Board is now **80 cards total, 100% status `Review`, 0%
+dispatched to ToDo/In Progress** (up from 75 two sessions ago) — orchestrator continues faithfully
+converting every handed-off draft into a real card; idea capture keeps working, dispatch still isn't
+happening. Pulled and diffed all 80 titles against this session's 2 new finds — confirmed no overlap.
 
-Re-verified reality (**23rd+ consecutive confirming session**): `git log --oneline -3 -- src/
+Re-verified reality (**24th+ consecutive confirming session**): `git log --oneline -5 -- src/
 package.json` in the canonical repo still shows `6524fa1` (v0.8.17) as the last `src/`-touching
-commit, `HEAD` unrelated to `src/` — `src/` unchanged for 23+ consecutive sessions.
+commit — `src/` unchanged for 24+ consecutive sessions.
 
-**New ground covered this session:** per the prior session's "next session" note, did the
-`shared/actions.ts` (380 lines) / `shared/objectStore.ts` (393 lines) deep-dive, both read in full,
-plus `shared/actionRoutes.ts` (99 lines, previously unread) and `shared/arrayUtils.ts` (142 lines,
-previously unread; no new finding — clean).
+**New ground covered this session** (per the prior session's "next session" note, item 2 —
+systematic re-read/deep-dive for a11y/edge-case detail): read `shared/composables/` in full a
+third pass (`useFieldInteraction.ts`, `useTouchSwipe.ts`, `useVariant.ts`, `useFormField.ts` — all
+clean, `useFormField`'s `fieldIdCounter` already carded as DXUI-76); read `editable-div/
+DanxEditableDiv.vue` in full (previously only spot-checked); read `scroll/useScrollWindow.ts` (302
+lines) and `scroll/DanxScroll.vue` in full, then grepped the whole `scroll/` directory for
+`tabindex`/`role=`/`focus` (all previously read at a surface level only, never grepped for a11y
+attributes specifically).
 
-**Found 2 new grounded, well-isolated bugs** (grepped `docs/features.md` for `autoRefreshObject`/
-`registerList`/`unregisterList` first — zero prior hits, confirmed non-duplicate; also
-double-checked `actions.ts`'s `performAction`'s abort-early-return-without-resetting-`isApplying`
-path, which LOOKED like a bug but is explicitly intentional/tested —
-`actions.test.ts:117-124` asserts `expect(action.isApplying).toBe(true); // not reset on abort` —
-correctly discarded as a non-finding):
+**Found 2 new grounded, well-isolated bugs** (grepped `docs/features.md` for `DanxScroll`/
+`scrollbar`/`plaintext-only` first — zero prior hits beyond the existing DXUI-50 ResizeObserver
+card, which is a different concern — confirmed non-duplicate; also checked `useScrollWindow.ts`'s
+unbounded `sizeCache` Map for a leak parallel to DXUI-57/58 — real but far lower severity/novelty
+than a 3rd leak card this deep into the leak-family already covered, so NOT drafted standalone):
 
-1. **`autoRefreshObject` permanently and silently stops polling on any callback error or malformed
-   response (Bug, 320 = 6×8×7):** `objectStore.ts`'s `autoRefreshObject()` has no `try/catch` around
-   `await callback(object)` — a thrown/rejected callback (e.g. transient network error during status
-   polling) kills the recursive reschedule forever with an unhandled rejection; separately, the
-   existing `!refreshedObject.id` branch's early `return` also skips the reschedule on a single
-   malformed response. Zero internal consumers (grep-confirmed), so latent public-API gap, same class
-   as DXUI-54 (`request.poll`).
-2. **`useActionRoutes` never calls `unregisterList`, leaking its list ref forever (Bug, 252 =
-   6×7×6):** `actionRoutes.ts:33-35` registers its `listRef` via `objectStore.ts`'s `registerList` but
-   never calls the sibling `unregisterList` — directly contradicts `registerList`'s own JSDoc ("Always
-   pair with `unregisterList`... to avoid leaks") one file over. Every `useActionRoutes()`-backed
-   list/table leaks one `Ref` into the module-level `registeredLists` Set on every mount, forever — a
-   second, distinct leak source alongside the already-carded `store` Map leak (DXUI-57/58).
+1. **`DanxScroll`/`DanxVirtualScroll` viewport and custom scrollbar thumbs have zero keyboard support
+   (Bug/a11y, 288 = 6×8×6):** grep of all of `scroll/` for `tabindex\|role=` returns nothing — the
+   scrolling viewport has no `tabindex`, and the custom drag-thumb divs have only pointer handlers,
+   no `role="scrollbar"`/`aria-value*`/keydown. Keyboard-only users cannot scroll the container at
+   all except incidentally via a focusable descendant. Distinct from DXUI-60 (SplitPanelHandle,
+   already carded) — different widget.
+2. **`DanxEditableDiv`'s `contenteditable="plaintext-only"` has no feature-detection fallback (Bug,
+   175 = 5×5×7):** per the HTML spec, an unrecognized `contenteditable` keyword value falls back to
+   the invalid-value default `"inherit"` (not `"true"`), so in a browser/webview without
+   `plaintext-only` support the whole surface silently becomes non-editable rather than degrading to
+   rich-text. Confidence deliberately scored lower (5) — current real-world browser coverage for
+   `plaintext-only` is a genuine unknown as of this session and likely improving over time.
 
 **Drafts handed to orchestrator this session** (no `issue_create`/`issue_list` MCP tools exposed to
 this dispatch): 2 candidate cards, ordered by ICE (full text in the final report):
-1. Fix `autoRefreshObject` permanently stopping polling on callback error/malformed response (320, Bug)
-2. Fix `useActionRoutes` never calling `unregisterList`, leaking its list ref forever (252, Bug)
+1. Add keyboard support to DanxScroll/DanxVirtualScroll viewport + scrollbar thumbs (288, Bug/a11y)
+2. Fix DanxEditableDiv's plaintext-only contenteditable lacking a feature-detection fallback (175, Bug)
 
-**Primary finding (23rd+ consecutive confirmation): idea supply is conclusively no longer the
-bottleneck — this is now a triage/dispatch problem, full stop.** `src/` has been static for 23+
-sessions; the board sits at **75 cards, 100% Review, 0% ever dispatched to ToDo/In Progress**. This
-session's dedup pass again confirms the orchestrator faithfully converts every handed-off draft into
-a real card (both of session 39's drafts are now DXUI-77/78) — so idea capture is not the failure
-mode. Fresh first-read ground in `src/` is now essentially exhausted: `shared/actions.ts`,
-`shared/objectStore.ts`, and `shared/actionRoutes.ts` (this session's deep-dive) plus every file
-flagged in the last ~10 sessions' "next session" notes have now been read in full at least once,
-most multiple times across 40 sessions. Recommend the next dispatch into this project prioritize a
-triage/dispatch pass (promoting a batch of the highest-ICE Review cards to ToDo) over further
-ideation, unless the orchestrator has a specific reason idea supply must keep growing (e.g. a policy
-requiring a constant minimum queue depth regardless of dispatch rate).
+**Primary finding (24th+ consecutive confirmation): idea supply remains conclusively not the
+bottleneck — this is a pure triage/dispatch problem.** `src/` has been static for 24+ sessions; the
+board sits at **80 cards, 100% Review, 0% ever dispatched to ToDo/In Progress**. Fresh, genuinely
+novel ground is now extremely thin: this session's second/third-pass deep dive into
+`shared/composables/` (fully exhausted, nothing new) and a full read + attribute-grep of `scroll/`
+(previously only skimmed) turned up exactly 2 findings, one of which (the `plaintext-only` fallback)
+is a deliberately lower-confidence, narrower-audience finding rather than a slam-dunk. Virtually
+every file in `src/components/` and `src/shared/` has now been read in full at least once, most
+multiple times, across 41 sessions. **Honest assessment: this codebase is at or past the point of
+diminishing returns for pure re-read ideation.** Recommend the orchestrator prioritize a triage/
+dispatch pass on the 80-deep Review backlog over commissioning further ideation sessions on this
+project, unless a specific policy requires sustaining a minimum queue depth regardless of dispatch
+rate — in which case future sessions should expect increasingly marginal (lower-ICE, lower-confidence,
+more speculative/Exploratory) finds, not another run of clean Bug/a11y discoveries like this one.
 
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, dedup
-this session's 2 new drafts against Review/ToDo/In Progress before creating, then strongly consider
-recommending/performing a triage/dispatch pass on the 75-deep Review backlog instead of generating
-yet more ideas. (2) If `src/` is still unchanged and idea generation is still requested, remaining
-under-scrutinized angles: `shared/composables/` third-pass edge-case review, `demo/` app's own
-composables (out of package scope for consumer cards, relevant only if DXUI-33 ships), or a
-systematic re-read of "Complete" components for a11y/edge-case detail given first/second-pass
-ground is exhausted.
+**Next session (if commissioned despite the above):** Remaining not-yet-fully-exhausted angles are
+now genuinely thin: (1) `useScrollWindow.ts`'s unbounded `sizeCache` Map (noted above, real but low
+novelty/severity, a 3rd entry in the leak family) could be drafted if a "complete the leak-family
+sweep" pass is wanted; (2) `demo/` app's own composables (out of package scope for consumer cards
+unless DXUI-33 ships); (3) a byte-for-byte diff of `docs/*.md` prose against actual current component
+prop/emit signatures, hunting for stale documentation (a different axis than code-behavior bugs,
+not yet systematically attempted in 41 sessions).
