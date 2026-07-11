@@ -230,3 +230,50 @@ unchanged at `6524fa1`, the actionable finding continues to be dispatch/review v
 Review, not triaged into ToDo/In Progress), not idea supply. The backlog is fully inventoried and does not
 need more cards; recommend to the operator that dispatch throughput, not ideation, is the bottleneck to
 investigate.
+
+**2026-07-11 (session 24, orchestrator follow-up)** — The orchestrating `/danx-ideate` dispatch (separate
+from the ideator subagent, which again lacked `mcp__danx_dashboard__*` in its declared toolset — 7th
+consecutive absence) DID have MCP dashboard tools and ran `issue_list({type:'Feature'})` directly, confirming
+the board is still 40 Feature + 6 Bug (DXUI-4..49), 100% Review, 0% dispatched — unchanged from session 23.
+No new cards created: the ideator's own ICE analysis already excludes the remaining Exploratory items
+(ImageCropper, DanxCalendar, Figma tokens export, RTL/logical-CSS, visual-regression testing) from carding
+on the merits (low impact/confidence/ease or narrow audience), not because of tool unavailability — so
+carding them now would contradict the ideator's own prioritization. Confirmed finding stands: dispatch/review
+throughput, not idea supply, is the bottleneck. Recommend the operator triage the existing 46 Review cards
+into ToDo before requesting further ideation passes.
+
+**2026-07-11 (session 25)** — Dispatched into the isolated `danx-ui__danx-ui-main__ideator__ideator__cardless`
+worktree again (no `.git`, no `src/` there); read/wrote the canonical checkout at `/home/newms/web/danx-ui`.
+This session's declared toolset was, once again, only Bash/Read/Edit/Write — **no `mcp__danx_dashboard__*`
+tools present** despite the launch prompt instructing direct `issue_list`/`issue_create` calls (8th
+consecutive confirmed-absent session for the ideator subagent specifically, sessions 18-25). Per the ideator
+contract, issue creation must go through the sanctioned MCP `issue_create` tool; since it was unavailable, no
+cards were fabricated and no raw-HTTP-POST write workaround was attempted (matches sessions 18-24's
+reasoning — session 17's one-off raw-POST previously hit an `ac` item schema-mismatch bug, and writing
+through an unvalidated side channel risks corrupting the board's already-deduplicated 46-card set).
+Re-verified reality read-only instead:
+- `git log --oneline -1 -- src/ package.json`: still `6524fa1` (v0.8.17 bump only); `git log -1 --format=%cd
+  -- src/ package.json` = `2026-06-25` — **no `src/` change in ~2.5 weeks**, 8th+ consecutive session
+  confirming this.
+- `curl -H "Authorization: Bearer $DANXBOT_DISPATCH_TOKEN"
+  "$DANXBOT_DASHBOARD_URL/api/issues?board=danx-ui:danx-ui-main"` (qualified board id, read-only) confirms
+  **46/46 issues still `status: Review`, 0% dispatched** (40 Feature / 6 Bug, DXUI-4..49) — byte-for-byte
+  unchanged from sessions 19-24.
+- `ls src/components` (31 dirs) matches the Section 1 inventory exactly — no new component directories.
+  Re-grepped for `commandpalette`/`command-palette` and `imagecropper`/`image-crop` across `src/` + `demo/` —
+  still zero hits, confirming those two Exploratory scratchpad entries remain genuinely un-built.
+- No changes made to Section 1/2 content this session — nothing new to add, nothing shipped to reclassify.
+
+**No cards created this session** (write path unavailable — see above).
+
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability FIRST — this has now been absent from
+the ideator subagent's own toolset for 8 straight sessions (18-25) even though an orchestrator-level dispatch
+(session 24) confirmed the tools DO exist and work when granted to the right agent. If present here, run
+`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` for real dedup before creating anything from the
+not-yet-carded Exploratory scratchpad (ImageCropper ICE 100, DanxCalendar ICE 48, Figma tokens export ICE 60,
+RTL/logical-CSS, visual-regression testing, CommandPalette pending DXUI-8). (2) If still absent and `src/`
+still unchanged, the finding is unchanged: **dispatch/review throughput, not idea supply or ideator tooling,
+is the bottleneck** — 46 fully-scored, deduplicated cards have sat 100% in Review with 0% dispatched across
+8+ sessions. Recommend the operator (a) grant `mcp__danx_dashboard__*` to the ideator subagent's toolset
+specifically (it works at the orchestrator level per session 24) and (b) triage the existing Review backlog
+into ToDo/In Progress before requesting further ideation passes.
