@@ -274,33 +274,50 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 54, cardless dispatch).** This dispatch's tool list contained
-ONLY Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` functions — matching
+**2026-07-11 (session 55, cardless dispatch).** Tool list contained ONLY
+Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` functions — matching
 `project_ideator_tooling_gap`. Did NOT fabricate `issue_list`/`issue_create` calls;
-handed off drafts as structured text, same as sessions 47/50/51/52/53.
+handed off drafts as structured text, same as sessions 47/50/51/52/53/54.
 
 This isolated worktree (`danx-ui__danx-ui-main__ideator__ideator__cardless`) has no
 git checkout of its own. Worked directly in the canonical checkout at
 `DANX_REPO_ROOT=/danxbot/app/repos/danx-ui` (symlink to `/home/newms/web/danx-ui`).
-`git log -1 --oneline` = `3273b12` (session 53). `git log -1 -- src/` still `7023a67`
-(DXUI-3) — 36+ consecutive sessions with zero `src/` changes.
+`git log -1 --oneline` = `8f27335` (session 54). `git log -1 -- src/` still `7023a67`
+(DXUI-3) — 37+ consecutive sessions with zero `src/` changes.
 
-Re-verified all 3 of session 53's uncarded drafts live by actually running the tools:
+Re-verified all 3 of session 54's uncarded drafts live by actually running the tools:
 1. `npx vitest run --coverage` — identical failure, `context-menu` 98.33%/93.1%,
    uncovered lines `110-115,206,246` unchanged.
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero matches.
 3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` — line 82
-   still unguarded; confirmed write-side origin at `syncConverters.ts:106`.
-4. `grep -rn "TODO|FIXME|XXX" src/` — zero hits (fresh-angle check, nothing new found).
+   still unguarded.
 
-No new findings — `src/` static 36+ sessions, backlog already has ~85 Carded entries
+Tried 3 fresh-angle checks looking for anything new: `grep` for stray
+`console.log`/`debugger` in `src/` (only 2 hits, both intentionally gated behind a
+`debug` prop/flag — not a finding), `eslint-disable` count (6, unchanged shape, not
+individually inventoried as this is normal), `@ts-ignore`/`@ts-expect-error` (zero
+hits). `yarn` binary not available in this environment this session (`yarn outdated`
+failed with "No such file or directory") so dependency-staleness could not be checked
+this pass. No new findings surfaced.
+
+No new findings — `src/` static 37+ sessions, backlog already has ~85 Carded entries
 in Section 2 per `project_danx_ui_backlog_bottleneck`. Did not pad the draft count.
 
-**Recommendation for next dispatch:** (1) the 3 drafts above are ready to card verbatim
+**Recommendation for next dispatch:** (1) the 3 drafts below are ready to card verbatim
 once real `issue_list`/`issue_create` access is available — check `issue_list` across
 Review/ToDo/In Progress first in case the orchestrator already created them; (2) keep
 running "actually run the tools" (coverage/lint/typecheck/grep) every session — it's
-the only lever still finding anything live; (3) per
+the only lever still finding anything live; verify `yarn` is on PATH before relying on
+`yarn lint`/`dev:check` results in a given dispatch (unavailable this session); (3) per
 `project_danx_ui_backlog_bottleneck`, triage/dispatch capacity — not idea supply —
 remains the primary bottleneck; consider prioritizing dispatch of existing high-ICE
 Review cards over generating more net-new ones.
+
+## Drafts produced this session (see final response to orchestrator for full text)
+
+1. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
+   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (5 sessions).
+2. **Feature/Maintenance** — Write docs pages for DanxSelect, DanxInput, DanxTextarea,
+   DanxFieldWrapper. ICE 288 (6×8×6). Re-confirmed live, unchanged since session 47.
+3. **Bug** — `useTokenManager.mountToken` unguarded `JSON.parse(groupsAttr)`. ICE 288
+   (4×8×9). Re-confirmed live, unchanged since session 52.
