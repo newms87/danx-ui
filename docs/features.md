@@ -238,7 +238,7 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Sanitize `href`/`src` URL schemes in `shared/markdown` link/image rendering | Carded (Bug/security) | 448 (7×8×8) | DXUI-71. Session 36 fresh find, now carded. Add a shared `isSafeUrl(url)` allowlist helper (http/https/mailto/tel/relative/#/no-scheme; reject javascript:/data:/vbscript:/etc.) and apply it in `parseInline.ts`'s 5 link/image regex-replace sites (lines 64/67/75/85/96), falling back to a neutralized href (e.g. `href="#"` or stripping the anchor) for disallowed schemes. I:7 (real click-to-execute XSS in a public, exported component — `MarkdownContent` — reachable by any consumer rendering untrusted/API-sourced markdown even with the documented `sanitize:true` default) C:8 (root cause fully understood via grep + full-file read, fix is a small pure-function allowlist reused at 5 call sites) E:8 (isolated to `shared/markdown/parseInline.ts` + one new small helper + tests for each of the 5 sites).
 | Sanitize URL scheme when inserting/editing links in the markdown-editor WYSIWYG (`LinkPopover`/`linkDomUtils.ts`) | Carded (Bug/security) | 336 (6×8×7) | DXUI-72. Session 36 fresh find, now carded. Reuse the same `isSafeUrl(url)` helper proposed above in `linkDomUtils.ts`'s `createLinkElement()`/`completeEditLink()` before calling `setAttribute("href", ...)`, and reject/no-op (with a small inline validation message in `LinkPopover.vue`) on disallowed schemes; also guard the two `window.prompt(...)` fallback paths in `linkPopoverHandlers.ts`. I:6 (a user can create a live clickable `javascript:` link directly inside the editor's `contenteditable` surface, which is both rendered via `v-html` in `MarkdownEditorContent.vue` and exportable as markdown via `useMarkdownSync.ts` — compounding with the renderer-side finding above) C:8 (same well-understood fix pattern, shares the helper) E:7 (touches `linkDomUtils.ts` + `linkPopoverHandlers.ts` + `LinkPopover.vue` for user-facing validation feedback, 3 files).
 | Fix MarkdownEditor keyboard trap: Tab always `preventDefault`'d with no escape hatch | Carded (Bug/a11y) | 448 (8×8×7) | DXUI-73. Session 37 fresh find, now carded. In `editorKeyHandlers.ts`'s `onKeyDown`, only `preventDefault()`+intercept Tab when in a table/list context (delegate to `tables.handleTableTab`/`lists.indentListItem`/`outdentListItem`) or when the caller has opted into tab-trapping; otherwise let Tab move focus natively out of the contenteditable (or add an explicit documented escape, e.g. Escape-then-Tab, matching common rich-text-editor conventions e.g. Slate/Lexical/Draft.js all ship an explicit "release focus" affordance). I:8 (total, unconditional keyboard trap — WCAG 2.1.2 failure — in a public, widely-reused component; keyboard-only users cannot leave the editor by keyboard at all) C:8 (root cause fully understood and localized to one function; the table/list Tab-handling logic that SHOULD stay intercepted already exists and is unaffected) E:7 (isolated to `editorKeyHandlers.ts`'s Tab branch + a docs/AC decision on the exact non-trapped default, plus tests for both trapped-in-table/list and released-elsewhere cases).
-| Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage gate | Drafted this session (Bug), NOT YET CARDED — no MCP tool access this dispatch | 504 (7×9×8) | Session 50 fresh find. `npx vitest run --coverage` currently exits non-zero (`ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`) solely due to `src/components/context-menu` (98.33% stmts, lines 110-115/206/246 uncovered — the new `getMenuPanel`/`updateSubmenuDirection` rect-based submenu-direction logic + the `#trigger` slot branch + the nested-submenu `v-if`, all added in the last `src/` commit `7023a67`/DXUI-3). I:7 (breaks the enforced coverage gate for the WHOLE repo right now — every future `test:coverage` run fails regardless of what's touched, and would fail CI once DXUI-28 ships; only found by actually running the suite, which no session in 30+ had done). C:9 (root cause fully verified live via 2 independent coverage runs, exact uncovered lines pinpointed). E:8 (add 2-4 targeted test cases to the existing `DanxContextMenu.test.ts` — e.g. a menu mounted where `menuRef.value.closest('.danx-popover')` returns null, and asserting both v-if branches around lines 206/246 are exercised in isolation — isolated to one test file). Highest-ICE new finding since session 39-ish; recommend orchestrator create this immediately given it's a currently-live, reproducible CI-blocking regression, not a latent one. |
+| Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage gate | Drafted this session (Bug), NOT YET CARDED — no MCP tool access this dispatch. **Re-confirmed live session 51**: `npx vitest run --coverage` still exits non-zero with the identical `98.33%`/`93.1%` numbers and identical uncovered lines `110-115,206,246` — zero `src/` changes since session 50 (`git log -1 -- src/` unchanged at `7023a67`). | 504 (7×9×8) | Session 50 fresh find. `npx vitest run --coverage` currently exits non-zero (`ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`) solely due to `src/components/context-menu` (98.33% stmts, lines 110-115/206/246 uncovered — the new `getMenuPanel`/`updateSubmenuDirection` rect-based submenu-direction logic + the `#trigger` slot branch + the nested-submenu `v-if`, all added in the last `src/` commit `7023a67`/DXUI-3). I:7 (breaks the enforced coverage gate for the WHOLE repo right now — every future `test:coverage` run fails regardless of what's touched, and would fail CI once DXUI-28 ships; only found by actually running the suite, which no session in 30+ had done). C:9 (root cause fully verified live via 2 independent coverage runs, exact uncovered lines pinpointed). E:8 (add 2-4 targeted test cases to the existing `DanxContextMenu.test.ts` — e.g. a menu mounted where `menuRef.value.closest('.danx-popover')` returns null, and asserting both v-if branches around lines 206/246 are exercised in isolation — isolated to one test file). Highest-ICE new finding since session 39-ish; recommend orchestrator create this immediately given it's a currently-live, reproducible CI-blocking regression, not a latent one. |
 | Fix CodeViewer hardcoded Tailwind gray/red text colors bypassing its own token system | Carded (Bug/Maintenance) | 256 (4×8×8) | DXUI-83. Session 45 fresh find, confirmed carded (orchestrator verified via issue_list, session 49). Add `--dx-code-viewer-footer-text` / `--dx-code-viewer-footer-text-hover` / `--dx-code-viewer-footer-error-text` / `--dx-code-viewer-collapse-toggle-text` tokens to both dark and light blocks of `code-viewer-tokens.css` (mirroring the existing `collapsed-text`/`content-text` pattern), then swap the 4 hardcoded Tailwind classes in `CodeViewerFooter.vue` (x2), `CodeViewer.vue`, and `CodeViewerCollapsed.vue` for the new tokens. I:4 (real but narrow — cosmetic/contrast issue affecting only consumers who opt into `.theme-light`, not a functional break) C:8 (root cause fully grounded via grep + token-file diff; fix pattern proven verbatim elsewhere in the same file) E:8 (isolated to 3 small `.vue` files + 1 token CSS file, no cross-cutting changes). |
 | Unify MarkdownEditor's `.theme-light`/`--dx-mde-*` tokens with the library-wide dark-mode system (fold into DXUI-36) | Drafted this session (Maintenance, low ICE — likely AC addition rather than standalone) | 120 (4×6×5) | Session 37 fresh find, NOT YET CARDED. `markdown-editor-tokens.css`'s ~50 `--dx-mde-*` tokens + manually-applied `.theme-light` class root are entirely separate from the library's `.dark`-class semantic token system and the still-unbuilt `useColorScheme` (DXUI-36) — a global dark-mode toggle won't affect MarkdownEditor at all today. I:4 (real but low-visibility until DXUI-36 ships a live toggle; workaround today is trivial — just don't add `.theme-light`) C:6 (clear root cause, but the "right" fix depends on DXUI-36's own design, e.g. whether it exposes a shared reactive `isDark` other components/tokens can key off) E:5 (touches token wiring + DXUI-36's own scope, not purely isolated). Recommend folding into DXUI-36's AC rather than a standalone card, same treatment as the earlier `useAutoColor` dark-mode note (session 30).
 | DanxSelect has no letter-key type-ahead when `filterable` is false | Incomplete | Session 34 fresh find. `useSelectKeyboard.ts`'s `handleKeydown` switch (lines 105-169, read in full) handles ArrowDown/Up/Enter/Space/Escape/Tab/Home/End only — grep-confirmed (`grep -n "key.length === 1\|charCode\|typeahead" src/components/select/*.ts`) zero single-character key handling anywhere. A native `<select>` (and most select-widget libraries) lets a focused-but-closed dropdown jump to the first option starting with a typed letter, repeated presses cycling matches — `DanxSelect` has NO such behavior when `filterable` is unset/false (the common case for short option lists where a search box is overkill), so keyboard users must Arrow-key through the entire list one item at a time. `filterable=true` mode has a real text input as a workaround, but that's an opt-in, different UX. |
@@ -262,7 +262,7 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 | Fix `yarn dev:check` checking the wrong port (5173 instead of 5777) | Carded (Bug/tooling) | 486 (6×9×9) | DXUI-85. Session 48 fresh find, confirmed carded (orchestrator verified via issue_list, session 49). Change `package.json:88`'s `dev:check` script from `http://localhost:5173` to `http://localhost:5777` to match `vite.config.ts:36`'s configured port. I:6 (breaks the fast "after any code change" validation loop `.claude/rules/paths-and-commands.md` tells every agent session on every worktree to use; currently always fails via curl exit 7 regardless of whether the dev server compiled) C:9 (root cause fully verified live — started the dev server, confirmed 5777 responds 200 and 5173 connection-refuses with curl exit 7) E:9 (single-character-equivalent one-line fix, one file). Highest-ICE new finding this session. |
 | Fix `.claude/rules/testing.md` documenting 100% branch coverage when `vitest.config.ts` only enforces 85% | Carded (Maintenance/docs) | 256 (4×8×8) | DXUI-86. Session 48 fresh find, confirmed carded (orchestrator verified via issue_list, session 49). Session 49 additionally confirmed the SAME 100%-branches drift also appears in `CLAUDE.md:28,66` ("100% test coverage required") and `docs/contributing.md` ("Coverage thresholds are enforced at 100% for lines, functions, branches, and statements") — recommend widening DXUI-86's AC to fix all three docs in one pass rather than filing separate cards (same root cause, same fix). Update `.claude/rules/testing.md`'s coverage-thresholds table to say `Branches: 85%` (matching `vitest.config.ts:24-29`'s actual gate and its own explanatory comment about V8/Vue-SFC branch-coverage limitations) instead of the current incorrect `100%`. I:4 (doc/config drift misleads agents/contributors about the real enforced gate — either wasted effort chasing an unreachable number or false confidence) C:8 (trivial, directly comparable side-by-side, `vitest.config.ts` already has its own comment explaining the intentional 85%) E:8 (one-line table-cell edit in one markdown file). |
 | Add the 33 missing `src/index.ts` exports to `useLivePreview.ts`'s `AVAILABLE_VALUES` registry | Carded (Maintenance/tooling) | 240 (5×8×6) | DXUI-87. Session 48 fresh find, confirmed carded (orchestrator verified via issue_list, session 49). Add the 33 grep/diff-confirmed missing names (see Section 1 row above for the full list — `useSelect`, `useMarkdownEditor`, `autoRefreshObject`, `setServerTimezone`, the color-conversion helpers, etc.) to `demo/composables/useLivePreview.ts`'s `AVAILABLE_VALUES` map, per the project's own CRITICAL rule in `.claude/rules/demo-live-preview.md`. Consider also adding a small script/test asserting `src/index.ts` exports ⊆ `AVAILABLE_VALUES` keys so this can't silently drift again (same class of ask as DXUI-29's "generate + drift check" for the package.json exports map). I:5 (latent today — no current demo page imports any of the 33 missing names — but a landmine for the next demo page/example that does, with the exact `ReferenceError` failure mode the project's own docs warn about) C:8 (mechanical diff already done this session, listing the exact 33 names; low ambiguity) E:6 (bulk-add ~33 registry entries across the right categorized comment sections, half-day incl. a light regression check that nothing already-registered gets duplicated). |
-| Write docs pages for DanxSelect, DanxInput, DanxTextarea, DanxFieldWrapper | Drafted this session (Maintenance) | 288 (6×8×6) | Session 47 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). See Section 1 row above. Add `docs/select.md`, `docs/input.md`, `docs/textarea.md`, `docs/field-wrapper.md` following the established doc-page format (props table, events, slots, usage examples — mirror `docs/toggle.md`/`docs/range-slider.md` structure) documenting `DanxSelectProps`/`DanxInputProps`/`DanxTextareaProps`/`DanxFieldWrapperProps` from `src/components/{select,input,textarea,field-wrapper}/types.ts`, and add all 4 to README's docs index alongside DXUI-25's fix. I:6 (these are the most commonly reached-for form primitives in any consumer app — a new consumer literally cannot find usage docs for basic text/select inputs today) C:8 (doc-page format/structure is an established, proven pattern across 34 existing pages; content is a straightforward prop/event/slot transcription) E:6 (4 new doc files, half-day, no code changes — purely additive docs work). |
+| Write docs pages for DanxSelect, DanxInput, DanxTextarea, DanxFieldWrapper | Drafted this session (Maintenance) | 288 (6×8×6) | Session 47 fresh find, NOT YET CARDED (no MCP tool access this dispatch — handed to orchestrator as draft). **Re-confirmed live session 51**: `ls docs/*.md \| grep -iE "select\|input\|textarea\|field-wrapper"` still returns zero matches. See Section 1 row above. Add `docs/select.md`, `docs/input.md`, `docs/textarea.md`, `docs/field-wrapper.md` following the established doc-page format (props table, events, slots, usage examples — mirror `docs/toggle.md`/`docs/range-slider.md` structure) documenting `DanxSelectProps`/`DanxInputProps`/`DanxTextareaProps`/`DanxFieldWrapperProps` from `src/components/{select,input,textarea,field-wrapper}/types.ts`, and add all 4 to README's docs index alongside DXUI-25's fix. I:6 (these are the most commonly reached-for form primitives in any consumer app — a new consumer literally cannot find usage docs for basic text/select inputs today) C:8 (doc-page format/structure is an established, proven pattern across 34 existing pages; content is a straightforward prop/event/slot transcription) E:6 (4 new doc files, half-day, no code changes — purely additive docs work). |
 | `yarn dev:check` checks the wrong port (5173) while the dev server runs on 5777, so it always fails/no-ops instead of validating | Incomplete (Bug/tooling) | Session 48 (this session), new find. `package.json:88`: `"dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 && vue-tsc --noEmit"`, but `vite.config.ts:36` sets `server: { port: 5777 }`. Verified live: started the actual dev server, confirmed it listens on 5777 (200) and nothing listens on 5173 (curl exit code 7, connection refused). Because the command uses `&&`, `curl`'s non-zero exit on connection-refused means `vue-tsc --noEmit` NEVER RUNS — the typecheck half of the "check" silently never executes, and the whole command always reports failure even when the dev server compiled fine. `.claude/rules/paths-and-commands.md` (duplicated identically across `.danxbot/boards/danx-ui-main/worktrees/{worktree-a,worktree-b,worktree-c,work}/`) tells every agent session to run this "After any code change (fast, checks dev server)" and states "`200` means it compiled successfully" — the check that's supposed to be the fast, frequent validation loop for this whole project is broken by a hardcoded stale port number. |
 | `.claude/rules/testing.md` documents 100% branch coverage but `vitest.config.ts` only enforces 85% | Incomplete (Bug/docs drift) | Session 48 (this session), new find. `.claude/rules/testing.md:21-28` ("Coverage Thresholds... Lines: 100% / Functions: 100% / Branches: 100% / Statements: 100%") is inconsistent with the actual enforced gate in `vitest.config.ts:24-29`: `branches: 85` (with its own code comment explaining why: "Vue SFC templates have V8 coverage limitations - template branches are often reported as uncovered even when exercised by tests"). Lines/functions/statements are genuinely 100% as documented; only the branches figure is wrong. Misleads agents/contributors about the real gate (either wasted effort chasing an unreachable 100% branches number, or false confidence reading the doc without checking the config). |
 | 33 public `src/index.ts` exports are missing from `demo/composables/useLivePreview.ts`'s `AVAILABLE_VALUES` registry, violating the project's own documented rule with zero automated enforcement | Incomplete (Bug/tooling) | Session 48 (this session), new find. `.claude/rules/demo-live-preview.md` states as CRITICAL: "Any new export from `src/index.ts` MUST also be added to `AVAILABLE_VALUES` in `useLivePreview.ts`, otherwise demo examples that import it will fail with `ReferenceError: X is not defined`." Diffed all named exports from `src/index.ts` (166 names) against `AVAILABLE_VALUES`'s keys (154 names) programmatically; 33 exports are missing, e.g. `useSelect`, `useMarkdownEditor`, `useCodeFormat`, `useCodeViewerCollapse`, `useCodeViewerEditor`, `autoRefreshObject`, `stopAutoRefreshObject`, `setServerTimezone`, `getServerTimezone`, `parseDateTime`, `parseSqlDateTime`/`parseSlashDate`/`parseSlashDateTime`/`parseGenericDateTime`, `localizedDateTime`, `remoteDateTime`, `hexToRgb`/`rgbToHex`/`hslToRgb`/`rgbToHsl`/`hsvToRgb`/`rgbToHsv`/`isHex`/`parseColor`/`formatColor`/`DEFAULT_SWATCHES`, `sleep`, `getNestedValue`, `isJSON`, `isStructuredData`, `activeActionVnode`, `getFileChildrenHandler`/`setFileChildrenHandler`. Confirmed `useSelect` specifically: exported at `src/index.ts:313`, completely absent from `useLivePreview.ts` (grep-confirmed). Currently latent (no existing demo page's live-editable script imports any of these 33 names, so no demo is visibly broken today), but it is a landmine for the next demo page/example that reaches for any of them, and there is no lint/CI check enforcing the rule the docs claim is CRITICAL — same "documented convention, zero automated enforcement" pattern as DXUI-29's exports-map drift, but a different registry/file. |
@@ -273,66 +273,69 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 50, cardless dispatch — Bash/Read/Edit/Write only, no
-`mcp__danx_dashboard__*` tools available to this dispatch despite the launch prompt's
-instructions to call `issue_list`/`issue_create`; per the persistent memory note
-`project_ideator_tooling_gap`, the orchestrator handles dedup/issue_create from this
-session's drafts)** — Ran from the isolated sandbox worktree (no repo checkout there,
-only `.claude/` config, matching the `-cardless` dispatch name) but read/wrote this
-canonical checkout at `/home/newms/web/danx-ui` directly.
+**2026-07-11 (session 51, cardless dispatch — task-specific prompt, no
+`mcp__danx_dashboard__*` tools provided this dispatch; per `project_ideator_tooling_gap`
+the orchestrator handles `issue_create` from this session's drafts).** Worked directly
+in the canonical checkout `/home/newms/web/danx-ui` (the isolated worktree this dispatch
+launched in has no git checkout, only `.claude/` config — matches prior sessions).
+`git log -1 --oneline` = `bb80bf5` (session 50); `git log -1 -- src/` and
+`-- demo/`/`package.json`/`.github` all confirm zero code changes since session 50 —
+still `7023a67` (DXUI-3) for `src/`, no `.github/` anywhere, `useLivePreview.ts` still
+missing the 33 exports (DXUI-87, already carded).
 
-**Verification-first approach:** the worktree's local mirror `docs/features.md` (this
-dispatch's starting point) asserted "no MCP access" and a stale session-44 snapshot —
-did not take this at face value; cross-checked directly against this canonical repo's
-own `git log` and confirmed the mirror was simply stale (canonical is at session 49,
-commit `04ef072`). `git log -1 --oneline` = `04ef072`; `git log -1 -- src/` still
-bottoms out at `7023a67` (DXUI-3, button-anchored context menu) — `src/` unchanged
-for 32+ consecutive sessions of *static* review.
+**Re-verified both of session 50's uncarded drafts live rather than re-deriving them
+from scratch:**
 
-**New angle taken (per session 49's own recommendation):** rather than another static
-grep/read pass over already-exhausted `src/`, actually RAN the project's enforced
-quality gates live: `npx vue-tsc --noEmit` (clean, 0 errors), `npx eslint src --quiet`
-(clean, 0 errors), and `npx vitest run --coverage` (the full suite, both directly and
-scoped to `context-menu` for confirmation).
+1. **`DanxContextMenu.vue` coverage-gate failure (Bug, ICE 504) — STILL LIVE.** Re-ran
+   `npx vitest run --coverage`: identical failure, `ERROR: Coverage for statements
+   (99.98%) does not meet global threshold (100%)`, isolated to
+   `src/components/context-menu` (98.33%/93.1%, uncovered lines `110-115,206,246`
+   unchanged). Re-ran scoped (`npx vitest run src/components/context-menu --coverage`):
+   identical numbers. `npx eslint src --quiet` and `npx vue-tsc --noEmit` both still
+   clean — only the coverage gate is broken. This is the single strongest, most
+   actionable, currently-live finding on the board.
+2. **Missing docs pages for DanxSelect/DanxInput/DanxTextarea/DanxFieldWrapper
+   (Maintenance, ICE 288) — STILL LIVE.** `ls docs/*.md | grep -iE
+   "select|input|textarea|field-wrapper"` returns zero matches, confirming the gap
+   is unaddressed.
 
-**Finding: `test:coverage` currently FAILS on `main`.** `ERROR: Coverage for statements
-(99.98%) does not meet global threshold (100%)`. Isolated the cause to
-`src/components/context-menu` (98.33% statements / 93.1% branches; every other
-directory in the full-suite run showed 100% statements). Re-ran scoped to just that
-suite for confirmation — same 98.33%/93.1% numbers reproduce. Uncovered lines
-`DanxContextMenu.vue:110-115,206,246`: the `getMenuPanel()` `?? menuRef.value` fallback
-+ `updateSubmenuDirection()`'s `if (!panel) return` guard (both new in the rect-based
-submenu-direction logic), the `v-if="$slots.trigger" #trigger` template branch, and the
-nested-submenu `v-if`. All of this is new code from the ONLY `src/` commit in 32+
-sessions (`7023a67`/DXUI-3, "button-anchored open mode + active item indicator") —
-that commit's own message claims added unit tests for exactly this logic, but they
-don't fully close statement coverage on the new branches. This is a **currently-live,
-reproducible regression** (not a latent/theoretical gap like most recent findings) —
-every session/agent running the project's own `test:coverage` right now gets an
-unrelated failure, and CI (once DXUI-28 ships) would be red on `main` today. Drafted
-as a new card (ICE 504 = 7×9×8, see Section 2) — the highest-ICE new finding in many
-sessions, and NOT a duplicate of DXUI-62 (arrow-key nav/`role=menu` — a functional
-a11y gap in the same component, different concern) or DXUI-19/32/34/37 (other a11y
-cards). Could not verify against live `issue_list` (no MCP access this dispatch) —
-flagged for the orchestrator to dedup-check before creating.
+**Investigated one new lead from session 50's "possible lead" note and ruled it OUT as
+a false positive, to save future sessions the re-investigation:** the `[Vue warn]:
+onMounted/onUnmounted is called when there is no active component instance` warnings
+seen in `demo/composables/__tests__/demoExamples.test.ts` stderr trace to
+`demo/pages/scroll-examples/useLogDemo.js` (backing the `VirtualScrollLogViewer`/
+`VirtualScrollInDialog` examples) calling `onMounted`/`onUnmounted` inside a shared
+composable. Read `demoExamples.test.ts` in full: its "setup function executes without
+throwing" test invokes `buildSetup(script)!()` directly — the raw setup function,
+bypassing Vue component instantiation entirely — which is exactly why the lifecycle
+hooks warn (no active instance). Confirmed by reading `useLivePreview.ts`'s real
+`compile()` path (used by the actual live-editable demo iframe, not the test): it wraps
+`setup` inside `defineComponent({ setup, template, components })` and lets Vue's own
+component-mounting call `setup()` internally — a real active instance, so `onMounted`
+works correctly there. Conclusion: this is a benign test-harness-only console warning
+with zero functional impact on real demo pages; not a bug, not worth carding. No other
+demo example uses `onMounted` directly (`grep -rl onMounted demo/pages/*-examples/*.vue`
+= empty), so this affects only these 2 examples' test output.
 
-**Still-genuinely-uncarded from session 47** (unconfirmed this session, no MCP access):
-"Write docs pages for DanxSelect, DanxInput, DanxTextarea, DanxFieldWrapper" (288,
-Maintenance). Not re-drafted in full this session to avoid risking a duplicate card —
-flagged again for the orchestrator to check via `issue_list` and create if still absent.
+**Spot-checked a few not-recently-reviewed files for a third fresh finding**
+(`useVariant.ts`, `useTouchSwipe.ts`, `useFieldInteraction.ts`) — all small, clean, no
+issues found. Given 50 sessions of prior review density and the two strong, live,
+currently-uncarded regressions already re-confirmed above, did not force a
+third/fourth/fifth draft purely to pad the count (repeating prior sessions'
+"quality over quantity" guidance).
 
-**No other new findings.** Given the strength/novelty of the coverage-gate finding and
-the effort-quality tradeoff (guidance: 2-3 genuinely strong ideas > padding to 5), did
-not force additional low-value drafts this session.
+**Drafts handed to orchestrator this session (both re-confirmations, not new finds):**
+see the two "Drafted this session... NOT YET CARDED" rows in Section 2 (coverage-gate
+fix, ICE 504; docs-pages, ICE 288) — full text in this session's response to the
+orchestrator.
 
-**Recommendation for next dispatch:** (1) the "actually run the tools" angle (coverage,
-typecheck, lint) just broke a 3-session static-review dry spell on the first try — worth
-repeating/deepening (e.g. `npx vitest run --coverage` after any future `src/` commit,
-or spot-checking `demo/` example compile warnings seen in this run's stderr, e.g. Vue
-`onMounted`/`onUnmounted`-outside-setup warnings in
-`demo/composables/__tests__/demoExamples.test.ts` for `VirtualScrollInDialog`/
-`VirtualScrollLogViewer` examples — not investigated further this session, flagged as
-a possible lead); (2) the standing recommendation from prior sessions is unchanged and
-still the primary lever: per `project_danx_ui_backlog_bottleneck` memory, dozens of
-Review-status cards exist with ~0 ever dispatched — triage/dispatch capacity, not idea
-supply, remains the bottleneck.
+**Recommendation for next dispatch:** (1) both drafts above are ready to card verbatim
+the moment `issue_list`/`issue_create` access is available — check first via
+`issue_list({status_derived})` across Review/ToDo/In Progress in case the orchestrator
+already created them from a prior session's handoff; (2) `src/` has now been static
+since `7023a67` for 33+ consecutive sessions — the "actually run the tools" angle
+(coverage/lint/typecheck) is the only lever that has found anything live in the last
+several sessions; keep running it every session rather than relying on grep/read alone;
+(3) standing recommendation unchanged: per `project_danx_ui_backlog_bottleneck` memory,
+dozens of Review-status cards exist with ~0 ever dispatched — triage/dispatch capacity,
+not idea supply, remains the primary bottleneck.
