@@ -260,41 +260,43 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 43, cardless dispatch — Bash/Read/Edit/Write only, explicitly no
+**2026-07-11 (session 44, cardless dispatch — Bash/Read/Edit/Write only, explicitly no
 `mcp__danx_dashboard__*` tools per launch prompt; orchestrator handles dedup/issue_create)** —
-Read/wrote the canonical checkout at `/home/newms/web/danx-ui` directly (isolated sandbox
-worktree for this dispatch again has no repo checkout, only `.claude/` config).
+Ran from the isolated sandbox worktree (no repo checkout there, only `.claude/` config)
+but read/wrote this canonical checkout at `/home/newms/web/danx-ui` directly.
 
-Re-verified reality: `git status` shows only a modified `.danxbot/scripts/agent-finalize.sh` and
-an untracked `.claude/settings.local.json` (both dashboard/tooling-harness files, not `src/`) —
-**`src/` is unchanged since session 42's HEAD (`fe62f8d`).** `git log -1 -- src/` bottoms out at
-`7023a67` (DXUI-3 button-anchored context menu); every commit after that touching the repo is a
-`docs/features.md`-only "Update feature notes" commit. This is now 26+ consecutive sessions with
-zero `src/` changes.
+Re-verified reality: `git log -3 --oneline` / `git log -1 -- src/` still bottoms out at
+`7023a67` (DXUI-3 button-anchored context menu) — **`src/` unchanged for 27+ consecutive
+sessions.** `git status --short` shows only a modified `.danxbot/scripts/agent-finalize.sh`
+and untracked `.claude/settings.local.json` (tooling-harness files, not `src/`). This is the
+3rd consecutive session (42/43/44) confirming full ideation saturation on unchanged `src/`.
 
-**This session's exploration**, per the launch prompt's explicit steer toward "genuinely thin"
-areas (test files, docs/examples, config) rather than re-reading `src/components`/`src/shared`:
-1. `demo/composables/useIsDark.ts` — read in full. Confirms the demo app itself hand-rolls a
-   `MutationObserver`-based dark-mode watcher as a workaround for the still-Missing `useColorScheme`
-   (DXUI-36) — consistent with, not additive to, the existing DXUI-36 finding. Not a new item.
-2. `scripts/publish.sh` — read in full. Solid, defensive release script (npm-token fallback,
-   dry-run mode, rollback-on-failure); no library-facing gap, out of scope for a danx-ui feature
-   card (it's release tooling, already covered conceptually by DXUI-27/28).
-3. `vite.config.ts` — read in full with fresh eyes. Confirmed `build.lib.entry` explicitly lists
-   only 9 entries (index + button/code-viewer/dialog+useDialog/scroll/markdown-editor/toggle/
-   range-slider/color-picker) to get isolated per-component CSS via `cssCodeSplit`; the other 22
-   components only exist in `dist/` as `preserveModules` side-effects of being imported by the
-   main barrel, with no isolated CSS entry. This is an *implementation detail clarifying* DXUI-29
-   (exports-map gap) — completing DXUI-29 requires ALSO adding vite lib.entry rows per component,
-   not just package.json exports — but is the same root cause/card, not a new bug. Noted as an AC
-   hint for DXUI-29 rather than a new draft.
-4. `vitest.config.ts` — re-read. Coverage `exclude` list omits `escapeHtml.ts` from the 100%
-   gate; checked `shared/escapeHtml.ts` + its test file in full — implementation is correct
-   (5 entities, ordering avoids double-unescaping bugs) and already has thorough dedicated tests
-   despite the coverage-gate exclusion. Not a gap.
-5. Diffed `docs/toggle.md`'s props/tokens tables against `toggle/types.ts` — fully accurate, no
-   drift (3rd doc sampled this way across sessions 42-43, after badge.md/scroll.md; zero
-   discrepancies found in any of the 3).
+**This session's approach:** rather than force a speculative new finding on ground already
+exhausted across 43 prior sessions, re-verified (via targeted `grep`/`sed` against live
+`src/`) the 4 findings from sessions 40-41 that were fully drafted (title/root-cause/ICE) but
+explicitly marked "NOT YET CARDED" — no MCP access those sessions either, so they were never
+turned into cards. All 4 confirmed still accurate:
+1. `objectStore.ts`'s `autoRefreshObject()` (lines 354-385) — confirmed no try/catch around
+   `await callback(object)`; the `!refreshedObject.id` branch's early `return` still precedes
+   the `setTimeout` reschedule line, so any thrown/rejected callback or malformed response
+   permanently kills the polling loop. Bug, 320 (6x8x7).
+2. `actionRoutes.ts` (full file re-read) — confirmed `registerList(listRef)` (line 35) with a
+   comment claiming "no unregister needed," contradicting `objectStore.ts`'s own
+   `registerList` JSDoc ("Always pair with `unregisterList`... to avoid leaks");
+   `grep -n "unregisterList" src/shared/actionRoutes.ts` = empty. Bug, 252 (6x7x6).
+3. `grep -rn "tabindex|role=" src/components/scroll/` = empty (confirmed) — `DanxScroll`/
+   `DanxVirtualScroll` viewport + custom scrollbar thumbs still have zero keyboard support.
+   Bug/a11y, 288 (6x8x6).
+4. `DanxEditableDiv.vue:317` — confirmed
+   `:contenteditable="editable ? 'plaintext-only' : 'false'"` still has no
+   feature-detection/fallback guard. Bug, 175 (5x5x7).
+
+These 4 are this session's output drafts (ICE order), handed to the orchestrator per the
+launch prompt (no `issue_create` access this dispatch). No new grounded findings added —
+`src/` has had zero changes for 27+ sessions; continued re-scanning without new `src/`
+surface is low-value. Recommendation: prioritize triaging/dispatching the existing Review
+backlog (see `project_danx_ui_backlog_bottleneck` memory note) over further ideation on
+unchanged `src/`.
 6. Skimmed `docs/superpowers/specs/` (1 file, a design spec for file-viewer zoom modes, already
    shipped/reflected in DXUI-59/session-31 zoomable findings) and `scripts/` (only `publish.sh`
    exists) — nothing further to mine.
