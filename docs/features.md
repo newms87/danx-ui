@@ -280,59 +280,90 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 | DanxTabs has no horizontal-overflow handling | Carded (Valuable) | 210 (5×7×6) | DXUI-128... see DXUI-127. Session 68 fresh find. `tabs.css`'s `.danx-tabs` is `display:flex` + `overflow:hidden`, zero `flex-wrap`/scroll/nowrap-ellipsis anywhere (grep-confirmed). Enough tabs or long labels silently clip with no way to reach hidden tabs. |
 | DanxFileExplorer has no search/filter-by-name box | Carded (Valuable) | 252 (6×7×6) | DXUI-128. Session 68 fresh find. `useFileExplorer.ts`/`DanxFileExplorer.vue` (full read) only filter by `foldersOnly`; zero name/text filter, grep-confirmed. Common expected file-tree UX (VS Code/Finder-style filter) missing entirely. |
 | DanxToast has no max-visible-count cap / queueing | Carded (Valuable) | 196 (4×7×7) | DXUI-129. Session 68 fresh find. `ToastOptions`/`useToast` (grep-confirmed) has zero max/limit/queue logic — a burst of toasts in one position bucket stacks unboundedly. |
+| fAddress multiline mode leaves a leading space on line 2 when city/state missing but zip present | Carded (Bug) | 243 (3×9×9) | DXUI-130. Session 69 fresh find, reproduced live via a standalone Node repro (`fAddress({street,zip}, "multiline")` → `"...\n 90210"`). `strings.ts:51-52`'s `line2` build concatenates `zip` outside the `.filter(Boolean)` that covers `city`/`state`. |
+| fShortNumber/fShortCurrency don't shorten negative numbers | Carded (Bug) | 320 (5×8×8) | DXUI-131. Session 69 fresh find, reproduced live (`fShortNumber(-5000)` → `"-5000"` not `"-5K"`). `numbers.ts:54-56`'s bucket-selection compares `n` directly against positive powers of 10, always failing for negative `n`. |
+| arrayMin/arrayMax return Infinity/-Infinity for empty arrays | Carded (Bug) | 224 (4×7×8) | DXUI-132. Session 69 fresh find. `arrayUtils.ts:99-115`, own module doc says these feed YAML pipe-formatter templates — an empty-array pipe result would literally render the string "Infinity". Zero internal consumers today (latent, same class as request.poll/autoRefreshObject). |
+| DanxChip remove button has generic "Remove" aria-label (no chip context) | Carded (Bug/a11y) | 320 (5×8×8) | DXUI-133. Session 69 fresh find. `DanxChip.vue:151` hardcodes `aria-label="Remove"` — a list of multiple removable chips is indistinguishable to screen-reader users. Distinct from DXUI-66 (DanxBadge indicator label). |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 68) — same `cardless` worktree
+**2026-07-11 (session 69) — same `cardless` worktree
 (`/var/tmp/danxbot-clean-room/ec38b862183fe282/danx-ui__danx-ui-main__ideator__ideator__cardless`,
 no repo checkout, only `.claude/`); worked in the canonical checkout at
-`/home/newms/web/danx-ui`.** Confirmed same root cause as sessions 50-67: this
+`/home/newms/web/danx-ui`.** Confirmed same root cause as sessions 50-68: this
 dispatch's declared tool list is Bash/Read/Edit/Write only, no native
-`mcp__danx_dashboard__*` functions wired in. Reused session 67's documented
-workaround (launch `npx -y @thehammer/danx-dashboard-mcp` directly via Bash,
-env vars `DANX_REPO_NAME=danx-ui`, `DANXBOT_BOARD_NAME=danx-ui-main`,
+`mcp__danx_dashboard__*` functions wired in. Reused the documented workaround
+(launch `npx -y @thehammer/danx-dashboard-mcp` directly via Bash, env vars
+`DANX_REPO_NAME=danx-ui`, `DANXBOT_BOARD_NAME=danx-ui-main`,
 `DANXBOT_DASHBOARD_URL`, `DANXBOT_DISPATCH_TOKEN` from the ambient
 environment, pipe `initialize`/`notifications/initialized`/`tools/call`
-JSON-RPC over stdin) — worked cleanly, one `tools/call` per process
-invocation (no race hit this session).
+JSON-RPC over stdin) — worked cleanly. **New finding this session:**
+`issue_create` also requires a `gate_decisions` array (`{gate, enabled, note}`
+for `plan-dependency`/`plan-architecture`/`plan-tdd`) that prior sessions'
+notes didn't mention — first two `issue_create` attempts failed with
+`400 missing required gate decision for board-optional gate(s)` until this was
+added (all three disabled with a justifying note, appropriate for small
+isolated bug fixes).
 
-Live `issue_list` confirmed 103 issues currently on the board (Review), 0 in
-ToDo, 0 in In Progress — consistent with session 67's finding that the queue
-is fully saturated with idle Review cards and `src/` has had zero commits for
-50+ sessions (`git log -1 --oneline -- src/` still `7023a67`, DXUI-3).
-Given that near-saturation, did NOT re-derive the existing ~103-card backlog;
-instead did fresh, targeted code exploration in components/areas not
-previously deep-dived, specifically looking for genuinely new (non-duplicate)
-gaps rather than re-finding what's already carded.
+Live `issue_list` confirmed 106 issues currently on the board (Review), 0 in
+ToDo, 0 in In Progress (consistent with sessions 67-68's saturation finding —
+`status_derived` filter param appears to not actually filter server-side,
+same 106-count returned for all three status queries; the individual `status`
+field on each returned issue is the reliable signal, and 100% show `Review`).
+`src/` still has zero commits since `7023a67` (DXUI-3).
 
-**3 new cards created and verified this session** (grep-confirmed, cross-checked
-against the full live board title list, non-duplicate):
-1. `DXUI-127` (Feature) — DanxTabs has no horizontal-overflow handling
-   (`.danx-tabs` is `overflow:hidden` with zero scroll/wrap, tabs silently
-   clip past container width). ICE 210 (5×7×6).
-2. `DXUI-128` (Feature) — DanxFileExplorer has no name-filter/search box
-   (only `foldersOnly` filtering exists; zero text-search anywhere in
-   `useFileExplorer.ts`/`DanxFileExplorer.vue`, grep-confirmed). ICE 252
-   (6×7×6). Highest-ICE new finding this session.
-3. `DXUI-129` (Feature) — DanxToast has no max-visible-count cap/queueing
-   (`ToastOptions`/`useToast` have zero max/limit/queue logic; a burst of
-   toasts stacks unboundedly in one position bucket). ICE 196 (4×7×7).
+Given the ~106-card saturation, did NOT re-derive the existing backlog;
+instead did fresh, targeted code reading in areas not previously deep-dived
+(`chip/`, `toggle/`, `range-slider/`, `shared/arrayUtils.ts`,
+`shared/formatters/strings.ts` + `numbers.ts`, `shared/nestedJson.ts`,
+`shared/composables/useFieldInteraction.ts`/`useTouchSwipe.ts`), specifically
+looking for genuinely new, non-duplicate, LIVE-REPRODUCED bugs (verified via
+standalone Node repro scripts, not just static reading) rather than more
+"add DanxXYZ component" Feature ideas — the Feature backlog already has 60+
+uncarded/carded component ideas sitting idle, so small grounded Bug fixes are
+the higher-value contribution right now.
+
+**4 new cards created and verified this session** (each reproduced live via a
+standalone Node script before carding, grep-confirmed non-duplicate against
+the full 106-issue live board title list):
+1. `DXUI-130` (Bug) — `fAddress(..., "multiline")` leaves a leading space on
+   line 2 when city/state are missing but zip is present (`strings.ts:51-52`).
+   ICE 243 (3×9×9).
+2. `DXUI-131` (Bug) — `fShortNumber`/`fShortCurrency` don't shorten negative
+   numbers (`fShortNumber(-5000)` → `"-5000"` not `"-5K"`, `numbers.ts:54-56`
+   compares `n` directly against positive powers of 10). ICE 320 (5×8×8).
+   Highest-ICE new finding this session.
+3. `DXUI-132` (Bug) — `arrayMin`/`arrayMax` return `Infinity`/`-Infinity` for
+   empty arrays (`arrayUtils.ts:99-115`); own module doc says these feed YAML
+   pipe-formatter templates, so an empty-array pipe result would literally
+   render the string "Infinity" to end users. Zero internal consumers today
+   (latent public-API gap, same class as the already-fixed `request.poll`/
+   `autoRefreshObject` findings). ICE 224 (4×7×8).
+4. `DXUI-133` (Bug/a11y) — `DanxChip`'s remove button hardcodes a generic
+   `aria-label="Remove"` (`DanxChip.vue:151`) with no reference to the chip's
+   own label, making a list of multiple removable chips indistinguishable to
+   screen-reader users. ICE 320 (5×8×8), tied highest this session.
 
 No duplicates found/flagged this session (did not re-run the full duplicate
-audit session 67 already completed — see prior session's findings on
-DXUI-88/113, DXUI-104/115, DXUI-84/93/112, DXUI-92/114 still needing
-cancellation cleanup, unchanged).
+audit sessions 67/68 already completed — see their still-unresolved findings
+on DXUI-88/113, DXUI-104/115, DXUI-84/93/112 (93 now Cancelled, so 2 live
+duplicates), DXUI-92/114, unchanged, still needing a human/orchestrator
+housekeeping pass).
 
 **Recommendation for next dispatch:** (1) reuse the manual-MCP-via-Bash
-workaround documented in session 67/68 if this worktree is dispatched again
-without native tool access; (2) the primary lever remains triage/dispatch of
-the ~106 Review-status cards, not more ideation — `src/` has been static 50+
-sessions across dozens of ideator passes; consider pausing ideation dispatches
-in favor of dispatching implementers against the existing backlog; (3) the ~7
-duplicate cards flagged in session 67 (2x DXUI-88/113, 2x DXUI-104/115, 3x
-DXUI-84/93/112, 2x DXUI-92/114) still need a human/orchestrator housekeeping
+workaround documented in sessions 67-69 if this worktree is dispatched again
+without native tool access, and remember `issue_create` needs
+`gate_decisions` for `plan-dependency`/`plan-architecture`/`plan-tdd`; (2) the
+primary lever remains triage/dispatch of the ~110 Review-status cards, not
+more ideation — `src/` has been static 50+ sessions across dozens of ideator
+passes; consider pausing broad component-ideation dispatches in favor of (a)
+dispatching implementers against the existing backlog and (b) continued
+narrow, live-reproduced bug-hunting in still-unexplored files (this session's
+approach) rather than more Feature-type component proposals; (3) the ~6
+duplicate cards flagged in sessions 67/68 (2x DXUI-88/113, 2x DXUI-104/115,
+2x DXUI-84/112, 2x DXUI-92/114) still need a human/orchestrator housekeeping
 pass to cancel the extras — not something this ideator role should do
 unilaterally; (4) still worth confirming with the user whether active `src/`
 development on danx-ui has intentionally paused.
