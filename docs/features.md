@@ -190,6 +190,51 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 
 ## Session Log (latest session only — overwrite each run)
 
+**2026-07-11 (session 18)** — Ideator pass on danx-ui (scope: repo), dispatched from an isolated
+worktree (`danx-ui__danx-ui-main__ideator__ideator__cardless`, no `.git` there). Verified reality first:
+`git log --oneline -3 -- src/ package.json` in the canonical repo (`/danxbot/app/repos/danx-ui`) still
+shows `7023a67` (DXUI-3 context-menu) as the last `src/` commit; `git diff 7023a67 HEAD -- src/ package.json`
+is empty except the `0.8.16→0.8.17` version bump — identical to sessions 12-17. Board fetch via
+`GET /api/issues?board=danx-ui:danx-ui-main` (curl, Bearer `$DANXBOT_DISPATCH_TOKEN`): still 46 cards
+(DXUI-4..49), **100% status `Review`, 0% dispatched** — same as session 17's own just-recorded count,
+now an 8th+ consecutive session with zero throughput.
+
+**`mcp__danx_dashboard__*` tools were absent from this session's toolset** (only Bash/Read/Edit/Write
+available — confirmed by inspecting the actual tool list, not just by a failed call). Unlike session 17
+(which fell back to raw `curl -d @file.json` POSTs against the dashboard HTTP API to create DXUI-47/48/49),
+this session chose **not** to write via that side channel, matching the reasoning already recorded by the
+immediately-prior dispatch into this same isolated worktree: issue creation is contracted to go through the
+sanctioned MCP tool (which enforces gates like Epic/Feature-requires-children, id assignment, `ac` key
+shape) and a raw HTTP POST bypasses that validation. Session 17 already hit exactly this class of bug once
+(an `ac` key-name mismatch caught only after the fact). Given the board is a fully-saturated, zero-overlap,
+zero-dispatch backlog, manufacturing more cards through an unsanctioned channel trades a known-good, fully
+inventoried set of 46 cards for the risk of injecting malformed/duplicate ones with no verification path.
+
+Ran a fresh independent verification sweep for gaps not covered by any of the 46 live titles or existing
+scratchpad entries, to confirm nothing new needed to be flagged even in read-only form:
+- `command palette` / `commandpalette` — no hits (still gated behind DXUI-8 useHotkeys, as previously noted;
+  not re-carded).
+- `virtual*scroll` — **already implemented** (`src/components/scroll/DanxVirtualScroll.vue` +
+  `useScrollWindow.ts` + `scroll-strategies.ts`, with tests). Not a gap.
+- `focus trap` — dialog (`DanxDialog.vue`) already has focus-trap-style handling per prior session notes on
+  dialog a11y being clean.
+- No genuinely new, uncarded, above-threshold gap found this session.
+
+**No new cards created** (no sanctioned write path available). **No cards drafted** for a future session to
+create verbatim, since the existing Desired-Features scratchpad above already contains 46 carded,
+deduplicated, ICE-scored entries plus a handful of intentionally-not-carded Exploratory items (ImageCropper,
+DanxCalendar, Figma tokens export, RTL/logical-CSS, visual-regression testing, CommandPalette-pending-DXUI-8)
+— nothing in this session's sweep beat those on ICE or novelty.
+
+**Next session:** before doing anything else, (1) confirm whether `mcp__danx_dashboard__*` tools are present
+in the toolset this time — if so, this is the first session able to actually use the sanctioned write path,
+which should also let it check `issue_list({status_derived:'ToDo'})` / `'In Progress'` / `'Done'` properly
+instead of inferring from the HTTP `status` field; (2) re-check `git diff 7023a67 HEAD -- src/` and the board
+counts — if still 0/46+ moved and still no MCP tools, the operationally useful action remains flagging the
+dispatch-velocity bottleneck (not idea supply) rather than adding a 50th+ idle card. The prior session's
+one-off decision to bypass the sanctioned tool via raw curl POST (session 17: DXUI-47/48/49) should not be
+treated as precedent — prefer the MCP tool or, absent it, a no-write read-only pass like this one.
+
 **2026-07-11 (session 17)** — Seventeenth ideator pass on danx-ui (scope: repo). Verified reality first:
 `git diff --stat 7023a67 HEAD -- src/` still empty, `package.json` diff only the 0.8.16→0.8.17 version bump
 (same as sessions 12-16). Fetched the live board via `GET /api/issues?board=danx-ui:danx-ui-main` (Bearer
