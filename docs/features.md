@@ -97,7 +97,7 @@ coverage gate enforced via /flow-verify.
 | useClipboard | Missing | Copy-to-clipboard composable; copy logic lives ad-hoc in editable-div/code-viewer. |
 | `yaml` hard runtime dependency | Incomplete | DXUI-30 (Bug). `package.json` has `"dependencies": {"yaml":"^2.4.5"}` — a MANDATORY runtime dep shipped to every consumer, contradicting the README "Zero Runtime Dependencies" headline and CLAUDE.md "NEVER add runtime dependencies". Used at runtime in `code-viewer/useCodeFormat.ts` + `shared/dataFormat.ts`. Should be optional peer (like luxon) + graceful degradation. |
 | Unguarded localStorage write in useSplitPanel | Incomplete | DXUI-40 (Bug). `useSplitPanel.saveToStorage()` (useSplitPanel.ts:100) calls `localStorage.setItem` with NO try/catch, unlike its own guarded `loadFromStorage()` (66-92) and every sibling persistence composable (useViewerPreferences `safeWrite`, useRecentColors, useFileExplorer:101-104, useStructuredDataPreference:39-41 — all wrap read AND write). Called from togglePanel(146), watch(activePanelIds)(224), resize pointer-up(215) → an uncaught throw (Safari private mode, QuotaExceededError, storage disabled, SSR) breaks the interaction. One-line try/catch fix matching the established safeWrite pattern. Distinct from DXUI-35 (eager vueuse/luxon barrel import). |
-| Build ships bundled deps in dist/node_modules | Incomplete | DXUI-39 (Bug). `vite.config` `rollupOptions.external` lists only vue/vue-router/luxon/@vueuse/core; `danx-icon` (`?raw` SVGs in icons.ts/DanxInput/DanxEditableDiv) + `yaml` are NOT external, so `preserveModules:true` emits them as separate modules under `dist/node_modules/` (1.4M, ~250 files) + 912 sourcemaps (dist ~9.7M). `files:["dist"]` publishes it all. `danx-icon` is ALSO a hard runtime `dependencies` entry (package.json:129) — a SECOND zero-dep violation after yaml (`?raw` SVGs should inline → danx-icon = devDep). DISTINCT from DXUI-30 (yaml dependency declaration), DXUI-35 (vueuse/luxon eager import — those ARE external), DXUI-29 (exports map). Fix: externalize/inline + narrow published files + npm pack smoke test. |
+| Build ships bundled deps in dist/node_modules | Incomplete | DXUI-39 (Bug). `vite.config` `rollupOptions.external` lists only vue/vue-router/luxon/@vueuse/core; `danx-icon` (`?raw` SVGs in icons.ts/DanxInput/DanxEditableDiv) + `yaml` are NOT external, so `preserveModules:true` emits them as separate modules under `dist/node_modules/` (verified session 46: 408K danx-icon + 972K yaml = 1.4M total) + sourcemaps (dist ~9.7M). `files:["dist"]` publishes it all. **CORRECTION (session 46):** the card's sub-claim "`danx-icon` is ALSO a hard runtime `dependencies` entry (package.json:129) — a SECOND zero-dep violation... danx-icon = devDep" is FACTUALLY WRONG as currently worded — `package.json:129` is inside `devDependencies`, not `dependencies` (verified directly; only `yaml` is under `dependencies`). `danx-icon` is already correctly a devDep. The dist/node_modules bundling problem for danx-icon is still real (confirmed present in built `dist/`) since preserveModules still emits a module per resolved `?raw` import id even from a devDependency — but the "should be devDep, currently isn't" framing needs to be dropped/corrected when this card is picked up; the fix is externalize-or-inline the `?raw` SVG imports, not a dependencies-section move. DISTINCT from DXUI-30 (yaml dependency declaration), DXUI-35 (vueuse/luxon eager import — those ARE external), DXUI-29 (exports map). |
 | Optional peers eagerly imported by main entry | Incomplete | DXUI-35 (Bug). `@vueuse/core` + `luxon` are marked OPTIONAL peers but are statically re-exported by the main barrel: `index.ts:431 → shared/actions.ts:19` (useDebounceFn from @vueuse/core) and `index.ts:390 → shared → formatters/index.ts:11 → datetime.ts` (imports + re-exports Luxon's `DateTime`). So `import 'danx-ui'` crashes without them in any non-tree-shaking env (dev servers, SSR, Vitest/Jest, Node ESM). "optional" is false for the main entry. DISTINCT from DXUI-30 (yaml in `dependencies`) and DXUI-29 (subpath exports). Fix: keep peer-dependent re-exports out of the eager main barrel (opt-in subpath/lazy) OR promote peers to required; add clean-install smoke test. |
 | Incomplete `exports` map | Incomplete | DXUI-29. README advertises granular `danx-ui/components/<x>` imports (headline tree-shaking), but `package.json` `exports` defines subpaths for only 8 of 31 components. The other 23 (input, select, chip, tabs, tooltip, popover, toast, alert, file*, etc.) have NO subpath/styles export — those documented imports fail for published consumers. Hand-maintained → drifted. Needs generation + drift check. |
 | useColorScheme (dark-mode toggle) | Missing | DXUI-36. Dark tokens ship (`semantic-dark.css`, `.dark` class) but ZERO JS to activate/persist/auto-detect. Consumers hand-roll `prefers-color-scheme` + localStorage + `.dark` toggle. `@vueuse/core` (peer dep) ships `useDark`/`usePreferredDark` → thin wrapper. Grounded: grep of src/ finds no dark-mode composable. |
@@ -262,53 +262,60 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 45, cardless dispatch — Bash/Read/Edit/Write only, no
+**2026-07-11 (session 46, cardless dispatch — Bash/Read/Edit/Write only, no
 `mcp__danx_dashboard__*` tools per launch prompt; orchestrator handles dedup/issue_create)** —
 Ran from the isolated sandbox worktree (no repo checkout there, only `.claude/` config) but
 read/wrote this canonical checkout at `/home/newms/web/danx-ui` directly.
 
-Re-verified reality: `git log -3 --oneline` / `git log -1 -- src/` still bottoms out at
-`7023a67` (DXUI-3 button-anchored context menu); HEAD is `b30adbd` (session 44's docs-only
-commit) — **`src/` unchanged for 28+ consecutive sessions.**
+Re-verified reality: `git log -3 --oneline` / `git log -1 -- package.json` / `git log -1 --
+src/` all still bottom out at `6524fa1` (v0.8.17); HEAD is `5421ee4` (session 45's docs-only
+commit) — **`src/` (and `package.json`) unchanged for 29+ consecutive sessions.**
 
-**This session's approach:** per the launch prompt's explicit instruction to target
-under-scrutinized ground rather than re-sweep `src/components`/`src/shared` a 4th+ time,
-covered: (1) `TODO`/`FIXME`/`XXX`/`HACK` grep across all of `src/` — empty; (2)
-`.skip`/`.todo`/`.only`/`xit`/`xdescribe` grep across all test files — no disabled tests
-found; (3) `console.log`/`warn`/`error` audit in non-test `src/` files — 4 hits, all
-legitimate (debug-flag-gated in `DanxVirtualScroll.vue`/`useScrollWindow.ts`, intentional
-`console.warn` in `useToast.ts`, intentional `console.error` in `actions.ts`); (4)
-`eslint.config.js`/`tsconfig.json` read in full — no gaps; (5) `demo/` structure/scripts —
-matches existing DXUI-33, nothing new; (6) cross-file CSS/theming consistency — grepped every
-`.vue` file for hardcoded Tailwind color utility classes bypassing each component's own
-`--dx-*` token system.
+**This session's approach:** per the launch prompt, explicitly avoided re-sweeping
+`src/components`/`src/shared`. Targeted: (1) `scripts/publish.sh` full read — publish/release
+tooling, nothing new (overlaps DXUI-27); (2) `package.json` scripts + full dependency/peerDep/
+sideEffects/exports fields read directly; (3) docs-vs-types spot check on `color-picker.md`
+(full field-by-field diff against `color-picker/types.ts` — clean, no drift) and `toast.md`
+vs `toast/types.ts` (clean, matches known DXUI-51 gap, no new drift); (4) `vitest.config.ts`
+coverage config read in full (branches threshold is 85% not 100%, but documented/intentional
+re: Vue SFC template coverage limitations — not a new finding); (5) `vite.config.ts` full
+read, cross-checked against the actual built `dist/` output; (6) `docs/superpowers/` —
+one internal design-spec doc, not a product gap; (7) `demo/` directory listing — matches
+existing DXUI-33 inventory, nothing new; (8) `.gitignore` read, nothing notable.
 
-**One new grounded finding** from (6): `CodeViewerFooter.vue` (x2 sites), `CodeViewer.vue`,
-and `CodeViewerCollapsed.vue` hardcode raw Tailwind `text-gray-500`/`text-red-400`/
-`hover:text-gray-700`/`hover:text-gray-300` classes instead of using `code-viewer-tokens.css`
-(which defines dark/light `.theme-light` tokens for `collapsed-text`/`content-text`/
-`footer-bg` etc. but never a footer-text or collapse-toggle-text token). Verified via
-`grep -rln` across all `.vue` files that these 3 code-viewer files plus the already-tracked
-`MarkdownEditorFooter.vue` (session 37) are the ONLY 4 files in the codebase with this
-anti-pattern — the code-viewer instance was not previously inventoried (distinct component,
-distinct token file from the session-37 finding). Bug/Maintenance, 256 (4x8x8). Drafted in
-Section 1/2 above, NOT YET CARDED (no MCP access this dispatch).
+**One finding this session — a correction to an already-carded issue, not a new gap.**
+DXUI-39 (dist/node_modules bundled-deps bug) currently claims `danx-icon` "is ALSO a hard
+runtime `dependencies` entry (package.json:129) — a SECOND zero-dep violation... should be
+devDep." Verified directly against the live `package.json`: `danx-icon` is at line 129 but
+INSIDE `devDependencies`, not `dependencies` (only `yaml` is under `dependencies`). This
+sub-claim is factually wrong as currently worded in the card. The broader bundling problem
+DXUI-39 describes IS still real and confirmed present in the built `dist/` (`du -sh
+dist/node_modules/danx-icon` = 408K, `dist/node_modules/yaml` = 972K, both non-external in
+`vite.config.ts`'s `rollupOptions.external`) — `preserveModules` still emits a module per
+resolved `?raw`-import id even from a devDependency, so the fix (externalize/inline the SVG
+imports) is unaffected. Only the "should be devDep, currently isn't" framing is wrong and
+should be dropped/corrected when DXUI-39 is picked up for implementation, to avoid an
+implementer wasting time looking for a dependencies-section entry that doesn't exist.
+Recorded as a correction note on DXUI-39's Section-1 inventory row (not filed as a new
+card — nothing to card here, just a description-accuracy fix for whoever dispatches DXUI-39).
 
-**Still-undispatched drafts from sessions 40/41** (re-forwarded, not re-verified again this
-session since session 44 already re-confirmed all 4 against live `src/`): "Fix
-`autoRefreshObject` permanently stopping polling on callback error/malformed response" (320,
-Bug), "Fix `useActionRoutes` never calling `unregisterList`, leaking its list ref forever"
-(252, Bug), "Add keyboard support to `DanxScroll`/`DanxVirtualScroll`" (288, Bug/a11y), "Fix
-`DanxEditableDiv`'s `plaintext-only` lacking a feature-detection fallback" (175, Bug).
+**Still-undispatched drafts from sessions 40/41/45** (re-forwarded, not independently
+re-verified again this session): "Fix `autoRefreshObject` permanently stopping polling on
+callback error/malformed response" (320, Bug), "Fix `useActionRoutes` never calling
+`unregisterList`, leaking its list ref forever" (252, Bug), "Add keyboard support to
+`DanxScroll`/`DanxVirtualScroll`" (288, Bug/a11y), "Fix `DanxEditableDiv`'s `plaintext-only`
+lacking a feature-detection fallback" (175, Bug), "Fix CodeViewer hardcoded Tailwind gray/red
+text colors" (256, Bug/Maintenance, session 45).
 
-**Honest assessment:** `src/` is still unchanged after 28+ sessions. This session found one
-genuinely new, narrow, low-ICE (256) maintenance nit by deliberately targeting a
-previously-unswept angle (cross-file CSS/theming consistency), which pushes back slightly on
-"fully exhausted" but does not indicate a rich remaining vein — it's a small cosmetic
-contrast issue, not a functional gap. I concur with sessions 42-44's recommendation: this
-repo should move to triage/dispatch of the ~80+ Review-status backlog rather than continued
-ideation. Idea supply is not the bottleneck; the backlog sits 100% Review, 0% ever dispatched
-to ToDo/In Progress (per `project_danx_ui_backlog_bottleneck` memory note). If `src/` starts
-changing again (a real code change lands), a fresh ideation session at that point would be
-genuinely useful; until then, further ideation sessions should be paused in favor of
-triage/dispatch.
+**Honest assessment:** Zero new feature/bug findings this session — only a factual correction
+to an existing card's description. `src/` and `package.json` are both unchanged after 29+
+sessions; every genuinely fresh angle attempted this session (release scripts, package
+metadata fields, docs-vs-types drift spot checks, coverage/build config, demo structure)
+came back clean or re-confirmed prior work. This concurs strongly with sessions 42-45's
+assessment: the repo is saturated for ideation. The remaining unswept ground is now thin
+enough that sessions are spending most of their budget confirming absence-of-findings rather
+than surfacing anything actionable. Recommend the operator shift fully to triage/dispatch of
+the ~80+ Review-status backlog (per `project_danx_ui_backlog_bottleneck` memory note — 0%
+ever dispatched to ToDo/In Progress) rather than continuing ideation sessions on this repo.
+Only resume ideation here once `src/` actually changes (a real code change lands) or the
+backlog is meaningfully worked down.
