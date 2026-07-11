@@ -127,6 +127,8 @@ coverage gate enforced via /flow-verify.
 | No clipboard-paste-to-upload in DanxFileUpload | Missing | Session 28, new find. `DanxFileUpload.vue`/`useFileUpload.ts`/`useDragDrop.ts` (grep verified) only accept files via drag-drop or the native file input — no `paste` event handler anywhere in `danx-file-upload/`. Users cannot Ctrl+V a copied screenshot/file directly into the drop zone, a common expectation (Slack/GitHub-style paste-to-attach). |
 | Hand-rolled setTimeout debounce (code-viewer, markdown-editor) vs vueuse useDebounceFn | Incomplete | Session 28, new find. `code-viewer/codeViewerDebounce.ts` (`debouncedEmit`/`debouncedValidate`/`debouncedHighlight`, 3 manually-tracked `setTimeout`/`clearTimeout` pairs) and `markdown-editor/useMarkdownSync.ts` (`debouncedSyncFromHtml`) hand-roll debounce/timeout bookkeeping, while `shared/actions.ts` already uses vueuse's `useDebounceFn` for the same purpose. Same "wrap vueuse, don't hand-roll" pattern as DXUI-8/12/24/49 — dedupe reduces bug surface (each hand-rolled copy must independently get cancel-on-unmount right). |
 | No action button in DanxToast (e.g. "Undo") | Missing | Session 28, new find. `toast/types.ts` `ToastOptions` has `message`/`variant`/`position`/`duration`/`dismissible`/`target`/`targetPlacement` but no `action` field; `DanxToast.vue` renders only a close button (grep confirms no other `<button>`/action slot). Common toast UX pattern (e.g. "File deleted — Undo") is unsupported; consumers can't offer an inline recovery action from a toast today. |
+| `request.call` silently discards a consumer-supplied `AbortSignal` | Incomplete (Bug) | Session 29, new find. `RequestCallOptions extends RequestInit` (request-types.ts:22) so the public type advertises `signal` as settable, but `request.ts:70` unconditionally does `options.signal = abortController.signal;` whenever `shouldAbortPrevious` is true (the default, i.e. `waitOnPrevious` not set — the common case). Any `signal` a consumer passed in (e.g. to cancel a request on component unmount, or to compose with their own timeout AbortController) is clobbered with no merge/compose, and no test in `request.test.ts` (320 lines) exercises consumer-supplied `signal` at all. Verified via grep: zero internal call sites currently pass `signal`, so the bug has shipped unnoticed. |
+| `request.poll` has no cancellation / max-attempts / max-duration escape hatch | Incomplete | Session 29, new find. `request.ts:183-192`'s `poll()` loops `do { await request.call(...); await sleep(interval) } while (!until(response))` with only the caller-supplied `fnUntil` predicate as an exit condition — no `AbortSignal`, `maxAttempts`, or `maxDuration` option (`request-types.ts:42-47` confirms the signature has none). If a component unmounts or a workflow is cancelled while polling, the only way to stop is a hacky external ref mutated inside `fnUntil` to force it `true`, and a predicate that never resolves loops forever. Grep confirms zero current internal consumers of `poll`, so the gap is currently latent/untested-in-practice public API surface. |
 
 ---
 
@@ -193,64 +195,68 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | DanxFileUpload clipboard paste-to-upload | Drafted this session (Valuable) | 252 (7×6×6) | Session 28 fresh find, NOT YET CARDED. Add `paste` event handling to DanxFileUploadDropZone/useFileUpload reusing existing fileValidation.ts pipeline. I:7 (common expected UX, affects all upload consumers) C:6 (standard ClipboardEvent API, some focus/edge-case nuance) E:6 (half-day, 2-3 files + tests). |
 | Replace hand-rolled setTimeout debounce with vueuse useDebounceFn (code-viewer, markdown-editor) | Drafted this session (Maintenance) | 192 (4×8×6) | Session 28 fresh find, NOT YET CARDED. Replace codeViewerDebounce.ts's 3 manual timeout pairs + useMarkdownSync.ts's debouncedSyncFromHtml with vueuse's useDebounceFn (already used in shared/actions.ts). I:4 (internal cleanup, no user-visible change) C:8 (proven pattern already in codebase) E:6 (touches 2 files, several call sites, must preserve debounceMs===0 immediate-mode behavior). |
 | DanxToast action button (e.g. "Undo") | Drafted this session (Valuable) | 294 (7×7×6) | Session 28 fresh find, NOT YET CARDED. Add optional `action: {label, onClick}` to ToastOptions/ToastEntry; render an inline action button in DanxToast.vue alongside the close button; clicking should not require canceling auto-dismiss (or should, per design decision documented in AC). I:7 (common toast UX pattern, affects any consumer needing inline recovery actions) C:7 (clear approach, composes existing button/toast primitives) E:6 (half-day: types + render + wiring + docs + tests). |
+| Fix `request.call` overwriting consumer-supplied `AbortSignal` | Drafted this session (Bug) | 320 (8×8×5) | Session 29 fresh find, NOT YET CARDED. Merge/compose an incoming `options.signal` with the internal abort-previous controller (e.g. via an `AbortSignal.any([...])` polyfill-safe helper, or only install the internal signal when the caller didn't supply one) instead of unconditionally clobbering it at request.ts:70. I:8 (silent data-loss-of-intent bug in a core, widely-used primitive — any consumer relying on the public `signal` option is silently broken) C:8 (root cause fully understood, fix is localized) E:5 (needs care: must preserve existing abort-previous/useMostRecentResponse semantics + add signal-composition tests, touches concurrency-sensitive code). |
+| Add cancellation/max-attempts to `request.poll` | Drafted this session (Maintenance) | 210 (6×7×5) | Session 29 fresh find, NOT YET CARDED. Extend poll's signature with an optional `{ signal?, maxAttempts?, maxDuration? }` so callers have a real way to stop polling (component unmount, workflow cancel) beyond mutating state inside `fnUntil`; reject/resolve appropriately on limit reached. I:6 (currently zero internal consumers so blast radius is contained, but it's a public API footgun — infinite-loop risk for any real consumer) C:7 (well-understood polling-cancellation pattern) E:5 (touches request.ts + request-types.ts + new tests, moderate care needed to keep default behavior unchanged). |
 
 ---
 
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 28, same drafts-only dispatch contract as session 27 — no MCP tool use)** —
-Dispatched into the isolated `danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no
-`.git`, no `src/` there; only `.claude/` config + a mirror `docs/features.md`); read/wrote the
-canonical checkout at `/home/newms/web/danx-ui` instead, per the worktree's own mirror notes.
-Confirmed toolset is Bash/Read/Edit/Write only — no `mcp__danx_dashboard__*` — matching the launch
-prompt's explicit statement.
+**2026-07-11 (session 29, drafts-only dispatch — no MCP tool use, `mcp__danx_dashboard__*` not
+available this session either)** — Dispatched into the isolated
+`danx-ui__danx-ui-main__ideator__ideator__cardless` worktree (no `.git`, no `src/` there; only
+`.claude/` config exists there). Read/wrote the canonical checkout at `/home/newms/web/danx-ui`
+instead, per the worktree's own mirror notes. Confirmed toolset is Bash/Read/Edit/Write only.
 
-Re-verified reality (11th+ consecutive confirming session):
-- `git log --oneline -5 -- src/ package.json`: still `6524fa1` (v0.8.17), `2026-06-25` — no `src/`
-  change in 2.5+ weeks. `ls src/components` still 31 dirs, matches Section 1 inventory.
-- `curl .../api/issues?board=danx-ui:danx-ui-main`: confirms **46/46 issues still `status:
-  Review`, 0% dispatched** (40 Feature / 6 Bug, DXUI-4..49) — unchanged from sessions 19-27.
+Re-verified reality (12th+ consecutive confirming session):
+- `git log --oneline -3 -- src/ package.json`: still tip `6524fa1` (v0.8.17, 2026-06-25) — no
+  `src/` change in 2.5+ weeks. `ls src/components` still 31 dirs, matches Section 1 inventory.
+- Did not have dashboard/API access this session to re-check the 46-card Review-backlog-dispatch
+  status (no curl target given); assume unchanged from session 28's confirmed 46/46 Review, 0%
+  dispatched until re-verified next session.
 
-**New ground actually covered this session** (unlike 19-27, which mostly re-verified): grepped for
-genuinely un-inventoried gaps rather than re-checking the same known-absent items, and found 4 real,
-grounded, NOT-previously-tracked findings (added to Section 1 gaps table + Section 2 scratchpad):
-1. Duplicated hand-rolled `ResizeObserver` (useSelect.ts, useDanxScroll.ts) + `usePopoverPositioning`
-   only listens to window resize/scroll, missing element-resize repositioning — vueuse
-   `useResizeObserver`/`useElementSize` wrap, same pattern as DXUI-8/12/24/49. ICE 320 (5×8×8).
-2. `DanxFileUpload` has no clipboard-paste-to-upload (`paste` event) — grep-verified absent across
-   `danx-file-upload/*`. ICE 252 (7×6×6).
-3. Hand-rolled `setTimeout` debounce in `code-viewer/codeViewerDebounce.ts` (3 timeout pairs) +
-   `markdown-editor/useMarkdownSync.ts`, vs. `shared/actions.ts` already using vueuse's
-   `useDebounceFn` — same wrap-vueuse pattern. ICE 192 (4×8×6).
-4. `DanxToast` `ToastOptions` has no `action` field (e.g. inline "Undo") — only a close button
-   exists (`toast/types.ts`, `DanxToast.vue` grep-verified). ICE 294 (7×7×6).
-Also checked and ruled out as non-gaps: DanxFile.vue already has native `loading="lazy"` (no lazy-
-load gap); DanxEditableDiv's `el.textContent =` write is external-sync-only per its own code
-comment, doesn't clobber native undo during typing (not a bug); no OTP/signature-pad/masonry/
-combobox/wizard/beforeunload-guard gaps found via targeted grep (combobox hits were just
-DanxSelect's existing searchable mode, not a separate component).
+**New ground covered this session:** rather than re-grepping component-level gaps already
+exhaustively covered by 28 prior sessions (components/, shared/composables/), focused this pass on
+`src/shared/request.ts` (the core fetch wrapper) and adjacent `src/shared/` files not previously
+scrutinized this deeply. Found 2 new, grounded findings (added to Section 1 gaps table + Section 2
+scratchpad):
+1. `request.call` unconditionally overwrites any consumer-supplied `options.signal` with its own
+   internal abort-previous `AbortController` (request.ts:70) whenever `shouldAbortPrevious` is true
+   (the default case, i.e. `waitOnPrevious` not set). The public `RequestCallOptions` type extends
+   `RequestInit` so `signal` is advertised as settable, but it's silently clobbered — no merge, no
+   test coverage of this path in the 320-line `request.test.ts`. Currently zero internal call sites
+   pass `signal`, so this bug has shipped unnoticed. ICE 320 (8×8×5), Bug.
+2. `request.poll` has no cancellation/max-attempts/max-duration escape hatch — only exit condition
+   is the caller's `fnUntil` predicate; no `AbortSignal` or attempt/duration limit option exists on
+   its signature. Infinite-loop risk if the predicate never resolves; zero current internal
+   consumers (untested-in-practice public API surface). ICE 210 (6×7×5), Maintenance.
 
-**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): the 4 items
-above, ordered by ICE — useResizeObserver/useElementSize (320, Maintenance), DanxToast action
-button (294, Valuable), DanxFileUpload paste-to-upload (252, Valuable), debounce dedupe (192,
-Maintenance). All 4 are genuinely new (not in the existing 46-card Review backlog) and mix
-Valuable + Maintenance per prioritization strategy. Did NOT re-draft the previously-flagged
-low-ICE Exploratory items (ImageCropper, DanxCalendar, Figma export, visual-regression) since this
-session found fresher, better-grounded, higher-or-comparable-ICE material instead — those remain
-noted in Section 2 for a future session if this material runs out.
+Ruled out as non-gaps after inspection: `arrayUtils.ts` (complete for its narrow YAML-template
+aggregate-function purpose); `flashMessages.ts` (thin, complete facade over `useToast`);
+`useVariant.ts`/`useFieldInteraction.ts` (complete, well-documented); `useTouchSwipe.ts` (complete
+for its stated horizontal-swipe-only scope — not a pinch-zoom gap, since `DanxZoomable` already
+owns pinch/zoom separately); `DanxFileUpload`'s `useFileUpload.ts` already has abort/retry per-file
+(confirmed via reading the file, not a gap); color-picker/range-slider/zoomable/file-explorer/
+toggle/danx-file-viewer all already have `aria-*` wiring (grep-confirmed, no new a11y gap there).
 
-**Primary finding (still holds, now 11th+ consecutive confirmation):** idea supply is not the
-bottleneck for the EXISTING 46-card backlog — it has sat 100% in Review with 0% dispatched for
-2.5+ weeks. This session's 4 new drafts are additive scratchpad material, not a signal that the
-existing backlog should be deprioritized. Recommend the human operator prioritize triaging the
-existing 46 cards into ToDo/In Progress; add these 4 new drafts to the same Review queue once
-`issue_create` is available.
+**Drafts handed to orchestrator this session** (cannot call `issue_create` itself): the 2 items
+above — request.ts signal-overwrite bug (ICE 320, Bug) and poll cancellation gap (ICE 210,
+Maintenance). Smaller find count than session 28's 4, but both are genuinely new, well-grounded,
+and surface a previously-unscrutinized area (`shared/request.ts`, the core data-fetching layer)
+rather than re-treading component-level ground already covered by 28 prior sessions.
 
-**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first. If present, run
-`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then actually create the 4
-drafts above as cards (they are NOT yet cards, only proposals in this log). (2) If `src/` is still
-unchanged and the 46-card Review backlog is still undispatched, keep prioritizing dispatch/review
-triage over further ideation — but this session shows there is still fresh, grounded gap material
-to find via targeted grep (ResizeObserver dedup, clipboard paste, debounce dedup, toast actions)
-when the well seems dry; don't assume "nothing new" without actually grepping for it first.
+**Primary finding (still holds, now 12th+ consecutive confirmation):** idea supply is not the
+bottleneck for the EXISTING 46-card backlog (as of session 28's last confirmed check) — it sat
+100% in Review with 0% dispatched for 2.5+ weeks. This session's 2 new drafts are additive
+scratchpad material, not a signal to deprioritize the existing backlog. Recommend the human
+operator prioritize triaging the existing 46+ cards into ToDo/In Progress.
+
+**Next session:** (1) Check `mcp__danx_dashboard__*` tool availability first; if present, run
+`issue_list({status_derived:'Review'|'ToDo'|'In Progress'})` to dedup, then create the 6
+outstanding drafts as real cards (session 28's 4 + this session's 2 — none are cards yet, only
+proposals in this log). (2) Re-verify the 46-card backlog dispatch status via the dashboard API if
+reachable. (3) If `src/` is still unchanged, this session shows deep `shared/` exploration (request
+layer, composables) still yields fresh material — consider next scrutinizing `objectStore.ts`,
+`actionStore.ts`/`actionRoutes.ts`, and `config.ts` in similar depth, since this session did not
+have time to fully audit those.
