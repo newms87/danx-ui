@@ -239,6 +239,7 @@ ICE = Impact × Confidence × Ease. Type drives whether to card; ICE drives orde
 | Sanitize URL scheme when inserting/editing links in the markdown-editor WYSIWYG (`LinkPopover`/`linkDomUtils.ts`) | Carded (Bug/security) | 336 (6×8×7) | DXUI-72. Session 36 fresh find, now carded. Reuse the same `isSafeUrl(url)` helper proposed above in `linkDomUtils.ts`'s `createLinkElement()`/`completeEditLink()` before calling `setAttribute("href", ...)`, and reject/no-op (with a small inline validation message in `LinkPopover.vue`) on disallowed schemes; also guard the two `window.prompt(...)` fallback paths in `linkPopoverHandlers.ts`. I:6 (a user can create a live clickable `javascript:` link directly inside the editor's `contenteditable` surface, which is both rendered via `v-html` in `MarkdownEditorContent.vue` and exportable as markdown via `useMarkdownSync.ts` — compounding with the renderer-side finding above) C:8 (same well-understood fix pattern, shares the helper) E:7 (touches `linkDomUtils.ts` + `linkPopoverHandlers.ts` + `LinkPopover.vue` for user-facing validation feedback, 3 files).
 | Fix MarkdownEditor keyboard trap: Tab always `preventDefault`'d with no escape hatch | Carded (Bug/a11y) | 448 (8×8×7) | DXUI-73. Session 37 fresh find, now carded. In `editorKeyHandlers.ts`'s `onKeyDown`, only `preventDefault()`+intercept Tab when in a table/list context (delegate to `tables.handleTableTab`/`lists.indentListItem`/`outdentListItem`) or when the caller has opted into tab-trapping; otherwise let Tab move focus natively out of the contenteditable (or add an explicit documented escape, e.g. Escape-then-Tab, matching common rich-text-editor conventions e.g. Slate/Lexical/Draft.js all ship an explicit "release focus" affordance). I:8 (total, unconditional keyboard trap — WCAG 2.1.2 failure — in a public, widely-reused component; keyboard-only users cannot leave the editor by keyboard at all) C:8 (root cause fully understood and localized to one function; the table/list Tab-handling logic that SHOULD stay intercepted already exists and is unaffected) E:7 (isolated to `editorKeyHandlers.ts`'s Tab branch + a docs/AC decision on the exact non-trapped default, plus tests for both trapped-in-table/list and released-elsewhere cases).
 | Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage gate | Drafted this session (Bug), NOT YET CARDED — no MCP tool access this dispatch. **Re-confirmed live session 53** (also session 52): `npx vitest run --coverage` still exits non-zero with the identical `98.33%`/`93.1%` numbers and identical uncovered lines `110-115,206,246` — zero `src/` changes since session 50, `src/` still bottoms out at `7023a67`. `eslint`/`vue-tsc` both re-confirmed clean session 53. | 504 (7×9×8) | Session 50 fresh find. `npx vitest run --coverage` currently exits non-zero (`ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`) solely due to `src/components/context-menu` (98.33% stmts, lines 110-115/206/246 uncovered — the new `getMenuPanel`/`updateSubmenuDirection` rect-based submenu-direction logic + the `#trigger` slot branch + the nested-submenu `v-if`, all added in the last `src/` commit `7023a67`/DXUI-3). I:7 (breaks the enforced coverage gate for the WHOLE repo right now — every future `test:coverage` run fails regardless of what's touched, and would fail CI once DXUI-28 ships; only found by actually running the suite, which no session in 30+ had done). C:9 (root cause fully verified live via 2 independent coverage runs, exact uncovered lines pinpointed). E:8 (add 2-4 targeted test cases to the existing `DanxContextMenu.test.ts` — e.g. a menu mounted where `menuRef.value.closest('.danx-popover')` returns null, and asserting both v-if branches around lines 206/246 are exercised in isolation — isolated to one test file). Highest-ICE new finding since session 39-ish; recommend orchestrator create this immediately given it's a currently-live, reproducible CI-blocking regression, not a latent one. |
+| `onConfirmAction`'s optimistic update/delete has no rollback when the action fails | Drafted this session (Bug), NOT YET CARDED — no MCP tool access this dispatch. | 245 (7×7×5) | Session 57 fresh find. `shared/actions.ts`'s `onConfirmAction()` (lines 208-263, read in full) applies `storeObject(...)` for `action.optimisticDelete` (239-245) and `action.optimistic` (247-256) — i.e. mutates the shared `objectStore` entry BEFORE `await action.onAction(...)` — but the surrounding `try { ... } catch (e) { result = { error: ... } }` (218-263) and the caller's error branch (`performAction`, lines ~289-300, pushes to `FlashMessages`) never revert the store to its pre-optimistic state. Grep-confirmed no `rollback`/`revert`/`previousState` reference anywhere in `actions.ts`, and `canonicalizeResult()` (`objectStore.ts:297-308`) only merges `result.item`/`result.result` on SUCCESS-shaped payloads — it has no failure-path counterpart. So on any rejected/errored action (server 4xx/5xx, validation failure, network error), the object a component is bound to (via `objectStore`'s shared reactive identity map, consumed by every `DanxActionButton`/list-controller-backed UI) permanently keeps the optimistic mutation — e.g. an optimistic `optimisticDelete` leaves `__deleted_at` set (so the row silently vanishes from any list filtering on it) even though the delete failed server-side, and an optimistic field edit keeps showing the user's rejected new value as if it saved. The only signal to the user is a transient `FlashMessages.error` toast — if missed/dismissed, the UI silently and permanently diverges from server truth until an unrelated full re-fetch happens to overwrite it. Same "silently broken on the failure path" class as already-carded DXUI-56 (`useActionStore.refreshItems`)/DXUI-77 (`FlashMessages` precedence)/DXUI-79 (`autoRefreshObject`), but a distinct root cause/file — nobody had traced the optimistic-write failure path end-to-end before. |
 | Fix CodeViewer hardcoded Tailwind gray/red text colors bypassing its own token system | Carded (Bug/Maintenance) | 256 (4×8×8) | DXUI-83. Session 45 fresh find, confirmed carded (orchestrator verified via issue_list, session 49). Add `--dx-code-viewer-footer-text` / `--dx-code-viewer-footer-text-hover` / `--dx-code-viewer-footer-error-text` / `--dx-code-viewer-collapse-toggle-text` tokens to both dark and light blocks of `code-viewer-tokens.css` (mirroring the existing `collapsed-text`/`content-text` pattern), then swap the 4 hardcoded Tailwind classes in `CodeViewerFooter.vue` (x2), `CodeViewer.vue`, and `CodeViewerCollapsed.vue` for the new tokens. I:4 (real but narrow — cosmetic/contrast issue affecting only consumers who opt into `.theme-light`, not a functional break) C:8 (root cause fully grounded via grep + token-file diff; fix pattern proven verbatim elsewhere in the same file) E:8 (isolated to 3 small `.vue` files + 1 token CSS file, no cross-cutting changes). |
 | Unify MarkdownEditor's `.theme-light`/`--dx-mde-*` tokens with the library-wide dark-mode system (fold into DXUI-36) | Drafted this session (Maintenance, low ICE — likely AC addition rather than standalone) | 120 (4×6×5) | Session 37 fresh find, NOT YET CARDED. `markdown-editor-tokens.css`'s ~50 `--dx-mde-*` tokens + manually-applied `.theme-light` class root are entirely separate from the library's `.dark`-class semantic token system and the still-unbuilt `useColorScheme` (DXUI-36) — a global dark-mode toggle won't affect MarkdownEditor at all today. I:4 (real but low-visibility until DXUI-36 ships a live toggle; workaround today is trivial — just don't add `.theme-light`) C:6 (clear root cause, but the "right" fix depends on DXUI-36's own design, e.g. whether it exposes a shared reactive `isDark` other components/tokens can key off) E:5 (touches token wiring + DXUI-36's own scope, not purely isolated). Recommend folding into DXUI-36's AC rather than a standalone card, same treatment as the earlier `useAutoColor` dark-mode note (session 30).
 | DanxSelect has no letter-key type-ahead when `filterable` is false | Incomplete | Session 34 fresh find. `useSelectKeyboard.ts`'s `handleKeydown` switch (lines 105-169, read in full) handles ArrowDown/Up/Enter/Space/Escape/Tab/Home/End only — grep-confirmed (`grep -n "key.length === 1\|charCode\|typeahead" src/components/select/*.ts`) zero single-character key handling anywhere. A native `<select>` (and most select-widget libraries) lets a focused-but-closed dropdown jump to the first option starting with a typed letter, repeated presses cycling matches — `DanxSelect` has NO such behavior when `filterable` is unset/false (the common case for short option lists where a search box is overkill), so keyboard users must Arrow-key through the entire list one item at a time. `filterable=true` mode has a real text input as a workaround, but that's an opt-in, different UX. |
@@ -274,62 +275,57 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 56, conservative/triage-focused dispatch).** Orchestrator
-explicitly requested a conservative pass this run (backlog-bottleneck context, not
-idea-supply): refresh Feature Inventory, ICE-score existing non-Complete items,
-propose 0-2 new drafts ONLY if clearly high-value/non-duplicate, do not pad the queue.
-Tool list again contained ONLY Bash/Read/Edit/Write — no `mcp__danx_dashboard__*`
-functions — matching `project_ideator_tooling_gap`; could not run `issue_list` to
-dedupe against live cards, so duplicate-checking against Review/ToDo/In-Progress could
-not be performed directly this session (noted as a limitation below).
+**2026-07-11 (session 57).** No scope override given this dispatch; treated as a
+normal (non-conservative) pass. Tool list again contained ONLY Bash/Read/Edit/Write —
+no `mcp__danx_dashboard__*` functions — matching `project_ideator_tooling_gap`; could
+not run `issue_list` to dedupe against live Review/ToDo/In-Progress cards this
+session (noted as a limitation, same as every prior session under this gap).
 
 Worked in the canonical checkout `DANX_REPO_ROOT=/danxbot/app/repos/danx-ui`
-(symlink `/home/newms/web/danx-ui`). `git log -1 --oneline` = `9ec54ed` (session 55).
-`git log -1 -- src/` still `7023a67` (DXUI-3) — **38+ consecutive sessions with zero
+(symlink `/home/newms/web/danx-ui`). `git log -1 --oneline` = `33ebb6d` (session 56).
+`git log -1 -- src/` still `7023a67` (DXUI-3) — **39+ consecutive sessions with zero
 `src/` changes.**
 
 Re-verified all 3 outstanding uncarded drafts live by actually running the tools
-(same 3 as sessions 50-55, unchanged):
+(unchanged since sessions 50-56):
 1. `npx vitest run --coverage` (full run) — identical failure:
-   `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`.
-   Isolated re-run of just `context-menu` confirms `98.33%`/`93.1%`, uncovered lines
-   `110-115,206,246` unchanged.
+   `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
+   isolated to `context-menu` (`98.33%`/`93.1%`, uncovered lines `110-115,206,246`).
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero matches.
 3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` — line 82
    still unguarded.
 
-`yarn` still not on PATH this session (only `node`/`npm` present); used `npx vitest`
-directly instead, which worked fine (same underlying binary). Did not run
-`npx vue-tsc`/lint separately this pass since no new `src/` diff exists to check and
-sessions 53-55 already re-confirmed both clean.
+Did a fresh targeted scan of previously-unexplored angles (`shared/actions.ts`'s
+optimistic-update failure path, since prior sessions had covered its precedence/leak
+bugs but never traced what happens to the store when an optimistic action fails) and
+found one new, well-grounded bug: `onConfirmAction()` applies `storeObject(...)` for
+both `optimisticDelete` and `optimistic` BEFORE awaiting `action.onAction(...)`, but
+neither the `catch` block nor the caller's error-handling branch ever reverts the
+store — a failed optimistic delete/update leaves the shared object permanently
+mutated (`__deleted_at` set, or the rejected new field values) with only a transient
+`FlashMessages.error` toast as the user-facing signal. Full detail in Section 1/2
+(new row, ICE 245 = 7×7×5).
 
-No new findings — did not do a fresh broad re-scan of `src/` given (a) 38+ consecutive
-static sessions, (b) an already-exhaustive ~85-entry Carded backlog (`Section 2`), and
-(c) the orchestrator's explicit ask to be conservative and not pad the queue this run.
-Proposing **zero net-new drafts**. The 3 items below are NOT new — they are recurring,
-independently-reverified, live findings from sessions 47-52 that have simply never
-been formally carded due to the standing tooling gap; re-surfacing them is not
-"padding," it's closing an existing gap between "identified" and "carded."　　
+`yarn` not on PATH this session (only `node`/`npm`); used `npx vitest` directly
+(same underlying binary, works fine). Ran `npx vue-tsc --noEmit` and `npx eslint src`
+— both clean, no new `src/` diff to check beyond the read-only exploration above.
 
-**Recommendation for next dispatch:** (1) hand the 3 drafts below to the orchestrator
+**Recommendation for next dispatch:** (1) hand the 4 drafts below to the orchestrator
 for `issue_create` verbatim — check `issue_list` across Review/ToDo/In Progress first
-in case they were already created from a prior handoff; (2) per
+in case any were already created from a prior handoff; (2) per
 `project_danx_ui_backlog_bottleneck`, the primary lever remaining is triage/dispatch
-of the ~85 already-Carded Review-status items, not additional idea generation —
-consider whether future ideator dispatches should be spaced out or replaced by a
-dispatcher/triage pass until the Review queue drains; (3) `src/` has now been static
-for 38+ sessions — worth confirming with the user whether active development on
-danx-ui has paused, since continuing every-session re-verification of the same 3
-findings has diminishing returns once they're actually carded.
+of the ~85+ already-Carded Review-status items, not additional idea generation; (3)
+`src/` has now been static for 39+ sessions — worth confirming with the user whether
+active development on danx-ui has paused, since bug-hunting via static/grep analysis
+against an unchanging tree has diminishing returns.
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
-Zero NEW drafts this session (conservative pass, per orchestrator instruction). 3
-previously-identified, still-uncarded, re-verified-live items carried forward:
-
-1. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
-   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (6 sessions).
-2. **Feature/Maintenance** — Write docs pages for DanxSelect, DanxInput, DanxTextarea,
+1. **Bug** — `onConfirmAction`'s optimistic update/delete has no rollback on action
+   failure (`shared/actions.ts`). ICE 245 (7×7×5). NEW finding, session 57.
+2. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
+   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (7 sessions).
+3. **Feature/Maintenance** — Write docs pages for DanxSelect, DanxInput, DanxTextarea,
    DanxFieldWrapper. ICE 288 (6×8×6). Re-confirmed live, unchanged since session 47.
-3. **Bug** — `useTokenManager.mountToken` unguarded `JSON.parse(groupsAttr)`. ICE 288
+4. **Bug** — `useTokenManager.mountToken` unguarded `JSON.parse(groupsAttr)`. ICE 288
    (4×8×9). Re-confirmed live, unchanged since session 52.
