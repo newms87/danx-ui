@@ -275,29 +275,33 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 62).** Dispatched from the isolated `cardless` worktree
+**2026-07-11 (session 63).** Dispatched from the isolated `cardless` worktree
 (`/var/tmp/danxbot-clean-room/ec38b862183fe282/danx-ui__danx-ui-main__ideator__ideator__cardless`
-— no repo checkout there, only `.claude/` config, `.claude/mcp.json` is absent
-— only `mcp.template.json` present); worked directly in the canonical checkout
-at `/danxbot/app/repos/danx-ui` (== `/home/newms/web/danx-ui` host mount, per
-`DANX_REPO_ROOT` env var). Tool list this dispatch was again ONLY
-Bash/Read/Edit/Write — no `mcp__danx_dashboard__*` functions present —
-confirmed by inspecting the actual available-tools list before doing any work
-(matches `project_ideator_tooling_gap`, same as sessions 50-61, now **13
-consecutive cardless dispatches**). Could not call `issue_list`/`issue_create`;
-producing drafts as final-response text for the orchestrator to card instead,
-per standing convention for cardless dispatches.
+— no repo checkout there, only `.claude/` config; `.claude/mcp.template.json`
+present but no materialized `.claude/mcp.json`/`settings.json` `mcpServers`
+block); worked directly in the canonical checkout at `/danxbot/app/repos/danx-ui`
+(== `/home/newms/web/danx-ui` host mount, per `DANX_REPO_ROOT` env var). Tool
+list this dispatch was again ONLY Bash/Read/Edit/Write — no
+`mcp__danx_dashboard__*` functions present — confirmed both by inspecting the
+declared tool list and by inspecting
+`.../ideator__ideator__cardless/.claude/settings.json` directly (its `env`/
+`hooks` block has no `mcpServers` entry at all, unlike the repo's own
+`.mcp.json` which DOES declare `danx_dashboard`). Matches
+`project_ideator_tooling_gap`, same as sessions 50-62, now **14 consecutive
+cardless dispatches**. Could not call `issue_list`/`issue_create`; producing
+drafts as final-response text for the orchestrator to card instead, per
+standing convention for cardless dispatches.
 
-`git log -1 --oneline` = `55902b6` (session 61, docs-only commit). `git log -1
---oneline -- src/` still `7023a67` (DXUI-3) — **45+ consecutive sessions with
+`git log -1 --oneline` = `d8b36ff` (session 62, docs-only commit). `git log -1
+--oneline -- src/` still `7023a67` (DXUI-3) — **46+ consecutive sessions with
 zero `src/` changes.**
 
 Re-verified all 4 outstanding uncarded drafts live by actually running the tools
-(unchanged since sessions 50-61):
+(unchanged since sessions 50-62):
 1. `npx vitest run --coverage` (full run) — identical failure:
    `ERROR: Coverage for statements (99.98%) does not meet global threshold (100%)`,
    isolated to `context-menu` (98.33% stmts / 93.1% branches, uncovered lines
-   `110-115,206,246` unchanged, re-confirmed by isolated `context-menu`-only run).
+   `110-115,206,246` unchanged).
 2. `ls docs/*.md | grep -iE "select|input|textarea|field-wrapper"` — still zero
    matches (exit 1, 34 files total in `docs/`).
 3. `grep -n "JSON.parse" src/components/markdown-editor/useTokenManager.ts` —
@@ -306,10 +310,10 @@ Re-verified all 4 outstanding uncarded drafts live by actually running the tools
    matches, confirming `onConfirmAction`'s optimistic write still has no
    failure-path revert.
 
-No new findings this session — re-verification pass only, given 45+ session
+No new findings this session — re-verification pass only, given 46+ session
 static `src/` and materially diminishing returns from further static/grep
 analysis against an unchanging tree. Did not re-run the broader repo scan
-(package.json, exports map, ARIA grep sweep, etc.) given the prior 11+ sessions'
+(package.json, exports map, ARIA grep sweep, etc.) given the prior 12+ sessions'
 exhaustive coverage of this exact codebase and the standing recommendation below
 to space out dispatches.
 
@@ -318,21 +322,24 @@ verbatim the moment real `issue_create` access is available — check `issue_lis
 across Review/ToDo/In Progress first in case the orchestrator already created some
 from this or a prior handoff; (2) per `project_danx_ui_backlog_bottleneck`, the
 primary lever remaining is triage/dispatch of the ~90+ already-Carded Review-status
-items, not additional idea generation; (3) `src/` has now been static for 45+
+items, not additional idea generation; (3) `src/` has now been static for 46+
 sessions — worth confirming with the user whether active development on danx-ui
 has paused, since further static/grep bug-hunting against an unchanging tree has
-materially diminishing returns; (4) this is the 13th consecutive dispatch with no
-`mcp__danx_dashboard__*` tools available — worth investigating why this specific
-dispatch path (`ideator__ideator__cardless` worktree) never receives dashboard MCP
-tool access, since every session's work product is currently stranded as
-final-response text rather than actual board state; recommend spacing out future
-ideator dispatches until the Review queue drains, `src/` moves again, or the MCP
-tooling gap is fixed.
+materially diminishing returns; (4) this is the 14th consecutive dispatch with no
+`mcp__danx_dashboard__*` tools available — root-caused this session:
+`.../ideator__ideator__cardless/.claude/settings.json` has no `mcpServers` block
+at all (only `env`/`hooks`), whereas the target repo's own `.mcp.json` correctly
+declares `danx_dashboard` — the cardless worktree's settings never merge/inherit
+that server config, so every session's work product is stranded as
+final-response text rather than actual board state; recommend either fixing the
+cardless worktree's settings to include the `danx_dashboard` MCP server, or
+routing ideator dispatches through a worktree that already has it, and spacing
+out future dispatches until the Review queue drains or `src/` moves again.
 
 ## Drafts produced this session (see final response to orchestrator for full text)
 
 1. **Bug** — Fix `DanxContextMenu.vue` failing the repo's own 100% statement-coverage
-   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (10 sessions).
+   gate. ICE 504 (7×9×8). Re-confirmed live, unchanged since session 50 (11 sessions).
 2. **Bug** — `onConfirmAction`'s optimistic update/delete has no rollback on action
    failure (`shared/actions.ts`). ICE 245 (7×7×5). Re-confirmed live, unchanged since
    session 57.
