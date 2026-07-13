@@ -284,86 +284,81 @@ MarkdownEditor traps keyboard-only users: `Tab` is unconditionally `event.preven
 | fShortNumber/fShortCurrency don't shorten negative numbers | Carded (Bug) | 320 (5×8×8) | DXUI-131. Session 69 fresh find, reproduced live (`fShortNumber(-5000)` → `"-5000"` not `"-5K"`). `numbers.ts:54-56`'s bucket-selection compares `n` directly against positive powers of 10, always failing for negative `n`. |
 | arrayMin/arrayMax return Infinity/-Infinity for empty arrays | Carded (Bug) | 224 (4×7×8) | DXUI-132. Session 69 fresh find. `arrayUtils.ts:99-115`, own module doc says these feed YAML pipe-formatter templates — an empty-array pipe result would literally render the string "Infinity". Zero internal consumers today (latent, same class as request.poll/autoRefreshObject). |
 | DanxChip remove button has generic "Remove" aria-label (no chip context) | Carded (Bug/a11y) | 320 (5×8×8) | DXUI-133. Session 69 fresh find. `DanxChip.vue:151` hardcodes `aria-label="Remove"` — a list of multiple removable chips is indistinguishable to screen-reader users. Distinct from DXUI-66 (DanxBadge indicator label). |
+| fShortNumber/fShortCurrency don't shorten exact powers of ten (1000, 1000000, ...) | Carded (Bug) | 216 (3×8×9) | DXUI-134. Session 70 fresh find, reproduced live via standalone Node script. `numbers.ts`'s bucket-selection uses strict `<` for the lower bound (`Math.pow(10, pow) < n`), so `fShortNumber(1000)` returns `"1000"` not `"1K"`. Distinct root cause from DXUI-131 (negative numbers) — same function, different comparison-operator bug. |
+| arraySum/arrayAvg silently count empty-string field values as numeric 0 | Carded (Bug) | 252 (6×7×6) | DXUI-136. Session 70 fresh find, reproduced live. `Number("")` is `0`, not `NaN`, so `arraySum`/`arrayAvg`'s `!isNaN(n)` guard lets blank-string leaves through as valid zeros, skewing sums/averages for real-world CSV/CMS-sourced data. Distinct from DXUI-132 (empty-ARRAY Infinity/-Infinity) — this is blank elements within a non-empty array. |
+| isJSON(null) incorrectly returns true (typeof null === "object" quirk) | Carded (Bug) | 180 (5×6×6) | DXUI-135. Session 70 fresh find, reproduced live. `dataFormat.ts`'s `isJSON()` checks `typeof value === "object"` before the falsy guard, so `isJSON(null)` → `true` and `isStructuredData(null)` inherits the misclassification. Public API functions gating CodeViewer/MarkdownContent's JSON/YAML toggle detection. |
 
 ---
 
 ## Session Log (latest session only — overwrite each run)
 
-**2026-07-11 (session 69) — same `cardless` worktree
+**2026-07-13 (session 70) — same `cardless` worktree
 (`/var/tmp/danxbot-clean-room/ec38b862183fe282/danx-ui__danx-ui-main__ideator__ideator__cardless`,
 no repo checkout, only `.claude/`); worked in the canonical checkout at
-`/home/newms/web/danx-ui`.** Confirmed same root cause as sessions 50-68: this
-dispatch's declared tool list is Bash/Read/Edit/Write only, no native
-`mcp__danx_dashboard__*` functions wired in. Reused the documented workaround
-(launch `npx -y @thehammer/danx-dashboard-mcp` directly via Bash, env vars
-`DANX_REPO_NAME=danx-ui`, `DANXBOT_BOARD_NAME=danx-ui-main`,
-`DANXBOT_DASHBOARD_URL`, `DANXBOT_DISPATCH_TOKEN` from the ambient
-environment, pipe `initialize`/`notifications/initialized`/`tools/call`
-JSON-RPC over stdin) — worked cleanly. **New finding this session:**
-`issue_create` also requires a `gate_decisions` array (`{gate, enabled, note}`
-for `plan-dependency`/`plan-architecture`/`plan-tdd`) that prior sessions'
-notes didn't mention — first two `issue_create` attempts failed with
-`400 missing required gate decision for board-optional gate(s)` until this was
-added (all three disabled with a justifying note, appropriate for small
-isolated bug fixes).
+`/home/newms/web/danx-ui`.** Same root cause as sessions 50-69: declared tool
+list is Bash/Read/Edit/Write only, no native `mcp__danx_dashboard__*`
+functions wired in. Reused the manual-MCP-via-Bash workaround (spawn
+`npx -y @thehammer/danx-dashboard-mcp` via `node child_process.spawn`, JSON-RPC
+`initialize`/`notifications/initialized`/`tools/call` over stdin, env vars
+`DANX_REPO_NAME=danx-ui`, `DANXBOT_BOARD_NAME`, `DANXBOT_DASHBOARD_URL`,
+`DANXBOT_DISPATCH_TOKEN` from ambient environment) — worked cleanly.
+Confirmed `issue_create`'s `ac` array items need a `title` field, not `text`
+(prior sessions' notes didn't specify this — first attempt failed schema
+validation on all 4 `ac` entries per card until fixed). Also hit one
+`500 duplicate key value violates unique constraint "issues_v2_pkey"` on a
+concurrent multi-call batch (likely an id-allocation race when 3 `issue_create`
+calls land in the same request cycle) — retried the failed call alone and it
+succeeded on the next id. Recommend future sessions issue `issue_create` calls
+one-at-a-time (or expect/retry on this specific 500) rather than batching.
 
-Live `issue_list` confirmed 106 issues currently on the board (Review), 0 in
-ToDo, 0 in In Progress (consistent with sessions 67-68's saturation finding —
-`status_derived` filter param appears to not actually filter server-side,
-same 106-count returned for all three status queries; the individual `status`
-field on each returned issue is the reliable signal, and 100% show `Review`).
-`src/` still has zero commits since `7023a67` (DXUI-3).
+Given the ~110+ card saturation (69 prior sessions), did NOT re-derive the
+existing backlog; did fresh, targeted code reading in still-unexplored files
+(`color-picker/color-utils.ts` + `useRecentColors.ts`, `shared/nestedJson.ts`,
+`shared/useStructuredDataPreference.ts`, `shared/dataFormat.ts`,
+`shared/hexColor.ts`, `code-viewer/formatUtils.ts` + `mapPathToLines.ts`,
+`shared/composables/useVariant.ts`/`useFieldInteraction.ts`/`useTouchSwipe.ts`,
+`shared/formatters/strings.ts` + `numbers.ts` re-read, `shared/arrayUtils.ts`
+re-read, `dialog/useDialogStack.ts`, `danx-file-viewer/useVirtualCarousel.ts`,
+`scroll/useScrollWindow.ts`, `shared/markdown/escapeSequences.ts` +
+`htmlToMarkdown/convertInline.ts`), specifically hunting for genuinely new,
+non-duplicate, LIVE-REPRODUCED bugs via standalone Node repro scripts rather
+than more "add DanxXYZ component" Feature ideas.
 
-Given the ~106-card saturation, did NOT re-derive the existing backlog;
-instead did fresh, targeted code reading in areas not previously deep-dived
-(`chip/`, `toggle/`, `range-slider/`, `shared/arrayUtils.ts`,
-`shared/formatters/strings.ts` + `numbers.ts`, `shared/nestedJson.ts`,
-`shared/composables/useFieldInteraction.ts`/`useTouchSwipe.ts`), specifically
-looking for genuinely new, non-duplicate, LIVE-REPRODUCED bugs (verified via
-standalone Node repro scripts, not just static reading) rather than more
-"add DanxXYZ component" Feature ideas — the Feature backlog already has 60+
-uncarded/carded component ideas sitting idle, so small grounded Bug fixes are
-the higher-value contribution right now.
+**3 new cards created and verified this session** (each reproduced live via a
+standalone Node script before carding, `issue_list` keyword-search confirmed
+non-duplicate):
+1. `DXUI-134` (Bug) — `fShortNumber`/`fShortCurrency` don't shorten values at
+   exact powers of ten (`fShortNumber(1000)` → `"1000"` not `"1K"`);
+   `numbers.ts`'s bucket-selection uses strict `<` for the lower bound.
+   Distinct root cause from DXUI-131 (negative numbers), same function/line.
+   ICE 216 (3×8×9).
+2. `DXUI-136` (Bug) — `arraySum`/`arrayAvg` silently count empty-string field
+   values as numeric `0` (`Number("") === 0`, not `NaN`), skewing aggregate
+   output for real-world blank/missing CSV/CMS data feeding the YAML
+   pipe-formatter templates these functions exist for. Distinct from DXUI-132
+   (empty-array Infinity/-Infinity — this is blank elements within a
+   non-empty array). ICE 252 (6×7×6), highest this session.
+3. `DXUI-135` (Bug) — `isJSON(null)` incorrectly returns `true` because
+   `typeof null === "object"` is checked before the falsy guard in
+   `dataFormat.ts`; `isStructuredData(null)` inherits the misclassification.
+   Both are public API exports gating CodeViewer/MarkdownContent's JSON/YAML
+   toggle detection. ICE 180 (5×6×6).
 
-**4 new cards created and verified this session** (each reproduced live via a
-standalone Node script before carding, grep-confirmed non-duplicate against
-the full 106-issue live board title list):
-1. `DXUI-130` (Bug) — `fAddress(..., "multiline")` leaves a leading space on
-   line 2 when city/state are missing but zip is present (`strings.ts:51-52`).
-   ICE 243 (3×9×9).
-2. `DXUI-131` (Bug) — `fShortNumber`/`fShortCurrency` don't shorten negative
-   numbers (`fShortNumber(-5000)` → `"-5000"` not `"-5K"`, `numbers.ts:54-56`
-   compares `n` directly against positive powers of 10). ICE 320 (5×8×8).
-   Highest-ICE new finding this session.
-3. `DXUI-132` (Bug) — `arrayMin`/`arrayMax` return `Infinity`/`-Infinity` for
-   empty arrays (`arrayUtils.ts:99-115`); own module doc says these feed YAML
-   pipe-formatter templates, so an empty-array pipe result would literally
-   render the string "Infinity" to end users. Zero internal consumers today
-   (latent public-API gap, same class as the already-fixed `request.poll`/
-   `autoRefreshObject` findings). ICE 224 (4×7×8).
-4. `DXUI-133` (Bug/a11y) — `DanxChip`'s remove button hardcodes a generic
-   `aria-label="Remove"` (`DanxChip.vue:151`) with no reference to the chip's
-   own label, making a list of multiple removable chips indistinguishable to
-   screen-reader users. ICE 320 (5×8×8), tied highest this session.
-
-No duplicates found/flagged this session (did not re-run the full duplicate
-audit sessions 67/68 already completed — see their still-unresolved findings
-on DXUI-88/113, DXUI-104/115, DXUI-84/93/112 (93 now Cancelled, so 2 live
-duplicates), DXUI-92/114, unchanged, still needing a human/orchestrator
-housekeeping pass).
+No duplicates found/flagged beyond what's already known. Did not re-run the
+full duplicate audit from sessions 67/68 (still-unresolved: DXUI-88/113,
+DXUI-104/115, DXUI-84/112 (93 cancelled), DXUI-92/114 — still needs a
+human/orchestrator housekeeping pass to cancel the extras).
 
 **Recommendation for next dispatch:** (1) reuse the manual-MCP-via-Bash
-workaround documented in sessions 67-69 if this worktree is dispatched again
-without native tool access, and remember `issue_create` needs
-`gate_decisions` for `plan-dependency`/`plan-architecture`/`plan-tdd`; (2) the
-primary lever remains triage/dispatch of the ~110 Review-status cards, not
-more ideation — `src/` has been static 50+ sessions across dozens of ideator
-passes; consider pausing broad component-ideation dispatches in favor of (a)
-dispatching implementers against the existing backlog and (b) continued
-narrow, live-reproduced bug-hunting in still-unexplored files (this session's
-approach) rather than more Feature-type component proposals; (3) the ~6
-duplicate cards flagged in sessions 67/68 (2x DXUI-88/113, 2x DXUI-104/115,
-2x DXUI-84/112, 2x DXUI-92/114) still need a human/orchestrator housekeeping
-pass to cancel the extras — not something this ideator role should do
-unilaterally; (4) still worth confirming with the user whether active `src/`
-development on danx-ui has intentionally paused.
+workaround; remember `ac` items need `title` not `text`, `issue_create` needs
+`gate_decisions` for `plan-dependency`/`plan-architecture`/`plan-tdd`, and
+issue calls one-at-a-time to avoid the id-race 500; (2) the primary lever
+remains triage/dispatch of the ~110+ Review-status cards, not more ideation —
+`src/` has been static 50+ sessions across dozens of ideator passes; small,
+live-reproduced Bug fixes in still-unexplored files remain higher-value than
+more Feature-type component proposals (the Feature backlog already has 60+
+uncarded/carded component ideas sitting idle); (3) the duplicate-card cleanup
+from sessions 67/68 is still outstanding and needs a human/orchestrator pass;
+(4) still worth confirming with the user whether active `src/` development on
+danx-ui has intentionally paused, since ideation continues to outpace
+implementation by a wide margin.
