@@ -33,6 +33,7 @@ import { computed, nextTick, onMounted, ref, watch } from "vue";
 import MdeFloatingPanel from "./MdeFloatingPanel.vue";
 import type { PopoverPosition } from "./usePopoverManager";
 import { calculatePopoverPosition } from "./popoverUtils";
+import { isSafeUrl } from "../../shared/isSafeUrl";
 
 export interface LinkPopoverProps {
   position: PopoverPosition;
@@ -56,6 +57,7 @@ const urlInputRef = ref<HTMLInputElement | null>(null);
 // State
 const urlValue = ref(props.existingUrl || "");
 const labelValue = ref("");
+const validationError = ref("");
 
 // Computed
 const isEditing = computed(() => !!props.existingUrl);
@@ -81,6 +83,14 @@ const popoverStyle = computed(() => {
 // Methods
 function onSubmit(): void {
   const url = urlValue.value.trim();
+
+  // DXUI-72: validate URL scheme before submission
+  if (url && !isSafeUrl(url)) {
+    validationError.value = "Invalid URL scheme. Allowed: http, https, mailto, tel, ftp, ftps, relative URLs, or fragments.";
+    return;
+  }
+
+  validationError.value = "";
   const label = labelValue.value.trim() || undefined;
   emit("submit", url, label);
 }
@@ -104,6 +114,11 @@ watch(
     urlValue.value = newUrl || "";
   }
 );
+
+// Clear validation error when user types
+watch(urlValue, () => {
+  validationError.value = "";
+});
 </script>
 
 <template>
@@ -125,6 +140,7 @@ watch(
         placeholder="https://example.com"
         @keydown.enter.prevent="onSubmit"
       />
+      <div v-if="validationError" class="validation-error">{{ validationError }}</div>
     </div>
 
     <div v-if="!isEditing" class="input-group">
@@ -141,3 +157,12 @@ watch(
     <div v-if="isEditing" class="edit-hint">Enter an empty URL to remove the link.</div>
   </MdeFloatingPanel>
 </template>
+
+<style scoped>
+.validation-error {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+</style>

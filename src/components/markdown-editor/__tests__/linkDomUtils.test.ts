@@ -124,6 +124,43 @@ describe("linkDomUtils", () => {
 
       container.remove();
     });
+
+    it("rejects javascript: URLs when editing", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const contentRef = ref<HTMLElement | null>(container);
+      const onContentChange = vi.fn();
+
+      const link = document.createElement("a");
+      link.href = "https://old.com";
+      link.textContent = "Link";
+      container.appendChild(link);
+
+      completeEditLink(link, "javascript:alert('xss')", contentRef, onContentChange);
+
+      expect(link.getAttribute("href")).toBe("https://old.com");
+      expect(onContentChange).toHaveBeenCalled();
+
+      container.remove();
+    });
+
+    it("rejects data: URLs when editing", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const contentRef = ref<HTMLElement | null>(container);
+      const onContentChange = vi.fn();
+
+      const link = document.createElement("a");
+      link.href = "https://example.com";
+      link.textContent = "Link";
+      container.appendChild(link);
+
+      completeEditLink(link, "data:text/html,<script>alert('xss')</script>", contentRef, onContentChange);
+
+      expect(link.getAttribute("href")).toBe("https://example.com");
+
+      container.remove();
+    });
   });
 
   describe("createLinkElement", () => {
@@ -139,6 +176,40 @@ describe("linkDomUtils", () => {
     it("trims whitespace from URL", () => {
       const link = createLinkElement("  https://example.com  ");
       expect(link.getAttribute("href")).toBe("https://example.com");
+    });
+
+    it("rejects javascript: URLs", () => {
+      const link = createLinkElement("javascript:alert('xss')");
+      expect(link.getAttribute("href")).toBeNull();
+      expect(link.getAttribute("target")).toBe("_blank");
+    });
+
+    it("rejects data: URLs", () => {
+      const link = createLinkElement("data:text/html,<script>alert('xss')</script>");
+      expect(link.getAttribute("href")).toBeNull();
+    });
+
+    it("rejects vbscript: URLs", () => {
+      const link = createLinkElement("vbscript:msgbox('xss')");
+      expect(link.getAttribute("href")).toBeNull();
+    });
+
+    it("accepts safe URL schemes", () => {
+      const safeUrls = [
+        "http://example.com",
+        "https://example.com",
+        "mailto:test@example.com",
+        "tel:+1234567890",
+        "ftp://files.example.com",
+        "/relative/path",
+        "#fragment",
+        "path/to/file.html",
+      ];
+
+      safeUrls.forEach((url) => {
+        const link = createLinkElement(url);
+        expect(link.getAttribute("href")).toBe(url);
+      });
     });
   });
 

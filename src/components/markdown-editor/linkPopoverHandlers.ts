@@ -9,6 +9,7 @@ import { Ref } from "vue";
 import { getCursorViewportPosition } from "./cursorPosition";
 import { ShowLinkPopoverOptions } from "./useLinks";
 import { completeEditLink, createLinkElement, insertAndSelectLink } from "./linkDomUtils";
+import { isSafeUrl } from "../../shared/isSafeUrl";
 
 /** Dependencies for link popover handlers */
 export interface LinkPopoverDeps {
@@ -51,6 +52,11 @@ export function createLinkPopoverHandlers(deps: LinkPopoverDeps): LinkPopoverHan
     } else {
       const newUrl = window.prompt("Edit link URL:", currentHref);
       if (newUrl === null) return;
+      // DXUI-72: validate URL scheme before applying
+      const trimmed = newUrl.trim();
+      if (trimmed && !isSafeUrl(trimmed)) {
+        return;
+      }
       completeEditLink(link, newUrl, contentRef, onContentChange);
     }
   }
@@ -93,6 +99,10 @@ export function createLinkPopoverHandlers(deps: LinkPopoverDeps): LinkPopoverHan
     } else {
       const url = window.prompt("Enter link URL:");
       if (!url || url.trim() === "") return;
+      // DXUI-72: validate URL scheme before applying
+      if (!isSafeUrl(url.trim())) {
+        return;
+      }
       completeWrapSelection(url);
     }
   }
@@ -133,6 +143,10 @@ export function createLinkPopoverHandlers(deps: LinkPopoverDeps): LinkPopoverHan
     } else {
       const url = window.prompt("Enter link URL:");
       if (!url || url.trim() === "") return;
+      // DXUI-72: validate URL scheme before applying
+      if (!isSafeUrl(url.trim())) {
+        return;
+      }
       completeNewLink(url);
     }
   }

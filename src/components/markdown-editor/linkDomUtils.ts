@@ -9,6 +9,7 @@
 
 import { Ref } from "vue";
 import { dispatchInputEvent } from "./cursorPosition";
+import { isSafeUrl } from "../../shared/isSafeUrl";
 
 /**
  * Unwrap a link, keeping its text content
@@ -35,9 +36,10 @@ export function completeEditLink(
 ): void {
   if (url.trim() === "") {
     unwrapLink(link);
-  } else {
+  } else if (isSafeUrl(url.trim())) {
     link.setAttribute("href", url.trim());
   }
+  // DXUI-72: silently reject unsafe URL schemes
 
   dispatchInputEvent(contentRef.value!);
   onContentChange();
@@ -46,10 +48,14 @@ export function completeEditLink(
 
 /**
  * Create a link element with standard attributes
+ * DXUI-72: validates URL scheme before setting href
  */
 export function createLinkElement(url: string): HTMLAnchorElement {
   const link = document.createElement("a");
-  link.setAttribute("href", url.trim());
+  const trimmedUrl = url.trim();
+  if (isSafeUrl(trimmedUrl)) {
+    link.setAttribute("href", trimmedUrl);
+  }
   link.setAttribute("target", "_blank");
   link.setAttribute("rel", "noopener noreferrer");
   return link;

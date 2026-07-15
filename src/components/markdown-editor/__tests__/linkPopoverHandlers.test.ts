@@ -140,6 +140,37 @@ describe("linkPopoverHandlers", () => {
         expect.objectContaining({ selectedText: undefined })
       );
     });
+
+    it("rejects javascript: URLs from prompt fallback", () => {
+      const deps = createDeps({ onShowLinkPopover: undefined });
+      const handlers = createLinkPopoverHandlers(deps);
+      const link = document.createElement("a");
+      link.href = "https://example.com";
+      link.textContent = "Link";
+      contentEl.appendChild(link);
+
+      vi.mocked(window.prompt).mockReturnValue("javascript:alert('xss')");
+
+      handlers.showEditLinkPopover(link);
+
+      // URL should not change
+      expect(link.getAttribute("href")).toBe("https://example.com");
+    });
+
+    it("rejects data: URLs from prompt fallback", () => {
+      const deps = createDeps({ onShowLinkPopover: undefined });
+      const handlers = createLinkPopoverHandlers(deps);
+      const link = document.createElement("a");
+      link.href = "https://example.com";
+      link.textContent = "Link";
+      contentEl.appendChild(link);
+
+      vi.mocked(window.prompt).mockReturnValue("data:text/html,<script>alert('xss')</script>");
+
+      handlers.showEditLinkPopover(link);
+
+      expect(link.getAttribute("href")).toBe("https://example.com");
+    });
   });
 
   describe("showWrapSelectionPopover", () => {
@@ -268,6 +299,41 @@ describe("linkPopoverHandlers", () => {
       const focusSpy = vi.spyOn(contentEl, "focus");
       callArgs?.onSubmit("https://example.com");
       expect(focusSpy).toHaveBeenCalled();
+    });
+
+    it("rejects javascript: URLs from prompt fallback", () => {
+      const deps = createDeps({ onShowLinkPopover: undefined });
+      const handlers = createLinkPopoverHandlers(deps);
+
+      contentEl.textContent = "text";
+      const range = document.createRange();
+      range.selectNodeContents(contentEl);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+
+      vi.mocked(window.prompt).mockReturnValue("javascript:alert('xss')");
+
+      handlers.showWrapSelectionPopover(range);
+
+      expect(deps.onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("accepts safe URLs from prompt fallback", () => {
+      const deps = createDeps({ onShowLinkPopover: undefined });
+      const handlers = createLinkPopoverHandlers(deps);
+
+      contentEl.textContent = "text";
+      const range = document.createRange();
+      range.selectNodeContents(contentEl);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+
+      vi.mocked(window.prompt).mockReturnValue("https://example.com");
+      handlers.showWrapSelectionPopover(range);
+
+      expect(deps.onContentChange).toHaveBeenCalled();
     });
   });
 
@@ -406,6 +472,45 @@ describe("linkPopoverHandlers", () => {
       // Link should have been created with url as text
       const link = contentEl.querySelector("a");
       expect(link?.textContent).toBe("https://example.com");
+    });
+
+    it("rejects javascript: URLs from prompt fallback", () => {
+      const deps = createDeps({ onShowLinkPopover: undefined });
+      const handlers = createLinkPopoverHandlers(deps);
+
+      contentEl.textContent = "text";
+      const range = document.createRange();
+      range.setStart(contentEl.firstChild!, 4);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+
+      vi.mocked(window.prompt).mockReturnValue("javascript:alert('xss')");
+
+      handlers.showNewLinkPopover(range);
+
+      expect(deps.onContentChange).not.toHaveBeenCalled();
+    });
+
+    it("accepts safe URLs from prompt fallback", () => {
+      const deps = createDeps({ onShowLinkPopover: undefined });
+      const handlers = createLinkPopoverHandlers(deps);
+
+      contentEl.textContent = "text";
+      const range = document.createRange();
+      range.setStart(contentEl.firstChild!, 4);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+
+      vi.mocked(window.prompt).mockReturnValue("https://example.com");
+      handlers.showNewLinkPopover(range);
+
+      expect(deps.onContentChange).toHaveBeenCalled();
+      const link = contentEl.querySelector("a");
+      expect(link?.getAttribute("href")).toBe("https://example.com");
     });
   });
 });
