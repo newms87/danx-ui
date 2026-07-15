@@ -86,7 +86,8 @@ function onSubmit(): void {
 
   // DXUI-72: validate URL scheme before submission
   if (url && !isSafeUrl(url)) {
-    validationError.value = "Invalid URL scheme. Allowed: http, https, mailto, tel, ftp, ftps, relative URLs, or fragments.";
+    validationError.value =
+      "Invalid URL scheme. Allowed: http, https, mailto, tel, ftp, ftps, relative URLs, or fragments.";
     return;
   }
 

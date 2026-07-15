@@ -76,6 +76,10 @@ describe("fShortCurrency", () => {
   it("returns $- for empty string", () => {
     expect(fShortCurrency("")).toBe("$-");
   });
+
+  it("formats negative thousands", () => {
+    expect(fShortCurrency(-5000)).toBe("$-5.0K");
+  });
 });
 
 describe("fShortNumber", () => {
@@ -130,6 +134,30 @@ describe("fShortNumber", () => {
 
   it("formats string numbers", () => {
     expect(fShortNumber("25000")).toBe("25.0K");
+  });
+
+  it("formats negative thousands", () => {
+    expect(fShortNumber(-5000)).toBe("-5.0K");
+  });
+
+  it("formats negative millions", () => {
+    expect(fShortNumber(-1500000)).toBe("-1.5M");
+  });
+
+  it("formats negative billions", () => {
+    expect(fShortNumber(-3500000000)).toBe("-3.5B");
+  });
+
+  it("formats negative trillions", () => {
+    expect(fShortNumber(-2000000000000)).toBe("-2.0T");
+  });
+
+  it("rounds negative values when option is set", () => {
+    expect(fShortNumber(-5432, { round: true })).toBe("-5.432K");
+  });
+
+  it("formats small negative numbers without unit", () => {
+    expect(fShortNumber(-500)).toBe("-500");
   });
 });
 

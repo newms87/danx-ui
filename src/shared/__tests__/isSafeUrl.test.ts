@@ -47,7 +47,9 @@ describe("isSafeUrl", () => {
     });
 
     it("blocks data: with base64", () => {
-      expect(isSafeUrl("data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=")).toBe(false);
+      expect(isSafeUrl("data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=")).toBe(
+        false
+      );
     });
 
     it("blocks vbscript: scheme", () => {

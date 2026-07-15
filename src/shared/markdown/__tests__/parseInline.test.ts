@@ -342,9 +342,7 @@ describe("parseInline", () => {
       });
 
       it("allows safe schemes in inline links", () => {
-        expect(parseInline("[click](https://example.com)")).toContain(
-          'href="https://example.com"'
-        );
+        expect(parseInline("[click](https://example.com)")).toContain('href="https://example.com"');
         expect(parseInline("[email](mailto:user@example.com)")).toContain(
           'href="mailto:user@example.com"'
         );

@@ -155,7 +155,12 @@ describe("linkDomUtils", () => {
       link.textContent = "Link";
       container.appendChild(link);
 
-      completeEditLink(link, "data:text/html,<script>alert('xss')</script>", contentRef, onContentChange);
+      completeEditLink(
+        link,
+        "data:text/html,<script>alert('xss')</script>",
+        contentRef,
+        onContentChange
+      );
 
       expect(link.getAttribute("href")).toBe("https://example.com");
 

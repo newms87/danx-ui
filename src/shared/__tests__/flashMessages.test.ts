@@ -85,17 +85,14 @@ describe("FlashMessages", () => {
     ["info", FlashMessages.info],
     ["warning", FlashMessages.warning],
     ["error", FlashMessages.error],
-  ] as const)(
-    "%s: a per-call option overrides the configured default",
-    (name, fn) => {
-      danxOptions.value = {
-        ...danxOptions.value,
-        flashMessages: { [name]: { duration: 1234 } },
-      };
-      fn("Boom", { duration: 0 });
-      expect(toast.toasts.value[0]!.duration).toBe(0);
-    }
-  );
+  ] as const)("%s: a per-call option overrides the configured default", (name, fn) => {
+    danxOptions.value = {
+      ...danxOptions.value,
+      flashMessages: { [name]: { duration: 1234 } },
+    };
+    fn("Boom", { duration: 0 });
+    expect(toast.toasts.value[0]!.duration).toBe(0);
+  });
 
   describe("combine", () => {
     it("joins string messages with newlines into one toast", () => {

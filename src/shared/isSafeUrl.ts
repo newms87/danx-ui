@@ -4,7 +4,7 @@
  * Allows: http, https, mailto, tel, relative paths, fragments, no-scheme URLs.
  */
 export function isSafeUrl(url: string): boolean {
-  if (!url || typeof url !== 'string') {
+  if (!url || typeof url !== "string") {
     return false;
   }
 
@@ -16,7 +16,7 @@ export function isSafeUrl(url: string): boolean {
   }
 
   // Extract the scheme (everything before the first colon)
-  const colonIndex = trimmed.indexOf(':');
+  const colonIndex = trimmed.indexOf(":");
   if (colonIndex === -1) {
     // No scheme found - relative URL, fragment, or no-scheme URL
     // These are safe as long as they don't contain suspicious patterns
@@ -26,19 +26,19 @@ export function isSafeUrl(url: string): boolean {
   const scheme = trimmed.substring(0, colonIndex).toLowerCase();
 
   // Blocklist of dangerous schemes
-  const dangerousSchemes = ['javascript', 'data', 'vbscript'];
+  const dangerousSchemes = ["javascript", "data", "vbscript"];
   if (dangerousSchemes.includes(scheme)) {
     return false;
   }
 
   // Allowlist of safe schemes
-  const safeSchemes = ['http', 'https', 'mailto', 'tel', 'ftp', 'ftps'];
+  const safeSchemes = ["http", "https", "mailto", "tel", "ftp", "ftps"];
   if (safeSchemes.includes(scheme)) {
     return true;
   }
 
   // Fragment-only URLs (start with #)
-  if (trimmed.startsWith('#')) {
+  if (trimmed.startsWith("#")) {
     return true;
   }
 
@@ -51,5 +51,5 @@ export function isSafeUrl(url: string): boolean {
  * Used as a replacement strategy in link/image parsing.
  */
 export function neutralizeUnsafeUrl(url: string): string {
-  return isSafeUrl(url) ? url : '';
+  return isSafeUrl(url) ? url : "";
 }

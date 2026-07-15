@@ -63,13 +63,13 @@ export function parseInline(text: string, sanitize: boolean = true): string {
 
   // 6. IMAGES: ![alt](url) - must be before links
   result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
-    const src = isSafeUrl(url) ? url : '';
+    const src = isSafeUrl(url) ? url : "";
     return `<img src="${src}" alt="${alt}" />`;
   });
 
   // 7. INLINE LINKS: [text](url)
   result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
-    const href = isSafeUrl(url) ? url : '';
+    const href = isSafeUrl(url) ? url : "";
     return `<a href="${href}">${text}</a>`;
   });
 

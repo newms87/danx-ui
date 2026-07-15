@@ -52,12 +52,17 @@ export function fShortNumber(value: string | number, options?: ShortNumberOption
   ];
 
   const n = Math.round(+value);
+  const sign = n < 0 ? "-" : "";
+  const abs = Math.abs(n);
   const short =
-    shorts.find(({ pow }) => Math.pow(10, pow) < n && Math.pow(10, pow + 3) > n) || null;
+    shorts.find(({ pow }) => Math.pow(10, pow) < abs && Math.pow(10, pow + 3) > abs) || null;
 
   if (short) {
-    const scaled = n / Math.pow(10, short.pow);
-    return options?.round ? scaled + short.unit : scaled.toFixed(scaled > 100 ? 0 : 1) + short.unit;
+    const scaled = abs / Math.pow(10, short.pow);
+    return (
+      sign +
+      (options?.round ? scaled + short.unit : scaled.toFixed(scaled > 100 ? 0 : 1) + short.unit)
+    );
   }
 
   return String(n);
