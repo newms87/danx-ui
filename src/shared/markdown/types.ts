@@ -6,7 +6,15 @@
  * Options for markdown rendering
  */
 export interface MarkdownRenderOptions {
-  sanitize?: boolean; // XSS protection (default: true)
+  /**
+   * XSS protection (default: true)
+   * When enabled, sanitizes URLs in links and images by:
+   * - Escaping HTML in surrounding text
+   * - Validating URL schemes to block javascript:, data:, vbscript:, and other executable schemes
+   * - Allowing only http, https, mailto, tel, relative paths, and fragments
+   * Disallowed URLs are rendered as empty attributes or unchanged markdown.
+   */
+  sanitize?: boolean;
   preserveState?: boolean; // Don't reset link refs and footnotes (for nested rendering)
 }
 

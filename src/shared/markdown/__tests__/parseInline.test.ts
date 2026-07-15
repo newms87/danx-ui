@@ -318,4 +318,138 @@ describe("parseInline", () => {
       expect(parseInline("12345")).toBe("12345");
     });
   });
+
+  describe("XSS prevention - URL scheme validation", () => {
+    describe("inline links with malicious URLs", () => {
+      it("blocks javascript: scheme in inline links", () => {
+        const result = parseInline("[click me](javascript:alert(document.cookie))");
+        // Unsafe URL should result in empty href
+        expect(result).toContain('<a href="">');
+        expect(result).toContain("click me</a>");
+        expect(result).not.toContain("javascript:");
+      });
+
+      it("blocks data: scheme in inline links", () => {
+        const result = parseInline("[click me](data:text/html,<script>alert('XSS')</script>)");
+        expect(result).toContain('<a href="">');
+        expect(result).not.toContain("data:");
+      });
+
+      it("blocks vbscript: scheme in inline links", () => {
+        const result = parseInline("[click me](vbscript:msgbox('XSS'))");
+        expect(result).toContain('<a href="">');
+        expect(result).not.toContain("vbscript:");
+      });
+
+      it("allows safe schemes in inline links", () => {
+        expect(parseInline("[click](https://example.com)")).toContain(
+          'href="https://example.com"'
+        );
+        expect(parseInline("[email](mailto:user@example.com)")).toContain(
+          'href="mailto:user@example.com"'
+        );
+      });
+
+      it("allows relative URLs in inline links", () => {
+        expect(parseInline("[click](/path/to/page)")).toContain('href="/path/to/page"');
+        expect(parseInline("[click](./relative)")).toContain('href="./relative"');
+      });
+    });
+
+    describe("images with malicious URLs", () => {
+      it("blocks javascript: scheme in images", () => {
+        const result = parseInline("![alt](javascript:alert(document.cookie))");
+        expect(result).toContain('<img src="" alt="alt"');
+        expect(result).not.toContain("javascript:");
+      });
+
+      it("blocks data: scheme in images", () => {
+        const result = parseInline("![alt](data:text/html,<script>alert('XSS')</script>)");
+        expect(result).toContain('<img src="" alt="alt"');
+        expect(result).not.toContain("data:");
+      });
+
+      it("blocks vbscript: scheme in images", () => {
+        const result = parseInline("![alt](vbscript:msgbox('XSS'))");
+        expect(result).toContain('<img src="" alt="alt"');
+        expect(result).not.toContain("vbscript:");
+      });
+
+      it("allows safe schemes in images", () => {
+        expect(parseInline("![logo](https://example.com/logo.png)")).toContain(
+          'src="https://example.com/logo.png"'
+        );
+      });
+
+      it("allows relative URLs in images", () => {
+        expect(parseInline("![alt](/images/pic.png)")).toContain('src="/images/pic.png"');
+      });
+    });
+
+    describe("reference-style links with malicious URLs", () => {
+      it("blocks javascript: in full reference links", () => {
+        setLinkRef("evil", { url: "javascript:alert(document.cookie)" });
+        const result = parseInline("[click][evil]");
+        // Unsafe URL should keep original markdown syntax
+        expect(result).toBe("[click][evil]");
+        expect(result).not.toContain("javascript:");
+      });
+
+      it("blocks data: in full reference links", () => {
+        setLinkRef("evil", { url: "data:text/html,<script>alert('XSS')</script>" });
+        const result = parseInline("[click][evil]");
+        expect(result).toBe("[click][evil]");
+        expect(result).not.toContain("data:");
+      });
+
+      it("blocks vbscript: in full reference links", () => {
+        setLinkRef("evil", { url: "vbscript:msgbox('XSS')" });
+        const result = parseInline("[click][evil]");
+        expect(result).toBe("[click][evil]");
+        expect(result).not.toContain("vbscript:");
+      });
+
+      it("allows safe URLs in full reference links", () => {
+        setLinkRef("safe", { url: "https://example.com" });
+        expect(parseInline("[click][safe]")).toContain('href="https://example.com"');
+      });
+
+      it("blocks javascript: in collapsed reference links", () => {
+        setLinkRef("evil", { url: "javascript:alert(document.cookie)" });
+        const result = parseInline("[evil][]");
+        expect(result).toBe("[evil][]");
+        expect(result).not.toContain("javascript:");
+      });
+
+      it("allows safe URLs in collapsed reference links", () => {
+        setLinkRef("safe", { url: "https://example.com" });
+        expect(parseInline("[safe][]")).toContain('href="https://example.com"');
+      });
+
+      it("blocks javascript: in shortcut reference links", () => {
+        setLinkRef("evil", { url: "javascript:alert(document.cookie)" });
+        const result = parseInline("[evil]");
+        // With only "[evil]" without () or [], it may not match the shortcut pattern
+        // But if it does match, it should not render the javascript URL
+        expect(result).not.toContain('href="javascript:');
+      });
+
+      it("allows safe URLs in shortcut reference links", () => {
+        setLinkRef("safe", { url: "https://example.com" });
+        expect(parseInline("[safe]")).toContain('href="https://example.com"');
+      });
+
+      it("preserves title attribute when URL is safe", () => {
+        setLinkRef("example", { url: "https://example.com", title: "Example Site" });
+        expect(parseInline("[link][example]")).toContain('title="Example Site"');
+      });
+
+      it("removes link when URL is unsafe but preserves title in original text", () => {
+        setLinkRef("evil", { url: "javascript:alert('XSS')", title: "Evil" });
+        const result = parseInline("[click][evil]");
+        expect(result).toBe("[click][evil]");
+        expect(result).not.toContain("title=");
+      });
+    });
+  });
 });

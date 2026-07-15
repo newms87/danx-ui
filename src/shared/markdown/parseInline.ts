@@ -7,6 +7,7 @@
 import { escapeHtml } from "../escapeHtml";
 import { applyEscapes, revertEscapes } from "./escapeSequences";
 import { getLinkRefs, getFootnotes } from "./state";
+import { isSafeUrl } from "../isSafeUrl";
 
 /**
  * Parse inline markdown elements within text
@@ -61,16 +62,25 @@ export function parseInline(text: string, sanitize: boolean = true): string {
   });
 
   // 6. IMAGES: ![alt](url) - must be before links
-  result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
+  result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+    const src = isSafeUrl(url) ? url : '';
+    return `<img src="${src}" alt="${alt}" />`;
+  });
 
   // 7. INLINE LINKS: [text](url)
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+    const href = isSafeUrl(url) ? url : '';
+    return `<a href="${href}">${text}</a>`;
+  });
 
   // 8. REFERENCE-STYLE LINKS - Process after regular links
   // Full reference: [text][ref-id]
   result = result.replace(/\[([^\]]+)\]\[([^\]]+)\]/g, (match, text, refId) => {
     const ref = currentLinkRefs[refId.toLowerCase()];
     if (ref) {
+      if (!isSafeUrl(ref.url)) {
+        return match; // Keep original if URL is unsafe
+      }
       const title = ref.title ? ` title="${escapeHtml(ref.title)}"` : "";
       return `<a href="${ref.url}"${title}>${text}</a>`;
     }
@@ -81,6 +91,9 @@ export function parseInline(text: string, sanitize: boolean = true): string {
   result = result.replace(/\[([^\]]+)\]\[\]/g, (match, text) => {
     const ref = currentLinkRefs[text.toLowerCase()];
     if (ref) {
+      if (!isSafeUrl(ref.url)) {
+        return match; // Keep original if URL is unsafe
+      }
       const title = ref.title ? ` title="${escapeHtml(ref.title)}"` : "";
       return `<a href="${ref.url}"${title}>${text}</a>`;
     }
@@ -92,6 +105,9 @@ export function parseInline(text: string, sanitize: boolean = true): string {
   result = result.replace(/\[([^\]]+)\](?!\(|\[)/g, (match, text) => {
     const ref = currentLinkRefs[text.toLowerCase()];
     if (ref) {
+      if (!isSafeUrl(ref.url)) {
+        return match; // Keep original if URL is unsafe
+      }
       const title = ref.title ? ` title="${escapeHtml(ref.title)}"` : "";
       return `<a href="${ref.url}"${title}>${text}</a>`;
     }
