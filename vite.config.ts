@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import { danxIconRawSvgPlugin } from "./scripts/vite-plugin-danx-icon-raw-svg";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -10,6 +11,9 @@ export default defineConfig({
   plugins: [
     vue(),
     tailwindcss(),
+    // DXUI-39: keep danx-icon's ?raw SVG imports under preserveModulesRoot so the
+    // build doesn't emit a dist/node_modules/danx-icon directory
+    danxIconRawSvgPlugin(),
     // Only generate types during build, not dev server
     ...(isDev
       ? []

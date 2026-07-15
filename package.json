@@ -77,6 +77,8 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.map",
+    "!dist/node_modules",
     "README.md",
     "LICENSE"
   ],
@@ -86,8 +88,9 @@
   "scripts": {
     "dev": "vite",
     "dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 && vue-tsc --noEmit",
-    "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css",
+    "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css && npm run check:package-size",
     "build:css": "cd src && find . -name '*.css' -exec sh -c 'mkdir -p \"../dist/$(dirname \"$1\")\" && cp \"$1\" \"../dist/$1\"' _ {} \\;",
+    "check:package-size": "node scripts/check-package-size.mjs",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint src --fix",
