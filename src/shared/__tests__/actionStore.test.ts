@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { useActionStore } from "../actionStore";
 import type { ListControlsRoutes, PagedItems } from "../action-types";
+import { FlashMessages } from "../flashMessages";
 
 function makeRoutes(listImpl: ListControlsRoutes["list"]): ListControlsRoutes {
   return { list: listImpl };
@@ -49,5 +50,27 @@ describe("useActionStore", () => {
     await Promise.all([first, second]);
     expect(list).toHaveBeenCalledTimes(1);
     expect(store.isRefreshing.value).toBe(false); // cleared after completion
+  });
+
+  it("resets isRefreshing and surfaces the error when routes.list rejects", async () => {
+    const errorSpy = vi.spyOn(FlashMessages, "error").mockImplementation(() => undefined);
+    const list = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce({ data: [{ __type: "T", id: 1 }], meta: undefined } as PagedItems);
+    const store = useActionStore(makeRoutes(list));
+
+    await store.refreshItems();
+
+    expect(store.isRefreshing.value).toBe(false);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+
+    // a subsequent call proceeds normally since the guard was released
+    await store.refreshItems();
+    expect(list).toHaveBeenCalledTimes(2);
+    expect(store.isRefreshing.value).toBe(false);
+    expect(store.listItems.value).toHaveLength(1);
+
+    errorSpy.mockRestore();
   });
 });

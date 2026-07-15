@@ -13,6 +13,7 @@
 
 import { ref, shallowRef } from "vue";
 import type { ActionStore, ActionTargetItem, ListControlsRoutes } from "./action-types";
+import { FlashMessages } from "./flashMessages";
 
 export function useActionStore(routes: ListControlsRoutes): ActionStore {
   const listItems = shallowRef<ActionTargetItem[]>([]);
@@ -28,9 +29,15 @@ export function useActionStore(routes: ListControlsRoutes): ActionStore {
   async function refreshItems(): Promise<void> {
     if (isRefreshing.value) return;
     isRefreshing.value = true;
-    const response = await routes.list({ sort: [{ column: "name" }] });
-    listItems.value = response.data || [];
-    isRefreshing.value = false;
+    try {
+      const response = await routes.list({ sort: [{ column: "name" }] });
+      listItems.value = response.data || [];
+    } catch (error) {
+      // DXUI-56: surface the failure instead of leaving isRefreshing stuck true
+      FlashMessages.error(`Failed to refresh items: ${(error as Error)?.message || error}`);
+    } finally {
+      isRefreshing.value = false;
+    }
   }
 
   return {
