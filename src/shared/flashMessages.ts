@@ -47,36 +47,36 @@ export class FlashMessages {
   static success(message?: string, options: Partial<ToastOptions> = {}): void {
     if (!message) return;
     toast.toast(message, {
+      ...danxOptions.value.flashMessages?.success,
       variant: "success",
       ...options,
-      ...danxOptions.value.flashMessages?.success,
     });
   }
 
   static info(message?: string, options: Partial<ToastOptions> = {}): void {
     if (!message) return;
     toast.toast(message, {
+      ...danxOptions.value.flashMessages?.info,
       variant: "info",
       ...options,
-      ...danxOptions.value.flashMessages?.info,
     });
   }
 
   static warning(message?: string, options: Partial<ToastOptions> = {}): void {
     if (!message) return;
     toast.toast(message, {
+      ...danxOptions.value.flashMessages?.warning,
       variant: "warning",
       ...options,
-      ...danxOptions.value.flashMessages?.warning,
     });
   }
 
   static error(message?: string, options: Partial<ToastOptions> = {}): void {
     if (!message) return;
     toast.toast(message, {
+      ...danxOptions.value.flashMessages?.error,
       variant: "danger",
       ...options,
-      ...danxOptions.value.flashMessages?.error,
     });
   }
 
