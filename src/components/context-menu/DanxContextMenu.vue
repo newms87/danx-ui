@@ -106,16 +106,14 @@ watch(isOpen, (val) => {
 const ESTIMATED_MENU_WIDTH = 320;
 const submenuOpenLeft = ref(false);
 
-function getMenuPanel(): Element | null {
-  return menuRef.value?.closest(".danx-popover") ?? menuRef.value;
+function getMenuPanel(): Element {
+  // menuRef is bound synchronously during render, before the watch below can
+  // ever invoke this — it is never null when called.
+  return menuRef.value!.closest(".danx-popover") ?? menuRef.value!;
 }
 
 function updateSubmenuDirection(): void {
   const panel = getMenuPanel();
-  // Defensive only: menuRef is bound synchronously during render, before this
-  // watch-driven callback can ever fire, so panel is never actually null.
-  /* v8 ignore next */
-  if (!panel) return;
   const rect = panel.getBoundingClientRect();
   submenuOpenLeft.value = rect.right + ESTIMATED_MENU_WIDTH > window.innerWidth;
 }
