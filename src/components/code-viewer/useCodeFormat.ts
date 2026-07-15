@@ -5,7 +5,8 @@
  * Supports JSON/YAML as structured formats with bidirectional conversion,
  * and text/markdown/html/css/javascript as pass-through string formats.
  *
- * Depends on the `yaml` npm package for YAML parsing/stringification.
+ * Depends on the optional `yaml` peer dependency (see package.json
+ * peerDependenciesMeta) for YAML parsing/stringification.
  */
 
 import { computed, ref, Ref } from "vue";

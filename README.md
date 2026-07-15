@@ -7,7 +7,7 @@ Zero-dependency Vue 3 + Tailwind CSS v4 component library with three-tier themin
 
 ## Features
 
-- **Zero Runtime Dependencies** - Only Vue 3 as peer dependency
+- **Zero Runtime Dependencies** - Vue 3 is the only required peer dependency; `@vueuse/core`, `luxon`, and `yaml` are optional peers needed only if you use the features that depend on them
 - **Tree-Shakeable** - Import only what you need
 - **Three-Tier Theming** - Primitive → Semantic → Component token system
 - **Dark Mode Built-in** - Just add `.dark` class

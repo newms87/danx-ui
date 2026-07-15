@@ -100,19 +100,20 @@
     "publish:minor": "./scripts/publish.sh minor",
     "publish:major": "./scripts/publish.sh major"
   },
-  "dependencies": {
-    "yaml": "^2.4.5"
-  },
   "peerDependencies": {
     "@vueuse/core": "^14.0.0",
     "luxon": "^3.0.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.0",
+    "yaml": "^2.4.5"
   },
   "peerDependenciesMeta": {
     "@vueuse/core": {
       "optional": true
     },
     "luxon": {
+      "optional": true
+    },
+    "yaml": {
       "optional": true
     }
   },
@@ -142,6 +143,7 @@
     "vue": "^3.5.0",
     "vue-eslint-parser": "^10.2.0",
     "vue-router": "^5.0.1",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "yaml": "^2.4.5"
   }
 }

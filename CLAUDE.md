@@ -88,7 +88,7 @@ A feature is NOT complete until all three are done. **`/flow-verify` enforces th
 | **Type files use `.ts`** | `.d.ts` is reserved for ambient declarations (e.g. `vite-env.d.ts`) |
 | **NEVER use Options API** | Composition API with `<script setup>` only |
 | **NEVER use default exports** | Named exports for tree-shaking |
-| **NEVER add runtime dependencies** | Vue is peer dep only |
+| **NEVER add runtime (`dependencies`) packages** | Vue is a required peer dep; `@vueuse/core`/`luxon`/`yaml` are optional peers |
 | **NEVER use styling props** | CSS tokens only |
 | **NEVER use defineExpose** | Use v-model instead |
 | **ALWAYS run yarn test:coverage** | Run as final verification for ANY task. Failing thresholds = blocking. |
@@ -144,7 +144,7 @@ docs/                     # User documentation
 | `defineExpose({ open, close })` | Imperative | Use v-model |
 | `props.titleClass` | Inflexible | CSS tokens |
 | Default exports | Tree-shaking | Named exports |
-| Runtime dependencies | Bundle size | Vue peer dep only |
+| Adding a `dependencies` entry | Bundle size | Vue required peer dep; other libs go in optional `peerDependencies` |
 | `v-show` for dialogs | DOM pollution | Use v-if |
 | `any` type | Type safety | Proper types |
 | Options API | Outdated | Composition API |

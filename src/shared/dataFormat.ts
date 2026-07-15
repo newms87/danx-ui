@@ -4,6 +4,7 @@
  * Functions for detecting structured data formats (JSON, YAML) in strings.
  */
 
+// Requires the optional `yaml` peer dependency (see package.json peerDependenciesMeta).
 import { parse as parseYAML } from "yaml";
 
 /**

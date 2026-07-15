@@ -58,7 +58,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["vue", "vue-router", "luxon", "@vueuse/core"],
+      external: ["vue", "vue-router", "luxon", "@vueuse/core", "yaml"],
       output: {
         globals: {
           vue: "Vue",
