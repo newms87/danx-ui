@@ -15,6 +15,7 @@ import basicContextMenuCode from "./context-menu-examples/BasicContextMenu.vue?r
 import submenuContextMenuCode from "./context-menu-examples/SubmenuContextMenu.vue?raw";
 import disabledAndDividersCode from "./context-menu-examples/DisabledAndDividers.vue?raw";
 import iconsContextMenuCode from "./context-menu-examples/IconsContextMenu.vue?raw";
+import prefixSuffixContextMenuCode from "./context-menu-examples/PrefixSuffixContextMenu.vue?raw";
 import customTokensCode from "./context-menu-examples/CustomTokens.vue?raw";
 </script>
 
@@ -46,6 +47,12 @@ import customTokensCode from "./context-menu-examples/CustomTokens.vue?raw";
       title="Icons"
       description="SVG icons rendered alongside menu item labels."
       :code="iconsContextMenuCode"
+    />
+
+    <DemoSection
+      title="Prefix / Suffix"
+      description="Independently-clickable content rendered alongside an item, without triggering the item's own action."
+      :code="prefixSuffixContextMenuCode"
     />
 
     <DemoSection

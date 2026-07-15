@@ -19,6 +19,12 @@
  * viewport edge (derived from the rendered panel rect, so it works with or
  * without an explicit `position`).
  *
+ * Items also support `prefix`/`suffix` extension points (Component or raw
+ * HTML string), rendered as siblings of the item's <button> rather than
+ * nested inside it — this lets a suffix host its own independently-clickable
+ * controls (e.g. inline sort-direction buttons) without triggering the
+ * item's own click/close behavior or producing invalid nested-button HTML.
+ *
  * @props
  *   position?: PopoverPosition - x/y viewport coords; omit for anchored mode
  *   placement?: PopoverPlacement - anchored-mode panel placement (default bottom)
@@ -55,6 +61,13 @@
  *   <DanxContextMenu v-model:open="open" :items="items">
  *     <template #trigger><button @click="open = true">Sort</button></template>
  *   </DanxContextMenu>
+ *
+ * @example Item with prefix/suffix
+ *   const items = [{
+ *     id: "priority",
+ *     label: "Priority",
+ *     suffix: SortDirectionButtons, // a Vue component with its own @click handlers
+ *   }];
  */
 import { onUnmounted, ref, watch } from "vue";
 import { DanxIcon } from "../icon";
@@ -220,6 +233,17 @@ onUnmounted(() => {
             @mouseenter="handleItemHover(item)"
             @mouseleave="handleItemLeave"
           >
+            <component
+              :is="item.prefix"
+              v-if="item.prefix && typeof item.prefix !== 'string'"
+              class="danx-context-menu__prefix"
+            />
+            <span
+              v-else-if="typeof item.prefix === 'string'"
+              class="danx-context-menu__prefix"
+              v-html="item.prefix"
+            />
+
             <button
               class="danx-context-menu__item"
               :class="{
@@ -242,6 +266,17 @@ onUnmounted(() => {
               <span v-if="item.children?.length" class="danx-context-menu__chevron">&#9656;</span>
             </button>
 
+            <component
+              :is="item.suffix"
+              v-if="item.suffix && typeof item.suffix !== 'string'"
+              class="danx-context-menu__suffix"
+            />
+            <span
+              v-else-if="typeof item.suffix === 'string'"
+              class="danx-context-menu__suffix"
+              v-html="item.suffix"
+            />
+
             <!-- Nested submenu -->
             <div
               v-if="item.children?.length && activeSubmenuId === item.id"
@@ -252,26 +287,53 @@ onUnmounted(() => {
             >
               <template v-for="child in item.children" :key="child.id">
                 <div v-if="child.divider" class="danx-context-menu__divider" />
-                <button
-                  v-else
-                  class="danx-context-menu__item"
-                  :class="{ 'is-disabled': child.disabled, 'is-active': isItemActive(child) }"
-                  type="button"
-                  :disabled="child.disabled"
-                  @click="onItemClick(child)"
-                >
+                <div v-else class="danx-context-menu__item-wrapper">
+                  <component
+                    :is="child.prefix"
+                    v-if="child.prefix && typeof child.prefix !== 'string'"
+                    class="danx-context-menu__prefix"
+                  />
                   <span
-                    v-if="isItemActive(child)"
-                    class="danx-context-menu__check"
-                    aria-hidden="true"
-                    >&#10003;</span
+                    v-else-if="typeof child.prefix === 'string'"
+                    class="danx-context-menu__prefix"
+                    v-html="child.prefix"
+                  />
+
+                  <button
+                    class="danx-context-menu__item"
+                    :class="{ 'is-disabled': child.disabled, 'is-active': isItemActive(child) }"
+                    type="button"
+                    :disabled="child.disabled"
+                    @click="onItemClick(child)"
                   >
-                  <DanxIcon v-if="child.icon" :icon="child.icon" class="danx-context-menu__icon" />
-                  <span class="danx-context-menu__label">{{ child.label }}</span>
-                  <span v-if="child.shortcut" class="danx-context-menu__shortcut">{{
-                    child.shortcut
-                  }}</span>
-                </button>
+                    <span
+                      v-if="isItemActive(child)"
+                      class="danx-context-menu__check"
+                      aria-hidden="true"
+                      >&#10003;</span
+                    >
+                    <DanxIcon
+                      v-if="child.icon"
+                      :icon="child.icon"
+                      class="danx-context-menu__icon"
+                    />
+                    <span class="danx-context-menu__label">{{ child.label }}</span>
+                    <span v-if="child.shortcut" class="danx-context-menu__shortcut">{{
+                      child.shortcut
+                    }}</span>
+                  </button>
+
+                  <component
+                    :is="child.suffix"
+                    v-if="child.suffix && typeof child.suffix !== 'string'"
+                    class="danx-context-menu__suffix"
+                  />
+                  <span
+                    v-else-if="typeof child.suffix === 'string'"
+                    class="danx-context-menu__suffix"
+                    v-html="child.suffix"
+                  />
+                </div>
               </template>
             </div>
           </div>

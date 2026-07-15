@@ -142,6 +142,146 @@ describe("DanxContextMenu", () => {
     });
   });
 
+  describe("prefix / suffix", () => {
+    const TestComponent = {
+      props: ["onClick"],
+      template: '<button class="test-suffix-btn" @click="onClick">X</button>',
+    };
+
+    it("renders a string prefix as raw HTML, not through DanxIcon", async () => {
+      await mountMenu([createItem({ prefix: '<span class="test-prefix">P</span>' })]);
+      const prefix = wrapper.find(".danx-context-menu__prefix");
+      expect(prefix.exists()).toBe(true);
+      expect(prefix.find(".test-prefix").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__prefix .danx-icon").exists()).toBe(false);
+    });
+
+    it("renders a string suffix as raw HTML, not through DanxIcon", async () => {
+      await mountMenu([createItem({ suffix: '<span class="test-suffix">S</span>' })]);
+      const suffix = wrapper.find(".danx-context-menu__suffix");
+      expect(suffix.exists()).toBe(true);
+      expect(suffix.find(".test-suffix").exists()).toBe(true);
+      expect(wrapper.find(".danx-context-menu__suffix .danx-icon").exists()).toBe(false);
+    });
+
+    it("renders a component prefix via <component :is>", async () => {
+      await mountMenu([createItem({ prefix: TestComponent })]);
+      expect(wrapper.find(".danx-context-menu__prefix.test-suffix-btn").exists()).toBe(true);
+    });
+
+    it("renders a component suffix via <component :is>", async () => {
+      await mountMenu([createItem({ suffix: TestComponent })]);
+      expect(wrapper.find(".danx-context-menu__suffix.test-suffix-btn").exists()).toBe(true);
+    });
+
+    it("does not render prefix/suffix elements when not provided", async () => {
+      await mountMenu([createItem()]);
+      expect(wrapper.find(".danx-context-menu__prefix").exists()).toBe(false);
+      expect(wrapper.find(".danx-context-menu__suffix").exists()).toBe(false);
+    });
+
+    it("renders prefix and suffix as siblings of the item button, not nested inside it", async () => {
+      await mountMenu([createItem({ prefix: TestComponent, suffix: TestComponent })]);
+      const button = wrapper.find(".danx-context-menu__item");
+      expect(button.find(".danx-context-menu__prefix").exists()).toBe(false);
+      expect(button.find(".danx-context-menu__suffix").exists()).toBe(false);
+      const wrapperDiv = wrapper.find(".danx-context-menu__item-wrapper");
+      expect(wrapperDiv.find(".danx-context-menu__prefix").exists()).toBe(true);
+      expect(wrapperDiv.find(".danx-context-menu__suffix").exists()).toBe(true);
+    });
+
+    it("clicking a suffix control fires its own handler without triggering onItemClick", async () => {
+      const action = vi.fn();
+      const suffixClick = vi.fn();
+      await mountMenu([
+        createItem({
+          action,
+          suffix: { ...TestComponent, props: [], emits: ["click"] },
+        }),
+      ]);
+      // simulate a consumer-authored suffix component's own click handler wired via a wrapper
+      const btn = wrapper.find(".test-suffix-btn");
+      btn.element.addEventListener("click", suffixClick);
+      await btn.trigger("click");
+
+      expect(suffixClick).toHaveBeenCalled();
+      expect(action).not.toHaveBeenCalled();
+      expect(wrapper.emitted("close")).toBeUndefined();
+    });
+
+    it("renders a component prefix for submenu children via <component :is>", async () => {
+      await mountMenu([
+        createItem({
+          children: [createItem({ id: "child-1", label: "Child", prefix: TestComponent })],
+        }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
+
+      expect(
+        wrapper
+          .find(".danx-context-menu__submenu .danx-context-menu__prefix.test-suffix-btn")
+          .exists()
+      ).toBe(true);
+    });
+
+    it("renders string prefix/suffix for submenu children as siblings of the child button", async () => {
+      await mountMenu([
+        createItem({
+          children: [
+            createItem({
+              id: "child-1",
+              label: "Child",
+              prefix: '<span class="test-child-prefix">P</span>',
+              suffix: '<span class="test-child-suffix">S</span>',
+            }),
+          ],
+        }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
+
+      const submenu = wrapper.find(".danx-context-menu__submenu");
+      expect(submenu.exists()).toBe(true);
+      const childWrapper = submenu.find(".danx-context-menu__item-wrapper");
+      expect(childWrapper.exists()).toBe(true);
+      expect(childWrapper.find(".test-child-prefix").exists()).toBe(true);
+      expect(childWrapper.find(".test-child-suffix").exists()).toBe(true);
+
+      const childButton = childWrapper.find(".danx-context-menu__item");
+      expect(childButton.find(".test-child-prefix").exists()).toBe(false);
+      expect(childButton.find(".test-child-suffix").exists()).toBe(false);
+    });
+
+    it("clicking a submenu child's suffix control does not trigger the child action or close the menu", async () => {
+      const action = vi.fn();
+      await mountMenu([
+        createItem({
+          children: [
+            createItem({
+              id: "child-1",
+              label: "Child",
+              action,
+              suffix: TestComponent,
+            }),
+          ],
+        }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__item").trigger("click");
+      await nextTick();
+
+      const suffixBtn = wrapper.find(".danx-context-menu__submenu .test-suffix-btn");
+      expect(suffixBtn.exists()).toBe(true);
+      await suffixBtn.trigger("click");
+
+      expect(action).not.toHaveBeenCalled();
+      expect(wrapper.emitted("close")).toBeUndefined();
+    });
+  });
+
   /**
    * Mock the rendered menu panel's bounding rect so the rect-derived submenu
    * direction (which replaced the old props.position.x read) is deterministic

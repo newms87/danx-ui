@@ -28,6 +28,25 @@ export interface ContextMenuItem {
   /** Optional icon: built-in name, raw SVG string, or Vue component */
   icon?: Component | IconName | string;
 
+  /**
+   * Optional content rendered before the icon/label, as a sibling of the
+   * item's clickable <button> (not nested inside it) so it can host its own
+   * independently-clickable controls. A Vue component renders via
+   * `<component :is>`; a string renders as raw HTML — unlike `icon`, this is
+   * NOT routed through DanxIcon's icon-registry lookup.
+   */
+  prefix?: Component | string;
+
+  /**
+   * Optional content rendered after the shortcut/chevron, as a sibling of the
+   * item's clickable <button> (not nested inside it) so it can host its own
+   * independently-clickable controls (e.g. inline sort-direction buttons)
+   * without triggering the item's own click/close behavior. A Vue component
+   * renders via `<component :is>`; a string renders as raw HTML — unlike
+   * `icon`, this is NOT routed through DanxIcon's icon-registry lookup.
+   */
+  suffix?: Component | string;
+
   /** Keyboard shortcut display text (e.g. "Ctrl+C") */
   shortcut?: string;
 

@@ -77,6 +77,8 @@ function onContextMenu(event: MouseEvent) {
 | `disabled` | `boolean?` | Prevents interaction |
 | `children` | `ContextMenuItem[]?` | Submenu items |
 | `divider` | `boolean?` | Renders as a visual separator |
+| `prefix` | `Component \| string?` | Extra content before the icon, rendered as a sibling of the item's `<button>` (not nested inside it) |
+| `suffix` | `Component \| string?` | Extra content after the shortcut/chevron, rendered as a sibling of the item's `<button>` — supports independently-clickable controls |
 
 ## Features
 
@@ -129,6 +131,23 @@ const items: ContextMenuItem[] = [
   { id: "edit", label: "Edit", icon: '<svg viewBox="0 0 24 24">...</svg>', action: () => edit() },
 ];
 ```
+
+### Prefix / Suffix
+
+`prefix` and `suffix` add extension points to an item, rendered as siblings of the item's `<button>` rather than nested inside it — this is what makes an independently-clickable `suffix` control (e.g. inline direction buttons) actually work, since a `<button>` cannot legally contain another interactive element. A `Component` value renders via `<component :is>`; a `string` value renders as raw HTML (not routed through the icon registry):
+
+```ts
+const items: ContextMenuItem[] = [
+  {
+    id: "priority",
+    label: "Priority",
+    icon: priorityIcon,
+    suffix: SortDirectionButtons, // a component with its own ↑/↓ buttons and click handlers
+  },
+];
+```
+
+Clicking inside `prefix`/`suffix` content never closes the menu or fires the item's own `action`, since it's rendered outside the clickable `<button>`.
 
 ## CSS Tokens
 
