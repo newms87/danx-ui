@@ -72,7 +72,7 @@
  */
 import { computed, ref, toRef } from "vue";
 import { useDanxScroll } from "./useDanxScroll";
-import { setupScrollInfinite } from "./useScrollInfinite";
+import { setupScrollInfinite } from "./scrollInfiniteSetup";
 import { useVariant } from "../../shared/composables/useVariant";
 import type { DanxScrollProps, DanxScrollSlots } from "./types";
 

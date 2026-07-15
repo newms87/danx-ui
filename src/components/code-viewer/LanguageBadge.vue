@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { DanxIcon } from "../icon";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import type { LanguageBadgeProps } from "./types";
 import { useLanguageSearch } from "./useLanguageSearch";
 

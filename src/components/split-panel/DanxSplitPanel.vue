@@ -43,7 +43,7 @@
  *   </DanxSplitPanel>
  */
 import { ref, toRef, type Ref } from "vue";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import type { DanxSplitPanelProps } from "./types";
 import { useSplitPanel } from "./useSplitPanel";
 import SplitPanelHandle from "./SplitPanelHandle.vue";

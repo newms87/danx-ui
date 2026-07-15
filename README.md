@@ -48,6 +48,24 @@ import { useDialog } from 'danx-ui/components/dialog/useDialog';
 import 'danx-ui/shared/tokens';
 ```
 
+## Optional Peer Dependencies
+
+Only Vue 3 is required. `@vueuse/core`, `luxon`, and `yaml` are optional peers — install them only if you use the entry points below. The main `danx-ui` entry never imports any of the three, so `import 'danx-ui'` and its peer-free surface (e.g. `DanxButton`, `DanxDialog`, `DanxScroll`/`DanxVirtualScroll` used without `infiniteScroll`) work with just Vue installed.
+
+| Peer | Needed by |
+|---|---|
+| `@vueuse/core` | `danx-ui/actions` (`useActions`, `withDefaultActions`, `activeActionVnode`); `danx-ui/components/scroll`'s `useScrollInfinite` — and, transitively, `DanxScroll`/`DanxVirtualScroll` only when their `infiniteScroll` prop is set to `true` (lazy-loaded on demand) |
+| `luxon` | `danx-ui/formatters` (the DateTime parsing/timezone/formatting functions and the re-exported Luxon `DateTime`) |
+| `yaml` | `danx-ui/components/code-viewer` (YAML formatting) and structured-data detection (`isJSON`/`isStructuredData`) |
+
+```typescript
+// Requires @vueuse/core
+import { useActions } from 'danx-ui/actions';
+
+// Requires luxon
+import { fDateTime, parseDateTime } from 'danx-ui/formatters';
+```
+
 ## Usage
 
 ### Basic Dialog

@@ -171,6 +171,15 @@ describe("LinkPopover", () => {
       expect(wrapper.emitted("submit")).toHaveLength(1);
     });
 
+    it("shows a validation error and does not emit submit for an unsafe URL scheme", async () => {
+      mountPopover();
+      await wrapper.find("#link-url").setValue("javascript:alert(1)");
+      await wrapper.find(".mde-floating-panel__btn-confirm").trigger("click");
+
+      expect(wrapper.emitted("submit")).toBeUndefined();
+      expect(wrapper.find(".validation-error").exists()).toBe(true);
+    });
+
     it("emits close button click on close-btn", async () => {
       mountPopover();
       await wrapper.find(".mde-floating-panel__close-btn").trigger("click");

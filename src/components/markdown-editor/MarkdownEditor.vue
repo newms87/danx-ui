@@ -41,7 +41,7 @@ import { useFocusTracking } from "./useFocusTracking";
 import { useLinkPopover, useTablePopover } from "./usePopoverManager";
 import { useMarkdownEditor } from "./useMarkdownEditor";
 import { TokenRenderer } from "./types";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import DanxContextMenu from "../context-menu/DanxContextMenu.vue";
 import HotkeyHelpPopover from "./HotkeyHelpPopover.vue";
 import LinkPopover from "./LinkPopover.vue";

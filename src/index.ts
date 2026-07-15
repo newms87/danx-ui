@@ -23,7 +23,8 @@ export { DanxTooltip } from "./components/tooltip";
 export { DanxProgressBar } from "./components/progress-bar";
 export { DanxFile } from "./components/danx-file";
 export { DanxFileViewer } from "./components/danx-file-viewer";
-export { DanxScroll, DanxVirtualScroll } from "./components/scroll";
+// DXUI-35: DanxScroll/DanxVirtualScroll pull in @vueuse/core (optional peer) via
+// useScrollInfinite — kept out of the main barrel; import from "danx-ui/components/scroll".
 export { DanxSkeleton } from "./components/skeleton";
 export { DanxFieldWrapper } from "./components/field-wrapper";
 export { DanxInput } from "./components/input";
@@ -81,7 +82,8 @@ export {
 export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
 export { useFileExplorer, isFolderNode } from "./components/file-explorer";
 export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
-export { useDanxScroll, useScrollInfinite, useScrollWindow } from "./components/scroll";
+// DXUI-35: useScrollInfinite/useDanxScroll/useScrollWindow pull in @vueuse/core (optional
+// peer) — kept out of the main barrel; import from "danx-ui/components/scroll".
 export { downloadFile } from "./shared/download";
 export {
   useFileUpload,
@@ -332,9 +334,10 @@ export { useVariant } from "./shared/composables/useVariant";
 export type { VariantTokenMap } from "./shared/composables/useVariant";
 export type { VariantType } from "./shared/types";
 
-// Shared utilities
+// Shared utilities — number/string formatters imported directly from their own
+// files (DXUI-35), not through "./shared/formatters", so the main barrel never
+// touches the luxon-dependent datetime formatter files in that folder.
 export {
-  // Number formatters
   fCurrency,
   fCurrencyNoCents,
   fNumber,
@@ -343,7 +346,8 @@ export {
   fShortSize,
   fBoolean,
   fPercent,
-  // String formatters
+} from "./shared/formatters/numbers";
+export {
   centerTruncate,
   fTruncate,
   fUppercase,
@@ -351,6 +355,8 @@ export {
   fAddress,
   fPhone,
   fNameOrCount,
+} from "./shared/formatters/strings";
+export {
   // Data format detection
   isJSON,
   isStructuredData,
@@ -364,30 +370,9 @@ export {
   arrayFirst,
   arrayLast,
   arrayJoin,
-  // DateTime parsers
-  parseDateTime,
-  parseSqlDateTime,
-  parseSlashDate,
-  parseSlashDateTime,
-  parseGenericDateTime,
-  // DateTime timezone
-  getServerTimezone,
-  setServerTimezone,
-  localizedDateTime,
-  remoteDateTime,
-  // DateTime formatters
-  fSlashDate,
-  fLocalizedDateTime,
-  fDateTime,
-  fDateTimeMs,
-  dbDateTime,
-  fDate,
-  fSecondsToTime,
-  fSecondsToDuration,
-  fMillisecondsToDuration,
-  fDuration,
-  fTimeAgo,
 } from "./shared";
+// DXUI-35: DateTime parsing/timezone/formatting utilities require the optional
+// `luxon` peer — kept out of the main barrel; import from "danx-ui/formatters".
 
 // Structured data format preference
 export {
@@ -428,7 +413,10 @@ export {
 export type { TypedObject, AnyObject, LabelValueItem } from "./shared/store-types";
 
 // Reactive data layer — actions
-export { useActions, withDefaultActions, activeActionVnode } from "./shared/actions";
+// DXUI-35: useActions/withDefaultActions/activeActionVnode require the optional
+// `@vueuse/core` peer (bindTrigger's debounce) — kept out of the main barrel;
+// import from "danx-ui/actions". Types remain available below (type-only, no
+// runtime cost).
 export { useActionStore } from "./shared/actionStore";
 export { useActionRoutes } from "./shared/actionRoutes";
 export type {

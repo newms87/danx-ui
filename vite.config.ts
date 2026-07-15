@@ -58,6 +58,10 @@ export default defineConfig({
           __dirname,
           "src/components/range-slider/index.ts"
         ),
+        // DXUI-35: own entries so these peer-dependent modules (luxon / @vueuse/core)
+        // are reachable only via their opt-in subpath, never via the main barrel.
+        "shared/formatters/index": resolve(__dirname, "src/shared/formatters/index.ts"),
+        "shared/actions": resolve(__dirname, "src/shared/actions.ts"),
       },
       formats: ["es"],
     },

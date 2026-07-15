@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import CodeViewerCollapsed from "./CodeViewerCollapsed.vue";
 import CodeViewerFooter from "./CodeViewerFooter.vue";
 import { getAvailableFormats } from "./formatUtils";

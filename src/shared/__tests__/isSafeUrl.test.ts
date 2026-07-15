@@ -125,6 +125,10 @@ describe("isSafeUrl", () => {
     it("rejects unknown schemes", () => {
       expect(isSafeUrl("custom:value")).toBe(false);
     });
+
+    it("allows a fragment that itself contains a colon", () => {
+      expect(isSafeUrl("#section:1")).toBe(true);
+    });
   });
 });
 

@@ -72,6 +72,14 @@
       "import": "./dist/components/color-picker/index.js"
     },
     "./components/color-picker/styles": "./dist/components/color-picker/color-picker.css",
+    "./formatters": {
+      "types": "./dist/shared/formatters/index.d.ts",
+      "import": "./dist/shared/formatters/index.js"
+    },
+    "./actions": {
+      "types": "./dist/shared/actions.d.ts",
+      "import": "./dist/shared/actions.js"
+    },
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css"
   },
@@ -88,7 +96,7 @@
   "scripts": {
     "dev": "vite",
     "dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 && vue-tsc --noEmit",
-    "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css && npm run check:package-size",
+    "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css && npm run check:package-size && node scripts/smoke-test-peer-free.mjs",
     "build:css": "cd src && find . -name '*.css' -exec sh -c 'mkdir -p \"../dist/$(dirname \"$1\")\" && cp \"$1\" \"../dist/$1\"' _ {} \\;",
     "check:package-size": "node scripts/check-package-size.mjs",
     "preview": "vite preview",

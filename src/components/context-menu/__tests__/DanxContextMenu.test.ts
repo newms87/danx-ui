@@ -97,6 +97,16 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__item.is-disabled").exists()).toBe(true);
     });
 
+    it("renders the trigger slot when provided", async () => {
+      wrapper = mount(DanxContextMenu, {
+        props: { items: [createItem()], position: { x: 100, y: 200 } },
+        slots: { trigger: "<button class='custom-trigger'>Open</button>" },
+        attachTo: document.body,
+      });
+      await nextTick();
+      expect(wrapper.find(".custom-trigger").exists()).toBe(true);
+    });
+
     it("shows chevron for items with children", async () => {
       await mountMenu([
         createItem({

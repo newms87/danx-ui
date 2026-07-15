@@ -473,9 +473,13 @@ describe("DanxScroll", () => {
       expect(wrapper.find(".danx-scroll__done").exists()).toBe(false);
     });
 
-    it("calls useInfiniteScroll when infiniteScroll is true", () => {
+    it("calls useInfiniteScroll when infiniteScroll is true", async () => {
       mountComponent({ infiniteScroll: true });
-      expect(mockUseInfiniteScroll).toHaveBeenCalled();
+      // DXUI-35: setupScrollInfinite now dynamic-imports useScrollInfinite from
+      // an onMounted callback (keeps @vueuse/core out of DanxScroll's static
+      // import graph), so the call lands after the dynamic import resolves —
+      // wait for it rather than assuming a single microtask flush suffices.
+      await vi.waitFor(() => expect(mockUseInfiniteScroll).toHaveBeenCalled());
     });
 
     it("renders custom loading slot", () => {
@@ -540,6 +544,7 @@ describe("DanxScroll", () => {
   describe("Events", () => {
     it("emits loadMore when VueUse callback fires", async () => {
       const wrapper = mountComponent({ infiniteScroll: true });
+      await vi.waitFor(() => expect(capturedCallback).not.toBeNull());
 
       await capturedCallback!();
 
@@ -548,6 +553,7 @@ describe("DanxScroll", () => {
 
     it("does not emit loadMore when loading is true", async () => {
       const wrapper = mountComponent({ infiniteScroll: true, loading: true });
+      await vi.waitFor(() => expect(capturedCallback).not.toBeNull());
 
       await capturedCallback!();
 

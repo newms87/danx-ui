@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { CodeViewer } from "../code-viewer";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import type { PreviewFile } from "../danx-file";
 import { formatMeta, metaCount, formatExif, exifCount, hasAnyInfo } from "./file-metadata-helpers";
 

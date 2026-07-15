@@ -73,7 +73,7 @@
 import { type ComponentPublicInstance, computed, onMounted, ref, toRef, watch } from "vue";
 import { DanxSkeleton } from "../skeleton";
 import DanxScroll from "./DanxScroll.vue";
-import { setupScrollInfinite } from "./useScrollInfinite";
+import { setupScrollInfinite } from "./scrollInfiniteSetup";
 import { useScrollWindow } from "./useScrollWindow";
 import type { DanxVirtualScrollProps, DanxVirtualScrollSlots } from "./virtual-scroll-types";
 

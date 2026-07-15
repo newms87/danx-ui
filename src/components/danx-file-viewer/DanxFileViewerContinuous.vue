@@ -47,7 +47,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRef, watch } from "vue";
 import { DanxFile } from "../danx-file";
 import type { PreviewFile } from "../danx-file";
-import { DanxVirtualScroll } from "../scroll";
+import DanxVirtualScroll from "../scroll/DanxVirtualScroll.vue";
 import { useZoomable } from "../zoomable";
 
 const props = withDefaults(

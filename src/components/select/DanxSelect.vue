@@ -100,7 +100,7 @@ import { DanxChip } from "../chip";
 import { DanxFieldWrapper } from "../field-wrapper";
 import { DanxIcon } from "../icon";
 import { DanxPopover } from "../popover";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import type { DanxSelectEmits, DanxSelectProps, DanxSelectSlots, SelectModelValue } from "./types";
 import { useSelect } from "./useSelect";
 

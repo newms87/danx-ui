@@ -112,6 +112,9 @@ function getMenuPanel(): Element | null {
 
 function updateSubmenuDirection(): void {
   const panel = getMenuPanel();
+  // Defensive only: menuRef is bound synchronously during render, before this
+  // watch-driven callback can ever fire, so panel is never actually null.
+  /* v8 ignore next */
   if (!panel) return;
   const rect = panel.getBoundingClientRect();
   submenuOpenLeft.value = rect.right + ESTIMATED_MENU_WIDTH > window.innerWidth;

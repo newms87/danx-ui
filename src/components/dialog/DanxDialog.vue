@@ -100,7 +100,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, type StyleValue, useAttrs, watch } from "vue";
 import { useVariant } from "../../shared/composables/useVariant";
 import { DanxButton } from "../button";
-import { DanxScroll } from "../scroll";
+import DanxScroll from "../scroll/DanxScroll.vue";
 import DialogBreadcrumbs from "./DialogBreadcrumbs.vue";
 import type { DanxDialogEmits, DanxDialogProps, DanxDialogSlots } from "./types";
 import { useDialogStack } from "./useDialogStack";
