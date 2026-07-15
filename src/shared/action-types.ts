@@ -188,6 +188,9 @@ export interface ListControlsRoutes<T extends ActionTargetItem = ActionTargetIte
     options?: RequestCallOptions
   ): Promise<AnyObject>;
   export?(filter?: ListControlsFilter, name?: string): Promise<void>;
+  /** Unregisters the list ref from the object store. Called automatically on unmount when
+   * invoked from component setup; call directly for non-component (e.g. test) usage. */
+  dispose?(): void;
 }
 
 export interface ListControlsOptions<T extends ActionTargetItem = ActionTargetItem> {

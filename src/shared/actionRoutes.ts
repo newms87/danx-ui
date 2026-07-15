@@ -14,8 +14,14 @@
  *   const { data } = await routes.list({ page: 1 });
  */
 
-import { ref } from "vue";
-import { registerList, storeObject, storeObjects, canonicalizeResult } from "./objectStore";
+import { getCurrentInstance, onBeforeUnmount, ref } from "vue";
+import {
+  registerList,
+  storeObject,
+  storeObjects,
+  canonicalizeResult,
+  unregisterList,
+} from "./objectStore";
 import { request } from "./request";
 import type {
   ActionTargetItem,
@@ -30,9 +36,15 @@ export function useActionRoutes<T extends ActionTargetItem = ActionTargetItem>(
   extend?: Partial<ListControlsRoutes<T>>
 ): ListControlsRoutes<T> {
   // Track the most recent list result so optimistic deletes can splice it.
-  // Lives for the controller's lifetime — no unregister needed.
   const listRef = ref<TypedObject[]>([]);
   registerList(listRef);
+  const dispose = () => unregisterList(listRef);
+
+  // Auto-unregister on unmount when called from component setup; non-component
+  // call sites (e.g. tests) must call the returned `dispose()` themselves.
+  if (getCurrentInstance()) {
+    onBeforeUnmount(dispose);
+  }
 
   return {
     async list(pager, options) {
@@ -93,6 +105,8 @@ export function useActionRoutes<T extends ActionTargetItem = ActionTargetItem>(
         options
       ) as Promise<AnyObject>;
     },
+
+    dispose,
 
     ...extend,
   };

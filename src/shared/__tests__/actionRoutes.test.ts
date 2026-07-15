@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { defineComponent, h } from "vue";
+import { mount } from "@vue/test-utils";
 import { useActionRoutes } from "../actionRoutes";
+import { removeObjectFromLists } from "../objectStore";
 import { request } from "../request";
 import type { ListControlsRoutes } from "../action-types";
+import type { TypedObject } from "../store-types";
 
 describe("useActionRoutes", () => {
   afterEach(() => {
@@ -133,5 +137,53 @@ describe("useActionRoutes", () => {
     const customExport: ListControlsRoutes["export"] = vi.fn(async () => undefined);
     const routes = useActionRoutes("/api/users", { export: customExport });
     expect(routes.export).toBe(customExport);
+  });
+
+  it("unregisters the list ref on component unmount, so later deletes no longer splice it", async () => {
+    vi.spyOn(request, "post").mockResolvedValue({
+      data: [{ id: 1, __type: "User", __timestamp: 1 }],
+      meta: { total: 1 },
+    });
+
+    let listValue: TypedObject[] = [];
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const routes = useActionRoutes<TypedObject>("/api/users");
+          return { routes };
+        },
+        render() {
+          return h("div");
+        },
+      })
+    );
+    const routes = (wrapper.vm as unknown as { routes: ListControlsRoutes<TypedObject> }).routes;
+    const response = await routes.list();
+    listValue = response.data as TypedObject[];
+    expect(listValue).toHaveLength(1);
+
+    wrapper.unmount();
+
+    removeObjectFromLists(listValue[0]!);
+    expect(listValue).toHaveLength(1);
+  });
+
+  it("dispose() unregisters the list ref for non-component call sites", async () => {
+    vi.spyOn(request, "post").mockResolvedValue({
+      data: [{ id: 2, __type: "User", __timestamp: 1 }],
+      meta: { total: 1 },
+    });
+    const routes = useActionRoutes<TypedObject>("/api/users");
+    const response = await routes.list();
+    const listValue = response.data as TypedObject[];
+    expect(listValue).toHaveLength(1);
+
+    routes.dispose!();
+
+    removeObjectFromLists(listValue[0]!);
+    expect(listValue).toHaveLength(1);
+
+    // Idempotent — Set#delete on a missing entry is a no-op, must not throw.
+    expect(() => routes.dispose!()).not.toThrow();
   });
 });
