@@ -22,6 +22,8 @@
  *   defaultExpanded?: boolean - Expand all folders on first render (default: false)
  *   storageKey?: string - localStorage key for persisting expanded IDs (omit to disable)
  *   selectable?: boolean - Whether clicking a row selects it (default: true)
+ *   filterable?: boolean - Show a name-filter search box above the tree (default: false)
+ *   filterPlaceholder?: string - Placeholder for the filter search box (default: "Search...")
  *
  * @model
  *   selected: string | null - Selected node ID (v-model:selected)
@@ -48,6 +50,7 @@
  *   --dx-file-explorer-icon-color - Folder/file icon color (default: var(--color-text-subtle))
  *   --dx-file-explorer-icon-size - Icon size (default: 1rem)
  *   --dx-file-explorer-gap - Gap between chevron/icon/label (default: 0.375rem)
+ *   --dx-file-explorer-match-bg - Background of the highlighted filter match (default: var(--color-warning-subtle))
  *
  * @example
  *   <DanxFileExplorer
@@ -57,8 +60,9 @@
  *     storage-key="my-explorer"
  *   />
  */
-import { provide, toRef, useSlots } from "vue";
+import { provide, ref, toRef, useSlots } from "vue";
 import { DanxIcon } from "../icon";
+import { DanxInput } from "../input";
 import FileExplorerNode from "./FileExplorerNode.vue";
 import {
   FILE_EXPLORER_CONTEXT,
@@ -74,6 +78,8 @@ const props = withDefaults(defineProps<DanxFileExplorerProps>(), {
   defaultExpanded: false,
   storageKey: undefined,
   selectable: true,
+  filterable: false,
+  filterPlaceholder: "Search...",
 });
 
 const emit = defineEmits<{
@@ -93,11 +99,14 @@ defineSlots<{
 
 const slots = useSlots();
 
+const filterQuery = ref("");
+
 const explorer = useFileExplorer(toRef(props, "nodes"), expanded, selected, {
   storageKey: props.storageKey,
   defaultExpanded: props.defaultExpanded,
   foldersOnly: toRef(props, "foldersOnly"),
   selectable: toRef(props, "selectable"),
+  filterQuery,
 });
 
 /** ArrowUp/Down/Left/Right/Home/End move the roving-tabindex focus or expand/collapse a folder. */
@@ -168,6 +177,7 @@ const context: FileExplorerContext = {
     if (props.selectable && !node.disabled) emit("select", node);
   },
   onKeydown: handleKeydown,
+  matchRange: explorer.matchRange,
 };
 
 provide(FILE_EXPLORER_CONTEXT, context);
@@ -175,6 +185,16 @@ provide(FILE_EXPLORER_CONTEXT, context);
 
 <template>
   <div class="danx-file-explorer">
+    <DanxInput
+      v-if="filterable"
+      v-model="filterQuery"
+      type="search"
+      size="sm"
+      class="danx-file-explorer__filter"
+      :placeholder="filterPlaceholder"
+      aria-label="Filter tree"
+    />
+
     <ul v-if="explorer.visibleNodes.value.length > 0" class="danx-file-explorer__tree" role="tree">
       <FileExplorerNode
         v-for="node in explorer.visibleNodes.value"

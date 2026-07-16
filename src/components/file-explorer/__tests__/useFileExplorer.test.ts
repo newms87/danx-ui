@@ -38,6 +38,7 @@ interface CreateOptions {
   defaultExpanded?: boolean;
   foldersOnly?: boolean;
   selectable?: boolean;
+  filterQuery?: string;
 }
 
 function createExplorer(opts: CreateOptions = {}) {
@@ -46,6 +47,7 @@ function createExplorer(opts: CreateOptions = {}) {
   const selected = ref<string | null>(opts.selected ?? null);
   const foldersOnly = ref(opts.foldersOnly ?? false);
   const selectable = ref(opts.selectable ?? true);
+  const filterQuery = ref(opts.filterQuery ?? "");
 
   let result!: ReturnType<typeof useFileExplorer>;
   const wrapper = mount(
@@ -56,6 +58,7 @@ function createExplorer(opts: CreateOptions = {}) {
           defaultExpanded: opts.defaultExpanded,
           foldersOnly,
           selectable,
+          filterQuery,
         });
         return {};
       },
@@ -63,7 +66,7 @@ function createExplorer(opts: CreateOptions = {}) {
     })
   );
   mountedWrappers.push(wrapper);
-  return { ...result, nodes, expanded, selected, foldersOnly, selectable };
+  return { ...result, nodes, expanded, selected, foldersOnly, selectable, filterQuery };
 }
 
 beforeEach(() => {
@@ -336,5 +339,85 @@ describe("useFileExplorer flatRows + roving focus", () => {
     await nextTick();
     expect(isFocused("index.ts")).toBe(false);
     expect(isFocused("src")).toBe(true);
+  });
+});
+
+describe("useFileExplorer name filtering", () => {
+  it("keeps every node when the query is empty", () => {
+    const { visibleNodes } = createExplorer();
+    expect(visibleNodes.value.map((n) => n.id)).toEqual(["src", "empty-folder", "readme"]);
+  });
+
+  it("filters root nodes to only matching branches, case-insensitively", async () => {
+    const { visibleNodes, filterQuery } = createExplorer();
+    filterQuery.value = "BUTTON";
+    await nextTick();
+    expect(visibleNodes.value.map((n) => n.id)).toEqual(["src"]);
+  });
+
+  it("keeps a folder's full children when the folder itself matches", async () => {
+    const { visibleNodes, filterQuery } = createExplorer();
+    filterQuery.value = "src";
+    await nextTick();
+    const src = visibleNodes.value.find((n) => n.id === "src")!;
+    expect(src.children?.map((c) => c.id)).toEqual(["components", "index.ts"]);
+  });
+
+  it("prunes a matched folder's children to only matching descendants", async () => {
+    const { visibleNodes, filterQuery } = createExplorer();
+    filterQuery.value = "button";
+    await nextTick();
+    const src = visibleNodes.value.find((n) => n.id === "src")!;
+    expect(src.children?.map((c) => c.id)).toEqual(["components"]);
+    const components = src.children!.find((n) => n.id === "components")!;
+    expect(components.children?.map((c) => c.id)).toEqual(["Button.vue"]);
+  });
+
+  it("auto-expands ancestor folders of every match", async () => {
+    const { isExpanded, filterQuery } = createExplorer();
+    filterQuery.value = "button";
+    await nextTick();
+    expect(isExpanded("src")).toBe(true);
+    expect(isExpanded("components")).toBe(true);
+  });
+
+  it("restores the pre-filter expansion state when the query is cleared", async () => {
+    const { isExpanded, filterQuery } = createExplorer({ expanded: ["src"] });
+    expect(isExpanded("src")).toBe(true);
+    expect(isExpanded("components")).toBe(false);
+
+    filterQuery.value = "button";
+    await nextTick();
+    expect(isExpanded("components")).toBe(true);
+
+    filterQuery.value = "";
+    await nextTick();
+    expect(isExpanded("src")).toBe(true);
+    expect(isExpanded("components")).toBe(false);
+  });
+
+  it("does not restore expansion for folders manually toggled while filtering", async () => {
+    const { isExpanded, toggle, filterQuery } = createExplorer();
+    filterQuery.value = "button";
+    await nextTick();
+    toggle({ id: "empty-folder", name: "empty", type: "folder" });
+    filterQuery.value = "";
+    await nextTick();
+    expect(isExpanded("empty-folder")).toBe(false);
+  });
+
+  it("matchRange returns the matched substring range for a matching node", async () => {
+    const { matchRange, filterQuery } = createExplorer();
+    filterQuery.value = "utto";
+    await nextTick();
+    expect(matchRange({ id: "Button.vue", name: "Button.vue" })).toEqual({ start: 1, end: 5 });
+  });
+
+  it("matchRange returns null when there is no active query or no match", async () => {
+    const { matchRange, filterQuery } = createExplorer();
+    expect(matchRange({ id: "readme", name: "README.md" })).toBeNull();
+    filterQuery.value = "zzz";
+    await nextTick();
+    expect(matchRange({ id: "readme", name: "README.md" })).toBeNull();
   });
 });

@@ -55,6 +55,17 @@ const nodeIcon = computed(() => {
   return "file";
 });
 
+/** Name split around the active filter match, for highlighting; unsplit when no match. */
+const nameParts = computed(() => {
+  const match = ctx!.matchRange(props.node);
+  if (!match) return null;
+  return {
+    before: props.node.name.slice(0, match.start),
+    match: props.node.name.slice(match.start, match.end),
+    after: props.node.name.slice(match.end),
+  };
+});
+
 const slotProps = computed(() => ({
   node: props.node,
   depth: props.depth,
@@ -128,7 +139,12 @@ function onKeydown(event: KeyboardEvent): void {
       <component :is="NodeSlot" v-if="ctx.slots.node" />
       <template v-else>
         <DanxIcon :icon="nodeIcon" class="danx-file-explorer-node__icon" />
-        <span class="danx-file-explorer-node__name">{{ node.name }}</span>
+        <span v-if="nameParts" class="danx-file-explorer-node__name"
+          >{{ nameParts.before
+          }}<mark class="danx-file-explorer-node__match">{{ nameParts.match }}</mark
+          >{{ nameParts.after }}</span
+        >
+        <span v-else class="danx-file-explorer-node__name">{{ node.name }}</span>
       </template>
 
       <span v-if="ctx.slots.actions" class="danx-file-explorer-node__actions">

@@ -29,6 +29,13 @@ export interface UseFileExplorerOptions {
 
   /** Reactive selectable flag — disables selection when false. */
   selectable: Ref<boolean>;
+
+  /**
+   * Reactive filter query — case-insensitive substring match on node name.
+   * Ancestor folders of any match auto-expand; expansion state prior to
+   * filtering is restored when the query is cleared.
+   */
+  filterQuery?: Ref<string>;
 }
 
 export interface UseFileExplorerReturn {
@@ -64,6 +71,9 @@ export interface UseFileExplorerReturn {
 
   /** Move the roving-tabindex focus target to a node ID */
   setFocused: (id: string) => void;
+
+  /** The matched substring range in a node's name for the active filter query, or null. */
+  matchRange: (node: FileNode) => { start: number; end: number } | null;
 }
 
 /** One entry of the flattened, in-order visible-row list used for arrow-key navigation. */
@@ -87,7 +97,13 @@ export function useFileExplorer(
   selected: Ref<string | null>,
   options: UseFileExplorerOptions
 ): UseFileExplorerReturn {
-  const { storageKey, defaultExpanded = false, foldersOnly, selectable } = options;
+  const {
+    storageKey,
+    defaultExpanded = false,
+    foldersOnly,
+    selectable,
+    filterQuery = ref(""),
+  } = options;
 
   const expandedSet = ref<Set<string>>(new Set());
 
@@ -189,10 +205,82 @@ export function useFileExplorer(
     return children.filter((child) => isFolderNode(child));
   }
 
-  const visibleNodes = computed<FileNode[]>(() => {
-    if (!foldersOnly.value) return nodes.value;
-    return nodes.value.filter((node) => isFolderNode(node));
+  // --- Name filtering ---
+
+  /**
+   * Recursively keeps only nodes whose name matches, or that have a matching
+   * descendant. A self-matched folder keeps all of its children (matched or
+   * not) so its full contents remain browsable once revealed by the filter.
+   */
+  function filterTree(list: FileNode[], query: string): FileNode[] {
+    const result: FileNode[] = [];
+    for (const node of list) {
+      if (node.name.toLowerCase().includes(query)) {
+        result.push(node);
+        continue;
+      }
+      if (node.children) {
+        const filteredChildren = filterTree(node.children, query);
+        if (filteredChildren.length > 0) {
+          result.push({ ...node, children: filteredChildren });
+        }
+      }
+    }
+    return result;
+  }
+
+  const filteredNodes = computed<FileNode[]>(() => {
+    const query = filterQuery.value.trim().toLowerCase();
+    if (!query) return nodes.value;
+    return filterTree(nodes.value, query);
   });
+
+  const visibleNodes = computed<FileNode[]>(() => {
+    if (!foldersOnly.value) return filteredNodes.value;
+    return filteredNodes.value.filter((node) => isFolderNode(node));
+  });
+
+  /** The matched substring range in a node's name for the active filter query, or null. */
+  function matchRange(node: FileNode): { start: number; end: number } | null {
+    const query = filterQuery.value.trim().toLowerCase();
+    if (!query) return null;
+    const start = node.name.toLowerCase().indexOf(query);
+    if (start === -1) return null;
+    return { start, end: start + query.length };
+  }
+
+  // Auto-expand ancestor folders of any match while filtering; restore the
+  // pre-filter expansion state once the query is cleared.
+  let preFilterExpanded: Set<string> | null = null;
+
+  function collectFolderIdsWithChildren(list: FileNode[], acc: string[]): string[] {
+    for (const node of list) {
+      if (isFolderNode(node) && node.children && node.children.length > 0) {
+        acc.push(node.id);
+        collectFolderIdsWithChildren(node.children, acc);
+      }
+    }
+    return acc;
+  }
+
+  watch(
+    filterQuery,
+    (query) => {
+      const trimmed = query.trim();
+      if (trimmed) {
+        if (preFilterExpanded === null) {
+          preFilterExpanded = new Set(expandedSet.value);
+        }
+        expandedSet.value = new Set(collectFolderIdsWithChildren(filteredNodes.value, []));
+        syncExpanded();
+      } else if (preFilterExpanded !== null) {
+        expandedSet.value = preFilterExpanded;
+        preFilterExpanded = null;
+        syncExpanded();
+      }
+    },
+    { immediate: true }
+  );
 
   // --- Roving tabindex / arrow-key navigation ---
 
@@ -240,5 +328,6 @@ export function useFileExplorer(
     flatRows,
     isFocused,
     setFocused,
+    matchRange,
   };
 }

@@ -355,3 +355,61 @@ describe("DanxFileExplorer keyboard navigation", () => {
     expect(wrapper.emitted("toggle")).toBeFalsy();
   });
 });
+
+describe("DanxFileExplorer name filtering", () => {
+  it("does not render a filter box unless filterable is set", () => {
+    const wrapper = mountExplorer();
+    expect(wrapper.find(".danx-file-explorer__filter").exists()).toBe(false);
+  });
+
+  it("renders a filter box when filterable is set", () => {
+    const wrapper = mountExplorer({ filterable: true });
+    expect(wrapper.find(".danx-file-explorer__filter input").exists()).toBe(true);
+  });
+
+  it("filters to only matching branches, case-insensitively", async () => {
+    const wrapper = mountExplorer({ filterable: true });
+    await wrapper.find(".danx-file-explorer__filter input").setValue("BUTTON");
+    expect(wrapper.text()).toContain("Button.vue");
+    expect(wrapper.text()).not.toContain("index.ts");
+    expect(wrapper.text()).not.toContain("README.md");
+  });
+
+  it("auto-expands ancestor folders of a match so it is visible", async () => {
+    const wrapper = mountExplorer({ filterable: true });
+    // Button.vue is nested two levels deep and starts fully collapsed.
+    await wrapper.find(".danx-file-explorer__filter input").setValue("Button");
+    expect(wrapper.text()).toContain("src");
+    expect(wrapper.text()).toContain("components");
+    expect(wrapper.text()).toContain("Button.vue");
+  });
+
+  it("highlights the matched substring in a visible label", async () => {
+    const wrapper = mountExplorer({ filterable: true });
+    await wrapper.find(".danx-file-explorer__filter input").setValue("read");
+    const mark = wrapper.find(".danx-file-explorer-node__match");
+    expect(mark.exists()).toBe(true);
+    expect(mark.text().toLowerCase()).toBe("read");
+  });
+
+  it("restores the prior expanded state when the filter is cleared", async () => {
+    const wrapper = mountExplorer({ filterable: true, expanded: ["src"] });
+    expect(wrapper.text()).toContain("index.ts");
+
+    await wrapper.find(".danx-file-explorer__filter input").setValue("Button");
+    expect(wrapper.text()).not.toContain("index.ts");
+
+    await wrapper.find(".danx-file-explorer__filter input").setValue("");
+    expect(wrapper.text()).toContain("index.ts");
+    expect(wrapper.text()).not.toContain("Button.vue");
+  });
+
+  it("preserves selection while filtering", async () => {
+    const wrapper = mountExplorer({ filterable: true, selected: "README" });
+    await wrapper.find(".danx-file-explorer__filter input").setValue("README");
+    const selectedRow = wrapper
+      .findAll(".danx-file-explorer-node__row")
+      .find((r) => r.text().includes("README.md"))!;
+    expect(selectedRow.classes()).toContain("is-selected");
+  });
+});

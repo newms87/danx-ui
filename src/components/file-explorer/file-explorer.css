@@ -17,6 +17,10 @@
   user-select: none;
 }
 
+.danx-file-explorer__filter {
+  margin-bottom: 0.5rem;
+}
+
 .danx-file-explorer__tree {
   margin: 0;
   padding: 0;
@@ -73,6 +77,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .danx-file-explorer-node__match {
+    background: var(--dx-file-explorer-match-bg);
+    color: inherit;
+    border-radius: 0.125rem;
   }
 
   .danx-file-explorer-node__actions {

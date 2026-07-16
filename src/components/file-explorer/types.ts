@@ -68,6 +68,16 @@ export interface DanxFileExplorerProps {
 
   /** When true, clicking a row selects it (single selection). Default: true. */
   selectable?: boolean;
+
+  /**
+   * When true, renders a search box above the tree that filters nodes by name
+   * (case-insensitive substring). Ancestor folders of any match auto-expand;
+   * the prior expansion state is restored when the query is cleared.
+   */
+  filterable?: boolean;
+
+  /** Placeholder text for the filter search box. Default: "Search...". */
+  filterPlaceholder?: string;
 }
 
 /** Emits for the DanxFileExplorer component */
@@ -151,6 +161,9 @@ export interface FileExplorerContext {
 
   /** Handle ArrowUp/Down/Left/Right/Home/End for a row */
   onKeydown: (event: KeyboardEvent, node: FileNode) => void;
+
+  /** The matched substring range in a node's name for the active filter query, or null. */
+  matchRange: (node: FileNode) => { start: number; end: number } | null;
 
   /**
    * Root-provided slot render functions, forwarded to every node via inject
