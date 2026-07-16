@@ -32,26 +32,36 @@ describe("getServerTimezone / setServerTimezone", () => {
 describe("localizedDateTime", () => {
   it("converts server time to local DateTime", () => {
     const result = localizedDateTime("2024-01-15 10:30:00");
-    expect(result.isValid).toBe(true);
-    expect(result.zoneName).not.toBe("America/Chicago");
+    expect(result?.isValid).toBe(true);
+    expect(result?.zoneName).not.toBe("America/Chicago");
   });
 
   it("handles T separator", () => {
     const result = localizedDateTime("2024-01-15T10:30:00");
-    expect(result.isValid).toBe(true);
+    expect(result?.isValid).toBe(true);
+  });
+
+  it("returns null for malformed input", () => {
+    const result = localizedDateTime("not a real date");
+    expect(result).toBeNull();
   });
 });
 
 describe("remoteDateTime", () => {
   it("converts local time to server timezone", () => {
     const result = remoteDateTime("2024-01-15 10:30:00");
-    expect(result.isValid).toBe(true);
-    expect(result.zoneName).toBe("America/Chicago");
+    expect(result?.isValid).toBe(true);
+    expect(result?.zoneName).toBe("America/Chicago");
   });
 
   it("handles T separator", () => {
     const result = remoteDateTime("2024-01-15T10:30:00");
-    expect(result.isValid).toBe(true);
-    expect(result.zoneName).toBe("America/Chicago");
+    expect(result?.isValid).toBe(true);
+    expect(result?.zoneName).toBe("America/Chicago");
+  });
+
+  it("returns null for malformed input", () => {
+    const result = remoteDateTime("not a real date");
+    expect(result).toBeNull();
   });
 });

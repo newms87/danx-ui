@@ -32,6 +32,11 @@ describe("fLocalizedDateTime", () => {
     });
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
+
+  it("returns the empty fallback for malformed input", () => {
+    const result = fLocalizedDateTime("not a real date");
+    expect(result).toBe("- -");
+  });
 });
 
 describe("fDateTime", () => {
