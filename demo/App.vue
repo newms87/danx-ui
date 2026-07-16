@@ -156,6 +156,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/tabs" class="demo-sidebar__link">Tabs</RouterLink>
               </li>
               <li>
+                <RouterLink to="/stepper" class="demo-sidebar__link">Stepper</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/progress-bar" class="demo-sidebar__link">Progress Bar</RouterLink>
               </li>
               <li>

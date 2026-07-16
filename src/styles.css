@@ -27,6 +27,7 @@
 @import "./components/markdown-editor/markdown-editor.css" layer(components);
 @import "./components/buttonGroup/button-group.css" layer(components);
 @import "./components/tabs/tabs.css" layer(components);
+@import "./components/stepper/stepper.css" layer(components);
 @import "./components/toast/toast.css" layer(components);
 @import "./components/tooltip/tooltip.css" layer(components);
 @import "./components/progress-bar/progress-bar.css" layer(components);

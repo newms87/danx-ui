@@ -21,6 +21,7 @@ export { DanxPopconfirm } from "./components/popconfirm";
 export { MarkdownEditor } from "./components/markdown-editor";
 export { DanxSplitPanel, SplitPanelHandle } from "./components/split-panel";
 export { DanxTabs } from "./components/tabs";
+export { DanxStepper } from "./components/stepper";
 export { DanxButtonGroup } from "./components/buttonGroup";
 export { DanxToast, DanxToastContainer } from "./components/toast";
 export { DanxTooltip } from "./components/tooltip";
@@ -204,6 +205,7 @@ export type {
   UseSplitPanelReturn,
 } from "./components/split-panel";
 export type { DanxTab, DanxTabsProps } from "./components/tabs";
+export type { DanxStep, DanxStepStatus, DanxStepperProps } from "./components/stepper";
 export type {
   AutoColorMode,
   DanxButtonGroupEmits,

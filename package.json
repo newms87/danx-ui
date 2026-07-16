@@ -196,6 +196,11 @@
       "import": "./dist/components/split-panel/index.js"
     },
     "./components/split-panel/styles": "./dist/components/split-panel/split-panel.css",
+    "./components/stepper": {
+      "types": "./dist/components/stepper/index.d.ts",
+      "import": "./dist/components/stepper/index.js"
+    },
+    "./components/stepper/styles": "./dist/components/stepper/stepper.css",
     "./components/tabs": {
       "types": "./dist/components/tabs/index.d.ts",
       "import": "./dist/components/tabs/index.js"

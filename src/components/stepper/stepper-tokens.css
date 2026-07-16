@@ -1,0 +1,77 @@
+/**
+ * DanxStepper Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize stepper appearance.
+ *
+ * CSS Tokens:
+ * --dx-stepper-gap                   Gap between step rows (vertical) / steps (horizontal)
+ * --dx-stepper-indicator-size        Indicator diameter
+ * --dx-stepper-indicator-font-size   Index number font size
+ * --dx-stepper-indicator-font-weight Index number font weight
+ * --dx-stepper-indicator-border      Upcoming indicator border color
+ * --dx-stepper-indicator-bg          Upcoming indicator background
+ * --dx-stepper-indicator-text        Upcoming indicator text color
+ * --dx-stepper-active-bg             Active indicator background
+ * --dx-stepper-active-text           Active indicator text color
+ * --dx-stepper-complete-bg           Complete indicator background
+ * --dx-stepper-complete-text         Complete indicator text color
+ * --dx-stepper-error-bg              Error indicator background
+ * --dx-stepper-error-text            Error indicator text color
+ * --dx-stepper-label-font-size       Label font size
+ * --dx-stepper-label-font-weight     Label font weight
+ * --dx-stepper-label-color           Label text color
+ * --dx-stepper-description-color     Description text color
+ * --dx-stepper-connector-color       Upcoming connector line color
+ * --dx-stepper-connector-complete    Complete connector line color
+ * --dx-stepper-connector-thickness   Connector line thickness
+ * --dx-stepper-transition            Transition timing for indicator/connector color
+ */
+
+:root {
+  /* ==========================================================================
+     Container Tokens
+     ========================================================================== */
+
+  --dx-stepper-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Indicator Tokens
+     ========================================================================== */
+
+  --dx-stepper-indicator-size: 2rem;
+  --dx-stepper-indicator-font-size: var(--text-sm);
+  --dx-stepper-indicator-font-weight: var(--font-medium);
+  --dx-stepper-indicator-border: var(--color-border);
+  --dx-stepper-indicator-bg: var(--color-surface);
+  --dx-stepper-indicator-text: var(--color-text-muted);
+  --dx-stepper-active-bg: var(--color-interactive);
+  --dx-stepper-active-text: var(--color-text-inverted);
+  --dx-stepper-complete-bg: var(--color-success);
+  --dx-stepper-complete-text: var(--color-text-inverted);
+  --dx-stepper-error-bg: var(--color-danger);
+  --dx-stepper-error-text: var(--color-text-inverted);
+
+  /* ==========================================================================
+     Typography Tokens
+     ========================================================================== */
+
+  --dx-stepper-label-font-size: var(--text-sm);
+  --dx-stepper-label-font-weight: var(--font-medium);
+  --dx-stepper-label-color: var(--color-text);
+  --dx-stepper-description-color: var(--color-text-muted);
+
+  /* ==========================================================================
+     Connector Tokens
+     ========================================================================== */
+
+  --dx-stepper-connector-color: var(--color-border);
+  --dx-stepper-connector-complete: var(--color-success);
+  --dx-stepper-connector-thickness: 2px;
+
+  /* ==========================================================================
+     Animation Tokens
+     ========================================================================== */
+
+  --dx-stepper-transition: var(--transition-fast);
+}

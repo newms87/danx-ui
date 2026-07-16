@@ -42,6 +42,7 @@ import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
 import { DanxTextarea } from "../../src/components/textarea";
 import { DanxSelect, useSelect } from "../../src/components/select";
+import { DanxStepper } from "../../src/components/stepper";
 import { useFormField } from "../../src/shared/composables/useFormField";
 import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
 import { passwordStrength } from "../../src/shared/passwordStrength";
@@ -248,6 +249,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   MarkdownEditor,
   DanxButtonGroup,
   DanxTabs,
+  DanxStepper,
   DanxToast,
   DanxToastContainer,
   DanxTooltip,
@@ -312,6 +314,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   MarkdownEditor,
   DanxButtonGroup,
   DanxTabs,
+  DanxStepper,
   DanxToast,
   DanxToastContainer,
   useToast,

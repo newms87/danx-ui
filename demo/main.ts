@@ -19,6 +19,7 @@ import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
 import FormattersPage from "./pages/FormattersPage.vue";
 import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
 import TabsPage from "./pages/TabsPage.vue";
+import StepperPage from "./pages/StepperPage.vue";
 import ToastPage from "./pages/ToastPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
 import ProgressBarPage from "./pages/ProgressBarPage.vue";
@@ -71,6 +72,7 @@ const router = createRouter({
     { path: "/formatters", name: "formatters", component: FormattersPage },
     { path: "/button-group", name: "button-group", component: ButtonGroupPage },
     { path: "/tabs", name: "tabs", component: TabsPage },
+    { path: "/stepper", name: "stepper", component: StepperPage },
     { path: "/toast", name: "toast", component: ToastPage },
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
     { path: "/progress-bar", name: "progress-bar", component: ProgressBarPage },
