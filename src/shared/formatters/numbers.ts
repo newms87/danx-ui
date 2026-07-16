@@ -55,7 +55,7 @@ export function fShortNumber(value: string | number, options?: ShortNumberOption
   const sign = n < 0 ? "-" : "";
   const abs = Math.abs(n);
   const short =
-    shorts.find(({ pow }) => Math.pow(10, pow) < abs && Math.pow(10, pow + 3) > abs) || null;
+    shorts.find(({ pow }) => Math.pow(10, pow) <= abs && Math.pow(10, pow + 3) > abs) || null;
 
   if (short) {
     const scaled = abs / Math.pow(10, short.pow);

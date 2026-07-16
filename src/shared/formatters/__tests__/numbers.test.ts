@@ -127,9 +127,15 @@ describe("fShortNumber", () => {
     expect(fShortNumber(150000)).toBe("150K");
   });
 
-  it("formats number at exact boundary (1000)", () => {
-    // 1000 is not > 1000 so no short unit
-    expect(fShortNumber(1000)).toBe("1000");
+  it("shortens values at exact powers of ten", () => {
+    expect(fShortNumber(1000)).toBe("1.0K");
+    expect(fShortNumber(1000000)).toBe("1.0M");
+    expect(fShortNumber(1000000000)).toBe("1.0B");
+  });
+
+  it("shortens negative values at exact powers of ten", () => {
+    expect(fShortNumber(-1000)).toBe("-1.0K");
+    expect(fShortNumber(-1000000)).toBe("-1.0M");
   });
 
   it("formats string numbers", () => {
