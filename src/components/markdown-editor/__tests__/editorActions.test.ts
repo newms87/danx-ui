@@ -16,54 +16,6 @@ describe("editorActions", () => {
     };
   }
 
-  describe("insertTabCharacter", () => {
-    it("inserts a tab character at cursor position", () => {
-      editor = createTestEditor("<p>Hello world</p>");
-      const deps = createDeps(editor);
-      const { insertTabCharacter } = createEditorActions(deps);
-
-      editor.setCursorInBlock(0, 5);
-      insertTabCharacter();
-
-      expect(editor.container.textContent).toContain("\t");
-      expect(deps.debouncedSyncFromHtml).toHaveBeenCalled();
-    });
-
-    it("does nothing when contentRef is null", () => {
-      editor = createTestEditor("<p>Hello</p>");
-      const deps = createDeps(editor);
-      deps.contentRef.value = null;
-
-      const { insertTabCharacter } = createEditorActions(deps);
-      // Should not throw
-      insertTabCharacter();
-      expect(deps.debouncedSyncFromHtml).not.toHaveBeenCalled();
-    });
-
-    it("does nothing when no selection exists", () => {
-      editor = createTestEditor("<p>Hello</p>");
-      const deps = createDeps(editor);
-      const { insertTabCharacter } = createEditorActions(deps);
-
-      window.getSelection()?.removeAllRanges();
-      insertTabCharacter();
-      expect(deps.debouncedSyncFromHtml).not.toHaveBeenCalled();
-    });
-
-    it("replaces selected text with tab", () => {
-      editor = createTestEditor("<p>Hello world</p>");
-      const deps = createDeps(editor);
-      const { insertTabCharacter } = createEditorActions(deps);
-
-      // Select "world"
-      editor.selectInBlock(0, 6, 11);
-      insertTabCharacter();
-
-      expect(editor.container.textContent).toContain("\t");
-      expect(deps.debouncedSyncFromHtml).toHaveBeenCalled();
-    });
-  });
-
   describe("insertHorizontalRule", () => {
     it("inserts hr after current paragraph", () => {
       editor = createTestEditor("<p>Hello</p>");

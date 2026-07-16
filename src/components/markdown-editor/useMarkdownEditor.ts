@@ -175,7 +175,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     debouncedSyncFromHtml: () => sync.debouncedSyncFromHtml(),
   });
 
-  const { insertHorizontalRule, insertTabCharacter } = createEditorActions({
+  const { insertHorizontalRule } = createEditorActions({
     contentRef,
     debouncedSyncFromHtml: () => sync.debouncedSyncFromHtml(),
   });
@@ -187,7 +187,6 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     tables,
     lists,
     sync,
-    insertTabCharacter,
   });
 
   const codeBlockManager = useCodeBlockManager({

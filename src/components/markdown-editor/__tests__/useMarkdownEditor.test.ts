@@ -453,7 +453,7 @@ describe("useMarkdownEditor", () => {
   });
 
   describe("Tab handling", () => {
-    it("prevents default on Tab key", () => {
+    it("DXUI-73: does not prevent default on Tab outside table/list, so focus moves natively", () => {
       const markdownEditor = createEditor("<p>Hello</p>");
       editor.setCursorInBlock(0, 3);
 
@@ -461,17 +461,18 @@ describe("useMarkdownEditor", () => {
       const preventSpy = vi.spyOn(event, "preventDefault");
       markdownEditor.onKeyDown(event);
 
-      expect(preventSpy).toHaveBeenCalled();
+      expect(preventSpy).not.toHaveBeenCalled();
     });
 
-    it("inserts tab character outside of lists", () => {
+    it("DXUI-73: does not insert a tab character outside of lists/tables", () => {
       const markdownEditor = createEditor("<p>Hello</p>");
       editor.setCursorInBlock(0, 3);
 
       markdownEditor.onKeyDown(keyEvent("Tab", { code: "Tab" }));
 
       const text = editor.container.textContent;
-      expect(text).toContain("\t");
+      expect(text).not.toContain("\t");
+      expect(text).toBe("Hello");
     });
 
     it("indents list item on Tab in list", () => {

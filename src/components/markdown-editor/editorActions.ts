@@ -23,7 +23,6 @@ export interface EditorActionDeps {
  */
 export interface EditorActionsReturn {
   insertHorizontalRule: () => void;
-  insertTabCharacter: () => void;
 }
 
 /**
@@ -107,29 +106,5 @@ export function createEditorActions(deps: EditorActionDeps): EditorActionsReturn
     debouncedSyncFromHtml();
   }
 
-  /**
-   * Insert a tab character at the current cursor position.
-   */
-  function insertTabCharacter(): void {
-    if (!contentRef.value) return;
-
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-
-    const range = sel.getRangeAt(0);
-    range.deleteContents();
-
-    const tabNode = document.createTextNode("\t");
-    range.insertNode(tabNode);
-
-    range.setStartAfter(tabNode);
-    range.setEndAfter(tabNode);
-
-    sel.removeAllRanges();
-    sel.addRange(range);
-
-    debouncedSyncFromHtml();
-  }
-
-  return { insertHorizontalRule, insertTabCharacter };
+  return { insertHorizontalRule };
 }

@@ -71,7 +71,6 @@ function createMockDeps(editor: TestEditorResult): KeyHandlerDeps {
       debouncedSyncFromHtml: vi.fn(),
       isInternalUpdate: { value: false } as never,
     },
-    insertTabCharacter: vi.fn(),
   };
 }
 
@@ -401,7 +400,7 @@ describe("editorKeyHandlers", () => {
   });
 
   describe("Tab key handling", () => {
-    it("calls insertTabCharacter when Tab is pressed outside table and list", () => {
+    it("DXUI-73: does not intercept Tab outside table/list context, letting focus move natively", () => {
       editor = createTestEditor("<p>Hello</p>");
       const deps = createMockDeps(editor);
 
@@ -416,16 +415,21 @@ describe("editorKeyHandlers", () => {
         bubbles: true,
         cancelable: true,
       });
+      const preventSpy = vi.spyOn(event, "preventDefault");
       onKeyDown(event);
 
-      expect(deps.insertTabCharacter).toHaveBeenCalled();
+      // Tab was routed to list handling (only legitimate interceptor left) but it
+      // declined, so the key must fall through to native focus navigation.
+      expect(deps.lists.indentListItem).toHaveBeenCalled();
+      expect(preventSpy).not.toHaveBeenCalled();
     });
 
-    it("calls lists.outdentListItem on Shift+Tab", () => {
+    it("prevents default and calls lists.outdentListItem on Shift+Tab when a list handles it", () => {
       editor = createTestEditor("<ul><li>Item</li></ul>");
       const deps = createMockDeps(editor);
 
       (deps.tables.isInTable as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (deps.lists.outdentListItem as ReturnType<typeof vi.fn>).mockReturnValue(true);
 
       const { onKeyDown } = createKeyHandler(deps);
 
@@ -440,9 +444,86 @@ describe("editorKeyHandlers", () => {
         bubbles: true,
         cancelable: true,
       });
+      const preventSpy = vi.spyOn(event, "preventDefault");
       onKeyDown(event);
 
       expect(deps.lists.outdentListItem).toHaveBeenCalled();
+      expect(preventSpy).toHaveBeenCalled();
+    });
+
+    it("DXUI-73: does not prevent default on Shift+Tab when outdentListItem declines (not in a list)", () => {
+      editor = createTestEditor("<p>Hello</p>");
+      const deps = createMockDeps(editor);
+
+      (deps.tables.isInTable as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (deps.lists.outdentListItem as ReturnType<typeof vi.fn>).mockReturnValue(false);
+
+      const { onKeyDown } = createKeyHandler(deps);
+      editor.setCursorInBlock(0, 3);
+
+      const event = new KeyboardEvent("keydown", {
+        key: "Tab",
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true,
+      });
+      const preventSpy = vi.spyOn(event, "preventDefault");
+      onKeyDown(event);
+
+      expect(deps.lists.outdentListItem).toHaveBeenCalled();
+      expect(preventSpy).not.toHaveBeenCalled();
+    });
+
+    it("prevents default and calls lists.indentListItem on Tab when a list handles it", () => {
+      editor = createTestEditor("<ul><li>Item</li><li>Item 2</li></ul>");
+      const deps = createMockDeps(editor);
+
+      (deps.tables.isInTable as ReturnType<typeof vi.fn>).mockReturnValue(false);
+      (deps.lists.indentListItem as ReturnType<typeof vi.fn>).mockReturnValue(true);
+
+      const { onKeyDown } = createKeyHandler(deps);
+
+      const items = editor.container.querySelectorAll("li");
+      const li = items[1]!;
+      if (li.firstChild) {
+        editor.setCursor(li.firstChild, 0);
+      }
+
+      const event = new KeyboardEvent("keydown", {
+        key: "Tab",
+        bubbles: true,
+        cancelable: true,
+      });
+      const preventSpy = vi.spyOn(event, "preventDefault");
+      onKeyDown(event);
+
+      expect(deps.lists.indentListItem).toHaveBeenCalled();
+      expect(preventSpy).toHaveBeenCalled();
+    });
+
+    it("prevents default and delegates to tables.handleTableTab when in a table", () => {
+      editor = createTestEditor("<table><tr><td>Cell</td></tr></table>");
+      const deps = createMockDeps(editor);
+
+      (deps.tables.isInTable as ReturnType<typeof vi.fn>).mockReturnValue(true);
+
+      const { onKeyDown } = createKeyHandler(deps);
+
+      const td = editor.container.querySelector("td")!;
+      if (td.firstChild) {
+        editor.setCursor(td.firstChild, 0);
+      }
+
+      const event = new KeyboardEvent("keydown", {
+        key: "Tab",
+        bubbles: true,
+        cancelable: true,
+      });
+      const preventSpy = vi.spyOn(event, "preventDefault");
+      onKeyDown(event);
+
+      expect(deps.tables.handleTableTab).toHaveBeenCalledWith(false);
+      expect(preventSpy).toHaveBeenCalled();
     });
   });
 

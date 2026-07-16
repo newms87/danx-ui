@@ -6,6 +6,11 @@
  * Tab for table navigation/list indentation, Arrow keys for table navigation,
  * Backspace for code block entry, and all other keys to the hotkey system.
  *
+ * Tab is only intercepted when the caret is inside a table cell or a list
+ * item, where it navigates cells or indents/outdents. Outside those
+ * contexts, Tab is left alone so it moves focus natively — the editor must
+ * never trap keyboard focus (WCAG 2.1.2).
+ *
  * The onKeyDown function is the single entry point for all keyboard events
  * in the contenteditable area (excluding code block internals).
  */
@@ -28,7 +33,6 @@ export interface KeyHandlerDeps {
   tables: UseTablesReturn;
   lists: UseListsReturn;
   sync: UseMarkdownSyncReturn;
-  insertTabCharacter: () => void;
 }
 
 /**
@@ -42,7 +46,7 @@ export interface KeyHandlerReturn {
  * Creates the keydown event handler bound to editor dependencies.
  */
 export function createKeyHandler(deps: KeyHandlerDeps): KeyHandlerReturn {
-  const { contentRef, hotkeys, codeBlocks, tables, lists, sync, insertTabCharacter } = deps;
+  const { contentRef, hotkeys, codeBlocks, tables, lists, sync } = deps;
 
   function onKeyDown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement | null;
@@ -114,21 +118,25 @@ export function createKeyHandler(deps: KeyHandlerDeps): KeyHandlerReturn {
       }
     }
 
-    // Handle Tab key
+    // Handle Tab key: only intercept inside a table or list context, where
+    // DXUI-73: Tab must NOT be swallowed outside a table/list — doing so trapped
+    // keyboard focus inside the editor with no escape hatch (WCAG 2.1.2). When
+    // neither context claims the key, let Tab fall through to native focus
+    // navigation instead of inserting a literal tab character.
     if (event.key === "Tab" && !event.ctrlKey && !event.altKey && !event.metaKey) {
-      event.preventDefault();
-
       if (tables.isInTable()) {
+        event.preventDefault();
         tables.handleTableTab(event.shiftKey);
         return;
       }
 
       if (event.shiftKey) {
-        lists.outdentListItem();
+        if (lists.outdentListItem()) {
+          event.preventDefault();
+        }
       } else {
-        const handled = lists.indentListItem();
-        if (!handled) {
-          insertTabCharacter();
+        if (lists.indentListItem()) {
+          event.preventDefault();
         }
       }
       return;
