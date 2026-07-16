@@ -99,6 +99,7 @@ const {
   openFilePicker,
   addFiles,
   removeFile,
+  retryFile,
   getStableKey,
   handleDragEnter,
   handleDragLeave,
@@ -123,6 +124,10 @@ function onInputChange(event: Event) {
 function onRemoveFile(file: PreviewFile) {
   removeFile(file);
   emit("remove", file);
+}
+
+function onRetryFile(file: PreviewFile) {
+  retryFile(file.id);
 }
 
 function onDropZoneDrop(files: FileList) {
@@ -182,6 +187,7 @@ function onLoadChildren(file: PreviewFile) {
           :disabled="!!disabled"
           :class="{ 'cursor-pointer': viewable && !isUploading(file) }"
           @remove="onRemoveFile"
+          @retry="onRetryFile"
           @click="onFileClick(file)"
         />
 

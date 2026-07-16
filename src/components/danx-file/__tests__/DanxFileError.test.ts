@@ -74,5 +74,34 @@ describe("DanxFileError", () => {
       });
       expect(wrapper.text()).toContain("Upload failed");
     });
+
+    it("emits retry with the file when the retry button is clicked", async () => {
+      const AlwaysOpenPopover = defineComponent({
+        template: "<div><slot name='trigger' /><slot /></div>",
+      });
+      const file = makeFile({ error: "Upload failed" });
+      const wrapper = mount(DanxFileError, {
+        props: { file, isCompactDisplay: true },
+        global: {
+          stubs: { DanxPopover: AlwaysOpenPopover },
+        },
+      });
+      await wrapper.find(".danx-file__error-retry-btn").trigger("click");
+      expect(wrapper.emitted("retry")).toEqual([[file]]);
+    });
+  });
+
+  describe("Retry button", () => {
+    it("renders a retry button in full (non-compact) mode", () => {
+      const wrapper = mountError();
+      expect(wrapper.find(".danx-file__error-retry-btn").exists()).toBe(true);
+    });
+
+    it("emits retry with the file when clicked in full mode", async () => {
+      const file = makeFile({ error: "Upload failed" });
+      const wrapper = mountError({ file });
+      await wrapper.find(".danx-file__error-retry-btn").trigger("click");
+      expect(wrapper.emitted("retry")).toEqual([[file]]);
+    });
   });
 });

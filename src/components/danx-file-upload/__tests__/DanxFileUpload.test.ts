@@ -16,7 +16,7 @@ const DanxFieldWrapperStub = markRaw(
 const DanxFileStub = markRaw(
   defineComponent({
     props: ["file", "size", "showFilename", "showFileSize", "removable", "disabled"],
-    emits: ["remove"],
+    emits: ["remove", "retry"],
     template: `<div class="danx-file-stub" :data-file-id="file.id">{{ file.name }}</div>`,
   })
 );
@@ -166,6 +166,50 @@ describe("DanxFileUpload", () => {
     const emitted = wrapper.emitted("remove");
     expect(emitted).toBeTruthy();
     expect(emitted![0]![0]).toEqual(file);
+  });
+
+  it("calls the upload handler again when DanxFile emits retry on an errored file", async () => {
+    const uploadFn = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockResolvedValue(makeFile("server-1"));
+
+    let currentModel: PreviewFile[] = [];
+    const wrapper = mount(DanxFileUpload, {
+      props: {
+        modelValue: currentModel,
+        uploadFn,
+        "onUpdate:modelValue": (value: PreviewFile[]) => {
+          currentModel = value;
+          wrapper.setProps({ modelValue: currentModel });
+        },
+      },
+      global: {
+        stubs: {
+          DanxFieldWrapper: DanxFieldWrapperStub,
+          DanxFile: DanxFileStub,
+          DanxIcon: DanxIconStub,
+          DanxDialog: DanxDialogStub,
+          DanxFileViewer: DanxFileViewerStub,
+        },
+      },
+    });
+
+    const input = wrapper.find("input[type='file']");
+    const file = new File(["data"], "test.jpg", { type: "image/jpeg" });
+    const fileList = Object.assign([file], {
+      item: (i: number) => [file][i] ?? null,
+    }) as unknown as FileList;
+    Object.defineProperty(input.element, "files", { value: fileList, writable: true });
+    await input.trigger("change");
+    await vi.waitFor(() => expect(currentModel[0]?.error).toBe("Network error"));
+    await nextTick();
+
+    const fileComp = wrapper.findComponent(DanxFileStub);
+    fileComp.vm.$emit("retry", currentModel[0]);
+    await nextTick();
+
+    expect(uploadFn).toHaveBeenCalledTimes(2);
   });
 
   it("renders drop zone component", () => {

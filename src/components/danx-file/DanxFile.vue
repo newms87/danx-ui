@@ -38,6 +38,7 @@
  *   click(file) - Thumbnail clicked
  *   download(event) - Download button clicked (preventable)
  *   remove(file) - Remove confirmed after 2-step confirmation
+ *   retry(file) - Retry button clicked on an errored file
  *
  * @slots
  *   actions - Custom action buttons in the hover overlay (top-right)
@@ -180,7 +181,12 @@ function onClick() {
       <DanxFileProgress v-if="showProgress" :file="file" :is-xs-size="isXsSize" />
 
       <!-- Error overlay -->
-      <DanxFileError v-if="showError" :file="file" :is-compact-display="isCompactDisplay" />
+      <DanxFileError
+        v-if="showError"
+        :file="file"
+        :is-compact-display="isCompactDisplay"
+        @retry="emit('retry', $event)"
+      />
 
       <!-- Hover actions -->
       <DanxFileActions

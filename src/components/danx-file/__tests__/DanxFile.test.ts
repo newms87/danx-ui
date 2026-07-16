@@ -281,6 +281,35 @@ describe("DanxFile", () => {
       expect(wrapper.find(".danx-file__error").exists()).toBe(false);
       expect(wrapper.find(".danx-file__error--compact").exists()).toBe(false);
     });
+
+    it("emits retry with the file when retry button clicked (full mode)", async () => {
+      const file = makeFile({ error: "Upload failed" });
+      const wrapper = mountFile({ file, size: "lg" });
+      await wrapper.find(".danx-file__error-retry-btn").trigger("click");
+      expect(wrapper.emitted("retry")).toEqual([[file]]);
+    });
+
+    it("emits retry with the file when retry button clicked (compact mode)", async () => {
+      const AlwaysOpenPopover = defineComponent({
+        template: "<div><slot name='trigger' /><slot /></div>",
+      });
+      const file = makeFile({ error: "Upload failed" });
+      const wrapper = mount(DanxFile, {
+        props: { file, size: "xs" as const },
+        global: { stubs: { DanxPopover: AlwaysOpenPopover } },
+      });
+      await wrapper.find(".danx-file__error-retry-btn").trigger("click");
+      expect(wrapper.emitted("retry")).toEqual([[file]]);
+    });
+
+    it("clicking retry does not also emit click", async () => {
+      const wrapper = mountFile({
+        file: makeFile({ error: "Upload failed" }),
+        size: "lg",
+      });
+      await wrapper.find(".danx-file__error-retry-btn").trigger("click");
+      expect(wrapper.emitted("click")).toBeUndefined();
+    });
   });
 
   describe("Footer (filename + file size)", () => {

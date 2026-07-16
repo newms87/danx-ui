@@ -125,6 +125,7 @@ export interface DanxFileEmits {
   (e: "click", file: PreviewFile): void;
   (e: "download", event: DanxFileDownloadEvent): void;
   (e: "remove", file: PreviewFile): void;
+  (e: "retry", file: PreviewFile): void;
 }
 
 /**
