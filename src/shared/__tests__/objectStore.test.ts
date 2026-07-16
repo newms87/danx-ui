@@ -5,6 +5,7 @@ import {
   autoRefreshObject,
   clearStore,
   disposeObject,
+  disposeObjectsByType,
   hasRecentUpdates,
   registerList,
   removeObjectFromLists,
@@ -531,6 +532,37 @@ describe("disposeObject", () => {
     disposeObject(type, 2);
     const stillShared = storeObject({ id: 1, __type: type, name: "keep", __timestamp: 1 });
     expect(stillShared).toBe(kept);
+  });
+});
+
+describe("disposeObjectsByType", () => {
+  it("removes every entry whose __type matches, regardless of id", () => {
+    const type = freshType();
+    const first = storeObject({ id: "a", __type: type, __timestamp: 1 });
+    const second = storeObject({ id: "b", __type: type, __timestamp: 1 });
+
+    disposeObjectsByType(type);
+
+    const freshFirst = storeObject({ id: "a", __type: type, __timestamp: 1 });
+    const freshSecond = storeObject({ id: "b", __type: type, __timestamp: 1 });
+    expect(freshFirst).not.toBe(first);
+    expect(freshSecond).not.toBe(second);
+  });
+
+  it("leaves entries under other types untouched", () => {
+    const type = freshType();
+    const otherType = freshType();
+    const kept = storeObject({ id: 1, __type: otherType, __timestamp: 1 });
+    storeObject({ id: "a", __type: type, __timestamp: 1 });
+
+    disposeObjectsByType(type);
+
+    const stillShared = storeObject({ id: 1, __type: otherType, __timestamp: 1 });
+    expect(stillShared).toBe(kept);
+  });
+
+  it("is a no-op for a type with no stored entries", () => {
+    expect(() => disposeObjectsByType(freshType())).not.toThrow();
   });
 });
 

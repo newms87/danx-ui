@@ -368,6 +368,20 @@ export function disposeObject(type: string, id: string | number): void {
 }
 
 /**
+ * Remove every stored entry whose `__type` exactly matches `type`, regardless
+ * of id. Use this to bulk-evict a namespace-scoped batch of entries (e.g. all
+ * per-instance seeds a single controller persisted) where the individual ids
+ * are not tracked by the caller.
+ */
+export function disposeObjectsByType(type: string): void {
+  for (const [objectKey, storedObject] of store) {
+    if (storedObject.__type !== type) continue;
+    removeObjectFromLists(storedObject);
+    store.delete(objectKey);
+  }
+}
+
+/**
  * Empty the entire identity map (e.g. on logout or tenant switch). Does not
  * touch registered list refs or in-flight auto-refresh timers.
  */

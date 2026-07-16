@@ -84,6 +84,8 @@ export interface ResourceAction<
 
 /** The surface returned by `useActions`. */
 export interface ActionController<T extends ActionTargetItem = ActionTargetItem> {
+  /** The per-call object-store namespace `disposeActions` needs to evict this controller's entries. */
+  namespace: string;
   getAction(actionName: string, actionOptions?: Partial<ActionOptions<T>>): ResourceAction<T>;
   getActions(names: string[]): ResourceAction<T>[];
   action(

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { activeActionVnode, useActions, withDefaultActions } from "../actions";
+import { activeActionVnode, disposeActions, useActions, withDefaultActions } from "../actions";
 import { storeObject } from "../objectStore";
 import { FlashMessages } from "../flashMessages";
 import { copyIcon, editIcon, trashIcon } from "../../components/icon/icons";
@@ -406,5 +406,48 @@ describe("withDefaultActions", () => {
     const actions = withDefaultActions("User", controller);
     actions.find((a) => a.name === "create-with-name")!.onFinish!({}, null, null);
     expect(activatePanel).toHaveBeenCalledWith(null, "edit");
+  });
+});
+
+describe("disposeActions", () => {
+  it("removes every __Action:<namespace> entry the controller persisted, before/after AC3", () => {
+    const controller = useActions([{ name: "save" }]);
+    const beforeAction = controller.getAction("save");
+    // Present/resolvable before disposal — a second lookup returns the same cached instance.
+    expect(controller.getAction("save")).toBe(beforeAction);
+
+    disposeActions(controller);
+
+    // Gone after disposal — the store re-creates a fresh instance for the same name.
+    const afterAction = controller.getAction("save");
+    expect(afterAction).not.toBe(beforeAction);
+  });
+
+  it("only clears the calling controller's own namespace, leaving other controllers intact", () => {
+    const controllerA = useActions([{ name: "save" }]);
+    const controllerB = useActions([{ name: "save" }]);
+    const actionA = controllerA.getAction("save");
+    const actionB = controllerB.getAction("save");
+
+    disposeActions(controllerA);
+
+    expect(controllerA.getAction("save")).not.toBe(actionA);
+    expect(controllerB.getAction("save")).toBe(actionB);
+  });
+
+  it("extendAction/modifyAction seeds are also removed on disposal", () => {
+    const controller = useActions([{ name: "save" }]);
+    const extended = controller.extendAction("save", "row-1", { label: "Save row" });
+    const modified = controller.modifyAction("save", { label: "Saved!" });
+
+    disposeActions(controller);
+
+    expect(controller.extendAction("save", "row-1", { label: "Save row" })).not.toBe(extended);
+    expect(controller.modifyAction("save", { label: "Saved!" })).not.toBe(modified);
+  });
+
+  it("is a no-op when the controller has never persisted an action", () => {
+    const controller = useActions([{ name: "save" }]);
+    expect(() => disposeActions(controller)).not.toThrow();
   });
 });

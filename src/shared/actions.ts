@@ -22,7 +22,7 @@ import type { Ref } from "vue";
 import { copyIcon, editIcon, trashIcon } from "../components/icon/icons";
 import { uid } from "./uid";
 import { FlashMessages } from "./flashMessages";
-import { storeObject, canonicalizeResult } from "./objectStore";
+import { storeObject, canonicalizeResult, disposeObjectsByType } from "./objectStore";
 import type {
   ActionController,
   ActionGlobalOptions,
@@ -189,12 +189,27 @@ export function useActions(
   }
 
   return {
+    namespace,
     getAction,
     getActions,
     action: performAction,
     modifyAction,
     extendAction,
   };
+}
+
+/**
+ * Release every `__Action:<namespace>` entry a `useActions()` controller persisted
+ * into the object store. The store has no automatic eviction (see
+ * `objectStore.ts`), so a long-lived app must call this when the component/list
+ * controller that owns the actions is torn down — typically:
+ *
+ * @example
+ *   const controller = useActions(withDefaultActions("User", controls));
+ *   onBeforeUnmount(() => disposeActions(controller));
+ */
+export function disposeActions(controller: ActionController): void {
+  disposeObjectsByType("__Action:" + controller.namespace);
 }
 
 /** Toggle the reactive saving flag on a single or batch target. */
