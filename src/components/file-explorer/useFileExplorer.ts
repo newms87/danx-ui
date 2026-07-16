@@ -40,6 +40,9 @@ export interface UseFileExplorerReturn {
   /** Expand/collapse a folder node, returns the new expanded state */
   toggle: (node: FileNode) => boolean;
 
+  /** Set a folder's expanded state explicitly. Returns whether it changed. */
+  setExpanded: (node: FileNode, value: boolean) => boolean;
+
   /** Select a node (no-op when not selectable or node disabled) */
   select: (node: FileNode) => void;
 
@@ -51,6 +54,23 @@ export interface UseFileExplorerReturn {
 
   /** Root nodes after folders-only filtering */
   visibleNodes: Ref<FileNode[]>;
+
+  /** Flattened, in-order list of every currently-visible row (roving tabindex + arrow nav) */
+  flatRows: Ref<FlatFileExplorerRow[]>;
+
+  /** Whether a node ID is the current roving-tabindex focus target */
+  isFocused: (id: string) => boolean;
+
+  /** Move the roving-tabindex focus target to a node ID */
+  setFocused: (id: string) => void;
+}
+
+/** One entry of the flattened, in-order visible-row list used for arrow-key navigation. */
+export interface FlatFileExplorerRow {
+  id: string;
+  node: FileNode;
+  depth: number;
+  parentId: string | null;
 }
 
 /** A node is a folder when explicitly typed so OR when it has a children array. */
@@ -141,18 +161,20 @@ export function useFileExplorer(
   }
 
   function toggle(node: FileNode): boolean {
+    const nowExpanded = !expandedSet.value.has(node.id);
+    setExpanded(node, nowExpanded);
+    return nowExpanded;
+  }
+
+  /** Explicitly expand/collapse a folder. Returns whether the state actually changed. */
+  function setExpanded(node: FileNode, value: boolean): boolean {
+    if (expandedSet.value.has(node.id) === value) return false;
     const next = new Set(expandedSet.value);
-    let nowExpanded: boolean;
-    if (next.has(node.id)) {
-      next.delete(node.id);
-      nowExpanded = false;
-    } else {
-      next.add(node.id);
-      nowExpanded = true;
-    }
+    if (value) next.add(node.id);
+    else next.delete(node.id);
     expandedSet.value = next;
     syncExpanded();
-    return nowExpanded;
+    return true;
   }
 
   function select(node: FileNode): void {
@@ -171,13 +193,51 @@ export function useFileExplorer(
     return nodes.value.filter((node) => isFolderNode(node));
   });
 
+  // --- Roving tabindex / arrow-key navigation ---
+
+  const flatRows = computed<FlatFileExplorerRow[]>(() => {
+    const rows: FlatFileExplorerRow[] = [];
+    function walk(list: FileNode[], depth: number, parentId: string | null): void {
+      for (const node of list) {
+        rows.push({ id: node.id, node, depth, parentId });
+        if (isFolderNode(node) && expandedSet.value.has(node.id)) {
+          walk(visibleChildren(node), depth + 1, node.id);
+        }
+      }
+    }
+    walk(visibleNodes.value, 0, null);
+    return rows;
+  });
+
+  const focusedId = ref<string | null>(null);
+
+  const effectiveFocusedId = computed<string | null>(() => {
+    const rows = flatRows.value;
+    if (focusedId.value && rows.some((row) => row.id === focusedId.value)) {
+      return focusedId.value;
+    }
+    return rows[0]?.id ?? null;
+  });
+
+  function isFocused(id: string): boolean {
+    return effectiveFocusedId.value === id;
+  }
+
+  function setFocused(id: string): void {
+    focusedId.value = id;
+  }
+
   return {
     isExpanded,
     isSelected,
     toggle,
+    setExpanded,
     select,
     isFolder: isFolderNode,
     visibleChildren,
     visibleNodes,
+    flatRows,
+    isFocused,
+    setFocused,
   };
 }

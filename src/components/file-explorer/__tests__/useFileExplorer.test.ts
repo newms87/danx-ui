@@ -260,3 +260,81 @@ describe("useFileExplorer visibility filtering", () => {
     expect(visibleNodes.value.map((n) => n.id)).toEqual(["src", "empty-folder"]);
   });
 });
+
+describe("useFileExplorer setExpanded", () => {
+  it("expands and reports a change", () => {
+    const { setExpanded, isExpanded } = createExplorer();
+    expect(setExpanded({ id: "src", name: "src", children: [] }, true)).toBe(true);
+    expect(isExpanded("src")).toBe(true);
+  });
+
+  it("is a no-op and reports no change when already in the target state", () => {
+    const { setExpanded } = createExplorer({ expanded: ["src"] });
+    expect(setExpanded({ id: "src", name: "src", children: [] }, true)).toBe(false);
+  });
+
+  it("collapses and reports a change", () => {
+    const { setExpanded, isExpanded } = createExplorer({ expanded: ["src"] });
+    expect(setExpanded({ id: "src", name: "src", children: [] }, false)).toBe(true);
+    expect(isExpanded("src")).toBe(false);
+  });
+});
+
+describe("useFileExplorer flatRows + roving focus", () => {
+  it("flattens only visible rows, excluding collapsed children", () => {
+    const { flatRows } = createExplorer();
+    expect(flatRows.value.map((r) => r.id)).toEqual(["src", "empty-folder", "readme"]);
+  });
+
+  it("includes children of an expanded folder, in-order, with depth and parentId", () => {
+    const { flatRows } = createExplorer({ expanded: ["src"] });
+    expect(flatRows.value.map((r) => ({ id: r.id, depth: r.depth, parentId: r.parentId }))).toEqual(
+      [
+        { id: "src", depth: 0, parentId: null },
+        { id: "components", depth: 1, parentId: "src" },
+        { id: "index.ts", depth: 1, parentId: "src" },
+        { id: "empty-folder", depth: 0, parentId: null },
+        { id: "readme", depth: 0, parentId: null },
+      ]
+    );
+  });
+
+  it("recurses into nested expanded folders", () => {
+    const { flatRows } = createExplorer({ expanded: ["src", "components"] });
+    expect(flatRows.value.map((r) => r.id)).toEqual([
+      "src",
+      "components",
+      "Button.vue",
+      "index.ts",
+      "empty-folder",
+      "readme",
+    ]);
+  });
+
+  it("respects folders-only filtering in the flattened list", () => {
+    const { flatRows } = createExplorer({ expanded: ["src"], foldersOnly: true });
+    expect(flatRows.value.map((r) => r.id)).toEqual(["src", "components", "empty-folder"]);
+  });
+
+  it("defaults focus to the first visible row", () => {
+    const { isFocused } = createExplorer();
+    expect(isFocused("src")).toBe(true);
+    expect(isFocused("readme")).toBe(false);
+  });
+
+  it("setFocused moves the focus target", () => {
+    const { setFocused, isFocused } = createExplorer();
+    setFocused("readme");
+    expect(isFocused("readme")).toBe(true);
+    expect(isFocused("src")).toBe(false);
+  });
+
+  it("falls back to the first row when the focused id is no longer visible", async () => {
+    const { setFocused, isFocused, expanded } = createExplorer({ expanded: ["src"] });
+    setFocused("index.ts");
+    expanded.value = [];
+    await nextTick();
+    expect(isFocused("index.ts")).toBe(false);
+    expect(isFocused("src")).toBe(true);
+  });
+});

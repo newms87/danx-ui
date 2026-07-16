@@ -143,6 +143,15 @@ export interface FileExplorerContext {
   /** Whether rows are selectable */
   selectable: boolean;
 
+  /** Whether a node ID is the current roving-tabindex focus target */
+  isFocused: (id: string) => boolean;
+
+  /** Move the roving-tabindex focus target to a node ID */
+  setFocused: (id: string) => void;
+
+  /** Handle ArrowUp/Down/Left/Right/Home/End for a row */
+  onKeydown: (event: KeyboardEvent, node: FileNode) => void;
+
   /**
    * Root-provided slot render functions, forwarded to every node via inject
    * (avoids recursive template slot-forwarding and its circular typing).

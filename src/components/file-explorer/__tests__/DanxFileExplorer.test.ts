@@ -23,7 +23,7 @@ const TREE: FileNode[] = [
     ],
   },
   { id: "empty-folder", name: "empty", type: "folder" },
-  { id: "readme", name: "README.md" },
+  { id: "README", name: "README.md" },
 ];
 
 function mountExplorer(props: Record<string, unknown> = {}, options: Record<string, unknown> = {}) {
@@ -131,7 +131,7 @@ describe("DanxFileExplorer interaction", () => {
   });
 
   it("marks the selected row with is-selected", () => {
-    const wrapper = mountExplorer({ selected: "readme" });
+    const wrapper = mountExplorer({ selected: "README" });
     const selectedRow = wrapper
       .findAll(".danx-file-explorer-node__row")
       .find((r) => r.text().includes("README.md"))!;
@@ -233,5 +233,125 @@ describe("DanxFileExplorer persistence", () => {
     const wrapper = mountExplorer({ storageKey: "fe-comp" });
     await wrapper.find(".danx-file-explorer-node__row").trigger("click");
     expect(JSON.parse(localStorage.getItem("fe-comp")!).expandedIds).toContain("src");
+  });
+});
+
+describe("DanxFileExplorer keyboard navigation", () => {
+  function rowsByName(wrapper: ReturnType<typeof mountExplorer>) {
+    return wrapper.findAll(".danx-file-explorer-node__row");
+  }
+
+  function rowFor(wrapper: ReturnType<typeof mountExplorer>, text: string) {
+    return rowsByName(wrapper).find((r) => r.text().includes(text))!;
+  }
+
+  it("only one row has tabindex 0 at a time (roving tabindex)", () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    const rows = rowsByName(wrapper);
+    const tabStops = rows.filter((r) => r.attributes("tabindex") === "0");
+    expect(tabStops.length).toBe(1);
+    expect(tabStops[0]!.text()).toContain("src");
+  });
+
+  it("ArrowDown moves the tab stop to the next visible row", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowDown" });
+    expect(rowFor(wrapper, "components").attributes("tabindex")).toBe("0");
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("-1");
+  });
+
+  it("ArrowDown does not descend into a collapsed folder's children", async () => {
+    const wrapper = mountExplorer();
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowDown" });
+    expect(rowFor(wrapper, "empty").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowUp moves the tab stop to the previous visible row", async () => {
+    const wrapper = mountExplorer({ expanded: ["src", "components"] });
+    await rowFor(wrapper, "components").trigger("keydown", { key: "ArrowDown" });
+    await rowFor(wrapper, "Button.vue").trigger("keydown", { key: "ArrowUp" });
+    expect(rowFor(wrapper, "components").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowUp on the first row is a no-op", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowUp" });
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("0");
+  });
+
+  it("Home jumps to the first visible row", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "README").trigger("keydown", { key: "End" });
+    await rowFor(wrapper, "README").trigger("keydown", { key: "Home" });
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("0");
+  });
+
+  it("End jumps to the last visible row", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "src").trigger("keydown", { key: "End" });
+    expect(rowFor(wrapper, "README").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowRight expands a collapsed folder without moving focus", async () => {
+    const wrapper = mountExplorer();
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowRight" });
+    expect(wrapper.text()).toContain("index.ts");
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("0");
+    const toggle = wrapper.emitted("toggle");
+    expect(toggle).toBeTruthy();
+    expect(toggle![0]).toEqual([TREE[0], true]);
+  });
+
+  it("ArrowRight on an already-expanded folder moves focus to its first child", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowRight" });
+    expect(rowFor(wrapper, "components").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowRight on a leaf node does nothing", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "components").trigger("keydown", { key: "ArrowDown" });
+    await rowFor(wrapper, "index.ts").trigger("keydown", { key: "ArrowRight" });
+    expect(rowFor(wrapper, "index.ts").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowLeft collapses an expanded folder without moving focus", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowLeft" });
+    expect(wrapper.text()).not.toContain("index.ts");
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("0");
+    const toggle = wrapper.emitted("toggle");
+    expect(toggle).toBeTruthy();
+    expect(toggle![0]).toEqual([TREE[0], false]);
+  });
+
+  it("ArrowLeft on a collapsed folder or leaf moves focus to the parent", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "index.ts").trigger("keydown", { key: "ArrowLeft" });
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowLeft on a nested collapsed folder moves focus to its parent, not the root", async () => {
+    const wrapper = mountExplorer({ expanded: ["src", "components"] });
+    await rowFor(wrapper, "Button.vue").trigger("keydown", { key: "ArrowLeft" });
+    expect(rowFor(wrapper, "components").attributes("tabindex")).toBe("0");
+  });
+
+  it("ArrowLeft on a root-level leaf/collapsed node is a no-op", async () => {
+    const wrapper = mountExplorer();
+    await rowFor(wrapper, "src").trigger("keydown", { key: "ArrowLeft" });
+    expect(rowFor(wrapper, "src").attributes("tabindex")).toBe("0");
+  });
+
+  it("preserves Enter/Space activation alongside arrow navigation", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "index.ts").trigger("keydown.enter");
+    expect(wrapper.emitted("select")).toBeTruthy();
+  });
+
+  it("ignores arrow keys on a disabled node", async () => {
+    const wrapper = mountExplorer({ expanded: ["src"] });
+    await rowFor(wrapper, "disabled.ts").trigger("keydown", { key: "ArrowRight" });
+    expect(wrapper.emitted("toggle")).toBeFalsy();
   });
 });

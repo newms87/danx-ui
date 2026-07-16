@@ -20,7 +20,7 @@
  *   node: FileNode - The node to render (required)
  *   depth: number - Nesting depth, root nodes are 0 (required)
  */
-import { computed, inject } from "vue";
+import { computed, inject, nextTick, ref, watch } from "vue";
 import { DanxIcon } from "../icon";
 import { FILE_EXPLORER_CONTEXT, type FileNode } from "./types";
 
@@ -34,12 +34,20 @@ if (!ctx) {
   throw new Error("FileExplorerNode must be used within a DanxFileExplorer");
 }
 
+const rowEl = ref<HTMLElement | null>(null);
+
 const selectable = computed(() => ctx.selectable);
 const isFolder = computed(() => ctx.isFolder(props.node));
 const children = computed(() => ctx.visibleChildren(props.node));
 const hasChildren = computed(() => children.value.length > 0);
 const expanded = computed(() => isFolder.value && ctx.isExpanded(props.node.id));
 const selected = computed(() => ctx.isSelected(props.node.id));
+const focused = computed(() => ctx!.isFocused(props.node.id));
+
+// Roving tabindex: move real DOM focus to this row when it becomes the tab stop.
+watch(focused, (isFocused) => {
+  if (isFocused) nextTick(() => rowEl.value?.focus());
+});
 
 const nodeIcon = computed(() => {
   if (props.node.icon) return props.node.icon;
@@ -62,6 +70,7 @@ const ActionsSlot = () => ctx!.slots.actions?.(slotProps.value);
 
 function onActivate(): void {
   if (props.node.disabled) return;
+  ctx!.setFocused(props.node.id);
   if (isFolder.value) ctx!.toggle(props.node);
   ctx!.select(props.node);
 }
@@ -69,13 +78,20 @@ function onActivate(): void {
 function onChevron(event: MouseEvent): void {
   event.stopPropagation();
   if (props.node.disabled) return;
+  ctx!.setFocused(props.node.id);
   ctx!.toggle(props.node);
+}
+
+function onKeydown(event: KeyboardEvent): void {
+  if (props.node.disabled) return;
+  ctx!.onKeydown(event, props.node);
 }
 </script>
 
 <template>
   <li class="danx-file-explorer-node" role="none">
     <div
+      ref="rowEl"
       class="danx-file-explorer-node__row"
       :class="{
         'is-selected': selected,
@@ -88,10 +104,11 @@ function onChevron(event: MouseEvent): void {
       :aria-expanded="isFolder && hasChildren ? expanded : undefined"
       :aria-selected="selected"
       :aria-disabled="node.disabled || undefined"
-      :tabindex="node.disabled ? -1 : 0"
+      :tabindex="node.disabled ? -1 : focused ? 0 : -1"
       @click="onActivate"
       @keydown.enter.prevent="onActivate"
       @keydown.space.prevent="onActivate"
+      @keydown="onKeydown"
     >
       <span class="danx-file-explorer-node__indent" aria-hidden="true" />
 

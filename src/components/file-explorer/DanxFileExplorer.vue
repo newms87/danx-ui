@@ -100,11 +100,58 @@ const explorer = useFileExplorer(toRef(props, "nodes"), expanded, selected, {
   selectable: toRef(props, "selectable"),
 });
 
+/** ArrowUp/Down/Left/Right/Home/End move the roving-tabindex focus or expand/collapse a folder. */
+function handleKeydown(event: KeyboardEvent, node: FileNode): void {
+  const rows = explorer.flatRows.value;
+  const index = rows.findIndex((row) => row.id === node.id);
+  if (index === -1) return;
+
+  switch (event.key) {
+    case "ArrowDown":
+      event.preventDefault();
+      if (index < rows.length - 1) explorer.setFocused(rows[index + 1]!.id);
+      break;
+    case "ArrowUp":
+      event.preventDefault();
+      if (index > 0) explorer.setFocused(rows[index - 1]!.id);
+      break;
+    case "Home":
+      event.preventDefault();
+      if (rows.length > 0) explorer.setFocused(rows[0]!.id);
+      break;
+    case "End":
+      event.preventDefault();
+      if (rows.length > 0) explorer.setFocused(rows[rows.length - 1]!.id);
+      break;
+    case "ArrowRight":
+      event.preventDefault();
+      if (!explorer.isFolder(node)) break;
+      if (!explorer.isExpanded(node.id)) {
+        if (explorer.setExpanded(node, true)) emit("toggle", node, true);
+      } else {
+        const child = rows[index + 1];
+        if (child && child.parentId === node.id) explorer.setFocused(child.id);
+      }
+      break;
+    case "ArrowLeft":
+      event.preventDefault();
+      if (explorer.isFolder(node) && explorer.isExpanded(node.id)) {
+        if (explorer.setExpanded(node, false)) emit("toggle", node, false);
+      } else {
+        const parentId = rows[index]!.parentId;
+        if (parentId) explorer.setFocused(parentId);
+      }
+      break;
+  }
+}
+
 const context: FileExplorerContext = {
   isExpanded: explorer.isExpanded,
   isSelected: explorer.isSelected,
   isFolder: explorer.isFolder,
   visibleChildren: explorer.visibleChildren,
+  isFocused: explorer.isFocused,
+  setFocused: explorer.setFocused,
   get selectable() {
     return props.selectable;
   },
@@ -120,6 +167,7 @@ const context: FileExplorerContext = {
     explorer.select(node);
     if (props.selectable && !node.disabled) emit("select", node);
   },
+  onKeydown: handleKeydown,
 };
 
 provide(FILE_EXPLORER_CONTEXT, context);
