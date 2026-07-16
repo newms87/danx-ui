@@ -43,6 +43,7 @@ import { DanxDivider } from "../../src/components/divider";
 import { DanxSpinner } from "../../src/components/spinner";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
+import { DanxNumberInput } from "../../src/components/number-input";
 import { DanxTextarea } from "../../src/components/textarea";
 import { DanxSelect, useSelect } from "../../src/components/select";
 import { DanxStepper } from "../../src/components/stepper";
@@ -299,6 +300,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxRangeSlider,
   DanxColorPicker,
   DanxInput,
+  DanxNumberInput,
   DanxTextarea,
   DanxSelect,
   DanxFieldWrapper,
@@ -494,6 +496,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxEditableDiv,
   // Input
   DanxInput,
+  DanxNumberInput,
   DanxTextarea,
   DanxSelect,
   DanxFieldWrapper,

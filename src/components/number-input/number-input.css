@@ -1,0 +1,163 @@
+/**
+ * DanxNumberInput Styles
+ *
+ * Main entry point that imports tokens and defines layout, size modifiers,
+ * states, and the stepper buttons.
+ *
+ * Note: BEM modifiers (.danx-number-input--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "./number-input-tokens.css";
+
+/* ==========================================================================
+   Base Container
+   ========================================================================== */
+
+.danx-number-input {
+  display: flex;
+  align-items: center;
+  background: var(--dx-number-input-bg);
+  border: 1px solid var(--dx-number-input-border);
+  border-radius: var(--dx-number-input-border-radius);
+  transition:
+    border-color var(--dx-number-input-transition),
+    box-shadow var(--dx-number-input-transition);
+
+  &:hover:not(.danx-number-input--disabled):not(.danx-number-input--readonly) {
+    border-color: var(--dx-number-input-border-hover);
+  }
+}
+
+/* ==========================================================================
+   Native Input Element
+   ========================================================================== */
+
+.danx-number-input__native {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--dx-number-input-text);
+  font-family: inherit;
+  text-align: center;
+
+  &::placeholder {
+    color: var(--dx-number-input-placeholder);
+  }
+
+  /* Hide native spinners — DanxNumberInput provides its own */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  -moz-appearance: textfield;
+}
+
+/* ==========================================================================
+   Stepper Buttons
+   ========================================================================== */
+
+.danx-number-input__stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  height: 100%;
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--dx-number-input-stepper-color);
+  font-size: 1.125em;
+  line-height: 1;
+  user-select: none;
+  transition: color var(--dx-number-input-transition);
+
+  &:hover:not(:disabled) {
+    color: var(--dx-number-input-stepper-hover);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: var(--dx-number-input-disabled-opacity);
+  }
+}
+
+.danx-number-input__stepper--decrement {
+  border-right: 1px solid var(--dx-number-input-border);
+}
+
+.danx-number-input__stepper--increment {
+  border-left: 1px solid var(--dx-number-input-border);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-number-input--sm {
+  height: var(--dx-number-input-sm-height);
+  font-size: var(--dx-number-input-sm-font-size);
+}
+
+.danx-number-input--md {
+  height: var(--dx-number-input-md-height);
+  font-size: var(--dx-number-input-md-font-size);
+}
+
+.danx-number-input--lg {
+  height: var(--dx-number-input-lg-height);
+  font-size: var(--dx-number-input-lg-font-size);
+}
+
+.danx-number-input--sm .danx-number-input__native {
+  padding: 0 var(--dx-number-input-sm-padding-x);
+}
+
+.danx-number-input--md .danx-number-input__native {
+  padding: 0 var(--dx-number-input-md-padding-x);
+}
+
+.danx-number-input--lg .danx-number-input__native {
+  padding: 0 var(--dx-number-input-lg-padding-x);
+}
+
+/* ==========================================================================
+   State Modifiers
+   ========================================================================== */
+
+.danx-number-input--focused {
+  border-color: var(--dx-number-input-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-number-input-border-focus) 25%, transparent);
+}
+
+.danx-number-input--error {
+  border-color: var(--dx-number-input-border-error);
+
+  &.danx-number-input--focused {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-number-input-border-error) 25%, transparent);
+  }
+}
+
+.danx-number-input--disabled {
+  background: var(--dx-number-input-disabled-bg);
+  opacity: var(--dx-number-input-disabled-opacity);
+  cursor: not-allowed;
+
+  .danx-number-input__native {
+    color: var(--dx-number-input-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+.danx-number-input--readonly {
+  .danx-number-input__native {
+    cursor: default;
+  }
+}

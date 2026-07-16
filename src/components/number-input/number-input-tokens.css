@@ -1,0 +1,71 @@
+/**
+ * DanxNumberInput Tokens
+ *
+ * Component tokens (Tier 3) referencing shared form tokens.
+ *
+ * CSS Tokens:
+ * --dx-number-input-bg                  Input background
+ * --dx-number-input-border              Default border color
+ * --dx-number-input-border-hover        Border color on hover
+ * --dx-number-input-border-focus        Border color when focused
+ * --dx-number-input-border-error        Border color in error state
+ * --dx-number-input-text                Input text color
+ * --dx-number-input-placeholder         Placeholder text color
+ * --dx-number-input-disabled-bg         Background when disabled
+ * --dx-number-input-disabled-text       Text color when disabled
+ * --dx-number-input-border-radius       Corner radius
+ * --dx-number-input-transition          Transition timing
+ * --dx-number-input-stepper-color       Stepper button color
+ * --dx-number-input-stepper-hover       Stepper button hover color
+ * --dx-number-input-disabled-opacity    Opacity when disabled
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-number-input-{size}-height       Input height
+ * --dx-number-input-{size}-font-size    Font size
+ * --dx-number-input-{size}-padding-x    Horizontal padding
+ */
+
+:root {
+  /* ==========================================================================
+     Global Number Input Tokens
+     ========================================================================== */
+
+  --dx-number-input-bg: var(--color-field-bg);
+  --dx-number-input-border: var(--color-field-border);
+  --dx-number-input-border-hover: var(--color-field-border-hover);
+  --dx-number-input-border-focus: var(--color-field-border-focus);
+  --dx-number-input-border-error: var(--color-field-border-error);
+  --dx-number-input-text: var(--color-field-text);
+  --dx-number-input-placeholder: var(--color-field-placeholder);
+  --dx-number-input-disabled-bg: var(--color-field-disabled-bg);
+  --dx-number-input-disabled-text: var(--color-field-disabled-text);
+  --dx-number-input-border-radius: var(--radius-field);
+  --dx-number-input-transition: var(--transition-fast);
+  --dx-number-input-stepper-color: var(--color-text-subtle);
+  --dx-number-input-stepper-hover: var(--color-text);
+  --dx-number-input-disabled-opacity: var(--opacity-field-disabled);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-number-input-sm-height: var(--field-sm-height);
+  --dx-number-input-sm-font-size: var(--field-sm-font-size);
+  --dx-number-input-sm-padding-x: var(--field-sm-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-number-input-md-height: var(--field-md-height);
+  --dx-number-input-md-font-size: var(--field-md-font-size);
+  --dx-number-input-md-padding-x: var(--field-md-padding-x);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-number-input-lg-height: var(--field-lg-height);
+  --dx-number-input-lg-font-size: var(--field-lg-font-size);
+  --dx-number-input-lg-padding-x: var(--field-lg-padding-x);
+}

@@ -41,6 +41,7 @@ export { DanxSkeleton } from "./components/skeleton";
 export { DanxLoadingOverlay } from "./components/loading-overlay";
 export { DanxFieldWrapper } from "./components/field-wrapper";
 export { DanxInput } from "./components/input";
+export { DanxNumberInput } from "./components/number-input";
 export {
   DanxColorPicker,
   useRecentColors,
@@ -334,6 +335,7 @@ export type {
   DanxLoadingOverlaySlots,
 } from "./components/loading-overlay";
 export type { InputType, DanxInputProps, DanxInputEmits, DanxInputSlots } from "./components/input";
+export type { DanxNumberInputProps, DanxNumberInputEmits } from "./components/number-input";
 export type {
   DanxColorPickerProps,
   DanxColorPickerEmits,

@@ -192,6 +192,11 @@
       "import": "./dist/components/markdown-editor/index.js"
     },
     "./components/markdown-editor/styles": "./dist/components/markdown-editor/markdown-editor.css",
+    "./components/number-input": {
+      "types": "./dist/components/number-input/index.d.ts",
+      "import": "./dist/components/number-input/index.js"
+    },
+    "./components/number-input/styles": "./dist/components/number-input/number-input.css",
     "./components/popconfirm": {
       "types": "./dist/components/popconfirm/index.d.ts",
       "import": "./dist/components/popconfirm/index.js"
