@@ -40,7 +40,7 @@ import { DanxBadge } from "../../src/components/badge";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
 import { DanxTextarea } from "../../src/components/textarea";
-import { DanxSelect } from "../../src/components/select";
+import { DanxSelect, useSelect } from "../../src/components/select";
 import { useFormField } from "../../src/shared/composables/useFormField";
 import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
@@ -58,7 +58,12 @@ import {
   musicIcon,
   filePdfIcon,
 } from "../../src/components/icon";
-import { CodeViewer } from "../../src/components/code-viewer";
+import {
+  CodeViewer,
+  useCodeFormat,
+  useCodeViewerCollapse,
+  useCodeViewerEditor,
+} from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
 import {
   DanxDialog,
@@ -67,7 +72,7 @@ import {
   useDialogStack,
 } from "../../src/components/dialog";
 import { DanxPopover } from "../../src/components/popover";
-import { MarkdownEditor } from "../../src/components/markdown-editor";
+import { MarkdownEditor, useMarkdownEditor } from "../../src/components/markdown-editor";
 import { DanxButtonGroup } from "../../src/components/buttonGroup";
 import { DanxTabs } from "../../src/components/tabs";
 import { DanxToast, DanxToastContainer, useToast, useToastTimer } from "../../src/components/toast";
@@ -90,7 +95,20 @@ import {
 import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxToggle } from "../../src/components/toggle";
 import { DanxRangeSlider, useRangeSlider } from "../../src/components/range-slider";
-import { DanxColorPicker, useRecentColors } from "../../src/components/color-picker";
+import {
+  DanxColorPicker,
+  useRecentColors,
+  DEFAULT_SWATCHES,
+  parseColor,
+  formatColor,
+  hexToRgb,
+  rgbToHex,
+  rgbToHsv,
+  hsvToRgb,
+  rgbToHsl,
+  hslToRgb,
+  isHex,
+} from "../../src/components/color-picker";
 import { DanxEditableDiv } from "../../src/components/editable-div";
 import { DanxZoomable, DanxZoomControls, useZoomable } from "../../src/components/zoomable";
 import { DanxFile, useDanxFile } from "../../src/components/danx-file";
@@ -99,6 +117,8 @@ import {
   useFileUpload,
   setFileUploadHandler,
   getFileUploadHandler,
+  setFileChildrenHandler,
+  getFileChildrenHandler,
   uploadFileToUrl,
   isAcceptedType,
 } from "../../src/components/danx-file-upload";
@@ -134,10 +154,14 @@ import {
   registerList,
   unregisterList,
   removeObjectFromLists,
+  autoRefreshObject,
+  stopAutoRefreshObject,
 } from "../../src/shared/objectStore";
 import { request } from "../../src/shared/request";
 import { setDanxOptions, getDanxOptions } from "../../src/shared/config";
 import { FlashMessages } from "../../src/shared/flashMessages";
+import { sleep } from "../../src/shared/sleep";
+import { isJSON, isStructuredData, getNestedValue } from "../../src/shared";
 import { useActions, withDefaultActions } from "../../src/shared/actions";
 import { useActionRoutes } from "../../src/shared/actionRoutes";
 import { useActionStore } from "../../src/shared/actionStore";
@@ -411,6 +435,37 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   withDefaultActions,
   useActionRoutes,
   useActionStore,
+  // Code viewer composables
+  useCodeFormat,
+  useCodeViewerCollapse,
+  useCodeViewerEditor,
+  // Markdown editor composable
+  useMarkdownEditor,
+  // Select composable
+  useSelect,
+  // Color picker utilities
+  DEFAULT_SWATCHES,
+  parseColor,
+  formatColor,
+  hexToRgb,
+  rgbToHex,
+  rgbToHsv,
+  hsvToRgb,
+  rgbToHsl,
+  hslToRgb,
+  isHex,
+  // File upload children handlers
+  setFileChildrenHandler,
+  getFileChildrenHandler,
+  // Shared data format detection
+  isJSON,
+  isStructuredData,
+  getNestedValue,
+  // Sleep utility
+  sleep,
+  // Object store auto-refresh
+  autoRefreshObject,
+  stopAutoRefreshObject,
 };
 
 const DEBOUNCE_MS = 250;
