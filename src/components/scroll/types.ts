@@ -25,6 +25,10 @@ export interface UseDanxScrollReturn {
   hasVerticalOverflow: Ref<boolean>;
   /** Whether content overflows horizontally. */
   hasHorizontalOverflow: Ref<boolean>;
+  /** Vertical scroll position as a percentage (0-100) of the scrollable range. */
+  verticalScrollPercent: Ref<number>;
+  /** Horizontal scroll position as a percentage (0-100) of the scrollable range. */
+  horizontalScrollPercent: Ref<number>;
   /** Pointerdown handler for vertical thumb drag. */
   onVerticalThumbPointerDown: (e: PointerEvent) => void;
   /** Pointermove handler for vertical thumb drag (used with pointer capture). */
@@ -45,6 +49,12 @@ export interface UseDanxScrollReturn {
   onTrackMouseEnter: () => void;
   /** Mouseleave handler for track (allows auto-hide). */
   onTrackMouseLeave: () => void;
+  /** Keydown handler for the scrollable viewport (Arrow/PageUp/PageDown/Home/End). */
+  onViewportKeydown: (e: KeyboardEvent) => void;
+  /** Keydown handler for the vertical thumb (Arrow/PageUp/PageDown/Home/End). */
+  onVerticalThumbKeydown: (e: KeyboardEvent) => void;
+  /** Keydown handler for the horizontal thumb (Arrow/PageUp/PageDown/Home/End). */
+  onHorizontalThumbKeydown: (e: KeyboardEvent) => void;
 }
 
 /**

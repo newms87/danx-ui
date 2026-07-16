@@ -506,6 +506,292 @@ describe("useDanxScroll", () => {
     });
   });
 
+  describe("Scroll percent", () => {
+    it("computes vertical scroll percent", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 350 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      // 350 / (1000-300) * 100 = 50%
+      expect(result.verticalScrollPercent.value).toBe(50);
+    });
+
+    it("computes horizontal scroll percent", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 350,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      expect(result.horizontalScrollPercent.value).toBe(50);
+    });
+  });
+
+  describe("Viewport keyboard scroll", () => {
+    it("scrolls down on ArrowDown when vertical overflow present", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const event = createKeydownEvent("ArrowDown");
+      result.onViewportKeydown(event);
+
+      expect(el.scrollTop).toBe(40);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it("scrolls up on ArrowUp when vertical overflow present", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 100 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onViewportKeydown(createKeydownEvent("ArrowUp"));
+
+      expect(el.scrollTop).toBe(60);
+    });
+
+    it("ignores ArrowUp/ArrowDown when no vertical overflow", async () => {
+      const el = createMockElement({ scrollHeight: 300, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const event = createKeydownEvent("ArrowDown");
+      result.onViewportKeydown(event);
+
+      expect(el.scrollTop).toBe(0);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("scrolls right on ArrowRight when horizontal overflow present", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 0,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onViewportKeydown(createKeydownEvent("ArrowRight"));
+
+      expect(el.scrollLeft).toBe(40);
+    });
+
+    it("pages down on PageDown by clientHeight", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onViewportKeydown(createKeydownEvent("PageDown"));
+
+      expect(el.scrollTop).toBe(300);
+    });
+
+    it("pages up on PageUp by clientHeight", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 500 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onViewportKeydown(createKeydownEvent("PageUp"));
+
+      expect(el.scrollTop).toBe(200);
+    });
+
+    it("jumps to start on Home", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 500 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onViewportKeydown(createKeydownEvent("Home"));
+
+      expect(el.scrollTop).toBe(0);
+    });
+
+    it("jumps to end on End", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onViewportKeydown(createKeydownEvent("End"));
+
+      expect(el.scrollTop).toBe(1000);
+    });
+
+    it("ignores unrelated keys", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const event = createKeydownEvent("Tab");
+      result.onViewportKeydown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("is a no-op when container is null", () => {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      // Should not throw
+      result.onViewportKeydown(createKeydownEvent("ArrowDown"));
+    });
+  });
+
+  describe("Thumb keyboard scroll", () => {
+    it("scrolls vertical thumb with ArrowUp/ArrowDown", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 100 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onVerticalThumbKeydown(createKeydownEvent("ArrowDown"));
+      expect(el.scrollTop).toBe(140);
+
+      result.onVerticalThumbKeydown(createKeydownEvent("ArrowUp"));
+      expect(el.scrollTop).toBe(100);
+    });
+
+    it("jumps vertical thumb to start/end with Home/End", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 100 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onVerticalThumbKeydown(createKeydownEvent("End"));
+      expect(el.scrollTop).toBe(1000);
+
+      result.onVerticalThumbKeydown(createKeydownEvent("Home"));
+      expect(el.scrollTop).toBe(0);
+    });
+
+    it("scrolls horizontal thumb with ArrowLeft/ArrowRight", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 100,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onHorizontalThumbKeydown(createKeydownEvent("ArrowRight"));
+      expect(el.scrollLeft).toBe(140);
+
+      result.onHorizontalThumbKeydown(createKeydownEvent("ArrowLeft"));
+      expect(el.scrollLeft).toBe(100);
+    });
+
+    it("jumps horizontal thumb to start/end with Home/End", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 100,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onHorizontalThumbKeydown(createKeydownEvent("End"));
+      expect(el.scrollLeft).toBe(1000);
+
+      result.onHorizontalThumbKeydown(createKeydownEvent("Home"));
+      expect(el.scrollLeft).toBe(0);
+    });
+
+    it("pages horizontal thumb with PageUp/PageDown by clientWidth", async () => {
+      const el = createMockElement({
+        scrollWidth: 1000,
+        clientWidth: 300,
+        scrollLeft: 400,
+        scrollHeight: 300,
+        clientHeight: 300,
+      });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      result.onHorizontalThumbKeydown(createKeydownEvent("PageDown"));
+      expect(el.scrollLeft).toBe(700);
+
+      result.onHorizontalThumbKeydown(createKeydownEvent("PageUp"));
+      expect(el.scrollLeft).toBe(400);
+    });
+
+    it("ignores unrelated keys on thumbs and does not preventDefault", async () => {
+      const el = createMockElement({ scrollHeight: 1000, clientHeight: 300, scrollTop: 0 });
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      containerEl.value = el;
+      await nextTick();
+
+      const event = createKeydownEvent("Tab");
+      result.onVerticalThumbKeydown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("is a no-op when container is null", () => {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+
+      result.onVerticalThumbKeydown(createKeydownEvent("ArrowDown"));
+      result.onHorizontalThumbKeydown(createKeydownEvent("ArrowRight"));
+    });
+  });
+
   describe("Cleanup", () => {
     it("removes event listeners on unmount", async () => {
       const el = createMockElement({ scrollHeight: 1000, clientHeight: 300 });
@@ -659,6 +945,12 @@ describe("useDanxScroll", () => {
       result.onHorizontalThumbPointerUp(createPointerEvent("pointerup"));
     });
   });
+
+  function createKeydownEvent(key: string): KeyboardEvent {
+    const event = new KeyboardEvent("keydown", { key });
+    Object.defineProperty(event, "preventDefault", { value: vi.fn() });
+    return event;
+  }
 
   function createPointerEvent(type: string, props: Record<string, unknown> = {}): PointerEvent {
     const event = new PointerEvent(type, { ...props, pointerId: 1 });

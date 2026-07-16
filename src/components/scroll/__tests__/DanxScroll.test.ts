@@ -29,6 +29,8 @@ function createScrollReturn(overrides: Record<string, any> = {}) {
     isHorizontalVisible: ref(false),
     hasVerticalOverflow: ref(false),
     hasHorizontalOverflow: ref(false),
+    verticalScrollPercent: ref(0),
+    horizontalScrollPercent: ref(0),
     onVerticalThumbPointerDown: vi.fn(),
     onVerticalThumbPointerMove: vi.fn(),
     onVerticalThumbPointerUp: vi.fn(),
@@ -39,6 +41,9 @@ function createScrollReturn(overrides: Record<string, any> = {}) {
     onHorizontalTrackClick: vi.fn(),
     onTrackMouseEnter: vi.fn(),
     onTrackMouseLeave: vi.fn(),
+    onViewportKeydown: vi.fn(),
+    onVerticalThumbKeydown: vi.fn(),
+    onHorizontalThumbKeydown: vi.fn(),
     ...overrides,
   };
 }
@@ -425,6 +430,102 @@ describe("DanxScroll", () => {
 
       await track.trigger("mouseleave");
       expect(onTrackMouseLeave).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe("Keyboard accessibility", () => {
+    it("sets tabindex=0 on viewport when content overflows vertically", () => {
+      mockUseDanxScroll.mockReturnValue(createScrollReturn({ hasVerticalOverflow: ref(true) }));
+      const wrapper = mountComponent({ direction: "vertical" });
+
+      expect(wrapper.find(".danx-scroll__viewport").attributes("tabindex")).toBe("0");
+    });
+
+    it("sets tabindex=0 on viewport when content overflows horizontally", () => {
+      mockUseDanxScroll.mockReturnValue(createScrollReturn({ hasHorizontalOverflow: ref(true) }));
+      const wrapper = mountComponent({ direction: "horizontal" });
+
+      expect(wrapper.find(".danx-scroll__viewport").attributes("tabindex")).toBe("0");
+    });
+
+    it("omits tabindex on viewport when content does not overflow", () => {
+      mockUseDanxScroll.mockReturnValue(createScrollReturn());
+      const wrapper = mountComponent();
+
+      expect(wrapper.find(".danx-scroll__viewport").attributes("tabindex")).toBeUndefined();
+    });
+
+    it("wires keydown on viewport to composable handler", async () => {
+      const onViewportKeydown = vi.fn();
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({ hasVerticalOverflow: ref(true), onViewportKeydown })
+      );
+      const wrapper = mountComponent({ direction: "vertical" });
+
+      await wrapper.find(".danx-scroll__viewport").trigger("keydown", { key: "ArrowDown" });
+      expect(onViewportKeydown).toHaveBeenCalled();
+    });
+
+    it("gives the vertical thumb role=scrollbar, aria-value* and tabindex", () => {
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({
+          hasVerticalOverflow: ref(true),
+          verticalScrollPercent: ref(42),
+        })
+      );
+      const wrapper = mountComponent({ direction: "vertical" });
+
+      const thumb = wrapper.find(".danx-scroll__track--vertical .danx-scroll__thumb");
+      expect(thumb.attributes("role")).toBe("scrollbar");
+      expect(thumb.attributes("aria-orientation")).toBe("vertical");
+      expect(thumb.attributes("aria-valuemin")).toBe("0");
+      expect(thumb.attributes("aria-valuemax")).toBe("100");
+      expect(thumb.attributes("aria-valuenow")).toBe("42");
+      expect(thumb.attributes("tabindex")).toBe("0");
+    });
+
+    it("gives the horizontal thumb role=scrollbar, aria-value* and tabindex", () => {
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({
+          hasHorizontalOverflow: ref(true),
+          horizontalScrollPercent: ref(17),
+        })
+      );
+      const wrapper = mountComponent({ direction: "horizontal" });
+
+      const thumb = wrapper.find(".danx-scroll__track--horizontal .danx-scroll__thumb");
+      expect(thumb.attributes("role")).toBe("scrollbar");
+      expect(thumb.attributes("aria-orientation")).toBe("horizontal");
+      expect(thumb.attributes("aria-valuemin")).toBe("0");
+      expect(thumb.attributes("aria-valuemax")).toBe("100");
+      expect(thumb.attributes("aria-valuenow")).toBe("17");
+      expect(thumb.attributes("tabindex")).toBe("0");
+    });
+
+    it("wires keydown on vertical thumb to composable handler", async () => {
+      const onVerticalThumbKeydown = vi.fn();
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({ hasVerticalOverflow: ref(true), onVerticalThumbKeydown })
+      );
+      const wrapper = mountComponent({ direction: "vertical" });
+
+      await wrapper
+        .find(".danx-scroll__track--vertical .danx-scroll__thumb")
+        .trigger("keydown", { key: "ArrowUp" });
+      expect(onVerticalThumbKeydown).toHaveBeenCalled();
+    });
+
+    it("wires keydown on horizontal thumb to composable handler", async () => {
+      const onHorizontalThumbKeydown = vi.fn();
+      mockUseDanxScroll.mockReturnValue(
+        createScrollReturn({ hasHorizontalOverflow: ref(true), onHorizontalThumbKeydown })
+      );
+      const wrapper = mountComponent({ direction: "horizontal" });
+
+      await wrapper
+        .find(".danx-scroll__track--horizontal .danx-scroll__thumb")
+        .trigger("keydown", { key: "ArrowLeft" });
+      expect(onHorizontalThumbKeydown).toHaveBeenCalled();
     });
   });
 

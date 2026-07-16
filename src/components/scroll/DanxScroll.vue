@@ -112,6 +112,8 @@ const {
   isHorizontalVisible,
   hasVerticalOverflow,
   hasHorizontalOverflow,
+  verticalScrollPercent,
+  horizontalScrollPercent,
   onVerticalThumbPointerDown,
   onVerticalThumbPointerMove,
   onVerticalThumbPointerUp,
@@ -122,7 +124,14 @@ const {
   onHorizontalTrackClick,
   onTrackMouseEnter,
   onTrackMouseLeave,
+  onViewportKeydown,
+  onVerticalThumbKeydown,
+  onHorizontalThumbKeydown,
 } = useDanxScroll(viewportRef, { persistent: props.persistent });
+
+const isViewportFocusable = computed(
+  () => hasVerticalOverflow.value || hasHorizontalOverflow.value
+);
 
 // Opt-in infinite scroll
 setupScrollInfinite(viewportRef, props, emit);
@@ -154,7 +163,12 @@ const wrapperStyle = computed(() => ({
 <template>
   <component :is="tag" :class="wrapperClasses" :style="wrapperStyle">
     <!-- Scrollable viewport -->
-    <div ref="viewportRef" class="danx-scroll__viewport">
+    <div
+      ref="viewportRef"
+      class="danx-scroll__viewport"
+      :tabindex="isViewportFocusable ? 0 : undefined"
+      @keydown="onViewportKeydown"
+    >
       <slot />
 
       <!-- Infinite scroll indicators (CSS order: -1 positions before content for top/left) -->
@@ -189,10 +203,17 @@ const wrapperStyle = computed(() => ({
     >
       <div
         class="danx-scroll__thumb"
+        role="scrollbar"
+        aria-orientation="vertical"
+        :aria-valuemin="0"
+        :aria-valuemax="100"
+        :aria-valuenow="verticalScrollPercent"
+        tabindex="0"
         :style="verticalThumbStyle"
         @pointerdown="onVerticalThumbPointerDown"
         @pointermove="onVerticalThumbPointerMove"
         @pointerup="onVerticalThumbPointerUp"
+        @keydown="onVerticalThumbKeydown"
       />
     </div>
 
@@ -206,10 +227,17 @@ const wrapperStyle = computed(() => ({
     >
       <div
         class="danx-scroll__thumb"
+        role="scrollbar"
+        aria-orientation="horizontal"
+        :aria-valuemin="0"
+        :aria-valuemax="100"
+        :aria-valuenow="horizontalScrollPercent"
+        tabindex="0"
         :style="horizontalThumbStyle"
         @pointerdown="onHorizontalThumbPointerDown"
         @pointermove="onHorizontalThumbPointerMove"
         @pointerup="onHorizontalThumbPointerUp"
+        @keydown="onHorizontalThumbKeydown"
       />
     </div>
   </component>

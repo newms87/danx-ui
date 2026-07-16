@@ -19,6 +19,7 @@ export type { UseDanxScrollOptions, UseDanxScrollReturn } from "./types";
 
 const AUTO_HIDE_DELAY = 1200;
 const MIN_THUMB_PX = 24;
+const KEY_SCROLL_STEP = 40;
 
 /**
  * Compute thumb size and position for one axis.
@@ -62,6 +63,10 @@ export function useDanxScroll(
   const verticalThumbStyle = ref<CSSProperties>({});
   const horizontalThumbStyle = ref<CSSProperties>({});
 
+  // Scroll position as a percentage of the scrollable range, for aria-valuenow
+  const verticalScrollPercent = ref(0);
+  const horizontalScrollPercent = ref(0);
+
   // Visibility state
   const isScrolling = ref(false);
   const isHoveringTrack = ref(false);
@@ -98,11 +103,13 @@ export function useDanxScroll(
     // Vertical thumb
     if (hasVerticalOverflow.value) {
       verticalThumbStyle.value = computeThumbStyle(clientHeight, scrollHeight, scrollTop, "Y");
+      verticalScrollPercent.value = Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
     }
 
     // Horizontal thumb
     if (hasHorizontalOverflow.value) {
       horizontalThumbStyle.value = computeThumbStyle(clientWidth, scrollWidth, scrollLeft, "X");
+      horizontalScrollPercent.value = Math.round((scrollLeft / (scrollWidth - clientWidth)) * 100);
     }
   }
 
@@ -195,6 +202,111 @@ export function useDanxScroll(
     updateVisibility();
   }
 
+  // Keyboard scroll — viewport (Arrow/PageUp/PageDown/Home/End)
+  function onViewportKeydown(e: KeyboardEvent) {
+    const el = containerEl.value;
+    if (!el) return;
+    let handled = true;
+
+    switch (e.key) {
+      case "ArrowDown":
+        if (hasVerticalOverflow.value) el.scrollTop += KEY_SCROLL_STEP;
+        else handled = false;
+        break;
+      case "ArrowUp":
+        if (hasVerticalOverflow.value) el.scrollTop -= KEY_SCROLL_STEP;
+        else handled = false;
+        break;
+      case "ArrowRight":
+        if (hasHorizontalOverflow.value) el.scrollLeft += KEY_SCROLL_STEP;
+        else handled = false;
+        break;
+      case "ArrowLeft":
+        if (hasHorizontalOverflow.value) el.scrollLeft -= KEY_SCROLL_STEP;
+        else handled = false;
+        break;
+      case "PageDown":
+        if (hasVerticalOverflow.value) el.scrollTop += el.clientHeight;
+        else handled = false;
+        break;
+      case "PageUp":
+        if (hasVerticalOverflow.value) el.scrollTop -= el.clientHeight;
+        else handled = false;
+        break;
+      case "Home":
+        if (hasVerticalOverflow.value) el.scrollTop = 0;
+        else if (hasHorizontalOverflow.value) el.scrollLeft = 0;
+        else handled = false;
+        break;
+      case "End":
+        if (hasVerticalOverflow.value) el.scrollTop = el.scrollHeight;
+        else if (hasHorizontalOverflow.value) el.scrollLeft = el.scrollWidth;
+        else handled = false;
+        break;
+      default:
+        handled = false;
+    }
+
+    if (handled) e.preventDefault();
+  }
+
+  // Keyboard scroll — thumb (arrow keys along the thumb's own axis, plus Home/End)
+  function onThumbKeydown(axis: "vertical" | "horizontal", e: KeyboardEvent) {
+    const el = containerEl.value;
+    if (!el) return;
+    let handled = true;
+
+    if (axis === "vertical") {
+      switch (e.key) {
+        case "ArrowUp":
+          el.scrollTop -= KEY_SCROLL_STEP;
+          break;
+        case "ArrowDown":
+          el.scrollTop += KEY_SCROLL_STEP;
+          break;
+        case "PageUp":
+          el.scrollTop -= el.clientHeight;
+          break;
+        case "PageDown":
+          el.scrollTop += el.clientHeight;
+          break;
+        case "Home":
+          el.scrollTop = 0;
+          break;
+        case "End":
+          el.scrollTop = el.scrollHeight;
+          break;
+        default:
+          handled = false;
+      }
+    } else {
+      switch (e.key) {
+        case "ArrowLeft":
+          el.scrollLeft -= KEY_SCROLL_STEP;
+          break;
+        case "ArrowRight":
+          el.scrollLeft += KEY_SCROLL_STEP;
+          break;
+        case "PageUp":
+          el.scrollLeft -= el.clientWidth;
+          break;
+        case "PageDown":
+          el.scrollLeft += el.clientWidth;
+          break;
+        case "Home":
+          el.scrollLeft = 0;
+          break;
+        case "End":
+          el.scrollLeft = el.scrollWidth;
+          break;
+        default:
+          handled = false;
+      }
+    }
+
+    if (handled) e.preventDefault();
+  }
+
   // ResizeObserver for content changes
   let resizeObserver: ResizeObserver | null = null;
 
@@ -247,6 +359,8 @@ export function useDanxScroll(
     isHorizontalVisible,
     hasVerticalOverflow,
     hasHorizontalOverflow,
+    verticalScrollPercent,
+    horizontalScrollPercent,
     onVerticalThumbPointerDown,
     onVerticalThumbPointerMove: onDragMove,
     onVerticalThumbPointerUp: onDragEnd,
@@ -257,5 +371,8 @@ export function useDanxScroll(
     onHorizontalTrackClick: (e: MouseEvent) => onTrackClick("horizontal", e),
     onTrackMouseEnter,
     onTrackMouseLeave,
+    onViewportKeydown,
+    onVerticalThumbKeydown: (e: KeyboardEvent) => onThumbKeydown("vertical", e),
+    onHorizontalThumbKeydown: (e: KeyboardEvent) => onThumbKeydown("horizontal", e),
   };
 }
