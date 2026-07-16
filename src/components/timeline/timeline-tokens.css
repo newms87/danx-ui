@@ -1,0 +1,41 @@
+/**
+ * DanxTimeline Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize timeline appearance.
+ *
+ * CSS Tokens:
+ * --dx-timeline-gap                Vertical gap below each item's content
+ * --dx-timeline-marker-size        Marker diameter
+ * --dx-timeline-marker-default-bg  Default (no type) marker background
+ * --dx-timeline-marker-success-bg  Success marker background
+ * --dx-timeline-marker-error-bg    Error marker background
+ * --dx-timeline-marker-warning-bg  Warning marker background
+ * --dx-timeline-marker-info-bg     Info marker background
+ * --dx-timeline-marker-text        Marker icon color
+ * --dx-timeline-connector-color    Connector line color
+ * --dx-timeline-connector-thickness Connector line thickness
+ * --dx-timeline-timestamp-color    Timestamp text color
+ * --dx-timeline-timestamp-font-size Timestamp font size
+ * --dx-timeline-content-color      Content text color
+ */
+
+:root {
+  --dx-timeline-gap: var(--spacing-6);
+  --dx-timeline-content-gap: var(--spacing-4);
+
+  --dx-timeline-marker-size: 1.5rem;
+  --dx-timeline-marker-default-bg: var(--color-text-muted);
+  --dx-timeline-marker-success-bg: var(--color-success);
+  --dx-timeline-marker-error-bg: var(--color-danger);
+  --dx-timeline-marker-warning-bg: var(--color-warning);
+  --dx-timeline-marker-info-bg: var(--color-info);
+  --dx-timeline-marker-text: var(--color-text-inverted);
+
+  --dx-timeline-connector-color: var(--color-border);
+  --dx-timeline-connector-thickness: 2px;
+
+  --dx-timeline-timestamp-color: var(--color-text-muted);
+  --dx-timeline-timestamp-font-size: var(--text-xs);
+  --dx-timeline-content-color: var(--color-text);
+}

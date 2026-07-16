@@ -247,6 +247,11 @@
       "import": "./dist/components/textarea/index.js"
     },
     "./components/textarea/styles": "./dist/components/textarea/textarea.css",
+    "./components/timeline": {
+      "types": "./dist/components/timeline/index.d.ts",
+      "import": "./dist/components/timeline/index.js"
+    },
+    "./components/timeline/styles": "./dist/components/timeline/timeline.css",
     "./components/toast": {
       "types": "./dist/components/toast/index.d.ts",
       "import": "./dist/components/toast/index.js"

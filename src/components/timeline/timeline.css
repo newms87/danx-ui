@@ -1,0 +1,108 @@
+/**
+ * DanxTimeline Styles
+ *
+ * Component styles for the vertical timeline list. Uses native CSS nesting.
+ * BEM modifiers are top-level blocks per Lightning CSS requirements.
+ */
+
+@import "./timeline-tokens.css";
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.danx-timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ==========================================================================
+   Item
+   ========================================================================== */
+
+.danx-timeline-item {
+  display: flex;
+  align-items: stretch;
+}
+
+.danx-timeline-item:last-child .danx-timeline-item__connector {
+  display: none;
+}
+
+/* ==========================================================================
+   Rail (marker + connector)
+   ========================================================================== */
+
+.danx-timeline-item__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.danx-timeline-item__marker {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-timeline-marker-size);
+  height: var(--dx-timeline-marker-size);
+  color: var(--dx-timeline-marker-text);
+  background: var(--dx-timeline-marker-default-bg);
+  border-radius: 9999px;
+}
+
+.is-success .danx-timeline-item__marker {
+  background: var(--dx-timeline-marker-success-bg);
+}
+
+.is-error .danx-timeline-item__marker {
+  background: var(--dx-timeline-marker-error-bg);
+}
+
+.is-warning .danx-timeline-item__marker {
+  background: var(--dx-timeline-marker-warning-bg);
+}
+
+.is-info .danx-timeline-item__marker {
+  background: var(--dx-timeline-marker-info-bg);
+}
+
+.danx-timeline-item__icon {
+  width: 0.75em;
+  height: 0.75em;
+}
+
+.danx-timeline-item__connector {
+  flex: 1;
+  width: var(--dx-timeline-connector-thickness);
+  min-height: var(--spacing-4);
+  margin-block: var(--spacing-1);
+  background: var(--dx-timeline-connector-color);
+}
+
+/* ==========================================================================
+   Content
+   ========================================================================== */
+
+.danx-timeline-item__content {
+  flex: 1;
+  padding-bottom: var(--dx-timeline-gap);
+  margin-left: var(--dx-timeline-content-gap);
+}
+
+.danx-timeline-item:last-child .danx-timeline-item__content {
+  padding-bottom: 0;
+}
+
+.danx-timeline-item__timestamp {
+  font-size: var(--dx-timeline-timestamp-font-size);
+  color: var(--dx-timeline-timestamp-color);
+}
+
+.danx-timeline-item__body {
+  color: var(--dx-timeline-content-color);
+}

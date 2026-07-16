@@ -172,6 +172,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/stepper" class="demo-sidebar__link">Stepper</RouterLink>
               </li>
               <li>
+                <RouterLink to="/timeline" class="demo-sidebar__link">Timeline</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/progress-bar" class="demo-sidebar__link">Progress Bar</RouterLink>
               </li>
               <li>

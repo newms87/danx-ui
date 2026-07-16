@@ -44,6 +44,7 @@ import { DanxInput } from "../../src/components/input";
 import { DanxTextarea } from "../../src/components/textarea";
 import { DanxSelect, useSelect } from "../../src/components/select";
 import { DanxStepper } from "../../src/components/stepper";
+import { DanxTimeline, DanxTimelineItem } from "../../src/components/timeline";
 import { useFormField } from "../../src/shared/composables/useFormField";
 import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
 import { passwordStrength } from "../../src/shared/passwordStrength";
@@ -258,6 +259,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButtonGroup,
   DanxTabs,
   DanxStepper,
+  DanxTimeline,
+  DanxTimelineItem,
   DanxToast,
   DanxToastContainer,
   DanxTooltip,
@@ -328,6 +331,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxButtonGroup,
   DanxTabs,
   DanxStepper,
+  DanxTimeline,
+  DanxTimelineItem,
   DanxToast,
   DanxToastContainer,
   useToast,
