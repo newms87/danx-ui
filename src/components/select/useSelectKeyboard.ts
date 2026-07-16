@@ -11,6 +11,9 @@
 import { type ComputedRef, nextTick, type Ref } from "vue";
 import type { SelectOption } from "./types";
 
+/** Idle window (ms) after which the type-ahead character buffer resets */
+const TYPEAHEAD_RESET_MS = 500;
+
 export interface UseSelectKeyboardOptions {
   /** Unique select ID for generating option element IDs */
   selectId: string;
@@ -26,6 +29,9 @@ export interface UseSelectKeyboardOptions {
 
   /** Whether the creatable "Create X" option is visible */
   showCreateOption: ComputedRef<boolean>;
+
+  /** Whether the search input is shown - when true, letter-key type-ahead is disabled */
+  filterable: ComputedRef<boolean>;
 
   /** Open the dropdown */
   openDropdown: () => void;
@@ -57,11 +63,15 @@ export function useSelectKeyboard({
   highlightedIndex,
   isOpen,
   showCreateOption,
+  filterable,
   openDropdown,
   closeDropdown,
   toggleOption,
   handleCreate,
 }: UseSelectKeyboardOptions): UseSelectKeyboardReturn {
+  let typeaheadBuffer = "";
+  let typeaheadTimer: ReturnType<typeof setTimeout> | undefined;
+
   function optionId(index: number): string {
     return `${selectId}-option-${index}`;
   }
@@ -100,6 +110,51 @@ export function useSelectKeyboard({
       const el = document.getElementById(optionId(highlightedIndex.value));
       el?.scrollIntoView({ block: "nearest" });
     });
+  }
+
+  function resetTypeahead(): void {
+    typeaheadBuffer = "";
+    if (typeaheadTimer !== undefined) {
+      clearTimeout(typeaheadTimer);
+      typeaheadTimer = undefined;
+    }
+  }
+
+  function handleTypeahead(char: string): void {
+    if (typeaheadTimer !== undefined) clearTimeout(typeaheadTimer);
+
+    const lower = char.toLowerCase();
+    // Repeating the same character cycles through matches instead of
+    // growing the prefix (e.g. "c", "c", "c" cycles California/Colorado/...
+    // rather than searching for "ccc").
+    const isRepeatOfSameChar =
+      typeaheadBuffer.length > 0 && [...typeaheadBuffer].every((c) => c === lower);
+    typeaheadBuffer = isRepeatOfSameChar ? lower : typeaheadBuffer + lower;
+    typeaheadTimer = setTimeout(resetTypeahead, TYPEAHEAD_RESET_MS);
+
+    const opts = filteredOptions.value;
+    if (opts.length === 0) return;
+
+    const startIdx = isOpen.value ? highlightedIndex.value : -1;
+    const matchesBuffer = (opt: SelectOption): boolean =>
+      !opt.disabled && opt.label.toLowerCase().startsWith(typeaheadBuffer);
+
+    // Search forward from just after the current highlight, wrapping around,
+    // so repeated presses of the same letter cycle through all matches.
+    for (let offset = 1; offset <= opts.length; offset++) {
+      const idx = (startIdx + offset) % opts.length;
+      const opt = opts[idx];
+      if (opt && matchesBuffer(opt)) {
+        if (!isOpen.value) openDropdown();
+        highlightedIndex.value = idx;
+        scrollHighlightedIntoView();
+        return;
+      }
+    }
+  }
+
+  function isPrintableSingleChar(event: KeyboardEvent): boolean {
+    return event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
   }
 
   function handleKeydown(event: KeyboardEvent): void {
@@ -163,6 +218,15 @@ export function useSelectKeyboard({
         if (isOpen.value) {
           highlightedIndex.value = findLastEnabledIndex();
           scrollHighlightedIntoView();
+        }
+        break;
+
+      default:
+        // DXUI-183: letter-key type-ahead only makes sense when there's no
+        // search input already doing this job.
+        if (!filterable.value && isPrintableSingleChar(event)) {
+          event.preventDefault();
+          handleTypeahead(event.key);
         }
         break;
     }

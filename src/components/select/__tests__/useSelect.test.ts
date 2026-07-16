@@ -546,9 +546,9 @@ describe("useSelect", () => {
       expect(result.isOpen.value).toBe(false);
     });
 
-    it("does nothing for unhandled keys", () => {
+    it("does nothing for unhandled keys with no matching option", () => {
       const { result } = createSelect(null);
-      result.handleKeydown(new KeyboardEvent("keydown", { key: "a" }));
+      result.handleKeydown(new KeyboardEvent("keydown", { key: "z" }));
       expect(result.isOpen.value).toBe(false);
     });
 

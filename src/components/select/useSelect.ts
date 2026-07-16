@@ -267,12 +267,15 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
   // Keyboard Navigation (delegated to useSelectKeyboard)
   // ---------------------------------------------------------------------------
 
+  const filterable = computed(() => props.filterable ?? false);
+
   const { handleKeydown, findFirstEnabledIndex } = useSelectKeyboard({
     selectId,
     filteredOptions,
     highlightedIndex,
     isOpen,
     showCreateOption,
+    filterable,
     openDropdown,
     closeDropdown,
     toggleOption,
