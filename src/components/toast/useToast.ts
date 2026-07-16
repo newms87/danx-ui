@@ -10,6 +10,13 @@
  * already exists, its count is incremented and timer reset instead of
  * creating a duplicate.
  *
+ * Max visible / queueing: Each bucket (screen position, or target element
+ * for anchored toasts) allows at most `maxVisible` toasts at once (default 5,
+ * configurable via `setDanxOptions({ toasts: { maxVisible } })`). A new toast
+ * that would exceed the bucket's cap is queued FIFO and displayed once an
+ * earlier toast in that bucket dismisses — chosen over evict-oldest so a
+ * burst of toasts never force-dismisses a message the user hasn't seen yet.
+ *
  * Container detection: If toast() is called before a DanxToastContainer
  * is mounted, a dev-mode console warning is logged.
  *
@@ -20,6 +27,7 @@ import { ref, type Ref } from "vue";
 import type { ToastEntry, ToastOptions, ToastPosition } from "./types";
 import type { VariantType } from "../../shared/types";
 import { uid } from "../../shared/uid";
+import { getDanxOptions } from "../../shared/config";
 
 /** Default values for toast options */
 const DEFAULTS = {
@@ -30,15 +38,42 @@ const DEFAULTS = {
   targetPlacement: "top" as const,
 } as const;
 
+/** Fallback cap per bucket when `toasts.maxVisible` is not configured */
+const DEFAULT_MAX_VISIBLE = 5;
+
 /** Module-level singleton state */
 const toasts = ref<ToastEntry[]>([]);
+const queue = ref<ToastEntry[]>([]);
 const containerMounted = ref(false);
+
+function getMaxVisible(): number {
+  return getDanxOptions().toasts?.maxVisible ?? DEFAULT_MAX_VISIBLE;
+}
+
+/** Bucket key for the max-visible cap: target-anchored toasts bucket per
+ *  element (matching the container's per-target regions), screen-anchored
+ *  toasts bucket per position. */
+function bucketKey(position: ToastPosition, target?: HTMLElement): HTMLElement | ToastPosition {
+  return target ?? position;
+}
+
+function visibleCountInBucket(key: HTMLElement | ToastPosition): number {
+  return toasts.value.filter((t) => bucketKey(t.position, t.target) === key).length;
+}
+
+/** Promote the oldest queued entry for this bucket into the visible list, if any. */
+function promoteFromQueue(key: HTMLElement | ToastPosition): void {
+  const index = queue.value.findIndex((t) => bucketKey(t.position, t.target) === key);
+  if (index === -1) return;
+  const [entry] = queue.value.splice(index, 1);
+  if (entry) toasts.value.push(entry);
+}
 
 function generateId(): string {
   return `toast-${uid()}`;
 }
 
-/** Find an existing toast that matches for deduplication.
+/** Find an existing toast that matches for deduplication (visible or queued).
  *  Matches on message + variant + position + target (same element or both undefined). */
 function findDuplicate(
   message: string,
@@ -46,13 +81,12 @@ function findDuplicate(
   position: ToastPosition,
   target?: HTMLElement
 ): ToastEntry | undefined {
-  return toasts.value.find(
-    (t) =>
-      t.message === message &&
-      t.variant === variant &&
-      t.position === position &&
-      t.target === target
-  );
+  const matches = (t: ToastEntry): boolean =>
+    t.message === message &&
+    t.variant === variant &&
+    t.position === position &&
+    t.target === target;
+  return toasts.value.find(matches) ?? queue.value.find(matches);
 }
 
 /** Callbacks registered by DanxToast instances for timer resets on dedup */
@@ -106,7 +140,12 @@ function toast(message: string, options?: Omit<ToastOptions, "message">): string
     createdAt: Date.now(),
   };
 
-  toasts.value.push(entry);
+  const key = bucketKey(entry.position, entry.target);
+  if (visibleCountInBucket(key) >= getMaxVisible()) {
+    queue.value.push(entry);
+  } else {
+    toasts.value.push(entry);
+  }
   return entry.id;
 }
 
@@ -129,19 +168,30 @@ function info(message: string, options?: Omit<ToastOptions, "message" | "variant
 function dismiss(id: string): void {
   const index = toasts.value.findIndex((t) => t.id === id);
   if (index !== -1) {
-    timerResetCallbacks.delete(toasts.value[index]!.id);
-    toasts.value.splice(index, 1);
+    const [entry] = toasts.value.splice(index, 1);
+    timerResetCallbacks.delete(id);
+    if (entry) promoteFromQueue(bucketKey(entry.position, entry.target));
+    return;
+  }
+
+  const queuedIndex = queue.value.findIndex((t) => t.id === id);
+  if (queuedIndex !== -1) {
+    queue.value.splice(queuedIndex, 1);
   }
 }
 
 function dismissAll(): void {
   timerResetCallbacks.clear();
   toasts.value.splice(0, toasts.value.length);
+  queue.value.splice(0, queue.value.length);
 }
 
 export interface UseToastReturn {
-  /** Reactive list of all active toasts */
+  /** Reactive list of all active (visible) toasts */
   toasts: Ref<ToastEntry[]>;
+
+  /** Reactive list of toasts queued because their bucket is at maxVisible */
+  queuedToasts: Ref<ToastEntry[]>;
 
   /** Add a toast, returns its ID */
   toast: (message: string, options?: Omit<ToastOptions, "message">) => string;
@@ -171,6 +221,7 @@ export interface UseToastReturn {
 export function useToast(): UseToastReturn {
   return {
     toasts,
+    queuedToasts: queue,
     toast,
     success,
     danger,

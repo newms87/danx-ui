@@ -30,10 +30,19 @@ export interface DanxFlashMessageOptions {
   error?: Partial<ToastOptions>;
 }
 
+/** Global toast behavior configuration. */
+export interface DanxToastOptions {
+  /** Max toasts shown at once per position/target bucket (default: 5).
+   *  Overflow is queued FIFO and displayed as earlier toasts in that bucket dismiss. */
+  maxVisible?: number;
+}
+
 /** Ambient configuration for the danx-ui reactive data layer. */
 export interface DanxOptions {
   /** HTTP request configuration. */
   request?: DanxRequestOptions;
   /** Default flash-message (toast) options per severity. */
   flashMessages?: DanxFlashMessageOptions;
+  /** Global toast behavior (e.g. max visible per bucket). */
+  toasts?: DanxToastOptions;
 }

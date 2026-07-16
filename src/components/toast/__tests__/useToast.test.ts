@@ -1,8 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useToast } from "../useToast";
+import { danxOptions, setDanxOptions } from "../../../shared/config";
 
 describe("useToast", () => {
   let api: ReturnType<typeof useToast>;
+  const initialDanxOptions = danxOptions.value;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -11,6 +13,10 @@ describe("useToast", () => {
     api.dismissAll();
     // Mark container as mounted to suppress dev warnings
     api.containerMounted.value = true;
+  });
+
+  afterEach(() => {
+    danxOptions.value = initialDanxOptions;
   });
 
   describe("toast()", () => {
@@ -229,6 +235,90 @@ describe("useToast", () => {
       api.toast("Normal toast");
       expect(warnSpy).not.toHaveBeenCalled();
       warnSpy.mockRestore();
+    });
+  });
+
+  describe("maxVisible / queueing", () => {
+    it("defaults to a max of 5 visible toasts per position, queueing the rest", () => {
+      for (let i = 0; i < 7; i++) api.toast(`Toast ${i}`);
+      expect(api.toasts.value).toHaveLength(5);
+      expect(api.queuedToasts.value).toHaveLength(2);
+    });
+
+    it("respects a configured maxVisible", () => {
+      setDanxOptions({ toasts: { maxVisible: 2 } });
+      api.toast("One");
+      api.toast("Two");
+      api.toast("Three");
+      expect(api.toasts.value).toHaveLength(2);
+      expect(api.queuedToasts.value).toHaveLength(1);
+      expect(api.queuedToasts.value[0]!.message).toBe("Three");
+    });
+
+    it("drains the queue in FIFO order as visible toasts dismiss", () => {
+      setDanxOptions({ toasts: { maxVisible: 2 } });
+      api.toast("One");
+      const id2 = api.toast("Two");
+      api.toast("Three");
+      api.toast("Four");
+
+      api.dismiss(id2);
+      expect(api.toasts.value.map((t) => t.message)).toEqual(["One", "Three"]);
+      expect(api.queuedToasts.value.map((t) => t.message)).toEqual(["Four"]);
+
+      api.dismiss(api.toasts.value[0]!.id);
+      expect(api.toasts.value.map((t) => t.message)).toEqual(["Three", "Four"]);
+      expect(api.queuedToasts.value).toHaveLength(0);
+    });
+
+    it("caps each position bucket independently", () => {
+      setDanxOptions({ toasts: { maxVisible: 1 } });
+      api.toast("Left A", { position: "top-left" });
+      api.toast("Left B", { position: "top-left" });
+      api.toast("Right A", { position: "top-right" });
+
+      expect(api.toasts.value.map((t) => t.message)).toEqual(["Left A", "Right A"]);
+      expect(api.queuedToasts.value.map((t) => t.message)).toEqual(["Left B"]);
+    });
+
+    it("caps each target-anchored bucket independently from position buckets", () => {
+      setDanxOptions({ toasts: { maxVisible: 1 } });
+      const el = document.createElement("div");
+      api.toast("Screen A");
+      api.toast("Screen B");
+      api.toast("Anchored", { target: el });
+
+      expect(api.toasts.value.map((t) => t.message)).toEqual(["Screen A", "Anchored"]);
+      expect(api.queuedToasts.value.map((t) => t.message)).toEqual(["Screen B"]);
+    });
+
+    it("removes a queued toast on dismiss without promoting anything", () => {
+      setDanxOptions({ toasts: { maxVisible: 1 } });
+      api.toast("One");
+      const queuedId = api.toast("Two");
+      api.dismiss(queuedId);
+      expect(api.queuedToasts.value).toHaveLength(0);
+      expect(api.toasts.value).toHaveLength(1);
+    });
+
+    it("dismissAll clears the queue as well as visible toasts", () => {
+      setDanxOptions({ toasts: { maxVisible: 1 } });
+      api.toast("One");
+      api.toast("Two");
+      expect(api.queuedToasts.value).toHaveLength(1);
+      api.dismissAll();
+      expect(api.toasts.value).toHaveLength(0);
+      expect(api.queuedToasts.value).toHaveLength(0);
+    });
+
+    it("still deduplicates against a queued toast instead of double-queueing", () => {
+      setDanxOptions({ toasts: { maxVisible: 1 } });
+      api.toast("One");
+      const id = api.toast("Dup");
+      api.toast("Dup");
+      expect(api.queuedToasts.value).toHaveLength(1);
+      expect(api.queuedToasts.value[0]!.id).toBe(id);
+      expect(api.queuedToasts.value[0]!.count).toBe(2);
     });
   });
 

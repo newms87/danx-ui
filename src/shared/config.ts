@@ -34,6 +34,7 @@ export const danxOptions = shallowRef<DanxOptions>({
     headers: {},
   },
   flashMessages: {},
+  toasts: {},
 });
 
 /**
@@ -52,6 +53,10 @@ export function setDanxOptions(options: DanxOptions): void {
     flashMessages: {
       ...danxOptions.value.flashMessages,
       ...options.flashMessages,
+    },
+    toasts: {
+      ...danxOptions.value.toasts,
+      ...options.toasts,
     },
   };
 }
