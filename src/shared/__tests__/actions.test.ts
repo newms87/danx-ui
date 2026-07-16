@@ -176,6 +176,153 @@ describe("useActions — optimistic updates", () => {
   });
 });
 
+describe("useActions — optimistic rollback on failure", () => {
+  it("reverts optimistic:true field changes when onAction returns an error", async () => {
+    const combineSpy = vi.spyOn(FlashMessages, "combine").mockImplementation(() => {});
+    const target = storeObject({
+      id: 1,
+      __type: "RollbackA",
+      name: "before",
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const onAction = vi.fn().mockResolvedValue({ error: "rejected" });
+    const { getAction } = useActions([{ name: "update", optimistic: true, onAction }]);
+
+    await getAction("update").trigger(target, { name: "after" });
+
+    expect(target.name).toBe("before");
+    expect(combineSpy).toHaveBeenCalled();
+  });
+
+  it("reverts optimistic:true field changes when onAction throws", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(FlashMessages, "combine").mockImplementation(() => {});
+    const target = storeObject({
+      id: 2,
+      __type: "RollbackB",
+      name: "before",
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const onAction = vi.fn().mockRejectedValue(new Error("boom"));
+    const { getAction } = useActions([{ name: "update", optimistic: true, onAction }]);
+
+    await getAction("update").trigger(target, { name: "after" });
+
+    expect(target.name).toBe("before");
+  });
+
+  it("reverts an optimistic function mutation when onAction fails", async () => {
+    vi.spyOn(FlashMessages, "combine").mockImplementation(() => {});
+    const target = storeObject({
+      id: 3,
+      __type: "RollbackC",
+      count: 0,
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const optimistic = (_action: unknown, item: ActionTargetItem | null) => {
+      if (item) item.count = (item.count as number) + 1;
+    };
+    const onAction = vi.fn().mockResolvedValue({ error: "rejected" });
+    const { getAction } = useActions([{ name: "increment", optimistic, onAction }]);
+
+    await getAction("increment").trigger(target);
+
+    expect(target.count).toBe(0);
+  });
+
+  it("reverts optimisticDelete's __deleted_at when onAction fails", async () => {
+    vi.spyOn(FlashMessages, "combine").mockImplementation(() => {});
+    const target = storeObject({
+      id: 4,
+      __type: "RollbackD",
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const onAction = vi.fn().mockResolvedValue({ error: "rejected" });
+    const { getAction } = useActions([{ name: "delete", optimisticDelete: true, onAction }]);
+
+    await getAction("delete").trigger(target);
+
+    expect(target.__deleted_at).toBeUndefined();
+  });
+
+  it("revert uses storeObject (fresh timestamp) so a later legitimate update still applies", async () => {
+    // Regression guard for the causal-merge requirement: the revert must not
+    // stomp a field with a raw overwrite that leaves a stale __fieldTimestamps
+    // entry behind — a subsequent genuinely-newer write for the same field
+    // must still be accepted by objectStore's per-field merge afterward.
+    vi.spyOn(FlashMessages, "combine").mockImplementation(() => {});
+    const target = storeObject({
+      id: 9,
+      __type: "RollbackH",
+      name: "before",
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const onAction = vi.fn().mockResolvedValue({ error: "rejected" });
+    const { getAction } = useActions([{ name: "update", optimistic: true, onAction }]);
+
+    await getAction("update").trigger(target, { name: "after" });
+    expect(target.name).toBe("before");
+
+    // A later legitimate concurrent update (e.g. a fresh server payload) must
+    // still be able to apply on top of the reverted value.
+    storeObject({
+      id: 9,
+      __type: "RollbackH",
+      name: "server-truth",
+      __timestamp: Date.now() + 1000,
+    } as ActionTargetItem);
+    expect(target.name).toBe("server-truth");
+  });
+
+  it("does not revert on success", async () => {
+    const target = storeObject({
+      id: 5,
+      __type: "RollbackE",
+      name: "before",
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const onAction = vi.fn().mockResolvedValue({ success: true });
+    const { getAction } = useActions([{ name: "update", optimistic: true, onAction }]);
+
+    await getAction("update").trigger(target, { name: "after" });
+
+    expect(target.name).toBe("after");
+  });
+
+  it("does not revert on an abort result", async () => {
+    const target = storeObject({
+      id: 6,
+      __type: "RollbackF",
+      name: "before",
+      __timestamp: 1,
+    } as ActionTargetItem);
+    const onAction = vi.fn().mockResolvedValue({ abort: true });
+    const { getAction } = useActions([{ name: "update", optimistic: true, onAction }]);
+
+    await getAction("update").trigger(target, { name: "after" });
+
+    // Abort is a deliberate cancel (e.g. superseded request), not a failure —
+    // the optimistic value is left in place, matching pre-existing behavior.
+    expect(target.name).toBe("after");
+  });
+
+  it("batch action failure does not attempt a rollback (no optimistic mutation applied to batch targets)", async () => {
+    const combineSpy = vi.spyOn(FlashMessages, "combine").mockImplementation(() => {});
+    const t1 = storeObject({ id: 7, __type: "RollbackG", name: "before", __timestamp: 1 });
+    const t2 = storeObject({ id: 8, __type: "RollbackG", name: "before", __timestamp: 1 });
+    const onBatchAction = vi.fn().mockResolvedValue({ error: "rejected" });
+    const { getAction } = useActions([
+      { name: "update", optimistic: true, onAction: vi.fn(), onBatchAction },
+    ]);
+
+    await getAction("update").trigger([t1, t2]);
+
+    expect(t1.name).toBe("before");
+    expect(t2.name).toBe("before");
+    expect(combineSpy).toHaveBeenCalled();
+  });
+});
+
 describe("useActions — batch + success/error", () => {
   it("calls onBatchAction for array targets and flashes a success message", async () => {
     const onBatchAction = vi.fn().mockResolvedValue({ success: true });

@@ -10,6 +10,14 @@
  * a consumer supplies its own `vnode` (e.g. built from `DanxDialog`) when it
  * wants one. No dialog components are bundled by the action layer.
  *
+ * Optimistic rollback: when `optimistic`/`optimisticDelete` is set on a
+ * single (non-batch) target, the pre-mutation field values are snapshotted
+ * before the optimistic `storeObject` call. If the action's `onAction` throws
+ * or resolves to an error-shaped result, the snapshot is written back through
+ * `storeObject` with a fresh timestamp — so the revert plays by the same
+ * per-field causal-merge rules as any other update (see `objectStore.ts`)
+ * instead of blindly overwriting newer, legitimately-applied fields.
+ *
  * @example
  *   const routes = useActionRoutes("/api/users");
  *   const { getAction } = useActions(withDefaultActions("User", controls), { routes });
@@ -224,6 +232,15 @@ function setTargetSavingState(target: ActionTarget, saving: boolean): void {
 /**
  * Execute the confirmed action: optimistic update → route call → success/error
  * handling → finish callback.
+ *
+ * Rollback: for a single (non-batch) target, the pre-mutation value of every
+ * field the optimistic update touched is snapshotted before `storeObject` is
+ * called. If `onAction` throws or resolves to an error-shaped result, the
+ * snapshot is written back through `storeObject` with a fresh `__timestamp`
+ * (not the stale optimistic one) so it respects the per-field causal merge in
+ * `objectStore.ts` — a legitimate concurrent update that landed after the
+ * optimistic stamp still wins on its own fields. Batch actions never apply an
+ * optimistic mutation in this codebase, so there is nothing to roll back.
  */
 async function onConfirmAction(
   action: ResourceAction,
@@ -236,6 +253,7 @@ async function onConfirmAction(
 
   const isBatch = Array.isArray(target);
   let result: unknown;
+  let rollback: (() => void) | null = null;
 
   try {
     if (isBatch) {
@@ -251,7 +269,18 @@ async function onConfirmAction(
       // now", so it out-dates any already-in-flight request's later stale
       // response in the per-field causal merge. Do NOT switch this to a counter.
       const __timestamp = Date.now();
+      const priorValues: Record<string, unknown> = {};
+      const snapshot = (keys: string[]) => {
+        const record = asRecord(single);
+        for (const key of keys) {
+          if (!(key in priorValues)) {
+            priorValues[key] = record?.[key];
+          }
+        }
+      };
+
       if (action.optimisticDelete) {
+        snapshot(["__deleted_at"]);
         storeObject({
           ...(asRecord(single) || {}),
           __deleted_at: new Date().toISOString(),
@@ -260,14 +289,26 @@ async function onConfirmAction(
       }
 
       if (typeof action.optimistic === "function") {
+        snapshot(Object.keys(asRecord(single) || {}));
         action.optimistic(action, single, input);
         storeObject({ ...(asRecord(single) || {}), __timestamp } as ActionTargetItem);
       } else if (action.optimistic) {
+        snapshot(Object.keys(asRecord(input) || {}));
         storeObject({
           ...(asRecord(single) || {}),
           ...(asRecord(input) || {}),
           __timestamp,
         } as ActionTargetItem);
+      }
+
+      if (Object.keys(priorValues).length > 0 && single) {
+        rollback = () => {
+          storeObject({
+            ...(asRecord(single) || {}),
+            ...priorValues,
+            __timestamp: Date.now(),
+          } as ActionTargetItem);
+        };
       }
 
       result = await action.onAction(action.alias || action.name, single, input);
@@ -302,6 +343,7 @@ async function onConfirmAction(
       await action.onBatchSuccess(result, target as ActionTargetItem[], input);
     }
   } else {
+    rollback?.();
     const errors: string[] = [];
     if (Array.isArray(resultRecord?.errors)) {
       errors.push(...(resultRecord.errors as string[]));
