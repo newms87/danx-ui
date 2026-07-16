@@ -43,6 +43,7 @@ import { DanxTextarea } from "../../src/components/textarea";
 import { DanxSelect, useSelect } from "../../src/components/select";
 import { useFormField } from "../../src/shared/composables/useFormField";
 import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
+import { passwordStrength } from "../../src/shared/passwordStrength";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
 import { DanxKbd, detectOs, resolveKeyLabel } from "../../src/components/kbd";
@@ -423,6 +424,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxFieldWrapper,
   useFormField,
   useFieldInteraction,
+  passwordStrength,
   // File Upload
   DanxFileUpload,
   useFileUpload,

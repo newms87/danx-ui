@@ -313,6 +313,10 @@ export type {
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";
 export type { AutoColorEntry } from "./shared/autoColor";
 
+// Password strength
+export { passwordStrength } from "./shared/passwordStrength";
+export type { PasswordStrengthResult } from "./shared/passwordStrength";
+
 // Form field infrastructure
 export { useSelect } from "./components/select";
 export { useFormField } from "./shared/composables/useFormField";

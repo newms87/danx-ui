@@ -172,3 +172,52 @@
     cursor: default;
   }
 }
+
+/* ==========================================================================
+   Password Strength Meter
+   ========================================================================== */
+
+.danx-input__strength {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-1-5);
+}
+
+.danx-input__strength-bars {
+  display: flex;
+  flex: 1;
+  gap: var(--spacing-1);
+}
+
+.danx-input__strength-bar {
+  flex: 1;
+  height: 0.25rem;
+  border-radius: var(--radius-field);
+  background: var(--dx-input-border);
+  transition: background-color var(--dx-input-transition);
+}
+
+.danx-input__strength-bars--score-0 .danx-input__strength-bar--filled,
+.danx-input__strength-bars--score-1 .danx-input__strength-bar--filled {
+  background: var(--color-danger);
+}
+
+.danx-input__strength-bars--score-2 .danx-input__strength-bar--filled {
+  background: var(--color-warning);
+}
+
+.danx-input__strength-bars--score-3 .danx-input__strength-bar--filled {
+  background: var(--color-info);
+}
+
+.danx-input__strength-bars--score-4 .danx-input__strength-bar--filled {
+  background: var(--color-success);
+}
+
+.danx-input__strength-label {
+  flex-shrink: 0;
+  font-size: 0.75em;
+  color: var(--dx-input-placeholder);
+  user-select: none;
+}

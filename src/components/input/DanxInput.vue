@@ -36,6 +36,7 @@
  *   max?: number | string - Max value (number/date types)
  *   step?: number | string - Step increment (number/date types)
  *   autocomplete?: string - Autocomplete attribute
+ *   showStrength?: boolean - Password strength meter (type="password" only)
  *
  * @emits
  *   focus - When input receives focus
@@ -87,6 +88,7 @@ import { useFieldInteraction } from "../../shared/composables/useFieldInteractio
 import { DanxIcon } from "../icon";
 import { searchIcon } from "../icon/icons";
 import { DanxFieldWrapper } from "../field-wrapper";
+import { passwordStrength } from "../../shared/passwordStrength";
 import eyeSvg from "danx-icon/src/fontawesome/solid/eye.svg?raw";
 import eyeSlashSvg from "danx-icon/src/fontawesome/solid/eye-slash.svg?raw";
 import type { DanxInputEmits, DanxInputProps, DanxInputSlots } from "./types";
@@ -136,6 +138,16 @@ const effectiveType = computed(() => {
 function toggleReveal() {
   isRevealed.value = !isRevealed.value;
 }
+
+/** Whether the strength meter should render: password type, opted-in, and non-empty */
+const showStrengthMeter = computed(
+  () => props.type === "password" && props.showStrength && !!model.value
+);
+
+const strength = computed(() => passwordStrength(String(model.value)));
+
+/** Number of filled segments in the strength bar (always at least 1 when shown) */
+const strengthBarsFilled = computed(() => Math.max(1, strength.value.score));
 </script>
 
 <template>
@@ -212,6 +224,22 @@ function toggleReveal() {
       <span v-if="$slots.suffix" class="danx-input__suffix">
         <slot name="suffix" />
       </span>
+    </div>
+
+    <!-- Password strength meter -->
+    <div v-if="showStrengthMeter" class="danx-input__strength">
+      <div
+        class="danx-input__strength-bars"
+        :class="`danx-input__strength-bars--score-${strength.score}`"
+      >
+        <span
+          v-for="i in 4"
+          :key="i"
+          class="danx-input__strength-bar"
+          :class="{ 'danx-input__strength-bar--filled': i <= strengthBarsFilled }"
+        />
+      </div>
+      <span class="danx-input__strength-label" aria-live="polite">{{ strength.label }}</span>
     </div>
   </DanxFieldWrapper>
 </template>

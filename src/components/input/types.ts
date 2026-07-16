@@ -51,6 +51,13 @@ export interface DanxInputProps extends FormFieldBaseProps {
 
   /** Autocomplete attribute */
   autocomplete?: string;
+
+  /**
+   * Shows a password strength bar/label below the field, computed via the
+   * shared `passwordStrength` function. Only takes effect for type="password".
+   * @default false
+   */
+  showStrength?: boolean;
 }
 
 /** DanxInput uses the shared form field emit interface */

@@ -538,4 +538,87 @@ describe("DanxInput", () => {
       expect(wrapper.find("input").attributes("autocomplete")).toBe("email");
     });
   });
+
+  describe("Password strength meter", () => {
+    it("is hidden when showStrength is false", () => {
+      const wrapper = mountWithModel("weakpass", { type: "password", showStrength: false });
+
+      expect(wrapper.find(".danx-input__strength").exists()).toBe(false);
+    });
+
+    it("is hidden when type is not password, even with showStrength", () => {
+      const wrapper = mountWithModel("weakpass", { type: "text", showStrength: true });
+
+      expect(wrapper.find(".danx-input__strength").exists()).toBe(false);
+    });
+
+    it("is hidden when the field is empty", () => {
+      const wrapper = mountWithModel("", { type: "password", showStrength: true });
+
+      expect(wrapper.find(".danx-input__strength").exists()).toBe(false);
+    });
+
+    it("renders when type is password, showStrength is true, and value is non-empty", () => {
+      const wrapper = mountWithModel("weakpass", { type: "password", showStrength: true });
+
+      expect(wrapper.find(".danx-input__strength").exists()).toBe(true);
+    });
+
+    it("renders 4 segments, filled up to the current score", () => {
+      const wrapper = mountWithModel("Xk9$mQp2#vRt7!zL", {
+        type: "password",
+        showStrength: true,
+      });
+
+      const bars = wrapper.findAll(".danx-input__strength-bar");
+      expect(bars).toHaveLength(4);
+      const filled = wrapper.findAll(".danx-input__strength-bar--filled");
+      expect(filled).toHaveLength(4);
+    });
+
+    it("always fills at least 1 segment when shown", () => {
+      const wrapper = mountWithModel("a", { type: "password", showStrength: true });
+
+      const filled = wrapper.findAll(".danx-input__strength-bar--filled");
+      expect(filled).toHaveLength(1);
+    });
+
+    it("renders the strength label text", () => {
+      const wrapper = mountWithModel("Xk9$mQp2#vRt7!zL", {
+        type: "password",
+        showStrength: true,
+      });
+
+      expect(wrapper.find(".danx-input__strength-label").text()).toBe("Strong");
+    });
+
+    it("exposes the strength label via an aria-live polite region", () => {
+      const wrapper = mountWithModel("Xk9$mQp2#vRt7!zL", {
+        type: "password",
+        showStrength: true,
+      });
+
+      expect(wrapper.find(".danx-input__strength-label").attributes("aria-live")).toBe("polite");
+    });
+
+    it("updates reactively as the user types", async () => {
+      const wrapper = mountWithModel("a", { type: "password", showStrength: true });
+
+      expect(wrapper.find(".danx-input__strength-label").text()).toBe("Weak");
+
+      await wrapper.find("input").setValue("Xk9$mQp2#vRt7!zL");
+
+      expect(wrapper.find(".danx-input__strength-label").text()).toBe("Strong");
+    });
+
+    it("hides again once the field is cleared back to empty", async () => {
+      const wrapper = mountWithModel("weakpass", { type: "password", showStrength: true });
+
+      expect(wrapper.find(".danx-input__strength").exists()).toBe(true);
+
+      await wrapper.find("input").setValue("");
+
+      expect(wrapper.find(".danx-input__strength").exists()).toBe(false);
+    });
+  });
 });
