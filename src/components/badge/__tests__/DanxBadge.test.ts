@@ -333,4 +333,141 @@ describe("DanxBadge", () => {
       expect(wrapper.find(".danx-badge__indicator").exists()).toBe(true);
     });
   });
+
+  describe("Accessibility", () => {
+    it("uses explicit ariaLabel in count mode", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 5, ariaLabel: "Five unread messages" },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "Five unread messages"
+      );
+    });
+
+    it("uses explicit ariaLabel in dot mode", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { dot: true, ariaLabel: "Unread messages" },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "Unread messages"
+      );
+    });
+
+    it("uses explicit ariaLabel in label mode", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: "NEW", ariaLabel: "New feature" },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "New feature"
+      );
+    });
+
+    it("generates a default aria-label describing the count", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 3 },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "3 notifications"
+      );
+    });
+
+    it("generates a default aria-label using the overflow display for large counts", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 150, max: 99 },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "99+ notifications"
+      );
+    });
+
+    it("announces the zero count when showZero is true", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 0, showZero: true },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "0 notifications"
+      );
+    });
+
+    it("generates a non-empty default aria-label in dot mode", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { dot: true },
+      });
+
+      const label = wrapper.find(".danx-badge__indicator").attributes("aria-label");
+      expect(label).toBeTruthy();
+    });
+
+    it("generates a default aria-label incorporating the label text", () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: "NEW" },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toContain("NEW");
+    });
+
+    it("updates the aria-label reactively when value changes", async () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 3 },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "3 notifications"
+      );
+
+      await wrapper.setProps({ value: 7 });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "7 notifications"
+      );
+    });
+
+    it("updates the aria-label reactively when dot changes", async () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 3 },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "3 notifications"
+      );
+
+      await wrapper.setProps({ dot: true });
+
+      const label = wrapper.find(".danx-badge__indicator").attributes("aria-label");
+      expect(label).not.toBe("3 notifications");
+      expect(label).toBeTruthy();
+    });
+
+    it("toggles the aria-label reactively when showZero changes", async () => {
+      const wrapper = mount(DanxBadge, {
+        props: { value: 0, showZero: false },
+      });
+
+      expect(wrapper.find(".danx-badge__indicator").exists()).toBe(false);
+
+      await wrapper.setProps({ showZero: true });
+
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
+        "0 notifications"
+      );
+    });
+
+    it("has no aria-label when the indicator is not rendered", () => {
+      const wrapperHidden = mount(DanxBadge, {
+        props: { value: 5, hidden: true },
+      });
+      expect(wrapperHidden.find(".danx-badge__indicator").exists()).toBe(false);
+
+      const wrapperZero = mount(DanxBadge, {
+        props: { value: 0, showZero: false },
+      });
+      expect(wrapperZero.find(".danx-badge__indicator").exists()).toBe(false);
+    });
+  });
 });

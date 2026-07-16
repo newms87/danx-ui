@@ -67,6 +67,13 @@ export interface DanxBadgeProps {
    * @default false
    */
   autoColor?: boolean | string;
+
+  /**
+   * Accessible name for the badge indicator, read by screen readers.
+   * When omitted, a default is generated describing the current state
+   * (count, dot presence, or label), reactive to `value`/`dot`/`showZero`.
+   */
+  ariaLabel?: string;
 }
 
 export interface DanxBadgeSlots {

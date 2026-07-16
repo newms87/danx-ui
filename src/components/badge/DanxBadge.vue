@@ -30,6 +30,7 @@
  * | hidden     | boolean          | false       | Force-hide the indicator        |
  * | placement  | BadgePlacement   | "top-right" | Corner position                 |
  * | autoColor  | boolean | string | false       | Hash for deterministic color    |
+ * | ariaLabel  | string           | -           | Accessible name override        |
  *
  * ## Slots
  * | Slot    | Description                          |
@@ -142,13 +143,29 @@ const { style: autoColorStyle } = useAutoColor(autoColorKey, "--dx-badge");
 const indicatorStyle = computed(() =>
   props.autoColor ? autoColorStyle.value : variantStyle.value
 );
+
+/**
+ * DXUI-66: accessible name for the indicator. Explicit ariaLabel wins; otherwise
+ * generate sr-only text describing the current mode, reactive to value/dot/showZero.
+ */
+const accessibleLabel = computed(() => {
+  if (props.ariaLabel) return props.ariaLabel;
+  if (props.dot) return "Indicator active";
+  if (typeof props.value === "string") return props.value;
+  const num = typeof props.value === "number" ? props.value : 0;
+  const displayNum = num > props.max ? `${props.max}+` : String(num);
+  return `${displayNum} notifications`;
+});
 </script>
 
 <template>
   <span class="danx-badge">
     <slot />
-    <span v-if="isVisible" :class="indicatorClasses" :style="indicatorStyle">{{
-      displayText
-    }}</span>
+    <span
+      v-if="isVisible"
+      :class="indicatorClasses"
+      :style="indicatorStyle"
+      :aria-label="accessibleLabel"
+    >{{ displayText }}</span>
   </span>
 </template>
