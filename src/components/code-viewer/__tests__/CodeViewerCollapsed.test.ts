@@ -19,6 +19,13 @@ describe("CodeViewerCollapsed", () => {
     expect(icon.exists()).toBe(true);
   });
 
+  it("uses the collapse-icon token class instead of a hardcoded Tailwind color", () => {
+    const wrapper = mount(CodeViewerCollapsed, { props: defaultProps });
+    const icon = wrapper.find(".collapse-icon");
+    expect(icon.exists()).toBe(true);
+    expect(icon.classes()).not.toContain("text-gray-500");
+  });
+
   it("renders preview content via v-html", () => {
     const wrapper = mount(CodeViewerCollapsed, { props: defaultProps });
     const preview = wrapper.find(".code-collapsed-preview");

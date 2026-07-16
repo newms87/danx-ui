@@ -36,6 +36,13 @@
   --dx-code-viewer-footer-bg: #252526;
   --dx-code-viewer-footer-error-bg: #5a1d1d;
   --dx-code-viewer-footer-error-border: #be1100;
+  --dx-code-viewer-footer-text: #6b7280;
+  --dx-code-viewer-footer-text-hover: #374151;
+  --dx-code-viewer-footer-error-text: #f87171;
+
+  /* Collapse toggle */
+  --dx-code-viewer-collapse-toggle-text: #6b7280;
+  --dx-code-viewer-collapse-toggle-text-hover: #d1d5db;
 
   /* Badge */
   --dx-code-viewer-badge-bg: rgba(255, 255, 255, 0.1);
@@ -132,6 +139,13 @@
   --dx-code-viewer-footer-bg: #f1f5f9;
   --dx-code-viewer-footer-error-bg: #fee2e2;
   --dx-code-viewer-footer-error-border: #ef4444;
+  --dx-code-viewer-footer-text: #475569;
+  --dx-code-viewer-footer-text-hover: #1e293b;
+  --dx-code-viewer-footer-error-text: #b91c1c;
+
+  /* Collapse toggle */
+  --dx-code-viewer-collapse-toggle-text: #64748b;
+  --dx-code-viewer-collapse-toggle-text-hover: #1e293b;
 
   /* Badge */
   --dx-code-viewer-badge-bg: rgba(0, 0, 0, 0.08);

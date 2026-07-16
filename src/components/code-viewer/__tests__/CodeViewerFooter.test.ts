@@ -101,6 +101,24 @@ describe("CodeViewerFooter", () => {
     expect(btn.classes()).not.toContain("text-sky-500");
   });
 
+  it("uses the footer text token class instead of hardcoded Tailwind colors", () => {
+    const wrapper = mount(CodeViewerFooter, { props: defaultProps });
+    const textEl = wrapper.find(".code-footer-text");
+    expect(textEl.exists()).toBe(true);
+    expect(textEl.classes()).not.toContain("text-gray-500");
+    expect(textEl.classes()).not.toContain("text-red-400");
+  });
+
+  it("uses the footer edit button token class instead of hardcoded Tailwind colors", () => {
+    const wrapper = mount(CodeViewerFooter, {
+      props: { ...defaultProps, canEdit: true },
+    });
+    const btn = wrapper.findComponent({ name: "DanxButton" }).find("button");
+    expect(btn.classes()).toContain("code-footer-edit-btn");
+    expect(btn.classes()).not.toContain("text-gray-500");
+    expect(btn.classes()).not.toContain("hover:text-gray-700");
+  });
+
   it("renders pencil icon in edit button", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },

@@ -239,7 +239,7 @@ watch(
         <!-- Collapse button (when collapsible and expanded) -->
         <div
           v-if="collapsible"
-          class="collapse-toggle absolute top-0 left-0 p-1 cursor-pointer z-10 text-gray-500 hover:text-gray-300"
+          class="collapse-toggle absolute top-0 left-0 p-1 cursor-pointer z-10"
           @click="toggleCollapse"
         >
           <DanxIcon icon="chevron-down" class="w-3 h-3" />

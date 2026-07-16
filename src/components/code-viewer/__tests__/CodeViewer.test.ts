@@ -139,6 +139,13 @@ describe("CodeViewer", () => {
       expect(wrapper.find(".collapse-toggle").exists()).toBe(false);
     });
 
+    it("collapse toggle relies on the token class instead of hardcoded Tailwind colors", () => {
+      const wrapper = mountCodeViewer({ collapsible: true, defaultCollapsed: false });
+      const toggle = wrapper.find(".collapse-toggle");
+      expect(toggle.classes()).not.toContain("text-gray-500");
+      expect(toggle.classes()).not.toContain("hover:text-gray-300");
+    });
+
     it("collapses when collapse toggle clicked", async () => {
       const wrapper = mountCodeViewer({ collapsible: true, defaultCollapsed: false });
       await wrapper.find(".collapse-toggle").trigger("click");

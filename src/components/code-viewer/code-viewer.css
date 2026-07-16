@@ -37,10 +37,19 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    .collapse-icon {
+      color: var(--dx-code-viewer-collapse-toggle-text);
+    }
   }
 
   .collapse-toggle {
+    color: var(--dx-code-viewer-collapse-toggle-text);
     transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--dx-code-viewer-collapse-toggle-text-hover);
+    }
   }
 
   .collapse-header {
@@ -111,6 +120,22 @@
     &.has-error {
       background-color: var(--dx-code-viewer-footer-error-bg);
       border-top: 1px solid var(--dx-code-viewer-footer-error-border);
+    }
+
+    .code-footer-text {
+      color: var(--dx-code-viewer-footer-text);
+
+      &.has-error {
+        color: var(--dx-code-viewer-footer-error-text);
+      }
+    }
+
+    .code-footer-edit-btn {
+      color: var(--dx-code-viewer-footer-text);
+
+      &:hover {
+        color: var(--dx-code-viewer-footer-text-hover);
+      }
     }
   }
 

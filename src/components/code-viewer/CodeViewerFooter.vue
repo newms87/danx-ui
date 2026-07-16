@@ -22,6 +22,9 @@
  *   --dx-code-viewer-footer-bg - Footer background color
  *   --dx-code-viewer-footer-error-bg - Background when a validation error is shown
  *   --dx-code-viewer-footer-error-border - Top border when a validation error is shown
+ *   --dx-code-viewer-footer-text - Footer text color
+ *   --dx-code-viewer-footer-text-hover - Edit button text color on hover
+ *   --dx-code-viewer-footer-error-text - Footer text color when a validation error is shown
  *   --dx-code-viewer-border-radius - Bottom border radius (inherited from viewer)
  *   --dx-code-viewer-light-border - Top border for light theme variant
  *
@@ -55,7 +58,7 @@ const hasError = computed(() => props.validationError !== null);
     class="code-footer flex items-center justify-between px-2 py-1 flex-shrink-0"
     :class="{ 'has-error': hasError }"
   >
-    <div class="text-xs flex-1 min-w-0" :class="hasError ? 'text-red-400' : 'text-gray-500'">
+    <div class="code-footer-text text-xs flex-1 min-w-0" :class="{ 'has-error': hasError }">
       <template v-if="validationError">
         <span class="font-medium">
           Error<template v-if="validationError.line"> (line {{ validationError.line }})</template>:
@@ -72,7 +75,7 @@ const hasError = computed(() => props.validationError !== null);
         v-if="canEdit"
         icon="pencil"
         size="xs"
-        class="text-gray-500 hover:text-gray-700"
+        class="code-footer-edit-btn"
         :class="{ 'text-sky-500 hover:text-sky-600': isEditing }"
         @click="$emit('toggleEdit')"
       />

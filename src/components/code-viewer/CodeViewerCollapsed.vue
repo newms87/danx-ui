@@ -21,6 +21,7 @@
  *   --dx-code-viewer-collapsed-bg - Background color of the collapsed row
  *   --dx-code-viewer-collapsed-bg-hover - Background color on hover
  *   --dx-code-viewer-collapsed-text - Text color of the preview content
+ *   --dx-code-viewer-collapse-toggle-text - Color of the chevron expand icon
  *   --dx-code-viewer-border-radius - Border radius (inherited from viewer)
  *   --dx-code-viewer-font-family - Font family (inherited from viewer)
  *   --dx-code-viewer-font-size - Font size (inherited from viewer)
@@ -54,7 +55,7 @@ defineEmits<{
 
 <template>
   <div class="code-collapsed relative flex items-center cursor-pointer" @click="$emit('expand')">
-    <DanxIcon icon="chevron-right" class="w-2.5 h-2.5 mr-2 text-gray-500" />
+    <DanxIcon icon="chevron-right" class="collapse-icon w-2.5 h-2.5 mr-2" />
     <code class="code-collapsed-preview flex-1 min-w-0 truncate" v-html="preview" />
 
     <!-- Language badge - stop propagation to prevent expand when clicking -->
