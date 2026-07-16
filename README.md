@@ -157,6 +157,10 @@ See [Theming Guide](./docs/theming.md) for details.
 - [Getting Started](./docs/getting-started.md)
 - [Theming](./docs/theming.md)
 - [Dialog Component](./docs/dialog.md)
+- [Select Component](./docs/select.md)
+- [Input Component](./docs/input.md)
+- [Textarea Component](./docs/textarea.md)
+- [Field Wrapper Component](./docs/field-wrapper.md)
 
 ## Browser Support
 
