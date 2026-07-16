@@ -18,8 +18,6 @@ export default defineConfig({
         "src/vite-env.d.ts",
         "src/index.ts",
         "src/**/index.ts",
-        "src/shared/markdown/escapeHtml.ts",
-        "src/components/code-viewer/icons.ts",
         "src/components/button/icons.ts",
       ],
       thresholds: {
