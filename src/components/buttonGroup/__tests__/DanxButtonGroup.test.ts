@@ -5,6 +5,7 @@ import DanxButtonGroup from "../DanxButtonGroup.vue";
 import { saveIcon } from "../../icon/icons";
 import { hashStringToIndex, AUTO_COLOR_PALETTE } from "../../../shared/autoColor";
 import type { DanxButtonGroupItem } from "../types";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /** Helper to create a basic set of buttons */
 function createButtons(overrides: Partial<DanxButtonGroupItem>[] = []): DanxButtonGroupItem[] {
@@ -738,6 +739,18 @@ describe("DanxButtonGroup", () => {
       const btns = wrapper.findAll(".danx-button-group__button");
       expect(btns[0]!.attributes("aria-checked")).toBe("false");
       expect(btns[2]!.attributes("aria-checked")).toBe("true");
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      const wrapper = mount(DanxButtonGroup, {
+        props: { buttons: createButtons() },
+        attachTo: document.body,
+      });
+
+      await expectNoA11yViolations(wrapper.element);
+      wrapper.unmount();
     });
   });
 });

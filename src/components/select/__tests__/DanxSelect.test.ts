@@ -4,6 +4,7 @@ import { defineComponent, h, ref } from "vue";
 import DanxSelect from "../DanxSelect.vue";
 import type { SelectOption, SelectModelValue } from "../types";
 import type { InputSize } from "../../../shared/form-types";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * Mock native Popover API on HTMLElement.prototype since happy-dom doesn't support it.
@@ -750,6 +751,14 @@ describe("DanxSelect", () => {
       });
       expect(wrapper.find(".custom-selected").exists()).toBe(true);
       expect(wrapper.find(".custom-selected").text()).toBe("Alpha");
+      wrapper.unmount();
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      const wrapper = mountWithModel(null, { label: "Choose an option" });
+      await expectNoA11yViolations(document.body);
       wrapper.unmount();
     });
   });

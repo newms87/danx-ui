@@ -5,6 +5,7 @@ import DanxTabs from "../DanxTabs.vue";
 import { saveIcon } from "../../icon/icons";
 import type { DanxTab } from "../types";
 import type { VariantType } from "../../../shared/types";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /** Helper to create a basic set of tabs */
 function createTabs(overrides: Partial<DanxTab>[] = []): DanxTab[] {
@@ -560,6 +561,18 @@ describe("DanxTabs", () => {
       const ids = buttons.map((b) => b.attributes("id"));
       expect(new Set(ids).size).toBe(ids.length);
       expect(ids.every((id) => !!id)).toBe(true);
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+        attachTo: document.body,
+      });
+
+      await expectNoA11yViolations(wrapper.element);
+      wrapper.unmount();
     });
   });
 });

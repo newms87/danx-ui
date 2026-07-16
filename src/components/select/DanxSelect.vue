@@ -126,6 +126,13 @@ defineSlots<DanxSelectSlots>();
 
 const { fieldId, hasError, inputAriaAttrs } = useFormField(props);
 
+// The trigger is a <div role="combobox">, not a labelable native element, so
+// <label for> alone doesn't compute its accessible name in real browsers —
+// wire aria-labelledby to the field-wrapper label's id as well.
+const labelledByAttrs = computed<Record<string, string | undefined>>(() => ({
+  "aria-labelledby": props.label ? `${fieldId.value}-label` : undefined,
+}));
+
 const SELECT_VARIANT_TOKENS = {
   "--dx-select-trigger-bg": "bg",
   "--dx-select-trigger-text": "text",
@@ -261,7 +268,7 @@ function handleChipRemove(value: string | number): void {
           :class="containerClasses"
           :style="variantStyle"
           :tabindex="disabled ? -1 : 0"
-          v-bind="{ ...inputAriaAttrs, ...triggerAriaAttrs }"
+          v-bind="{ ...inputAriaAttrs, ...triggerAriaAttrs, ...labelledByAttrs }"
           @click="handleTriggerClick"
           @keydown="handleKeydown"
           @focus="emit('focus', $event)"

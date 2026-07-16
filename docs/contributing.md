@@ -41,6 +41,43 @@ yarn test:coverage  # Coverage report
 
 Coverage thresholds are enforced at 100% for lines, functions, branches, and statements.
 
+### Accessibility assertions
+
+Interactive components (anything a user can focus, open, or trigger — tabs,
+buttons, dialogs, selects, popovers, menus, form fields, etc.) must assert
+they have no [axe-core](https://github.com/dequelabs/axe-core) violations, so
+regressions in roles/labels/contrast fail the suite instead of shipping
+silently. Use the shared helper:
+
+```ts
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
+
+describe("Accessibility", () => {
+  it("has no axe violations", async () => {
+    const wrapper = mount(MyComponent, {
+      props: { label: "Example" },
+      attachTo: document.body, // axe requires the mounted element to be in the DOM
+    });
+
+    await expectNoA11yViolations(wrapper.element);
+    wrapper.unmount();
+  });
+});
+```
+
+Notes:
+
+- `attachTo: document.body` is required — axe-core refuses to scan a detached
+  element. For components that teleport (dialogs, popovers, tooltips, toasts,
+  context menus), pass `document.body` itself to `expectNoA11yViolations`
+  instead of `wrapper.element`.
+- If a test uses `vi.useFakeTimers()`, call `vi.useRealTimers()` before
+  `expectNoA11yViolations` — axe-core schedules its own internal timers and
+  hangs under fake ones.
+- `color-contrast` and `region` are disabled in the shared helper: happy-dom
+  has no rendering backend for contrast math, and `region` flags any content
+  outside a page landmark, which every isolated component mount trips.
+
 ## Development Rules
 
 Please read [CLAUDE.md](../CLAUDE.md) for detailed development rules. Key points:

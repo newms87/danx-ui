@@ -3,6 +3,7 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import DanxDialog from "../DanxDialog.vue";
 import { useDialogStack } from "../useDialogStack";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * DanxDialog uses <Teleport to="body">, so teleported content renders in
@@ -799,6 +800,15 @@ describe("DanxDialog", () => {
         expect(parentSpy).not.toHaveBeenCalled();
         dialog.parentElement!.removeEventListener(eventType, parentSpy);
       }
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      mountDialog({ modelValue: true, title: "Accessible Dialog" }, { default: "Dialog content" });
+      await nextTick();
+
+      await expectNoA11yViolations(document.body);
     });
   });
 });

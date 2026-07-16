@@ -3,6 +3,7 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import DanxToast from "../DanxToast.vue";
 import type { ToastEntry } from "../types";
 import { useToast } from "../useToast";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * Mock native Popover API since jsdom doesn't support it.
@@ -49,6 +50,7 @@ function createEntry(overrides: Partial<ToastEntry> = {}): ToastEntry {
 function mountToast(entry: ToastEntry): VueWrapper {
   return mount(DanxToast, {
     props: { entry },
+    attachTo: document.body,
   });
 }
 
@@ -297,5 +299,15 @@ describe("DanxToast", () => {
     // After the full duration from reset, it should dismiss
     vi.advanceTimersByTime(200);
     expect(toasts.value.find((t) => t.id === entry.id)).toBeUndefined();
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      createAndTrack(createEntry({ message: "Saved successfully" }));
+
+      // axe-core schedules its own timers internally; fake timers would hang it.
+      vi.useRealTimers();
+      await expectNoA11yViolations(document.body);
+    });
   });
 });

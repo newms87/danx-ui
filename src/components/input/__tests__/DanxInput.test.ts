@@ -4,6 +4,7 @@ import { defineComponent, h, ref } from "vue";
 import DanxInput from "../DanxInput.vue";
 import type { InputSize } from "../../../shared/form-types";
 import type { InputType } from "../types";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * Helper: mounts DanxInput inside a parent that wires v-model properly.
@@ -619,6 +620,16 @@ describe("DanxInput", () => {
       await wrapper.find("input").setValue("");
 
       expect(wrapper.find(".danx-input__strength").exists()).toBe(false);
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      const wrapper = mountWithModel("", { label: "Full name" });
+      document.body.appendChild(wrapper.element);
+
+      await expectNoA11yViolations(wrapper.element);
+      wrapper.unmount();
     });
   });
 });

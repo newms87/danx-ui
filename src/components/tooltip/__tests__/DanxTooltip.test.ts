@@ -2,6 +2,7 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import { defineComponent, markRaw } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DanxTooltip } from "../index";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * Mock native Popover API on HTMLElement.prototype since jsdom doesn't support it.
@@ -784,6 +785,25 @@ describe("DanxTooltip", () => {
       expect(target.getAttribute("aria-describedby")).toBe(panel.id);
 
       target.remove();
+    });
+  });
+
+  describe("accessibility", () => {
+    it("has no axe violations", async () => {
+      mountTooltip();
+      // axe-core schedules its own timers internally; fake timers would hang it.
+      vi.useRealTimers();
+      await expectNoA11yViolations(document.body);
+    });
+
+    it("has no axe violations while the panel is open", async () => {
+      mountTooltip();
+      const target = wrapper.find(".test-trigger").element;
+      target.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await vi.runAllTimersAsync();
+
+      vi.useRealTimers();
+      await expectNoA11yViolations(document.body);
     });
   });
 });

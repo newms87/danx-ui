@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import DanxFieldWrapper from "../DanxFieldWrapper.vue";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 describe("DanxFieldWrapper", () => {
   describe("Label rendering", () => {
@@ -22,6 +23,15 @@ describe("DanxFieldWrapper", () => {
       });
 
       expect(wrapper.find("label").attributes("for")).toBe("my-input");
+    });
+
+    it("label has an id derived from fieldId for aria-labelledby wiring", () => {
+      const wrapper = mount(DanxFieldWrapper, {
+        props: { fieldId: "my-input", label: "Name" },
+        slots: { default: "<input />" },
+      });
+
+      expect(wrapper.find("label").attributes("id")).toBe("my-input-label");
     });
 
     it("does not render a label when label prop is absent", () => {
@@ -180,6 +190,19 @@ describe("DanxFieldWrapper", () => {
       });
 
       expect(wrapper.find(".danx-field-wrapper").exists()).toBe(true);
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has no axe violations", async () => {
+      const wrapper = mount(DanxFieldWrapper, {
+        props: { fieldId: "a11y-input", label: "Email" },
+        slots: { default: '<input id="a11y-input" type="text" />' },
+        attachTo: document.body,
+      });
+
+      await expectNoA11yViolations(wrapper.element);
+      wrapper.unmount();
     });
   });
 });

@@ -4,6 +4,7 @@ import { nextTick } from "vue";
 import { DanxContextMenu } from "../index";
 import { DanxPopover } from "../../popover";
 import type { ContextMenuItem } from "../types";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * Mock native Popover API on HTMLElement.prototype since jsdom doesn't support it.
@@ -1390,6 +1391,16 @@ describe("DanxContextMenu", () => {
       const parent = wrapper.find(".danx-context-menu__item");
       expect(parent.classes()).toContain("is-active");
       expect(parent.find(".danx-context-menu__check").exists()).toBe(true);
+    });
+  });
+
+  describe("accessibility", () => {
+    it("has no axe violations", async () => {
+      await mountMenu([createItem({ label: "Cut" }), createItem({ id: "item-2", label: "Copy" })]);
+
+      // axe-core schedules its own timers internally; fake timers would hang it.
+      vi.useRealTimers();
+      await expectNoA11yViolations(document.body);
     });
   });
 });

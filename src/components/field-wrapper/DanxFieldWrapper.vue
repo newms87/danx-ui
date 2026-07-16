@@ -49,7 +49,7 @@ const errorMessage = computed(() => (typeof props.error === "string" ? props.err
 
 <template>
   <div class="danx-field-wrapper">
-    <label v-if="label" :for="fieldId" class="danx-field-wrapper__label">
+    <label v-if="label" :id="`${fieldId}-label`" :for="fieldId" class="danx-field-wrapper__label">
       {{ label }}
       <span v-if="required" class="danx-field-wrapper__required" aria-hidden="true">*</span>
     </label>

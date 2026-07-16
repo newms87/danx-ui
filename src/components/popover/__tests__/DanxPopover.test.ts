@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 import DanxPopover from "../DanxPopover.vue";
+import { expectNoA11yViolations } from "../../../shared/testing/expectNoA11yViolations";
 
 /**
  * Mock native Popover API on HTMLElement.prototype since jsdom doesn't support it.
@@ -356,6 +357,15 @@ describe("DanxPopover", () => {
       await nextTick();
 
       expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+    });
+  });
+
+  describe("accessibility", () => {
+    it("has no axe violations", async () => {
+      mountPopover();
+      await nextTick();
+
+      await expectNoA11yViolations(document.body);
     });
   });
 });
