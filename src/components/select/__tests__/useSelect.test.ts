@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { defineComponent, ref } from "vue";
 import { useSelect } from "../useSelect";
 import type { DanxSelectEmits, DanxSelectProps, SelectModelValue, SelectOption } from "../types";
@@ -754,7 +754,7 @@ describe("useSelect", () => {
       globalThis.ResizeObserver = OriginalResizeObserver;
     });
 
-    it("updates panelMinWidth via ResizeObserver callback", () => {
+    it("updates panelMinWidth via ResizeObserver callback", async () => {
       let observerCallback!: ResizeObserverCallback;
       const mockObserve = vi.fn();
 
@@ -771,7 +771,12 @@ describe("useSelect", () => {
       const mockEl = document.createElement("div");
       result.observeTriggerWidth(mockEl);
 
-      expect(mockObserve).toHaveBeenCalledWith(mockEl);
+      // Resize observation is wired up via a dynamic import() inside onMounted
+      // (keeps @vueuse/core out of the main barrel's eager module graph — DXUI-156).
+      // vi.waitFor polls rather than assuming a fixed number of ticks, since the
+      // dynamic import's resolution time depends on whether the module is already
+      // warm in vite-node's cache.
+      await vi.waitFor(() => expect(mockObserve).toHaveBeenCalledWith(mockEl, {}));
 
       // Simulate resize callback
       observerCallback(
@@ -781,42 +786,46 @@ describe("useSelect", () => {
       expect(result.panelMinWidth.value).toBe("250px");
     });
 
-    it("cleans up observer when new element is observed", () => {
-      const mockUnobserve = vi.fn();
+    it("cleans up observer when new element is observed", async () => {
+      const mockObserve = vi.fn();
       const mockDisconnect = vi.fn();
 
       globalThis.ResizeObserver = class {
         constructor() {}
-        observe = vi.fn();
-        unobserve = mockUnobserve;
+        observe = mockObserve;
+        unobserve = vi.fn();
         disconnect = mockDisconnect;
       } as unknown as typeof ResizeObserver;
 
       const { result } = createSelect(null);
       const el1 = document.createElement("div");
-      const el2 = document.createElement("div");
-
       result.observeTriggerWidth(el1);
-      result.observeTriggerWidth(el2);
+      await vi.waitFor(() => expect(mockObserve).toHaveBeenCalledWith(el1, {}));
 
-      expect(mockUnobserve).toHaveBeenCalledWith(el1);
+      const el2 = document.createElement("div");
+      result.observeTriggerWidth(el2);
+      // VueUse's useResizeObserver disconnects and recreates the observer on
+      // target change (it never calls .unobserve()) — assert the re-observe.
+      await vi.waitFor(() => expect(mockObserve).toHaveBeenCalledWith(el2, {}));
+
       expect(mockDisconnect).toHaveBeenCalled();
     });
 
-    it("handles null element gracefully", () => {
+    it("handles null element gracefully", async () => {
       const { result } = createSelect(null);
       result.observeTriggerWidth(null);
+      await flushPromises();
       expect(result.panelMinWidth.value).toBe("0px");
     });
 
-    it("cleans up observer on component unmount", () => {
+    it("cleans up observer on component unmount", async () => {
+      const mockObserve = vi.fn();
       const mockDisconnect = vi.fn();
-      const mockUnobserve = vi.fn();
 
       globalThis.ResizeObserver = class {
         constructor() {}
-        observe = vi.fn();
-        unobserve = mockUnobserve;
+        observe = mockObserve;
+        unobserve = vi.fn();
         disconnect = mockDisconnect;
       } as unknown as typeof ResizeObserver;
 
@@ -824,12 +833,12 @@ describe("useSelect", () => {
       const { result } = createSelect(null);
       const el = document.createElement("div");
       result.observeTriggerWidth(el);
+      await vi.waitFor(() => expect(mockObserve).toHaveBeenCalledWith(el, {}));
 
-      // Unmount the wrapper (triggers onBeforeUnmount -> cleanupObserver)
+      // Unmount the wrapper (triggers onBeforeUnmount -> stopResizeObserver)
       const wrapper = mountedWrappers[mountedWrappers.length - 1]!;
       wrapper.unmount();
 
-      expect(mockUnobserve).toHaveBeenCalledWith(el);
       expect(mockDisconnect).toHaveBeenCalled();
     });
   });

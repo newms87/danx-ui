@@ -13,7 +13,7 @@
  * @param options - Configuration for persistent mode
  * @returns Reactive state and event handlers for scrollbar tracks/thumbs
  */
-import { type CSSProperties, onUnmounted, type Ref, ref, watch } from "vue";
+import { type CSSProperties, onMounted, onUnmounted, type Ref, ref, watch } from "vue";
 import type { UseDanxScrollOptions, UseDanxScrollReturn } from "./types";
 export type { UseDanxScrollOptions, UseDanxScrollReturn } from "./types";
 
@@ -307,8 +307,22 @@ export function useDanxScroll(
     if (handled) e.preventDefault();
   }
 
-  // ResizeObserver for content changes
-  let resizeObserver: ResizeObserver | null = null;
+  // ResizeObserver for content changes — reactively re-observes as containerEl/firstChildEl change.
+  // DXUI-156: DanxScroll.vue (this composable's caller) is statically imported by
+  // DanxSelect.vue, which ships from the main barrel — so a static "@vueuse/core"
+  // import here would leak into the eager module graph despite this file living
+  // outside the barrel's own export list. Resolved via dynamic import() inside
+  // onMounted, matching scrollInfiniteSetup.ts's technique.
+  const firstChildEl = ref<HTMLElement | null>(null);
+  let stopResizeObserver: (() => void) | undefined;
+
+  onMounted(async () => {
+    const { useElementResize } = await import("../../shared/composables/useElementResize");
+    const { stop } = useElementResize([containerEl, firstChildEl], () => {
+      updateGeometry();
+    });
+    stopResizeObserver = stop;
+  });
 
   function setupObserver() {
     const el = containerEl.value;
@@ -317,15 +331,8 @@ export function useDanxScroll(
     el.addEventListener("scroll", onScroll, { passive: true });
     updateGeometry();
 
-    resizeObserver = new ResizeObserver(() => {
-      updateGeometry();
-    });
-    resizeObserver.observe(el);
-
     // Also observe the first child (content) for size changes
-    if (el.firstElementChild) {
-      resizeObserver.observe(el.firstElementChild);
-    }
+    firstChildEl.value = el.firstElementChild as HTMLElement | null;
   }
 
   function cleanup(el?: HTMLElement | null) {
@@ -333,16 +340,15 @@ export function useDanxScroll(
     if (target) {
       target.removeEventListener("scroll", onScroll);
     }
-    resizeObserver?.disconnect();
-    resizeObserver = null;
     if (hideTimeout) clearTimeout(hideTimeout);
   }
 
   // Watch for container element becoming available (immediate handles onMounted case)
   watch(
     containerEl,
-    (_newEl, oldEl) => {
+    (newEl, oldEl) => {
       if (oldEl) cleanup(oldEl);
+      if (!newEl) firstChildEl.value = null;
       setupObserver();
     },
     { immediate: true }
@@ -350,6 +356,7 @@ export function useDanxScroll(
 
   onUnmounted(() => {
     cleanup();
+    stopResizeObserver?.();
   });
 
   return {

@@ -125,8 +125,31 @@ export function usePopoverPositioning(
     { immediate: true }
   );
 
+  // Reposition when anchor/panel content grows without a window resize.
+  // Kept out of the eager module graph: statically importing "@vueuse/core"
+  // here would re-introduce it into the main barrel (DXUI-35). Resolved via
+  // dynamic import(), matching scrollInfiniteSetup.ts's technique. Not gated
+  // behind onMounted — this composable is also used from bare effect scopes
+  // (no host component), and onMounted no-ops without one.
+  let stopTriggerResize: (() => void) | undefined;
+  let stopPanelResize: (() => void) | undefined;
+  let disposed = false;
+
+  void (async () => {
+    const { useElementResize } = await import("./useElementResize");
+    if (disposed) return;
+    const onResize = () => {
+      if (isOpen.value) updatePosition();
+    };
+    stopTriggerResize = useElementResize(trigger, onResize).stop;
+    stopPanelResize = useElementResize(panel, onResize).stop;
+  })();
+
   onScopeDispose(() => {
+    disposed = true;
     removeScrollListeners();
+    stopTriggerResize?.();
+    stopPanelResize?.();
   });
 
   return { style };

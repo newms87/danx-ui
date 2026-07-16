@@ -849,7 +849,12 @@ describe("useDanxScroll", () => {
       const containerEl = ref<HTMLElement | null>(el);
       const result = createComposable(containerEl);
 
-      await nextTick();
+      // Resize observation is wired up via a dynamic import() inside onMounted
+      // (keeps @vueuse/core out of the main barrel's eager module graph — DXUI-156).
+      // vi.waitFor polls rather than assuming a fixed number of ticks, since the
+      // dynamic import's resolution time depends on whether the module is already
+      // warm in vite-node's cache.
+      await vi.waitFor(() => expect(resizeCallback).not.toBeNull());
 
       // Change scroll dimensions
       Object.defineProperty(el, "scrollHeight", {
@@ -920,7 +925,7 @@ describe("useDanxScroll", () => {
       const containerEl = ref<HTMLElement | null>(el);
       createComposable(containerEl);
 
-      await nextTick();
+      await vi.waitFor(() => expect(resizeCallback).not.toBeNull());
 
       // Capture the resize callback before nullifying the container
       const savedCallback = resizeCallback;

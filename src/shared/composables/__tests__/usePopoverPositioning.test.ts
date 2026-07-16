@@ -1,7 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const mockUseResizeObserver = vi.hoisted(() =>
+  vi.fn((..._args: any[]) => ({
+    stop: vi.fn(),
+    isSupported: { value: true },
+  }))
+);
+
+vi.mock("@vueuse/core", () => ({
+  useResizeObserver: mockUseResizeObserver,
+}));
+
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { ref, effectScope, nextTick } from "vue";
 import { usePopoverPositioning } from "../usePopoverPositioning";
 import type { PopoverPlacement, PopoverPosition } from "../../types";
+
+/**
+ * Waits for the dynamic import() inside usePopoverPositioning's resize wiring
+ * to resolve. Polls rather than assuming a fixed number of ticks, since the
+ * import's resolution time depends on whether the module is already warm in
+ * vite-node's cache.
+ */
+async function flushDynamicImport() {
+  await vi.waitFor(() => expect(mockUseResizeObserver).toHaveBeenCalled());
+}
 
 /** Create a mock element with a controllable getBoundingClientRect */
 function mockElement(rect: Partial<DOMRect>): HTMLElement {
@@ -652,6 +674,136 @@ describe("usePopoverPositioning", () => {
       // Left would be (5+30)-50 = -15, clamped to 20
       expect(result!.style.top).toBe("43px");
       expect(result!.style.left).toBe("20px");
+    });
+  });
+
+  describe("resize repositioning", () => {
+    beforeEach(() => {
+      mockUseResizeObserver.mockClear();
+    });
+
+    it("wires a resize observer on both trigger and panel elements", async () => {
+      const trigger = mockElement({ top: 100, left: 200, bottom: 130, right: 260 });
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(trigger);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("bottom");
+      const isOpen = ref(true);
+
+      scope = effectScope();
+      scope.run(() => {
+        usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+      });
+
+      await flushDynamicImport();
+
+      expect(mockUseResizeObserver).toHaveBeenCalledWith(
+        triggerRef,
+        expect.any(Function),
+        undefined
+      );
+      expect(mockUseResizeObserver).toHaveBeenCalledWith(panelRef, expect.any(Function), undefined);
+    });
+
+    it("repositions when the panel resizes without a window resize event, while open", async () => {
+      // Trigger near the bottom of the viewport (height 768): a small panel fits
+      // below without flipping, but a panel that grows tall enough overflows and
+      // must flip to "top" — proving the resize callback re-ran updatePosition.
+      const trigger = mockElement({
+        top: 600,
+        left: 200,
+        bottom: 630,
+        right: 260,
+        width: 60,
+        height: 30,
+      });
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(trigger);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("bottom");
+      const isOpen = ref(true);
+
+      scope = effectScope();
+      let result: ReturnType<typeof usePopoverPositioning>;
+      scope.run(() => {
+        result = usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+      });
+
+      await flushDynamicImport();
+      // No overflow yet: top = triggerRect.bottom + 8 = 638
+      expect(result!.style.top).toBe("638px");
+
+      // Panel grows tall enough to overflow the viewport if it stayed below —
+      // simulate the resize callback vueuse would invoke on the panel target.
+      panel.getBoundingClientRect = () => ({
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: 100,
+        height: 200,
+        x: 0,
+        y: 0,
+        toJSON: () => {},
+      });
+      const panelResizeCallback = mockUseResizeObserver.mock.calls.find(
+        (call) => call[0] === panelRef
+      )?.[1];
+      panelResizeCallback?.();
+
+      // Flipped to top: triggerRect.top - panelHeight - 8 = 600 - 200 - 8 = 392
+      expect(result!.style.top).toBe("392px");
+    });
+
+    it("does not reposition on resize while closed", async () => {
+      const trigger = mockElement({ top: 100, left: 200, bottom: 130, right: 260 });
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(trigger);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("bottom");
+      const isOpen = ref(false);
+
+      scope = effectScope();
+      scope.run(() => {
+        usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+      });
+
+      await flushDynamicImport();
+
+      const updatePositionSpy = vi.spyOn(panel, "getBoundingClientRect");
+      const panelResizeCallback = mockUseResizeObserver.mock.calls.find(
+        (call) => call[0] === panelRef
+      )?.[1];
+      panelResizeCallback?.();
+
+      expect(updatePositionSpy).not.toHaveBeenCalled();
+    });
+
+    it("stops resize observers on scope disposal", async () => {
+      const stopTrigger = vi.fn();
+      const stopPanel = vi.fn();
+      mockUseResizeObserver
+        .mockImplementationOnce(() => ({ stop: stopTrigger, isSupported: { value: true } }))
+        .mockImplementationOnce(() => ({ stop: stopPanel, isSupported: { value: true } }));
+
+      const trigger = mockElement({ top: 100, left: 200, bottom: 130, right: 260 });
+      const panel = mockElement({ width: 100, height: 50 });
+      const triggerRef = ref<HTMLElement | null>(trigger);
+      const panelRef = ref<HTMLElement | null>(panel);
+      const placement = ref<PopoverPlacement>("bottom");
+      const isOpen = ref(true);
+
+      scope = effectScope();
+      scope.run(() => {
+        usePopoverPositioning(triggerRef, panelRef, placement, isOpen);
+      });
+
+      await flushDynamicImport();
+
+      scope.stop();
+
+      expect(stopTrigger).toHaveBeenCalled();
+      expect(stopPanel).toHaveBeenCalled();
     });
   });
 });

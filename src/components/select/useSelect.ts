@@ -11,7 +11,7 @@
  * @returns All reactive state and handlers needed by the template
  */
 
-import { computed, type ComputedRef, onBeforeUnmount, type Ref, ref, watch } from "vue";
+import { computed, type ComputedRef, onBeforeUnmount, onMounted, type Ref, ref, watch } from "vue";
 import type { DanxSelectEmits, DanxSelectProps, SelectModelValue, SelectOption } from "./types";
 import { useSelectKeyboard } from "./useSelectKeyboard";
 
@@ -99,9 +99,6 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
   const filterText = ref("");
   const highlightedIndex = ref(-1);
   const panelMinWidth = ref("0px");
-
-  let resizeObserver: ResizeObserver | null = null;
-  let observedElement: HTMLElement | null = null;
 
   // ---------------------------------------------------------------------------
   // Option Normalization
@@ -295,31 +292,27 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
   // Width Sync
   // ---------------------------------------------------------------------------
 
+  // Kept out of the eager module graph: statically importing "@vueuse/core"
+  // here would re-introduce it into the main barrel (DXUI-35). Resolved via
+  // dynamic import() inside onMounted, matching scrollInfiniteSetup.ts.
+  const triggerEl = ref<HTMLElement | null>(null);
+  let stopTriggerResize: (() => void) | undefined;
+
   function observeTriggerWidth(el: HTMLElement | null): void {
-    cleanupObserver();
+    triggerEl.value = el;
+  }
 
-    if (!el) return;
-
-    observedElement = el;
-    resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        panelMinWidth.value = `${entry.contentRect.width}px`;
-      }
+  onMounted(async () => {
+    const { useElementResize } = await import("../../shared/composables/useElementResize");
+    const { stop } = useElementResize(triggerEl, (entries) => {
+      const entry = entries[0];
+      if (entry) panelMinWidth.value = `${entry.contentRect.width}px`;
     });
-    resizeObserver.observe(el);
-  }
-
-  function cleanupObserver(): void {
-    if (resizeObserver && observedElement) {
-      resizeObserver.unobserve(observedElement);
-      resizeObserver.disconnect();
-      resizeObserver = null;
-      observedElement = null;
-    }
-  }
+    stopTriggerResize = stop;
+  });
 
   onBeforeUnmount(() => {
-    cleanupObserver();
+    stopTriggerResize?.();
     clearFilterDebounce();
   });
 
