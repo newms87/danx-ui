@@ -1,0 +1,25 @@
+/**
+ * DanxBreadcrumbs Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize breadcrumbs appearance.
+ *
+ * CSS Tokens:
+ * --dx-breadcrumbs-gap             Gap between items and separators
+ * --dx-breadcrumbs-font-size       Item font size
+ * --dx-breadcrumbs-color           Inactive item text color
+ * --dx-breadcrumbs-hover-color     Hover state for interactive items
+ * --dx-breadcrumbs-current-color   Current item text color
+ * --dx-breadcrumbs-separator-color Separator color
+ * --dx-breadcrumbs-disabled-color  Disabled item text color
+ */
+
+:root {
+  --dx-breadcrumbs-gap: var(--space-xs);
+  --dx-breadcrumbs-font-size: var(--text-xs);
+  --dx-breadcrumbs-color: var(--color-text-muted);
+  --dx-breadcrumbs-hover-color: var(--color-text);
+  --dx-breadcrumbs-current-color: var(--color-text);
+  --dx-breadcrumbs-separator-color: var(--color-text-muted);
+  --dx-breadcrumbs-disabled-color: var(--color-text-muted);
+}

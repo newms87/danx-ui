@@ -56,6 +56,11 @@
       "import": "./dist/components/badge/index.js"
     },
     "./components/badge/styles": "./dist/components/badge/badge.css",
+    "./components/breadcrumbs": {
+      "types": "./dist/components/breadcrumbs/index.d.ts",
+      "import": "./dist/components/breadcrumbs/index.js"
+    },
+    "./components/breadcrumbs/styles": "./dist/components/breadcrumbs/breadcrumbs.css",
     "./components/button": {
       "types": "./dist/components/button/index.d.ts",
       "import": "./dist/components/button/index.js"
@@ -206,6 +211,11 @@
       "import": "./dist/components/tooltip/index.js"
     },
     "./components/tooltip/styles": "./dist/components/tooltip/tooltip.css",
+    "./components/tree-view": {
+      "types": "./dist/components/tree-view/index.d.ts",
+      "import": "./dist/components/tree-view/index.js"
+    },
+    "./components/tree-view/styles": "./dist/components/tree-view/tree-view.css",
     "./components/zoomable": {
       "types": "./dist/components/zoomable/index.d.ts",
       "import": "./dist/components/zoomable/index.js"

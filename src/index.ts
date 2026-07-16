@@ -8,6 +8,7 @@
 export { DanxActionButton, DanxButton } from "./components/button";
 export { DanxAlert } from "./components/alert";
 export { DanxBadge } from "./components/badge";
+export { DanxBreadcrumbs } from "./components/breadcrumbs";
 export { DanxChip } from "./components/chip";
 export { DanxIcon } from "./components/icon";
 export { DanxKbd, detectOs, resolveKeyLabel } from "./components/kbd";
@@ -120,6 +121,7 @@ export type {
 export type { DanxIconProps } from "./components/icon";
 export type { DanxAlertProps, DanxAlertEmits, DanxAlertSlots } from "./components/alert";
 export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
+export type { DanxBreadcrumbItem, DanxBreadcrumbsProps } from "./components/breadcrumbs";
 export type { ChipSize, DanxChipEmits, DanxChipProps, DanxChipSlots } from "./components/chip";
 export type {
   CodeFormat,

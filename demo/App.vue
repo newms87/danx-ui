@@ -98,6 +98,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/badge" class="demo-sidebar__link">Badge</RouterLink>
               </li>
               <li>
+                <RouterLink to="/breadcrumbs" class="demo-sidebar__link">Breadcrumbs</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/button" class="demo-sidebar__link">Button</RouterLink>
               </li>
               <li>

@@ -1,0 +1,9 @@
+/**
+ * DanxBreadcrumbs Styles
+ *
+ * Main entry point that imports all breadcrumbs CSS modules.
+ * See individual files for detailed documentation.
+ */
+
+@import "./breadcrumbs-tokens.css";
+@import "./breadcrumbs-layout.css";

@@ -4,6 +4,7 @@ import App from "./App.vue";
 import ActionButtonPage from "./pages/ActionButtonPage.vue";
 import AlertPage from "./pages/AlertPage.vue";
 import BadgePage from "./pages/BadgePage.vue";
+import BreadcrumbsPage from "./pages/BreadcrumbsPage.vue";
 import ButtonPage from "./pages/ButtonPage.vue";
 import ChipPage from "./pages/ChipPage.vue";
 import CodeViewerPage from "./pages/CodeViewerPage.vue";
@@ -53,6 +54,7 @@ const router = createRouter({
     { path: "/", name: "home", component: HomePage },
     { path: "/alert", name: "alert", component: AlertPage },
     { path: "/badge", name: "badge", component: BadgePage },
+    { path: "/breadcrumbs", name: "breadcrumbs", component: BreadcrumbsPage },
     { path: "/button", name: "button", component: ButtonPage },
     { path: "/chip", name: "chip", component: ChipPage },
     { path: "/action-button", name: "action-button", component: ActionButtonPage },

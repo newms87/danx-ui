@@ -37,6 +37,7 @@ import {
 } from "vue";
 import { DanxAlert } from "../../src/components/alert";
 import { DanxBadge } from "../../src/components/badge";
+import { DanxBreadcrumbs } from "../../src/components/breadcrumbs";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
 import { DanxTextarea } from "../../src/components/textarea";
@@ -230,6 +231,7 @@ import { useLogDemo, levelColor } from "../pages/scroll-examples/useLogDemo.js";
 const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxAlert,
   DanxBadge,
+  DanxBreadcrumbs,
   DanxButton,
   DanxActionButton,
   DanxChip,
@@ -287,6 +289,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   nextTick,
   DanxAlert,
   DanxBadge,
+  DanxBreadcrumbs,
   DanxButton,
   DanxActionButton,
   DanxChip,
