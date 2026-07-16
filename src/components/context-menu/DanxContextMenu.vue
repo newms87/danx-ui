@@ -190,17 +190,17 @@ function focusLast(): void {
   if (last) focusItem(last.id);
 }
 
+/** Callers guard on `item.children?.length` before invoking — see the ArrowRight case below. */
 function openSubmenuAndFocusFirst(item: ContextMenuItem): void {
-  if (!item.children?.length) return;
   activeSubmenuId.value = item.id;
   focusedSubmenuParentId.value = item.id;
-  const first = item.children.filter(isNavigable)[0];
+  const first = item.children!.filter(isNavigable)[0];
   if (first) focusItem(first.id);
 }
 
+/** Callers guard on `focusedSubmenuParentId.value` before invoking — see the ArrowLeft case below. */
 function closeSubmenuAndFocusParent(): void {
-  if (!focusedSubmenuParentId.value) return;
-  const parentId = focusedSubmenuParentId.value;
+  const parentId = focusedSubmenuParentId.value!;
   activeSubmenuId.value = null;
   focusedSubmenuParentId.value = null;
   focusItem(parentId);
@@ -383,12 +383,7 @@ onUnmounted(() => {
       <slot name="trigger" />
     </template>
 
-    <div
-      ref="menuRef"
-      class="danx-context-menu__list"
-      role="menu"
-      @keydown="handleMenuKeydown"
-    >
+    <div ref="menuRef" class="danx-context-menu__list" role="menu" @keydown="handleMenuKeydown">
       <template v-for="item in items" :key="item.id">
         <!-- Divider -->
         <div v-if="item.divider" class="danx-context-menu__divider" />
