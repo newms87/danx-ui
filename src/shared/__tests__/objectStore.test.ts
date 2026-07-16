@@ -648,7 +648,7 @@ describe("autoRefreshObject / stopAutoRefreshObject", () => {
     stopAutoRefreshObject("r2");
   });
 
-  it("flashes an error and returns when the refreshed object has no id", async () => {
+  it("flashes an error but still reschedules when the refreshed object has no id", async () => {
     const type = freshType();
     const object = storeObject({
       id: 1,
@@ -659,9 +659,37 @@ describe("autoRefreshObject / stopAutoRefreshObject", () => {
     });
     const errorSpy = vi.spyOn(FlashMessages, "error").mockImplementation(() => {});
     const callback = vi.fn().mockResolvedValue({ __type: type });
-    await autoRefreshObject("r3", object, () => true, callback);
+    await autoRefreshObject("r3", object, () => true, callback, 1000);
     expect(errorSpy).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(callback).toHaveBeenCalledTimes(2);
     stopAutoRefreshObject("r3");
+  });
+
+  it("flashes an error but still reschedules when the callback rejects", async () => {
+    const type = freshType();
+    const object = storeObject({ id: 1, __type: type, status: "pending", __timestamp: 1 });
+    const errorSpy = vi.spyOn(FlashMessages, "error").mockImplementation(() => {});
+    const callback = vi.fn().mockRejectedValue(new Error("network blip"));
+    await autoRefreshObject("r5", object, () => true, callback, 1000);
+    expect(errorSpy).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(callback).toHaveBeenCalledTimes(2);
+    stopAutoRefreshObject("r5");
+  });
+
+  it("flashes an error but still reschedules when the callback throws synchronously", async () => {
+    const type = freshType();
+    const object = storeObject({ id: 1, __type: type, status: "pending", __timestamp: 1 });
+    const errorSpy = vi.spyOn(FlashMessages, "error").mockImplementation(() => {});
+    const callback = vi.fn().mockImplementation(() => {
+      throw new Error("boom");
+    });
+    await autoRefreshObject("r6", object, () => true, callback, 1000);
+    expect(errorSpy).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(callback).toHaveBeenCalledTimes(2);
+    stopAutoRefreshObject("r6");
   });
 
   it("reschedules itself after the interval", async () => {

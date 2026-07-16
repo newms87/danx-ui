@@ -412,16 +412,21 @@ export async function autoRefreshObject<T extends TypedObject>(
   }
 
   if (condition(object)) {
-    const refreshedObject = await callback(object);
+    try {
+      const refreshedObject = await callback(object);
 
-    if (!refreshedObject.id) {
+      if (!refreshedObject.id) {
+        FlashMessages.error(
+          `Failed to refresh ${object.__type} (${object.id}) status: ${object.name}`
+        );
+      } else {
+        storeObject(refreshedObject);
+      }
+    } catch (error) {
       FlashMessages.error(
-        `Failed to refresh ${object.__type} (${object.id}) status: ${object.name}`
+        `Failed to refresh ${object.__type} (${object.id}): ${(error as Error)?.message ?? error}`
       );
-      return;
     }
-
-    storeObject(refreshedObject);
   }
 
   registeredAutoRefreshes[name] = setTimeout(
