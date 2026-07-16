@@ -17,7 +17,7 @@
  * @returns Reactive style object with top/left as pixel strings
  */
 import { type CSSProperties, nextTick, onScopeDispose, reactive, type Ref, watch } from "vue";
-import type { PopoverPlacement, PopoverPosition } from "./types";
+import type { PopoverPlacement, PopoverPosition } from "../types";
 
 /** Default gap between trigger and panel in pixels */
 const DEFAULT_OFFSET = 8;

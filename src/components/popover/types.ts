@@ -4,19 +4,12 @@
  * Types for the trigger-anchored popover component.
  */
 
-import type { VariantType } from "../../shared/types";
+import type { PopoverPlacement, PopoverPosition, VariantType } from "../../shared/types";
 
-/** Placement direction for the popover panel relative to the trigger */
-export type PopoverPlacement = "top" | "bottom" | "left" | "right";
+export type { PopoverPlacement, PopoverPosition };
 
 /** How the popover is triggered to open/close */
 export type PopoverTrigger = "manual" | "click" | "hover" | "focus";
-
-/** Explicit viewport coordinates for the popover panel */
-export interface PopoverPosition {
-  x: number;
-  y: number;
-}
 
 export interface DanxPopoverProps {
   /**

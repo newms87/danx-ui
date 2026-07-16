@@ -22,7 +22,7 @@
  */
 
 import { computed, type Directive, onMounted, onUnmounted } from "vue";
-import type { PopoverPlacement } from "../popover/types";
+import type { PopoverPlacement } from "../../shared/types";
 import type { ToastEntry, ToastPosition } from "./types";
 import { useToast } from "./useToast";
 import DanxToast from "./DanxToast.vue";

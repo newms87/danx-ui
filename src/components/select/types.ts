@@ -7,9 +7,8 @@
 
 import type { Component } from "vue";
 import type { FormFieldBaseProps, FormFieldEmits } from "../../shared/form-types";
-import type { VariantType } from "../../shared/types";
+import type { PopoverPlacement, VariantType } from "../../shared/types";
 import type { IconName } from "../icon/icons";
-import type { PopoverPlacement } from "../popover";
 
 /** A single option in the select dropdown */
 export interface SelectOption {

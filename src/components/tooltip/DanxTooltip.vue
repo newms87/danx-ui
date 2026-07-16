@@ -58,9 +58,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef, useSlots, watch } from "vue";
+import { usePopoverPositioning } from "../../shared/composables/usePopoverPositioning";
 import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
-import { usePopoverPositioning } from "../popover/usePopoverPositioning";
 import type { DanxTooltipProps, DanxTooltipSlots } from "./types";
 import { useTooltipInteraction } from "./useTooltipInteraction";
 

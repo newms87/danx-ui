@@ -20,8 +20,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import type { PopoverPlacement } from "../popover/types";
-import { usePopoverPositioning } from "../popover/usePopoverPositioning";
+import { usePopoverPositioning } from "../../shared/composables/usePopoverPositioning";
+import type { PopoverPlacement } from "../../shared/types";
 import DanxToast from "./DanxToast.vue";
 import type { ToastEntry } from "./types";
 

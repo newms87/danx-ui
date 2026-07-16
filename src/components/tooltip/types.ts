@@ -1,7 +1,6 @@
 import type { Component } from "vue";
-import type { VariantType } from "../../shared/types";
+import type { PopoverPlacement, VariantType } from "../../shared/types";
 import type { IconName } from "../icon/icons";
-import type { PopoverPlacement } from "../popover/types";
 
 /**
  * DanxTooltip Type Definitions

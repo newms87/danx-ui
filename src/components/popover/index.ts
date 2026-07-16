@@ -8,10 +8,10 @@
  */
 
 export { default as DanxPopover } from "./DanxPopover.vue";
-export { useClickOutside } from "./useClickOutside";
+export { useClickOutside } from "../../shared/composables/useClickOutside";
 export { useEscapeKey } from "./useEscapeKey";
-export { usePopoverPositioning } from "./usePopoverPositioning";
-export type { UsePopoverPositioningReturn } from "./usePopoverPositioning";
+export { usePopoverPositioning } from "../../shared/composables/usePopoverPositioning";
+export type { UsePopoverPositioningReturn } from "../../shared/composables/usePopoverPositioning";
 export { usePopoverTrigger } from "./usePopoverTrigger";
 export type {
   DanxPopoverEmits,

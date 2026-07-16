@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { ref, effectScope, nextTick } from "vue";
 import { usePopoverPositioning } from "../usePopoverPositioning";
-import type { PopoverPlacement, PopoverPosition } from "../types";
+import type { PopoverPlacement, PopoverPosition } from "../../types";
 
 /** Create a mock element with a controllable getBoundingClientRect */
 function mockElement(rect: Partial<DOMRect>): HTMLElement {

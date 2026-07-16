@@ -18,7 +18,7 @@
  * @returns Event handlers and isOpen state for the component
  */
 import { computed, onBeforeUnmount, onMounted, ref, type Ref, watch } from "vue";
-import { useClickOutside } from "../popover/useClickOutside";
+import { useClickOutside } from "../../shared/composables/useClickOutside";
 import type { TooltipInteraction } from "./types";
 
 const HOVER_DELAY = 200;

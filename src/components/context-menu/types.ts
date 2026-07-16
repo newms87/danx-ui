@@ -1,6 +1,6 @@
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
-import type { PopoverPlacement, PopoverPosition } from "../popover/types";
+import type { PopoverPlacement, PopoverPosition } from "../../shared/types";
 
 /**
  * DanxContextMenu Type Definitions

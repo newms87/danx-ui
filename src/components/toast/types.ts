@@ -5,8 +5,7 @@
  * user-facing options, and internal entry tracking.
  */
 
-import type { PopoverPlacement } from "../popover/types";
-import type { VariantType } from "../../shared/types";
+import type { PopoverPlacement, VariantType } from "../../shared/types";
 
 /** 9-position grid for screen-anchored toasts */
 export type ToastPosition =

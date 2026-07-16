@@ -83,11 +83,11 @@
 
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from "vue";
+import { useClickOutside } from "../../shared/composables/useClickOutside";
+import { usePopoverPositioning } from "../../shared/composables/usePopoverPositioning";
 import { useVariant } from "../../shared/composables/useVariant";
 import type { DanxPopoverProps, DanxPopoverSlots } from "./types";
-import { useClickOutside } from "./useClickOutside";
 import { useEscapeKey } from "./useEscapeKey";
-import { usePopoverPositioning } from "./usePopoverPositioning";
 import { usePopoverTrigger } from "./usePopoverTrigger";
 
 const props = withDefaults(defineProps<DanxPopoverProps>(), {

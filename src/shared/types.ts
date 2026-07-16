@@ -23,3 +23,12 @@ export type SizeValue = number | string;
  * setting `--dx-variant-{name}-*` CSS tokens.
  */
 export type VariantType = "" | "danger" | "success" | "warning" | "info" | "muted" | (string & {});
+
+/** Placement direction for a floating panel relative to its trigger */
+export type PopoverPlacement = "top" | "bottom" | "left" | "right";
+
+/** Explicit viewport coordinates for a floating panel */
+export interface PopoverPosition {
+  x: number;
+  y: number;
+}

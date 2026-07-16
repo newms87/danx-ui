@@ -2,8 +2,7 @@
  * DanxColorPicker Type Definitions
  */
 
-import type { PopoverPlacement } from "../popover/types";
-import type { VariantType } from "../../shared/types";
+import type { PopoverPlacement, VariantType } from "../../shared/types";
 import type { ColorFormat } from "./color-utils";
 
 export type DanxColorPickerOutputFormat = ColorFormat;
