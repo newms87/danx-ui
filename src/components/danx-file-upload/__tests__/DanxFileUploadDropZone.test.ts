@@ -97,4 +97,26 @@ describe("DanxFileUploadDropZone", () => {
     await wrapper.trigger("dragenter");
     expect(wrapper.emitted("dragEnter")).toBeUndefined();
   });
+
+  it("does not emit dragEnter on dragenter event when disabled", async () => {
+    const wrapper = createWrapper({ disabled: true });
+    await wrapper.trigger("dragenter", {
+      dataTransfer: { types: ["Files"] },
+    });
+    expect(wrapper.emitted("dragEnter")).toBeUndefined();
+  });
+
+  it("does not emit drop when disabled", async () => {
+    const wrapper = createWrapper({ disabled: true });
+    const file = new File(["data"], "test.jpg", { type: "image/jpeg" });
+    const fileList = Object.assign([file], {
+      item: (i: number) => [file][i] ?? null,
+    }) as unknown as FileList;
+
+    await wrapper.trigger("drop", {
+      dataTransfer: { files: fileList },
+    });
+
+    expect(wrapper.emitted("drop")).toBeUndefined();
+  });
 });

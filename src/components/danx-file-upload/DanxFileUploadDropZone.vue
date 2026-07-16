@@ -23,7 +23,7 @@
 -->
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   isDragging: boolean;
   disabled: boolean;
 }>();
@@ -37,6 +37,8 @@ const emit = defineEmits<{
 function onDragEnter(event: DragEvent) {
   event.preventDefault();
   if (!event.dataTransfer) return;
+  // DXUI-69: skip emit so the --active hover class never flashes while disabled/readonly
+  if (props.disabled) return;
   emit("dragEnter");
 }
 
@@ -46,6 +48,7 @@ function onDragLeave() {
 
 function onDrop(event: DragEvent) {
   event.preventDefault();
+  if (props.disabled) return;
   const files = event.dataTransfer?.files;
   if (files && files.length > 0) {
     emit("drop", files);
