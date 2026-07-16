@@ -52,3 +52,4 @@
 @import "./components/zoomable/zoomable.css" layer(components);
 @import "./components/file-explorer/file-explorer.css" layer(components);
 @import "./components/tree-view/tree-view.css" layer(components);
+@import "./components/table/table.css" layer(components);

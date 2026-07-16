@@ -99,6 +99,7 @@ import {
   useTreeView,
   isBranchNode,
 } from "../../src/components/tree-view";
+import { DanxTable } from "../../src/components/table";
 import {
   DanxScroll,
   DanxVirtualScroll,
@@ -268,6 +269,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   FileExplorerNode,
   DanxTreeView,
   TreeViewNode,
+  DanxTable,
   DanxScroll,
   DanxVirtualScroll,
   DanxSkeleton,
@@ -435,6 +437,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   TreeViewNode,
   useTreeView,
   isBranchNode,
+  // Table
+  DanxTable,
   // Scroll
   DanxScroll,
   DanxVirtualScroll,

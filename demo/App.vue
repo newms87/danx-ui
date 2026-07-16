@@ -186,6 +186,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/tree-view" class="demo-sidebar__link">Tree View</RouterLink>
               </li>
               <li>
+                <RouterLink to="/table" class="demo-sidebar__link">Table</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/toast" class="demo-sidebar__link">Toast</RouterLink>
               </li>
               <li>

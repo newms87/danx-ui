@@ -1,0 +1,87 @@
+/**
+ * Table Component Styles
+ *
+ * Layout + presentation for DanxTable. Token defaults live in
+ * table-tokens.css. Dark mode is handled by the semantic layer — there are
+ * no .dark overrides here.
+ */
+
+@import "./table-tokens.css";
+
+.danx-table {
+  width: 100%;
+  color: var(--dx-table-text);
+  font-size: 0.875rem;
+}
+
+.danx-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--dx-table-border);
+}
+
+.danx-table__head {
+  background: var(--dx-table-header-bg);
+}
+
+.danx-table__header {
+  padding: 0.5rem 0.75rem;
+  color: var(--dx-table-header-text);
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid var(--dx-table-border);
+  user-select: none;
+}
+
+.danx-table__header.is-sortable {
+  cursor: pointer;
+}
+
+.danx-table__header-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.danx-table__sort-icon {
+  --dx-icon-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.danx-table__cell {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--dx-table-border);
+}
+
+.danx-table__row:nth-child(even) {
+  background: var(--dx-table-row-stripe-bg);
+}
+
+.danx-table__row:hover {
+  background: var(--dx-table-row-hover-bg);
+}
+
+.danx-table__row:last-child .danx-table__cell {
+  border-bottom: none;
+}
+
+.danx-table__header.is-align-center,
+.danx-table__cell.is-align-center {
+  text-align: center;
+}
+
+.danx-table__header.is-align-right,
+.danx-table__cell.is-align-right {
+  text-align: right;
+}
+
+.danx-table__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  color: var(--color-text-subtle);
+  text-align: center;
+  border: 1px solid var(--dx-table-border);
+  border-radius: var(--radius-sm);
+}

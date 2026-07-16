@@ -62,6 +62,7 @@ export { DanxEditableDiv } from "./components/editable-div";
 export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomable";
 export { DanxFileExplorer, FileExplorerNode } from "./components/file-explorer";
 export { DanxTreeView, TreeViewNode } from "./components/tree-view";
+export { DanxTable } from "./components/table";
 
 // Composables
 export {
@@ -181,6 +182,16 @@ export type {
   UseTreeViewReturn,
   FlatTreeViewRow,
 } from "./components/tree-view";
+export type {
+  TableColumn,
+  TableSortDirection,
+  TableSort,
+  DanxTableProps,
+  DanxTableEmits,
+  TableCellSlotProps,
+  TableHeaderSlotProps,
+  DanxTableSlots,
+} from "./components/table";
 export type {
   DanxDialogEmits,
   DanxDialogProps,

@@ -29,6 +29,7 @@ import ProgressBarPage from "./pages/ProgressBarPage.vue";
 import SplitPanelPage from "./pages/SplitPanelPage.vue";
 import FileExplorerPage from "./pages/FileExplorerPage.vue";
 import TreeViewPage from "./pages/TreeViewPage.vue";
+import TablePage from "./pages/TablePage.vue";
 import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileViewerPage from "./pages/DanxFileViewerPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
@@ -89,6 +90,7 @@ const router = createRouter({
     { path: "/split-panel", name: "split-panel", component: SplitPanelPage },
     { path: "/file-explorer", name: "file-explorer", component: FileExplorerPage },
     { path: "/tree-view", name: "tree-view", component: TreeViewPage },
+    { path: "/table", name: "table", component: TablePage },
     { path: "/danx-file", name: "danx-file", component: DanxFilePage },
     { path: "/danx-file-viewer", name: "danx-file-viewer", component: DanxFileViewerPage },
     { path: "/scroll", name: "scroll", component: ScrollPage },

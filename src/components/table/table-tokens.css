@@ -1,0 +1,16 @@
+/**
+ * Table Component Tokens (Tier 3)
+ *
+ * Component-specific CSS custom properties for DanxTable.
+ * Only var() references to semantic tokens — no raw values.
+ * Override these on any ancestor element to customize appearance.
+ */
+
+.danx-table {
+  --dx-table-border: var(--color-border);
+  --dx-table-header-bg: var(--color-surface-sunken);
+  --dx-table-header-text: var(--color-text-subtle);
+  --dx-table-row-stripe-bg: var(--color-surface-sunken);
+  --dx-table-row-hover-bg: var(--color-interactive-subtle);
+  --dx-table-text: var(--color-text);
+}

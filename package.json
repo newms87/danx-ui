@@ -227,6 +227,11 @@
       "import": "./dist/components/stepper/index.js"
     },
     "./components/stepper/styles": "./dist/components/stepper/stepper.css",
+    "./components/table": {
+      "types": "./dist/components/table/index.d.ts",
+      "import": "./dist/components/table/index.js"
+    },
+    "./components/table/styles": "./dist/components/table/table.css",
     "./components/tabs": {
       "types": "./dist/components/tabs/index.d.ts",
       "import": "./dist/components/tabs/index.js"
