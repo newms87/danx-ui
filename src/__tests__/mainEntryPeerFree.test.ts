@@ -40,4 +40,9 @@ describe("main entry — peer-free surface", () => {
     expect((mod as Record<string, unknown>).DanxScroll).toBeUndefined();
     expect((mod as Record<string, unknown>).useScrollInfinite).toBeUndefined();
   });
+
+  it("does not export the @vueuse/core-dependent useColorScheme from the main barrel", async () => {
+    const mod = await import("../index");
+    expect((mod as Record<string, unknown>).useColorScheme).toBeUndefined();
+  });
 });

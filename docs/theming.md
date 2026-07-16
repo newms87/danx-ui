@@ -116,6 +116,24 @@ Override the built-in dark semantics:
 }
 ```
 
+### Activating Dark Mode with `useColorScheme`
+
+danx-ui ships the CSS for dark mode but no JavaScript to turn it on - you still need something to add/remove the `.dark` class, persist the choice, and follow the OS preference. `useColorScheme` (requires the `@vueuse/core` peer dependency) does that:
+
+```typescript
+import { useColorScheme } from "danx-ui/color-scheme";
+
+const { isDark, mode, toggle } = useColorScheme();
+```
+
+- `isDark` - reactive `boolean`, true when the resolved scheme is dark.
+- `mode` - reactive `'light' | 'dark' | 'auto'`. `'auto'` (the default) follows `prefers-color-scheme` and updates live if the OS setting changes; set `mode.value` directly to pin `'light'` or `'dark'`.
+- `toggle()` - flips between `'light'` and `'dark'` (never lands back on `'auto'`).
+
+The selected mode is persisted to `localStorage` (key `"danx-color-scheme"` by default - pass `{ storageKey: "my-app-color-scheme" }` to change it) and restored on the next load. `useColorScheme` is SSR-safe: with no `document`/`window`, it resolves to `isDark: false` and never throws.
+
+Note that `useColorScheme` is **not** exported from the `danx-ui` main entry (to keep the peer-free barrel importable without `@vueuse/core`) - import it from `danx-ui/color-scheme` instead, same as `danx-ui/breakpoints`.
+
 ## Available Tokens
 
 ### Semantic Tokens

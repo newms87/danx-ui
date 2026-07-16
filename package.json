@@ -44,6 +44,10 @@
       "types": "./dist/shared/composables/useBreakpoints.d.ts",
       "import": "./dist/shared/composables/useBreakpoints.js"
     },
+    "./color-scheme": {
+      "types": "./dist/shared/composables/useColorScheme.d.ts",
+      "import": "./dist/shared/composables/useColorScheme.js"
+    },
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css",
     "./components/alert": {
