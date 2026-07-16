@@ -280,6 +280,7 @@ export type { DanxTooltipProps, DanxTooltipSlots, TooltipInteraction } from "./c
 export type {
   DanxProgressBarProps,
   DanxProgressBarSlots,
+  ProgressBarShape,
   ProgressBarSize,
   ProgressBarTextAlign,
   ProgressBarTextPosition,

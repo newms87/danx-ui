@@ -28,6 +28,7 @@
  * | indeterminate  | boolean                 | false    | Indeterminate animation mode      |
  * | variant        | VariantType             | ""       | Visual variant (danger, etc)      |
  * | size           | ProgressBarSize         | "md"     | Bar size (sm, md, lg)             |
+ * | shape          | ProgressBarShape        | "linear" | Bar shape (linear, circular)      |
  * | icon           | Component | string      | -        | Icon in fill area                 |
  * | striped        | boolean                 | false    | Striped overlay effect            |
  * | animateStripes | boolean                 | false    | Animate stripes                   |
@@ -83,6 +84,7 @@ const props = withDefaults(defineProps<DanxProgressBarProps>(), {
   indeterminate: false,
   variant: "",
   size: "md",
+  shape: "linear",
   striped: false,
   animateStripes: false,
   glow: false,
@@ -133,6 +135,7 @@ const barClasses = computed(() => [
   `danx-progress-bar--text-${props.textAlign}`,
   `danx-progress-bar--text-${effectiveTextPosition.value}`,
   {
+    "danx-progress-bar--circular": props.shape === "circular",
     "danx-progress-bar--striped": props.striped,
     "danx-progress-bar--animate-stripes": props.animateStripes,
     "danx-progress-bar--glow": props.glow,
@@ -146,6 +149,11 @@ const slotProps = computed(() => ({
   max: props.max,
   percent: percent.value,
 }));
+
+const CIRCULAR_RADIUS = 45;
+const CIRCULAR_CIRCUMFERENCE = 2 * Math.PI * CIRCULAR_RADIUS;
+
+const circularDashOffset = computed(() => CIRCULAR_CIRCUMFERENCE * (1 - percent.value / 100));
 </script>
 
 <template>
@@ -158,58 +166,95 @@ const slotProps = computed(() => ({
     :aria-valuemax="max"
     :aria-label="ariaLabel"
   >
-    <!-- Text above -->
-    <span
-      v-if="showText && effectiveTextPosition === 'above'"
-      class="danx-progress-bar__text--above"
-    >
-      <slot v-bind="slotProps">{{ displayText }}</slot>
-    </span>
-
-    <!-- Track -->
-    <div class="danx-progress-bar__track">
-      <template v-if="!indeterminate">
-        <!-- Buffer -->
-        <div
-          v-if="buffer > 0"
-          class="danx-progress-bar__buffer"
-          :style="{ width: `${bufferPercent}%` }"
+    <!-- Circular shape -->
+    <template v-if="shape === 'circular'">
+      <svg class="danx-progress-bar__circular-svg" viewBox="0 0 100 100">
+        <circle class="danx-progress-bar__circular-track" cx="50" cy="50" :r="CIRCULAR_RADIUS" />
+        <circle
+          v-if="!indeterminate"
+          class="danx-progress-bar__circular-fill"
+          cx="50"
+          cy="50"
+          :r="CIRCULAR_RADIUS"
+          :style="{
+            strokeDasharray: CIRCULAR_CIRCUMFERENCE,
+            strokeDashoffset: circularDashOffset,
+          }"
         />
+        <circle
+          v-else
+          class="danx-progress-bar__circular-indeterminate"
+          cx="50"
+          cy="50"
+          :r="CIRCULAR_RADIUS"
+        />
+      </svg>
 
-        <!-- Fill -->
-        <div class="danx-progress-bar__fill" :style="{ width: `${percent}%` }">
-          <!-- Text inside (with optional icon) -->
-          <span
-            v-if="showText && effectiveTextPosition === 'inside'"
-            class="danx-progress-bar__text--inside"
-          >
-            <span v-if="$slots.icon || icon" class="danx-progress-bar__icon">
+      <span v-if="showText" class="danx-progress-bar__circular-text">
+        <span v-if="$slots.icon || icon" class="danx-progress-bar__icon">
+          <slot name="icon">
+            <DanxIcon :icon="icon!" />
+          </slot>
+        </span>
+        <slot v-bind="slotProps">{{ displayText }}</slot>
+      </span>
+    </template>
+
+    <!-- Linear shape -->
+    <template v-else>
+      <!-- Text above -->
+      <span
+        v-if="showText && effectiveTextPosition === 'above'"
+        class="danx-progress-bar__text--above"
+      >
+        <slot v-bind="slotProps">{{ displayText }}</slot>
+      </span>
+
+      <!-- Track -->
+      <div class="danx-progress-bar__track">
+        <template v-if="!indeterminate">
+          <!-- Buffer -->
+          <div
+            v-if="buffer > 0"
+            class="danx-progress-bar__buffer"
+            :style="{ width: `${bufferPercent}%` }"
+          />
+
+          <!-- Fill -->
+          <div class="danx-progress-bar__fill" :style="{ width: `${percent}%` }">
+            <!-- Text inside (with optional icon) -->
+            <span
+              v-if="showText && effectiveTextPosition === 'inside'"
+              class="danx-progress-bar__text--inside"
+            >
+              <span v-if="$slots.icon || icon" class="danx-progress-bar__icon">
+                <slot name="icon">
+                  <DanxIcon :icon="icon!" />
+                </slot>
+              </span>
+              <slot v-bind="slotProps">{{ displayText }}</slot>
+            </span>
+
+            <!-- Icon only (when text is not inside) -->
+            <span v-else-if="$slots.icon || icon" class="danx-progress-bar__icon">
               <slot name="icon">
                 <DanxIcon :icon="icon!" />
               </slot>
             </span>
-            <slot v-bind="slotProps">{{ displayText }}</slot>
-          </span>
+          </div>
+        </template>
 
-          <!-- Icon only (when text is not inside) -->
-          <span v-else-if="$slots.icon || icon" class="danx-progress-bar__icon">
-            <slot name="icon">
-              <DanxIcon :icon="icon!" />
-            </slot>
-          </span>
-        </div>
-      </template>
+        <!-- Indeterminate -->
+        <div v-else class="danx-progress-bar__indeterminate" />
+      </div>
 
-      <!-- Indeterminate -->
-      <div v-else class="danx-progress-bar__indeterminate" />
-    </div>
-
-    <!-- Text beside -->
-    <span
-      v-if="showText && effectiveTextPosition === 'beside'"
-      class="danx-progress-bar__text--beside"
-    >
-      <slot v-bind="slotProps">{{ displayText }}</slot>
-    </span>
+      <!-- Text beside -->
+      <span
+        v-if="showText && effectiveTextPosition === 'beside'"
+        class="danx-progress-bar__text--beside"
+      >
+        <slot v-bind="slotProps">{{ displayText }}</slot>
+      </span>
+    </template>
   </div>
 </template>

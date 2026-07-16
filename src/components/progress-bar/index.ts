@@ -10,6 +10,7 @@ export { default as DanxProgressBar } from "./DanxProgressBar.vue";
 export type {
   DanxProgressBarProps,
   DanxProgressBarSlots,
+  ProgressBarShape,
   ProgressBarSize,
   ProgressBarTextAlign,
   ProgressBarTextPosition,

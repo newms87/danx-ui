@@ -21,6 +21,7 @@ import indeterminateModeCode from "./progress-bar-examples/IndeterminateMode.vue
 import bufferBarCode from "./progress-bar-examples/BufferBar.vue?raw";
 import withIconCode from "./progress-bar-examples/WithIcon.vue?raw";
 import kitchenSinkCode from "./progress-bar-examples/KitchenSink.vue?raw";
+import circularShapeCode from "./progress-bar-examples/CircularShape.vue?raw";
 </script>
 
 <template>
@@ -39,6 +40,12 @@ import kitchenSinkCode from "./progress-bar-examples/KitchenSink.vue?raw";
       title="Sizes"
       description="Three sizes: sm, md (default), and lg."
       :code="sizesCode"
+    />
+
+    <DemoSection
+      title="Circular Shape"
+      description="Linear (default) vs circular — an SVG ring driven by the same value/max percentage, shown side by side."
+      :code="circularShapeCode"
     />
 
     <DemoSection

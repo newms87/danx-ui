@@ -215,6 +215,99 @@
 }
 
 /* ==========================================================================
+   Circular Shape
+   ========================================================================== */
+
+.danx-progress-bar--circular {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  gap: 0;
+}
+
+.danx-progress-bar__circular-svg {
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.danx-progress-bar__circular-track {
+  fill: none;
+  stroke: var(--dx-progress-bar-track-bg);
+  stroke-width: var(--dx-progress-bar-circular-stroke-width);
+}
+
+.danx-progress-bar__circular-fill {
+  fill: none;
+  stroke: var(--dx-progress-bar-fill-bg);
+  stroke-width: var(--dx-progress-bar-circular-stroke-width);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s ease;
+}
+
+.danx-progress-bar__circular-indeterminate {
+  fill: none;
+  stroke: var(--dx-progress-bar-fill-bg);
+  stroke-width: var(--dx-progress-bar-circular-stroke-width);
+  stroke-linecap: round;
+  stroke-dasharray: 70 212.4;
+  transform-origin: 50% 50%;
+  animation: danx-progress-bar-circular-spin 1.4s linear infinite;
+}
+
+@keyframes danx-progress-bar-circular-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-progress-bar__circular-indeterminate {
+    animation: none;
+    stroke-dasharray: 212.4 212.4;
+    opacity: 0.5;
+  }
+}
+
+.danx-progress-bar__circular-text {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  color: var(--dx-progress-bar-text-color-outside);
+  white-space: nowrap;
+}
+
+.danx-progress-bar--sm.danx-progress-bar--circular {
+  width: var(--dx-progress-bar-circular-sm-diameter);
+  height: var(--dx-progress-bar-circular-sm-diameter);
+}
+
+.danx-progress-bar--md.danx-progress-bar--circular {
+  width: var(--dx-progress-bar-circular-md-diameter);
+  height: var(--dx-progress-bar-circular-md-diameter);
+}
+
+.danx-progress-bar--lg.danx-progress-bar--circular {
+  width: var(--dx-progress-bar-circular-lg-diameter);
+  height: var(--dx-progress-bar-circular-lg-diameter);
+}
+
+.danx-progress-bar--sm .danx-progress-bar__circular-text {
+  font-size: var(--dx-progress-bar-sm-font-size);
+}
+
+.danx-progress-bar--md .danx-progress-bar__circular-text {
+  font-size: var(--dx-progress-bar-md-font-size);
+}
+
+.danx-progress-bar--lg .danx-progress-bar__circular-text {
+  font-size: var(--dx-progress-bar-lg-font-size);
+}
+
+/* ==========================================================================
    Effect: Striped
    ========================================================================== */
 

@@ -8,6 +8,7 @@ A progress bar component with visual effects, icon support, and token-based them
 - **Buffer Bar** - Secondary fill for buffered loading (e.g. video playback)
 - **Semantic Variants** - 6 color variants: blank (default), danger, success, warning, info, muted
 - **Three Sizes** - sm (0.5rem), md (1rem), lg (2rem)
+- **Circular Shape** - SVG ring variant for compact/dashboard widgets, reuses the same value/max/size/variant props
 - **Five Visual Effects** - Striped, animated stripes, glow, shimmer, gradient (combinable)
 - **Text Positions** - Inside fill, above track, or beside track
 - **Icon Support** - Built-in icon names, SVG strings, or Vue components
@@ -37,6 +38,7 @@ import { DanxProgressBar } from 'danx-ui';
 | `indeterminate` | `boolean` | `false` | Animated sliding bar mode |
 | `variant` | `VariantType` | `""` | Semantic color variant |
 | `size` | `ProgressBarSize` | `"md"` | Bar size: sm, md, lg |
+| `shape` | `ProgressBarShape` | `"linear"` | Bar shape: linear, circular |
 | `icon` | `Component \| string` | - | Icon in fill area |
 | `striped` | `boolean` | `false` | Striped overlay effect |
 | `animateStripes` | `boolean` | `false` | Animate stripes |
@@ -75,6 +77,18 @@ import { DanxProgressBar } from 'danx-ui';
 ```
 
 Note: When size is `sm`, text position is automatically forced to `beside` since the bar is too small for inside text.
+
+## Circular Shape
+
+Render an SVG ring instead of the linear track — reuses the same `value`/`max`/`size`/`variant` props and percentage calculation:
+
+```vue
+<DanxProgressBar shape="circular" :value="65" />
+<DanxProgressBar shape="circular" :value="65" size="lg" variant="success" />
+<DanxProgressBar shape="circular" indeterminate variant="info" />
+```
+
+Note: `buffer` and icon-in-fill effects (striped, glow, shimmer, gradient) apply to the linear shape only. Text (percentage, custom label, or slot) and `role=progressbar` + `aria-valuenow/min/max` wiring carry over unchanged.
 
 ## Effects
 
@@ -173,6 +187,15 @@ Override these tokens to customize appearance:
 | `--dx-progress-bar-{size}-height` | Track height |
 | `--dx-progress-bar-{size}-font-size` | Text font size |
 | `--dx-progress-bar-{size}-text-padding` | Text padding |
+
+### Circular Shape Tokens
+
+| Token | Default | Description |
+|-------|---------|-------------|
+| `--dx-progress-bar-circular-stroke-width` | `10px` | Ring stroke width |
+| `--dx-progress-bar-circular-sm-diameter` | `2rem` | Ring diameter (sm) |
+| `--dx-progress-bar-circular-md-diameter` | `4rem` | Ring diameter (md) |
+| `--dx-progress-bar-circular-lg-diameter` | `6rem` | Ring diameter (lg) |
 
 ### Variant Tokens
 

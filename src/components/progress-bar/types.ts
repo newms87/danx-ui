@@ -13,6 +13,13 @@ import type { IconName } from "../icon/icons";
 export type ProgressBarSize = "sm" | "md" | "lg";
 
 /**
+ * Progress bar shape.
+ * - linear: Horizontal track with a fill bar (default)
+ * - circular: SVG ring driven by stroke-dasharray/stroke-dashoffset
+ */
+export type ProgressBarShape = "linear" | "circular";
+
+/**
  * Text position relative to the progress bar track.
  * - inside: Centered within the fill area
  * - above: Displayed above the track
@@ -65,6 +72,13 @@ export interface DanxProgressBarProps {
    * @default "md"
    */
   size?: ProgressBarSize;
+
+  /**
+   * Progress bar shape. "circular" renders an SVG ring instead of
+   * the horizontal track — useful for compact/dashboard widgets.
+   * @default "linear"
+   */
+  shape?: ProgressBarShape;
 
   /**
    * Icon to display in the fill area. Accepts:

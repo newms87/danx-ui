@@ -33,6 +33,10 @@
  * --dx-progress-bar-{size}-font-size   Text font size
  * --dx-progress-bar-{size}-text-padding Text padding
  *
+ * Circular shape tokens:
+ * --dx-progress-bar-circular-stroke-width    Ring stroke width
+ * --dx-progress-bar-circular-{size}-diameter Ring diameter (sm, md, lg)
+ *
  * Variant colors are applied via inline styles from the useVariant composable.
  */
 
@@ -91,4 +95,12 @@
   --dx-progress-bar-lg-font-size: 1rem;
   --dx-progress-bar-lg-text-padding: 0.25rem 0.75rem;
 
+  /* ==========================================================================
+     Circular Shape Tokens
+     ========================================================================== */
+
+  --dx-progress-bar-circular-stroke-width: 10px;
+  --dx-progress-bar-circular-sm-diameter: 2rem;
+  --dx-progress-bar-circular-md-diameter: 4rem;
+  --dx-progress-bar-circular-lg-diameter: 6rem;
 }

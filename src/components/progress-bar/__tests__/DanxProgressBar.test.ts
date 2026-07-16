@@ -2,13 +2,14 @@ import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import { defineComponent, markRaw } from "vue";
 import DanxProgressBar from "../DanxProgressBar.vue";
-import type { ProgressBarSize, ProgressBarTextPosition } from "../types";
+import type { ProgressBarShape, ProgressBarSize, ProgressBarTextPosition } from "../types";
 import type { VariantType } from "../../../shared/types";
 import { saveIcon } from "../../icon/icons";
 
 const allVariants: VariantType[] = ["danger", "success", "warning", "info", "muted"];
 const allSizes: ProgressBarSize[] = ["sm", "md", "lg"];
 const allTextPositions: ProgressBarTextPosition[] = ["inside", "above", "beside"];
+const allShapes: ProgressBarShape[] = ["linear", "circular"];
 
 describe("DanxProgressBar", () => {
   describe("Rendering", () => {
@@ -140,6 +141,129 @@ describe("DanxProgressBar", () => {
       const wrapper = mount(DanxProgressBar);
 
       expect(wrapper.classes()).toContain("danx-progress-bar--md");
+    });
+  });
+
+  describe("Shape", () => {
+    it("defaults to linear shape", () => {
+      const wrapper = mount(DanxProgressBar);
+
+      expect(wrapper.classes()).not.toContain("danx-progress-bar--circular");
+      expect(wrapper.find(".danx-progress-bar__track").exists()).toBe(true);
+    });
+
+    it.each(allShapes)("accepts shape '%s' without error", (shape) => {
+      const wrapper = mount(DanxProgressBar, { props: { shape } });
+
+      expect(wrapper.exists()).toBe(true);
+    });
+
+    it("renders an SVG ring for circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", value: 40 },
+      });
+
+      expect(wrapper.classes()).toContain("danx-progress-bar--circular");
+      expect(wrapper.find(".danx-progress-bar__circular-svg").exists()).toBe(true);
+      expect(wrapper.find(".danx-progress-bar__circular-track").exists()).toBe(true);
+      expect(wrapper.find(".danx-progress-bar__circular-fill").exists()).toBe(true);
+      expect(wrapper.find(".danx-progress-bar__track").exists()).toBe(false);
+    });
+
+    it("drives stroke-dashoffset from the value/max percentage", () => {
+      const zero = mount(DanxProgressBar, { props: { shape: "circular", value: 0 } });
+      const half = mount(DanxProgressBar, { props: { shape: "circular", value: 50 } });
+      const full = mount(DanxProgressBar, { props: { shape: "circular", value: 100 } });
+
+      const zeroOffset = Number(
+        zero
+          .find(".danx-progress-bar__circular-fill")
+          .attributes("style")
+          ?.match(/stroke-dashoffset:\s*([\d.]+)/)?.[1]
+      );
+      const halfOffset = Number(
+        half
+          .find(".danx-progress-bar__circular-fill")
+          .attributes("style")
+          ?.match(/stroke-dashoffset:\s*([\d.]+)/)?.[1]
+      );
+      const fullOffset = Number(
+        full
+          .find(".danx-progress-bar__circular-fill")
+          .attributes("style")
+          ?.match(/stroke-dashoffset:\s*([\d.]+)/)?.[1]
+      );
+
+      expect(fullOffset).toBeCloseTo(0, 1);
+      expect(halfOffset).toBeGreaterThan(fullOffset);
+      expect(zeroOffset).toBeGreaterThan(halfOffset);
+    });
+
+    it("displays percentage text by default in circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", value: 42 },
+      });
+
+      expect(wrapper.find(".danx-progress-bar__circular-text").text()).toContain("42%");
+    });
+
+    it("hides text when showText is false in circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", value: 42, showText: false },
+      });
+
+      expect(wrapper.find(".danx-progress-bar__circular-text").exists()).toBe(false);
+    });
+
+    it("renders indeterminate ring instead of the fill ring", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", indeterminate: true },
+      });
+
+      expect(wrapper.find(".danx-progress-bar__circular-indeterminate").exists()).toBe(true);
+      expect(wrapper.find(".danx-progress-bar__circular-fill").exists()).toBe(false);
+    });
+
+    it("applies variant inline style in circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", variant: "success" },
+      });
+
+      const style = wrapper.attributes("style") ?? "";
+      expect(style).toContain("--dx-progress-bar-fill-bg:");
+    });
+
+    it("carries role=progressbar and aria attributes over to circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", value: 65, max: 200 },
+      });
+
+      expect(wrapper.attributes("role")).toBe("progressbar");
+      expect(wrapper.attributes("aria-valuenow")).toBe("65");
+      expect(wrapper.attributes("aria-valuemin")).toBe("0");
+      expect(wrapper.attributes("aria-valuemax")).toBe("200");
+    });
+
+    it("renders slot content with slot props in circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", value: 42, max: 100 },
+        slots: {
+          default: `<template #default="{ value, max, percent }">{{ value }}/{{ max }} ({{ percent }}%)</template>`,
+        },
+      });
+
+      expect(wrapper.text()).toContain("42/100 (42%)");
+    });
+
+    it("renders icon inside the text area for circular shape", () => {
+      const wrapper = mount(DanxProgressBar, {
+        props: { shape: "circular", value: 50, icon: saveIcon },
+      });
+
+      const text = wrapper.find(".danx-progress-bar__circular-text");
+      const iconEl = text.find(".danx-progress-bar__icon");
+      expect(iconEl.exists()).toBe(true);
+      expect(iconEl.html()).toContain("<svg");
     });
   });
 
