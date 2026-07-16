@@ -140,3 +140,23 @@
     transform: translateX(100%);
   }
 }
+
+/* ==========================================================================
+   Reduced Motion: degrade pulse/wave to a static dimmed block. The shape
+   itself plus the role="status"/aria-busy/sr-only label on the component
+   already convey "loading" without motion.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-skeleton--pulse,
+  .danx-skeleton--text.danx-skeleton--pulse .danx-skeleton__line {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .danx-skeleton--wave::after,
+  .danx-skeleton--text.danx-skeleton--wave .danx-skeleton__line::after {
+    animation: none;
+    opacity: 0.6;
+  }
+}

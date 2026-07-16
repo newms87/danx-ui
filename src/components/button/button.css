@@ -170,3 +170,16 @@
     transform: rotate(360deg);
   }
 }
+
+/* ==========================================================================
+   Reduced Motion: degrade the spin to a static, dimmed ring. `cursor: wait`
+   and the disabled/loading button state already convey the busy state
+   without motion.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-button__spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}

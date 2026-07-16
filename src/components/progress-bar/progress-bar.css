@@ -88,6 +88,21 @@
 }
 
 /* ==========================================================================
+   Reduced Motion: degrade the sliding sweep to a static, dimmed full-width
+   bar. `role="progressbar"` + `aria-label` on the component already convey
+   the busy state without motion.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-progress-bar__indeterminate {
+    animation: none;
+    left: 0;
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
+/* ==========================================================================
    Text Variants
    ========================================================================== */
 

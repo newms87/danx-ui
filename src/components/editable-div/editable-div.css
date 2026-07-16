@@ -104,3 +104,16 @@
     transform: translate(-50%, -50%) rotate(360deg);
   }
 }
+
+/* ==========================================================================
+   Reduced Motion: degrade the spin to a static, dimmed glyph. The existing
+   `.danx-editable-div--saving` opacity overlay already conveys the busy
+   state without motion.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-editable-div__spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}

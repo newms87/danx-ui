@@ -225,4 +225,14 @@ To use the token system without any component styles:
 import 'danx-ui/shared/tokens';
 ```
 
+## Reduced Motion
+
+danx-ui honors the OS-level `prefers-reduced-motion: reduce` setting (WCAG 2.3.3) automatically — there is nothing to opt into.
+
+- Importing the full `danx-ui/styles` bundle neutralizes decorative transitions and animations across every component (durations collapse to effectively `0`).
+- The four continuously-looping animations — skeleton pulse/wave, progress bar indeterminate sweep, button loading spinner, and editable-div saving spinner — each carry their own scoped `@media (prefers-reduced-motion: reduce)` override inside their component CSS file, so they degrade to a static, dimmed appearance even when that component's styles are imported standalone (e.g. `danx-ui/components/skeleton/styles`).
+- Loading/progress intent stays perceivable without motion: the static dimmed appearance is a visual non-motion cue, and the existing `role="status"`/`aria-busy`/`aria-label` attributes on these components already announce the busy state to assistive technology.
+
+No configuration or token overrides are needed — this behavior follows the user's OS/browser accessibility setting.
+
 This gives you the primitives, semantics, and dark mode definitions to use in your own styles.

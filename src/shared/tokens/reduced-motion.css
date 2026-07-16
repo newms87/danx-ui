@@ -1,0 +1,23 @@
+/**
+ * Reduced Motion (prefers-reduced-motion: reduce)
+ *
+ * WCAG 2.3.3 support: neutralizes decorative transitions/animations
+ * library-wide for consumers that import the full styles.css bundle.
+ *
+ * The four continuously-looping animations (skeleton pulse/wave,
+ * progress-bar indeterminate, button spinner, editable-div spinner) carry
+ * their own scoped `prefers-reduced-motion` overrides inside their
+ * component CSS files, so they degrade to a static state even when a
+ * consumer imports that component's styles standalone.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
