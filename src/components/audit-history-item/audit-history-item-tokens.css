@@ -1,0 +1,25 @@
+/**
+ * DanxAuditHistoryItem Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize AuditHistoryItem appearance.
+ *
+ * CSS Tokens:
+ * --dx-audit-history-item-gap             Gap between actor, action, body, timestamp
+ * --dx-audit-history-item-padding-y       Vertical padding
+ * --dx-audit-history-item-font-size       Body font size
+ * --dx-audit-history-item-actor-weight    Actor font weight
+ * --dx-audit-history-item-timestamp-color Timestamp text color
+ * --dx-audit-history-item-old-color       Old value text color (struck through)
+ *
+ * Action label colors are applied via inline styles from DanxChip's variant system.
+ */
+
+:root {
+  --dx-audit-history-item-gap: 0.5rem;
+  --dx-audit-history-item-padding-y: 0.5rem;
+  --dx-audit-history-item-font-size: 0.875rem;
+  --dx-audit-history-item-actor-weight: var(--font-semibold);
+  --dx-audit-history-item-timestamp-color: var(--color-text-muted);
+  --dx-audit-history-item-old-color: var(--color-text-muted);
+}

@@ -5,7 +5,7 @@
 import { execFileSync } from "child_process";
 
 const MAX_UNPACKED_BYTES = 1.8 * 1024 * 1024; // ~1.2MB observed baseline + headroom
-const MAX_FILE_COUNT = 1100; // ~950 observed baseline + headroom
+const MAX_FILE_COUNT = 1150; // ~1130 observed baseline (DXUI-170) + headroom
 
 const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
   encoding: "utf-8",

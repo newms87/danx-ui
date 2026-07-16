@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 import ActionButtonPage from "./pages/ActionButtonPage.vue";
 import AlertPage from "./pages/AlertPage.vue";
+import AuditHistoryItemPage from "./pages/AuditHistoryItemPage.vue";
 import BadgePage from "./pages/BadgePage.vue";
 import BreadcrumbsPage from "./pages/BreadcrumbsPage.vue";
 import ButtonPage from "./pages/ButtonPage.vue";
@@ -58,6 +59,11 @@ const router = createRouter({
   routes: [
     { path: "/", name: "home", component: HomePage },
     { path: "/alert", name: "alert", component: AlertPage },
+    {
+      path: "/audit-history-item",
+      name: "audit-history-item",
+      component: AuditHistoryItemPage,
+    },
     { path: "/badge", name: "badge", component: BadgePage },
     { path: "/breadcrumbs", name: "breadcrumbs", component: BreadcrumbsPage },
     { path: "/button", name: "button", component: ButtonPage },

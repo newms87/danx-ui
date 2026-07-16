@@ -1,0 +1,50 @@
+/**
+ * DanxAuditHistoryItem Styles
+ *
+ * A single row: actor, action label, diff/description body, timestamp.
+ * Wraps onto multiple lines on narrow containers; consumers own the
+ * surrounding list/feed layout (spacing between rows, dividers, etc).
+ */
+
+@import "./audit-history-item-tokens.css";
+
+.danx-audit-history-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--dx-audit-history-item-gap);
+  padding: var(--dx-audit-history-item-padding-y) 0;
+  font-size: var(--dx-audit-history-item-font-size);
+  line-height: 1.4;
+
+  .danx-audit-history-item__actor {
+    font-weight: var(--dx-audit-history-item-actor-weight);
+  }
+
+  .danx-audit-history-item__body {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.375em;
+    min-width: 0;
+  }
+
+  .danx-audit-history-item__field {
+    font-weight: var(--dx-audit-history-item-actor-weight);
+  }
+
+  .danx-audit-history-item__old {
+    color: var(--dx-audit-history-item-old-color);
+    text-decoration: line-through;
+  }
+
+  .danx-audit-history-item__arrow {
+    color: var(--dx-audit-history-item-timestamp-color);
+  }
+
+  .danx-audit-history-item__timestamp {
+    margin-left: auto;
+    color: var(--dx-audit-history-item-timestamp-color);
+    white-space: nowrap;
+  }
+}

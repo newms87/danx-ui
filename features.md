@@ -423,7 +423,7 @@ integration via DataTableLayout. This is a decision to make during implementatio
 | getItem / setItem | BUILD | localStorage with JSON serialization |
 | downloadFile | BUILD | Download from URL or HTTP response |
 | autoRefreshObject | BUILD | Poll server for object updates |
-| AuditHistoryItem | BUILD | Display change log entries |
+| AuditHistoryItem | DONE | Display change log entries |
 
 ---
 

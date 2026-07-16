@@ -95,6 +95,11 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/alert" class="demo-sidebar__link">Alert</RouterLink>
               </li>
               <li>
+                <RouterLink to="/audit-history-item" class="demo-sidebar__link"
+                  >Audit History Item</RouterLink
+                >
+              </li>
+              <li>
                 <RouterLink to="/badge" class="demo-sidebar__link">Badge</RouterLink>
               </li>
               <li>
