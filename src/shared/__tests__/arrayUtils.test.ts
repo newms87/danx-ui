@@ -50,6 +50,16 @@ describe("arraySum", () => {
   it("treats NaN values as 0", () => {
     expect(arraySum([1, "abc", 3])).toBe(4);
   });
+
+  it("excludes blank-string leaves from the sum", () => {
+    expect(arraySum([{ amount: 100 }, { amount: "" }, { amount: 200 }], "amount")).toBe(300);
+  });
+
+  it("excludes null/undefined leaves from the sum", () => {
+    expect(arraySum([{ amount: 100 }, { amount: null }, { amount: undefined }], "amount")).toBe(
+      100
+    );
+  });
 });
 
 describe("arrayAvg", () => {
@@ -68,15 +78,27 @@ describe("arrayAvg", () => {
   it("averages using fieldPath", () => {
     expect(arrayAvg([{ val: 10 }, { val: 30 }], "val")).toBe(20);
   });
+
+  it("excludes blank-string leaves from both sum and count", () => {
+    expect(arrayAvg([{ amount: 100 }, { amount: "" }, { amount: 200 }], "amount")).toBe(150);
+  });
+
+  it("excludes null/undefined leaves from both sum and count", () => {
+    expect(arrayAvg([{ amount: 100 }, { amount: null }, { amount: 200 }], "amount")).toBe(150);
+  });
+
+  it("returns 0 when array is non-empty but no numeric leaves are found", () => {
+    expect(arrayAvg([{ amount: "" }, { amount: null }], "amount")).toBe(0);
+  });
 });
 
 describe("arrayMin", () => {
-  it("returns Infinity for non-array input", () => {
-    expect(arrayMin("hello")).toBe(Infinity);
+  it("returns null for non-array input", () => {
+    expect(arrayMin("hello")).toBeNull();
   });
 
-  it("returns Infinity for empty array", () => {
-    expect(arrayMin([])).toBe(Infinity);
+  it("returns null for empty array", () => {
+    expect(arrayMin([])).toBeNull();
   });
 
   it("finds minimum of flat numbers", () => {
@@ -87,18 +109,26 @@ describe("arrayMin", () => {
     expect(arrayMin([{ val: 30 }, { val: 10 }, { val: 20 }], "val")).toBe(10);
   });
 
-  it("returns Infinity when all values are NaN", () => {
-    expect(arrayMin(["abc", "def"])).toBe(Infinity);
+  it("returns null when all values are NaN", () => {
+    expect(arrayMin(["abc", "def"])).toBeNull();
+  });
+
+  it("excludes blank-string leaves from the min computation", () => {
+    expect(arrayMin([{ amount: "" }, { amount: 5 }], "amount")).toBe(5);
+  });
+
+  it("excludes null/undefined leaves from the min computation", () => {
+    expect(arrayMin([{ amount: null }, { amount: undefined }, { amount: 5 }], "amount")).toBe(5);
   });
 });
 
 describe("arrayMax", () => {
-  it("returns -Infinity for non-array input", () => {
-    expect(arrayMax("hello")).toBe(-Infinity);
+  it("returns null for non-array input", () => {
+    expect(arrayMax("hello")).toBeNull();
   });
 
-  it("returns -Infinity for empty array", () => {
-    expect(arrayMax([])).toBe(-Infinity);
+  it("returns null for empty array", () => {
+    expect(arrayMax([])).toBeNull();
   });
 
   it("finds maximum of flat numbers", () => {
@@ -109,8 +139,16 @@ describe("arrayMax", () => {
     expect(arrayMax([{ val: 30 }, { val: 10 }, { val: 20 }], "val")).toBe(30);
   });
 
-  it("returns -Infinity when all values are NaN", () => {
-    expect(arrayMax(["abc", "def"])).toBe(-Infinity);
+  it("returns null when all values are NaN", () => {
+    expect(arrayMax(["abc", "def"])).toBeNull();
+  });
+
+  it("excludes blank-string leaves from the max computation", () => {
+    expect(arrayMax([{ amount: "" }, { amount: 5 }], "amount")).toBe(5);
+  });
+
+  it("excludes null/undefined leaves from the max computation", () => {
+    expect(arrayMax([{ amount: null }, { amount: undefined }, { amount: 5 }], "amount")).toBe(5);
   });
 });
 
@@ -175,6 +213,10 @@ describe("arrayJoin", () => {
   it("joins with custom separator", () => {
     expect(arrayJoin(["a", "b", "c"], " | ")).toBe("a | b | c");
   });
+
+  it("skips null and undefined entries instead of stringifying them", () => {
+    expect(arrayJoin(["a", null, undefined, "b"])).toBe("a, b");
+  });
 });
 
 describe("nested-array traversal", () => {
@@ -214,14 +256,14 @@ describe("nested-array traversal", () => {
     expect(arrayAvg(data, "bill.amount")).toBe(15);
   });
 
-  it("arrayMin returns Infinity when all inner arrays are empty", () => {
+  it("arrayMin returns null when all inner arrays are empty", () => {
     const data = [{ bill: [] }, { bill: [] }];
-    expect(arrayMin(data, "bill.amount")).toBe(Infinity);
+    expect(arrayMin(data, "bill.amount")).toBeNull();
   });
 
-  it("arrayMax returns -Infinity when all inner arrays are empty", () => {
+  it("arrayMax returns null when all inner arrays are empty", () => {
     const data = [{ bill: [] }, { bill: [] }];
-    expect(arrayMax(data, "bill.amount")).toBe(-Infinity);
+    expect(arrayMax(data, "bill.amount")).toBeNull();
   });
 
   it("arrayFirst returns undefined when inner arrays are empty", () => {
