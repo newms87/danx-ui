@@ -12,15 +12,11 @@ vi.mock("luxon", () => {
 });
 
 describe("main entry — peer-free surface", () => {
-  it(
-    "imports without throwing when @vueuse/core and luxon are absent",
-    async () => {
-      // First import compiles the entire main-barrel module graph on the fly
-      // (dozens of components), which is slower than vitest's default 5s.
-      await expect(import("../index")).resolves.toBeDefined();
-    },
-    15000
-  );
+  it("imports without throwing when @vueuse/core and luxon are absent", async () => {
+    // First import compiles the entire main-barrel module graph on the fly
+    // (dozens of components), which is slower than vitest's default 5s.
+    await expect(import("../index")).resolves.toBeDefined();
+  }, 15000);
 
   it("exposes the peer-free component surface (DanxButton, DanxDialog)", async () => {
     const mod = await import("../index");

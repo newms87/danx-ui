@@ -166,6 +166,7 @@ const accessibleLabel = computed(() => {
       :class="indicatorClasses"
       :style="indicatorStyle"
       :aria-label="accessibleLabel"
-    >{{ displayText }}</span>
+      >{{ displayText }}</span
+    >
   </span>
 </template>

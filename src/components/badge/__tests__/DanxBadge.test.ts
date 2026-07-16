@@ -360,9 +360,7 @@ describe("DanxBadge", () => {
         props: { value: "NEW", ariaLabel: "New feature" },
       });
 
-      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe(
-        "New feature"
-      );
+      expect(wrapper.find(".danx-badge__indicator").attributes("aria-label")).toBe("New feature");
     });
 
     it("generates a default aria-label describing the count", () => {

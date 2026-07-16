@@ -24,6 +24,7 @@
  * | label     | string          | -       | Text label (alternative to slot)      |
  * | autoColor | boolean|string  | false   | Hash label/key for deterministic color|
  * | removable | boolean         | false   | Shows remove (X) button               |
+ * | removeLabel | string        | -       | Override remove button aria-label     |
  * | tooltip   | string          | -       | Hover tooltip via DanxTooltip         |
  *
  * ## Events
@@ -132,6 +133,11 @@ const chipStyle = computed(() => (props.autoColor ? autoColorStyle.value : varia
 function handleRemove() {
   emit("remove");
 }
+
+// DXUI-133: derive a contextual aria-label so screen readers can tell chips apart
+const removeAriaLabel = computed(
+  () => props.removeLabel || (props.label ? `Remove ${props.label}` : "Remove")
+);
 </script>
 
 <template>
@@ -148,7 +154,7 @@ function handleRemove() {
           v-if="removable"
           type="button"
           class="danx-chip__remove"
-          aria-label="Remove"
+          :aria-label="removeAriaLabel"
           @click.stop="handleRemove"
         >
           <DanxIcon icon="close" />
@@ -172,7 +178,7 @@ function handleRemove() {
       v-if="removable"
       type="button"
       class="danx-chip__remove"
-      aria-label="Remove"
+      :aria-label="removeAriaLabel"
       @click.stop="handleRemove"
     >
       <DanxIcon icon="close" />

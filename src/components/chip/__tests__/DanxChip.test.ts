@@ -292,6 +292,46 @@ describe("DanxChip", () => {
       expect(remove.attributes("aria-label")).toBe("Remove");
       expect(remove.attributes("type")).toBe("button");
     });
+
+    it("two chips with different label props are indistinguishable by default aria-label (bug reproduction)", () => {
+      const chipA = mount(DanxChip, { props: { removable: true, label: "Alpha" } });
+      const chipB = mount(DanxChip, { props: { removable: true, label: "Beta" } });
+
+      expect(chipA.find(".danx-chip__remove").attributes("aria-label")).toBe("Remove Alpha");
+      expect(chipB.find(".danx-chip__remove").attributes("aria-label")).toBe("Remove Beta");
+      expect(chipA.find(".danx-chip__remove").attributes("aria-label")).not.toBe(
+        chipB.find(".danx-chip__remove").attributes("aria-label")
+      );
+    });
+
+    it("uses contextual aria-label incorporating the label prop", () => {
+      const wrapper = mount(DanxChip, {
+        props: { removable: true, label: "Engineering" },
+      });
+
+      expect(wrapper.find(".danx-chip__remove").attributes("aria-label")).toBe(
+        "Remove Engineering"
+      );
+    });
+
+    it("falls back to generic aria-label when label is unset (default-slot usage)", () => {
+      const wrapper = mount(DanxChip, {
+        props: { removable: true },
+        slots: { default: "Tag" },
+      });
+
+      expect(wrapper.find(".danx-chip__remove").attributes("aria-label")).toBe("Remove");
+    });
+
+    it("uses explicit removeLabel override when provided", () => {
+      const wrapper = mount(DanxChip, {
+        props: { removable: true, label: "Engineering", removeLabel: "Remove filter: Engineering" },
+      });
+
+      expect(wrapper.find(".danx-chip__remove").attributes("aria-label")).toBe(
+        "Remove filter: Engineering"
+      );
+    });
   });
 
   describe("Auto color", () => {

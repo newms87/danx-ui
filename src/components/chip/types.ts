@@ -62,6 +62,14 @@ export interface DanxChipProps {
    * Tooltip text shown on hover (native title attribute).
    */
   tooltip?: string;
+
+  /**
+   * Accessible label for the remove button, overriding the auto-derived
+   * "Remove {label}" text. Use this when the chip's content comes from the
+   * default slot rather than the `label` prop, so screen readers can still
+   * announce which chip a remove button belongs to.
+   */
+  removeLabel?: string;
 }
 
 export interface DanxChipEmits {
