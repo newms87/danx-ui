@@ -16,6 +16,7 @@ export { CodeViewer } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
 export { DanxPopover } from "./components/popover";
+export { DanxPopconfirm } from "./components/popconfirm";
 export { MarkdownEditor } from "./components/markdown-editor";
 export { DanxSplitPanel, SplitPanelHandle } from "./components/split-panel";
 export { DanxTabs } from "./components/tabs";
@@ -166,6 +167,7 @@ export type {
   PopoverPosition,
   PopoverTrigger,
 } from "./components/popover";
+export type { DanxPopconfirmProps, DanxPopconfirmSlots } from "./components/popconfirm";
 export type {
   TokenRenderer,
   TokenState,

@@ -1,0 +1,21 @@
+/**
+ * DanxPopconfirm Tokens
+ *
+ * Component tokens (Tier 3) for the inline confirmation popover.
+ * Override these to customize appearance.
+ *
+ * CSS Tokens:
+ * --dx-popconfirm-padding       Panel content padding
+ * --dx-popconfirm-gap           Vertical gap between title/message/actions
+ * --dx-popconfirm-width         Panel max width
+ * --dx-popconfirm-title-weight  Title font weight
+ * --dx-popconfirm-message-color Message text color
+ */
+
+:root {
+  --dx-popconfirm-padding: var(--space-md);
+  --dx-popconfirm-gap: var(--space-sm);
+  --dx-popconfirm-width: 16rem;
+  --dx-popconfirm-title-weight: var(--font-semibold);
+  --dx-popconfirm-message-color: var(--color-text-muted);
+}

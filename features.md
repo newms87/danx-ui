@@ -250,7 +250,7 @@ an `allowCustom` prop. No separate component needed.
 | Component | Status | Notes |
 |-----------|--------|-------|
 | DanxLoadingOverlay | NEW | Semi-transparent overlay with spinner |
-| DanxPopconfirm | NEW | Confirmation popover attached to a trigger. Lightweight alternative to a full confirm dialog for inline destructive actions. |
+| DanxPopconfirm | DONE | Confirmation popover attached to a trigger. Lightweight alternative to a full confirm dialog for inline destructive actions. |
 
 #### 2.4 Navigation
 

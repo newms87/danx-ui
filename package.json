@@ -127,11 +127,21 @@
       "import": "./dist/components/input/index.js"
     },
     "./components/input/styles": "./dist/components/input/input.css",
+    "./components/kbd": {
+      "types": "./dist/components/kbd/index.d.ts",
+      "import": "./dist/components/kbd/index.js"
+    },
+    "./components/kbd/styles": "./dist/components/kbd/kbd.css",
     "./components/markdown-editor": {
       "types": "./dist/components/markdown-editor/index.d.ts",
       "import": "./dist/components/markdown-editor/index.js"
     },
     "./components/markdown-editor/styles": "./dist/components/markdown-editor/markdown-editor.css",
+    "./components/popconfirm": {
+      "types": "./dist/components/popconfirm/index.d.ts",
+      "import": "./dist/components/popconfirm/index.js"
+    },
+    "./components/popconfirm/styles": "./dist/components/popconfirm/popconfirm.css",
     "./components/popover": {
       "types": "./dist/components/popover/index.d.ts",
       "import": "./dist/components/popover/index.js"

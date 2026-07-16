@@ -13,6 +13,7 @@ import HomePage from "./pages/HomePage.vue";
 import IconPage from "./pages/IconPage.vue";
 import KbdPage from "./pages/KbdPage.vue";
 import PopoverPage from "./pages/PopoverPage.vue";
+import PopconfirmPage from "./pages/PopconfirmPage.vue";
 import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
 import FormattersPage from "./pages/FormattersPage.vue";
 import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
@@ -60,6 +61,7 @@ const router = createRouter({
     { path: "/kbd", name: "kbd", component: KbdPage },
     { path: "/dialog", name: "dialog", component: DialogPage },
     { path: "/popover", name: "popover", component: PopoverPage },
+    { path: "/popconfirm", name: "popconfirm", component: PopconfirmPage },
     { path: "/markdown-editor", name: "markdown-editor", component: MarkdownEditorPage },
     { path: "/formatters", name: "formatters", component: FormattersPage },
     { path: "/button-group", name: "button-group", component: ButtonGroupPage },

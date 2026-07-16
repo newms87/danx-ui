@@ -1,0 +1,25 @@
+/**
+ * DanxPopconfirm Layout
+ *
+ * Content layout for the panel rendered inside DanxPopover.
+ */
+
+.danx-popconfirm {
+  padding: var(--dx-popconfirm-padding);
+  gap: var(--dx-popconfirm-gap);
+  max-width: var(--dx-popconfirm-width);
+}
+
+.danx-popconfirm__title {
+  font-weight: var(--dx-popconfirm-title-weight);
+}
+
+.danx-popconfirm__message {
+  color: var(--dx-popconfirm-message-color);
+}
+
+.danx-popconfirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+}

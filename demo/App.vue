@@ -142,6 +142,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/popover" class="demo-sidebar__link">Popover</RouterLink>
               </li>
               <li>
+                <RouterLink to="/popconfirm" class="demo-sidebar__link">Popconfirm</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/markdown-editor" class="demo-sidebar__link"
                   >Markdown Editor</RouterLink
                 >
