@@ -17,6 +17,7 @@
 @import "./components/audit-history-item/audit-history-item.css" layer(components);
 @import "./components/badge/badge.css" layer(components);
 @import "./components/breadcrumbs/breadcrumbs.css" layer(components);
+@import "./components/card/card.css" layer(components);
 @import "./components/spinner/spinner.css" layer(components);
 @import "./components/button/button.css" layer(components);
 @import "./components/chip/chip.css" layer(components);

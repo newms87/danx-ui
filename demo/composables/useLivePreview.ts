@@ -40,6 +40,7 @@ import { DanxAvatar, getInitials } from "../../src/components/avatar";
 import { DanxAuditHistoryItem } from "../../src/components/audit-history-item";
 import { DanxBadge } from "../../src/components/badge";
 import { DanxBreadcrumbs } from "../../src/components/breadcrumbs";
+import { DanxCard } from "../../src/components/card";
 import { DanxDivider } from "../../src/components/divider";
 import { DanxSpinner } from "../../src/components/spinner";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
@@ -274,6 +275,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxAuditHistoryItem,
   DanxBadge,
   DanxBreadcrumbs,
+  DanxCard,
   DanxButton,
   DanxActionButton,
   DanxChip,
@@ -350,6 +352,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxAuditHistoryItem,
   DanxBadge,
   DanxBreadcrumbs,
+  DanxCard,
   DanxButton,
   DanxActionButton,
   DanxChip,

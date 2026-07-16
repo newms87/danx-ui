@@ -83,6 +83,11 @@
       "import": "./dist/components/breadcrumbs/index.js"
     },
     "./components/breadcrumbs/styles": "./dist/components/breadcrumbs/breadcrumbs.css",
+    "./components/card": {
+      "types": "./dist/components/card/index.d.ts",
+      "import": "./dist/components/card/index.js"
+    },
+    "./components/card/styles": "./dist/components/card/card.css",
     "./components/button": {
       "types": "./dist/components/button/index.d.ts",
       "import": "./dist/components/button/index.js"

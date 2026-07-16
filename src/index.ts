@@ -13,6 +13,7 @@ export type { AvatarShape, AvatarSize, DanxAvatarProps, DanxAvatarSlots } from "
 // kept out of the main barrel; import from "danx-ui/components/audit-history-item".
 export { DanxBadge } from "./components/badge";
 export { DanxBreadcrumbs } from "./components/breadcrumbs";
+export { DanxCard } from "./components/card";
 export { DanxChip } from "./components/chip";
 export { DanxDivider } from "./components/divider";
 export { DanxSpinner } from "./components/spinner";
@@ -149,6 +150,12 @@ export type { DanxIconProps } from "./components/icon";
 export type { DanxAlertProps, DanxAlertEmits, DanxAlertSlots } from "./components/alert";
 export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
 export type { DanxBreadcrumbItem, DanxBreadcrumbsProps } from "./components/breadcrumbs";
+export type {
+  CardPadding,
+  CardVariant,
+  DanxCardProps,
+  DanxCardSlots,
+} from "./components/card";
 export type { ChipSize, DanxChipEmits, DanxChipProps, DanxChipSlots } from "./components/chip";
 export type { DanxDividerProps, DanxDividerSlots, DividerOrientation } from "./components/divider";
 export type { DanxSpinnerProps, SpinnerSize } from "./components/spinner";

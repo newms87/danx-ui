@@ -7,6 +7,7 @@ import AuditHistoryItemPage from "./pages/AuditHistoryItemPage.vue";
 import AvatarPage from "./pages/AvatarPage.vue";
 import BadgePage from "./pages/BadgePage.vue";
 import BreadcrumbsPage from "./pages/BreadcrumbsPage.vue";
+import CardPage from "./pages/CardPage.vue";
 import ButtonPage from "./pages/ButtonPage.vue";
 import ChipPage from "./pages/ChipPage.vue";
 import DividerPage from "./pages/DividerPage.vue";
@@ -77,6 +78,7 @@ const router = createRouter({
     { path: "/avatar", name: "avatar", component: AvatarPage },
     { path: "/badge", name: "badge", component: BadgePage },
     { path: "/breadcrumbs", name: "breadcrumbs", component: BreadcrumbsPage },
+    { path: "/card", name: "card", component: CardPage },
     { path: "/button", name: "button", component: ButtonPage },
     { path: "/chip", name: "chip", component: ChipPage },
     { path: "/divider", name: "divider", component: DividerPage },

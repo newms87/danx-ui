@@ -1,0 +1,39 @@
+/**
+ * DanxCard Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize card appearance.
+ *
+ * CSS Tokens:
+ * --dx-card-bg                    Background color
+ * --dx-card-text                  Text color
+ * --dx-card-border                Border color (outlined variant)
+ * --dx-card-border-width          Border width (outlined variant)
+ * --dx-card-radius                Corner radius
+ * --dx-card-shadow                Box shadow (elevated variant)
+ * --dx-card-gap                   Gap between header/body/footer
+ * --dx-card-title-weight          Title font weight
+ * --dx-card-title-font-size       Title font size
+ * --dx-card-subtitle-color        Subtitle text color
+ * --dx-card-subtitle-font-size    Subtitle font size
+ * --dx-card-padding-compact       Padding for the "compact" density
+ * --dx-card-padding-comfortable   Padding for the "comfortable" density
+ * --dx-card-padding-spacious      Padding for the "spacious" density
+ */
+
+:root {
+  --dx-card-bg: var(--color-surface);
+  --dx-card-text: var(--color-text);
+  --dx-card-border: var(--color-border);
+  --dx-card-border-width: 1px;
+  --dx-card-radius: 0.75rem;
+  --dx-card-shadow: var(--shadow-md);
+  --dx-card-gap: 0.75rem;
+  --dx-card-title-weight: var(--font-semibold);
+  --dx-card-title-font-size: 1rem;
+  --dx-card-subtitle-color: var(--color-text-muted);
+  --dx-card-subtitle-font-size: 0.8125rem;
+  --dx-card-padding-compact: 0.75rem;
+  --dx-card-padding-comfortable: 1.25rem;
+  --dx-card-padding-spacious: 1.75rem;
+}

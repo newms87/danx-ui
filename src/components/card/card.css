@@ -1,0 +1,82 @@
+/**
+ * DanxCard Styles
+ *
+ * A flex column of header/body/footer regions. Variant controls
+ * border/shadow; padding density controls per-region spacing.
+ *
+ * Note: BEM modifiers are top-level blocks because Lightning CSS
+ * does not support &--suffix concatenation.
+ */
+
+@import "./card-tokens.css";
+
+.danx-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--dx-card-bg);
+  color: var(--dx-card-text);
+  border-radius: var(--dx-card-radius);
+
+  .danx-card__header,
+  .danx-card__body,
+  .danx-card__footer {
+    min-width: 0;
+  }
+
+  .danx-card__header {
+    border-bottom: var(--dx-card-border-width) solid var(--dx-card-border);
+  }
+
+  .danx-card__footer {
+    border-top: var(--dx-card-border-width) solid var(--dx-card-border);
+  }
+
+  .danx-card__title {
+    margin: 0;
+    font-size: var(--dx-card-title-font-size);
+    font-weight: var(--dx-card-title-weight);
+  }
+
+  .danx-card__subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--dx-card-subtitle-color);
+    font-size: var(--dx-card-subtitle-font-size);
+  }
+}
+
+.danx-card--outlined {
+  border: var(--dx-card-border-width) solid var(--dx-card-border);
+}
+
+.danx-card--elevated {
+  box-shadow: var(--dx-card-shadow);
+}
+
+.danx-card--flat {
+  border: none;
+  box-shadow: none;
+}
+
+.danx-card--padding-compact {
+  .danx-card__header,
+  .danx-card__body,
+  .danx-card__footer {
+    padding: var(--dx-card-padding-compact);
+  }
+}
+
+.danx-card--padding-comfortable {
+  .danx-card__header,
+  .danx-card__body,
+  .danx-card__footer {
+    padding: var(--dx-card-padding-comfortable);
+  }
+}
+
+.danx-card--padding-spacious {
+  .danx-card__header,
+  .danx-card__body,
+  .danx-card__footer {
+    padding: var(--dx-card-padding-spacious);
+  }
+}
