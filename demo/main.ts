@@ -43,6 +43,7 @@ import TogglePage from "./pages/TogglePage.vue";
 import CheckboxPage from "./pages/CheckboxPage.vue";
 import RadioGroupPage from "./pages/RadioGroupPage.vue";
 import RangeSliderPage from "./pages/RangeSliderPage.vue";
+import RatingPage from "./pages/RatingPage.vue";
 import ColorPickerPage from "./pages/ColorPickerPage.vue";
 import InputPage from "./pages/InputPage.vue";
 import TextareaPage from "./pages/TextareaPage.vue";
@@ -109,6 +110,7 @@ const router = createRouter({
     { path: "/checkbox", name: "checkbox", component: CheckboxPage },
     { path: "/radio-group", name: "radio-group", component: RadioGroupPage },
     { path: "/range-slider", name: "range-slider", component: RangeSliderPage },
+    { path: "/rating", name: "rating", component: RatingPage },
     { path: "/color-picker", name: "color-picker", component: ColorPickerPage },
     { path: "/input", name: "input", component: InputPage },
     { path: "/textarea", name: "textarea", component: TextareaPage },

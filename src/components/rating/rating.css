@@ -1,0 +1,81 @@
+/**
+ * DanxRating Styles
+ *
+ * Layout for the group container and per-star stack. Each star renders two
+ * stacked `DanxIcon` layers: an empty-color background icon, and a
+ * filled-color foreground icon clipped via `clip-path: inset()` driven by
+ * `--dx-rating-fill-pct` (set per-star via :style). This avoids needing
+ * dedicated half-star icon assets — any icon works out of the box.
+ */
+
+@import "./rating-tokens.css";
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.danx-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dx-rating-gap);
+  touch-action: none;
+}
+
+.danx-rating--disabled {
+  cursor: not-allowed;
+  opacity: var(--dx-rating-disabled-opacity);
+}
+
+.danx-rating--readonly {
+  cursor: default;
+}
+
+/* ==========================================================================
+   Star
+   ========================================================================== */
+
+.danx-rating__star {
+  position: relative;
+  display: inline-flex;
+  width: var(--dx-rating-size);
+  height: var(--dx-rating-size);
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  appearance: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  .danx-rating--disabled &,
+  .danx-rating--readonly & {
+    cursor: inherit;
+    pointer-events: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-rating-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.danx-rating__star .danx-icon {
+  --dx-icon-size: var(--dx-rating-size);
+}
+
+.danx-rating__star-layer {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  transition: color var(--dx-rating-transition);
+}
+
+.danx-rating__star-layer--empty {
+  color: var(--dx-rating-empty-color);
+}
+
+.danx-rating__star-layer--filled {
+  color: var(--dx-rating-filled-color);
+  clip-path: inset(0 var(--dx-rating-fill-pct, 100%) 0 0);
+}

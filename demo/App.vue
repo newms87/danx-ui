@@ -245,6 +245,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/range-slider" class="demo-sidebar__link">Range Slider</RouterLink>
               </li>
               <li>
+                <RouterLink to="/rating" class="demo-sidebar__link">Rating</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/color-picker" class="demo-sidebar__link">Color Picker</RouterLink>
               </li>
             </ul>

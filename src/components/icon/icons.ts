@@ -64,6 +64,7 @@ import imageSvg from "danx-icon/src/fontawesome/solid/image.svg?raw";
 import imagesSvg from "danx-icon/src/fontawesome/solid/images.svg?raw";
 import barsSvg from "danx-icon/src/fontawesome/solid/bars.svg?raw";
 import tableColumnsSvg from "danx-icon/src/fontawesome/solid/table-columns.svg?raw";
+import starSvg from "danx-icon/src/fontawesome/solid/star.svg?raw";
 
 // Destructive
 export const trashIcon = trashSvg;
@@ -122,6 +123,7 @@ export const imageIcon = imageSvg;
 export const imagesIcon = imagesSvg;
 export const barsIcon = barsSvg;
 export const tableColumnsIcon = tableColumnsSvg;
+export const starIcon = starSvg;
 
 /**
  * Lookup map from icon name to SVG string.
@@ -176,6 +178,7 @@ export const iconRegistry = {
   images: imagesIcon,
   bars: barsIcon,
   "table-columns": tableColumnsIcon,
+  star: starIcon,
 } satisfies Record<string, string>;
 
 /** Union of all built-in icon names available in the iconRegistry lookup map */

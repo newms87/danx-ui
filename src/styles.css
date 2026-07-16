@@ -53,6 +53,7 @@
 @import "./components/checkbox/checkbox.css" layer(components);
 @import "./components/radio-group/radio-group.css" layer(components);
 @import "./components/range-slider/range-slider.css" layer(components);
+@import "./components/rating/rating.css" layer(components);
 @import "./components/editable-div/editable-div.css" layer(components);
 @import "./components/zoomable/zoomable.css" layer(components);
 @import "./components/file-explorer/file-explorer.css" layer(components);

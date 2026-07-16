@@ -121,6 +121,7 @@ import { DanxToggle } from "../../src/components/toggle";
 import { DanxCheckbox } from "../../src/components/checkbox";
 import { DanxRadioGroup } from "../../src/components/radio-group";
 import { DanxRangeSlider, useRangeSlider } from "../../src/components/range-slider";
+import { DanxRating, useRating } from "../../src/components/rating";
 import {
   DanxColorPicker,
   useRecentColors,
@@ -298,6 +299,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxCheckbox,
   DanxRadioGroup,
   DanxRangeSlider,
+  DanxRating,
   DanxColorPicker,
   DanxInput,
   DanxNumberInput,
@@ -491,6 +493,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxRangeSlider,
   DanxColorPicker,
   useRangeSlider,
+  // Rating
+  DanxRating,
+  useRating,
   useRecentColors,
   // Editable Div
   DanxEditableDiv,

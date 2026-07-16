@@ -63,6 +63,7 @@ export { DanxToggle } from "./components/toggle";
 export { DanxCheckbox } from "./components/checkbox";
 export { DanxRadioGroup } from "./components/radio-group";
 export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
+export { DanxRating, useRating } from "./components/rating";
 export { DanxEditableDiv } from "./components/editable-div";
 export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomable";
 export { DanxFileExplorer, FileExplorerNode } from "./components/file-explorer";
@@ -387,6 +388,7 @@ export type {
   UseRangeSliderOptions,
   UseRangeSliderReturn,
 } from "./components/range-slider";
+export type { DanxRatingProps, UseRatingOptions, UseRatingReturn } from "./components/rating";
 export type {
   DanxEditableDivEmits,
   DanxEditableDivExpose,

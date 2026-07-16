@@ -1,0 +1,31 @@
+/**
+ * DanxRating Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize rating appearance.
+ *
+ * CSS Tokens:
+ * --dx-rating-gap              Gap between stars
+ * --dx-rating-size             Star icon size
+ * --dx-rating-empty-color      Empty-star color
+ * --dx-rating-filled-color     Filled-star color
+ * --dx-rating-transition       Transition timing
+ * --dx-rating-disabled-opacity Opacity applied when disabled
+ * --dx-rating-focus-ring       Focus-visible outline color
+ *
+ * Variant tokens (set via --dx-variant-{name}-bg):
+ * Variants are applied automatically via inline styles from the useVariant
+ * composable and override --dx-rating-filled-color.
+ */
+
+:root {
+  --dx-rating-gap: 0.25rem;
+  --dx-rating-size: 1.25rem;
+
+  --dx-rating-empty-color: var(--color-surface-placeholder);
+  --dx-rating-filled-color: var(--color-interactive);
+  --dx-rating-transition: var(--transition-fast);
+
+  --dx-rating-disabled-opacity: 0.5;
+  --dx-rating-focus-ring: var(--color-focus-ring);
+}

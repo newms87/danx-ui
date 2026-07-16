@@ -222,6 +222,11 @@
       "import": "./dist/components/range-slider/index.js"
     },
     "./components/range-slider/styles": "./dist/components/range-slider/range-slider.css",
+    "./components/rating": {
+      "types": "./dist/components/rating/index.d.ts",
+      "import": "./dist/components/rating/index.js"
+    },
+    "./components/rating/styles": "./dist/components/rating/rating.css",
     "./components/scroll": {
       "types": "./dist/components/scroll/index.d.ts",
       "import": "./dist/components/scroll/index.js"

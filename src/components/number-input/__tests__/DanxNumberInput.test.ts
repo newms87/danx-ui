@@ -82,9 +82,7 @@ describe("DanxNumberInput", () => {
     it("renders helper text via DanxFieldWrapper", () => {
       const wrapper = mount(DanxNumberInput, { props: { helperText: "Enter a quantity" } });
 
-      expect(wrapper.find(".danx-field-wrapper__message--helper").text()).toBe(
-        "Enter a quantity"
-      );
+      expect(wrapper.find(".danx-field-wrapper__message--helper").text()).toBe("Enter a quantity");
     });
   });
 
@@ -221,20 +219,28 @@ describe("DanxNumberInput", () => {
     it("disables the increment button once the value reaches max", () => {
       const wrapper = mount(DanxNumberInput, { props: { modelValue: 10, max: 10 } });
 
-      expect(wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")
+      ).toBeDefined();
     });
 
     it("disables the decrement button once the value reaches min", () => {
       const wrapper = mount(DanxNumberInput, { props: { modelValue: 0, min: 0 } });
 
-      expect(wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")
+      ).toBeDefined();
     });
 
     it("does not disable steppers when min/max are unset", () => {
       const wrapper = mount(DanxNumberInput, { props: { modelValue: 5 } });
 
-      expect(wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")).toBeUndefined();
-      expect(wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")).toBeUndefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")
+      ).toBeUndefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")
+      ).toBeUndefined();
     });
   });
 
@@ -413,15 +419,23 @@ describe("DanxNumberInput", () => {
     it("disables both stepper buttons when disabled", () => {
       const wrapper = mount(DanxNumberInput, { props: { disabled: true } });
 
-      expect(wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")).toBeDefined();
-      expect(wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")
+      ).toBeDefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")
+      ).toBeDefined();
     });
 
     it("disables both stepper buttons when readonly", () => {
       const wrapper = mount(DanxNumberInput, { props: { readonly: true } });
 
-      expect(wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")).toBeDefined();
-      expect(wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")).toBeDefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--increment").attributes("disabled")
+      ).toBeDefined();
+      expect(
+        wrapper.find(".danx-number-input__stepper--decrement").attributes("disabled")
+      ).toBeDefined();
     });
 
     it("ignores stepper mousedown when disabled", async () => {
