@@ -14,12 +14,13 @@
  * @see editorActions.ts for document structure actions
  */
 
-import { computed, nextTick, Ref, ref, watch } from "vue";
+import { computed, nextTick, onUnmounted, Ref, ref, watch } from "vue";
 import { registerDefaultHotkeys } from "./defaultHotkeys";
 import { createCodeBlockHandlers } from "./editorCodeBlockHandlers";
 import { createEditorActions } from "./editorActions";
 import { createKeyHandler } from "./editorKeyHandlers";
 import { cleanupInvalidSwatches } from "./hexColorDecorator";
+import { normalizePastedHtml } from "./pasteNormalization";
 import { HotkeyDefinition, useMarkdownHotkeys } from "./useMarkdownHotkeys";
 import { useMarkdownSelection } from "./useMarkdownSelection";
 import { useMarkdownSync } from "./useMarkdownSync";
@@ -63,6 +64,7 @@ export interface UseMarkdownEditorReturn {
   charCount: Ref<number>;
   onInput: () => void;
   onKeyDown: (event: KeyboardEvent) => void;
+  onPaste: (event: ClipboardEvent) => void;
   onBlur: () => void;
   setMarkdown: (markdown: string) => void;
   insertHorizontalRule: () => void;
@@ -230,6 +232,56 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     }
   }
 
+  // Track whether Shift is currently held so onPaste can offer a plain-text
+  // paste path. ClipboardEvent has no standard modifier-key properties (it
+  // does not extend UIEvent), so the held state is tracked independently via
+  // window-level key events rather than read off the paste event itself.
+  const isShiftHeld = ref(false);
+  function handleGlobalKeyDown(e: KeyboardEvent): void {
+    if (e.key === "Shift") isShiftHeld.value = true;
+  }
+  function handleGlobalKeyUp(e: KeyboardEvent): void {
+    if (e.key === "Shift") isShiftHeld.value = false;
+  }
+  if (typeof window !== "undefined") {
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    window.addEventListener("keyup", handleGlobalKeyUp);
+    onUnmounted(() => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+      window.removeEventListener("keyup", handleGlobalKeyUp);
+    });
+  }
+
+  /**
+   * Handle paste events. Intercepts the clipboard, strips foreign HTML cruft
+   * (Word/Docs conditional comments, inline style/class, meta/script tags),
+   * and inserts the normalized markup at the caret. Holding Shift while
+   * pasting instead inserts the clipboard's plain text verbatim, bypassing
+   * HTML conversion entirely.
+   */
+  function onPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+
+    const plainText = event.clipboardData?.getData("text/plain") ?? "";
+
+    if (isShiftHeld.value) {
+      document.execCommand("insertText", false, plainText);
+      onContentChange();
+      return;
+    }
+
+    const html = event.clipboardData?.getData("text/html") ?? "";
+    if (!html) {
+      document.execCommand("insertText", false, plainText);
+      onContentChange();
+      return;
+    }
+
+    const normalizedHtml = normalizePastedHtml(html);
+    document.execCommand("insertHTML", false, normalizedHtml);
+    onContentChange();
+  }
+
   function onBlur(): void {
     sync.syncFromHtml();
   }
@@ -271,6 +323,7 @@ export function useMarkdownEditor(options: UseMarkdownEditorOptions): UseMarkdow
     charCount,
     onInput,
     onKeyDown,
+    onPaste,
     onBlur,
     setMarkdown,
     insertHorizontalRule,

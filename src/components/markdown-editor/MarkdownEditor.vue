@@ -6,7 +6,9 @@
  * in real-time. Supports headings, lists, inline formatting, code blocks (with syntax
  * highlighting via CodeViewer), tables, links, blockquotes, horizontal rules, and custom
  * token renderers. Includes a context menu, hotkey help popover, link/table insert
- * popovers, and a raw markdown toggle to view unformatted source text.
+ * popovers, and a raw markdown toggle to view unformatted source text. Paste is
+ * intercepted to normalize foreign HTML (Word/Docs/web pages), with a Shift-held
+ * plain-text paste path (see MarkdownEditorContent's paste event and useMarkdownEditor.onPaste).
  *
  * @props
  *   modelValue: string - The markdown content (use v-model, default: "")
@@ -159,6 +161,7 @@ watch(modelValue, (newValue) => {
           :placeholder="placeholder"
           @input="editor.onInput"
           @keydown="editor.onKeyDown"
+          @paste="editor.onPaste"
           @blur="editor.onBlur"
           @container-mounted="(el: HTMLElement) => (contentElementRef = el)"
         />

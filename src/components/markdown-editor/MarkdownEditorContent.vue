@@ -14,6 +14,7 @@
  * @emits
  *   input - Fired when content changes via user input
  *   keydown - Fired on keydown with the KeyboardEvent
+ *   paste - Fired on paste with the ClipboardEvent, before any default browser handling
  *   blur - Fired when the editor loses focus
  *   containerMounted - Fired on mount with the contenteditable HTMLElement reference
  *
@@ -53,6 +54,7 @@ const props = withDefaults(defineProps<MarkdownEditorContentProps>(), {
 const emit = defineEmits<{
   input: [];
   keydown: [event: KeyboardEvent];
+  paste: [event: ClipboardEvent];
   blur: [];
   containerMounted: [element: HTMLElement];
 }>();
@@ -125,6 +127,7 @@ onMounted(() => {
     :data-placeholder="placeholder"
     @input="onInput"
     @keydown="$emit('keydown', $event)"
+    @paste="$emit('paste', $event)"
     @blur="$emit('blur')"
     @click="handleClick"
     v-html="html"

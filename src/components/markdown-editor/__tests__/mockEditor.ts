@@ -14,6 +14,7 @@ export function createMockEditor(): UseMarkdownEditorReturn {
     charCount: ref(0),
     onInput: vi.fn(),
     onKeyDown: vi.fn(),
+    onPaste: vi.fn(),
     onBlur: vi.fn(),
     setMarkdown: vi.fn(),
     insertHorizontalRule: vi.fn(),

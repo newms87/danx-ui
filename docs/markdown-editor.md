@@ -32,6 +32,16 @@ const content = ref('# Hello World\n\nStart editing...');
 </script>
 ```
 
+## Pasting Content
+
+Pasting into the editor is intercepted rather than left to the browser's default rich-paste behavior:
+
+- **Rich paste (`Ctrl+V` / `Cmd+V`)** - HTML from the clipboard (e.g. copied from Word, Google Docs, or a web page) is normalized before insertion: conditional comments, MS Office XML namespaced elements (`<o:p>`, `<w:sdt>`, etc.), and `<meta>`/`<script>`/`<style>`/`<link>` tags are stripped, along with inline `style`/`class` attributes and `on*` event handlers. The cleaned markup is inserted at the caret and converted through the same markdown pipeline as any other edit.
+- **Plain-text paste (hold `Shift` while pasting)** - Bypasses HTML normalization entirely and inserts the clipboard's plain text verbatim. Use this when the source formatting should not carry over at all.
+- **No HTML on the clipboard** - Falls back automatically to inserting the plain text.
+
+> Pasted images are not yet supported and are dropped; this is a documented follow-up (see `htmlToMarkdown` has no `<img>` handling).
+
 ## Props
 
 | Prop | Type | Default | Description |
@@ -116,6 +126,7 @@ const content = ref('# Hello World\n\nStart editing...');
 | `Enter` | New line / continue list |
 | `Ctrl+Alt+L` | Cycle code block language |
 | `Ctrl+?` | Toggle keyboard shortcuts help |
+| Hold `Shift` while pasting | Paste as plain text, bypassing HTML normalization |
 
 ## Custom Token Renderers
 

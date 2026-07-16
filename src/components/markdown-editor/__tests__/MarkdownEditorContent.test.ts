@@ -109,6 +109,14 @@ describe("MarkdownEditorContent", () => {
       await wrapper.find(".dx-markdown-editor-content").trigger("blur");
       expect(wrapper.emitted("blur")).toHaveLength(1);
     });
+
+    it("emits paste on paste with the ClipboardEvent", async () => {
+      mountContent();
+      const clipboardData = new DataTransfer();
+      clipboardData.setData("text/plain", "hello");
+      await wrapper.find(".dx-markdown-editor-content").trigger("paste", { clipboardData });
+      expect(wrapper.emitted("paste")).toHaveLength(1);
+    });
   });
 
   describe("Ctrl+Click link handling", () => {

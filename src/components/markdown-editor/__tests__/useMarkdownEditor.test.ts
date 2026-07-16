@@ -1570,4 +1570,94 @@ describe("useMarkdownEditor", () => {
       vi.useRealTimers();
     });
   });
+
+  describe("onPaste", () => {
+    // happy-dom does not implement document.execCommand; stub for paste tests.
+    function stubExecCommand() {
+      const spy = vi.fn().mockReturnValue(true);
+      (
+        document as unknown as {
+          execCommand: (cmd: string, ui?: boolean, value?: string) => boolean;
+        }
+      ).execCommand = spy;
+      return spy;
+    }
+
+    function pasteEvent(data: { html?: string; text?: string }): ClipboardEvent {
+      const clipboardData = new DataTransfer();
+      if (data.html !== undefined) clipboardData.setData("text/html", data.html);
+      if (data.text !== undefined) clipboardData.setData("text/plain", data.text);
+      return new ClipboardEvent("paste", { clipboardData, cancelable: true });
+    }
+
+    it("normalizes a Word/Docs HTML paste and inserts it via insertHTML", () => {
+      const execSpy = stubExecCommand();
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 5);
+
+      const wordHtml =
+        "<!--[if gte mso 9]><xml></xml><![endif]-->" +
+        '<p class="MsoNormal" style="margin:0in">Pasted <b>text</b></p>';
+      markdownEditor.onPaste(pasteEvent({ html: wordHtml, text: "Pasted text" }));
+
+      expect(execSpy).toHaveBeenCalledTimes(1);
+      const [command, , insertedHtml] = execSpy.mock.calls[0]!;
+      expect(command).toBe("insertHTML");
+      expect(insertedHtml).not.toContain("mso");
+      expect(insertedHtml).not.toContain("style=");
+      expect(insertedHtml).not.toContain("class=");
+      expect(insertedHtml).toContain("<b>text</b>");
+    });
+
+    it("prevents the default browser paste behavior", () => {
+      stubExecCommand();
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 5);
+
+      const event = pasteEvent({ html: "<p>x</p>", text: "x" });
+      const preventDefaultSpy = vi.spyOn(event, "preventDefault");
+      markdownEditor.onPaste(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
+    });
+
+    it("inserts plain text verbatim when Shift is held, bypassing HTML conversion", () => {
+      const execSpy = stubExecCommand();
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 5);
+
+      // Shift-held state is tracked via window keydown/keyup, not the paste event itself
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Shift" }));
+      markdownEditor.onPaste(pasteEvent({ html: "<p><b>Rich</b></p>", text: "Rich" }));
+      window.dispatchEvent(new KeyboardEvent("keyup", { key: "Shift" }));
+
+      expect(execSpy).toHaveBeenCalledWith("insertText", false, "Rich");
+    });
+
+    it("stops treating Shift as held once it is released", () => {
+      const execSpy = stubExecCommand();
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 5);
+
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Shift" }));
+      window.dispatchEvent(new KeyboardEvent("keyup", { key: "Shift" }));
+      markdownEditor.onPaste(pasteEvent({ html: "<p><b>Rich</b></p>", text: "Rich" }));
+
+      expect(execSpy).toHaveBeenCalledWith(
+        "insertHTML",
+        false,
+        expect.stringContaining("<b>Rich</b>")
+      );
+    });
+
+    it("falls back to plain text insertion when the clipboard has no HTML data", () => {
+      const execSpy = stubExecCommand();
+      const markdownEditor = createEditor("<p>Hello</p>");
+      editor.setCursorInBlock(0, 5);
+
+      markdownEditor.onPaste(pasteEvent({ text: "just text" }));
+
+      expect(execSpy).toHaveBeenCalledWith("insertText", false, "just text");
+    });
+  });
 });

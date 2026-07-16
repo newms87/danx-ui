@@ -15,6 +15,7 @@ import darkAndLightCode from "./markdown-editor-examples/DarkAndLight.vue?raw";
 import richContentCode from "./markdown-editor-examples/RichContent.vue?raw";
 import heightConstraintsCode from "./markdown-editor-examples/HeightConstraints.vue?raw";
 import structuredDataCode from "./markdown-editor-examples/StructuredData.vue?raw";
+import pasteHandlingCode from "./markdown-editor-examples/PasteHandling.vue?raw";
 </script>
 
 <template>
@@ -62,6 +63,12 @@ import structuredDataCode from "./markdown-editor-examples/StructuredData.vue?ra
       title="Structured Data Detection"
       description="Unfenced JSON and YAML blocks are auto-detected and rendered with syntax highlighting inside a CodeViewer."
       :code="structuredDataCode"
+    />
+
+    <DemoSection
+      title="Paste Handling"
+      description="Rich HTML pasted from Word/Docs/web pages is normalized before insertion (stripped of conditional comments, inline styles, and script/style/meta tags). Hold Shift while pasting to insert plain text verbatim instead."
+      :code="pasteHandlingCode"
     />
   </DemoPage>
 </template>
