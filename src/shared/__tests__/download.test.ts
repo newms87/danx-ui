@@ -228,6 +228,70 @@ describe("downloadFile", () => {
       );
     });
 
+    it("does not append cache-busting param when URL already has a query string", () => {
+      const xhrInstance = {
+        open: vi.fn(),
+        send: vi.fn(),
+        responseType: "",
+        onload: null as unknown,
+        onerror: null as unknown,
+      };
+
+      class MockXHR {
+        open = xhrInstance.open;
+        send = xhrInstance.send;
+        responseType = xhrInstance.responseType;
+        onload: unknown = null;
+        onerror: unknown = null;
+      }
+
+      vi.stubGlobal("XMLHttpRequest", MockXHR);
+
+      const signedUrl = "https://bucket.s3.amazonaws.com/file.txt?X-Amz-Signature=abc123";
+      downloadFile(signedUrl);
+
+      expect(xhrInstance.open).toHaveBeenCalledWith("GET", signedUrl, true);
+    });
+
+    it("XHR onload with non-2xx status falls back to window.open instead of saving the response", () => {
+      let xhrOnload: (() => void) | null = null;
+      const xhrInstance = {
+        open: vi.fn(),
+        send: vi.fn(),
+        responseType: "",
+        status: 403,
+        response: new Blob(["<xml>AccessDenied</xml>"]),
+        onload: null as unknown,
+        onerror: null as unknown,
+      };
+
+      class MockXHR {
+        open = xhrInstance.open;
+        send = xhrInstance.send;
+        responseType = xhrInstance.responseType;
+        status = xhrInstance.status;
+        response = xhrInstance.response;
+        onload: unknown = null;
+        onerror: unknown = null;
+      }
+
+      vi.stubGlobal("XMLHttpRequest", MockXHR);
+
+      const windowOpenSpy = vi
+        .spyOn(window, "open")
+        .mockReturnValue({ focus: vi.fn() } as unknown as Window);
+
+      const signedUrl = "https://bucket.s3.amazonaws.com/file.txt?X-Amz-Signature=abc123";
+      const result = downloadFile(signedUrl);
+      xhrOnload = (result as unknown as { onload: () => void }).onload;
+
+      vi.advanceTimersByTime(0);
+
+      xhrOnload!();
+      expect(windowOpenSpy).toHaveBeenCalledWith(signedUrl, "_blank");
+      expect(createObjectURLSpy).not.toHaveBeenCalled();
+    });
+
     it("uses 'download' as filename when URL ends with slash", () => {
       const xhrInstance = {
         open: vi.fn(),

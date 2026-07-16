@@ -93,9 +93,18 @@ export function downloadFile(
   if (typeof data === "string" && /^https?:\/\//.test(data)) {
     const urlFileName = filename || data.split("/").pop()?.split("?")[0] || "download";
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", data + (data.includes("?") ? "&" : "?") + "no-cache=" + Date.now(), true);
+    // DXUI-78: a URL with an existing query string may be a signed/presigned URL
+    // (e.g. S3 X-Amz-Signature) — appending a cache-busting param invalidates the signature
+    const fetchUrl = data.includes("?") ? data : data + "?no-cache=" + Date.now();
+    xhr.open("GET", fetchUrl, true);
     xhr.responseType = "blob";
-    xhr.onload = () => downloadFile(xhr.response as Blob, urlFileName, mimeType || DEFAULT_MIME);
+    xhr.onload = () => {
+      if (xhr.status < 200 || xhr.status >= 300) {
+        window.open(data, "_blank")?.focus();
+        return;
+      }
+      downloadFile(xhr.response as Blob, urlFileName, mimeType || DEFAULT_MIME);
+    };
     xhr.onerror = () => window.open(data, "_blank")?.focus();
     setTimeout(() => xhr.send(), 0);
     return xhr;
