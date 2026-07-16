@@ -141,6 +141,7 @@ const TABS_VARIANT_TOKENS = {
 
 const variantStyle = useVariant(toRef(props, "variant"), "tabs", TABS_VARIANT_TOKENS);
 const buttonRefs = ref<Map<string, HTMLElement>>(new Map());
+const scrollEl = ref<HTMLElement | null>(null);
 
 const tabsId = `danx-tabs-${++tabsIdCounter}`;
 
@@ -193,9 +194,20 @@ function updateIndicatorPosition() {
   }
 }
 
+/**
+ * Scroll the active tab button into view within the scrollable row
+ */
+function scrollActiveTabIntoView() {
+  const button = buttonRefs.value.get(modelValue.value);
+  button?.scrollIntoView({ block: "nearest", inline: "nearest" });
+}
+
 // Update position when model changes
 watch(modelValue, () => {
-  nextTick(updateIndicatorPosition);
+  nextTick(() => {
+    updateIndicatorPosition();
+    scrollActiveTabIntoView();
+  });
 });
 
 // Update position when tabs change (e.g., counts update)
@@ -215,41 +227,43 @@ onMounted(() => {
 
 <template>
   <div class="danx-tabs" role="tablist" :style="variantStyle">
-    <!-- Sliding active indicator -->
-    <div class="danx-tabs__indicator" :style="indicatorStyle" />
+    <div ref="scrollEl" class="danx-tabs__scroll">
+      <!-- Sliding active indicator -->
+      <div class="danx-tabs__indicator" :style="indicatorStyle" />
 
-    <!-- Tab buttons with dividers -->
-    <template v-for="(tab, index) in tabs" :key="tab.value">
-      <!-- Divider between tabs (skip first) -->
-      <span v-if="index > 0" class="danx-tabs__divider" />
+      <!-- Tab buttons with dividers -->
+      <template v-for="(tab, index) in tabs" :key="tab.value">
+        <!-- Divider between tabs (skip first) -->
+        <span v-if="index > 0" class="danx-tabs__divider" />
 
-      <button
-        :id="tabId(tab.value)"
-        :ref="(el) => setButtonRef(tab.value, el as HTMLElement)"
-        type="button"
-        role="tab"
-        class="danx-tabs__tab"
-        :class="{ 'is-active': modelValue === tab.value }"
-        :style="tab.activeColor ? { '--dx-tab-color': tab.activeColor } : undefined"
-        :aria-selected="modelValue === tab.value"
-        :aria-controls="tab.panelId"
-        :tabindex="modelValue === tab.value ? 0 : -1"
-        @click="modelValue = tab.value"
-      >
-        <slot :tab="tab" :is-active="modelValue === tab.value">
-          <slot name="icon" :tab="tab" :is-active="modelValue === tab.value">
-            <span v-if="tab.icon" class="danx-tabs__icon">
-              <DanxIcon :icon="tab.icon" />
-            </span>
+        <button
+          :id="tabId(tab.value)"
+          :ref="(el) => setButtonRef(tab.value, el as HTMLElement)"
+          type="button"
+          role="tab"
+          class="danx-tabs__tab"
+          :class="{ 'is-active': modelValue === tab.value }"
+          :style="tab.activeColor ? { '--dx-tab-color': tab.activeColor } : undefined"
+          :aria-selected="modelValue === tab.value"
+          :aria-controls="tab.panelId"
+          :tabindex="modelValue === tab.value ? 0 : -1"
+          @click="modelValue = tab.value"
+        >
+          <slot :tab="tab" :is-active="modelValue === tab.value">
+            <slot name="icon" :tab="tab" :is-active="modelValue === tab.value">
+              <span v-if="tab.icon" class="danx-tabs__icon">
+                <DanxIcon :icon="tab.icon" />
+              </span>
+            </slot>
+            <slot name="label" :tab="tab" :is-active="modelValue === tab.value">
+              <span>{{ tab.label }}</span>
+            </slot>
           </slot>
-          <slot name="label" :tab="tab" :is-active="modelValue === tab.value">
-            <span>{{ tab.label }}</span>
-          </slot>
-        </slot>
-        <span v-if="tab.count !== undefined && tab.count !== 0" class="danx-tabs__count">{{
-          tab.count
-        }}</span>
-      </button>
-    </template>
+          <span v-if="tab.count !== undefined && tab.count !== 0" class="danx-tabs__count">{{
+            tab.count
+          }}</span>
+        </button>
+      </template>
+    </div>
   </div>
 </template>

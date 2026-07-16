@@ -12,13 +12,28 @@
    ========================================================================== */
 
 .danx-tabs {
-  position: relative;
-  display: flex;
-  align-items: center;
   background: var(--dx-tabs-bg);
   border: 1px solid var(--dx-tabs-border);
   border-radius: var(--dx-tabs-border-radius);
   overflow: hidden;
+}
+
+/* ==========================================================================
+   Scrollable Row
+   ========================================================================== */
+
+.danx-tabs__scroll {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* ==========================================================================

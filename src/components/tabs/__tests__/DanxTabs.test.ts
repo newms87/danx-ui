@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { h, defineComponent, markRaw, nextTick } from "vue";
 import DanxTabs from "../DanxTabs.vue";
@@ -268,7 +268,7 @@ describe("DanxTabs", () => {
       });
 
       // First child after indicator should be a button, not a divider
-      const children = wrapper.find(".danx-tabs").element.children;
+      const children = wrapper.find(".danx-tabs__scroll").element.children;
       // children[0] is the indicator, children[1] should be the first button
       expect(children[1]!.classList.contains("danx-tabs__divider")).toBe(false);
       expect(children[1]!.classList.contains("danx-tabs__tab")).toBe(true);
@@ -561,6 +561,58 @@ describe("DanxTabs", () => {
       const ids = buttons.map((b) => b.attributes("id"));
       expect(new Set(ids).size).toBe(ids.length);
       expect(ids.every((id) => !!id)).toBe(true);
+    });
+  });
+
+  describe("Overflow scrolling", () => {
+    it("renders a scrollable inner container with overflow-x auto instead of clipping", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const scroll = wrapper.find(".danx-tabs__scroll");
+      expect(scroll.exists()).toBe(true);
+      // Overflowing tabs remain reachable via scroll rather than being clipped
+      expect(wrapper.find(".danx-tabs").element).not.toBe(scroll.element);
+    });
+
+    it("scrolls the active tab into view when modelValue changes", async () => {
+      const tabs = createTabs();
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs },
+      });
+
+      const activeButton = wrapper.findAll(".danx-tabs__tab")[1]!.element;
+      const scrollIntoViewSpy = vi.fn();
+      activeButton.scrollIntoView = scrollIntoViewSpy;
+
+      await wrapper.setProps({ modelValue: "two" });
+      await nextTick();
+      await flushPromises();
+
+      expect(scrollIntoViewSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ inline: "nearest" })
+      );
+    });
+
+    it("scrolls the newly-active tab into view via keyboard-driven selection", async () => {
+      const tabs = createTabs();
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs },
+      });
+
+      const targetButton = wrapper.findAll(".danx-tabs__tab")[2]!.element;
+      const scrollIntoViewSpy = vi.fn();
+      targetButton.scrollIntoView = scrollIntoViewSpy;
+
+      // Simulate keyboard navigation setting the active tab programmatically
+      await wrapper.setProps({ modelValue: "three" });
+      await nextTick();
+      await flushPromises();
+
+      expect(scrollIntoViewSpy).toHaveBeenCalled();
+      // The active tab remains reachable/visible after selection
+      expect(wrapper.findAll(".danx-tabs__tab")[2]!.classes()).toContain("is-active");
     });
   });
 
