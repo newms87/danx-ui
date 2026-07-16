@@ -28,6 +28,7 @@ import ToastPage from "./pages/ToastPage.vue";
 import TooltipPage from "./pages/TooltipPage.vue";
 import ProgressBarPage from "./pages/ProgressBarPage.vue";
 import SplitPanelPage from "./pages/SplitPanelPage.vue";
+import DragAndDropPage from "./pages/DragAndDropPage.vue";
 import FileExplorerPage from "./pages/FileExplorerPage.vue";
 import TreeViewPage from "./pages/TreeViewPage.vue";
 import TablePage from "./pages/TablePage.vue";
@@ -91,6 +92,7 @@ const router = createRouter({
     { path: "/tooltip", name: "tooltip", component: TooltipPage },
     { path: "/progress-bar", name: "progress-bar", component: ProgressBarPage },
     { path: "/split-panel", name: "split-panel", component: SplitPanelPage },
+    { path: "/drag-and-drop", name: "drag-and-drop", component: DragAndDropPage },
     { path: "/file-explorer", name: "file-explorer", component: FileExplorerPage },
     { path: "/tree-view", name: "tree-view", component: TreeViewPage },
     { path: "/table", name: "table", component: TablePage },

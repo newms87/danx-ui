@@ -181,6 +181,11 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
               </li>
               <li>
+                <RouterLink to="/drag-and-drop" class="demo-sidebar__link"
+                  >Drag And Drop</RouterLink
+                >
+              </li>
+              <li>
                 <RouterLink to="/file-explorer" class="demo-sidebar__link"
                   >File Explorer</RouterLink
                 >

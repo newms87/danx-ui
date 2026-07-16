@@ -65,6 +65,7 @@ export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomab
 export { DanxFileExplorer, FileExplorerNode } from "./components/file-explorer";
 export { DanxTreeView, TreeViewNode } from "./components/tree-view";
 export { DanxTable } from "./components/table";
+export { DanxDragHandle } from "./components/drag-and-drop";
 
 // Composables
 export {
@@ -75,6 +76,7 @@ export {
 export { useDialog, useDialogStack } from "./components/dialog";
 export { useToast, useToastTimer } from "./components/toast";
 export { useSplitPanel } from "./components/split-panel";
+export { useDragAndDrop } from "./components/drag-and-drop";
 export { useMarkdownEditor } from "./components/markdown-editor";
 export {
   resolveFileUrl,
@@ -233,6 +235,11 @@ export type {
   UseSplitPanelOptions,
   UseSplitPanelReturn,
 } from "./components/split-panel";
+export type {
+  DragAndDropOrientation,
+  UseDragAndDropOptions,
+  UseDragAndDropReturn,
+} from "./components/drag-and-drop";
 export type { DanxTab, DanxTabsProps } from "./components/tabs";
 export type { DanxStep, DanxStepStatus, DanxStepperProps } from "./components/stepper";
 export type {

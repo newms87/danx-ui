@@ -1,0 +1,20 @@
+/**
+ * Drag And Drop Component Tokens (Tier 3)
+ *
+ * Component-specific CSS custom properties for DanxDragHandle and any
+ * consumer markup using the useDragAndDrop composable's state helpers.
+ * Override these on any ancestor element to customize appearance.
+ */
+
+.danx-drag-handle {
+  --dx-drag-handle-size: 1.75rem;
+  --dx-drag-handle-color: var(--color-text-subtle);
+  --dx-drag-handle-hover: var(--color-interactive);
+  --dx-drag-handle-active: var(--color-interactive);
+  --dx-drag-handle-focus-ring: var(--color-focus-ring);
+}
+
+.danx-drag-item {
+  --dx-drag-flip-duration: 200ms;
+  --dx-drag-item-drop-indicator: var(--color-interactive);
+}

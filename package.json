@@ -133,6 +133,11 @@
       "import": "./dist/components/dialog/index.js"
     },
     "./components/dialog/styles": "./dist/components/dialog/dialog.css",
+    "./components/drag-and-drop": {
+      "types": "./dist/components/drag-and-drop/index.d.ts",
+      "import": "./dist/components/drag-and-drop/index.js"
+    },
+    "./components/drag-and-drop/styles": "./dist/components/drag-and-drop/drag-and-drop.css",
     "./components/drawer": {
       "types": "./dist/components/drawer/index.d.ts",
       "import": "./dist/components/drawer/index.js"

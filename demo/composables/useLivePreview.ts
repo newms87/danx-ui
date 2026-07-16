@@ -88,6 +88,7 @@ import { DanxToast, DanxToastContainer, useToast, useToastTimer } from "../../sr
 import { DanxTooltip } from "../../src/components/tooltip";
 import { DanxProgressBar } from "../../src/components/progress-bar";
 import { DanxSplitPanel, SplitPanelHandle, useSplitPanel } from "../../src/components/split-panel";
+import { DanxDragHandle, useDragAndDrop } from "../../src/components/drag-and-drop";
 import {
   DanxFileExplorer,
   FileExplorerNode,
@@ -269,6 +270,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxProgressBar,
   DanxSplitPanel,
   SplitPanelHandle,
+  DanxDragHandle,
   DanxFileExplorer,
   FileExplorerNode,
   DanxTreeView,
@@ -434,6 +436,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxSplitPanel,
   SplitPanelHandle,
   useSplitPanel,
+  // DragAndDrop
+  DanxDragHandle,
+  useDragAndDrop,
   // FileExplorer
   DanxFileExplorer,
   FileExplorerNode,

@@ -1,0 +1,63 @@
+/**
+ * Drag And Drop Styles
+ *
+ * Styles for DanxDragHandle plus optional utility classes consumers can
+ * apply to their own row markup using the useDragAndDrop composable's
+ * isDragging/isDropTarget state helpers.
+ */
+
+@import "./drag-and-drop-tokens.css";
+
+.danx-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-drag-handle-size);
+  height: var(--dx-drag-handle-size);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--dx-drag-handle-color);
+  cursor: grab;
+  touch-action: none;
+  border-radius: var(--radius-sm, 4px);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--dx-drag-handle-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-drag-handle-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &.danx-drag-handle--active {
+    color: var(--dx-drag-handle-active);
+    cursor: grabbing;
+  }
+
+  .danx-drag-handle__icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Optional utility classes for consumer row markup */
+.danx-drag-item {
+  position: relative;
+
+  &.danx-drag-item--dragging {
+    opacity: 0.5;
+  }
+
+  &.danx-drag-item--drop-target::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--dx-drag-item-drop-indicator);
+  }
+}

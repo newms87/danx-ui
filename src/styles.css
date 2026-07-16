@@ -55,3 +55,4 @@
 @import "./components/file-explorer/file-explorer.css" layer(components);
 @import "./components/tree-view/tree-view.css" layer(components);
 @import "./components/table/table.css" layer(components);
+@import "./components/drag-and-drop/drag-and-drop.css" layer(components);
