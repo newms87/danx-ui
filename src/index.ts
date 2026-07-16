@@ -8,7 +8,12 @@
 export { DanxActionButton, DanxButton } from "./components/button";
 export { DanxAlert } from "./components/alert";
 export { DanxAvatar, getInitials } from "./components/avatar";
-export type { AvatarShape, AvatarSize, DanxAvatarProps, DanxAvatarSlots } from "./components/avatar";
+export type {
+  AvatarShape,
+  AvatarSize,
+  DanxAvatarProps,
+  DanxAvatarSlots,
+} from "./components/avatar";
 // DXUI-170: DanxAuditHistoryItem uses fTimeAgo, which pulls in `luxon` (optional peer) —
 // kept out of the main barrel; import from "danx-ui/components/audit-history-item".
 export { DanxBadge } from "./components/badge";
@@ -16,6 +21,12 @@ export { DanxBreadcrumbs } from "./components/breadcrumbs";
 export { DanxCard } from "./components/card";
 export { DanxChip } from "./components/chip";
 export { DanxDivider } from "./components/divider";
+export { DanxEmptyState } from "./components/empty-state";
+export type {
+  DanxEmptyStateProps,
+  DanxEmptyStateSlots,
+  EmptyStateSize,
+} from "./components/empty-state";
 export { DanxSpinner } from "./components/spinner";
 export { DanxIcon } from "./components/icon";
 export { DanxKbd, detectOs, resolveKeyLabel } from "./components/kbd";

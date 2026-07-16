@@ -42,6 +42,7 @@ import { DanxBadge } from "../../src/components/badge";
 import { DanxBreadcrumbs } from "../../src/components/breadcrumbs";
 import { DanxCard } from "../../src/components/card";
 import { DanxDivider } from "../../src/components/divider";
+import { DanxEmptyState } from "../../src/components/empty-state";
 import { DanxSpinner } from "../../src/components/spinner";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
@@ -280,6 +281,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxActionButton,
   DanxChip,
   DanxDivider,
+  DanxEmptyState,
   DanxSpinner,
   DanxKbd,
   DanxIcon,
@@ -357,6 +359,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxActionButton,
   DanxChip,
   DanxDivider,
+  DanxEmptyState,
   DanxSpinner,
   DanxKbd,
   detectOs,

@@ -1,0 +1,123 @@
+/**
+ * DanxEmptyState Styles
+ *
+ * Main entry point that imports tokens and defines empty state layout,
+ * size modifiers, illustration, title, description, and actions rendering.
+ *
+ * Note: BEM modifiers (.danx-empty-state--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "./empty-state-tokens.css";
+
+/* ==========================================================================
+   Base Empty State Layout
+   ========================================================================== */
+
+.danx-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--dx-empty-state-font-family);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-empty-state--sm {
+  gap: var(--dx-empty-state-sm-gap);
+  padding: var(--dx-empty-state-sm-padding);
+
+  .danx-empty-state__illustration {
+    width: var(--dx-empty-state-sm-icon-size);
+    height: var(--dx-empty-state-sm-icon-size);
+  }
+
+  .danx-empty-state__title {
+    font-size: var(--dx-empty-state-sm-title-size);
+  }
+
+  .danx-empty-state__description {
+    font-size: var(--dx-empty-state-sm-description-size);
+  }
+}
+
+.danx-empty-state--md {
+  gap: var(--dx-empty-state-md-gap);
+  padding: var(--dx-empty-state-md-padding);
+
+  .danx-empty-state__illustration {
+    width: var(--dx-empty-state-md-icon-size);
+    height: var(--dx-empty-state-md-icon-size);
+  }
+
+  .danx-empty-state__title {
+    font-size: var(--dx-empty-state-md-title-size);
+  }
+
+  .danx-empty-state__description {
+    font-size: var(--dx-empty-state-md-description-size);
+  }
+}
+
+.danx-empty-state--lg {
+  gap: var(--dx-empty-state-lg-gap);
+  padding: var(--dx-empty-state-lg-padding);
+
+  .danx-empty-state__illustration {
+    width: var(--dx-empty-state-lg-icon-size);
+    height: var(--dx-empty-state-lg-icon-size);
+  }
+
+  .danx-empty-state__title {
+    font-size: var(--dx-empty-state-lg-title-size);
+  }
+
+  .danx-empty-state__description {
+    font-size: var(--dx-empty-state-lg-description-size);
+  }
+}
+
+/* ==========================================================================
+   Illustration
+   ========================================================================== */
+
+.danx-empty-state__illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--dx-empty-state-description-color);
+}
+
+.danx-empty-state__icon {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   Title / Description
+   ========================================================================== */
+
+.danx-empty-state__title {
+  font-weight: var(--dx-empty-state-title-weight);
+  color: var(--dx-empty-state-title-color);
+}
+
+.danx-empty-state__description {
+  color: var(--dx-empty-state-description-color);
+}
+
+/* ==========================================================================
+   Actions
+   ========================================================================== */
+
+.danx-empty-state__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}

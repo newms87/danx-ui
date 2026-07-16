@@ -11,6 +11,7 @@ import CardPage from "./pages/CardPage.vue";
 import ButtonPage from "./pages/ButtonPage.vue";
 import ChipPage from "./pages/ChipPage.vue";
 import DividerPage from "./pages/DividerPage.vue";
+import EmptyStatePage from "./pages/EmptyStatePage.vue";
 import SpinnerPage from "./pages/SpinnerPage.vue";
 import CodeViewerPage from "./pages/CodeViewerPage.vue";
 import ContextMenuPage from "./pages/ContextMenuPage.vue";
@@ -82,6 +83,7 @@ const router = createRouter({
     { path: "/button", name: "button", component: ButtonPage },
     { path: "/chip", name: "chip", component: ChipPage },
     { path: "/divider", name: "divider", component: DividerPage },
+    { path: "/empty-state", name: "empty-state", component: EmptyStatePage },
     { path: "/spinner", name: "spinner", component: SpinnerPage },
     { path: "/action-button", name: "action-button", component: ActionButtonPage },
     { path: "/code-viewer", name: "code-viewer", component: CodeViewerPage },

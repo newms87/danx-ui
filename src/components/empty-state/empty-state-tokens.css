@@ -1,0 +1,60 @@
+/**
+ * DanxEmptyState Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic/primitive tokens.
+ * Override these to customize empty state appearance.
+ *
+ * CSS Tokens:
+ * --dx-empty-state-font-family          Font family
+ * --dx-empty-state-title-weight         Title font weight
+ * --dx-empty-state-title-color          Title color
+ * --dx-empty-state-description-color    Description color
+ *
+ * Size tokens (for each size: sm, md, lg):
+ * --dx-empty-state-{size}-icon-size          Icon/illustration size
+ * --dx-empty-state-{size}-gap                Vertical gap between blocks
+ * --dx-empty-state-{size}-padding            Outer padding
+ * --dx-empty-state-{size}-title-size         Title font size
+ * --dx-empty-state-{size}-description-size   Description font size
+ */
+
+:root {
+  /* ==========================================================================
+     Global Empty State Tokens
+     ========================================================================== */
+
+  --dx-empty-state-font-family: var(--font-sans);
+  --dx-empty-state-title-weight: var(--font-medium);
+  --dx-empty-state-title-color: var(--color-text);
+  --dx-empty-state-description-color: var(--color-text-muted);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-empty-state-sm-icon-size: 2rem;
+  --dx-empty-state-sm-gap: var(--space-2);
+  --dx-empty-state-sm-padding: var(--space-4);
+  --dx-empty-state-sm-title-size: var(--text-sm);
+  --dx-empty-state-sm-description-size: var(--text-xs);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-empty-state-md-icon-size: 3rem;
+  --dx-empty-state-md-gap: var(--space-3);
+  --dx-empty-state-md-padding: var(--space-8);
+  --dx-empty-state-md-title-size: var(--text-base);
+  --dx-empty-state-md-description-size: var(--text-sm);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-empty-state-lg-icon-size: 4rem;
+  --dx-empty-state-lg-gap: var(--space-4);
+  --dx-empty-state-lg-padding: var(--space-12);
+  --dx-empty-state-lg-title-size: var(--text-lg);
+  --dx-empty-state-lg-description-size: var(--text-base);
+}

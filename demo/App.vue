@@ -129,6 +129,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/divider" class="demo-sidebar__link">Divider</RouterLink>
               </li>
               <li>
+                <RouterLink to="/empty-state" class="demo-sidebar__link">Empty State</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/spinner" class="demo-sidebar__link">Spinner</RouterLink>
               </li>
               <li>

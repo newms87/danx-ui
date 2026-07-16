@@ -167,6 +167,11 @@
       "import": "./dist/components/editable-div/index.js"
     },
     "./components/editable-div/styles": "./dist/components/editable-div/editable-div.css",
+    "./components/empty-state": {
+      "types": "./dist/components/empty-state/index.d.ts",
+      "import": "./dist/components/empty-state/index.js"
+    },
+    "./components/empty-state/styles": "./dist/components/empty-state/empty-state.css",
     "./components/field-wrapper": {
       "types": "./dist/components/field-wrapper/index.d.ts",
       "import": "./dist/components/field-wrapper/index.js"

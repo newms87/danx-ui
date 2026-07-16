@@ -22,6 +22,7 @@
 @import "./components/button/button.css" layer(components);
 @import "./components/chip/chip.css" layer(components);
 @import "./components/divider/divider.css" layer(components);
+@import "./components/empty-state/empty-state.css" layer(components);
 @import "./components/icon/icon.css" layer(components);
 @import "./components/kbd/kbd.css" layer(components);
 @import "./components/code-viewer/code-viewer.css" layer(components);
