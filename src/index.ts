@@ -433,6 +433,26 @@ export { useVariant } from "./shared/composables/useVariant";
 export type { VariantTokenMap } from "./shared/composables/useVariant";
 export type { VariantType } from "./shared/types";
 
+// Form validation
+export {
+  useFormValidation,
+  required,
+  min,
+  max,
+  minLength,
+  maxLength,
+  pattern,
+  email,
+  custom,
+} from "./shared/composables/useFormValidation";
+export type {
+  ValidationRule,
+  ValidationRules,
+  ValidationTrigger,
+  UseFormValidationOptions,
+  UseFormValidationReturn,
+} from "./shared/composables/useFormValidation";
+
 // Shared utilities — number/string formatters imported directly from their own
 // files (DXUI-35), not through "./shared/formatters", so the main barrel never
 // touches the luxon-dependent datetime formatter files in that folder.

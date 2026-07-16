@@ -48,6 +48,7 @@ import ColorPickerPage from "./pages/ColorPickerPage.vue";
 import InputPage from "./pages/InputPage.vue";
 import TextareaPage from "./pages/TextareaPage.vue";
 import SelectPage from "./pages/SelectPage.vue";
+import FormValidationPage from "./pages/FormValidationPage.vue";
 import DanxFileUploadPage from "./pages/DanxFileUploadPage.vue";
 import EditableDivPage from "./pages/EditableDivPage.vue";
 import ReactiveStorePage from "./pages/ReactiveStorePage.vue";
@@ -115,6 +116,7 @@ const router = createRouter({
     { path: "/input", name: "input", component: InputPage },
     { path: "/textarea", name: "textarea", component: TextareaPage },
     { path: "/select", name: "select", component: SelectPage },
+    { path: "/form-validation", name: "form-validation", component: FormValidationPage },
     { path: "/danx-file-upload", name: "danx-file-upload", component: DanxFileUploadPage },
     { path: "/editable-div", name: "editable-div", component: EditableDivPage },
     { path: "/reactive-store", name: "reactive-store", component: ReactiveStorePage },

@@ -50,6 +50,17 @@ import { DanxStepper } from "../../src/components/stepper";
 import { DanxTimeline, DanxTimelineItem } from "../../src/components/timeline";
 import { useFormField } from "../../src/shared/composables/useFormField";
 import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
+import {
+  useFormValidation,
+  required,
+  min,
+  max,
+  minLength,
+  maxLength,
+  pattern,
+  email,
+  custom,
+} from "../../src/shared/composables/useFormValidation";
 import { passwordStrength } from "../../src/shared/passwordStrength";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
@@ -507,6 +518,15 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxFieldWrapper,
   useFormField,
   useFieldInteraction,
+  useFormValidation,
+  required,
+  min,
+  max,
+  minLength,
+  maxLength,
+  pattern,
+  email,
+  custom,
   passwordStrength,
   // File Upload
   DanxFileUpload,
