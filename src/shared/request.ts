@@ -67,7 +67,10 @@ export const request: RequestApi = {
       }
       const abortController = new AbortController();
       currentRequest.abortController = abortController;
-      options.signal = abortController.signal;
+      const consumerSignal = options.signal;
+      options.signal = consumerSignal
+        ? AbortSignal.any([consumerSignal, abortController.signal])
+        : abortController.signal;
     }
 
     // Append query params (object values serialized) to the URL.

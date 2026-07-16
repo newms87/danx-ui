@@ -222,6 +222,70 @@ describe("request", () => {
       await expect(p1).resolves.toEqual({ abort: true });
       await expect(p2).resolves.toEqual({ n: 2 });
     });
+
+    it("composes a consumer-supplied signal into the fetch signal instead of discarding it", async () => {
+      const controller = new AbortController();
+      fetchMock.mockResolvedValue(makeResponse({ ok: true }));
+
+      await request.call("x", { requestKey: "k", signal: controller.signal });
+      const [, options] = fetchMock.mock.calls[0]!;
+
+      // The signal handed to fetch is not the consumer's raw signal (it's merged
+      // with the internal abort-previous controller), but it must still abort
+      // when the consumer's signal aborts.
+      expect(options.signal).not.toBe(controller.signal);
+      expect((options.signal as AbortSignal).aborted).toBe(false);
+      controller.abort("consumer cancelled");
+      expect((options.signal as AbortSignal).aborted).toBe(true);
+    });
+
+    it("still aborts the previous same-key request when a consumer signal is supplied but not fired", async () => {
+      const d1 = deferred<Response>();
+      const d2 = deferred<Response>();
+      let call = 0;
+      fetchMock.mockImplementation(() => (++call === 1 ? d1.promise : d2.promise));
+
+      const consumerController = new AbortController();
+      const p1 = request.call("x", { requestKey: "k", signal: consumerController.signal });
+      await flush();
+      const p2 = request.call("x", { requestKey: "k" });
+      await flush();
+
+      const [, firstOptions] = fetchMock.mock.calls[0]!;
+      expect((firstOptions.signal as AbortSignal).aborted).toBe(true);
+
+      d1.resolve(makeResponse({ n: 1 }));
+      d2.resolve(makeResponse({ n: 2 }));
+
+      await expect(p1).resolves.toEqual({ abort: true });
+      await expect(p2).resolves.toEqual({ n: 2 });
+    });
+
+    it("aborts the merged signal via either the consumer signal or the internal abort-previous controller independently", async () => {
+      fetchMock.mockResolvedValue(makeResponse({ ok: true }));
+
+      // Consumer signal alone triggers the merged signal.
+      const consumerOnly = new AbortController();
+      await request.call("x", { requestKey: "k1", signal: consumerOnly.signal });
+      const mergedFromConsumer = fetchMock.mock.calls[0]![1].signal as AbortSignal;
+      expect(mergedFromConsumer.aborted).toBe(false);
+      consumerOnly.abort();
+      expect(mergedFromConsumer.aborted).toBe(true);
+
+      // Internal abort-previous controller alone (no consumer signal) still aborts.
+      const d1 = deferred<Response>();
+      const d2 = deferred<Response>();
+      let call = 0;
+      fetchMock.mockImplementation(() => (++call === 1 ? d1.promise : d2.promise));
+      const p1 = request.call("x", { requestKey: "k2" });
+      await flush();
+      const mergedInternalOnly = fetchMock.mock.calls[1]![1].signal as AbortSignal;
+      request.call("x", { requestKey: "k2" });
+      await flush();
+      expect(mergedInternalOnly.aborted).toBe(true);
+      d1.resolve(makeResponse({ n: 1 }));
+      await expect(p1).resolves.toEqual({ abort: true });
+    });
   });
 
   describe("useMostRecentResponse (monotonic ordering, fix #3)", () => {
