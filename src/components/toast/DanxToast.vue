@@ -8,7 +8,7 @@
  * (DanxToastContainer for screen regions, DanxToastTargetRegion for
  * element-anchored regions).
  *
- * Pauses the auto-dismiss timer on mouseenter and resumes on mouseleave.
+ * Pauses the auto-dismiss timer on mouseenter/focusin and resumes on mouseleave/focusout.
  *
  * @props
  *   entry: ToastEntry - The toast entry to render (required)
@@ -92,7 +92,14 @@ function onDismiss(): void {
 </script>
 
 <template>
-  <div class="danx-toast" :style="variantStyle" @mouseenter="pause" @mouseleave="resume">
+  <div
+    class="danx-toast"
+    :style="variantStyle"
+    @mouseenter="pause"
+    @mouseleave="resume"
+    @focusin="pause"
+    @focusout="resume"
+  >
     <div class="danx-toast__body">
       <span v-if="defaultIcon || 'icon' in $slots" class="danx-toast__icon">
         <slot name="icon" :entry="entry">

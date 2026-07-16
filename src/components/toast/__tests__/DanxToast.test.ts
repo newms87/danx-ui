@@ -181,6 +181,35 @@ describe("DanxToast", () => {
     expect(toasts.value.find((t) => t.id === entry.id)).toBeUndefined();
   });
 
+  it("pauses timer on focusin and resumes on focusout", async () => {
+    const { toast, toasts } = useToast();
+    toast("Focus test", { duration: 1000 });
+    const entry = toasts.value[0]!;
+    const wrapper = createAndTrack(entry);
+
+    vi.advanceTimersByTime(300);
+    await wrapper.find(".danx-toast").trigger("focusin");
+    vi.advanceTimersByTime(5000);
+    // Should still exist because timer is paused
+    expect(toasts.value.find((t) => t.id === entry.id)).toBeTruthy();
+
+    await wrapper.find(".danx-toast").trigger("focusout");
+    vi.advanceTimersByTime(700);
+    expect(toasts.value.find((t) => t.id === entry.id)).toBeUndefined();
+  });
+
+  it("pauses timer when the close button receives focus", async () => {
+    const { toast, toasts } = useToast();
+    toast("Close focus test", { duration: 1000 });
+    const entry = toasts.value[0]!;
+    const wrapper = createAndTrack(entry);
+
+    vi.advanceTimersByTime(300);
+    await wrapper.find(".danx-toast__close").trigger("focusin");
+    vi.advanceTimersByTime(5000);
+    expect(toasts.value.find((t) => t.id === entry.id)).toBeTruthy();
+  });
+
   it("renders custom content via default slot", () => {
     const entry = createEntry();
     const wrapper = mount(DanxToast, {
