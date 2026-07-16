@@ -69,6 +69,7 @@ import {
   useCodeViewerEditor,
 } from "../../src/components/code-viewer";
 import { DanxContextMenu } from "../../src/components/context-menu";
+import { DanxDropdownMenu } from "../../src/components/dropdown-menu";
 import {
   DanxDialog,
   DialogBreadcrumbs,
@@ -243,6 +244,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxIcon,
   CodeViewer,
   DanxContextMenu,
+  DanxDropdownMenu,
   DanxDialog,
   DialogBreadcrumbs,
   DanxDrawer,
@@ -307,6 +309,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxIcon,
   CodeViewer,
   DanxContextMenu,
+  DanxDropdownMenu,
   DanxDialog,
   DialogBreadcrumbs,
   DanxDrawer,

@@ -127,6 +127,11 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/drawer" class="demo-sidebar__link">Drawer</RouterLink>
               </li>
               <li>
+                <RouterLink to="/dropdown-menu" class="demo-sidebar__link"
+                  >Dropdown Menu</RouterLink
+                >
+              </li>
+              <li>
                 <RouterLink to="/editable-div" class="demo-sidebar__link">Editable Div</RouterLink>
               </li>
               <li>

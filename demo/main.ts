@@ -9,6 +9,7 @@ import ButtonPage from "./pages/ButtonPage.vue";
 import ChipPage from "./pages/ChipPage.vue";
 import CodeViewerPage from "./pages/CodeViewerPage.vue";
 import ContextMenuPage from "./pages/ContextMenuPage.vue";
+import DropdownMenuPage from "./pages/DropdownMenuPage.vue";
 import DialogPage from "./pages/DialogPage.vue";
 import DrawerPage from "./pages/DrawerPage.vue";
 import HomePage from "./pages/HomePage.vue";
@@ -64,6 +65,7 @@ const router = createRouter({
     { path: "/action-button", name: "action-button", component: ActionButtonPage },
     { path: "/code-viewer", name: "code-viewer", component: CodeViewerPage },
     { path: "/context-menu", name: "context-menu", component: ContextMenuPage },
+    { path: "/dropdown-menu", name: "dropdown-menu", component: DropdownMenuPage },
     { path: "/icon", name: "icon", component: IconPage },
     { path: "/kbd", name: "kbd", component: KbdPage },
     { path: "/dialog", name: "dialog", component: DialogPage },

@@ -15,6 +15,7 @@ export { DanxKbd, detectOs, resolveKeyLabel } from "./components/kbd";
 export type { DanxKbdOs, DanxKbdProps } from "./components/kbd";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
+export { DanxDropdownMenu } from "./components/dropdown-menu";
 export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
 export { DanxDrawer } from "./components/drawer";
 export { DanxPopover } from "./components/popover";
@@ -150,6 +151,12 @@ export type {
   DanxContextMenuProps,
   DanxContextMenuSlots,
 } from "./components/context-menu";
+export type {
+  DanxDropdownMenuEmits,
+  DanxDropdownMenuProps,
+  DanxDropdownMenuSlots,
+  DropdownMenuItem,
+} from "./components/dropdown-menu";
 export type {
   FileNode,
   DanxFileExplorerProps,

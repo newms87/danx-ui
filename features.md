@@ -197,7 +197,7 @@ migrations — they are industry-standard primitives that round out the library.
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| DanxDropdownMenu | BUILD | Button-triggered dropdown with items, icons, separators, keyboard nav, nested submenus. The most-used UI pattern after buttons. |
+| DanxDropdownMenu | DONE | Button-triggered dropdown with items, icons, separators, keyboard nav, nested submenus. The most-used UI pattern after buttons. |
 | DanxAccordion | BUILD | Collapsible content sections. Single or multi-expand modes. Used for settings, FAQs, grouped forms, filter panels. |
 | DanxDivider | BUILD | Horizontal or vertical separator line. Tiny but used constantly. |
 | DanxAlert | BUILD | Persistent inline message bar (info, warning, error, success). Dismissable. Used for form validation summaries, permission warnings, status banners. |

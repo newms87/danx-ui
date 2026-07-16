@@ -133,6 +133,10 @@
       "import": "./dist/components/drawer/index.js"
     },
     "./components/drawer/styles": "./dist/components/drawer/drawer.css",
+    "./components/dropdown-menu": {
+      "types": "./dist/components/dropdown-menu/index.d.ts",
+      "import": "./dist/components/dropdown-menu/index.js"
+    },
     "./components/editable-div": {
       "types": "./dist/components/editable-div/index.d.ts",
       "import": "./dist/components/editable-div/index.js"
