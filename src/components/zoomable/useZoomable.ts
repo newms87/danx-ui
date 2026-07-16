@@ -11,13 +11,22 @@
  *   - Ctrl/Cmd + +/=/-/_     → zoom in/out
  *   - Ctrl/Cmd + 0           → reset zoom to 100
  *   - dblclick on container  → reset pan
+ *   - two-finger touch       → pinch to zoom (distance-delta drives setZoom)
+ *   - one-finger touch-drag  → pan, but only once zoomed in (zoom > 100);
+ *                              at 100% a lone finger is left untouched so a
+ *                              host like DanxFileViewer can swipe-navigate
  *
  * Keyboard listeners attach to `window` (capture phase) so they fire even
  * when the wrapped content has focus. They no-op unless the focused element
  * is inside `rootRef` — this keeps multiple Zoomables on a page from fighting.
  *
  * Wheel must be a non-passive listener so preventDefault can stop the
- * browser's built-in zoom; the composable registers it manually.
+ * browser's built-in zoom; the composable registers it manually. Touch
+ * listeners are registered the same non-passive way, for the same reason —
+ * pinch/pan must preventDefault to stop native pinch-zoom/scroll. Multi-touch
+ * (pinch/pan) also stopPropagation so a host's own touchstart/touchend swipe
+ * listener (keyed off touches[0]/changedTouches[0] only) never misreads a
+ * two-finger gesture as a one-finger swipe.
  */
 
 import { computed, onBeforeUnmount, onMounted, ref, type Ref } from "vue";
@@ -89,6 +98,14 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
   let dragStartY = 0;
   let dragOriginPanX = 0;
   let dragOriginPanY = 0;
+
+  let pinchStartDistance = 0;
+  let pinchStartZoom = 100;
+  let isTouchPanning = false;
+  let touchPanStartX = 0;
+  let touchPanStartY = 0;
+  let touchPanOriginX = 0;
+  let touchPanOriginY = 0;
 
   const modifierKeyLabel = computed(() => (isMacPlatform() ? "⌘" : "Ctrl"));
 
@@ -202,10 +219,74 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
     resetAll();
   }
 
+  function touchDistance(touches: TouchList): number {
+    const a = touches[0];
+    const b = touches[1];
+    if (!a || !b) return 0;
+    return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+  }
+
+  function onTouchStart(event: TouchEvent) {
+    if (event.touches.length >= 2) {
+      event.stopPropagation();
+      if (wheelDisabled?.value) return;
+      event.preventDefault();
+      pinchStartDistance = touchDistance(event.touches);
+      pinchStartZoom = zoom.value;
+      isTouchPanning = false;
+      return;
+    }
+    if (panDisabled?.value || zoom.value <= 100) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    event.preventDefault();
+    isTouchPanning = true;
+    isDragging.value = true;
+    touchPanStartX = touch.clientX;
+    touchPanStartY = touch.clientY;
+    touchPanOriginX = pan.value.x;
+    touchPanOriginY = pan.value.y;
+  }
+
+  function onTouchMove(event: TouchEvent) {
+    if (event.touches.length >= 2) {
+      event.stopPropagation();
+      if (wheelDisabled?.value || pinchStartDistance <= 0) return;
+      event.preventDefault();
+      const distance = touchDistance(event.touches);
+      setZoom(pinchStartZoom * (distance / pinchStartDistance));
+      return;
+    }
+    if (!isTouchPanning) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    event.preventDefault();
+    pan.value = {
+      x: touchPanOriginX + (touch.clientX - touchPanStartX),
+      y: touchPanOriginY + (touch.clientY - touchPanStartY),
+    };
+  }
+
+  function onTouchEnd(event: TouchEvent) {
+    if (event.touches.length >= 2) {
+      event.stopPropagation();
+      return;
+    }
+    pinchStartDistance = 0;
+    if (isTouchPanning) {
+      isTouchPanning = false;
+      isDragging.value = false;
+    }
+  }
+
   onMounted(() => {
     const root = rootRef.value;
     if (root) {
       root.addEventListener("wheel", onWheel, { passive: false });
+      root.addEventListener("touchstart", onTouchStart, { passive: false });
+      root.addEventListener("touchmove", onTouchMove, { passive: false });
+      root.addEventListener("touchend", onTouchEnd, { passive: false });
+      root.addEventListener("touchcancel", onTouchEnd, { passive: false });
     }
     window.addEventListener("keydown", onZoomKey, CAPTURE);
     window.addEventListener("keydown", onModifierKey, CAPTURE);
@@ -217,6 +298,10 @@ export function useZoomable(options: UseZoomableOptions): UseZoomableReturn {
     const root = rootRef.value;
     if (root) {
       root.removeEventListener("wheel", onWheel);
+      root.removeEventListener("touchstart", onTouchStart);
+      root.removeEventListener("touchmove", onTouchMove);
+      root.removeEventListener("touchend", onTouchEnd);
+      root.removeEventListener("touchcancel", onTouchEnd);
     }
     window.removeEventListener("keydown", onZoomKey, CAPTURE);
     window.removeEventListener("keydown", onModifierKey, CAPTURE);

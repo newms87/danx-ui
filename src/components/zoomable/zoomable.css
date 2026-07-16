@@ -15,6 +15,9 @@
   overflow: hidden;
   background: var(--dx-zoomable-bg);
   outline: none;
+  /* Native pinch-zoom/scroll would otherwise fight the custom touch handlers
+     regardless of JS-level preventDefault/stopPropagation. */
+  touch-action: none;
 
   &.is-pan-ready {
     user-select: none;

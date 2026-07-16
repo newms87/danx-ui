@@ -587,6 +587,26 @@ describe("DanxFileViewer", () => {
       });
       expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
     });
+
+    // Precedence rule: DanxZoomable claims two-finger gestures outright via
+    // stopPropagation, so this only needs to cover the one-finger case — a
+    // one-finger swipe must not page while zoomed in, since that same finger
+    // is panning the zoomed content instead.
+    it("suppresses swipe-to-navigate while zoomed in", async () => {
+      const wrapper = mountViewer({
+        relatedFiles: [makeFile("2")],
+        zoomable: true,
+        defaultZoom: 150,
+      });
+      const nav = wrapper.find(".danx-file-viewer");
+      await nav.trigger("touchstart", {
+        touches: [{ clientX: 200, clientY: 100 }],
+      });
+      await nav.trigger("touchend", {
+        changedTouches: [{ clientX: 100, clientY: 100 }],
+      });
+      expect(wrapper.find(".danx-file-viewer__filename").text()).toBe("file-1.jpg");
+    });
   });
 
   describe("Preventable download", () => {

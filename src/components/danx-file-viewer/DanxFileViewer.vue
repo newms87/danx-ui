@@ -390,12 +390,17 @@ function onKeydown(e: KeyboardEvent) {
 
 // --- Touch/swipe gestures ---
 
+// Precedence vs DanxZoomable's own touch handling: two-finger gestures are
+// always claimed by DanxZoomable via stopPropagation (pinch/pan territory),
+// so they never reach these listeners. One-finger swipe-to-navigate is only
+// meaningful when not zoomed in — otherwise a one-finger drag is panning the
+// zoomed content, not paging — so gate on zoom === 100 here.
 const { onTouchStart, onTouchEnd } = useTouchSwipe({
   onSwipeLeft: () => {
-    if (!continuous.value) next();
+    if (!continuous.value && zoom.value === 100) next();
   },
   onSwipeRight: () => {
-    if (!continuous.value) prev();
+    if (!continuous.value && zoom.value === 100) prev();
   },
 });
 </script>

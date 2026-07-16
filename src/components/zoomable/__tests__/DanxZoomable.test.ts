@@ -74,6 +74,33 @@ describe("DanxZoomable", () => {
     expect(wrapper.find(".danx-zoomable__hint").text()).toMatch(/scroll to zoom/);
   });
 
+  it("shows touch-appropriate hint copy (no modifier kbd) on a coarse-pointer device", () => {
+    const matchMediaSpy = vi
+      .spyOn(window, "matchMedia")
+      .mockReturnValue({ matches: true } as MediaQueryList);
+    try {
+      const wrapper = mountZoomable();
+      const hint = wrapper.find(".danx-zoomable__hint");
+      expect(hint.text()).toMatch(/Pinch to zoom/);
+      expect(hint.find(".danx-zoomable__kbd").exists()).toBe(false);
+    } finally {
+      matchMediaSpy.mockRestore();
+    }
+  });
+
+  it("omits pan copy from the touch hint when panDisabled", () => {
+    const matchMediaSpy = vi
+      .spyOn(window, "matchMedia")
+      .mockReturnValue({ matches: true } as MediaQueryList);
+    try {
+      const wrapper = mountZoomable({ panDisabled: true });
+      expect(wrapper.find(".danx-zoomable__hint").text()).not.toMatch(/drag to pan/);
+      expect(wrapper.find(".danx-zoomable__hint").text()).toMatch(/Pinch to zoom/);
+    } finally {
+      matchMediaSpy.mockRestore();
+    }
+  });
+
   it("renders controls slot inside the controls overlay", () => {
     const wrapper = mountZoomable({}, { controls: '<div class="custom-ctrl" />' });
     const overlay = wrapper.find(".danx-zoomable__controls");

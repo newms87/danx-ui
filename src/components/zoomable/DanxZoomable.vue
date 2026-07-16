@@ -85,6 +85,10 @@ const contentStyle = computed(() => ({
     zoom.value / 100
   })`,
 }));
+
+const isTouchPrimary = computed(
+  () => typeof window !== "undefined" && (window.matchMedia?.("(pointer: coarse)").matches ?? false)
+);
 </script>
 
 <template>
@@ -124,9 +128,15 @@ const contentStyle = computed(() => ({
       class="danx-zoomable__hint"
       :class="{ 'is-dragging': isDragging }"
     >
-      <kbd class="danx-zoomable__kbd">{{ modifierKeyLabel }}</kbd>
-      <span v-if="!panDisabled">+ drag to pan · + scroll to zoom</span>
-      <span v-else>+ scroll to zoom</span>
+      <template v-if="isTouchPrimary">
+        <span v-if="!panDisabled">Pinch to zoom · drag to pan</span>
+        <span v-else>Pinch to zoom</span>
+      </template>
+      <template v-else>
+        <kbd class="danx-zoomable__kbd">{{ modifierKeyLabel }}</kbd>
+        <span v-if="!panDisabled">+ drag to pan · + scroll to zoom</span>
+        <span v-else>+ scroll to zoom</span>
+      </template>
     </div>
   </div>
 </template>

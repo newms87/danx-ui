@@ -29,6 +29,48 @@ interface HarnessResult {
   keyboardDisabled: Ref<boolean>;
 }
 
+function makeTouchEvent(touches: Array<{ clientX: number; clientY: number }>) {
+  return {
+    touches,
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn(),
+  } as unknown as TouchEvent & {
+    preventDefault: ReturnType<typeof vi.fn>;
+    stopPropagation: ReturnType<typeof vi.fn>;
+  };
+}
+
+type TouchHandler = (e: TouchEvent) => void;
+
+interface TouchHarnessResult extends HarnessResult {
+  touchstart: TouchHandler;
+  touchmove: TouchHandler;
+  touchend: TouchHandler;
+}
+
+// useZoomable attaches touch listeners directly to rootRef via addEventListener
+// rather than exposing them on its return value (mirrors onWheel), so tests
+// spy on addEventListener BEFORE mount to capture the registered handlers and
+// invoke them directly — the same pattern the "onDragMove no-op" test below
+// uses for the mousemove listener.
+function makeTouchHarness(initial: Parameters<typeof makeHarness>[0] = {}): TouchHarnessResult {
+  const addSpy = vi.spyOn(HTMLElement.prototype, "addEventListener");
+  const h = makeHarness(initial);
+  const find = (type: string) =>
+    addSpy.mock.calls.find(([t, , opts]) => {
+      if (t !== type) return false;
+      return typeof opts !== "object" || !opts || !("capture" in opts) || !opts.capture;
+    })?.[1] as TouchHandler;
+  const result: TouchHarnessResult = {
+    ...h,
+    touchstart: find("touchstart"),
+    touchmove: find("touchmove"),
+    touchend: find("touchend"),
+  };
+  addSpy.mockRestore();
+  return result;
+}
+
 const mountedWrappers: ReturnType<typeof mount>[] = [];
 let warnSpy: ReturnType<typeof vi.spyOn>;
 
@@ -390,6 +432,133 @@ describe("useZoomable", () => {
       expect(zoom.value).toBe(100);
       expect(pan.value).toEqual({ x: 0, y: 0 });
       expect(onReset).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe("touch: pinch to zoom", () => {
+    it("two-finger pinch-out zooms in proportionally to distance growth", () => {
+      const h = makeTouchHarness({ zoom: 100 });
+      h.touchstart(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 100, clientY: 0 },
+        ])
+      );
+      h.touchmove(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 200, clientY: 0 },
+        ])
+      );
+      expect(h.zoom.value).toBe(200);
+    });
+
+    it("two-finger pinch-in zooms out proportionally", () => {
+      const h = makeTouchHarness({ zoom: 200 });
+      h.touchstart(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 200, clientY: 0 },
+        ])
+      );
+      h.touchmove(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 100, clientY: 0 },
+        ])
+      );
+      expect(h.zoom.value).toBe(100);
+    });
+
+    it("clamps pinch zoom at min/max bounds", () => {
+      const h = makeTouchHarness({ zoom: 100, min: 25, max: 400 });
+      h.touchstart(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 100, clientY: 0 },
+        ])
+      );
+      h.touchmove(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 1000, clientY: 0 },
+        ])
+      );
+      expect(h.zoom.value).toBe(400);
+    });
+
+    it("stopPropagation is called on multi-touch start/move/end so a host swipe listener never sees it", () => {
+      const h = makeTouchHarness({ zoom: 100 });
+      const start = makeTouchEvent([
+        { clientX: 0, clientY: 0 },
+        { clientX: 100, clientY: 0 },
+      ]);
+      h.touchstart(start);
+      expect(start.stopPropagation).toHaveBeenCalledOnce();
+      expect(start.preventDefault).toHaveBeenCalledOnce();
+
+      const move = makeTouchEvent([
+        { clientX: 0, clientY: 0 },
+        { clientX: 150, clientY: 0 },
+      ]);
+      h.touchmove(move);
+      expect(move.stopPropagation).toHaveBeenCalledOnce();
+
+      const end = makeTouchEvent([
+        { clientX: 0, clientY: 0 },
+        { clientX: 150, clientY: 0 },
+      ]);
+      h.touchend(end);
+      expect(end.stopPropagation).toHaveBeenCalledOnce();
+    });
+
+    it("respects wheelDisabled (used to lock zoom) — pinch does not zoom", () => {
+      const h = makeTouchHarness({ zoom: 100, wheelDisabled: true });
+      h.touchstart(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 100, clientY: 0 },
+        ])
+      );
+      h.touchmove(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 200, clientY: 0 },
+        ])
+      );
+      expect(h.zoom.value).toBe(100);
+    });
+  });
+
+  describe("touch: single-finger drag to pan", () => {
+    it("does not pan a single finger when zoom is at 100 (leaves swipe untouched)", () => {
+      const h = makeTouchHarness({ zoom: 100 });
+      h.touchstart(makeTouchEvent([{ clientX: 10, clientY: 20 }]));
+      h.touchmove(makeTouchEvent([{ clientX: 60, clientY: 70 }]));
+      expect(h.pan.value).toEqual({ x: 0, y: 0 });
+    });
+
+    it("pans a single finger once zoomed in (zoom > 100)", () => {
+      const h = makeTouchHarness({ zoom: 150 });
+      h.touchstart(makeTouchEvent([{ clientX: 10, clientY: 20 }]));
+      h.touchmove(makeTouchEvent([{ clientX: 60, clientY: 70 }]));
+      expect(h.pan.value).toEqual({ x: 50, y: 50 });
+      h.touchend(makeTouchEvent([]));
+    });
+
+    it("respects panDisabled flag while zoomed in", () => {
+      const h = makeTouchHarness({ zoom: 150, panDisabled: true });
+      h.touchstart(makeTouchEvent([{ clientX: 10, clientY: 20 }]));
+      h.touchmove(makeTouchEvent([{ clientX: 60, clientY: 70 }]));
+      expect(h.pan.value).toEqual({ x: 0, y: 0 });
+    });
+
+    it("sets isDragging during touch pan and clears it on touchend", () => {
+      const h = makeTouchHarness({ zoom: 150 });
+      h.touchstart(makeTouchEvent([{ clientX: 10, clientY: 20 }]));
+      expect(h.api.isDragging.value).toBe(true);
+      h.touchend(makeTouchEvent([]));
+      expect(h.api.isDragging.value).toBe(false);
     });
   });
 
