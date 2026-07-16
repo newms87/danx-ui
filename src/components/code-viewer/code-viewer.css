@@ -404,6 +404,79 @@
 }
 
 /* ==========================================
+   Code Diff
+   ========================================== */
+.dx-code-diff {
+  width: 100%;
+
+  .diff-content {
+    background-color: var(--dx-code-viewer-content-bg);
+    color: var(--dx-code-viewer-content-text);
+    font-family: var(--dx-code-viewer-font-family);
+    font-size: var(--dx-code-viewer-font-size);
+    line-height: var(--dx-code-viewer-line-height);
+    border-radius: var(--dx-code-viewer-border-radius);
+    padding: var(--dx-code-viewer-padding);
+    box-sizing: border-box;
+
+    code {
+      display: block;
+      background: transparent;
+      color: inherit;
+    }
+  }
+
+  &.theme-light .diff-content {
+    border: 1px solid var(--dx-code-viewer-light-border);
+  }
+
+  .diff-line {
+    display: flex;
+    white-space: pre;
+    border-left: 3px solid transparent;
+    padding-left: 4px;
+    margin-left: -7px;
+  }
+
+  .diff-line-prefix {
+    width: 1.5em;
+    flex-shrink: 0;
+    user-select: none;
+    opacity: 0.6;
+  }
+
+  .diff-line-code {
+    white-space: pre;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .diff-line--added {
+    background: var(--dx-code-diff-added-bg);
+    border-left-color: var(--dx-code-diff-added-border);
+  }
+
+  .diff-line--removed {
+    background: var(--dx-code-diff-removed-bg);
+    border-left-color: var(--dx-code-diff-removed-border);
+  }
+
+  .diff-line--empty {
+    visibility: hidden;
+  }
+
+  .diff-split {
+    display: flex;
+    gap: 1px;
+
+    .diff-split-col {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+/* ==========================================
    Markdown Content
    ========================================== */
 .dx-markdown-content {

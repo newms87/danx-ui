@@ -135,6 +135,71 @@ Paths use dot notation with array index support:
 - `"items[2]"` or `"items.2"` - Array element
 - `"items[0].type"` - Key inside array element
 
+## DanxCodeDiff
+
+A companion component that computes a line-level diff between two text/code values and renders it either unified (single column, +/- prefixed lines) or split (two aligned columns). Reuses CodeViewer's syntax highlighter per line and the shared `--dx-variant-*` token system for added/removed line coloring.
+
+```vue
+<template>
+  <DanxCodeDiff :old-value="before" :new-value="after" format="json" />
+</template>
+
+<script setup lang="ts">
+import { DanxCodeDiff } from 'danx-ui';
+
+const before = `{
+  "name": "widget",
+  "version": "1.0.0"
+}`;
+
+const after = `{
+  "name": "widget",
+  "version": "1.1.0",
+  "beta": true
+}`;
+</script>
+```
+
+### Split View
+
+```vue
+<DanxCodeDiff :old-value="before" :new-value="after" format="yaml" mode="split" />
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `oldValue` | `string` | (required) | Original ("before") text/code |
+| `newValue` | `string` | (required) | Updated ("after") text/code |
+| `format` | `CodeFormat` | `"text"` | Syntax highlighting language |
+| `mode` | `"unified" \| "split"` | `"unified"` | Layout mode |
+| `label` | `string` | `""` | Label above the diff |
+| `theme` | `"dark" \| "light"` | `"dark"` | Color theme |
+
+### Diff Utilities
+
+`computeLineDiff` and `computeSplitDiff` are also exported directly for computing a diff without rendering it:
+
+```typescript
+import { computeLineDiff, computeSplitDiff } from 'danx-ui';
+
+const lines = computeLineDiff(before, after);
+// [{ type: "unchanged" | "added" | "removed", content, oldLineNumber, newLineNumber }, ...]
+
+const rows = computeSplitDiff(before, after);
+// [{ left: DiffLine | null, right: DiffLine | null }, ...]
+```
+
+### Diff Tokens
+
+| Token | Description |
+|-------|-------------|
+| `--dx-code-diff-added-bg` | Added line background (falls back to `--dx-variant-success-bg-selected`) |
+| `--dx-code-diff-added-border` | Added line left border (falls back to `--dx-variant-success-border`) |
+| `--dx-code-diff-removed-bg` | Removed line background (falls back to `--dx-variant-danger-bg-selected`) |
+| `--dx-code-diff-removed-border` | Removed line left border (falls back to `--dx-variant-danger-border`) |
+
 ## TypeScript Types
 
 ```typescript

@@ -66,6 +66,9 @@ import {
 } from "../../src/components/icon";
 import {
   CodeViewer,
+  DanxCodeDiff,
+  computeLineDiff,
+  computeSplitDiff,
   useCodeFormat,
   useCodeViewerCollapse,
   useCodeViewerEditor,
@@ -177,7 +180,12 @@ import {
   autoRefreshObject,
   stopAutoRefreshObject,
 } from "../../src/shared/objectStore";
-import { request } from "../../src/shared/request";
+import {
+  request,
+  PollAbortError,
+  PollMaxAttemptsError,
+  PollTimeoutError,
+} from "../../src/shared/request";
 import { setDanxOptions, getDanxOptions } from "../../src/shared/config";
 import { FlashMessages } from "../../src/shared/flashMessages";
 import { sleep } from "../../src/shared/sleep";
@@ -249,6 +257,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxKbd,
   DanxIcon,
   CodeViewer,
+  DanxCodeDiff,
   DanxContextMenu,
   DanxDropdownMenu,
   DanxDialog,
@@ -320,6 +329,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   resolveKeyLabel,
   DanxIcon,
   CodeViewer,
+  DanxCodeDiff,
+  computeLineDiff,
+  computeSplitDiff,
   DanxContextMenu,
   DanxDropdownMenu,
   DanxDialog,
@@ -500,6 +512,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   unregisterList,
   removeObjectFromLists,
   request,
+  PollAbortError,
+  PollMaxAttemptsError,
+  PollTimeoutError,
   setDanxOptions,
   getDanxOptions,
   FlashMessages,

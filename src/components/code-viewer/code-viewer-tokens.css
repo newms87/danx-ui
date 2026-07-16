@@ -97,6 +97,12 @@
   --dx-code-viewer-annotation-tooltip-info-bg: #12233b;
   --dx-code-viewer-annotation-tooltip-text: #e5e7eb;
 
+  /* Diff highlights (reuse shared variant tokens, with standalone fallbacks) */
+  --dx-code-diff-added-bg: var(--dx-variant-success-bg-selected, rgba(34, 197, 94, 0.15));
+  --dx-code-diff-added-border: var(--dx-variant-success-border, #22c55e);
+  --dx-code-diff-removed-bg: var(--dx-variant-danger-bg-selected, rgba(239, 68, 68, 0.15));
+  --dx-code-diff-removed-border: var(--dx-variant-danger-border, #ef4444);
+
   /* Syntax highlighting - Dark theme */
   --dx-code-viewer-syntax-key: #9cdcfe;
   --dx-code-viewer-syntax-string: #9ae6b4;
@@ -198,6 +204,12 @@
   --dx-code-viewer-annotation-tooltip-warning-bg: #fffbeb;
   --dx-code-viewer-annotation-tooltip-info-bg: #eff6ff;
   --dx-code-viewer-annotation-tooltip-text: #1e293b;
+
+  /* Diff highlights (light) */
+  --dx-code-diff-added-bg: var(--dx-variant-success-bg-selected, rgba(34, 197, 94, 0.12));
+  --dx-code-diff-added-border: var(--dx-variant-success-border, #16a34a);
+  --dx-code-diff-removed-bg: var(--dx-variant-danger-bg-selected, rgba(239, 68, 68, 0.1));
+  --dx-code-diff-removed-border: var(--dx-variant-danger-border, #ef4444);
 
   /* Syntax highlighting - Light theme */
   --dx-code-viewer-syntax-key: #0369a1;

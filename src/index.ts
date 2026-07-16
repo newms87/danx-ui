@@ -15,7 +15,7 @@ export { DanxChip } from "./components/chip";
 export { DanxIcon } from "./components/icon";
 export { DanxKbd, detectOs, resolveKeyLabel } from "./components/kbd";
 export type { DanxKbdOs, DanxKbdProps } from "./components/kbd";
-export { CodeViewer } from "./components/code-viewer";
+export { CodeViewer, DanxCodeDiff } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
 export { DanxDropdownMenu } from "./components/dropdown-menu";
 export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
@@ -72,6 +72,8 @@ export {
   useCodeFormat,
   useCodeViewerCollapse,
   useCodeViewerEditor,
+  computeLineDiff,
+  computeSplitDiff,
 } from "./components/code-viewer";
 export { useDialog, useDialogStack } from "./components/dialog";
 export { useToast, useToastTimer } from "./components/toast";
@@ -139,8 +141,13 @@ export type {
   CodeFormat,
   CodeViewerCollapsedProps,
   CodeViewerFooterProps,
+  DanxCodeDiffProps,
   DanxCodeViewerEmits,
   DanxCodeViewerProps,
+  DiffLine,
+  DiffLineType,
+  DiffMode,
+  DiffRow,
   LanguageBadgeProps,
   MarkdownContentProps,
   UseCodeFormatOptions,

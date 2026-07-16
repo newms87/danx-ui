@@ -16,6 +16,7 @@ import darkAndLightCode from "./code-viewer-examples/DarkAndLight.vue?raw";
 import nestedJsonCode from "./code-viewer-examples/NestedJson.vue?raw";
 import allLanguagesCode from "./code-viewer-examples/AllLanguages.vue?raw";
 import inlineAnnotationsCode from "./code-viewer-examples/InlineAnnotations.vue?raw";
+import diffViewCode from "./code-viewer-examples/DiffView.vue?raw";
 </script>
 
 <template>
@@ -69,6 +70,12 @@ import inlineAnnotationsCode from "./code-viewer-examples/InlineAnnotations.vue?
       title="All Supported Languages"
       description="CodeViewer supports JSON, YAML, HTML, CSS, JavaScript, and plain text formats."
       :code="allLanguagesCode"
+    />
+
+    <DemoSection
+      title="Diff / Comparison View"
+      description="DanxCodeDiff computes a line-level diff between two values and renders it unified (single column) or split (two aligned columns), with syntax highlighting and added/removed line coloring."
+      :code="diffViewCode"
     />
   </DemoPage>
 </template>

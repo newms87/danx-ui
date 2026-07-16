@@ -159,3 +159,45 @@ export interface CodeViewerCollapsedProps {
   /** Whether to show the language search panel. */
   allowAnyLanguage?: boolean;
 }
+
+/** Classification of a single diffed line. */
+export type DiffLineType = "added" | "removed" | "unchanged";
+
+/** A single line in a computed line-level diff. */
+export interface DiffLine {
+  /** Whether this line was added, removed, or unchanged between the two values. */
+  type: DiffLineType;
+  /** The raw (un-highlighted) line content. */
+  content: string;
+  /** 1-based line number in the old value, or null if the line doesn't exist there (added). */
+  oldLineNumber: number | null;
+  /** 1-based line number in the new value, or null if the line doesn't exist there (removed). */
+  newLineNumber: number | null;
+}
+
+/** A single aligned row in a split (side-by-side) diff view. Either side may be null. */
+export interface DiffRow {
+  left: DiffLine | null;
+  right: DiffLine | null;
+}
+
+/** Layout mode for DanxCodeDiff. */
+export type DiffMode = "unified" | "split";
+
+/**
+ * Props for the DanxCodeDiff component.
+ */
+export interface DanxCodeDiffProps {
+  /** The original ("before") text/code. */
+  oldValue: string;
+  /** The updated ("after") text/code. */
+  newValue: string;
+  /** Syntax highlighting language. Defaults to "text". */
+  format?: CodeFormat;
+  /** Layout mode: unified (single column) or split (two aligned columns). Defaults to "unified". */
+  mode?: DiffMode;
+  /** Optional label shown above the diff. */
+  label?: string;
+  /** Color theme: "dark" (default) or "light". */
+  theme?: "dark" | "light";
+}

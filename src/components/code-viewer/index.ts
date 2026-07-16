@@ -7,6 +7,9 @@
  */
 
 export { default as CodeViewer } from "./CodeViewer.vue";
+export { default as DanxCodeDiff } from "./DanxCodeDiff.vue";
+
+export { computeLineDiff, computeSplitDiff } from "./diffUtils";
 
 export { quoteYamlHashValues, useCodeFormat } from "./useCodeFormat";
 export type { UseCodeFormatOptions, UseCodeFormatReturn } from "./useCodeFormat";
@@ -30,8 +33,13 @@ export type {
   CodeFormat,
   CodeViewerCollapsedProps,
   CodeViewerFooterProps,
+  DanxCodeDiffProps,
   DanxCodeViewerEmits,
   DanxCodeViewerProps,
+  DiffLine,
+  DiffLineType,
+  DiffMode,
+  DiffRow,
   LanguageBadgeProps,
   MarkdownContentProps,
   ValidationError,
