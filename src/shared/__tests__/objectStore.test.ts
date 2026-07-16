@@ -3,6 +3,8 @@ import { ref } from "vue";
 import type { Ref } from "vue";
 import {
   autoRefreshObject,
+  clearStore,
+  disposeObject,
   hasRecentUpdates,
   registerList,
   removeObjectFromLists,
@@ -486,6 +488,88 @@ describe("registered lists + removeObjectFromLists", () => {
     expect(() => removeObjectFromLists(item)).not.toThrow();
     // The typed item is removed, non-typed entry is untouched.
     expect(listRef.value).toEqual([5]);
+  });
+});
+
+describe("disposeObject", () => {
+  it("removes the identity map entry so a later store creates a fresh instance", () => {
+    const type = freshType();
+    const first = storeObject({ id: 1, __type: type, name: "Ada", __timestamp: 1 });
+    disposeObject(type, 1);
+    const second = storeObject({ id: 1, __type: type, name: "Ada", __timestamp: 1 });
+    expect(second).not.toBe(first);
+  });
+
+  it("scrubs the disposed object from every registered list and array property", () => {
+    const childType = freshType();
+    const parentType = freshType();
+    const child = storeObject({ id: 1, __type: childType, __timestamp: 1 });
+    const parent = storeObject({
+      id: 2,
+      __type: parentType,
+      __timestamp: 1,
+      items: [{ id: 1, __type: childType, __timestamp: 1 }],
+    });
+    const listRef = ref<TypedObject[]>([child]);
+    registerList(listRef);
+
+    disposeObject(childType, 1);
+
+    expect(parent.items as TypedObject[]).toHaveLength(0);
+    expect(listRef.value).toHaveLength(0);
+    unregisterList(listRef);
+  });
+
+  it("is a no-op for an identity that was never stored", () => {
+    expect(() => disposeObject("Unknown", 999)).not.toThrow();
+  });
+
+  it("leaves other identities in the store untouched", () => {
+    const type = freshType();
+    const kept = storeObject({ id: 1, __type: type, name: "keep", __timestamp: 1 });
+    storeObject({ id: 2, __type: type, name: "dispose", __timestamp: 1 });
+    disposeObject(type, 2);
+    const stillShared = storeObject({ id: 1, __type: type, name: "keep", __timestamp: 1 });
+    expect(stillShared).toBe(kept);
+  });
+});
+
+describe("clearStore", () => {
+  it("empties the entire map so previously stored identities are recreated fresh", () => {
+    const typeA = freshType();
+    const typeB = freshType();
+    const a = storeObject({ id: 1, __type: typeA, __timestamp: 1 });
+    const b = storeObject({ id: 1, __type: typeB, __timestamp: 1 });
+
+    clearStore();
+
+    const freshA = storeObject({ id: 1, __type: typeA, __timestamp: 1 });
+    const freshB = storeObject({ id: 1, __type: typeB, __timestamp: 1 });
+    expect(freshA).not.toBe(a);
+    expect(freshB).not.toBe(b);
+  });
+
+  it("does not affect the per-field causality model for objects re-stored after other siblings are disposed", () => {
+    const type = freshType();
+    const id = 1;
+    storeObject({ id, __type: type, name: "orig", status: "a", __timestamp: 100 });
+    storeObject({ id, __type: type, name: "edited", __timestamp: 200 });
+
+    // Dispose an unrelated sibling identity — must not affect this object's ledger.
+    const siblingType = freshType();
+    storeObject({ id: 5, __type: siblingType, __timestamp: 1 });
+    disposeObject(siblingType, 5);
+
+    const merged = storeObject({
+      id,
+      __type: type,
+      name: "server-name",
+      status: "b",
+      __timestamp: 150,
+      __fieldTimestamps: { name: 150, status: 250 },
+    });
+    expect(merged.name).toBe("edited");
+    expect(merged.status).toBe("b");
   });
 });
 

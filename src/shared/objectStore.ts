@@ -21,6 +21,15 @@
  * with no newer field or child is skipped entirely. A missing `__timestamp` is
  * treated as "new information" only for child TypedObjects, never for scalars.
  *
+ * ## Eviction
+ *
+ * Storing an object with `__deleted_at` set only marks it deleted and removes
+ * it from lists — it does NOT free the identity-map entry. The store is a
+ * process-global `Map` with no automatic eviction, so long-running consumers
+ * (e.g. a chat app accumulating messages across a session) must explicitly
+ * call `disposeObject(type, id)` to release an entry, or `clearStore()` to
+ * reset everything (e.g. on logout or tenant switch).
+ *
  * @example
  *   const user = storeObject({ id: 1, __type: "User", name: "Ada", updated_at: "2026-01-01T00:00:00Z" });
  *   // Later, anywhere:
@@ -341,6 +350,29 @@ export function removeObjectFromLists<T extends TypedObject>(object: T): void {
       }
     }
   }
+}
+
+/**
+ * Remove one identity from the store and purge it from every registered list
+ * and array property (reusing `removeObjectFromLists`). Use this to free
+ * memory for objects no longer needed — merely storing `__deleted_at` does
+ * not release the identity-map entry.
+ */
+export function disposeObject(type: string, id: string | number): void {
+  const objectKey = `${type}:${id}`;
+  const storedObject = store.get(objectKey);
+  if (!storedObject) return;
+
+  removeObjectFromLists(storedObject);
+  store.delete(objectKey);
+}
+
+/**
+ * Empty the entire identity map (e.g. on logout or tenant switch). Does not
+ * touch registered list refs or in-flight auto-refresh timers.
+ */
+export function clearStore(): void {
+  store.clear();
 }
 
 /** Active auto-refresh timers keyed by name. */
