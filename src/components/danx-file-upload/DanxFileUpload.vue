@@ -2,10 +2,14 @@
 /**
  * DanxFileUpload - File upload component with drag-and-drop
  *
- * Provides file selection (via click or drag-and-drop), upload progress
- * tracking, error display, and file management. Uses DanxFile for
- * rendering individual file thumbnails and DanxFieldWrapper for
- * form field integration (label, error, helper text).
+ * Provides file selection (via click, drag-and-drop, or pasting from the
+ * clipboard), upload progress tracking, error display, and file management.
+ * Uses DanxFile for rendering individual file thumbnails and DanxFieldWrapper
+ * for form field integration (label, error, helper text).
+ *
+ * Paste support: the drop zone is focusable, so pasting (Ctrl/Cmd+V) while
+ * it has focus (e.g. after clicking it) runs pasted files through the same
+ * addFiles validation pipeline as drag-and-drop and the file input.
  *
  * Supports single file (replaces on new selection) and multi file
  * (accumulates with optional maxFiles limit) modes.
@@ -135,6 +139,10 @@ function onDropZoneDrop(files: FileList) {
   addFiles(files);
 }
 
+function onDropZonePaste(files: FileList) {
+  addFiles(files);
+}
+
 // --- File viewer ---
 const viewerDialog = useDialog();
 const selectedFile = ref<PreviewFile | null>(null);
@@ -173,6 +181,7 @@ function onLoadChildren(file: PreviewFile) {
       @drag-enter="handleDragEnter"
       @drag-leave="handleDragLeave"
       @drop="onDropZoneDrop"
+      @paste="onDropZonePaste"
     >
       <div class="danx-file-upload">
         <!-- Existing files -->

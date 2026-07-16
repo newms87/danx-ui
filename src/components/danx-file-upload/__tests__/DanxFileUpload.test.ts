@@ -291,6 +291,21 @@ describe("DanxFileUpload", () => {
     expect(wrapper.emitted("update:modelValue")).toBeTruthy();
   });
 
+  it("handles drop zone paste event", async () => {
+    const wrapper = createWrapper();
+
+    const file = new File(["data"], "pasted.jpg", { type: "image/jpeg" });
+    const fileList = Object.assign([file], {
+      item: (i: number) => [file][i] ?? null,
+    }) as unknown as FileList;
+
+    const dropZone = wrapper.findComponent({ name: "DanxFileUploadDropZone" });
+    dropZone.vm.$emit("paste", fileList);
+    await nextTick();
+
+    expect(wrapper.emitted("update:modelValue")).toBeTruthy();
+  });
+
   it("opens file picker when add button is clicked", async () => {
     const wrapper = createWrapper();
     const input = wrapper.find("input[type='file']");

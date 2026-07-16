@@ -50,6 +50,8 @@ export interface UseFileUploadReturn {
   handleDragLeave: () => void;
   /** Extract files from drop event */
   handleDrop: (event: DragEvent) => void;
+  /** Extract files from paste event */
+  handlePaste: (event: ClipboardEvent) => void;
 }
 
 let _counter = 0;
@@ -241,7 +243,7 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     model.value = [];
   }
 
-  const { isDragging, handleDragEnter, handleDragLeave, handleDrop } = useDragDrop({
+  const { isDragging, handleDragEnter, handleDragLeave, handleDrop, handlePaste } = useDragDrop({
     onDrop: addFiles,
   });
 
@@ -263,5 +265,6 @@ export function useFileUpload(options: UseFileUploadOptions): UseFileUploadRetur
     handleDragEnter,
     handleDragLeave,
     handleDrop,
+    handlePaste,
   };
 }

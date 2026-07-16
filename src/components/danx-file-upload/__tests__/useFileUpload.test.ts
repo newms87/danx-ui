@@ -608,6 +608,65 @@ describe("useFileUpload", () => {
       handleDrop(event);
       expect(model.value).toHaveLength(0);
     });
+
+    it("handlePaste adds pasted files through the same validation pipeline", () => {
+      const handler = createMockHandler();
+      const { handlePaste, model } = createComposable({
+        uploadFn: handler,
+        accept: "image/*",
+      });
+
+      const file = createFile();
+      const event = {
+        clipboardData: { files: toFileList([file]) },
+      } as unknown as ClipboardEvent;
+
+      handlePaste(event);
+
+      expect(model.value).toHaveLength(1);
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+
+    it("handlePaste rejects a pasted file that fails accept validation", () => {
+      const handler = createMockHandler();
+      const { handlePaste, model } = createComposable({
+        uploadFn: handler,
+        accept: "image/*",
+      });
+
+      const file = createFile("test.pdf", "application/pdf");
+      const event = {
+        clipboardData: { files: toFileList([file]) },
+      } as unknown as ClipboardEvent;
+
+      handlePaste(event);
+
+      expect(model.value).toHaveLength(1);
+      expect(model.value[0]!.error).toContain("not accepted");
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    it("handlePaste does nothing when clipboard has no files (e.g. pasted text)", () => {
+      const handler = createMockHandler();
+      const { handlePaste, model } = createComposable({ uploadFn: handler });
+
+      const event = {
+        clipboardData: { files: toFileList([]) },
+      } as unknown as ClipboardEvent;
+
+      handlePaste(event);
+      expect(model.value).toHaveLength(0);
+    });
+
+    it("handlePaste handles null clipboardData", () => {
+      const handler = createMockHandler();
+      const { handlePaste, model } = createComposable({ uploadFn: handler });
+
+      const event = { clipboardData: null } as unknown as ClipboardEvent;
+
+      handlePaste(event);
+      expect(model.value).toHaveLength(0);
+    });
   });
 
   describe("temp file IDs", () => {

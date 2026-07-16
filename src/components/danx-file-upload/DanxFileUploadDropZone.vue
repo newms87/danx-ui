@@ -2,8 +2,9 @@
 /**
  * DanxFileUploadDropZone - Internal drop zone sub-component
  *
- * Wraps the upload area with drag-and-drop event handling. Purely
+ * Wraps the upload area with drag-and-drop and paste event handling. Purely
  * presentational — forwards DOM events to the parent composable handlers.
+ * Focusable (tabindex="0") so it can receive paste events.
  *
  * Uses a drag depth counter pattern to handle child element dragleave
  * events correctly (dragleave fires when entering a child element).
@@ -16,6 +17,7 @@
  *   dragEnter - Drag entered the zone (increment depth)
  *   dragLeave - Drag left the zone (decrement depth)
  *   drop(files: FileList) - Files dropped on the zone
+ *   paste(files: FileList) - Files pasted while the zone is focused
  *
  * @slots
  *   default - Content inside the drop zone
@@ -32,6 +34,7 @@ const emit = defineEmits<{
   dragEnter: [];
   dragLeave: [];
   drop: [files: FileList];
+  paste: [files: FileList];
 }>();
 
 function onDragEnter(event: DragEvent) {
@@ -54,6 +57,14 @@ function onDrop(event: DragEvent) {
     emit("drop", files);
   }
 }
+
+function onPaste(event: ClipboardEvent) {
+  if (props.disabled) return;
+  const files = event.clipboardData?.files;
+  if (files && files.length > 0) {
+    emit("paste", files);
+  }
+}
 </script>
 
 <template>
@@ -63,10 +74,12 @@ function onDrop(event: DragEvent) {
       'danx-file-upload-drop-zone--active': isDragging && !disabled,
       'danx-file-upload-drop-zone--disabled': disabled,
     }"
+    tabindex="0"
     @dragenter="onDragEnter"
     @dragover.prevent
     @dragleave="onDragLeave"
     @drop="onDrop"
+    @paste="onPaste"
   >
     <slot />
   </div>

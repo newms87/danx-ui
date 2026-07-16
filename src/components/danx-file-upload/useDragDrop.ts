@@ -1,16 +1,17 @@
 /**
- * useDragDrop - Composable for drag-and-drop file handling
+ * useDragDrop - Composable for drag-and-drop + paste file handling
  *
  * Manages drag depth counting (to handle nested elements) and
- * isDragging state. Delegates dropped files to the provided onDrop callback.
+ * isDragging state. Delegates dropped/pasted files to the provided onDrop callback.
  *
- * @param options.onDrop - Callback receiving the dropped FileList
+ * @param options.onDrop - Callback receiving the dropped/pasted FileList
  *
  * @returns
  *   isDragging: Ref<boolean> - Whether a drag is active over the drop zone
  *   handleDragEnter: () => void - Increment drag depth
  *   handleDragLeave: () => void - Decrement drag depth
  *   handleDrop: (event: DragEvent) => void - Extract files and call onDrop
+ *   handlePaste: (event: ClipboardEvent) => void - Extract pasted files and call onDrop
  */
 
 import { ref, type Ref } from "vue";
@@ -28,6 +29,8 @@ export interface UseDragDropReturn {
   handleDragLeave: () => void;
   /** Extract files from drop event and call onDrop */
   handleDrop: (event: DragEvent) => void;
+  /** Extract files from paste event and call onDrop */
+  handlePaste: (event: ClipboardEvent) => void;
 }
 
 export function useDragDrop(options: UseDragDropOptions): UseDragDropReturn {
@@ -57,10 +60,20 @@ export function useDragDrop(options: UseDragDropOptions): UseDragDropReturn {
     }
   }
 
+  // DXUI-161: clipboardData.files only carries actual file attachments (e.g. screenshots);
+  // pasted plain text yields an empty FileList, so no accept/size validation is skipped.
+  function handlePaste(event: ClipboardEvent) {
+    const files = event.clipboardData?.files;
+    if (files && files.length > 0) {
+      onDrop(files);
+    }
+  }
+
   return {
     isDragging,
     handleDragEnter,
     handleDragLeave,
     handleDrop,
+    handlePaste,
   };
 }

@@ -119,4 +119,53 @@ describe("DanxFileUploadDropZone", () => {
 
     expect(wrapper.emitted("drop")).toBeUndefined();
   });
+
+  it("is focusable so it can receive paste events", () => {
+    const wrapper = createWrapper();
+    expect(wrapper.attributes("tabindex")).toBe("0");
+  });
+
+  it("emits paste with files on paste event", async () => {
+    const wrapper = createWrapper();
+    const file = new File(["data"], "test.jpg", { type: "image/jpeg" });
+    const fileList = Object.assign([file], {
+      item: (i: number) => [file][i] ?? null,
+    }) as unknown as FileList;
+
+    await wrapper.trigger("paste", {
+      clipboardData: { files: fileList },
+    });
+
+    const emitted = wrapper.emitted("paste");
+    expect(emitted).toHaveLength(1);
+    expect(emitted![0]![0]).toBe(fileList);
+  });
+
+  it("does not emit paste when no files in clipboardData (e.g. pasted text)", async () => {
+    const wrapper = createWrapper();
+    const emptyFileList = Object.assign([] as File[], {
+      item: () => null,
+      length: 0,
+    }) as unknown as FileList;
+
+    await wrapper.trigger("paste", {
+      clipboardData: { files: emptyFileList },
+    });
+
+    expect(wrapper.emitted("paste")).toBeUndefined();
+  });
+
+  it("does not emit paste when disabled", async () => {
+    const wrapper = createWrapper({ disabled: true });
+    const file = new File(["data"], "test.jpg", { type: "image/jpeg" });
+    const fileList = Object.assign([file], {
+      item: (i: number) => [file][i] ?? null,
+    }) as unknown as FileList;
+
+    await wrapper.trigger("paste", {
+      clipboardData: { files: fileList },
+    });
+
+    expect(wrapper.emitted("paste")).toBeUndefined();
+  });
 });

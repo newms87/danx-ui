@@ -95,4 +95,38 @@ describe("useDragDrop", () => {
     handleDrop(event);
     expect(onDrop).not.toHaveBeenCalled();
   });
+
+  it("handlePaste calls onDrop with pasted files", () => {
+    const { handlePaste } = useDragDrop({ onDrop });
+
+    const file = createFile();
+    const fileList = toFileList([file]);
+    const event = {
+      clipboardData: { files: fileList },
+    } as unknown as ClipboardEvent;
+
+    handlePaste(event);
+
+    expect(onDrop).toHaveBeenCalledWith(fileList);
+  });
+
+  it("handlePaste does nothing when clipboard has no files (e.g. pasted text)", () => {
+    const { handlePaste } = useDragDrop({ onDrop });
+
+    const event = {
+      clipboardData: { files: toFileList([]) },
+    } as unknown as ClipboardEvent;
+
+    handlePaste(event);
+    expect(onDrop).not.toHaveBeenCalled();
+  });
+
+  it("handlePaste handles null clipboardData", () => {
+    const { handlePaste } = useDragDrop({ onDrop });
+
+    const event = { clipboardData: null } as unknown as ClipboardEvent;
+
+    handlePaste(event);
+    expect(onDrop).not.toHaveBeenCalled();
+  });
 });
