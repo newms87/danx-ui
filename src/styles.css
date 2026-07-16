@@ -64,3 +64,5 @@
 @import "./components/table/table.css" layer(components);
 @import "./components/pagination/pagination.css" layer(components);
 @import "./components/drag-and-drop/drag-and-drop.css" layer(components);
+@import "./shared/transitions/collapse-transition.css" layer(components);
+@import "./components/accordion/accordion.css" layer(components);

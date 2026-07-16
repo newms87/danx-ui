@@ -58,6 +58,11 @@
     },
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css",
+    "./components/accordion": {
+      "types": "./dist/components/accordion/index.d.ts",
+      "import": "./dist/components/accordion/index.js"
+    },
+    "./components/accordion/styles": "./dist/components/accordion/accordion.css",
     "./components/alert": {
       "types": "./dist/components/alert/index.d.ts",
       "import": "./dist/components/alert/index.js"
@@ -83,11 +88,6 @@
       "import": "./dist/components/breadcrumbs/index.js"
     },
     "./components/breadcrumbs/styles": "./dist/components/breadcrumbs/breadcrumbs.css",
-    "./components/card": {
-      "types": "./dist/components/card/index.d.ts",
-      "import": "./dist/components/card/index.js"
-    },
-    "./components/card/styles": "./dist/components/card/card.css",
     "./components/button": {
       "types": "./dist/components/button/index.d.ts",
       "import": "./dist/components/button/index.js"
@@ -98,6 +98,11 @@
       "import": "./dist/components/buttonGroup/index.js"
     },
     "./components/buttonGroup/styles": "./dist/components/buttonGroup/button-group.css",
+    "./components/card": {
+      "types": "./dist/components/card/index.d.ts",
+      "import": "./dist/components/card/index.js"
+    },
+    "./components/card/styles": "./dist/components/card/card.css",
     "./components/checkbox": {
       "types": "./dist/components/checkbox/index.d.ts",
       "import": "./dist/components/checkbox/index.js"

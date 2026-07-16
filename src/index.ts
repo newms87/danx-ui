@@ -16,6 +16,7 @@ export type {
 } from "./components/avatar";
 // DXUI-170: DanxAuditHistoryItem uses fTimeAgo, which pulls in `luxon` (optional peer) —
 // kept out of the main barrel; import from "danx-ui/components/audit-history-item".
+export { DanxAccordion } from "./components/accordion";
 export { DanxBadge } from "./components/badge";
 export { DanxBreadcrumbs } from "./components/breadcrumbs";
 export { DanxCard } from "./components/card";
@@ -159,15 +160,11 @@ export type {
   ResourceAction,
 } from "./components/button";
 export type { DanxIconProps } from "./components/icon";
+export type { AccordionItem, DanxAccordionProps, DanxAccordionSlots } from "./components/accordion";
 export type { DanxAlertProps, DanxAlertEmits, DanxAlertSlots } from "./components/alert";
 export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
 export type { DanxBreadcrumbItem, DanxBreadcrumbsProps } from "./components/breadcrumbs";
-export type {
-  CardPadding,
-  CardVariant,
-  DanxCardProps,
-  DanxCardSlots,
-} from "./components/card";
+export type { CardPadding, CardVariant, DanxCardProps, DanxCardSlots } from "./components/card";
 export type { ChipSize, DanxChipEmits, DanxChipProps, DanxChipSlots } from "./components/chip";
 export type { DanxDividerProps, DanxDividerSlots, DividerOrientation } from "./components/divider";
 export type { DanxSpinnerProps, SpinnerSize } from "./components/spinner";
@@ -456,6 +453,9 @@ export type {
   FormFieldEmits,
 } from "./shared/form-types";
 export type { DanxFieldWrapperProps, DanxFieldWrapperSlots } from "./components/field-wrapper";
+
+// Transitions
+export { CollapseTransition } from "./shared/transitions";
 
 // Variant system
 export { useVariant } from "./shared/composables/useVariant";

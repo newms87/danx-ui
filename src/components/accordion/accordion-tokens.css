@@ -1,0 +1,45 @@
+/**
+ * DanxAccordion Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize accordion appearance.
+ *
+ * CSS Tokens:
+ * --dx-accordion-border            Divider color between items
+ * --dx-accordion-border-width      Divider width between items
+ * --dx-accordion-radius            Corner radius of the outer container
+ * --dx-accordion-header-bg         Header background
+ * --dx-accordion-header-bg-hover   Header background on hover
+ * --dx-accordion-header-text       Header text color
+ * --dx-accordion-header-font-size  Header font size
+ * --dx-accordion-header-font-weight Header font weight
+ * --dx-accordion-header-padding-x  Header horizontal padding
+ * --dx-accordion-header-padding-y  Header vertical padding
+ * --dx-accordion-panel-bg          Panel background
+ * --dx-accordion-panel-text        Panel text color
+ * --dx-accordion-panel-padding-x   Panel horizontal padding
+ * --dx-accordion-panel-padding-y   Panel vertical padding
+ * --dx-accordion-chevron-size      Chevron icon size
+ * --dx-accordion-chevron-color     Chevron icon color
+ * --dx-accordion-focus-ring        Focus ring color on header
+ */
+
+:root {
+  --dx-accordion-border: var(--color-border);
+  --dx-accordion-border-width: 1px;
+  --dx-accordion-radius: var(--radius-component);
+  --dx-accordion-header-bg: var(--color-surface);
+  --dx-accordion-header-bg-hover: var(--color-surface-sunken);
+  --dx-accordion-header-text: var(--color-text);
+  --dx-accordion-header-font-size: var(--text-sm);
+  --dx-accordion-header-font-weight: var(--font-medium);
+  --dx-accordion-header-padding-x: 1rem;
+  --dx-accordion-header-padding-y: 0.75rem;
+  --dx-accordion-panel-bg: var(--color-surface);
+  --dx-accordion-panel-text: var(--color-text-muted);
+  --dx-accordion-panel-padding-x: 1rem;
+  --dx-accordion-panel-padding-y: 0.75rem;
+  --dx-accordion-chevron-size: 0.875rem;
+  --dx-accordion-chevron-color: var(--color-text-muted);
+  --dx-accordion-focus-ring: var(--color-interactive);
+}

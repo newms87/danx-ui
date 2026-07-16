@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
+import AccordionPage from "./pages/AccordionPage.vue";
 import ActionButtonPage from "./pages/ActionButtonPage.vue";
 import AlertPage from "./pages/AlertPage.vue";
 import AuditHistoryItemPage from "./pages/AuditHistoryItemPage.vue";
@@ -77,6 +78,7 @@ const router = createRouter({
       name: "audit-history-item",
       component: AuditHistoryItemPage,
     },
+    { path: "/accordion", name: "accordion", component: AccordionPage },
     { path: "/avatar", name: "avatar", component: AvatarPage },
     { path: "/badge", name: "badge", component: BadgePage },
     { path: "/breadcrumbs", name: "breadcrumbs", component: BreadcrumbsPage },

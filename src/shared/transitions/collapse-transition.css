@@ -1,0 +1,22 @@
+/**
+ * CollapseTransition Styles
+ *
+ * The `dx-collapse-*` classes are applied by Vue's <Transition name="dx-collapse">
+ * only during the enter/leave phases, so `overflow: hidden` and the `height`
+ * transition never leak into the settled (auto-height) state.
+ *
+ * CSS Tokens:
+ * --dx-collapse-duration   Transition duration (default: --duration-200)
+ * --dx-collapse-ease       Transition easing (default: --ease-out)
+ */
+
+:root {
+  --dx-collapse-duration: var(--duration-200);
+  --dx-collapse-ease: var(--ease-out);
+}
+
+.dx-collapse-enter-active,
+.dx-collapse-leave-active {
+  overflow: hidden;
+  transition: height var(--dx-collapse-duration) var(--dx-collapse-ease);
+}

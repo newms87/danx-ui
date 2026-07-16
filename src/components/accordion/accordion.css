@@ -1,0 +1,79 @@
+/**
+ * DanxAccordion Styles
+ *
+ * Bordered container with per-item dividers. Each header is a full-width
+ * button; the chevron rotates to indicate open/closed state. Panel height
+ * animation itself lives in the shared CollapseTransition, not here.
+ *
+ * Note: BEM modifiers are top-level blocks because Lightning CSS
+ * does not support &--suffix concatenation.
+ */
+
+@import "./accordion-tokens.css";
+
+.danx-accordion {
+  display: flex;
+  flex-direction: column;
+  border: var(--dx-accordion-border-width) solid var(--dx-accordion-border);
+  border-radius: var(--dx-accordion-radius);
+  overflow: hidden;
+
+  .danx-accordion__item {
+    & + .danx-accordion__item {
+      border-top: var(--dx-accordion-border-width) solid var(--dx-accordion-border);
+    }
+  }
+
+  .danx-accordion__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    background: var(--dx-accordion-header-bg);
+    color: var(--dx-accordion-header-text);
+    font-size: var(--dx-accordion-header-font-size);
+    font-weight: var(--dx-accordion-header-font-weight);
+    padding: var(--dx-accordion-header-padding-y) var(--dx-accordion-header-padding-x);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover:not(:disabled) {
+      background: var(--dx-accordion-header-bg-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--dx-accordion-focus-ring);
+      outline-offset: -2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  .danx-accordion__header-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .danx-accordion__chevron {
+    flex-shrink: 0;
+    width: var(--dx-accordion-chevron-size);
+    height: var(--dx-accordion-chevron-size);
+    color: var(--dx-accordion-chevron-color);
+    transition: transform var(--transition-fast);
+  }
+
+  .danx-accordion__panel {
+    background: var(--dx-accordion-panel-bg);
+    color: var(--dx-accordion-panel-text);
+    padding: var(--dx-accordion-panel-padding-y) var(--dx-accordion-panel-padding-x);
+  }
+
+  .danx-accordion__item.is-open .danx-accordion__chevron {
+    transform: rotate(180deg);
+  }
+}
