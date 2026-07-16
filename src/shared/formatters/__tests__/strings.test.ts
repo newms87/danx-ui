@@ -189,7 +189,7 @@ describe("fPhone", () => {
   });
 
   it("returns numeric value coerced for non-string number type", () => {
-    expect(fPhone(5551234567)).toBe(5551234567);
+    expect(fPhone(5551234567)).toBe("5551234567");
   });
 });
 

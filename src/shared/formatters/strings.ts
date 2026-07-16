@@ -58,7 +58,7 @@ export function fAddress(value: unknown, mode?: "multiline"): string {
 /** Formats a phone number string into readable format (e.g., "(555) 123-4567") */
 export function fPhone(value: string | number): string {
   if (!value || typeof value !== "string") {
-    return (value as string) || "";
+    return value ? String(value) : "";
   }
 
   const input = value.replace(/\D/g, "").split("");
