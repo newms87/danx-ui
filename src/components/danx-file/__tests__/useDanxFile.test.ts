@@ -489,6 +489,80 @@ describe("useDanxFile", () => {
 
       vi.unstubAllGlobals();
     });
+
+    // DXUI-70: out-of-order resolution must not let a stale fetch clobber the latest file's content
+    it("ignores a stale fetch that resolves after a newer one", async () => {
+      let resolveFirst!: (value: { text: () => Promise<string> }) => void;
+      let resolveSecond!: (value: { text: () => Promise<string> }) => void;
+      const mockFetch = vi
+        .fn()
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveFirst = resolve;
+            })
+        )
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveSecond = resolve;
+            })
+        );
+      vi.stubGlobal("fetch", mockFetch);
+
+      const { result, props } = createUseDanxFile({
+        file: makeFile({
+          mime: "text/plain",
+          url: "https://example.com/first.txt",
+        }),
+      });
+      await flushPromises();
+
+      props.file = makeFile({
+        mime: "text/plain",
+        url: "https://example.com/second.txt",
+      });
+      await flushPromises();
+
+      resolveSecond({ text: () => Promise.resolve("Second content") });
+      await flushPromises();
+      resolveFirst({ text: () => Promise.resolve("First content") });
+      await flushPromises();
+
+      expect(result.textContent.value).toBe("Second content");
+
+      vi.unstubAllGlobals();
+    });
+
+    it("does not overwrite content once the file changes away before the fetch resolves", async () => {
+      let resolveFetch!: (value: { text: () => Promise<string> }) => void;
+      const mockFetch = vi.fn().mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFetch = resolve;
+          })
+      );
+      vi.stubGlobal("fetch", mockFetch);
+
+      const { result, props } = createUseDanxFile({
+        file: makeFile({
+          mime: "text/plain",
+          url: "https://example.com/first.txt",
+        }),
+      });
+      await flushPromises();
+
+      props.file = makeFile({ mime: "image/jpeg" });
+      await flushPromises();
+      expect(result.textContent.value).toBe("");
+
+      resolveFetch({ text: () => Promise.resolve("Stale content") });
+      await flushPromises();
+
+      expect(result.textContent.value).toBe("");
+
+      vi.unstubAllGlobals();
+    });
   });
 
   describe("showPreviewText", () => {

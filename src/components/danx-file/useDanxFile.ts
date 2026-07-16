@@ -72,9 +72,11 @@ export interface UseDanxFileReturn {
  */
 function useTextContent(props: ResolvedDanxFileProps): Ref<string> {
   const textContent = ref("");
+  let requestToken = 0;
   watch(
     () => props.file,
     async (file) => {
+      const token = ++requestToken;
       if (!isText(file)) {
         textContent.value = "";
         return;
@@ -87,9 +89,14 @@ function useTextContent(props: ResolvedDanxFileProps): Ref<string> {
       if (url) {
         try {
           const response = await fetch(url);
-          textContent.value = await response.text();
+          const text = await response.text();
+          if (token === requestToken) {
+            textContent.value = text;
+          }
         } catch {
-          textContent.value = "";
+          if (token === requestToken) {
+            textContent.value = "";
+          }
         }
       } else {
         textContent.value = "";
