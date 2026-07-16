@@ -868,6 +868,327 @@ describe("DanxContextMenu", () => {
     });
   });
 
+  describe("menu ARIA semantics", () => {
+    it("gives the panel role=menu and every item role=menuitem, including submenu items", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({
+          id: "item-2",
+          label: "Two",
+          children: [createItem({ id: "child-1", label: "Child" })],
+        }),
+      ]);
+
+      expect(wrapper.find(".danx-context-menu__list").attributes("role")).toBe("menu");
+      const rootButtons = wrapper.findAll(".danx-context-menu__item");
+      for (const btn of rootButtons) {
+        expect(btn.attributes("role")).toBe("menuitem");
+      }
+
+      await wrapper.findAll(".danx-context-menu__item")[1]!.trigger("click");
+      await nextTick();
+      expect(wrapper.find(".danx-context-menu__submenu").attributes("role")).toBe("menu");
+      expect(
+        wrapper.find(".danx-context-menu__submenu .danx-context-menu__item").attributes("role")
+      ).toBe("menuitem");
+    });
+
+    it("sets aria-haspopup and aria-expanded on a parent item, toggling with the submenu", async () => {
+      await mountMenu([
+        createItem({ id: "parent-1", label: "Parent", children: [createItem({ id: "child-1" })] }),
+        createItem({ id: "item-2", label: "Leaf" }),
+      ]);
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("aria-haspopup")).toBe("true");
+      expect(buttons[0]!.attributes("aria-expanded")).toBe("false");
+      expect(buttons[1]!.attributes("aria-haspopup")).toBeUndefined();
+      expect(buttons[1]!.attributes("aria-expanded")).toBeUndefined();
+
+      await buttons[0]!.trigger("click");
+      expect(wrapper.findAll(".danx-context-menu__item")[0]!.attributes("aria-expanded")).toBe(
+        "true"
+      );
+    });
+  });
+
+  describe("roving tabindex", () => {
+    it("gives only the first item tabindex 0 on mount, rest -1", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+        createItem({ id: "item-3", label: "Three" }),
+      ]);
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("tabindex")).toBe("0");
+      expect(buttons[1]!.attributes("tabindex")).toBe("-1");
+      expect(buttons[2]!.attributes("tabindex")).toBe("-1");
+    });
+
+    it("moves the tabindex=0 item on ArrowDown", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__list").trigger("keydown", { key: "ArrowDown" });
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("tabindex")).toBe("-1");
+      expect(buttons[1]!.attributes("tabindex")).toBe("0");
+      expect(buttons[1]!.element).toBe(document.activeElement);
+    });
+
+    it("updates the tabindex=0 item on hover", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+      ]);
+
+      const wrappers = wrapper.findAll(".danx-context-menu__item-wrapper");
+      await wrappers[1]!.trigger("mouseenter");
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("tabindex")).toBe("-1");
+      expect(buttons[1]!.attributes("tabindex")).toBe("0");
+    });
+
+    it("skips disabled items when computing the initial active item", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One", disabled: true }),
+        createItem({ id: "item-2", label: "Two" }),
+      ]);
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("tabindex")).toBe("-1");
+      expect(buttons[1]!.attributes("tabindex")).toBe("0");
+    });
+  });
+
+  describe("ArrowUp/ArrowDown navigation", () => {
+    it("wraps from the last item to the first on ArrowDown", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowDown" });
+      await list.trigger("keydown", { key: "ArrowDown" });
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("tabindex")).toBe("0");
+      expect(buttons[0]!.element).toBe(document.activeElement);
+    });
+
+    it("wraps from the first item to the last on ArrowUp", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowUp" });
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[1]!.attributes("tabindex")).toBe("0");
+      expect(buttons[1]!.element).toBe(document.activeElement);
+    });
+
+    it("skips disabled items when moving focus", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two", disabled: true }),
+        createItem({ id: "item-3", label: "Three" }),
+      ]);
+
+      await wrapper.find(".danx-context-menu__list").trigger("keydown", { key: "ArrowDown" });
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[2]!.attributes("tabindex")).toBe("0");
+    });
+  });
+
+  describe("Home/End navigation", () => {
+    it("jumps to the first item on Home", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+        createItem({ id: "item-3", label: "Three" }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowDown" });
+      await list.trigger("keydown", { key: "ArrowDown" });
+      await list.trigger("keydown", { key: "Home" });
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[0]!.attributes("tabindex")).toBe("0");
+      expect(buttons[0]!.element).toBe(document.activeElement);
+    });
+
+    it("jumps to the last item on End", async () => {
+      await mountMenu([
+        createItem({ id: "item-1", label: "One" }),
+        createItem({ id: "item-2", label: "Two" }),
+        createItem({ id: "item-3", label: "Three" }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "End" });
+
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[2]!.attributes("tabindex")).toBe("0");
+      expect(buttons[2]!.element).toBe(document.activeElement);
+    });
+  });
+
+  describe("ArrowRight/ArrowLeft submenu navigation", () => {
+    it("ArrowRight on an item with children opens the submenu and focuses its first item", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent-1",
+          label: "Parent",
+          children: [
+            createItem({ id: "child-1", label: "Child 1" }),
+            createItem({ id: "child-2", label: "Child 2" }),
+          ],
+        }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowRight" });
+      await nextTick();
+
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
+      const childButtons = wrapper
+        .find(".danx-context-menu__submenu")
+        .findAll(".danx-context-menu__item");
+      expect(childButtons[0]!.attributes("tabindex")).toBe("0");
+      expect(childButtons[0]!.element).toBe(document.activeElement);
+    });
+
+    it("does nothing on ArrowRight when the active item has no children", async () => {
+      await mountMenu([createItem({ id: "item-1", label: "One" })]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowRight" });
+      await nextTick();
+
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
+    });
+
+    it("ArrowDown moves focus between submenu items once inside the submenu", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent-1",
+          label: "Parent",
+          children: [
+            createItem({ id: "child-1", label: "Child 1" }),
+            createItem({ id: "child-2", label: "Child 2" }),
+          ],
+        }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowRight" });
+      await nextTick();
+      await list.trigger("keydown", { key: "ArrowDown" });
+      await nextTick();
+
+      const childButtons = wrapper
+        .find(".danx-context-menu__submenu")
+        .findAll(".danx-context-menu__item");
+      expect(childButtons[0]!.attributes("tabindex")).toBe("-1");
+      expect(childButtons[1]!.attributes("tabindex")).toBe("0");
+      expect(childButtons[1]!.element).toBe(document.activeElement);
+    });
+
+    it("ArrowLeft on a submenu item closes the submenu and returns focus to the parent item", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent-1",
+          label: "Parent",
+          children: [createItem({ id: "child-1", label: "Child 1" })],
+        }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowRight" });
+      await nextTick();
+      await list.trigger("keydown", { key: "ArrowLeft" });
+      await nextTick();
+
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
+      const parentButton = wrapper.find(".danx-context-menu__item");
+      expect(parentButton.attributes("tabindex")).toBe("0");
+      expect(parentButton.element).toBe(document.activeElement);
+    });
+
+    it("does nothing on ArrowLeft when focus is at the root level", async () => {
+      await mountMenu([createItem({ id: "item-1", label: "One" })]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowLeft" });
+      await nextTick();
+
+      const button = wrapper.find(".danx-context-menu__item");
+      expect(button.attributes("tabindex")).toBe("0");
+    });
+
+    it("skips disabled items when navigating within an open submenu", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent-1",
+          label: "Parent",
+          children: [
+            createItem({ id: "child-1", label: "Child 1" }),
+            createItem({ id: "child-2", label: "Child 2", disabled: true }),
+            createItem({ id: "child-3", label: "Child 3" }),
+          ],
+        }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowRight" });
+      await nextTick();
+      await list.trigger("keydown", { key: "ArrowDown" });
+      await nextTick();
+
+      const childButtons = wrapper
+        .find(".danx-context-menu__submenu")
+        .findAll(".danx-context-menu__item");
+      expect(childButtons[2]!.attributes("tabindex")).toBe("0");
+      expect(childButtons[2]!.element).toBe(document.activeElement);
+    });
+
+    it("resyncs the roving tabindex to the root level when the submenu closes via the hover-leave timer instead of ArrowLeft", async () => {
+      await mountMenu([
+        createItem({
+          id: "parent-1",
+          label: "Parent",
+          children: [createItem({ id: "child-1", label: "Child 1" })],
+        }),
+        createItem({ id: "item-2", label: "Two" }),
+      ]);
+
+      const list = wrapper.find(".danx-context-menu__list");
+      await list.trigger("keydown", { key: "ArrowRight" });
+      await nextTick();
+
+      // Close the submenu via the hover-leave timer path (mouseleave), not ArrowLeft.
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
+      await itemWrapper.trigger("mouseleave");
+      vi.advanceTimersByTime(150);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
+
+      // ArrowDown should now operate on the root list, not a stale submenu reference.
+      await list.trigger("keydown", { key: "ArrowDown" });
+      const buttons = wrapper.findAll(".danx-context-menu__item");
+      expect(buttons[1]!.attributes("tabindex")).toBe("0");
+      expect(buttons[1]!.element).toBe(document.activeElement);
+    });
+  });
+
   describe("active item indicator", () => {
     it("renders is-active class and a check indicator on an active item", async () => {
       await mountMenu([createItem({ active: true })]);

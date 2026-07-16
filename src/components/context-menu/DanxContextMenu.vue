@@ -69,7 +69,7 @@
  *     suffix: SortDirectionButtons, // a Vue component with its own @click handlers
  *   }];
  */
-import { onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import { DanxIcon } from "../icon";
 import { DanxPopover } from "../popover";
 import type {
@@ -79,7 +79,7 @@ import type {
   DanxContextMenuSlots,
 } from "./types";
 
-defineProps<DanxContextMenuProps>();
+const props = defineProps<DanxContextMenuProps>();
 
 const emit = defineEmits<DanxContextMenuEmits>();
 
@@ -99,6 +99,164 @@ const menuRef = ref<HTMLElement | null>(null);
 
 const activeSubmenuId = ref<string | null>(null);
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Roving-tabindex model: exactly one item across the whole widget (root list
+ * OR the open submenu) is a Tab-stop at a time — the item id in `activeItemId`.
+ * `focusedSubmenuParentId` records which parent's submenu currently owns
+ * keyboard focus (null = focus is at the root level), so Arrow/Home/End know
+ * which list to operate on independent of `activeSubmenuId` (which also
+ * flips on hover, for the flyout itself).
+ */
+function isNavigable(item: ContextMenuItem): boolean {
+  return !item.divider && !item.disabled;
+}
+
+const rootNavItems = computed(() => props.items.filter(isNavigable));
+const activeItemId = ref<string | null>(rootNavItems.value[0]?.id ?? null);
+const focusedSubmenuParentId = ref<string | null>(null);
+
+const rootItemRefs = new Map<string, HTMLButtonElement>();
+const submenuItemRefs = new Map<string, HTMLButtonElement>();
+
+function setRootItemRef(id: string, el: Element | null): void {
+  if (el) rootItemRefs.set(id, el as HTMLButtonElement);
+  else rootItemRefs.delete(id);
+}
+
+function setSubmenuItemRef(id: string, el: Element | null): void {
+  if (el) submenuItemRefs.set(id, el as HTMLButtonElement);
+  else submenuItemRefs.delete(id);
+}
+
+function currentSubmenuNavItems(): ContextMenuItem[] {
+  const parent = props.items.find((i) => i.id === focusedSubmenuParentId.value);
+  return parent?.children?.filter(isNavigable) ?? [];
+}
+
+function currentNavList(): ContextMenuItem[] {
+  return focusedSubmenuParentId.value ? currentSubmenuNavItems() : rootNavItems.value;
+}
+
+/** Shared by hover/click handlers to keep activeItemId + which list owns it in sync. */
+function setActiveItem(id: string, submenuParentId: string | null = null): void {
+  activeItemId.value = id;
+  focusedSubmenuParentId.value = submenuParentId;
+}
+
+/**
+ * If `items` changes shape (async load, filtering) and the roving-tabindex
+ * target no longer exists, fall back to the first root item rather than
+ * leaving tabindex on nothing.
+ */
+watch(
+  () => props.items,
+  () => {
+    const stillValid =
+      rootNavItems.value.some((i) => i.id === activeItemId.value) ||
+      currentSubmenuNavItems().some((i) => i.id === activeItemId.value);
+    if (stillValid) return;
+    activeSubmenuId.value = null;
+    focusedSubmenuParentId.value = null;
+    activeItemId.value = rootNavItems.value[0]?.id ?? null;
+  }
+);
+
+function focusItem(id: string): void {
+  activeItemId.value = id;
+  const inSubmenu = focusedSubmenuParentId.value !== null;
+  void nextTick(() => {
+    const el = inSubmenu ? submenuItemRefs.get(id) : rootItemRefs.get(id);
+    el?.focus();
+  });
+}
+
+function moveFocus(delta: 1 | -1): void {
+  const list = currentNavList();
+  if (list.length === 0) return;
+  const currentIndex = list.findIndex((i) => i.id === activeItemId.value);
+  const nextIndex = currentIndex === -1 ? 0 : (currentIndex + delta + list.length) % list.length;
+  focusItem(list[nextIndex]!.id);
+}
+
+function focusFirst(): void {
+  const first = currentNavList()[0];
+  if (first) focusItem(first.id);
+}
+
+function focusLast(): void {
+  const list = currentNavList();
+  const last = list[list.length - 1];
+  if (last) focusItem(last.id);
+}
+
+function openSubmenuAndFocusFirst(item: ContextMenuItem): void {
+  if (!item.children?.length) return;
+  activeSubmenuId.value = item.id;
+  focusedSubmenuParentId.value = item.id;
+  const first = item.children.filter(isNavigable)[0];
+  if (first) focusItem(first.id);
+}
+
+function closeSubmenuAndFocusParent(): void {
+  if (!focusedSubmenuParentId.value) return;
+  const parentId = focusedSubmenuParentId.value;
+  activeSubmenuId.value = null;
+  focusedSubmenuParentId.value = null;
+  focusItem(parentId);
+}
+
+function handleMenuKeydown(event: KeyboardEvent): void {
+  switch (event.key) {
+    case "ArrowDown":
+      event.preventDefault();
+      moveFocus(1);
+      break;
+    case "ArrowUp":
+      event.preventDefault();
+      moveFocus(-1);
+      break;
+    case "Home":
+      event.preventDefault();
+      focusFirst();
+      break;
+    case "End":
+      event.preventDefault();
+      focusLast();
+      break;
+    case "ArrowRight": {
+      if (focusedSubmenuParentId.value) break;
+      const item = rootNavItems.value.find((i) => i.id === activeItemId.value);
+      if (item?.children?.length) {
+        event.preventDefault();
+        openSubmenuAndFocusFirst(item);
+      }
+      break;
+    }
+    case "ArrowLeft":
+      if (focusedSubmenuParentId.value) {
+        event.preventDefault();
+        closeSubmenuAndFocusParent();
+      }
+      break;
+  }
+}
+
+function handleChildHover(parentId: string, child: ContextMenuItem): void {
+  setActiveItem(child.id, parentId);
+}
+
+/**
+ * Keep the roving tabindex in sync when a submenu closes via the hover-leave
+ * timer (not just via ArrowLeft) — otherwise focusedSubmenuParentId (and
+ * activeItemId, if it was pointing at a now-unmounted child button) would
+ * keep pointing at a submenu that's no longer rendered.
+ */
+watch(activeSubmenuId, (id) => {
+  if (id || !focusedSubmenuParentId.value) return;
+  activeItemId.value = focusedSubmenuParentId.value;
+  focusedSubmenuParentId.value = null;
+});
 
 /**
  * Emit close when popover dismisses itself (click-outside or Escape).
@@ -150,6 +308,8 @@ function isItemActive(item: ContextMenuItem): boolean {
 }
 
 function handleItemHover(item: ContextMenuItem): void {
+  setActiveItem(item.id);
+
   if (hoverTimeout) {
     clearTimeout(hoverTimeout);
     hoverTimeout = null;
@@ -191,6 +351,8 @@ function handleSubmenuLeave(): void {
 function onItemClick(item: ContextMenuItem): void {
   if (item.disabled) return;
 
+  activeItemId.value = item.id;
+
   if (item.children?.length) {
     activeSubmenuId.value = activeSubmenuId.value === item.id ? null : item.id;
     return;
@@ -221,7 +383,12 @@ onUnmounted(() => {
       <slot name="trigger" />
     </template>
 
-    <div ref="menuRef" class="danx-context-menu__list">
+    <div
+      ref="menuRef"
+      class="danx-context-menu__list"
+      role="menu"
+      @keydown="handleMenuKeydown"
+    >
       <template v-for="item in items" :key="item.id">
         <!-- Divider -->
         <div v-if="item.divider" class="danx-context-menu__divider" />
@@ -245,6 +412,7 @@ onUnmounted(() => {
             />
 
             <button
+              :ref="(el) => setRootItemRef(item.id, el as Element | null)"
               class="danx-context-menu__item"
               :class="{
                 'is-disabled': item.disabled,
@@ -252,7 +420,11 @@ onUnmounted(() => {
                 'is-active': isItemActive(item),
               }"
               type="button"
+              role="menuitem"
+              :tabindex="item.id === activeItemId ? 0 : -1"
               :disabled="item.disabled"
+              :aria-haspopup="item.children?.length ? 'true' : undefined"
+              :aria-expanded="item.children?.length ? activeSubmenuId === item.id : undefined"
               @click="onItemClick(item)"
             >
               <span v-if="isItemActive(item)" class="danx-context-menu__check" aria-hidden="true"
@@ -282,12 +454,17 @@ onUnmounted(() => {
               v-if="item.children?.length && activeSubmenuId === item.id"
               class="danx-context-menu__submenu danx-context-menu-panel"
               :class="{ 'open-left': submenuOpenLeft }"
+              role="menu"
               @mouseenter="handleSubmenuEnter"
               @mouseleave="handleSubmenuLeave"
             >
               <template v-for="child in item.children" :key="child.id">
                 <div v-if="child.divider" class="danx-context-menu__divider" />
-                <div v-else class="danx-context-menu__item-wrapper">
+                <div
+                  v-else
+                  class="danx-context-menu__item-wrapper"
+                  @mouseenter="handleChildHover(item.id, child)"
+                >
                   <component
                     :is="child.prefix"
                     v-if="child.prefix && typeof child.prefix !== 'string'"
@@ -300,9 +477,12 @@ onUnmounted(() => {
                   />
 
                   <button
+                    :ref="(el) => setSubmenuItemRef(child.id, el as Element | null)"
                     class="danx-context-menu__item"
                     :class="{ 'is-disabled': child.disabled, 'is-active': isItemActive(child) }"
                     type="button"
+                    role="menuitem"
+                    :tabindex="child.id === activeItemId ? 0 : -1"
                     :disabled="child.disabled"
                     @click="onItemClick(child)"
                   >
