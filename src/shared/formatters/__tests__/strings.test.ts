@@ -202,6 +202,18 @@ describe("fNameOrCount", () => {
     expect(fNameOrCount([], "items")).toBe("0 items");
   });
 
+  it("returns singularLabel for a single-item array when provided", () => {
+    expect(fNameOrCount([{ name: "a" }], "items", "item")).toBe("1 item");
+  });
+
+  it("falls back to naive singular form for a single-item array when singularLabel is omitted", () => {
+    expect(fNameOrCount([{ name: "a" }], "items")).toBe("1 item");
+  });
+
+  it("leaves a non-s-ending label unchanged for the naive fallback", () => {
+    expect(fNameOrCount([{ name: "a" }], "data")).toBe("1 data");
+  });
+
   it("returns title for single item with title", () => {
     expect(fNameOrCount({ title: "My Item" }, "items")).toBe("My Item");
   });

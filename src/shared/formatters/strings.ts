@@ -96,9 +96,23 @@ export function fPhone(value: string | number): string {
   return phone;
 }
 
-/** Returns an item's name or a count label for arrays */
-export function fNameOrCount(items: NamedItem[] | NamedItem, label: string): string {
-  return Array.isArray(items)
-    ? `${items.length} ${label}`
-    : `${items ? items.title || items.name || items.id : ""}`;
+/**
+ * Returns an item's name or a count label for arrays.
+ *
+ * When `items` is an array of length 1, `singularLabel` is used instead of
+ * `label` if provided; otherwise a naive singular form is derived by
+ * stripping a trailing "s" from `label` (e.g. "items" -> "item").
+ */
+export function fNameOrCount(
+  items: NamedItem[] | NamedItem,
+  label: string,
+  singularLabel?: string
+): string {
+  if (Array.isArray(items)) {
+    if (items.length === 1) {
+      return `1 ${singularLabel ?? label.replace(/s$/, "")}`;
+    }
+    return `${items.length} ${label}`;
+  }
+  return `${items ? items.title || items.name || items.id : ""}`;
 }
