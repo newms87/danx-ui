@@ -167,6 +167,12 @@ import {
 } from "../../src/components/danx-file-viewer";
 import { useTouchSwipe } from "../../src/shared/composables/useTouchSwipe";
 import {
+  useHotkeys,
+  parseHotkey,
+  matchesHotkey,
+  matchesModifiers,
+} from "../../src/shared/composables/useHotkeys";
+import {
   resolveFileUrl,
   resolveThumbUrl,
   isImage,
@@ -461,6 +467,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useDanxFileViewer,
   useVirtualCarousel,
   useTouchSwipe,
+  useHotkeys,
+  parseHotkey,
+  matchesHotkey,
+  matchesModifiers,
   // Zoomable
   DanxZoomable,
   DanxZoomControls,

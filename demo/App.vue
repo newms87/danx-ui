@@ -268,6 +268,9 @@ watch(theme, (newTheme) => {
                   >Reactive Store</RouterLink
                 >
               </li>
+              <li>
+                <RouterLink to="/hotkeys" class="demo-sidebar__link">Hotkeys</RouterLink>
+              </li>
             </ul>
           </li>
         </ul>

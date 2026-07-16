@@ -106,6 +106,13 @@ export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-vi
 export { useFileExplorer, isFolderNode } from "./components/file-explorer";
 export { useTreeView, isBranchNode } from "./components/tree-view";
 export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
+export {
+  useHotkeys,
+  parseHotkey,
+  matchesHotkey,
+  matchesModifiers,
+} from "./shared/composables/useHotkeys";
+export type { HotkeyOptions, ParsedHotkey } from "./shared/composables/useHotkeys";
 // DXUI-35: useScrollInfinite/useDanxScroll/useScrollWindow pull in @vueuse/core (optional
 // peer) — kept out of the main barrel; import from "danx-ui/components/scroll".
 // DXUI-153: useBreakpoints/useMediaQuery also pull in @vueuse/core — kept out of the
