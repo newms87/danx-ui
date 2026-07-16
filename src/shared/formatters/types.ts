@@ -22,6 +22,11 @@ export interface ShortNumberOptions {
   round?: boolean;
 }
 
+/** Options for fCurrency / fCurrencyNoCents / fNumber, allowing a per-call locale override */
+export interface FNumberOptions extends Intl.NumberFormatOptions {
+  locale?: string;
+}
+
 /** A generic named item for fNameOrCount */
 export interface NamedItem {
   id?: string | number;

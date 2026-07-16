@@ -14,13 +14,42 @@ yarn add luxon
 
 ## Number Formatters
 
+### Locale/Currency Configuration
+
+`fCurrency`, `fCurrencyNoCents`, and `fNumber` read a configurable default locale and
+default currency (falling back to `"en-US"` / `"USD"`). Set them once at app startup,
+or override per call via the `locale`/`currency` options.
+
+```ts
+import { setDefaultLocale, setDefaultCurrency } from "danx-ui";
+
+setDefaultLocale("de-DE");
+setDefaultCurrency("EUR");
+
+fNumber(1234567.89);   // "1.234.567,89"
+fCurrency(1234.56);    // "1.234,56 €"
+fCurrency(NaN);        // "€-" (reflects the configured currency's symbol)
+
+// Per-call override, without changing the configured defaults
+fNumber(1234567.89, { locale: "en-US" }); // "1,234,567.89"
+```
+
+#### getDefaultLocale() / setDefaultLocale(locale)
+
+Gets/sets the default locale used by `fCurrency`, `fCurrencyNoCents`, and `fNumber`.
+
+#### getDefaultCurrency() / setDefaultCurrency(currency)
+
+Gets/sets the default currency used by `fCurrency` and `fCurrencyNoCents`.
+
 ### fCurrency(amount, options?)
 
-Formats a number as USD currency.
+Formats a number as currency using the configured default locale/currency.
 
 ```ts
 fCurrency(1234.56)        // "$1,234.56"
 fCurrency(NaN)            // "$-"
+fCurrency(10, { currency: "GBP" }) // "£10.00"
 ```
 
 ### fCurrencyNoCents(amount, options?)
@@ -33,7 +62,7 @@ fCurrencyNoCents(1234.56) // "$1,235"
 
 ### fNumber(number, options?)
 
-Locale-aware number formatting.
+Locale-aware number formatting using the configured default locale.
 
 ```ts
 fNumber(1234567)           // "1,234,567"
@@ -386,6 +415,10 @@ interface FPercentOptions {
   multiplier?: number;
   maximumFractionDigits?: number;
   NaN?: string;
+}
+
+interface FNumberOptions extends Intl.NumberFormatOptions {
+  locale?: string;
 }
 
 interface ShortNumberOptions {

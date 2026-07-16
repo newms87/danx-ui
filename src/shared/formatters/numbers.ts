@@ -5,31 +5,63 @@
  * short-hand notation, file sizes, and booleans.
  */
 
-import type { FPercentOptions, ShortNumberOptions } from "./types";
+import type { FNumberOptions, FPercentOptions, ShortNumberOptions } from "./types";
 
-/** Formats an amount into USD currency format (e.g., "$1,234.56") */
-export function fCurrency(amount: number, options?: Intl.NumberFormatOptions): string {
+let defaultLocale = "en-US";
+let defaultCurrency = "USD";
+
+/** Returns the current default locale used by fCurrency/fCurrencyNoCents/fNumber */
+export function getDefaultLocale(): string {
+  return defaultLocale;
+}
+
+/** Sets the default locale used by fCurrency/fCurrencyNoCents/fNumber (e.g., "de-DE") */
+export function setDefaultLocale(locale: string): void {
+  defaultLocale = locale;
+}
+
+/** Returns the current default currency used by fCurrency/fCurrencyNoCents */
+export function getDefaultCurrency(): string {
+  return defaultCurrency;
+}
+
+/** Sets the default currency used by fCurrency/fCurrencyNoCents (e.g., "EUR") */
+export function setDefaultCurrency(currency: string): void {
+  defaultCurrency = currency;
+}
+
+/** Returns the currency symbol for the given currency/locale (e.g., "$", "€") */
+function currencySymbol(locale: string, currency: string): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency })
+    .formatToParts(0)
+    .find(({ type }) => type === "currency")!.value;
+}
+
+/** Formats an amount as currency using the configured default locale/currency (e.g., "$1,234.56") */
+export function fCurrency(amount: number, options?: FNumberOptions): string {
+  const { locale = defaultLocale, currency = defaultCurrency, ...rest } = options ?? {};
   if (amount === null || amount === undefined || isNaN(amount)) {
-    return "$-";
+    return `${currencySymbol(locale, currency)}-`;
   }
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "USD",
-    ...options,
+    currency,
+    ...rest,
   }).format(amount);
 }
 
-/** Formats an amount into USD currency format without cents (e.g., "$1,235") */
-export function fCurrencyNoCents(amount: number, options?: Intl.NumberFormatOptions): string {
+/** Formats an amount as currency without cents, using the configured default locale/currency (e.g., "$1,235") */
+export function fCurrencyNoCents(amount: number, options?: FNumberOptions): string {
   return fCurrency(amount, {
     maximumFractionDigits: 0,
     ...options,
   });
 }
 
-/** Formats a number with locale-aware separators (e.g., "1,234") */
-export function fNumber(number: number, options?: Intl.NumberFormatOptions): string {
-  return new Intl.NumberFormat("en-US", options).format(number);
+/** Formats a number with locale-aware separators using the configured default locale (e.g., "1,234") */
+export function fNumber(number: number, options?: FNumberOptions): string {
+  const { locale = defaultLocale, ...rest } = options ?? {};
+  return new Intl.NumberFormat(locale, rest).format(number);
 }
 
 /** Formats a currency in shorthand (e.g., "$1.2M", "$5K") */

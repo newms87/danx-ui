@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   fBoolean,
   fCurrency,
@@ -8,6 +8,10 @@ import {
   fShortCurrency,
   fShortNumber,
   fShortSize,
+  getDefaultCurrency,
+  getDefaultLocale,
+  setDefaultCurrency,
+  setDefaultLocale,
 } from "../numbers";
 
 describe("fCurrency", () => {
@@ -233,6 +237,52 @@ describe("fBoolean", () => {
 
   it("returns No for empty string", () => {
     expect(fBoolean("")).toBe("No");
+  });
+});
+
+describe("default locale/currency configuration", () => {
+  afterEach(() => {
+    setDefaultLocale("en-US");
+    setDefaultCurrency("USD");
+  });
+
+  it("defaults to en-US/USD", () => {
+    expect(getDefaultLocale()).toBe("en-US");
+    expect(getDefaultCurrency()).toBe("USD");
+  });
+
+  it("fNumber uses the configured default locale for grouping/decimal separators", () => {
+    setDefaultLocale("de-DE");
+    expect(fNumber(1234567.89)).toBe("1.234.567,89");
+  });
+
+  it("fCurrency uses the configured default locale/currency", () => {
+    setDefaultLocale("de-DE");
+    setDefaultCurrency("EUR");
+    expect(fCurrency(1234.56)).toBe("1.234,56 €");
+  });
+
+  it("fCurrencyNoCents uses the configured default locale/currency", () => {
+    setDefaultLocale("de-DE");
+    setDefaultCurrency("EUR");
+    expect(fCurrencyNoCents(1234.56)).toBe("1.235 €");
+  });
+
+  it("fCurrency null/NaN placeholder reflects the configured currency symbol", () => {
+    setDefaultCurrency("EUR");
+    expect(fCurrency(NaN)).toBe("€-");
+    setDefaultCurrency("JPY");
+    expect(fCurrency(null as unknown as number)).toBe("¥-");
+  });
+
+  it("allows a per-call locale override without changing the default", () => {
+    expect(fNumber(1234567.89, { locale: "de-DE" })).toBe("1.234.567,89");
+    expect(getDefaultLocale()).toBe("en-US");
+  });
+
+  it("allows a per-call currency override without changing the default", () => {
+    expect(fCurrency(10, { currency: "GBP" })).toBe("£10.00");
+    expect(getDefaultCurrency()).toBe("USD");
   });
 });
 

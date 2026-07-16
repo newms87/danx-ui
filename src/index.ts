@@ -348,6 +348,10 @@ export {
   fShortSize,
   fBoolean,
   fPercent,
+  getDefaultLocale,
+  setDefaultLocale,
+  getDefaultCurrency,
+  setDefaultCurrency,
 } from "./shared/formatters/numbers";
 export {
   centerTruncate,
