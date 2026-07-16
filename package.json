@@ -95,7 +95,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "dev:check": "curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 && vue-tsc --noEmit",
+    "dev:check": "node scripts/dev-check.mjs",
     "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css && npm run check:package-size && node scripts/smoke-test-peer-free.mjs",
     "build:css": "cd src && find . -name '*.css' -exec sh -c 'mkdir -p \"../dist/$(dirname \"$1\")\" && cp \"$1\" \"../dist/$1\"' _ {} \\;",
     "check:package-size": "node scripts/check-package-size.mjs",
