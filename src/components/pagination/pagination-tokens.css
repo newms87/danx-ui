@@ -1,0 +1,51 @@
+/**
+ * DanxPagination Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize pagination appearance.
+ *
+ * CSS Tokens:
+ * --dx-pagination-gap             Gap between page buttons
+ * --dx-pagination-button-size     Width/height of nav + page buttons
+ * --dx-pagination-font-size       Page button label font size
+ * --dx-pagination-border-radius   Corner radius of buttons
+ * --dx-pagination-border          Border color of buttons
+ * --dx-pagination-bg              Default button background
+ * --dx-pagination-bg-hover        Hover button background
+ * --dx-pagination-bg-active       Active page button background
+ * --dx-pagination-text            Default button text color
+ * --dx-pagination-text-active     Active page button text color
+ * --dx-pagination-text-disabled   Disabled button text color
+ * --dx-pagination-transition      Color/background transition timing
+ * --dx-pagination-controls-gap    Gap between per-page selector and go-to-page
+ */
+
+:root {
+  /* ==========================================================================
+     Layout Tokens
+     ========================================================================== */
+
+  --dx-pagination-gap: var(--spacing-1);
+  --dx-pagination-button-size: 2rem;
+  --dx-pagination-font-size: var(--text-sm);
+  --dx-pagination-border-radius: var(--radius-component);
+  --dx-pagination-controls-gap: var(--spacing-4);
+
+  /* ==========================================================================
+     Color Tokens
+     ========================================================================== */
+
+  --dx-pagination-border: var(--color-border);
+  --dx-pagination-bg: transparent;
+  --dx-pagination-bg-hover: var(--color-surface-sunken);
+  --dx-pagination-bg-active: var(--color-interactive);
+  --dx-pagination-text: var(--color-text);
+  --dx-pagination-text-active: var(--color-text-inverted);
+  --dx-pagination-text-disabled: var(--color-text-muted);
+
+  /* ==========================================================================
+     Animation Tokens
+     ========================================================================== */
+
+  --dx-pagination-transition: var(--transition-fast);
+}

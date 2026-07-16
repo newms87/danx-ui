@@ -1,0 +1,146 @@
+/**
+ * DanxPagination Styles
+ *
+ * Component styles for the pagination control. Uses native CSS nesting.
+ * BEM modifiers are top-level blocks per Lightning CSS requirements.
+ */
+
+@import "./pagination-tokens.css";
+
+/* ==========================================================================
+   Container
+   ========================================================================== */
+
+.danx-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dx-pagination-controls-gap);
+}
+
+/* ==========================================================================
+   Page Button Row
+   ========================================================================== */
+
+.danx-pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: var(--dx-pagination-gap);
+}
+
+/* ==========================================================================
+   Nav + Page Buttons
+   ========================================================================== */
+
+.danx-pagination__nav,
+.danx-pagination__page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--dx-pagination-button-size);
+  height: var(--dx-pagination-button-size);
+  padding-inline: var(--spacing-1-5);
+  font-size: var(--dx-pagination-font-size);
+  color: var(--dx-pagination-text);
+  background: var(--dx-pagination-bg);
+  border: 1px solid var(--dx-pagination-border);
+  border-radius: var(--dx-pagination-border-radius);
+  cursor: pointer;
+  transition:
+    background-color var(--dx-pagination-transition),
+    color var(--dx-pagination-transition);
+
+  &:hover:not(:disabled) {
+    background: var(--dx-pagination-bg-hover);
+  }
+
+  &:disabled {
+    color: var(--dx-pagination-text-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.danx-pagination__nav svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.danx-pagination__page.is-active {
+  color: var(--dx-pagination-text-active);
+  background: var(--dx-pagination-bg-active);
+  border-color: var(--dx-pagination-bg-active);
+}
+
+/* ==========================================================================
+   Ellipsis
+   ========================================================================== */
+
+.danx-pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--dx-pagination-button-size);
+  height: var(--dx-pagination-button-size);
+  color: var(--dx-pagination-text-disabled);
+}
+
+/* ==========================================================================
+   Per-page Selector + Go-to-page
+   ========================================================================== */
+
+.danx-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--dx-pagination-controls-gap);
+}
+
+.danx-pagination__per-page,
+.danx-pagination__go-to-page {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1-5);
+  font-size: var(--dx-pagination-font-size);
+  color: var(--dx-pagination-text);
+}
+
+.danx-pagination__select,
+.danx-pagination__go-to-page-input {
+  height: var(--dx-pagination-button-size);
+  padding-inline: var(--spacing-1-5);
+  font-size: var(--dx-pagination-font-size);
+  color: var(--dx-pagination-text);
+  background: var(--dx-pagination-bg);
+  border: 1px solid var(--dx-pagination-border);
+  border-radius: var(--dx-pagination-border-radius);
+}
+
+.danx-pagination__go-to-page-input {
+  width: 4rem;
+}
+
+.danx-pagination__go-to-page-submit {
+  height: var(--dx-pagination-button-size);
+  padding-inline: var(--spacing-2);
+  font-size: var(--dx-pagination-font-size);
+  color: var(--dx-pagination-text);
+  background: var(--dx-pagination-bg);
+  border: 1px solid var(--dx-pagination-border);
+  border-radius: var(--dx-pagination-border-radius);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--dx-pagination-bg-hover);
+  }
+
+  &:disabled {
+    color: var(--dx-pagination-text-disabled);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.danx-pagination.is-disabled {
+  opacity: 0.7;
+}

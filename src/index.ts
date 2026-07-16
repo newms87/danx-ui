@@ -83,6 +83,7 @@ export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomab
 export { DanxFileExplorer, FileExplorerNode } from "./components/file-explorer";
 export { DanxTreeView, TreeViewNode } from "./components/tree-view";
 export { DanxTable } from "./components/table";
+export { DanxPagination } from "./components/pagination";
 export { DanxDragHandle } from "./components/drag-and-drop";
 
 // Composables
@@ -236,6 +237,7 @@ export type {
   TableHeaderSlotProps,
   DanxTableSlots,
 } from "./components/table";
+export type { DanxPaginationProps, PageWindowEntry } from "./components/pagination";
 export type {
   DanxDialogEmits,
   DanxDialogProps,

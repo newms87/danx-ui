@@ -217,6 +217,9 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/table" class="demo-sidebar__link">Table</RouterLink>
               </li>
               <li>
+                <RouterLink to="/pagination" class="demo-sidebar__link">Pagination</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/toast" class="demo-sidebar__link">Toast</RouterLink>
               </li>
               <li>

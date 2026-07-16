@@ -212,6 +212,11 @@
       "import": "./dist/components/number-input/index.js"
     },
     "./components/number-input/styles": "./dist/components/number-input/number-input.css",
+    "./components/pagination": {
+      "types": "./dist/components/pagination/index.d.ts",
+      "import": "./dist/components/pagination/index.js"
+    },
+    "./components/pagination/styles": "./dist/components/pagination/pagination.css",
     "./components/popconfirm": {
       "types": "./dist/components/popconfirm/index.d.ts",
       "import": "./dist/components/popconfirm/index.js"
