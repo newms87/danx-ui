@@ -75,6 +75,32 @@
  */
 -->
 
+<script lang="ts">
+/**
+ * DXUI-82: an unrecognized contenteditable keyword falls back to "inherit" per spec,
+ * not "true" — so an unsupported browser silently renders the surface non-editable.
+ * Feature-detect once and cache the result across all instances.
+ */
+let plaintextOnlySupported: boolean | null = null;
+
+export function supportsPlaintextOnly(): boolean {
+  if (plaintextOnlySupported !== null) return plaintextOnlySupported;
+  if (typeof document === "undefined") {
+    plaintextOnlySupported = false;
+    return plaintextOnlySupported;
+  }
+  const probe = document.createElement("div");
+  probe.contentEditable = "plaintext-only";
+  plaintextOnlySupported = probe.contentEditable === "plaintext-only";
+  return plaintextOnlySupported;
+}
+
+/** Test-only: clear the cached feature-detection result. */
+export function __resetPlaintextOnlySupportCache() {
+  plaintextOnlySupported = null;
+}
+</script>
+
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import spinnerSvg from "danx-icon/src/fontawesome/solid/spinner.svg?raw";
@@ -104,6 +130,11 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let cancelling = false;
 
 const editable = computed(() => !props.readonly);
+
+const contentEditableValue = computed(() => {
+  if (!editable.value) return "false";
+  return supportsPlaintextOnly() ? "plaintext-only" : "true";
+});
 
 const isEmpty = computed(() => !focused.value && props.modelValue === "");
 
@@ -314,7 +345,7 @@ defineExpose<DanxEditableDivExpose>({ focus, commit, cancel });
       :is="as"
       ref="surfaceRef"
       :class="surfaceClasses"
-      :contenteditable="editable ? 'plaintext-only' : 'false'"
+      :contenteditable="contentEditableValue"
       :tabindex="readonly ? -1 : 0"
       :data-empty="isEmpty ? 'true' : 'false'"
       :data-placeholder="placeholder"

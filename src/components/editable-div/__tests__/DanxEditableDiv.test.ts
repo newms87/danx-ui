@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import DanxEditableDiv from "../DanxEditableDiv.vue";
+import DanxEditableDiv, { __resetPlaintextOnlySupportCache } from "../DanxEditableDiv.vue";
 
 function getSurface(wrapper: ReturnType<typeof mount>) {
   return wrapper.find(".danx-editable-div");
@@ -100,6 +100,100 @@ describe("DanxEditableDiv", () => {
       });
       expect(wrapper.find(".danx-editable-div--saving").exists()).toBe(true);
       expect(wrapper.find(".danx-editable-div__spinner").exists()).toBe(true);
+    });
+  });
+
+  describe("plaintext-only feature detection (DXUI-82)", () => {
+    // Simulate a browser that rejects the "plaintext-only" keyword and falls
+    // back to the spec-default "inherit" rather than throwing.
+    function forceUnsupported() {
+      const proto = HTMLElement.prototype;
+      const original = Object.getOwnPropertyDescriptor(proto, "contentEditable")!;
+      Object.defineProperty(proto, "contentEditable", {
+        configurable: true,
+        get() {
+          return "inherit";
+        },
+        set() {
+          /* no-op: unsupported keyword is silently ignored by the browser */
+        },
+      });
+      return () => Object.defineProperty(proto, "contentEditable", original);
+    }
+
+    afterEach(() => {
+      __resetPlaintextOnlySupportCache();
+    });
+
+    it("sets contenteditable=plaintext-only when feature detection reports support", () => {
+      __resetPlaintextOnlySupportCache();
+      const wrapper = mount(DanxEditableDiv, { props: { modelValue: "hello" } });
+      expect(getSurface(wrapper).attributes("contenteditable")).toBe("plaintext-only");
+    });
+
+    it("forces the unsupported path and renders contenteditable=true instead of plaintext-only or false", () => {
+      __resetPlaintextOnlySupportCache();
+      const restore = forceUnsupported();
+      try {
+        const wrapper = mount(DanxEditableDiv, { props: { modelValue: "hello" } });
+        expect(getSurface(wrapper).attributes("contenteditable")).toBe("true");
+      } finally {
+        restore();
+      }
+    });
+
+    it("on the forced-unsupported fallback path, typing updates the buffer and commits on blur", async () => {
+      __resetPlaintextOnlySupportCache();
+      const restore = forceUnsupported();
+      try {
+        const wrapper = mount(DanxEditableDiv, {
+          props: { modelValue: "old" },
+          attachTo: document.body,
+        });
+        const surface = getSurface(wrapper).element as HTMLElement;
+        setText(surface, "new");
+        expect(surface.textContent).toBe("new");
+        surface.dispatchEvent(new Event("blur"));
+        await wrapper.vm.$nextTick();
+        expect(wrapper.emitted("update:modelValue")?.[0]).toEqual(["new"]);
+      } finally {
+        restore();
+      }
+    });
+
+    it("on the forced-unsupported fallback path, handlePaste still strips newlines from pasted text", () => {
+      __resetPlaintextOnlySupportCache();
+      const restore = forceUnsupported();
+      try {
+        const wrapper = mount(DanxEditableDiv, {
+          props: { modelValue: "" },
+          attachTo: document.body,
+        });
+        const surface = getSurface(wrapper).element as HTMLElement;
+        surface.focus();
+        const execSpy = document.execCommand as unknown as ReturnType<typeof vi.fn>;
+        execSpy.mockClear();
+        const data = new DataTransfer();
+        data.setData("text", "line1\nline2\rline3");
+        const evt = new ClipboardEvent("paste", { clipboardData: data, cancelable: true });
+        surface.dispatchEvent(evt);
+        expect(execSpy).toHaveBeenCalledWith("insertText", false, "line1 line2 line3");
+      } finally {
+        restore();
+      }
+    });
+
+    it("readonly still renders contenteditable=false regardless of the forced-unsupported detection result", () => {
+      __resetPlaintextOnlySupportCache();
+      const restore = forceUnsupported();
+      try {
+        const wrapper = mount(DanxEditableDiv, {
+          props: { modelValue: "x", readonly: true },
+        });
+        expect(getSurface(wrapper).attributes("contenteditable")).toBe("false");
+      } finally {
+        restore();
+      }
     });
   });
 
