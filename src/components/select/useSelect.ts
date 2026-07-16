@@ -214,11 +214,31 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
     return !normalizedOptions.value.some((opt) => opt.label.toLowerCase() === query);
   });
 
+  let filterDebounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  function clearFilterDebounce(): void {
+    if (filterDebounceTimeout) {
+      clearTimeout(filterDebounceTimeout);
+      filterDebounceTimeout = null;
+    }
+  }
+
   function handleFilterInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     filterText.value = target.value;
     highlightedIndex.value = 0;
-    emit("filter", filterText.value);
+
+    clearFilterDebounce();
+
+    if (!props.filterDebounceMs) {
+      emit("filter", filterText.value);
+      return;
+    }
+
+    filterDebounceTimeout = setTimeout(() => {
+      filterDebounceTimeout = null;
+      emit("filter", filterText.value);
+    }, props.filterDebounceMs);
   }
 
   function handleCreate(): void {
@@ -243,6 +263,7 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
   function closeDropdown(): void {
     isOpen.value = false;
     highlightedIndex.value = -1;
+    clearFilterDebounce();
   }
 
   // ---------------------------------------------------------------------------
@@ -297,7 +318,10 @@ export function useSelect({ model, props, emit }: UseSelectOptions): UseSelectRe
     }
   }
 
-  onBeforeUnmount(cleanupObserver);
+  onBeforeUnmount(() => {
+    cleanupObserver();
+    clearFilterDebounce();
+  });
 
   // ---------------------------------------------------------------------------
   // ARIA

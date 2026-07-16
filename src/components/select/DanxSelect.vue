@@ -42,6 +42,7 @@
  *   optionValue?: string - Key for value on option objects
  *   maxSelectedLabels?: number - Max chips before "+N more" (default 3)
  *   filterPlaceholder?: string - Filter input placeholder
+ *   filterDebounceMs?: number - Debounce (ms) before `filter` emits (default 250, 0 = synchronous)
  *   emptyMessage?: string - Message when no options
  *   emptyFilterMessage?: string - Message when filter matches nothing
  *   loading?: boolean - Show loading indicator
@@ -111,6 +112,7 @@ const props = withDefaults(defineProps<DanxSelectProps>(), {
   optionValue: "value",
   maxSelectedLabels: 3,
   filterPlaceholder: "Search...",
+  filterDebounceMs: 250,
   emptyMessage: "No options",
   emptyFilterMessage: "No results",
   placement: "bottom",

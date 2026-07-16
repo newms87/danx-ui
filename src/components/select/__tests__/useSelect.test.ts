@@ -249,6 +249,96 @@ describe("useSelect", () => {
       expect(result.highlightedIndex.value).toBe(0);
       expect(emits.filter).toHaveBeenCalledWith("be");
     });
+
+    describe("filter debounce", () => {
+      beforeEach(() => {
+        vi.useFakeTimers();
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it("delays the filter emit by filterDebounceMs and updates filterText synchronously", () => {
+        const { result, emits } = createSelect(null, { filterDebounceMs: 250 });
+        const event = { target: { value: "be" } } as unknown as Event;
+        result.handleFilterInput(event);
+
+        expect(result.filterText.value).toBe("be");
+        expect(emits.filter).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(249);
+        expect(emits.filter).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(1);
+        expect(emits.filter).toHaveBeenCalledTimes(1);
+        expect(emits.filter).toHaveBeenCalledWith("be");
+      });
+
+      it("only emits once for the final value across rapid keystrokes", () => {
+        const { result, emits } = createSelect(null, { filterDebounceMs: 250 });
+
+        result.handleFilterInput({ target: { value: "b" } } as unknown as Event);
+        vi.advanceTimersByTime(100);
+        result.handleFilterInput({ target: { value: "be" } } as unknown as Event);
+        vi.advanceTimersByTime(100);
+        result.handleFilterInput({ target: { value: "bet" } } as unknown as Event);
+        vi.advanceTimersByTime(250);
+
+        expect(emits.filter).toHaveBeenCalledTimes(1);
+        expect(emits.filter).toHaveBeenCalledWith("bet");
+      });
+
+      it("emits synchronously when filterDebounceMs is 0", () => {
+        const { result, emits } = createSelect(null, { filterDebounceMs: 0 });
+        result.handleFilterInput({ target: { value: "be" } } as unknown as Event);
+
+        expect(emits.filter).toHaveBeenCalledTimes(1);
+        expect(emits.filter).toHaveBeenCalledWith("be");
+      });
+
+      it("cancels the pending debounce timer when the dropdown closes", () => {
+        const { result, emits } = createSelect(null, { filterDebounceMs: 250 });
+        result.openDropdown();
+        result.handleFilterInput({ target: { value: "be" } } as unknown as Event);
+        result.closeDropdown();
+
+        vi.advanceTimersByTime(250);
+        expect(emits.filter).not.toHaveBeenCalled();
+      });
+
+      it("cancels the pending debounce timer on unmount with no dangling emit", () => {
+        const model = ref<SelectModelValue | undefined>(null);
+        const filterSpy = vi.fn();
+        const emit = ((event: string, ...args: unknown[]) => {
+          if (event === "filter") filterSpy(...args);
+        }) as unknown as DanxSelectEmits;
+
+        let result!: ReturnType<typeof useSelect>;
+        const wrapper = mount(
+          defineComponent({
+            setup() {
+              result = useSelect({
+                model,
+                props: {
+                  options: [],
+                  filterDebounceMs: 250,
+                } as unknown as DanxSelectProps,
+                emit,
+              });
+              return {};
+            },
+            template: "<div />",
+          })
+        );
+
+        result.handleFilterInput({ target: { value: "be" } } as unknown as Event);
+        wrapper.unmount();
+
+        vi.advanceTimersByTime(250);
+        expect(filterSpy).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe("Grouped Options", () => {

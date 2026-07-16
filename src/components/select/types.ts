@@ -63,6 +63,12 @@ export interface DanxSelectProps extends FormFieldBaseProps {
   /** Placeholder text for the filter input */
   filterPlaceholder?: string;
 
+  /**
+   * Debounce delay (ms) before the `filter` event is emitted after a keystroke.
+   * Set to 0 to emit synchronously on every keystroke (pre-debounce behavior).
+   */
+  filterDebounceMs?: number;
+
   /** Message shown when options array is empty */
   emptyMessage?: string;
 
