@@ -211,6 +211,27 @@ describe("useTokenManager", () => {
       expect(testData.getManager().getMountedCount()).toBe(0);
     });
 
+    it("falls back to empty groups when data-token-groups is malformed JSON (DXUI-92)", async () => {
+      testData = createTestWrapper();
+      await nextTick();
+
+      const container = testData.contentRef.value!;
+      const wrapper = document.createElement("span");
+      wrapper.setAttribute("data-token-id", "tok-malformed");
+      wrapper.setAttribute("data-token-renderer", "test-renderer");
+      wrapper.setAttribute("data-token-groups", "{not valid json");
+      const mountPoint = document.createElement("span");
+      mountPoint.className = "token-mount-point";
+      wrapper.appendChild(mountPoint);
+      container.appendChild(wrapper);
+
+      expect(() => testData.getManager().mountAllTokens()).not.toThrow();
+      await nextTick();
+
+      expect(testData.getManager().getMountedCount()).toBe(1);
+      expect(testData.tokens.get("tok-malformed")!.groups).toEqual([]);
+    });
+
     it("uses existing state from tokens map", async () => {
       testData = createTestWrapper();
       await nextTick();

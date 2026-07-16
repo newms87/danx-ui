@@ -79,7 +79,14 @@ export function useTokenManager(options: UseTokenManagerOptions): UseTokenManage
     if (!state) {
       // Try to get groups from data attribute
       const groupsAttr = wrapper.getAttribute("data-token-groups");
-      const groups = groupsAttr ? JSON.parse(groupsAttr) : [];
+      let groups = [];
+      if (groupsAttr) {
+        try {
+          groups = JSON.parse(groupsAttr);
+        } catch {
+          groups = [];
+        }
+      }
       state = { id, rendererId, groups };
       tokens.set(id, state);
     }
