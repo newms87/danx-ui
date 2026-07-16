@@ -27,6 +27,18 @@ describe("getServerTimezone / setServerTimezone", () => {
     setServerTimezone("UTC");
     expect(getServerTimezone().name).toBe("UTC");
   });
+
+  it("throws an error for invalid IANA timezone identifiers", () => {
+    expect(() => {
+      setServerTimezone("Not/AValidZone");
+    }).toThrow("Invalid IANA timezone identifier");
+  });
+
+  it("throws an error for typos in timezone names", () => {
+    expect(() => {
+      setServerTimezone("America/Chigaco");
+    }).toThrow("Invalid IANA timezone identifier");
+  });
 });
 
 describe("localizedDateTime", () => {

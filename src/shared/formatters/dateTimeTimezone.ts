@@ -16,7 +16,11 @@ export function getServerTimezone(): IANAZone {
 
 /** Sets the server timezone (e.g., "America/New_York") */
 export function setServerTimezone(timezone: string): void {
-  serverTz = new IANAZone(timezone);
+  const zone = new IANAZone(timezone);
+  if (!zone.isValid) {
+    throw new Error(`Invalid IANA timezone identifier: "${timezone}"`);
+  }
+  serverTz = zone;
 }
 
 /** Converts a date string from the server's time zone to the user's local zone */
