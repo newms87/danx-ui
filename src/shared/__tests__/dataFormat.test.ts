@@ -29,6 +29,14 @@ describe("isJSON", () => {
   it("returns false for a plain text string", () => {
     expect(isJSON("hello world")).toBe(false);
   });
+
+  it("returns false for null", () => {
+    expect(isJSON(null as unknown as object)).toBe(false);
+  });
+
+  it("returns false for undefined", () => {
+    expect(isJSON(undefined as unknown as object)).toBe(false);
+  });
 });
 
 describe("isStructuredData", () => {
@@ -66,5 +74,9 @@ describe("isStructuredData", () => {
 
   it("returns false for non-string non-JSON input", () => {
     expect(isStructuredData("not valid {json} or yaml")).toBe(false);
+  });
+
+  it("returns false for null", () => {
+    expect(isStructuredData(null as unknown as object)).toBe(false);
   });
 });

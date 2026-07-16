@@ -11,6 +11,7 @@ import { parse as parseYAML } from "yaml";
  * Checks if a value is valid JSON (object or parseable string).
  */
 export function isJSON(value: string | object): boolean {
+  if (value === null || value === undefined) return false;
   if (typeof value === "object") return true;
   if (!value) return false;
   try {
