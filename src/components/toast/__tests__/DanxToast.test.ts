@@ -255,6 +255,31 @@ describe("DanxToast", () => {
     expect(badge.props("variant")).toBe("warning");
   });
 
+  it("does not render action button when no action is set", () => {
+    const wrapper = createAndTrack(createEntry());
+    expect(wrapper.find(".danx-toast__action").exists()).toBe(false);
+  });
+
+  it("renders action button with the given label", () => {
+    const wrapper = createAndTrack(createEntry({ action: { label: "Undo", onClick: vi.fn() } }));
+    const actionButton = wrapper.find(".danx-toast__action");
+    expect(actionButton.exists()).toBe(true);
+    expect(actionButton.text()).toBe("Undo");
+  });
+
+  it("invokes the action callback and dismisses the toast on click", async () => {
+    const { toast, toasts } = useToast();
+    const onClick = vi.fn();
+    toast("Deleted", { action: { label: "Undo", onClick } });
+    const entry = toasts.value[0]!;
+    const wrapper = createAndTrack(entry);
+
+    await wrapper.find(".danx-toast__action").trigger("click");
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(toasts.value.find((t) => t.id === entry.id)).toBeUndefined();
+  });
+
   it("resets dedup timer when duplicate toast is added", () => {
     const { toast, toasts } = useToast();
     toast("Dedup test", { duration: 1000 });

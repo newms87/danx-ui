@@ -3,7 +3,7 @@
  * DanxToast - Individual toast notification panel
  *
  * Renders a single toast entry with variant styling, auto-dismiss progress bar,
- * deduplication badge count, and optional close button. Has no positioning
+ * deduplication badge count, and optional action/close buttons. Has no positioning
  * knowledge — positioning is handled by the parent region container
  * (DanxToastContainer for screen regions, DanxToastTargetRegion for
  * element-anchored regions).
@@ -89,6 +89,11 @@ const progressWidth = computed(() => `${(1 - progress.value) * 100}%`);
 function onDismiss(): void {
   dismiss(props.entry.id);
 }
+
+function onAction(): void {
+  props.entry.action?.onClick();
+  dismiss(props.entry.id);
+}
 </script>
 
 <template>
@@ -110,6 +115,10 @@ function onDismiss(): void {
       <span class="danx-toast__content">
         <slot :entry="entry">{{ entry.message }}</slot>
       </span>
+
+      <button v-if="entry.action" class="danx-toast__action" type="button" @click="onAction">
+        {{ entry.action.label }}
+      </button>
 
       <button
         v-if="entry.dismissible"

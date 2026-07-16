@@ -17,6 +17,7 @@ import positionsCode from "./toast-examples/Positions.vue?raw";
 import stackingCode from "./toast-examples/Stacking.vue?raw";
 import customContentCode from "./toast-examples/CustomContent.vue?raw";
 import elementAnchoredCode from "./toast-examples/ElementAnchored.vue?raw";
+import actionToastCode from "./toast-examples/ActionToast.vue?raw";
 </script>
 
 <template>
@@ -59,6 +60,12 @@ import elementAnchoredCode from "./toast-examples/ElementAnchored.vue?raw";
       title="Custom Options"
       description="Custom duration, position, and non-dismissible toasts."
       :code="customContentCode"
+    />
+
+    <DemoSection
+      title="Action Button"
+      description="Inline action button (e.g. Undo) that runs a callback and dismisses the toast."
+      :code="actionToastCode"
     />
   </DemoPage>
 </template>

@@ -69,6 +69,19 @@ describe("useToast", () => {
       expect(entry.target).toBe(el);
       expect(entry.targetPlacement).toBe("bottom");
     });
+
+    it("accepts an action option", () => {
+      const onClick = vi.fn();
+      api.toast("Deleted", { action: { label: "Undo", onClick } });
+      const entry = api.toasts.value[0]!;
+      expect(entry.action?.label).toBe("Undo");
+      expect(entry.action?.onClick).toBe(onClick);
+    });
+
+    it("defaults action to undefined when not provided", () => {
+      api.toast("No action");
+      expect(api.toasts.value[0]!.action).toBeUndefined();
+    });
   });
 
   describe("variant shorthands", () => {

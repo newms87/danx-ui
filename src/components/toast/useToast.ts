@@ -101,6 +101,7 @@ function toast(message: string, options?: Omit<ToastOptions, "message">): string
     dismissible,
     targetPlacement,
     target: options?.target,
+    action: options?.action,
     count: 1,
     createdAt: Date.now(),
   };

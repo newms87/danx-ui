@@ -19,6 +19,15 @@ export type ToastPosition =
   | "bottom-center"
   | "bottom-right";
 
+/** Optional inline action button (e.g. "Undo") */
+export interface ToastAction {
+  /** Button label text */
+  label: string;
+
+  /** Invoked on click. The toast is dismissed immediately after. */
+  onClick: () => void;
+}
+
 /** User-facing options passed to toast() */
 export interface ToastOptions {
   /** Toast message text (required) */
@@ -41,6 +50,10 @@ export interface ToastOptions {
 
   /** Placement relative to target element (default: "top") */
   targetPlacement?: PopoverPlacement;
+
+  /** Optional inline action button. Does not affect auto-dismiss timing —
+   *  set a longer `duration` (or `0`) if the action needs more time to be clicked. */
+  action?: ToastAction;
 }
 
 /** Internal toast entry with generated fields */
@@ -68,6 +81,9 @@ export interface ToastEntry {
 
   /** Placement relative to target element */
   targetPlacement: PopoverPlacement;
+
+  /** Optional inline action button */
+  action?: ToastAction;
 
   /** Deduplication count (starts at 1) */
   count: number;

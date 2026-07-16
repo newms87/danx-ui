@@ -37,35 +37,36 @@ const { toast } = useToast();
 
 Singleton composable — all calls share the same state.
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `toast` | `(msg, opts?) => id` | Add a toast |
-| `success` | `(msg, opts?) => id` | Success variant |
-| `danger` | `(msg, opts?) => id` | Danger variant |
-| `warning` | `(msg, opts?) => id` | Warning variant |
-| `info` | `(msg, opts?) => id` | Info variant |
-| `dismiss` | `(id) => void` | Remove by ID |
-| `dismissAll` | `() => void` | Clear all |
+| Method       | Signature            | Description     |
+| ------------ | -------------------- | --------------- |
+| `toast`      | `(msg, opts?) => id` | Add a toast     |
+| `success`    | `(msg, opts?) => id` | Success variant |
+| `danger`     | `(msg, opts?) => id` | Danger variant  |
+| `warning`    | `(msg, opts?) => id` | Warning variant |
+| `info`       | `(msg, opts?) => id` | Info variant    |
+| `dismiss`    | `(id) => void`       | Remove by ID    |
+| `dismissAll` | `() => void`         | Clear all       |
 
 ### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `message` | `string` | required | Toast text |
-| `variant` | `VariantType` | `""` | Visual variant |
-| `position` | `ToastPosition` | `"bottom-right"` | Screen position |
-| `duration` | `number` | `5000` | Auto-dismiss ms (0 = manual) |
-| `dismissible` | `boolean` | `true` | Show close button |
-| `target` | `HTMLElement` | — | Anchor to element |
-| `targetPlacement` | `PopoverPlacement` | `"top"` | Placement vs target |
+| Option            | Type                 | Default          | Description                        |
+| ----------------- | -------------------- | ---------------- | ---------------------------------- |
+| `message`         | `string`             | required         | Toast text                         |
+| `variant`         | `VariantType`        | `""`             | Visual variant                     |
+| `position`        | `ToastPosition`      | `"bottom-right"` | Screen position                    |
+| `duration`        | `number`             | `5000`           | Auto-dismiss ms (0 = manual)       |
+| `dismissible`     | `boolean`            | `true`           | Show close button                  |
+| `target`          | `HTMLElement`        | —                | Anchor to element                  |
+| `targetPlacement` | `PopoverPlacement`   | `"top"`          | Placement vs target                |
+| `action`          | `{ label, onClick }` | —                | Inline action button (e.g. "Undo") |
 
 ### Positions
 
 9-position grid:
 
-| | Left | Center | Right |
-|---|---|---|---|
-| **Top** | `top-left` | `top-center` | `top-right` |
+|            | Left          | Center          | Right          |
+| ---------- | ------------- | --------------- | -------------- |
+| **Top**    | `top-left`    | `top-center`    | `top-right`    |
 | **Center** | `center-left` | `center-center` | `center-right` |
 | **Bottom** | `bottom-left` | `bottom-center` | `bottom-right` |
 
@@ -79,34 +80,49 @@ Toasts auto-dismiss after `duration` ms. Set `duration: 0` for persistent toasts
 
 Calling `toast()` with the same message, variant, and position increments a badge count instead of creating duplicates.
 
+### Action Button
+
+Pass `action: { label, onClick }` to render an inline button (e.g. "Undo") next to the close button:
+
+```js
+toast("Item deleted", {
+  action: {
+    label: "Undo",
+    onClick: () => restoreItem(),
+  },
+});
+```
+
+Clicking the action button invokes `onClick` and immediately dismisses the toast. An action button does **not** pause or extend the auto-dismiss timer — if the user needs more time to react, pass a longer `duration` or `duration: 0` (persistent, dismissed only by the close button or the action itself).
+
 ### Variant Icons
 
 Variants automatically show a default icon:
 
-| Variant | Icon |
-|---------|------|
-| `success` | checkmark |
-| `danger` | x-circle |
-| `warning` | triangle |
-| `info` | info circle |
+| Variant   | Icon        |
+| --------- | ----------- |
+| `success` | checkmark   |
+| `danger`  | x-circle    |
+| `warning` | triangle    |
+| `info`    | info circle |
 
 ## CSS Tokens
 
-| Token | Default |
-|-------|---------|
-| `--dx-toast-bg` | `var(--color-surface-elevated)` |
-| `--dx-toast-text` | `var(--color-text)` |
-| `--dx-toast-border` | `var(--color-border)` |
-| `--dx-toast-border-radius` | `var(--radius-component)` |
-| `--dx-toast-shadow` | `var(--shadow-elevated)` |
-| `--dx-toast-padding-x` | `var(--space-md)` |
-| `--dx-toast-padding-y` | `var(--space-sm)` |
-| `--dx-toast-max-width` | `24rem` |
-| `--dx-toast-min-width` | `16rem` |
-| `--dx-toast-gap` | `var(--space-sm)` |
-| `--dx-toast-stack-gap` | `var(--space-sm)` |
-| `--dx-toast-screen-offset` | `var(--space-lg)` |
-| `--dx-toast-progress-height` | `3px` |
-| `--dx-toast-progress-bg` | `var(--color-interactive)` |
+| Token                        | Default                         |
+| ---------------------------- | ------------------------------- |
+| `--dx-toast-bg`              | `var(--color-surface-elevated)` |
+| `--dx-toast-text`            | `var(--color-text)`             |
+| `--dx-toast-border`          | `var(--color-border)`           |
+| `--dx-toast-border-radius`   | `var(--radius-component)`       |
+| `--dx-toast-shadow`          | `var(--shadow-elevated)`        |
+| `--dx-toast-padding-x`       | `var(--space-md)`               |
+| `--dx-toast-padding-y`       | `var(--space-sm)`               |
+| `--dx-toast-max-width`       | `24rem`                         |
+| `--dx-toast-min-width`       | `16rem`                         |
+| `--dx-toast-gap`             | `var(--space-sm)`               |
+| `--dx-toast-stack-gap`       | `var(--space-sm)`               |
+| `--dx-toast-screen-offset`   | `var(--space-lg)`               |
+| `--dx-toast-progress-height` | `3px`                           |
+| `--dx-toast-progress-bg`     | `var(--color-interactive)`      |
 
 Variant tokens are applied via the shared variant system (`--dx-variant-toast-{variant}-bg`, etc.).
