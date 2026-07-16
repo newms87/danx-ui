@@ -1,0 +1,49 @@
+/**
+ * DanxDrawer Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize drawer appearance.
+ *
+ * CSS Tokens:
+ * --dx-drawer-bg                Background color
+ * --dx-drawer-border-color      Border color
+ * --dx-drawer-shadow            Box shadow
+ * --dx-drawer-padding           Content padding
+ * --dx-drawer-padding-mobile    Padding on mobile devices
+ * --dx-drawer-size              Default drawer size (width or height)
+ * --dx-drawer-header-bg         Header background color
+ * --dx-drawer-header-border     Header bottom border color
+ * --dx-drawer-title-color       Title text color
+ * --dx-drawer-title-size        Title font size
+ * --dx-drawer-title-weight      Title font weight
+ * --dx-drawer-content-bg        Content area background
+ * --dx-drawer-footer-bg         Footer background color
+ * --dx-drawer-footer-border     Footer top border color
+ * --dx-drawer-backdrop          Backdrop color
+ * --dx-drawer-backdrop-blur     Backdrop blur radius
+ * --dx-drawer-animation-duration  Animation duration
+ */
+
+:root {
+  --dx-drawer-bg: var(--color-surface-elevated);
+  --dx-drawer-border-color: var(--color-border);
+  --dx-drawer-shadow: var(--shadow-dialog);
+  --dx-drawer-padding: var(--space-lg);
+  --dx-drawer-padding-mobile: var(--space-md);
+  --dx-drawer-size: 24rem;
+
+  --dx-drawer-header-bg: var(--color-surface-sunken);
+  --dx-drawer-header-border: var(--color-border);
+  --dx-drawer-title-color: var(--color-text);
+  --dx-drawer-title-size: var(--text-lg);
+  --dx-drawer-title-weight: var(--font-semibold);
+
+  --dx-drawer-content-bg: transparent;
+
+  --dx-drawer-footer-bg: var(--color-surface-sunken);
+  --dx-drawer-footer-border: var(--color-border-subtle);
+
+  --dx-drawer-backdrop: var(--color-backdrop);
+  --dx-drawer-backdrop-blur: 4px;
+  --dx-drawer-animation-duration: var(--duration-300);
+}

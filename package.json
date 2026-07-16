@@ -128,6 +128,11 @@
       "import": "./dist/components/dialog/index.js"
     },
     "./components/dialog/styles": "./dist/components/dialog/dialog.css",
+    "./components/drawer": {
+      "types": "./dist/components/drawer/index.d.ts",
+      "import": "./dist/components/drawer/index.js"
+    },
+    "./components/drawer/styles": "./dist/components/drawer/drawer.css",
     "./components/editable-div": {
       "types": "./dist/components/editable-div/index.d.ts",
       "import": "./dist/components/editable-div/index.js"

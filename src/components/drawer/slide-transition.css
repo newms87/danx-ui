@@ -1,0 +1,33 @@
+/**
+ * Reusable Slide Transition
+ *
+ * CSS-only slide-in animation keyed off a `data-side` attribute
+ * ("left" | "right" | "top" | "bottom"). Apply the `.dx-slide-transition`
+ * class to any element that should slide in from an edge using
+ * @starting-style, and set `data-side` to pick the direction.
+ *
+ * Consumers control duration/easing via --dx-slide-transition-duration.
+ */
+
+.dx-slide-transition {
+  transform: translate(0, 0);
+  transition: transform var(--dx-slide-transition-duration, var(--duration-300)) var(--ease-out);
+}
+
+@starting-style {
+  .dx-slide-transition[data-side="left"] {
+    transform: translateX(-100%);
+  }
+
+  .dx-slide-transition[data-side="right"] {
+    transform: translateX(100%);
+  }
+
+  .dx-slide-transition[data-side="top"] {
+    transform: translateY(-100%);
+  }
+
+  .dx-slide-transition[data-side="bottom"] {
+    transform: translateY(100%);
+  }
+}

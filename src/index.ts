@@ -16,6 +16,7 @@ export type { DanxKbdOs, DanxKbdProps } from "./components/kbd";
 export { CodeViewer } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
 export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
+export { DanxDrawer } from "./components/drawer";
 export { DanxPopover } from "./components/popover";
 export { DanxPopconfirm } from "./components/popconfirm";
 export { MarkdownEditor } from "./components/markdown-editor";
@@ -179,6 +180,12 @@ export type {
   UseDialogReturn,
   UseDialogStackReturn,
 } from "./components/dialog";
+export type {
+  DanxDrawerEmits,
+  DanxDrawerProps,
+  DanxDrawerSlots,
+  DrawerSide,
+} from "./components/drawer";
 export type {
   DanxPopoverEmits,
   DanxPopoverProps,

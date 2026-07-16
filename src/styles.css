@@ -22,6 +22,7 @@
 @import "./components/code-viewer/code-viewer.css" layer(components);
 @import "./components/context-menu/context-menu.css" layer(components);
 @import "./components/dialog/dialog.css" layer(components);
+@import "./components/drawer/drawer.css" layer(components);
 @import "./components/popover/popover.css" layer(components);
 @import "./components/popconfirm/popconfirm.css" layer(components);
 @import "./components/markdown-editor/markdown-editor.css" layer(components);

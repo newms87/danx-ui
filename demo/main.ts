@@ -10,6 +10,7 @@ import ChipPage from "./pages/ChipPage.vue";
 import CodeViewerPage from "./pages/CodeViewerPage.vue";
 import ContextMenuPage from "./pages/ContextMenuPage.vue";
 import DialogPage from "./pages/DialogPage.vue";
+import DrawerPage from "./pages/DrawerPage.vue";
 import HomePage from "./pages/HomePage.vue";
 import IconPage from "./pages/IconPage.vue";
 import KbdPage from "./pages/KbdPage.vue";
@@ -66,6 +67,7 @@ const router = createRouter({
     { path: "/icon", name: "icon", component: IconPage },
     { path: "/kbd", name: "kbd", component: KbdPage },
     { path: "/dialog", name: "dialog", component: DialogPage },
+    { path: "/drawer", name: "drawer", component: DrawerPage },
     { path: "/popover", name: "popover", component: PopoverPage },
     { path: "/popconfirm", name: "popconfirm", component: PopconfirmPage },
     { path: "/markdown-editor", name: "markdown-editor", component: MarkdownEditorPage },

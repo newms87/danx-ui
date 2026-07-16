@@ -75,6 +75,7 @@ import {
   useDialog,
   useDialogStack,
 } from "../../src/components/dialog";
+import { DanxDrawer } from "../../src/components/drawer";
 import { DanxPopover } from "../../src/components/popover";
 import { DanxPopconfirm } from "../../src/components/popconfirm";
 import { MarkdownEditor, useMarkdownEditor } from "../../src/components/markdown-editor";
@@ -244,6 +245,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxContextMenu,
   DanxDialog,
   DialogBreadcrumbs,
+  DanxDrawer,
   DanxPopover,
   DanxPopconfirm,
   MarkdownEditor,
@@ -307,6 +309,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxContextMenu,
   DanxDialog,
   DialogBreadcrumbs,
+  DanxDrawer,
   DanxPopover,
   DanxPopconfirm,
   useDialog,
