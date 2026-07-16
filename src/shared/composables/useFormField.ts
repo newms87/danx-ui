@@ -8,16 +8,19 @@
  * @param props - Reactive FormFieldBaseProps (from defineProps or toRefs)
  * @returns Computed field state, classes, and accessibility attributes
  *
+ * IDs are generated via Vue 3.5's `useId()`, which is SSR-hydration-safe:
+ * it is seeded from the app's SSR context so the server-rendered id and the
+ * client-hydrated id always agree, regardless of mount order divergence
+ * (conditional fields, async siblings, `<Suspense>`, code splitting).
+ *
  * @example
  *   const props = defineProps<FormFieldBaseProps>();
  *   const { fieldId, fieldState, hasError, errorMessage, fieldClasses, inputAriaAttrs } =
  *     useFormField(props);
  */
 
-import { computed, type ComputedRef } from "vue";
+import { computed, useId, type ComputedRef } from "vue";
 import type { FormFieldBaseProps, FormFieldState, InputSize } from "../form-types";
-
-let fieldIdCounter = 0;
 
 export interface UseFormFieldReturn {
   /** Unique id for the native input element (for label `for` wiring) */
@@ -40,7 +43,7 @@ export interface UseFormFieldReturn {
 }
 
 export function useFormField(props: FormFieldBaseProps): UseFormFieldReturn {
-  const autoId = `danx-field-${++fieldIdCounter}`;
+  const autoId = useId();
 
   const fieldId = computed(() => props.id || autoId);
 

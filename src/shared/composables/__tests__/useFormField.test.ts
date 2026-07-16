@@ -45,7 +45,7 @@ describe("useFormField", () => {
     it("auto-generates an id when id prop is absent", () => {
       const { result } = tracked();
 
-      expect(result.fieldId.value).toMatch(/^danx-field-\d+$/);
+      expect(result.fieldId.value).toMatch(/^v-[\w-]+$/);
     });
 
     it("uses the provided id prop", () => {
@@ -55,10 +55,24 @@ describe("useFormField", () => {
     });
 
     it("generates unique ids across multiple instances", () => {
-      const { result: r1 } = tracked();
-      const { result: r2 } = tracked();
+      // useId() scopes its counter per Vue app instance, so both fields must
+      // be mounted under the same app to observe distinct ids.
+      let result1!: UseFormFieldReturn;
+      let result2!: UseFormFieldReturn;
 
-      expect(r1.fieldId.value).not.toBe(r2.fieldId.value);
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            result1 = useFormField(reactive<FormFieldBaseProps>({}));
+            result2 = useFormField(reactive<FormFieldBaseProps>({}));
+            return {};
+          },
+          template: "<div />",
+        })
+      );
+      wrappers.push(wrapper);
+
+      expect(result1.fieldId.value).not.toBe(result2.fieldId.value);
     });
   });
 
