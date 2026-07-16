@@ -97,7 +97,11 @@ export function useSplitPanel(
       activePanelIds: activePanelIds.value,
       customWidths: customWidths.value,
     };
-    localStorage.setItem(storageKey, JSON.stringify(state));
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    } catch {
+      // Storage unavailable/full — preference stays in-memory for this session
+    }
   }
 
   // Load persisted state on init

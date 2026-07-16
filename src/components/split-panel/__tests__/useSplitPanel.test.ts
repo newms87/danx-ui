@@ -366,6 +366,75 @@ describe("useSplitPanel", () => {
       expect(panelStates.value[1]!.computedWidth).toBeCloseTo(70);
     });
 
+    it("does not throw from togglePanel when localStorage.setItem throws", () => {
+      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("QuotaExceededError");
+      });
+
+      const { togglePanel, activePanelIds } = createSplitPanel(TWO_PANELS, undefined, {
+        storageKey: STORAGE_KEY,
+      });
+
+      expect(() => togglePanel("sidebar")).not.toThrow();
+      expect(activePanelIds.value).toEqual(["content"]);
+
+      spy.mockRestore();
+    });
+
+    it("does not throw from the resize pointer-up path when localStorage.setItem throws", () => {
+      const panels = ref(TWO_PANELS);
+      const activePanelIds = ref(["sidebar", "content"]);
+      const containerRef = ref<HTMLElement | null>(null);
+
+      let result!: ReturnType<typeof useSplitPanel>;
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            result = useSplitPanel(panels, activePanelIds, {
+              containerRef,
+              storageKey: STORAGE_KEY,
+            });
+            return {};
+          },
+          template: "<div />",
+        })
+      );
+      mountedWrappers.push(wrapper);
+
+      const mockContainer = document.createElement("div");
+      vi.spyOn(mockContainer, "getBoundingClientRect").mockReturnValue({
+        width: 1000,
+        height: 500,
+        top: 0,
+        left: 0,
+        right: 1000,
+        bottom: 500,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      });
+      containerRef.value = mockContainer;
+
+      const target = document.createElement("div");
+      const downEvent = new PointerEvent("pointerdown", { clientX: 300 });
+      Object.defineProperty(downEvent, "target", { value: target });
+
+      const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("QuotaExceededError");
+      });
+
+      result.startResize(0, downEvent);
+
+      const moveEvent = new PointerEvent("pointermove", { clientX: 400 });
+      target.dispatchEvent(moveEvent);
+
+      const upEvent = new PointerEvent("pointerup");
+      expect(() => target.dispatchEvent(upEvent)).not.toThrow();
+      expect(result.isResizing.value).toBe(false);
+
+      spy.mockRestore();
+    });
+
     it("falls back to all active when all stored IDs are stale", () => {
       localStorage.setItem(
         STORAGE_KEY,
