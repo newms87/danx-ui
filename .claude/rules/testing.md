@@ -20,12 +20,16 @@ yarn test:ui           # Visual UI
 
 ## Coverage Thresholds
 
-The project enforces 100% coverage:
+The project enforces near-100% coverage:
 
 - Lines: 100%
 - Functions: 100%
-- Branches: 100%
+- Branches: 85%
 - Statements: 100%
+
+Branches are carved out to 85% because Vue SFC templates have V8 coverage
+limitations — template branches are often reported as uncovered even when
+exercised by tests.
 
 ## What to Test
 
