@@ -451,8 +451,13 @@ export { FlashMessages } from "./shared/flashMessages";
 export type { FlashSeverity, FlashMessageInput } from "./shared/flashMessages";
 
 // Reactive data layer — request helper
-export { request } from "./shared/request";
-export type { ActiveRequest, RequestApi, RequestCallOptions } from "./shared/request-types";
+export { request, PollAbortError, PollMaxAttemptsError, PollTimeoutError } from "./shared/request";
+export type {
+  ActiveRequest,
+  RequestApi,
+  RequestCallOptions,
+  RequestPollOptions,
+} from "./shared/request-types";
 
 // Reactive data layer — object store
 export {

@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { request } from "../request";
+import {
+  request,
+  PollAbortError,
+  PollMaxAttemptsError,
+  PollTimeoutError,
+} from "../request";
 import { danxOptions } from "../config";
 import type { DanxOptions } from "../config-types";
 
@@ -379,6 +384,70 @@ describe("request", () => {
       const result = await promise;
       expect(result).toEqual({ ok: true });
       expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    describe("bounds", () => {
+      it("rejects with PollAbortError when the signal is already aborted", async () => {
+        const controller = new AbortController();
+        controller.abort("cancelled by caller");
+        await expect(
+          request.poll("job", {}, 1000, () => false, { signal: controller.signal })
+        ).rejects.toThrow(PollAbortError);
+      });
+
+      it("rejects with PollAbortError when the signal fires while waiting between attempts", async () => {
+        vi.useFakeTimers();
+        const controller = new AbortController();
+        fetchMock.mockResolvedValue(makeResponse({ done: false }));
+
+        const promise = request.poll("job", {}, 1000, () => false, {
+          signal: controller.signal,
+        });
+        const assertion = expect(promise).rejects.toThrow(PollAbortError);
+
+        await vi.advanceTimersByTimeAsync(0);
+        controller.abort("cancelled mid-wait");
+        await assertion;
+        vi.useRealTimers();
+      });
+
+      it("rejects with PollMaxAttemptsError once the attempt cap is reached", async () => {
+        vi.useFakeTimers();
+        fetchMock.mockResolvedValue(makeResponse({ done: false }));
+
+        const promise = request.poll("job", {}, 1000, () => false, { maxAttempts: 3 });
+        const assertion = expect(promise).rejects.toThrow(PollMaxAttemptsError);
+        await vi.runAllTimersAsync();
+        await assertion;
+        expect(fetchMock).toHaveBeenCalledTimes(3);
+      });
+
+      it("rejects with PollTimeoutError once maxDuration has elapsed", async () => {
+        vi.useFakeTimers();
+        fetchMock.mockResolvedValue(makeResponse({ done: false }));
+
+        const promise = request.poll("job", {}, 1000, () => false, { maxDuration: 2500 });
+        const assertion = expect(promise).rejects.toThrow(PollTimeoutError);
+        await vi.runAllTimersAsync();
+        await assertion;
+        // Bound is checked after each attempt: fires once elapsed time crosses 2500ms.
+        expect(fetchMock).toHaveBeenCalledTimes(4);
+      });
+
+      it("succeeds normally when bounds are supplied but the predicate is satisfied first", async () => {
+        vi.useFakeTimers();
+        let n = 0;
+        fetchMock.mockImplementation(async () => makeResponse({ done: ++n >= 2 }));
+
+        const promise = request.poll("job", {}, 1000, (r) => !!(r as { done: boolean }).done, {
+          maxAttempts: 10,
+          maxDuration: 60000,
+        });
+        await vi.runAllTimersAsync();
+        const result = (await promise) as { done: boolean };
+        expect(result.done).toBe(true);
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+      });
     });
   });
 });

@@ -32,6 +32,20 @@ export interface RequestCallOptions extends RequestInit {
   params?: AnyObject;
 }
 
+/**
+ * Bounds accepted by `request.poll` to guarantee it terminates even when the
+ * caller's `fnUntil` predicate never resolves. Every bound is optional; when
+ * none are supplied polling is unbounded, matching the pre-existing behavior.
+ */
+export interface RequestPollOptions {
+  /** Aborts polling (rejects with `PollAbortError`) when triggered. */
+  signal?: AbortSignal;
+  /** Rejects with `PollMaxAttemptsError` once this many attempts have run without success. */
+  maxAttempts?: number;
+  /** Rejects with `PollTimeoutError` once this many ms have elapsed without success. */
+  maxDuration?: number;
+}
+
 /** The `request` helper surface. */
 export interface RequestApi {
   activeRequests: { [key: string]: ActiveRequest };
@@ -43,6 +57,7 @@ export interface RequestApi {
     url: string,
     options?: RequestCallOptions,
     interval?: number,
-    fnUntil?: (response: unknown) => boolean
+    fnUntil?: (response: unknown) => boolean,
+    pollOptions?: RequestPollOptions
   ): Promise<unknown>;
 }

@@ -24,6 +24,52 @@ import { danxOptions } from "./config";
 import { sleep } from "./sleep";
 import type { ActiveRequest, RequestApi, RequestCallOptions } from "./request-types";
 
+/** Thrown by `request.poll` when its `signal` aborts before the predicate is satisfied. */
+export class PollAbortError extends Error {
+  constructor(reason?: unknown) {
+    super(reason ? `Polling was aborted: ${String(reason)}` : "Polling was aborted");
+    this.name = "PollAbortError";
+  }
+}
+
+/** Thrown by `request.poll` when `maxAttempts` is reached before the predicate is satisfied. */
+export class PollMaxAttemptsError extends Error {
+  constructor(public readonly maxAttempts: number) {
+    super(`Polling exceeded maxAttempts (${maxAttempts})`);
+    this.name = "PollMaxAttemptsError";
+  }
+}
+
+/** Thrown by `request.poll` when `maxDuration` elapses before the predicate is satisfied. */
+export class PollTimeoutError extends Error {
+  constructor(public readonly maxDuration: number) {
+    super(`Polling exceeded maxDuration (${maxDuration}ms)`);
+    this.name = "PollTimeoutError";
+  }
+}
+
+/** Delay that rejects with `PollAbortError` immediately if `signal` fires, instead of waiting it out. */
+function abortableSleep(delay: number, signal?: AbortSignal): Promise<void> {
+  if (!signal) {
+    return sleep(delay);
+  }
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new PollAbortError(signal.reason));
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new PollAbortError(signal.reason));
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, delay);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 /**
  * Process-monotonic request counter. Guarantees strict ordering of same-key
  * requests independent of the wall clock.
@@ -183,15 +229,35 @@ export const request: RequestApi = {
     }
   },
 
-  async poll(url, options, interval, fnUntil) {
+  async poll(url, options, interval, fnUntil, pollOptions) {
     const until = fnUntil || ((response: unknown) => !!response);
+    const { signal, maxAttempts, maxDuration } = pollOptions || {};
+    const startedAt = Date.now();
+    let attempts = 0;
     let response: unknown;
-    do {
-      response = await request.call(url, options);
-      await sleep(interval || 1000);
-    } while (!until(response));
 
-    return response;
+    // DXUI-172: bound polling by signal/maxAttempts/maxDuration so a buggy or
+    // unsatisfiable fnUntil predicate can't loop forever.
+    while (true) {
+      if (signal?.aborted) {
+        throw new PollAbortError(signal.reason);
+      }
+
+      response = await request.call(url, options);
+      attempts++;
+
+      if (until(response)) {
+        return response;
+      }
+      if (maxAttempts !== undefined && attempts >= maxAttempts) {
+        throw new PollMaxAttemptsError(maxAttempts);
+      }
+      if (maxDuration !== undefined && Date.now() - startedAt >= maxDuration) {
+        throw new PollTimeoutError(maxDuration);
+      }
+
+      await abortableSleep(interval || 1000, signal);
+    }
   },
 
   async get(url, options) {
