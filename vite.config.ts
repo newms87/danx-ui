@@ -3,9 +3,19 @@ import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import { getComponentEntries } from "./scripts/component-entries.mjs";
 import { danxIconRawSvgPlugin } from "./scripts/vite-plugin-danx-icon-raw-svg";
 
 const isDev = process.env.NODE_ENV !== "production";
+
+// DXUI-143: one lib entry per component that ships an index.ts, derived from
+// the same src/components/* scan that generates package.json#exports — keeps
+// dist output and the exports map from drifting apart.
+const componentLibEntries = Object.fromEntries(
+  getComponentEntries()
+    .filter(({ hasIndex }) => hasIndex)
+    .map(({ name, dir }) => [`components/${name}/index`, resolve(dir, "index.ts")])
+);
 
 export default defineConfig({
   plugins: [
@@ -44,20 +54,11 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, "src/index.ts"),
-        "components/button/index": resolve(__dirname, "src/components/button/index.ts"),
-        "components/code-viewer/index": resolve(__dirname, "src/components/code-viewer/index.ts"),
-        "components/dialog/index": resolve(__dirname, "src/components/dialog/index.ts"),
+        ...componentLibEntries,
+        // Hand-authored subpath: a public composable exported alongside (not
+        // from) its component's index.ts — not derivable from directory
+        // structure, so it isn't part of the generated component entries.
         "components/dialog/useDialog": resolve(__dirname, "src/components/dialog/useDialog.ts"),
-        "components/scroll/index": resolve(__dirname, "src/components/scroll/index.ts"),
-        "components/markdown-editor/index": resolve(
-          __dirname,
-          "src/components/markdown-editor/index.ts"
-        ),
-        "components/toggle/index": resolve(__dirname, "src/components/toggle/index.ts"),
-        "components/range-slider/index": resolve(
-          __dirname,
-          "src/components/range-slider/index.ts"
-        ),
         // DXUI-35: own entries so these peer-dependent modules (luxon / @vueuse/core)
         // are reachable only via their opt-in subpath, never via the main barrel.
         "shared/formatters/index": resolve(__dirname, "src/shared/formatters/index.ts"),

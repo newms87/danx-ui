@@ -28,50 +28,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./components/button": {
-      "types": "./dist/components/button/index.d.ts",
-      "import": "./dist/components/button/index.js"
-    },
-    "./components/button/styles": "./dist/components/button/button.css",
-    "./components/dialog": {
-      "types": "./dist/components/dialog/index.d.ts",
-      "import": "./dist/components/dialog/index.js"
-    },
     "./components/dialog/useDialog": {
       "types": "./dist/components/dialog/useDialog.d.ts",
       "import": "./dist/components/dialog/useDialog.js"
     },
-    "./components/code-viewer": {
-      "types": "./dist/components/code-viewer/index.d.ts",
-      "import": "./dist/components/code-viewer/index.js"
-    },
-    "./components/code-viewer/styles": "./dist/components/code-viewer/code-viewer.css",
-    "./components/markdown-editor": {
-      "types": "./dist/components/markdown-editor/index.d.ts",
-      "import": "./dist/components/markdown-editor/index.js"
-    },
-    "./components/markdown-editor/styles": "./dist/components/markdown-editor/markdown-editor.css",
-    "./components/scroll": {
-      "types": "./dist/components/scroll/index.d.ts",
-      "import": "./dist/components/scroll/index.js"
-    },
-    "./components/scroll/styles": "./dist/components/scroll/scroll.css",
-    "./components/dialog/styles": "./dist/components/dialog/dialog.css",
-    "./components/toggle": {
-      "types": "./dist/components/toggle/index.d.ts",
-      "import": "./dist/components/toggle/index.js"
-    },
-    "./components/toggle/styles": "./dist/components/toggle/toggle.css",
-    "./components/range-slider": {
-      "types": "./dist/components/range-slider/index.d.ts",
-      "import": "./dist/components/range-slider/index.js"
-    },
-    "./components/range-slider/styles": "./dist/components/range-slider/range-slider.css",
-    "./components/color-picker": {
-      "types": "./dist/components/color-picker/index.d.ts",
-      "import": "./dist/components/color-picker/index.js"
-    },
-    "./components/color-picker/styles": "./dist/components/color-picker/color-picker.css",
     "./formatters": {
       "types": "./dist/shared/formatters/index.d.ts",
       "import": "./dist/shared/formatters/index.js"
@@ -81,7 +41,162 @@
       "import": "./dist/shared/actions.js"
     },
     "./shared/tokens": "./dist/shared/tokens/index.css",
-    "./styles": "./dist/styles.css"
+    "./styles": "./dist/styles.css",
+    "./components/alert": {
+      "types": "./dist/components/alert/index.d.ts",
+      "import": "./dist/components/alert/index.js"
+    },
+    "./components/alert/styles": "./dist/components/alert/alert.css",
+    "./components/badge": {
+      "types": "./dist/components/badge/index.d.ts",
+      "import": "./dist/components/badge/index.js"
+    },
+    "./components/badge/styles": "./dist/components/badge/badge.css",
+    "./components/button": {
+      "types": "./dist/components/button/index.d.ts",
+      "import": "./dist/components/button/index.js"
+    },
+    "./components/button/styles": "./dist/components/button/button.css",
+    "./components/buttonGroup": {
+      "types": "./dist/components/buttonGroup/index.d.ts",
+      "import": "./dist/components/buttonGroup/index.js"
+    },
+    "./components/buttonGroup/styles": "./dist/components/buttonGroup/button-group.css",
+    "./components/chip": {
+      "types": "./dist/components/chip/index.d.ts",
+      "import": "./dist/components/chip/index.js"
+    },
+    "./components/chip/styles": "./dist/components/chip/chip.css",
+    "./components/code-viewer": {
+      "types": "./dist/components/code-viewer/index.d.ts",
+      "import": "./dist/components/code-viewer/index.js"
+    },
+    "./components/code-viewer/styles": "./dist/components/code-viewer/code-viewer.css",
+    "./components/color-picker": {
+      "types": "./dist/components/color-picker/index.d.ts",
+      "import": "./dist/components/color-picker/index.js"
+    },
+    "./components/color-picker/styles": "./dist/components/color-picker/color-picker.css",
+    "./components/context-menu": {
+      "types": "./dist/components/context-menu/index.d.ts",
+      "import": "./dist/components/context-menu/index.js"
+    },
+    "./components/context-menu/styles": "./dist/components/context-menu/context-menu.css",
+    "./components/danx-file": {
+      "types": "./dist/components/danx-file/index.d.ts",
+      "import": "./dist/components/danx-file/index.js"
+    },
+    "./components/danx-file/styles": "./dist/components/danx-file/danx-file.css",
+    "./components/danx-file-upload": {
+      "types": "./dist/components/danx-file-upload/index.d.ts",
+      "import": "./dist/components/danx-file-upload/index.js"
+    },
+    "./components/danx-file-upload/styles": "./dist/components/danx-file-upload/danx-file-upload.css",
+    "./components/danx-file-viewer": {
+      "types": "./dist/components/danx-file-viewer/index.d.ts",
+      "import": "./dist/components/danx-file-viewer/index.js"
+    },
+    "./components/danx-file-viewer/styles": "./dist/components/danx-file-viewer/danx-file-viewer.css",
+    "./components/dialog": {
+      "types": "./dist/components/dialog/index.d.ts",
+      "import": "./dist/components/dialog/index.js"
+    },
+    "./components/dialog/styles": "./dist/components/dialog/dialog.css",
+    "./components/editable-div": {
+      "types": "./dist/components/editable-div/index.d.ts",
+      "import": "./dist/components/editable-div/index.js"
+    },
+    "./components/editable-div/styles": "./dist/components/editable-div/editable-div.css",
+    "./components/field-wrapper": {
+      "types": "./dist/components/field-wrapper/index.d.ts",
+      "import": "./dist/components/field-wrapper/index.js"
+    },
+    "./components/field-wrapper/styles": "./dist/components/field-wrapper/field-wrapper.css",
+    "./components/file-explorer": {
+      "types": "./dist/components/file-explorer/index.d.ts",
+      "import": "./dist/components/file-explorer/index.js"
+    },
+    "./components/file-explorer/styles": "./dist/components/file-explorer/file-explorer.css",
+    "./components/icon": {
+      "types": "./dist/components/icon/index.d.ts",
+      "import": "./dist/components/icon/index.js"
+    },
+    "./components/icon/styles": "./dist/components/icon/icon.css",
+    "./components/input": {
+      "types": "./dist/components/input/index.d.ts",
+      "import": "./dist/components/input/index.js"
+    },
+    "./components/input/styles": "./dist/components/input/input.css",
+    "./components/markdown-editor": {
+      "types": "./dist/components/markdown-editor/index.d.ts",
+      "import": "./dist/components/markdown-editor/index.js"
+    },
+    "./components/markdown-editor/styles": "./dist/components/markdown-editor/markdown-editor.css",
+    "./components/popover": {
+      "types": "./dist/components/popover/index.d.ts",
+      "import": "./dist/components/popover/index.js"
+    },
+    "./components/popover/styles": "./dist/components/popover/popover.css",
+    "./components/progress-bar": {
+      "types": "./dist/components/progress-bar/index.d.ts",
+      "import": "./dist/components/progress-bar/index.js"
+    },
+    "./components/progress-bar/styles": "./dist/components/progress-bar/progress-bar.css",
+    "./components/range-slider": {
+      "types": "./dist/components/range-slider/index.d.ts",
+      "import": "./dist/components/range-slider/index.js"
+    },
+    "./components/range-slider/styles": "./dist/components/range-slider/range-slider.css",
+    "./components/scroll": {
+      "types": "./dist/components/scroll/index.d.ts",
+      "import": "./dist/components/scroll/index.js"
+    },
+    "./components/scroll/styles": "./dist/components/scroll/scroll.css",
+    "./components/select": {
+      "types": "./dist/components/select/index.d.ts",
+      "import": "./dist/components/select/index.js"
+    },
+    "./components/select/styles": "./dist/components/select/select.css",
+    "./components/skeleton": {
+      "types": "./dist/components/skeleton/index.d.ts",
+      "import": "./dist/components/skeleton/index.js"
+    },
+    "./components/skeleton/styles": "./dist/components/skeleton/skeleton.css",
+    "./components/split-panel": {
+      "types": "./dist/components/split-panel/index.d.ts",
+      "import": "./dist/components/split-panel/index.js"
+    },
+    "./components/split-panel/styles": "./dist/components/split-panel/split-panel.css",
+    "./components/tabs": {
+      "types": "./dist/components/tabs/index.d.ts",
+      "import": "./dist/components/tabs/index.js"
+    },
+    "./components/tabs/styles": "./dist/components/tabs/tabs.css",
+    "./components/textarea": {
+      "types": "./dist/components/textarea/index.d.ts",
+      "import": "./dist/components/textarea/index.js"
+    },
+    "./components/textarea/styles": "./dist/components/textarea/textarea.css",
+    "./components/toast": {
+      "types": "./dist/components/toast/index.d.ts",
+      "import": "./dist/components/toast/index.js"
+    },
+    "./components/toast/styles": "./dist/components/toast/toast.css",
+    "./components/toggle": {
+      "types": "./dist/components/toggle/index.d.ts",
+      "import": "./dist/components/toggle/index.js"
+    },
+    "./components/toggle/styles": "./dist/components/toggle/toggle.css",
+    "./components/tooltip": {
+      "types": "./dist/components/tooltip/index.d.ts",
+      "import": "./dist/components/tooltip/index.js"
+    },
+    "./components/tooltip/styles": "./dist/components/tooltip/tooltip.css",
+    "./components/zoomable": {
+      "types": "./dist/components/zoomable/index.d.ts",
+      "import": "./dist/components/zoomable/index.js"
+    },
+    "./components/zoomable/styles": "./dist/components/zoomable/zoomable.css"
   },
   "files": [
     "dist",
@@ -96,8 +211,10 @@
   "scripts": {
     "dev": "vite",
     "dev:check": "node scripts/dev-check.mjs",
-    "build": "vite build && vue-tsc --emitDeclarationOnly && npm run build:css && npm run check:package-size && node scripts/smoke-test-peer-free.mjs",
+    "build": "npm run generate:exports && vite build && vue-tsc --emitDeclarationOnly && npm run build:css && npm run check:package-size && node scripts/smoke-test-peer-free.mjs",
     "build:css": "cd src && find . -name '*.css' -exec sh -c 'mkdir -p \"../dist/$(dirname \"$1\")\" && cp \"$1\" \"../dist/$1\"' _ {} \\;",
+    "generate:exports": "node scripts/generate-package-exports.mjs",
+    "check:exports-drift": "node scripts/generate-package-exports.mjs --check",
     "check:package-size": "node scripts/check-package-size.mjs",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
