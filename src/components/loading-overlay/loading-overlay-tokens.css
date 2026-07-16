@@ -1,0 +1,23 @@
+/**
+ * DanxLoadingOverlay Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize overlay appearance.
+ *
+ * CSS Tokens:
+ * --dx-loading-overlay-bg                    Scrim background color
+ * --dx-loading-overlay-z                     Z-index
+ * --dx-loading-overlay-spinner-size          Spinner diameter
+ * --dx-loading-overlay-spinner-color         Spinner color
+ * --dx-loading-overlay-text-color            Message text color
+ * --dx-loading-overlay-transition-duration   Fade transition duration
+ */
+
+:root {
+  --dx-loading-overlay-bg: var(--color-backdrop);
+  --dx-loading-overlay-z: 10;
+  --dx-loading-overlay-spinner-size: 2rem;
+  --dx-loading-overlay-spinner-color: var(--color-interactive);
+  --dx-loading-overlay-text-color: var(--color-text);
+  --dx-loading-overlay-transition-duration: 0.2s;
+}

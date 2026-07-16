@@ -214,6 +214,11 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/skeleton" class="demo-sidebar__link">Skeleton</RouterLink>
               </li>
               <li>
+                <RouterLink to="/loading-overlay" class="demo-sidebar__link"
+                  >Loading Overlay</RouterLink
+                >
+              </li>
+              <li>
                 <RouterLink to="/toggle" class="demo-sidebar__link">Toggle</RouterLink>
               </li>
               <li>

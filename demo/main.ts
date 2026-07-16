@@ -34,6 +34,7 @@ import DanxFilePage from "./pages/DanxFilePage.vue";
 import DanxFileViewerPage from "./pages/DanxFileViewerPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
 import SkeletonPage from "./pages/SkeletonPage.vue";
+import LoadingOverlayPage from "./pages/LoadingOverlayPage.vue";
 import TogglePage from "./pages/TogglePage.vue";
 import CheckboxPage from "./pages/CheckboxPage.vue";
 import RadioGroupPage from "./pages/RadioGroupPage.vue";
@@ -95,6 +96,7 @@ const router = createRouter({
     { path: "/danx-file-viewer", name: "danx-file-viewer", component: DanxFileViewerPage },
     { path: "/scroll", name: "scroll", component: ScrollPage },
     { path: "/skeleton", name: "skeleton", component: SkeletonPage },
+    { path: "/loading-overlay", name: "loading-overlay", component: LoadingOverlayPage },
     { path: "/toggle", name: "toggle", component: TogglePage },
     { path: "/checkbox", name: "checkbox", component: CheckboxPage },
     { path: "/radio-group", name: "radio-group", component: RadioGroupPage },

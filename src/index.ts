@@ -35,6 +35,7 @@ export { DanxFileViewer } from "./components/danx-file-viewer";
 // DXUI-35: DanxScroll/DanxVirtualScroll pull in @vueuse/core (optional peer) via
 // useScrollInfinite — kept out of the main barrel; import from "danx-ui/components/scroll".
 export { DanxSkeleton } from "./components/skeleton";
+export { DanxLoadingOverlay } from "./components/loading-overlay";
 export { DanxFieldWrapper } from "./components/field-wrapper";
 export { DanxInput } from "./components/input";
 export {
@@ -303,6 +304,10 @@ export type {
 } from "./components/danx-file-viewer";
 export type { UseTouchSwipeOptions, UseTouchSwipeReturn } from "./shared/composables/useTouchSwipe";
 export type { DanxSkeletonProps, SkeletonAnimation, SkeletonShape } from "./components/skeleton";
+export type {
+  DanxLoadingOverlayProps,
+  DanxLoadingOverlaySlots,
+} from "./components/loading-overlay";
 export type { InputType, DanxInputProps, DanxInputEmits, DanxInputSlots } from "./components/input";
 export type {
   DanxColorPickerProps,

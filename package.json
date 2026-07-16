@@ -172,6 +172,11 @@
       "import": "./dist/components/kbd/index.js"
     },
     "./components/kbd/styles": "./dist/components/kbd/kbd.css",
+    "./components/loading-overlay": {
+      "types": "./dist/components/loading-overlay/index.d.ts",
+      "import": "./dist/components/loading-overlay/index.js"
+    },
+    "./components/loading-overlay/styles": "./dist/components/loading-overlay/loading-overlay.css",
     "./components/markdown-editor": {
       "types": "./dist/components/markdown-editor/index.d.ts",
       "import": "./dist/components/markdown-editor/index.js"

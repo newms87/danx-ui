@@ -108,6 +108,7 @@ import {
   useScrollWindow,
 } from "../../src/components/scroll";
 import { DanxSkeleton } from "../../src/components/skeleton";
+import { DanxLoadingOverlay } from "../../src/components/loading-overlay";
 import { DanxToggle } from "../../src/components/toggle";
 import { DanxCheckbox } from "../../src/components/checkbox";
 import { DanxRadioGroup } from "../../src/components/radio-group";
@@ -273,6 +274,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxScroll,
   DanxVirtualScroll,
   DanxSkeleton,
+  DanxLoadingOverlay,
   DanxToggle,
   DanxCheckbox,
   DanxRadioGroup,
@@ -447,6 +449,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   useScrollWindow,
   // Skeleton
   DanxSkeleton,
+  // Loading Overlay
+  DanxLoadingOverlay,
   // Toggle
   DanxToggle,
   // Checkbox

@@ -1,0 +1,96 @@
+/**
+ * DanxLoadingOverlay Styles
+ *
+ * Main entry point that imports tokens and defines overlay layout,
+ * spinner animation, and fade transition.
+ */
+
+@import "./loading-overlay-tokens.css";
+
+/* ==========================================================================
+   Base Overlay
+   ========================================================================== */
+
+.danx-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--dx-loading-overlay-z);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dx-loading-overlay-bg);
+  pointer-events: none;
+}
+
+.danx-loading-overlay__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.danx-loading-overlay__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* ==========================================================================
+   Spinner
+   ========================================================================== */
+
+.danx-loading-overlay__spinner {
+  width: var(--dx-loading-overlay-spinner-size);
+  height: var(--dx-loading-overlay-spinner-size);
+  border: 2px solid transparent;
+  border-top-color: var(--dx-loading-overlay-spinner-color);
+  border-radius: 50%;
+  animation: danx-loading-overlay-spin 0.6s linear infinite;
+}
+
+@keyframes danx-loading-overlay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Message
+   ========================================================================== */
+
+.danx-loading-overlay__message {
+  color: var(--dx-loading-overlay-text-color);
+  font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   Fade Transition
+   ========================================================================== */
+
+.danx-loading-overlay-fade-enter-active,
+.danx-loading-overlay-fade-leave-active {
+  transition: opacity var(--dx-loading-overlay-transition-duration) ease-in-out;
+}
+
+.danx-loading-overlay-fade-enter-from,
+.danx-loading-overlay-fade-leave-to {
+  opacity: 0;
+}
+
+/* ==========================================================================
+   Reduced Motion: degrade the spin to a static, dimmed ring. `role="status"`
+   plus the sr-only label already convey the busy state without motion.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-loading-overlay__spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}
