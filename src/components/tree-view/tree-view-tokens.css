@@ -1,0 +1,21 @@
+/**
+ * TreeView Component Tokens (Tier 3)
+ *
+ * Component-specific CSS custom properties for DanxTreeView.
+ * Only var() references to semantic tokens — no raw values.
+ * Override these on any ancestor element to customize appearance.
+ */
+
+.danx-tree-view {
+  --dx-tree-view-bg: transparent;
+  --dx-tree-view-text: var(--color-text);
+  --dx-tree-view-indent: 1.25rem;
+  --dx-tree-view-row-height: 1.875rem;
+  --dx-tree-view-row-radius: var(--radius-sm);
+  --dx-tree-view-row-hover-bg: var(--color-surface-sunken);
+  --dx-tree-view-row-selected-bg: var(--color-interactive-subtle);
+  --dx-tree-view-row-selected-text: var(--color-interactive);
+  --dx-tree-view-icon-color: var(--color-text-subtle);
+  --dx-tree-view-icon-size: 1rem;
+  --dx-tree-view-gap: 0.375rem;
+}

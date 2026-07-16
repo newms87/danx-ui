@@ -89,6 +89,12 @@ import {
   isFolderNode,
 } from "../../src/components/file-explorer";
 import {
+  DanxTreeView,
+  TreeViewNode,
+  useTreeView,
+  isBranchNode,
+} from "../../src/components/tree-view";
+import {
   DanxScroll,
   DanxVirtualScroll,
   useDanxScroll,
@@ -248,6 +254,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   SplitPanelHandle,
   DanxFileExplorer,
   FileExplorerNode,
+  DanxTreeView,
+  TreeViewNode,
   DanxScroll,
   DanxVirtualScroll,
   DanxSkeleton,
@@ -403,6 +411,11 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   FileExplorerNode,
   useFileExplorer,
   isFolderNode,
+  // TreeView
+  DanxTreeView,
+  TreeViewNode,
+  useTreeView,
+  isBranchNode,
   // Scroll
   DanxScroll,
   DanxVirtualScroll,

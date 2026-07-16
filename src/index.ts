@@ -53,6 +53,7 @@ export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
 export { DanxEditableDiv } from "./components/editable-div";
 export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomable";
 export { DanxFileExplorer, FileExplorerNode } from "./components/file-explorer";
+export { DanxTreeView, TreeViewNode } from "./components/tree-view";
 
 // Composables
 export {
@@ -84,6 +85,7 @@ export {
 } from "./components/danx-file";
 export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
 export { useFileExplorer, isFolderNode } from "./components/file-explorer";
+export { useTreeView, isBranchNode } from "./components/tree-view";
 export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
 // DXUI-35: useScrollInfinite/useDanxScroll/useScrollWindow pull in @vueuse/core (optional
 // peer) — kept out of the main barrel; import from "danx-ui/components/scroll".
@@ -151,6 +153,17 @@ export type {
   UseFileExplorerOptions,
   UseFileExplorerReturn,
 } from "./components/file-explorer";
+export type {
+  TreeNode,
+  DanxTreeViewProps,
+  DanxTreeViewEmits,
+  DanxTreeViewSlots,
+  TreeViewContext,
+  TreeViewNodeSlotProps,
+  UseTreeViewOptions,
+  UseTreeViewReturn,
+  FlatTreeViewRow,
+} from "./components/tree-view";
 export type {
   DanxDialogEmits,
   DanxDialogProps,

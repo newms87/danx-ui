@@ -1,0 +1,158 @@
+/**
+ * TreeView Component Styles
+ *
+ * Layout + presentation for DanxTreeView and its recursive nodes.
+ * Token defaults live in tree-view-tokens.css. Dark mode is handled by the
+ * semantic layer — there are no .dark overrides here.
+ */
+
+@import "./tree-view-tokens.css";
+
+.danx-tree-view {
+  width: 100%;
+  height: 100%;
+  background: var(--dx-tree-view-bg);
+  color: var(--dx-tree-view-text);
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+.danx-tree-view__tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.danx-tree-view__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--color-text-subtle);
+  text-align: center;
+}
+
+.danx-tree-view__empty-icon {
+  --dx-icon-size: 1.5rem;
+  opacity: 0.6;
+}
+
+.danx-tree-view-node {
+  list-style: none;
+}
+
+.danx-tree-view-node__children {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.danx-tree-view-node__row {
+  display: flex;
+  align-items: center;
+  gap: var(--dx-tree-view-gap);
+  min-height: var(--dx-tree-view-row-height);
+  padding-block: 0.125rem;
+  padding-inline-end: 0.5rem;
+  border-radius: var(--dx-tree-view-row-radius);
+  outline: none;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+
+  .danx-tree-view-node__icon {
+    --dx-icon-size: var(--dx-tree-view-icon-size);
+    flex-shrink: 0;
+    color: var(--dx-tree-view-icon-color);
+  }
+
+  .danx-tree-view-node__name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .danx-tree-view-node__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+
+  &:hover .danx-tree-view-node__actions,
+  &:focus-visible .danx-tree-view-node__actions,
+  &.is-selected .danx-tree-view-node__actions {
+    opacity: 1;
+  }
+
+  &.is-clickable {
+    cursor: pointer;
+  }
+
+  &.is-clickable:hover {
+    background: var(--dx-tree-view-row-hover-bg);
+  }
+
+  &:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--color-interactive);
+  }
+
+  &.is-selected {
+    background: var(--dx-tree-view-row-selected-bg);
+    color: var(--dx-tree-view-row-selected-text);
+  }
+
+  &.is-selected .danx-tree-view-node__icon {
+    color: var(--dx-tree-view-row-selected-text);
+  }
+
+  &.is-disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+/* Depth-based indentation — the row left padding grows with nesting depth. */
+.danx-tree-view-node__indent {
+  flex-shrink: 0;
+  width: calc(var(--dx-tree-view-depth, 0) * var(--dx-tree-view-indent));
+}
+
+.danx-tree-view-node__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--dx-tree-view-icon-color);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform 150ms ease;
+
+  .danx-icon {
+    --dx-icon-size: 0.75rem;
+  }
+
+  &:hover {
+    color: var(--color-interactive);
+  }
+}
+
+.danx-tree-view-node__chevron.is-open {
+  transform: rotate(90deg);
+}
+
+.danx-tree-view-node__chevron-spacer {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+}
