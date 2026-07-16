@@ -228,7 +228,11 @@ function getButtonStyle(button: DanxButtonGroupItem): CSSProperties | undefined 
 </script>
 
 <template>
-  <div class="danx-button-group" :style="variantStyle">
+  <div
+    class="danx-button-group"
+    :role="multiple ? 'group' : 'radiogroup'"
+    :style="variantStyle"
+  >
     <template v-for="(button, index) in buttons" :key="button.value">
       <!-- Divider between buttons (skip first) -->
       <span v-if="index > 0" class="danx-button-group__divider" />
@@ -238,6 +242,9 @@ function getButtonStyle(button: DanxButtonGroupItem): CSSProperties | undefined 
         class="danx-button-group__button"
         :class="{ 'is-active': isActive(button.value) }"
         :style="getButtonStyle(button)"
+        :role="multiple ? undefined : 'radio'"
+        :aria-pressed="multiple ? isActive(button.value) : undefined"
+        :aria-checked="multiple ? undefined : isActive(button.value)"
         @click="handleClick(button)"
       >
         <span v-if="button.icon" class="danx-button-group__icon">

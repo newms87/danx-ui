@@ -56,6 +56,10 @@
  */
 -->
 
+<script lang="ts">
+let tooltipIdCounter = 0;
+</script>
+
 <script setup lang="ts">
 import { computed, onMounted, ref, toRef, useSlots, watch } from "vue";
 import { usePopoverPositioning } from "../../shared/composables/usePopoverPositioning";
@@ -80,6 +84,8 @@ const slots = useSlots();
 
 const triggerRef = ref<HTMLElement | null>(null);
 const panelRef = ref<HTMLElement | null>(null);
+
+const panelId = `danx-tooltip-${++tooltipIdCounter}`;
 
 /**
  * Resolve the actual trigger element. Uses a ref (not computed) so that
@@ -154,6 +160,23 @@ watch(
 
 /** Whether the panel has icon + content flex layout */
 const hasPanelIcon = computed(() => !!props.icon);
+
+/**
+ * Mirror aria-describedby onto the resolved trigger, including external
+ * target/targetId triggers that aren't directly bound in the template.
+ */
+watch(
+  [resolvedTrigger, isOpen, () => props.disabled],
+  ([trigger, open, disabled]) => {
+    if (!trigger) return;
+    if (open && !disabled) {
+      trigger.setAttribute("aria-describedby", panelId);
+    } else {
+      trigger.removeAttribute("aria-describedby");
+    }
+  },
+  { flush: "post" }
+);
 </script>
 
 <template>
@@ -178,9 +201,12 @@ const hasPanelIcon = computed(() => !!props.icon);
   <Teleport to="body">
     <div
       v-if="isOpen && !disabled"
+      :id="panelId"
       ref="panelRef"
       popover="manual"
+      role="tooltip"
       class="danx-tooltip"
+      :aria-hidden="!isOpen || disabled"
       :style="[panelStyle, variantStyle]"
       v-bind="$attrs"
       @mouseenter="onPanelMouseenter"

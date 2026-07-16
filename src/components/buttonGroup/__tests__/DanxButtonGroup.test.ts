@@ -691,4 +691,53 @@ describe("DanxButtonGroup", () => {
       }
     });
   });
+
+  describe("ARIA", () => {
+    it("sets role=radiogroup on the container in single-select mode", () => {
+      const wrapper = mount(DanxButtonGroup, {
+        props: { buttons: createButtons() },
+      });
+      expect(wrapper.find(".danx-button-group").attributes("role")).toBe("radiogroup");
+    });
+
+    it("sets role=group on the container in multi-select mode", () => {
+      const wrapper = mount(DanxButtonGroup, {
+        props: { buttons: createButtons(), multiple: true },
+      });
+      expect(wrapper.find(".danx-button-group").attributes("role")).toBe("group");
+    });
+
+    it("sets role=radio + aria-checked on each button in single-select mode", () => {
+      const wrapper = mount(DanxButtonGroup, {
+        props: { modelValue: "two", buttons: createButtons() },
+      });
+      const btns = wrapper.findAll(".danx-button-group__button");
+      expect(btns[0]!.attributes("role")).toBe("radio");
+      expect(btns[0]!.attributes("aria-checked")).toBe("false");
+      expect(btns[1]!.attributes("aria-checked")).toBe("true");
+      expect(btns[0]!.attributes("aria-pressed")).toBeUndefined();
+    });
+
+    it("sets aria-pressed on each button in multi-select mode, no role=radio", () => {
+      const wrapper = mount(DanxButtonGroup, {
+        props: { modelValue: ["one", "three"], buttons: createButtons(), multiple: true },
+      });
+      const btns = wrapper.findAll(".danx-button-group__button");
+      expect(btns[0]!.attributes("aria-pressed")).toBe("true");
+      expect(btns[1]!.attributes("aria-pressed")).toBe("false");
+      expect(btns[2]!.attributes("aria-pressed")).toBe("true");
+      expect(btns[0]!.attributes("role")).toBeUndefined();
+      expect(btns[0]!.attributes("aria-checked")).toBeUndefined();
+    });
+
+    it("updates aria-checked when selection changes", async () => {
+      const wrapper = mount(DanxButtonGroup, {
+        props: { modelValue: "one", buttons: createButtons() },
+      });
+      await wrapper.setProps({ modelValue: "three" });
+      const btns = wrapper.findAll(".danx-button-group__button");
+      expect(btns[0]!.attributes("aria-checked")).toBe("false");
+      expect(btns[2]!.attributes("aria-checked")).toBe("true");
+    });
+  });
 });

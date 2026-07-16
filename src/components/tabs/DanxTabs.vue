@@ -115,6 +115,10 @@
  */
 -->
 
+<script lang="ts">
+let tabsIdCounter = 0;
+</script>
+
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, toRef, watch } from "vue";
 import { useVariant } from "../../shared/composables/useVariant";
@@ -137,6 +141,15 @@ const TABS_VARIANT_TOKENS = {
 
 const variantStyle = useVariant(toRef(props, "variant"), "tabs", TABS_VARIANT_TOKENS);
 const buttonRefs = ref<Map<string, HTMLElement>>(new Map());
+
+const tabsId = `danx-tabs-${++tabsIdCounter}`;
+
+/**
+ * Generate a stable id for a tab button, used for aria-controls linkage.
+ */
+function tabId(tabValue: string): string {
+  return `${tabsId}-tab-${tabValue}`;
+}
 
 /**
  * Store button ref by tab value for stable lookups when tabs change
@@ -201,7 +214,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="danx-tabs" :style="variantStyle">
+  <div class="danx-tabs" role="tablist" :style="variantStyle">
     <!-- Sliding active indicator -->
     <div class="danx-tabs__indicator" :style="indicatorStyle" />
 
@@ -211,11 +224,16 @@ onMounted(() => {
       <span v-if="index > 0" class="danx-tabs__divider" />
 
       <button
+        :id="tabId(tab.value)"
         :ref="(el) => setButtonRef(tab.value, el as HTMLElement)"
         type="button"
+        role="tab"
         class="danx-tabs__tab"
         :class="{ 'is-active': modelValue === tab.value }"
         :style="tab.activeColor ? { '--dx-tab-color': tab.activeColor } : undefined"
+        :aria-selected="modelValue === tab.value"
+        :aria-controls="tab.panelId"
+        :tabindex="modelValue === tab.value ? 0 : -1"
         @click="modelValue = tab.value"
       >
         <slot :tab="tab" :is-active="modelValue === tab.value">

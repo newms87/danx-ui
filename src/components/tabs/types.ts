@@ -33,6 +33,12 @@ export interface DanxTab {
    * When omitted, falls back to --dx-tabs-active-color token.
    */
   activeColor?: string;
+
+  /**
+   * Id of the panel/content region this tab controls, wired to the tab
+   * button's aria-controls attribute. Omit when no panel is rendered.
+   */
+  panelId?: string;
 }
 
 export interface DanxTabsProps {

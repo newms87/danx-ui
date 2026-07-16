@@ -708,4 +708,82 @@ describe("DanxTooltip", () => {
       expect(document.body.querySelector(".danx-tooltip")).toBeNull();
     });
   });
+
+  // ==========================================================================
+  // ARIA
+  // ==========================================================================
+
+  describe("ARIA", () => {
+    it("sets role=tooltip on the panel", async () => {
+      mountTooltip();
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip")!;
+      expect(panel.getAttribute("role")).toBe("tooltip");
+    });
+
+    it("gives the panel a stable generated id", async () => {
+      mountTooltip();
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip")!;
+      expect(panel.id).toBeTruthy();
+    });
+
+    it("sets aria-describedby on the trigger to the panel id when open", async () => {
+      mountTooltip();
+      const trigger = wrapper.find(".danx-tooltip-trigger").element;
+      expect(trigger.getAttribute("aria-describedby")).toBeNull();
+
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip")!;
+      expect(trigger.getAttribute("aria-describedby")).toBe(panel.id);
+    });
+
+    it("removes aria-describedby from the trigger when closed", async () => {
+      mountTooltip();
+      const trigger = wrapper.find(".danx-tooltip-trigger").element;
+
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+      expect(trigger.getAttribute("aria-describedby")).toBeTruthy();
+
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseleave");
+      await vi.runAllTimersAsync();
+      expect(trigger.getAttribute("aria-describedby")).toBeNull();
+    });
+
+    it("sets aria-hidden=false on the visible panel", async () => {
+      mountTooltip();
+      await wrapper.find(".danx-tooltip-trigger").trigger("mouseenter");
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip")!;
+      expect(panel.getAttribute("aria-hidden")).toBe("false");
+    });
+
+    it("sets aria-describedby on an external target trigger", async () => {
+      const target = document.createElement("button");
+      target.id = "external-target";
+      document.body.appendChild(target);
+
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "External", targetId: "external-target" },
+        attachTo: document.body,
+      });
+      await vi.runAllTimersAsync();
+
+      target.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+      await vi.runAllTimersAsync();
+
+      const panel = document.body.querySelector(".danx-tooltip")!;
+      expect(target.getAttribute("aria-describedby")).toBe(panel.id);
+
+      target.remove();
+    });
+  });
 });

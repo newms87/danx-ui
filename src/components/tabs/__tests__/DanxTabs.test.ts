@@ -474,4 +474,92 @@ describe("DanxTabs", () => {
       expect(wrapper.findAll(".danx-tabs__tab")).toHaveLength(1);
     });
   });
+
+  describe("ARIA", () => {
+    it("sets role=tablist on the container", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      expect(wrapper.find(".danx-tabs").attributes("role")).toBe("tablist");
+    });
+
+    it("sets role=tab on each tab button", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      for (const button of buttons) {
+        expect(button.attributes("role")).toBe("tab");
+      }
+    });
+
+    it("sets aria-selected true only on the active tab", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "two", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      expect(buttons[0]!.attributes("aria-selected")).toBe("false");
+      expect(buttons[1]!.attributes("aria-selected")).toBe("true");
+      expect(buttons[2]!.attributes("aria-selected")).toBe("false");
+    });
+
+    it("applies roving tabindex: active tab is 0, others -1", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "two", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      expect(buttons[0]!.attributes("tabindex")).toBe("-1");
+      expect(buttons[1]!.attributes("tabindex")).toBe("0");
+      expect(buttons[2]!.attributes("tabindex")).toBe("-1");
+    });
+
+    it("updates aria-selected and tabindex when the active tab changes", async () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      await wrapper.setProps({ modelValue: "three" });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      expect(buttons[0]!.attributes("aria-selected")).toBe("false");
+      expect(buttons[0]!.attributes("tabindex")).toBe("-1");
+      expect(buttons[2]!.attributes("aria-selected")).toBe("true");
+      expect(buttons[2]!.attributes("tabindex")).toBe("0");
+    });
+
+    it("wires aria-controls to the tab's panelId when provided", () => {
+      const tabs = createTabs([{ panelId: "panel-one" }, { panelId: "panel-two" }]);
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs },
+      });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      expect(buttons[0]!.attributes("aria-controls")).toBe("panel-one");
+      expect(buttons[1]!.attributes("aria-controls")).toBe("panel-two");
+    });
+
+    it("omits aria-controls when no panelId is provided", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      expect(buttons[0]!.attributes("aria-controls")).toBeUndefined();
+    });
+
+    it("gives each tab button a stable, unique id", () => {
+      const wrapper = mount(DanxTabs, {
+        props: { modelValue: "one", "onUpdate:modelValue": () => {}, tabs: createTabs() },
+      });
+
+      const buttons = wrapper.findAll(".danx-tabs__tab");
+      const ids = buttons.map((b) => b.attributes("id"));
+      expect(new Set(ids).size).toBe(ids.length);
+      expect(ids.every((id) => !!id)).toBe(true);
+    });
+  });
 });
