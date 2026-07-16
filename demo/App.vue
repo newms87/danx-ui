@@ -120,6 +120,12 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/chip" class="demo-sidebar__link">Chip</RouterLink>
               </li>
               <li>
+                <RouterLink to="/divider" class="demo-sidebar__link">Divider</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/spinner" class="demo-sidebar__link">Spinner</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/code-viewer" class="demo-sidebar__link">Code Viewer</RouterLink>
               </li>
               <li>

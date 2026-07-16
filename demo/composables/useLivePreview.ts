@@ -39,6 +39,8 @@ import { DanxAlert } from "../../src/components/alert";
 import { DanxAuditHistoryItem } from "../../src/components/audit-history-item";
 import { DanxBadge } from "../../src/components/badge";
 import { DanxBreadcrumbs } from "../../src/components/breadcrumbs";
+import { DanxDivider } from "../../src/components/divider";
+import { DanxSpinner } from "../../src/components/spinner";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
 import { DanxTextarea } from "../../src/components/textarea";
@@ -254,6 +256,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButton,
   DanxActionButton,
   DanxChip,
+  DanxDivider,
+  DanxSpinner,
   DanxKbd,
   DanxIcon,
   CodeViewer,
@@ -324,6 +328,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxButton,
   DanxActionButton,
   DanxChip,
+  DanxDivider,
+  DanxSpinner,
   DanxKbd,
   detectOs,
   resolveKeyLabel,

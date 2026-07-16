@@ -156,30 +156,10 @@
    Loading Spinner
    ========================================================================== */
 
-.danx-button__spinner {
-  width: 1lh;
-  height: 1lh;
-  border: 2px solid transparent;
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: danx-button-spin 0.6s linear infinite;
-}
-
-@keyframes danx-button-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ==========================================================================
-   Reduced Motion: degrade the spin to a static, dimmed ring. `cursor: wait`
-   and the disabled/loading button state already convey the busy state
-   without motion.
-   ========================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-  .danx-button__spinner {
-    animation: none;
-    opacity: 0.6;
-  }
-}
+/*
+ * The spinner itself is rendered by DanxSpinner (src/components/spinner).
+ * DanxButton overrides --dx-spinner-md-size to "1lh" via inline style so the
+ * spinner's diameter automatically matches the button's icon size (same
+ * mechanism the button previously used directly). Color is inherited via
+ * `currentColor` since no variant is passed to the spinner.
+ */

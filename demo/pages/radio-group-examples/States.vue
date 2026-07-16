@@ -12,8 +12,18 @@ const options = [
 
 <template>
   <div class="flex flex-col gap-6">
-    <DanxRadioGroup v-model="value" :options="options" label="Error with message" error="Please choose one" />
-    <DanxRadioGroup v-model="value" :options="options" label="With helper text" helper-text="Pick your preferred option." />
+    <DanxRadioGroup
+      v-model="value"
+      :options="options"
+      label="Error with message"
+      error="Please choose one"
+    />
+    <DanxRadioGroup
+      v-model="value"
+      :options="options"
+      label="With helper text"
+      helper-text="Pick your preferred option."
+    />
     <DanxRadioGroup v-model="value" :options="options" label="Required" required />
   </div>
 </template>

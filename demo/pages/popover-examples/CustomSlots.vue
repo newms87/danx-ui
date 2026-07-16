@@ -21,9 +21,7 @@ const show = ref(false);
     </template>
     <div class="p-4 max-w-64">
       <p class="font-semibold">Custom Appearance</p>
-      <p class="mt-2 text-sm">
-        This popover uses CSS token overrides for a distinct look.
-      </p>
+      <p class="mt-2 text-sm">This popover uses CSS token overrides for a distinct look.</p>
       <DanxButton size="sm" class="mt-3" @click="show = false">Close</DanxButton>
     </div>
   </DanxPopover>

@@ -16,9 +16,7 @@ function save() {
     <template #trigger>
       <DanxButton variant="info" @click="show = !show">Edit Settings</DanxButton>
     </template>
-    <div
-      class="p-4 flex flex-col gap-3 min-w-64"
-    >
+    <div class="p-4 flex flex-col gap-3 min-w-64">
       <h4 class="font-semibold">Settings</h4>
       <label class="flex flex-col gap-1 text-sm">
         Name

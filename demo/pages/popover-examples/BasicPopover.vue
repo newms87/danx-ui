@@ -12,9 +12,7 @@ const show = ref(false);
     </template>
     <div class="px-4 py-3 max-w-56">
       <p class="m-0">This is a basic popover anchored below the trigger button.</p>
-      <p class="mt-2 text-text-muted text-[0.8125rem]">
-        Click outside or press Escape to close.
-      </p>
+      <p class="mt-2 text-text-muted text-[0.8125rem]">Click outside or press Escape to close.</p>
     </div>
   </DanxPopover>
 </template>

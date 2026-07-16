@@ -228,11 +228,7 @@ function getButtonStyle(button: DanxButtonGroupItem): CSSProperties | undefined 
 </script>
 
 <template>
-  <div
-    class="danx-button-group"
-    :role="multiple ? 'group' : 'radiogroup'"
-    :style="variantStyle"
-  >
+  <div class="danx-button-group" :role="multiple ? 'group' : 'radiogroup'" :style="variantStyle">
     <template v-for="(button, index) in buttons" :key="button.value">
       <!-- Divider between buttons (skip first) -->
       <span v-if="index > 0" class="danx-button-group__divider" />

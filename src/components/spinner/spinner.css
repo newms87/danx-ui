@@ -1,0 +1,60 @@
+/**
+ * DanxSpinner Styles
+ *
+ * Defines the spinner ring, size modifiers, and rotation animation.
+ *
+ * Note: BEM modifiers (.danx-spinner--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+/* ==========================================================================
+   Base Spinner
+   ========================================================================== */
+
+.danx-spinner {
+  display: inline-block;
+  box-sizing: border-box;
+  border: var(--dx-spinner-border-width) solid transparent;
+  border-top-color: var(--dx-spinner-color, currentcolor);
+  border-radius: 50%;
+  animation: danx-spinner-spin var(--dx-spinner-animation-duration, 0.6s) linear infinite;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-spinner--sm {
+  width: var(--dx-spinner-sm-size, 1rem);
+  height: var(--dx-spinner-sm-size, 1rem);
+  --dx-spinner-border-width: var(--dx-spinner-sm-border-width, 2px);
+}
+
+.danx-spinner--md {
+  width: var(--dx-spinner-md-size, 1.5rem);
+  height: var(--dx-spinner-md-size, 1.5rem);
+  --dx-spinner-border-width: var(--dx-spinner-md-border-width, 2px);
+}
+
+.danx-spinner--lg {
+  width: var(--dx-spinner-lg-size, 2rem);
+  height: var(--dx-spinner-lg-size, 2rem);
+  --dx-spinner-border-width: var(--dx-spinner-lg-border-width, 3px);
+}
+
+@keyframes danx-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion: degrade the spin to a static, dimmed ring.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}

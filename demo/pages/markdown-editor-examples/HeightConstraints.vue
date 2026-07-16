@@ -17,15 +17,11 @@ Add more lines to see the scrollbar appear when content exceeds the maximum heig
 <template>
   <div class="flex flex-col gap-6 w-full">
     <div>
-      <p class="mb-2 text-sm font-semibold">
-        --dx-mde-min-height: 60px
-      </p>
+      <p class="mb-2 text-sm font-semibold">--dx-mde-min-height: 60px</p>
       <MarkdownEditor v-model="shortContent" style="--dx-mde-min-height: 60px" />
     </div>
     <div>
-      <p class="mb-2 text-sm font-semibold">
-        --dx-mde-max-height: 150px
-      </p>
+      <p class="mb-2 text-sm font-semibold">--dx-mde-max-height: 150px</p>
       <MarkdownEditor v-model="tallContent" style="--dx-mde-max-height: 150px" />
     </div>
   </div>

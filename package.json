@@ -133,6 +133,11 @@
       "import": "./dist/components/dialog/index.js"
     },
     "./components/dialog/styles": "./dist/components/dialog/dialog.css",
+    "./components/divider": {
+      "types": "./dist/components/divider/index.d.ts",
+      "import": "./dist/components/divider/index.js"
+    },
+    "./components/divider/styles": "./dist/components/divider/divider.css",
     "./components/drag-and-drop": {
       "types": "./dist/components/drag-and-drop/index.d.ts",
       "import": "./dist/components/drag-and-drop/index.js"
@@ -227,6 +232,11 @@
       "import": "./dist/components/skeleton/index.js"
     },
     "./components/skeleton/styles": "./dist/components/skeleton/skeleton.css",
+    "./components/spinner": {
+      "types": "./dist/components/spinner/index.d.ts",
+      "import": "./dist/components/spinner/index.js"
+    },
+    "./components/spinner/styles": "./dist/components/spinner/spinner.css",
     "./components/split-panel": {
       "types": "./dist/components/split-panel/index.d.ts",
       "import": "./dist/components/split-panel/index.js"

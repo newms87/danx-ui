@@ -11,7 +11,9 @@ import { DanxButton } from "danx-ui";
     >
       <DanxButton variant="success" :size="size">{{ size.toUpperCase() }}</DanxButton>
       <DanxButton variant="success" icon="save" :size="size">{{ size.toUpperCase() }}</DanxButton>
-      <DanxButton variant="success" :loading="true" :size="size">{{ size.toUpperCase() }}</DanxButton>
+      <DanxButton variant="success" :loading="true" :size="size">{{
+        size.toUpperCase()
+      }}</DanxButton>
     </div>
   </div>
 </template>

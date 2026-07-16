@@ -90,10 +90,7 @@ const items = [
     @contextmenu="onContextMenu"
   >
     <p>Right-click for nested submenus</p>
-    <p
-      v-if="lastAction"
-      class="mt-2 text-sm text-text-muted"
-    >
+    <p v-if="lastAction" class="mt-2 text-sm text-text-muted">
       Last action: <strong>{{ lastAction }}</strong>
     </p>
   </div>

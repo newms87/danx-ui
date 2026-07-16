@@ -1,0 +1,68 @@
+/**
+ * DanxDivider Styles
+ *
+ * Defines the divider line, orientation modifiers, inset margin, and label.
+ *
+ * Note: BEM modifiers (.danx-divider--vertical) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+/* ==========================================================================
+   Base Divider
+   ========================================================================== */
+
+.danx-divider {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: none;
+}
+
+/* ==========================================================================
+   Orientation Modifiers
+   ========================================================================== */
+
+.danx-divider--horizontal {
+  width: 100%;
+  height: var(--dx-divider-thickness, 1px);
+  background: var(--dx-divider-color, var(--color-border));
+}
+
+.danx-divider--horizontal.danx-divider--inset {
+  width: auto;
+  margin: 0 var(--dx-divider-inset, 1rem);
+}
+
+.danx-divider--vertical {
+  width: var(--dx-divider-thickness, 1px);
+  height: 100%;
+  background: var(--dx-divider-color, var(--color-border));
+}
+
+.danx-divider--vertical.danx-divider--inset {
+  height: auto;
+  margin: var(--dx-divider-inset, 1rem) 0;
+}
+
+/* ==========================================================================
+   Label
+   ========================================================================== */
+
+.danx-divider--with-label {
+  height: auto;
+  background: none;
+  gap: var(--dx-divider-label-gap, 0.75rem);
+}
+
+.danx-divider__line {
+  flex: 1;
+  height: var(--dx-divider-thickness, 1px);
+  background: var(--dx-divider-color, var(--color-border));
+}
+
+.danx-divider__label {
+  flex-shrink: 0;
+  font-size: var(--dx-divider-label-font-size, 0.875rem);
+  color: var(--dx-divider-label-color, var(--color-text-muted));
+  white-space: nowrap;
+}

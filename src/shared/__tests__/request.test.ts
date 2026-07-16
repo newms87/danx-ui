@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  request,
-  PollAbortError,
-  PollMaxAttemptsError,
-  PollTimeoutError,
-} from "../request";
+import { request, PollAbortError, PollMaxAttemptsError, PollTimeoutError } from "../request";
 import { danxOptions } from "../config";
 import type { DanxOptions } from "../config-types";
 

@@ -21,15 +21,11 @@ const buttons = [
 <template>
   <div class="flex flex-col gap-6">
     <div>
-      <p class="mb-2 text-sm text-text-muted">
-        Auto-color (active only):
-      </p>
+      <p class="mb-2 text-sm text-text-muted">Auto-color (active only):</p>
       <DanxButtonGroup v-model="selected" :buttons="buttons" auto-color multiple />
     </div>
     <div>
-      <p class="mb-2 text-sm text-text-muted">
-        Auto-color (always):
-      </p>
+      <p class="mb-2 text-sm text-text-muted">Auto-color (always):</p>
       <DanxButtonGroup
         v-model="selected"
         :buttons="buttons"

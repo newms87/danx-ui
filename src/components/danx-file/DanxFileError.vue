@@ -46,11 +46,7 @@ function onRetryClick(file: PreviewFile) {
       </template>
       <div class="danx-file__error-popover-content">
         <span>{{ file.error }}</span>
-        <button
-          type="button"
-          class="danx-file__error-retry-btn"
-          @click.stop="onRetryClick(file)"
-        >
+        <button type="button" class="danx-file__error-retry-btn" @click.stop="onRetryClick(file)">
           <DanxIcon icon="refresh" />
           Retry
         </button>
@@ -60,11 +56,7 @@ function onRetryClick(file: PreviewFile) {
   <div v-else class="danx-file__error">
     <DanxIcon icon="warning-triangle" />
     <span class="danx-file__error-text">{{ file.error }}</span>
-    <button
-      type="button"
-      class="danx-file__error-retry-btn"
-      @click.stop="onRetryClick(file)"
-    >
+    <button type="button" class="danx-file__error-retry-btn" @click.stop="onRetryClick(file)">
       <DanxIcon icon="refresh" />
       Retry
     </button>

@@ -16,8 +16,10 @@
 @import "./components/audit-history-item/audit-history-item.css" layer(components);
 @import "./components/badge/badge.css" layer(components);
 @import "./components/breadcrumbs/breadcrumbs.css" layer(components);
+@import "./components/spinner/spinner.css" layer(components);
 @import "./components/button/button.css" layer(components);
 @import "./components/chip/chip.css" layer(components);
+@import "./components/divider/divider.css" layer(components);
 @import "./components/icon/icon.css" layer(components);
 @import "./components/kbd/kbd.css" layer(components);
 @import "./components/code-viewer/code-viewer.css" layer(components);

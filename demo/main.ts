@@ -8,6 +8,8 @@ import BadgePage from "./pages/BadgePage.vue";
 import BreadcrumbsPage from "./pages/BreadcrumbsPage.vue";
 import ButtonPage from "./pages/ButtonPage.vue";
 import ChipPage from "./pages/ChipPage.vue";
+import DividerPage from "./pages/DividerPage.vue";
+import SpinnerPage from "./pages/SpinnerPage.vue";
 import CodeViewerPage from "./pages/CodeViewerPage.vue";
 import ContextMenuPage from "./pages/ContextMenuPage.vue";
 import DropdownMenuPage from "./pages/DropdownMenuPage.vue";
@@ -72,6 +74,8 @@ const router = createRouter({
     { path: "/breadcrumbs", name: "breadcrumbs", component: BreadcrumbsPage },
     { path: "/button", name: "button", component: ButtonPage },
     { path: "/chip", name: "chip", component: ChipPage },
+    { path: "/divider", name: "divider", component: DividerPage },
+    { path: "/spinner", name: "spinner", component: SpinnerPage },
     { path: "/action-button", name: "action-button", component: ActionButtonPage },
     { path: "/code-viewer", name: "code-viewer", component: CodeViewerPage },
     { path: "/context-menu", name: "context-menu", component: ContextMenuPage },

@@ -35,9 +35,9 @@ describe("prefers-reduced-motion: reduce", () => {
     expect(block).toMatch(/\.danx-progress-bar__indeterminate\s*{[^}]*animation:\s*none/s);
   });
 
-  it("degrades the button spinner to a static state", () => {
-    const block = reducedMotionBlockOf(join(componentsDir, "button", "button.css"));
-    expect(block).toMatch(/\.danx-button__spinner\s*{[^}]*animation:\s*none/s);
+  it("degrades the spinner to a static state (used by DanxButton's loading state)", () => {
+    const block = reducedMotionBlockOf(join(componentsDir, "spinner", "spinner.css"));
+    expect(block).toMatch(/\.danx-spinner\s*{[^}]*animation:\s*none/s);
   });
 
   it("degrades the editable-div spinner to a static state", () => {

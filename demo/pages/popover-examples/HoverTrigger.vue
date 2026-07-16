@@ -12,9 +12,7 @@ import { DanxPopover } from "danx-ui";
         <p class="m-0">
           This popover opens on hover. Move your cursor to this panel — it stays open.
         </p>
-        <p class="mt-2 text-text-muted text-[0.8125rem]">
-          Move away to close (200ms delay).
-        </p>
+        <p class="mt-2 text-text-muted text-[0.8125rem]">Move away to close (200ms delay).</p>
       </div>
     </DanxPopover>
 

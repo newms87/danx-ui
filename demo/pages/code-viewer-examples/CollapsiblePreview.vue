@@ -13,9 +13,7 @@ const data = {
 
 <template>
   <div class="flex flex-col gap-4 w-full">
-    <p class="text-sm opacity-70">
-      Click the collapsed preview to expand:
-    </p>
+    <p class="text-sm opacity-70">Click the collapsed preview to expand:</p>
     <CodeViewer :model-value="data" collapsible :default-collapsed="true" />
   </div>
 </template>

@@ -99,6 +99,7 @@
 import { computed, toRef, useAttrs } from "vue";
 import { useVariant } from "../../shared/composables/useVariant";
 import { DanxIcon } from "../icon";
+import { DanxSpinner } from "../spinner";
 import { DanxTooltip } from "../tooltip";
 import type { DanxButtonEmits, DanxButtonProps, DanxButtonSlots } from "./types";
 
@@ -152,7 +153,13 @@ function handleClick(event: MouseEvent) {
         @click="handleClick"
       >
         <!-- Loading spinner -->
-        <span v-if="loading" class="danx-button__spinner" />
+        <DanxSpinner
+          v-if="loading"
+          size="md"
+          class="danx-button__spinner"
+          :style="{ '--dx-spinner-md-size': '1lh' }"
+          aria-label="Loading"
+        />
 
         <!-- Icon (only rendered when icon prop or icon slot is provided) -->
         <span v-if="!loading && ($slots.icon || icon)" class="danx-button__icon">

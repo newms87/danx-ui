@@ -12,6 +12,8 @@ export { DanxAlert } from "./components/alert";
 export { DanxBadge } from "./components/badge";
 export { DanxBreadcrumbs } from "./components/breadcrumbs";
 export { DanxChip } from "./components/chip";
+export { DanxDivider } from "./components/divider";
+export { DanxSpinner } from "./components/spinner";
 export { DanxIcon } from "./components/icon";
 export { DanxKbd, detectOs, resolveKeyLabel } from "./components/kbd";
 export type { DanxKbdOs, DanxKbdProps } from "./components/kbd";
@@ -137,6 +139,8 @@ export type { DanxAlertProps, DanxAlertEmits, DanxAlertSlots } from "./component
 export type { BadgePlacement, DanxBadgeProps, DanxBadgeSlots } from "./components/badge";
 export type { DanxBreadcrumbItem, DanxBreadcrumbsProps } from "./components/breadcrumbs";
 export type { ChipSize, DanxChipEmits, DanxChipProps, DanxChipSlots } from "./components/chip";
+export type { DanxDividerProps, DanxDividerSlots, DividerOrientation } from "./components/divider";
+export type { DanxSpinnerProps, SpinnerSize } from "./components/spinner";
 export type {
   CodeFormat,
   CodeViewerCollapsedProps,

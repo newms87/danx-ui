@@ -16,10 +16,5 @@ const data = ref({
 </script>
 
 <template>
-  <CodeViewer
-    :model-value="data"
-    can-edit
-    editable
-    @update:model-value="data = $event"
-  />
+  <CodeViewer :model-value="data" can-edit editable @update:model-value="data = $event" />
 </template>

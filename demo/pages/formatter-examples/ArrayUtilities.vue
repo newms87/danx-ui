@@ -44,12 +44,8 @@ const examples = [
   <table class="border-collapse w-full">
     <thead>
       <tr>
-        <th class="text-left p-2 border-b-2 border-border">
-          Expression
-        </th>
-        <th class="text-left p-2 border-b-2 border-border">
-          Result
-        </th>
+        <th class="text-left p-2 border-b-2 border-border">Expression</th>
+        <th class="text-left p-2 border-b-2 border-border">Result</th>
       </tr>
     </thead>
     <tbody>

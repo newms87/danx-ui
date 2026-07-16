@@ -9,9 +9,7 @@ import { DanxPopover } from "danx-ui";
     </template>
     <div class="px-4 py-3 max-w-56">
       <p>This popover toggles on click. No v-model needed.</p>
-      <p class="mt-2 text-text-muted text-[0.8125rem]">
-        Click outside or press Escape to close.
-      </p>
+      <p class="mt-2 text-text-muted text-[0.8125rem]">Click outside or press Escape to close.</p>
     </div>
   </DanxPopover>
 </template>
