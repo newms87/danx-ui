@@ -45,7 +45,7 @@
 import { ref, toRef, type Ref } from "vue";
 import DanxScroll from "../scroll/DanxScroll.vue";
 import type { DanxSplitPanelProps } from "./types";
-import { useSplitPanel } from "./useSplitPanel";
+import { MIN_PANEL_PERCENT, useSplitPanel } from "./useSplitPanel";
 import SplitPanelHandle from "./SplitPanelHandle.vue";
 
 const props = withDefaults(defineProps<DanxSplitPanelProps>(), {
@@ -65,7 +65,7 @@ if (activePanelIds.value === undefined) {
 
 const containerRef = ref<HTMLElement | null>(null);
 
-const { panelStates, togglePanel, isActive, startResize, isResizing } = useSplitPanel(
+const { panelStates, togglePanel, isActive, startResize, isResizing, resizeStep } = useSplitPanel(
   toRef(props, "panels"),
   activePanelIds as Ref<string[]>,
   {
@@ -100,7 +100,15 @@ const { panelStates, togglePanel, isActive, startResize, isResizing } = useSplit
         <SplitPanelHandle
           v-if="index < panelStates.length - 1"
           :horizontal="horizontal"
+          :value-now="Math.round(state.computedWidth)"
+          :value-min="MIN_PANEL_PERCENT"
+          :value-max="
+            Math.round(
+              state.computedWidth + panelStates[index + 1]!.computedWidth - MIN_PANEL_PERCENT
+            )
+          "
           @drag-start="startResize(index, $event)"
+          @resize="resizeStep(index, $event)"
         />
       </template>
     </div>

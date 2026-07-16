@@ -10,6 +10,7 @@
   --dx-split-panel-handle-color: var(--color-border);
   --dx-split-panel-handle-hover: var(--color-interactive);
   --dx-split-panel-handle-active: var(--color-interactive);
+  --dx-split-panel-handle-focus-ring: var(--color-focus-ring);
 }
 
 .danx-split-panel {

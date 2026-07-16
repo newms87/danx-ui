@@ -45,10 +45,16 @@ export interface UseSplitPanelReturn {
 
   /** Whether a resize drag is in progress */
   isResizing: Ref<boolean>;
+
+  /** Adjust the split at a handle by keyboard: step in a direction, or jump to an extreme */
+  resizeStep: (handleIndex: number, direction: "decrease" | "increase" | "min" | "max") => void;
 }
 
 /** Minimum panel width as a percentage of container */
-const MIN_PANEL_PERCENT = 5;
+export const MIN_PANEL_PERCENT = 5;
+
+/** Percentage adjustment applied per keyboard resize step */
+const STEP_PANEL_PERCENT = 5;
 
 export function useSplitPanel(
   panels: Ref<SplitPanelConfig[]>,
@@ -156,6 +162,62 @@ export function useSplitPanel(
 
   // --- Resize ---
 
+  /** Sum of each active panel's effective width (customWidth or defaultWidth) */
+  function totalEffectiveWidth(states: SplitPanelState[]): number {
+    return states.reduce((sum, s) => {
+      return (
+        sum + (customWidths.value[s.id] ?? panels.value.find((p) => p.id === s.id)!.defaultWidth)
+      );
+    }, 0);
+  }
+
+  function applyPanelSplit(
+    states: SplitPanelState[],
+    leftPanel: SplitPanelState,
+    rightPanel: SplitPanelState,
+    newLeftWidth: number,
+    newRightWidth: number
+  ): void {
+    const totalEffective = totalEffectiveWidth(states);
+
+    customWidths.value = {
+      ...customWidths.value,
+      [leftPanel.id]: (newLeftWidth / 100) * totalEffective,
+      [rightPanel.id]: (newRightWidth / 100) * totalEffective,
+    };
+  }
+
+  function resizeStep(
+    handleIndex: number,
+    direction: "decrease" | "increase" | "min" | "max"
+  ): void {
+    const states = panelStates.value;
+    if (handleIndex < 0 || handleIndex >= states.length - 1) return;
+
+    const leftPanel = states[handleIndex]!;
+    const rightPanel = states[handleIndex + 1]!;
+    const totalWidth = leftPanel.computedWidth + rightPanel.computedWidth;
+
+    let newLeftWidth: number;
+    if (direction === "min") {
+      newLeftWidth = MIN_PANEL_PERCENT;
+    } else if (direction === "max") {
+      newLeftWidth = totalWidth - MIN_PANEL_PERCENT;
+    } else {
+      const delta = direction === "increase" ? STEP_PANEL_PERCENT : -STEP_PANEL_PERCENT;
+      newLeftWidth = leftPanel.computedWidth + delta;
+    }
+
+    newLeftWidth = Math.max(
+      MIN_PANEL_PERCENT,
+      Math.min(totalWidth - MIN_PANEL_PERCENT, newLeftWidth)
+    );
+    const newRightWidth = totalWidth - newLeftWidth;
+
+    applyPanelSplit(states, leftPanel, rightPanel, newLeftWidth, newRightWidth);
+    saveToStorage();
+  }
+
   function startResize(handleIndex: number, event: PointerEvent): void {
     const states = panelStates.value;
     if (handleIndex < 0 || handleIndex >= states.length - 1) return;
@@ -198,17 +260,7 @@ export function useSplitPanel(
 
       // Convert back to effective weights for storage
       // We store the proportional value that would produce the desired percentage
-      const totalEffective = states.reduce((sum, s) => {
-        return (
-          sum + (customWidths.value[s.id] ?? panels.value.find((p) => p.id === s.id)!.defaultWidth)
-        );
-      }, 0);
-
-      customWidths.value = {
-        ...customWidths.value,
-        [leftPanel.id]: (newLeftWidth / 100) * totalEffective,
-        [rightPanel.id]: (newRightWidth / 100) * totalEffective,
-      };
+      applyPanelSplit(states, leftPanel, rightPanel, newLeftWidth, newRightWidth);
     }
 
     function onPointerUp() {
@@ -234,5 +286,6 @@ export function useSplitPanel(
     isActive,
     startResize,
     isResizing,
+    resizeStep,
   };
 }

@@ -723,4 +723,100 @@ describe("useSplitPanel", () => {
       expect(stored.customWidths.content).toBeDefined();
     });
   });
+
+  describe("resizeStep (keyboard resize)", () => {
+    it("increases the left panel width by the step on 'increase'", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      resizeStep(0, "increase");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(35);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(65);
+    });
+
+    it("decreases the left panel width by the step on 'decrease'", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      resizeStep(0, "decrease");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(25);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(75);
+    });
+
+    it("jumps the left panel to the minimum on 'min'", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      resizeStep(0, "min");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(5);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(95);
+    });
+
+    it("jumps the left panel to the maximum on 'max'", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      resizeStep(0, "max");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(95);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(5);
+    });
+
+    it("clamps to the minimum when decreasing past it", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      for (let i = 0; i < 10; i++) resizeStep(0, "decrease");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(5);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(95);
+    });
+
+    it("clamps to the maximum when increasing past it", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      for (let i = 0; i < 20; i++) resizeStep(0, "increase");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(95);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(5);
+    });
+
+    it("does nothing for an invalid handle index", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      resizeStep(5, "increase");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(30);
+    });
+
+    it("does nothing for a negative handle index", () => {
+      const { resizeStep, panelStates } = createSplitPanel();
+
+      resizeStep(-1, "increase");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(30);
+    });
+
+    it("persists to localStorage after a keyboard resize", () => {
+      const STORAGE_KEY = "keyboard-resize-test";
+      const { resizeStep } = createSplitPanel(TWO_PANELS, undefined, {
+        storageKey: STORAGE_KEY,
+      });
+
+      resizeStep(0, "increase");
+
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+      expect(stored.customWidths.sidebar).toBeDefined();
+      expect(stored.customWidths.content).toBeDefined();
+    });
+
+    it("only resizes the adjacent pair when there are more than two panels", () => {
+      const { resizeStep, panelStates } = createSplitPanel(THREE_PANELS);
+
+      // nav(25%) | main(50%) | aside(25%) — step the nav/main handle
+      resizeStep(0, "increase");
+
+      expect(panelStates.value[0]!.computedWidth).toBeCloseTo(30);
+      expect(panelStates.value[1]!.computedWidth).toBeCloseTo(45);
+      expect(panelStates.value[2]!.computedWidth).toBeCloseTo(25);
+    });
+  });
 });

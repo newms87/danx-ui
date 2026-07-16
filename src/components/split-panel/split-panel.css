@@ -67,6 +67,11 @@
   &:active .danx-split-panel-handle__grip {
     background: var(--dx-split-panel-handle-active);
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--dx-split-panel-handle-focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 /* Handle — horizontal (row layout, cursor row-resize) */
