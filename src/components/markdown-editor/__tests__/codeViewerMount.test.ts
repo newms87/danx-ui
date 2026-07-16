@@ -237,7 +237,7 @@ describe("codeViewerMount", () => {
       }
 
       it("applies preferred format to auto-detected blocks", () => {
-        localStorage.setItem(STORAGE_KEY, "yaml");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify("yaml"));
         const wrapper = createAutoDetectedWrapper("cb-ad1");
         const deps = createDeps();
 
@@ -260,7 +260,7 @@ describe("codeViewerMount", () => {
       });
 
       it("does not apply preference to non-auto-detected blocks", () => {
-        localStorage.setItem(STORAGE_KEY, "yaml");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify("yaml"));
         const wrapper = createWrapper("cb-ad3", '{"a": 1}', "json");
         const deps = createDeps();
 
@@ -272,7 +272,7 @@ describe("codeViewerMount", () => {
       });
 
       it("does not apply preference to auto-detected blocks with non-structured-data language", () => {
-        localStorage.setItem(STORAGE_KEY, "yaml");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify("yaml"));
         const wrapper = createAutoDetectedWrapper("cb-ad4", "const x = 1;", "javascript");
         const deps = createDeps();
 
@@ -284,7 +284,7 @@ describe("codeViewerMount", () => {
       });
 
       it("applies JSON preference to auto-detected YAML block", () => {
-        localStorage.setItem(STORAGE_KEY, "json");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify("json"));
         const wrapper = createAutoDetectedWrapper("cb-ad5", "name: John\nage: 30", "yaml");
         const deps = createDeps();
 
@@ -307,7 +307,7 @@ describe("codeViewerMount", () => {
         const updateLanguage = vi.fn();
         handleFormatChange("cb1", "yaml", true, updateLanguage);
         expect(updateLanguage).toHaveBeenCalledWith("cb1", "yaml");
-        expect(localStorage.getItem(FORMAT_KEY)).toBe("yaml");
+        expect(localStorage.getItem(FORMAT_KEY)).toBe(JSON.stringify("yaml"));
       });
 
       it("updates language but does not persist for non-auto-detected blocks", () => {

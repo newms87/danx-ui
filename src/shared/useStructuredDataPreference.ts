@@ -8,6 +8,8 @@
  * Uses localStorage key "dx-structured-data-format".
  */
 
+import { getItem, setItem } from "./storage";
+
 const STORAGE_KEY = "dx-structured-data-format";
 
 /** Valid structured data formats */
@@ -18,27 +20,21 @@ export function isStructuredDataFormat(format: string): format is StructuredData
   return format === "json" || format === "yaml";
 }
 
+function isStructuredDataFormatValue(value: unknown): value is StructuredDataFormat {
+  return typeof value === "string" && isStructuredDataFormat(value);
+}
+
 /**
  * Get the user's preferred format for auto-detected structured data blocks.
  * Returns null if no preference has been set.
  */
 export function getPreferredStructuredDataFormat(): StructuredDataFormat | null {
-  try {
-    const value = localStorage.getItem(STORAGE_KEY);
-    if (value && isStructuredDataFormat(value)) return value;
-    return null;
-  } catch {
-    return null;
-  }
+  return getItem<StructuredDataFormat | null>(STORAGE_KEY, null, isStructuredDataFormatValue);
 }
 
 /**
  * Set the user's preferred format for auto-detected structured data blocks.
  */
 export function setPreferredStructuredDataFormat(format: StructuredDataFormat): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, format);
-  } catch {
-    // Silently ignore storage errors (private browsing, quota exceeded)
-  }
+  setItem(STORAGE_KEY, format);
 }

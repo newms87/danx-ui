@@ -1,4 +1,5 @@
 import { computed, type Ref, ref, watch } from "vue";
+import { getItem, setItem } from "../../shared/storage";
 import type { FileExplorerStorageState, FileNode } from "./types";
 
 /**
@@ -100,30 +101,30 @@ export function useFileExplorer(
     return acc;
   }
 
+  function isFileExplorerStorageState(value: unknown): value is FileExplorerStorageState {
+    return (
+      typeof value === "object" &&
+      value !== null &&
+      Array.isArray((value as FileExplorerStorageState).expandedIds)
+    );
+  }
+
   function loadFromStorage(): boolean {
     if (!storageKey) return false;
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (!raw) return false;
-      const stored: FileExplorerStorageState = JSON.parse(raw);
-      if (Array.isArray(stored.expandedIds)) {
-        expandedSet.value = new Set(stored.expandedIds.filter((id) => typeof id === "string"));
-        return true;
-      }
-    } catch {
-      // Invalid JSON — ignore and fall back to defaults
-    }
-    return false;
+    const stored = getItem<FileExplorerStorageState | null>(
+      storageKey,
+      null,
+      isFileExplorerStorageState
+    );
+    if (!stored) return false;
+    expandedSet.value = new Set(stored.expandedIds.filter((id) => typeof id === "string"));
+    return true;
   }
 
   function saveToStorage(): void {
     if (!storageKey) return;
-    try {
-      const state: FileExplorerStorageState = { expandedIds: [...expandedSet.value] };
-      localStorage.setItem(storageKey, JSON.stringify(state));
-    } catch {
-      // Storage unavailable (private mode / quota) — non-fatal
-    }
+    const state: FileExplorerStorageState = { expandedIds: [...expandedSet.value] };
+    setItem(storageKey, state);
   }
 
   // --- Initialize: persisted state > provided v-model > defaultExpanded ---

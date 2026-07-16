@@ -15,30 +15,11 @@
  */
 
 import { customRef, type Ref } from "vue";
+import { getItem, setItem } from "../../shared/storage";
 
 export interface PreferenceOptions<T> {
   /** Optional validator. Reject invalid stored values and use default. */
   validate?: (value: unknown) => value is T;
-}
-
-function safeRead<T>(storageKey: string, fallback: T, validate?: (v: unknown) => v is T): T {
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (raw === null) return fallback;
-    const parsed = JSON.parse(raw) as unknown;
-    if (validate && !validate(parsed)) return fallback;
-    return parsed as T;
-  } catch {
-    return fallback;
-  }
-}
-
-function safeWrite(storageKey: string, value: unknown): void {
-  try {
-    window.localStorage.setItem(storageKey, JSON.stringify(value));
-  } catch {
-    // Storage unavailable — preference lives in memory only for this session.
-  }
 }
 
 /**
@@ -56,7 +37,7 @@ export function usePreference<T>(
   options: PreferenceOptions<T> = {}
 ): Ref<T> {
   const storageKey = `${namespace}-${key}`;
-  let value: T = safeRead<T>(storageKey, defaultValue, options.validate);
+  let value: T = getItem<T>(storageKey, defaultValue, options.validate);
 
   return customRef<T>((track, trigger) => ({
     get() {
@@ -65,7 +46,7 @@ export function usePreference<T>(
     },
     set(next: T) {
       value = next;
-      safeWrite(storageKey, next);
+      setItem(storageKey, next);
       trigger();
     },
   }));

@@ -18,17 +18,25 @@ describe("useStructuredDataPreference", () => {
     });
 
     it("returns json when preference is json", () => {
-      localStorage.setItem(STORAGE_KEY, "json");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify("json"));
       expect(getPreferredStructuredDataFormat()).toBe("json");
     });
 
     it("returns yaml when preference is yaml", () => {
-      localStorage.setItem(STORAGE_KEY, "yaml");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify("yaml"));
       expect(getPreferredStructuredDataFormat()).toBe("yaml");
     });
 
     it("returns null for invalid stored values", () => {
-      localStorage.setItem(STORAGE_KEY, "xml");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify("xml"));
+      expect(getPreferredStructuredDataFormat()).toBeNull();
+    });
+
+    it("returns null for a pre-existing raw (non-JSON-encoded) value", () => {
+      // Legacy on-disk shape before the shared getItem/setItem migration (DXUI-187):
+      // the raw string was stored directly, without JSON.stringify. JSON.parse("json")
+      // throws, so this falls through to the default — a one-time, in-spec reset.
+      localStorage.setItem(STORAGE_KEY, "json");
       expect(getPreferredStructuredDataFormat()).toBeNull();
     });
   });
@@ -36,18 +44,18 @@ describe("useStructuredDataPreference", () => {
   describe("setPreferredStructuredDataFormat", () => {
     it("stores json preference", () => {
       setPreferredStructuredDataFormat("json");
-      expect(localStorage.getItem(STORAGE_KEY)).toBe("json");
+      expect(localStorage.getItem(STORAGE_KEY)).toBe(JSON.stringify("json"));
     });
 
     it("stores yaml preference", () => {
       setPreferredStructuredDataFormat("yaml");
-      expect(localStorage.getItem(STORAGE_KEY)).toBe("yaml");
+      expect(localStorage.getItem(STORAGE_KEY)).toBe(JSON.stringify("yaml"));
     });
 
     it("overwrites previous preference", () => {
       setPreferredStructuredDataFormat("json");
       setPreferredStructuredDataFormat("yaml");
-      expect(localStorage.getItem(STORAGE_KEY)).toBe("yaml");
+      expect(localStorage.getItem(STORAGE_KEY)).toBe(JSON.stringify("yaml"));
     });
   });
 

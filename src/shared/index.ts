@@ -19,3 +19,4 @@ export * from "./hexColor";
 export * from "./autoColor";
 export * from "./uid";
 export * from "./passwordStrength";
+export * from "./storage";

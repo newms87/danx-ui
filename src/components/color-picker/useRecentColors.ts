@@ -8,6 +8,7 @@
  */
 
 import { ref, watch, type Ref } from "vue";
+import { getItem, setItem } from "../../shared/storage";
 
 const STORAGE_PREFIX = "danx-color-picker:recent:";
 
@@ -26,26 +27,20 @@ function storageNameFor(key: string | undefined): string | null {
   return key ? `${STORAGE_PREFIX}${key}` : null;
 }
 
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value);
+}
+
 function readStorage(name: string | null): string[] {
-  if (!name || typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(name);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((v): v is string => typeof v === "string");
-  } catch {
-    return [];
-  }
+  if (!name) return [];
+  return getItem<string[]>(name, [], isStringArray).filter(
+    (v): v is string => typeof v === "string"
+  );
 }
 
 function writeStorage(name: string | null, colors: string[]): void {
-  if (!name || typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(name, JSON.stringify(colors));
-  } catch {
-    /* quota or privacy mode — silently fall through */
-  }
+  if (!name) return;
+  setItem(name, colors);
 }
 
 export function useRecentColors(options: UseRecentColorsOptions = {}): UseRecentColorsReturn {

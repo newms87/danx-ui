@@ -304,7 +304,7 @@ describe("MarkdownContent", () => {
     });
 
     it("renders auto-detected JSON in preferred YAML format", () => {
-      localStorage.setItem(STORAGE_KEY, "yaml");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify("yaml"));
       const markdown = 'Text\n\n{"name": "John", "age": 30}\n\nMore text';
       const wrapper = mountMarkdown(markdown);
       const cv = wrapper.findComponent({ name: "CodeViewer" });
@@ -319,7 +319,7 @@ describe("MarkdownContent", () => {
     });
 
     it("does not apply preference to fenced code blocks", () => {
-      localStorage.setItem(STORAGE_KEY, "yaml");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify("yaml"));
       const markdown = '```json\n{"fenced": true}\n```';
       const wrapper = mountMarkdown(markdown);
       const cv = wrapper.findComponent({ name: "CodeViewer" });
@@ -327,7 +327,7 @@ describe("MarkdownContent", () => {
     });
 
     it("renders auto-detected YAML in preferred JSON format", () => {
-      localStorage.setItem(STORAGE_KEY, "json");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify("json"));
       const markdown = "Text\n\nname: John\nage: 30\n\nMore text";
       const wrapper = mountMarkdown(markdown);
       const cv = wrapper.findComponent({ name: "CodeViewer" });
@@ -339,7 +339,7 @@ describe("MarkdownContent", () => {
       const wrapper = mountMarkdown(markdown);
       const cv = wrapper.findComponent({ name: "CodeViewer" });
       await cv.vm.$emit("update:format", "yaml");
-      expect(localStorage.getItem(STORAGE_KEY)).toBe("yaml");
+      expect(localStorage.getItem(STORAGE_KEY)).toBe(JSON.stringify("yaml"));
     });
 
     it("does not persist preference for non-structured-data format changes", async () => {

@@ -1,4 +1,5 @@
 import { computed, type Ref, ref, watch } from "vue";
+import { getItem, setItem } from "../../shared/storage";
 import type { SplitPanelConfig, SplitPanelState, SplitPanelStorageState } from "./types";
 
 /**
@@ -68,32 +69,39 @@ export function useSplitPanel(
 
   // --- localStorage ---
 
+  function isSplitPanelStorageState(value: unknown): value is SplitPanelStorageState {
+    return (
+      typeof value === "object" &&
+      value !== null &&
+      Array.isArray((value as SplitPanelStorageState).activePanelIds)
+    );
+  }
+
   function loadFromStorage(): void {
     if (!storageKey) return;
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (!raw) return;
-      const stored: SplitPanelStorageState = JSON.parse(raw);
-      const validIds = new Set(panels.value.map((p) => p.id));
+    const stored = getItem<SplitPanelStorageState | null>(
+      storageKey,
+      null,
+      isSplitPanelStorageState
+    );
+    if (!stored) return;
+    const validIds = new Set(panels.value.map((p) => p.id));
 
-      // Validate stored panel IDs against current config
-      const validActive = stored.activePanelIds.filter((id) => validIds.has(id));
-      if (validActive.length > 0) {
-        activePanelIds.value = validActive;
-      }
+    // Validate stored panel IDs against current config
+    const validActive = stored.activePanelIds.filter((id) => validIds.has(id));
+    if (validActive.length > 0) {
+      activePanelIds.value = validActive;
+    }
 
-      // Validate stored custom widths
-      if (stored.customWidths) {
-        const validWidths: Record<string, number> = {};
-        for (const [id, width] of Object.entries(stored.customWidths)) {
-          if (validIds.has(id) && typeof width === "number" && width > 0) {
-            validWidths[id] = width;
-          }
+    // Validate stored custom widths
+    if (stored.customWidths) {
+      const validWidths: Record<string, number> = {};
+      for (const [id, width] of Object.entries(stored.customWidths)) {
+        if (validIds.has(id) && typeof width === "number" && width > 0) {
+          validWidths[id] = width;
         }
-        customWidths.value = validWidths;
       }
-    } catch {
-      // Invalid JSON — ignore and use defaults
+      customWidths.value = validWidths;
     }
   }
 
@@ -103,11 +111,7 @@ export function useSplitPanel(
       activePanelIds: activePanelIds.value,
       customWidths: customWidths.value,
     };
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(state));
-    } catch {
-      // Storage unavailable/full — preference stays in-memory for this session
-    }
+    setItem(storageKey, state);
   }
 
   // Load persisted state on init
