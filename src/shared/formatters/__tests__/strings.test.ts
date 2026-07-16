@@ -149,6 +149,19 @@ describe("fAddress", () => {
   it("formats multiline with only city", () => {
     expect(fAddress({ city: "Springfield" }, "multiline")).toBe("Springfield");
   });
+
+  // DXUI-130: city/state missing but zip present used to leave a leading space on line 2
+  it("formats multiline with only zip (no city/state)", () => {
+    expect(fAddress({ street: "123 Main St", zip: "90210" }, "multiline")).toBe(
+      "123 Main St\n90210"
+    );
+  });
+
+  it("formats multiline with only state and zip", () => {
+    expect(fAddress({ street: "123 Main St", state: "CA", zip: "90210" }, "multiline")).toBe(
+      "123 Main St\nCA 90210"
+    );
+  });
 });
 
 describe("fPhone", () => {

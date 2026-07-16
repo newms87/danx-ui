@@ -48,8 +48,8 @@ export function fAddress(value: unknown, mode?: "multiline"): string {
   const parts = [addr.street, addr.city, addr.state, addr.zip].filter(Boolean);
   if (mode === "multiline") {
     const line1 = addr.street || "";
-    const line2 =
-      [addr.city, addr.state].filter(Boolean).join(", ") + (addr.zip ? " " + addr.zip : "");
+    const cityState = [addr.city, addr.state].filter(Boolean).join(", ");
+    const line2 = [cityState, addr.zip].filter(Boolean).join(" ");
     return [line1, line2].filter(Boolean).join("\n");
   }
   return parts.join(", ");
