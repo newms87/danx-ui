@@ -1,0 +1,73 @@
+/**
+ * DanxTagInput Tokens
+ *
+ * Component tokens (Tier 3) referencing shared form tokens.
+ *
+ * CSS Tokens:
+ * --dx-tag-input-bg                  Container background
+ * --dx-tag-input-border              Default border color
+ * --dx-tag-input-border-hover        Border color on hover
+ * --dx-tag-input-border-focus        Border color when focused
+ * --dx-tag-input-border-error        Border color in error state
+ * --dx-tag-input-text                Draft input text color
+ * --dx-tag-input-placeholder         Placeholder text color
+ * --dx-tag-input-disabled-bg         Background when disabled
+ * --dx-tag-input-disabled-text       Text color when disabled
+ * --dx-tag-input-disabled-opacity    Opacity when disabled
+ * --dx-tag-input-border-radius       Corner radius
+ * --dx-tag-input-transition          Transition timing
+ * --dx-tag-input-gap                 Gap between chips/input
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-tag-input-{size}-min-height   Minimum container height
+ * --dx-tag-input-{size}-font-size    Font size
+ * --dx-tag-input-{size}-padding-x    Horizontal padding
+ * --dx-tag-input-{size}-padding-y    Vertical padding
+ */
+
+:root {
+  /* ==========================================================================
+     Global Tag Input Tokens
+     ========================================================================== */
+
+  --dx-tag-input-bg: var(--color-field-bg);
+  --dx-tag-input-border: var(--color-field-border);
+  --dx-tag-input-border-hover: var(--color-field-border-hover);
+  --dx-tag-input-border-focus: var(--color-field-border-focus);
+  --dx-tag-input-border-error: var(--color-field-border-error);
+  --dx-tag-input-text: var(--color-field-text);
+  --dx-tag-input-placeholder: var(--color-field-placeholder);
+  --dx-tag-input-disabled-bg: var(--color-field-disabled-bg);
+  --dx-tag-input-disabled-text: var(--color-field-disabled-text);
+  --dx-tag-input-disabled-opacity: var(--opacity-field-disabled);
+  --dx-tag-input-border-radius: var(--radius-field);
+  --dx-tag-input-transition: var(--transition-fast);
+  --dx-tag-input-gap: var(--spacing-1);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-tag-input-sm-min-height: var(--field-sm-height);
+  --dx-tag-input-sm-font-size: var(--field-sm-font-size);
+  --dx-tag-input-sm-padding-x: var(--field-sm-padding-x);
+  --dx-tag-input-sm-padding-y: var(--spacing-1);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-tag-input-md-min-height: var(--field-md-height);
+  --dx-tag-input-md-font-size: var(--field-md-font-size);
+  --dx-tag-input-md-padding-x: var(--field-md-padding-x);
+  --dx-tag-input-md-padding-y: var(--spacing-1-5);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-tag-input-lg-min-height: var(--field-lg-height);
+  --dx-tag-input-lg-font-size: var(--field-lg-font-size);
+  --dx-tag-input-lg-padding-x: var(--field-lg-padding-x);
+  --dx-tag-input-lg-padding-y: var(--spacing-2);
+}

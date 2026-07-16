@@ -48,6 +48,7 @@ import { DanxEmptyState } from "../../src/components/empty-state";
 import { DanxSpinner } from "../../src/components/spinner";
 import { DanxFieldWrapper } from "../../src/components/field-wrapper";
 import { DanxInput } from "../../src/components/input";
+import { DanxTagInput } from "../../src/components/tag-input";
 import { DanxNumberInput } from "../../src/components/number-input";
 import { DanxTextarea } from "../../src/components/textarea";
 import { DanxSelect, useSelect } from "../../src/components/select";
@@ -331,6 +332,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxRating,
   DanxColorPicker,
   DanxInput,
+  DanxTagInput,
   DanxNumberInput,
   DanxTextarea,
   DanxSelect,
@@ -541,6 +543,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxEditableDiv,
   // Input
   DanxInput,
+  DanxTagInput,
   DanxNumberInput,
   DanxTextarea,
   DanxSelect,

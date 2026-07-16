@@ -292,6 +292,11 @@
       "import": "./dist/components/tabs/index.js"
     },
     "./components/tabs/styles": "./dist/components/tabs/tabs.css",
+    "./components/tag-input": {
+      "types": "./dist/components/tag-input/index.d.ts",
+      "import": "./dist/components/tag-input/index.js"
+    },
+    "./components/tag-input/styles": "./dist/components/tag-input/tag-input.css",
     "./components/textarea": {
       "types": "./dist/components/textarea/index.d.ts",
       "import": "./dist/components/textarea/index.js"

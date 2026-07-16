@@ -71,6 +71,7 @@ export {
   hslToRgb,
   isHex,
 } from "./components/color-picker";
+export { DanxTagInput } from "./components/tag-input";
 export { DanxTextarea } from "./components/textarea";
 export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
@@ -376,6 +377,11 @@ export type {
   UseRecentColorsOptions,
   UseRecentColorsReturn,
 } from "./components/color-picker";
+export type {
+  DanxTagInputProps,
+  DanxTagInputEmits,
+  DanxTagInputSlots,
+} from "./components/tag-input";
 export type { TextareaResize, DanxTextareaProps, DanxTextareaEmits } from "./components/textarea";
 export type {
   DanxSelectEmits,

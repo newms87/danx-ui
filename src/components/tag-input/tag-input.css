@@ -1,0 +1,126 @@
+/**
+ * DanxTagInput Styles
+ *
+ * Main entry point that imports tokens and defines container layout,
+ * chip spacing, native draft input, and size/state modifiers.
+ *
+ * Note: BEM modifiers (.danx-tag-input--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "./tag-input-tokens.css";
+
+/* ==========================================================================
+   Base Container
+   ========================================================================== */
+
+.danx-tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dx-tag-input-gap);
+  background: var(--dx-tag-input-bg);
+  border: 1px solid var(--dx-tag-input-border);
+  border-radius: var(--dx-tag-input-border-radius);
+  transition:
+    border-color var(--dx-tag-input-transition),
+    box-shadow var(--dx-tag-input-transition);
+
+  &:hover:not(.danx-tag-input--disabled):not(.danx-tag-input--readonly) {
+    border-color: var(--dx-tag-input-border-hover);
+  }
+}
+
+/* ==========================================================================
+   Chips
+   ========================================================================== */
+
+.danx-tag-input__chip {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Native Draft Input
+   ========================================================================== */
+
+.danx-tag-input__native {
+  flex: 1 1 auto;
+  min-width: 4rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--dx-tag-input-text);
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--dx-tag-input-placeholder);
+  }
+}
+
+/* ==========================================================================
+   Prefix & Suffix Slots
+   ========================================================================== */
+
+.danx-tag-input__prefix,
+.danx-tag-input__suffix {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--dx-tag-input-placeholder);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-tag-input--sm {
+  min-height: var(--dx-tag-input-sm-min-height);
+  font-size: var(--dx-tag-input-sm-font-size);
+  padding: var(--dx-tag-input-sm-padding-y) var(--dx-tag-input-sm-padding-x);
+}
+
+.danx-tag-input--md {
+  min-height: var(--dx-tag-input-md-min-height);
+  font-size: var(--dx-tag-input-md-font-size);
+  padding: var(--dx-tag-input-md-padding-y) var(--dx-tag-input-md-padding-x);
+}
+
+.danx-tag-input--lg {
+  min-height: var(--dx-tag-input-lg-min-height);
+  font-size: var(--dx-tag-input-lg-font-size);
+  padding: var(--dx-tag-input-lg-padding-y) var(--dx-tag-input-lg-padding-x);
+}
+
+/* ==========================================================================
+   State Modifiers
+   ========================================================================== */
+
+.danx-tag-input--focused {
+  border-color: var(--dx-tag-input-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-tag-input-border-focus) 25%, transparent);
+}
+
+.danx-tag-input--error {
+  border-color: var(--dx-tag-input-border-error);
+
+  &.danx-tag-input--focused {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--dx-tag-input-border-error) 25%, transparent);
+  }
+}
+
+.danx-tag-input--disabled {
+  background: var(--dx-tag-input-disabled-bg);
+  opacity: var(--dx-tag-input-disabled-opacity);
+  cursor: not-allowed;
+
+  .danx-tag-input__native {
+    color: var(--dx-tag-input-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+.danx-tag-input--readonly {
+  .danx-tag-input__native {
+    cursor: default;
+  }
+}

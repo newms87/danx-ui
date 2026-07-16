@@ -52,6 +52,7 @@ import RatingPage from "./pages/RatingPage.vue";
 import ColorPickerPage from "./pages/ColorPickerPage.vue";
 import InputPage from "./pages/InputPage.vue";
 import TextareaPage from "./pages/TextareaPage.vue";
+import TagInputPage from "./pages/TagInputPage.vue";
 import SelectPage from "./pages/SelectPage.vue";
 import FormValidationPage from "./pages/FormValidationPage.vue";
 import DanxFileUploadPage from "./pages/DanxFileUploadPage.vue";
@@ -126,6 +127,7 @@ const router = createRouter({
     { path: "/color-picker", name: "color-picker", component: ColorPickerPage },
     { path: "/input", name: "input", component: InputPage },
     { path: "/textarea", name: "textarea", component: TextareaPage },
+    { path: "/tag-input", name: "tag-input", component: TagInputPage },
     { path: "/select", name: "select", component: SelectPage },
     { path: "/form-validation", name: "form-validation", component: FormValidationPage },
     { path: "/danx-file-upload", name: "danx-file-upload", component: DanxFileUploadPage },
