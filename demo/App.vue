@@ -100,6 +100,9 @@ watch(theme, (newTheme) => {
                 >
               </li>
               <li>
+                <RouterLink to="/avatar" class="demo-sidebar__link">Avatar</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/badge" class="demo-sidebar__link">Badge</RouterLink>
               </li>
               <li>

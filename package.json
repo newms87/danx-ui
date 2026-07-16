@@ -68,6 +68,11 @@
       "import": "./dist/components/audit-history-item/index.js"
     },
     "./components/audit-history-item/styles": "./dist/components/audit-history-item/audit-history-item.css",
+    "./components/avatar": {
+      "types": "./dist/components/avatar/index.d.ts",
+      "import": "./dist/components/avatar/index.js"
+    },
+    "./components/avatar/styles": "./dist/components/avatar/avatar.css",
     "./components/badge": {
       "types": "./dist/components/badge/index.d.ts",
       "import": "./dist/components/badge/index.js"

@@ -36,6 +36,7 @@ import {
   watchEffect,
 } from "vue";
 import { DanxAlert } from "../../src/components/alert";
+import { DanxAvatar, getInitials } from "../../src/components/avatar";
 import { DanxAuditHistoryItem } from "../../src/components/audit-history-item";
 import { DanxBadge } from "../../src/components/badge";
 import { DanxBreadcrumbs } from "../../src/components/breadcrumbs";
@@ -269,6 +270,7 @@ import { useLogDemo, levelColor } from "../pages/scroll-examples/useLogDemo.js";
 /** Components available in compiled templates via the `components` option */
 const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxAlert,
+  DanxAvatar,
   DanxAuditHistoryItem,
   DanxBadge,
   DanxBreadcrumbs,
@@ -343,6 +345,8 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   onUnmounted,
   nextTick,
   DanxAlert,
+  DanxAvatar,
+  getInitials,
   DanxAuditHistoryItem,
   DanxBadge,
   DanxBreadcrumbs,

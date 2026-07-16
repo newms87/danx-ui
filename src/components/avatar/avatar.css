@@ -1,0 +1,142 @@
+/**
+ * DanxAvatar Styles
+ *
+ * Main entry point that imports tokens and defines avatar layout,
+ * size modifiers, shape modifiers, image, and fallback rendering.
+ *
+ * Note: BEM modifiers (.danx-avatar--md) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "./avatar-tokens.css";
+
+/* ==========================================================================
+   Base Avatar Layout
+   ========================================================================== */
+
+.danx-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  width: var(--dx-avatar-size, var(--dx-avatar-md-size));
+  height: var(--dx-avatar-size, var(--dx-avatar-md-size));
+  font-size: var(--dx-avatar-font-size, var(--dx-avatar-md-font-size));
+  font-family: var(--dx-avatar-font-family);
+  font-weight: var(--dx-avatar-font-weight);
+  line-height: var(--leading-none);
+  background: var(--dx-avatar-bg, var(--color-surface-sunken));
+  color: var(--dx-avatar-text, var(--color-text));
+}
+
+/* ==========================================================================
+   Shape Modifiers
+   ========================================================================== */
+
+.danx-avatar--circle {
+  border-radius: var(--dx-avatar-border-radius);
+}
+
+.danx-avatar--square {
+  border-radius: var(--dx-avatar-square-radius);
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-avatar--xs {
+  width: var(--dx-avatar-xs-size);
+  height: var(--dx-avatar-xs-size);
+  font-size: var(--dx-avatar-xs-font-size);
+
+  .danx-avatar__icon {
+    width: var(--dx-avatar-xs-icon-size);
+    height: var(--dx-avatar-xs-icon-size);
+  }
+}
+
+.danx-avatar--sm {
+  width: var(--dx-avatar-sm-size);
+  height: var(--dx-avatar-sm-size);
+  font-size: var(--dx-avatar-sm-font-size);
+
+  .danx-avatar__icon {
+    width: var(--dx-avatar-sm-icon-size);
+    height: var(--dx-avatar-sm-icon-size);
+  }
+}
+
+.danx-avatar--md {
+  width: var(--dx-avatar-md-size);
+  height: var(--dx-avatar-md-size);
+  font-size: var(--dx-avatar-md-font-size);
+
+  .danx-avatar__icon {
+    width: var(--dx-avatar-md-icon-size);
+    height: var(--dx-avatar-md-icon-size);
+  }
+}
+
+.danx-avatar--lg {
+  width: var(--dx-avatar-lg-size);
+  height: var(--dx-avatar-lg-size);
+  font-size: var(--dx-avatar-lg-font-size);
+
+  .danx-avatar__icon {
+    width: var(--dx-avatar-lg-icon-size);
+    height: var(--dx-avatar-lg-icon-size);
+  }
+}
+
+.danx-avatar--xl {
+  width: var(--dx-avatar-xl-size);
+  height: var(--dx-avatar-xl-size);
+  font-size: var(--dx-avatar-xl-font-size);
+
+  .danx-avatar__icon {
+    width: var(--dx-avatar-xl-icon-size);
+    height: var(--dx-avatar-xl-icon-size);
+  }
+}
+
+/* ==========================================================================
+   Image
+   ========================================================================== */
+
+.danx-avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================================================
+   Fallback (initials / icon)
+   ========================================================================== */
+
+.danx-avatar__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.danx-avatar__initials {
+  text-transform: uppercase;
+}
+
+.danx-avatar__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dx-avatar-icon-size, var(--dx-avatar-md-icon-size));
+  height: var(--dx-avatar-icon-size, var(--dx-avatar-md-icon-size));
+
+  .danx-icon {
+    width: 100%;
+    height: 100%;
+  }
+}

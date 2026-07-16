@@ -1,0 +1,68 @@
+/**
+ * DanxAvatar Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic/primitive tokens.
+ * Override these to customize avatar appearance.
+ *
+ * CSS Tokens:
+ * --dx-avatar-font-family      Font family
+ * --dx-avatar-font-weight      Initials font weight
+ * --dx-avatar-border-radius    Circle corner radius
+ * --dx-avatar-square-radius    Square corner radius
+ *
+ * Size tokens (for each size: xs, sm, md, lg, xl):
+ * --dx-avatar-{size}-size        Width and height
+ * --dx-avatar-{size}-font-size   Initials font size
+ * --dx-avatar-{size}-icon-size   Fallback icon size
+ */
+
+:root {
+  /* ==========================================================================
+     Global Avatar Tokens
+     ========================================================================== */
+
+  --dx-avatar-font-family: var(--font-sans);
+  --dx-avatar-font-weight: var(--font-medium);
+  --dx-avatar-border-radius: var(--radius-full);
+  --dx-avatar-square-radius: var(--radius-md);
+
+  /* ==========================================================================
+     Size Tokens - XS
+     ========================================================================== */
+
+  --dx-avatar-xs-size: 1.5rem;
+  --dx-avatar-xs-font-size: var(--text-xs);
+  --dx-avatar-xs-icon-size: 0.75rem;
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-avatar-sm-size: 2rem;
+  --dx-avatar-sm-font-size: var(--text-sm);
+  --dx-avatar-sm-icon-size: 1rem;
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-avatar-md-size: 2.5rem;
+  --dx-avatar-md-font-size: var(--text-base);
+  --dx-avatar-md-icon-size: 1.25rem;
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-avatar-lg-size: 3.5rem;
+  --dx-avatar-lg-font-size: var(--text-xl);
+  --dx-avatar-lg-icon-size: 1.75rem;
+
+  /* ==========================================================================
+     Size Tokens - XL
+     ========================================================================== */
+
+  --dx-avatar-xl-size: 5rem;
+  --dx-avatar-xl-font-size: var(--text-3xl);
+  --dx-avatar-xl-icon-size: 2.5rem;
+}

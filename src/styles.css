@@ -13,6 +13,7 @@
 @import "./shared/tokens/index.css";
 @import "./shared/tokens/color-swatch.css";
 @import "./components/alert/alert.css" layer(components);
+@import "./components/avatar/avatar.css" layer(components);
 @import "./components/audit-history-item/audit-history-item.css" layer(components);
 @import "./components/badge/badge.css" layer(components);
 @import "./components/breadcrumbs/breadcrumbs.css" layer(components);
