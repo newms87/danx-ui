@@ -1,0 +1,30 @@
+/**
+ * DanxKbd Styles
+ *
+ * Main entry point that imports tokens and defines key-cap layout.
+ */
+
+@import "./kbd-tokens.css";
+
+.danx-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dx-kbd-gap);
+}
+
+.danx-kbd__key {
+  flex-shrink: 0;
+  padding: var(--dx-kbd-padding-y) var(--dx-kbd-padding-x);
+  background: var(--dx-kbd-bg);
+  border: 1px solid var(--dx-kbd-border);
+  border-radius: var(--dx-kbd-border-radius);
+  font-family: var(--dx-kbd-font-family);
+  font-size: var(--dx-kbd-font-size);
+  color: var(--dx-kbd-text);
+  white-space: nowrap;
+}
+
+.danx-kbd__separator {
+  color: var(--dx-kbd-text);
+  font-size: var(--dx-kbd-font-size);
+}

@@ -1,0 +1,36 @@
+/**
+ * DanxKbd Tokens
+ *
+ * Component tokens (Tier 3). Override these to customize key-cap appearance.
+ * Visually equivalent to the markdown-editor's private --dx-mde-kbd-* tokens,
+ * but standalone so DanxKbd has no dependency on markdown-editor.
+ *
+ * CSS Tokens:
+ * --dx-kbd-bg             Key-cap background color
+ * --dx-kbd-border         Key-cap border color
+ * --dx-kbd-text           Key-cap text color
+ * --dx-kbd-font-family    Key-cap font family
+ * --dx-kbd-font-size      Key-cap font size
+ * --dx-kbd-border-radius  Key-cap corner radius
+ * --dx-kbd-padding-x      Key-cap horizontal padding
+ * --dx-kbd-padding-y      Key-cap vertical padding
+ * --dx-kbd-gap            Gap between key-cap and separator in a combo
+ */
+
+:root {
+  --dx-kbd-bg: #f1f5f9;
+  --dx-kbd-border: #cbd5e1;
+  --dx-kbd-text: #64748b;
+  --dx-kbd-font-family: "Consolas", "Monaco", monospace;
+  --dx-kbd-font-size: 0.75rem;
+  --dx-kbd-border-radius: 0.25rem;
+  --dx-kbd-padding-x: 0.5rem;
+  --dx-kbd-padding-y: 0.25rem;
+  --dx-kbd-gap: 0.25rem;
+}
+
+.dark {
+  --dx-kbd-bg: #1e1e1e;
+  --dx-kbd-border: #404040;
+  --dx-kbd-text: #9ca3af;
+}

@@ -45,6 +45,7 @@ import { useFormField } from "../../src/shared/composables/useFormField";
 import { useFieldInteraction } from "../../src/shared/composables/useFieldInteraction";
 import { DanxButton, DanxActionButton } from "../../src/components/button";
 import { DanxChip } from "../../src/components/chip";
+import { DanxKbd, detectOs, resolveKeyLabel } from "../../src/components/kbd";
 import {
   DanxIcon,
   iconRegistry,
@@ -220,6 +221,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxButton,
   DanxActionButton,
   DanxChip,
+  DanxKbd,
   DanxIcon,
   CodeViewer,
   DanxContextMenu,
@@ -273,6 +275,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxButton,
   DanxActionButton,
   DanxChip,
+  DanxKbd,
+  detectOs,
+  resolveKeyLabel,
   DanxIcon,
   CodeViewer,
   DanxContextMenu,
