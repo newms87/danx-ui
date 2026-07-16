@@ -89,6 +89,8 @@ export { useTreeView, isBranchNode } from "./components/tree-view";
 export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
 // DXUI-35: useScrollInfinite/useDanxScroll/useScrollWindow pull in @vueuse/core (optional
 // peer) — kept out of the main barrel; import from "danx-ui/components/scroll".
+// DXUI-153: useBreakpoints/useMediaQuery also pull in @vueuse/core — kept out of the
+// main barrel per the same peer-free-entry contract; import from "danx-ui/breakpoints".
 export { downloadFile } from "./shared/download";
 export {
   useFileUpload,

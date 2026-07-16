@@ -63,6 +63,7 @@ export default defineConfig({
         // are reachable only via their opt-in subpath, never via the main barrel.
         "shared/formatters/index": resolve(__dirname, "src/shared/formatters/index.ts"),
         "shared/actions": resolve(__dirname, "src/shared/actions.ts"),
+        "shared/composables/useBreakpoints": resolve(__dirname, "src/shared/composables/useBreakpoints.ts"),
       },
       formats: ["es"],
     },

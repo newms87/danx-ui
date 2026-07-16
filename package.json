@@ -40,6 +40,10 @@
       "types": "./dist/shared/actions.d.ts",
       "import": "./dist/shared/actions.js"
     },
+    "./breakpoints": {
+      "types": "./dist/shared/composables/useBreakpoints.d.ts",
+      "import": "./dist/shared/composables/useBreakpoints.js"
+    },
     "./shared/tokens": "./dist/shared/tokens/index.css",
     "./styles": "./dist/styles.css",
     "./components/alert": {
