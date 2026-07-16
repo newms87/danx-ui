@@ -9,6 +9,14 @@
     "type": "git",
     "url": "https://github.com/newms87/danx-ui.git"
   },
+  "homepage": "https://github.com/newms87/danx-ui#readme",
+  "bugs": {
+    "url": "https://github.com/newms87/danx-ui/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "keywords": [
     "vue",
     "vue3",
