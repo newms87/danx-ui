@@ -1,0 +1,174 @@
+/**
+ * DanxRadioGroup Styles
+ *
+ * Layout for the group container, the visually-hidden native radio inputs,
+ * and the styled dots. Sizes are top-level BEM modifier blocks because
+ * Lightning CSS does not support &--suffix concatenation. Pseudo-classes and
+ * descendant selectors are still nested.
+ */
+
+@import "./radio-group-tokens.css";
+
+/* ==========================================================================
+   Group Container
+   ========================================================================== */
+
+.danx-radio-group {
+  display: flex;
+  gap: var(--dx-radio-group-gap);
+}
+
+.danx-radio-group--vertical {
+  flex-direction: column;
+}
+
+.danx-radio-group--horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.danx-radio-group--disabled {
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Individual Radio
+   ========================================================================== */
+
+.danx-radio {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--dx-radio-group-font-family);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-none);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity var(--dx-radio-group-transition);
+
+  /* Visually hide the underlying native radio while keeping it focusable +
+     screen-reader accessible. */
+  .danx-radio__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+.danx-radio--disabled {
+  cursor: not-allowed;
+  opacity: var(--dx-radio-disabled-opacity);
+}
+
+/* ==========================================================================
+   Dot
+   ========================================================================== */
+
+.danx-radio__dot {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dx-radio-dot-bg);
+  border: 1px solid var(--dx-radio-dot-border);
+  border-radius: 9999px;
+  transition:
+    background var(--dx-radio-group-transition),
+    border-color var(--dx-radio-group-transition);
+
+  .danx-radio__dot-inner {
+    background: var(--color-text-on-color);
+    border-radius: 9999px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition:
+      opacity var(--dx-radio-group-transition),
+      transform var(--dx-radio-group-transition);
+  }
+}
+
+/* On-state — dot border/background flips to the active token; inner dot fades in. */
+.danx-radio--on .danx-radio__dot {
+  background: var(--dx-radio-dot-bg-on);
+  border-color: var(--dx-radio-dot-border-on);
+
+  .danx-radio__dot-inner {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Focus ring on keyboard navigation only. The radio is visually hidden so
+   the ring is drawn around the dot instead. */
+.danx-radio__input:focus-visible + .danx-radio__dot {
+  outline: 2px solid var(--dx-radio-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-radio-group--sm {
+  font-size: var(--dx-radio-sm-font-size);
+  gap: var(--dx-radio-sm-gap);
+
+  .danx-radio {
+    gap: var(--dx-radio-sm-gap);
+  }
+
+  .danx-radio__dot {
+    width: var(--dx-radio-sm-dot-size);
+    height: var(--dx-radio-sm-dot-size);
+  }
+
+  .danx-radio__dot-inner {
+    width: var(--dx-radio-sm-dot-inner-size);
+    height: var(--dx-radio-sm-dot-inner-size);
+  }
+}
+
+.danx-radio-group--md {
+  font-size: var(--dx-radio-md-font-size);
+  gap: var(--dx-radio-md-gap);
+
+  .danx-radio {
+    gap: var(--dx-radio-md-gap);
+  }
+
+  .danx-radio__dot {
+    width: var(--dx-radio-md-dot-size);
+    height: var(--dx-radio-md-dot-size);
+  }
+
+  .danx-radio__dot-inner {
+    width: var(--dx-radio-md-dot-inner-size);
+    height: var(--dx-radio-md-dot-inner-size);
+  }
+}
+
+.danx-radio-group--lg {
+  font-size: var(--dx-radio-lg-font-size);
+  gap: var(--dx-radio-lg-gap);
+
+  .danx-radio {
+    gap: var(--dx-radio-lg-gap);
+  }
+
+  .danx-radio__dot {
+    width: var(--dx-radio-lg-dot-size);
+    height: var(--dx-radio-lg-dot-size);
+  }
+
+  .danx-radio__dot-inner {
+    width: var(--dx-radio-lg-dot-inner-size);
+    height: var(--dx-radio-lg-dot-inner-size);
+  }
+}

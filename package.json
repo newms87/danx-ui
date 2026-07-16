@@ -71,6 +71,11 @@
       "import": "./dist/components/buttonGroup/index.js"
     },
     "./components/buttonGroup/styles": "./dist/components/buttonGroup/button-group.css",
+    "./components/checkbox": {
+      "types": "./dist/components/checkbox/index.d.ts",
+      "import": "./dist/components/checkbox/index.js"
+    },
+    "./components/checkbox/styles": "./dist/components/checkbox/checkbox.css",
     "./components/chip": {
       "types": "./dist/components/chip/index.d.ts",
       "import": "./dist/components/chip/index.js"
@@ -161,6 +166,11 @@
       "import": "./dist/components/progress-bar/index.js"
     },
     "./components/progress-bar/styles": "./dist/components/progress-bar/progress-bar.css",
+    "./components/radio-group": {
+      "types": "./dist/components/radio-group/index.d.ts",
+      "import": "./dist/components/radio-group/index.js"
+    },
+    "./components/radio-group/styles": "./dist/components/radio-group/radio-group.css",
     "./components/range-slider": {
       "types": "./dist/components/range-slider/index.d.ts",
       "import": "./dist/components/range-slider/index.js"

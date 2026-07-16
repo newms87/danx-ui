@@ -104,6 +104,8 @@ import {
 } from "../../src/components/scroll";
 import { DanxSkeleton } from "../../src/components/skeleton";
 import { DanxToggle } from "../../src/components/toggle";
+import { DanxCheckbox } from "../../src/components/checkbox";
+import { DanxRadioGroup } from "../../src/components/radio-group";
 import { DanxRangeSlider, useRangeSlider } from "../../src/components/range-slider";
 import {
   DanxColorPicker,
@@ -262,6 +264,8 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxVirtualScroll,
   DanxSkeleton,
   DanxToggle,
+  DanxCheckbox,
+  DanxRadioGroup,
   DanxRangeSlider,
   DanxColorPicker,
   DanxInput,
@@ -429,6 +433,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxSkeleton,
   // Toggle
   DanxToggle,
+  // Checkbox
+  DanxCheckbox,
+  // Radio Group
+  DanxRadioGroup,
   // Range Slider
   DanxRangeSlider,
   DanxColorPicker,

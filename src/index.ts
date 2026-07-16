@@ -50,6 +50,8 @@ export { DanxTextarea } from "./components/textarea";
 export { DanxSelect } from "./components/select";
 export { DanxFileUpload } from "./components/danx-file-upload";
 export { DanxToggle } from "./components/toggle";
+export { DanxCheckbox } from "./components/checkbox";
+export { DanxRadioGroup } from "./components/radio-group";
 export { DanxRangeSlider, useRangeSlider } from "./components/range-slider";
 export { DanxEditableDiv } from "./components/editable-div";
 export { DanxZoomable, DanxZoomControls, useZoomable } from "./components/zoomable";
@@ -307,6 +309,14 @@ export type {
 } from "./components/danx-file-upload";
 export type { UseFileUploadReturn } from "./components/danx-file-upload";
 export type { DanxToggleProps, DanxToggleSlots, ToggleSize } from "./components/toggle";
+export type { DanxCheckboxProps, DanxCheckboxSlots, CheckboxSize } from "./components/checkbox";
+export type {
+  DanxRadioGroupProps,
+  DanxRadioGroupSlots,
+  RadioGroupSize,
+  RadioGroupOrientation,
+  RadioGroupOption,
+} from "./components/radio-group";
 export type {
   DanxRangeSliderProps,
   DanxRangeSliderSlots,

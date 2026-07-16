@@ -30,6 +30,8 @@ import DanxFileViewerPage from "./pages/DanxFileViewerPage.vue";
 import ScrollPage from "./pages/ScrollPage.vue";
 import SkeletonPage from "./pages/SkeletonPage.vue";
 import TogglePage from "./pages/TogglePage.vue";
+import CheckboxPage from "./pages/CheckboxPage.vue";
+import RadioGroupPage from "./pages/RadioGroupPage.vue";
 import RangeSliderPage from "./pages/RangeSliderPage.vue";
 import ColorPickerPage from "./pages/ColorPickerPage.vue";
 import InputPage from "./pages/InputPage.vue";
@@ -80,6 +82,8 @@ const router = createRouter({
     { path: "/scroll", name: "scroll", component: ScrollPage },
     { path: "/skeleton", name: "skeleton", component: SkeletonPage },
     { path: "/toggle", name: "toggle", component: TogglePage },
+    { path: "/checkbox", name: "checkbox", component: CheckboxPage },
+    { path: "/radio-group", name: "radio-group", component: RadioGroupPage },
     { path: "/range-slider", name: "range-slider", component: RangeSliderPage },
     { path: "/color-picker", name: "color-picker", component: ColorPickerPage },
     { path: "/input", name: "input", component: InputPage },

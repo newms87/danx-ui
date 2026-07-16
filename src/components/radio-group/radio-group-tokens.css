@@ -1,0 +1,70 @@
+/**
+ * DanxRadioGroup Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize radio group appearance.
+ *
+ * CSS Tokens:
+ * --dx-radio-group-font-family     Label font family
+ * --dx-radio-group-transition      Transition timing
+ * --dx-radio-group-gap             Gap between options
+ * --dx-radio-dot-bg                Off-state dot background
+ * --dx-radio-dot-border            Off-state dot border color
+ * --dx-radio-dot-bg-on             On-state dot fill color
+ * --dx-radio-dot-border-on         On-state dot border color
+ * --dx-radio-disabled-opacity      Opacity applied when disabled
+ * --dx-radio-focus-ring            Focus-visible outline color
+ *
+ * Size tokens (for each size: sm, md, lg):
+ * --dx-radio-{size}-dot-size       Dot diameter
+ * --dx-radio-{size}-dot-inner-size Inner filled-dot diameter
+ * --dx-radio-{size}-font-size      Label font size
+ * --dx-radio-{size}-gap            Gap between dot and label
+ *
+ * Variant tokens (set via --dx-variant-{name}-bg):
+ * Variants are applied automatically via inline styles from the useVariant composable.
+ * Define custom variants with --dx-variant-{name}-bg tokens.
+ */
+
+:root {
+  /* ==========================================================================
+     Global Radio Group Tokens
+     ========================================================================== */
+
+  --dx-radio-group-font-family: var(--font-sans);
+  --dx-radio-group-transition: var(--transition-fast);
+  --dx-radio-group-gap: var(--spacing-2-5);
+  --dx-radio-dot-bg: var(--color-surface);
+  --dx-radio-dot-border: var(--color-border);
+  --dx-radio-dot-bg-on: var(--color-interactive);
+  --dx-radio-dot-border-on: var(--color-interactive);
+  --dx-radio-disabled-opacity: 0.5;
+  --dx-radio-focus-ring: var(--color-focus-ring);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-radio-sm-dot-size: 14px;
+  --dx-radio-sm-dot-inner-size: 6px;
+  --dx-radio-sm-font-size: var(--text-xs);
+  --dx-radio-sm-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-radio-md-dot-size: 18px;
+  --dx-radio-md-dot-inner-size: 8px;
+  --dx-radio-md-font-size: var(--text-sm);
+  --dx-radio-md-gap: var(--spacing-2-5);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-radio-lg-dot-size: 22px;
+  --dx-radio-lg-dot-inner-size: 10px;
+  --dx-radio-lg-font-size: var(--text-base);
+  --dx-radio-lg-gap: var(--spacing-3);
+}

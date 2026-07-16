@@ -198,6 +198,12 @@ watch(theme, (newTheme) => {
                 <RouterLink to="/toggle" class="demo-sidebar__link">Toggle</RouterLink>
               </li>
               <li>
+                <RouterLink to="/checkbox" class="demo-sidebar__link">Checkbox</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/radio-group" class="demo-sidebar__link">Radio Group</RouterLink>
+              </li>
+              <li>
                 <RouterLink to="/range-slider" class="demo-sidebar__link">Range Slider</RouterLink>
               </li>
               <li>

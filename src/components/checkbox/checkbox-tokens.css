@@ -1,0 +1,70 @@
+/**
+ * DanxCheckbox Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize checkbox appearance.
+ *
+ * CSS Tokens:
+ * --dx-checkbox-font-family        Label font family
+ * --dx-checkbox-transition         Transition timing
+ * --dx-checkbox-box-bg             Off-state box background
+ * --dx-checkbox-box-bg-on          On-state box background
+ * --dx-checkbox-box-border         Off-state box border color
+ * --dx-checkbox-box-border-on      On-state box border color
+ * --dx-checkbox-check-color        Checkmark/dash color
+ * --dx-checkbox-disabled-opacity   Opacity applied when disabled
+ * --dx-checkbox-focus-ring         Focus-visible outline color
+ *
+ * Size tokens (for each size: sm, md, lg):
+ * --dx-checkbox-{size}-box-size    Box width/height
+ * --dx-checkbox-{size}-radius      Box corner radius
+ * --dx-checkbox-{size}-font-size   Label font size
+ * --dx-checkbox-{size}-gap         Gap between box and label
+ *
+ * Variant tokens (set via --dx-variant-{name}-bg):
+ * Variants are applied automatically via inline styles from the useVariant composable.
+ * Define custom variants with --dx-variant-{name}-bg tokens.
+ */
+
+:root {
+  /* ==========================================================================
+     Global Checkbox Tokens
+     ========================================================================== */
+
+  --dx-checkbox-font-family: var(--font-sans);
+  --dx-checkbox-transition: var(--transition-fast);
+  --dx-checkbox-box-bg: var(--color-surface);
+  --dx-checkbox-box-bg-on: var(--color-interactive);
+  --dx-checkbox-box-border: var(--color-border);
+  --dx-checkbox-box-border-on: var(--color-interactive);
+  --dx-checkbox-check-color: var(--color-text-on-color);
+  --dx-checkbox-disabled-opacity: 0.5;
+  --dx-checkbox-focus-ring: var(--color-focus-ring);
+
+  /* ==========================================================================
+     Size Tokens - SM
+     ========================================================================== */
+
+  --dx-checkbox-sm-box-size: 14px;
+  --dx-checkbox-sm-radius: var(--radius-sm);
+  --dx-checkbox-sm-font-size: var(--text-xs);
+  --dx-checkbox-sm-gap: var(--spacing-2);
+
+  /* ==========================================================================
+     Size Tokens - MD (default)
+     ========================================================================== */
+
+  --dx-checkbox-md-box-size: 18px;
+  --dx-checkbox-md-radius: var(--radius-sm);
+  --dx-checkbox-md-font-size: var(--text-sm);
+  --dx-checkbox-md-gap: var(--spacing-2-5);
+
+  /* ==========================================================================
+     Size Tokens - LG
+     ========================================================================== */
+
+  --dx-checkbox-lg-box-size: 22px;
+  --dx-checkbox-lg-radius: var(--radius-md);
+  --dx-checkbox-lg-font-size: var(--text-base);
+  --dx-checkbox-lg-gap: var(--spacing-3);
+}

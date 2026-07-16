@@ -1,0 +1,144 @@
+/**
+ * DanxCheckbox Styles
+ *
+ * Layout for the visually-hidden native checkbox, the square box, and the
+ * checkmark/dash. Sizes are top-level BEM modifier blocks because Lightning
+ * CSS does not support &--suffix concatenation. Pseudo-classes and
+ * descendant selectors are still nested.
+ */
+
+@import "./checkbox-tokens.css";
+
+/* ==========================================================================
+   Base Checkbox Layout
+   ========================================================================== */
+
+.danx-checkbox {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--dx-checkbox-font-family);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-none);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  transition: opacity var(--dx-checkbox-transition);
+
+  /* Visually hide the underlying native checkbox while keeping it focusable +
+     screen-reader accessible. */
+  .danx-checkbox__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+.danx-checkbox--disabled {
+  cursor: not-allowed;
+  opacity: var(--dx-checkbox-disabled-opacity);
+}
+
+/* ==========================================================================
+   Box + Checkmark
+   ========================================================================== */
+
+.danx-checkbox__box {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dx-checkbox-box-bg);
+  border: 1px solid var(--dx-checkbox-box-border);
+  border-radius: var(--dx-checkbox-md-radius);
+  transition:
+    background var(--dx-checkbox-transition),
+    border-color var(--dx-checkbox-transition);
+
+  .danx-checkbox__check {
+    width: 75%;
+    height: 75%;
+    color: var(--dx-checkbox-check-color);
+    opacity: 0;
+    transform: scale(0.7);
+    transition:
+      opacity var(--dx-checkbox-transition),
+      transform var(--dx-checkbox-transition);
+  }
+
+  .danx-checkbox__dash {
+    position: absolute;
+    width: 60%;
+    height: 2px;
+    background: var(--dx-checkbox-check-color);
+    border-radius: 9999px;
+  }
+}
+
+/* On-state — background + border flip to the active token; checkmark fades in. */
+.danx-checkbox--on .danx-checkbox__box {
+  background: var(--dx-checkbox-box-bg-on);
+  border-color: var(--dx-checkbox-box-border-on);
+
+  .danx-checkbox__check {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Indeterminate — box carries the active token like the on-state, but shows
+   a dash instead of a checkmark regardless of the boolean model value. */
+.danx-checkbox--indeterminate .danx-checkbox__box {
+  background: var(--dx-checkbox-box-bg-on);
+  border-color: var(--dx-checkbox-box-border-on);
+}
+
+/* Focus ring on keyboard navigation only. The checkbox is visually hidden so
+   the ring is drawn around the box instead. */
+.danx-checkbox__input:focus-visible + .danx-checkbox__box {
+  outline: 2px solid var(--dx-checkbox-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-checkbox--sm {
+  font-size: var(--dx-checkbox-sm-font-size);
+  gap: var(--dx-checkbox-sm-gap);
+
+  .danx-checkbox__box {
+    width: var(--dx-checkbox-sm-box-size);
+    height: var(--dx-checkbox-sm-box-size);
+    border-radius: var(--dx-checkbox-sm-radius);
+  }
+}
+
+.danx-checkbox--md {
+  font-size: var(--dx-checkbox-md-font-size);
+  gap: var(--dx-checkbox-md-gap);
+
+  .danx-checkbox__box {
+    width: var(--dx-checkbox-md-box-size);
+    height: var(--dx-checkbox-md-box-size);
+    border-radius: var(--dx-checkbox-md-radius);
+  }
+}
+
+.danx-checkbox--lg {
+  font-size: var(--dx-checkbox-lg-font-size);
+  gap: var(--dx-checkbox-lg-gap);
+
+  .danx-checkbox__box {
+    width: var(--dx-checkbox-lg-box-size);
+    height: var(--dx-checkbox-lg-box-size);
+    border-radius: var(--dx-checkbox-lg-radius);
+  }
+}
