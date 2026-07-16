@@ -11,6 +11,7 @@
  *   validationError: ValidationError | null - Current parse/validation error, if any
  *   canEdit: boolean - Whether editing is allowed (controls edit button visibility)
  *   isEditing: boolean - Whether currently in edit mode (highlights edit button)
+ *   content: string - Raw text content copied to the clipboard by the copy button
  *
  * @emits
  *   toggleEdit - Fired when the edit pencil button is clicked
@@ -40,8 +41,9 @@
 -->
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { DanxButton } from "../button";
+import { copyToClipboard } from "./clipboardUtils";
 import type { CodeViewerFooterProps } from "./types";
 
 const props = defineProps<CodeViewerFooterProps>();
@@ -51,6 +53,21 @@ defineEmits<{
 }>();
 
 const hasError = computed(() => props.validationError !== null);
+
+const justCopied = ref(false);
+let copiedTimeout: ReturnType<typeof setTimeout> | undefined;
+
+async function onCopyClick() {
+  const succeeded = await copyToClipboard(props.content);
+  if (!succeeded) {
+    return;
+  }
+  justCopied.value = true;
+  clearTimeout(copiedTimeout);
+  copiedTimeout = setTimeout(() => {
+    justCopied.value = false;
+  }, 1500);
+}
 </script>
 
 <template>
@@ -70,6 +87,15 @@ const hasError = computed(() => props.validationError !== null);
     <div class="flex items-center gap-1">
       <!-- Consumer-provided footer actions -->
       <slot name="actions" />
+      <!-- Copy-to-clipboard button -->
+      <DanxButton
+        :icon="justCopied ? 'check' : 'copy'"
+        size="xs"
+        class="code-footer-copy-btn"
+        :class="{ 'text-sky-500 hover:text-sky-600': justCopied }"
+        :tooltip="justCopied ? 'Copied!' : 'Copy'"
+        @click="onCopyClick"
+      />
       <!-- Edit toggle button -->
       <DanxButton
         v-if="canEdit"

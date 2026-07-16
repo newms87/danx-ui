@@ -311,6 +311,7 @@ watch(
           :validation-error="editor.validationError.value"
           :can-edit="canEdit && currentFormat !== 'markdown'"
           :is-editing="editor.isEditing.value"
+          :content="currentFormat === 'markdown' ? markdownSource : editor.displayContent.value"
           @toggle-edit="editor.toggleEdit"
         >
           <template v-if="$slots['footer-actions']" #actions>

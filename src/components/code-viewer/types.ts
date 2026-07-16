@@ -116,6 +116,8 @@ export interface CodeViewerFooterProps {
   canEdit: boolean;
   /** Whether currently in edit mode (controls edit button highlight). */
   isEditing: boolean;
+  /** The raw text content to copy to the clipboard when the copy button is clicked. */
+  content: string;
 }
 
 /**

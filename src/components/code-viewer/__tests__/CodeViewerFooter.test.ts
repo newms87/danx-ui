@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import CodeViewerFooter from "../CodeViewerFooter.vue";
+import * as clipboardUtils from "../clipboardUtils";
 
 describe("CodeViewerFooter", () => {
   const defaultProps = {
@@ -8,6 +9,7 @@ describe("CodeViewerFooter", () => {
     validationError: null as null | { message: string; line?: number },
     canEdit: false,
     isEditing: false,
+    content: "some code content",
   };
 
   it("renders footer container", () => {
@@ -67,21 +69,21 @@ describe("CodeViewerFooter", () => {
 
   it("hides edit button when canEdit is false", () => {
     const wrapper = mount(CodeViewerFooter, { props: defaultProps });
-    expect(wrapper.findComponent({ name: "DanxButton" }).exists()).toBe(false);
+    expect(wrapper.find(".code-footer-edit-btn").exists()).toBe(false);
   });
 
   it("shows edit button when canEdit is true", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },
     });
-    expect(wrapper.findComponent({ name: "DanxButton" }).exists()).toBe(true);
+    expect(wrapper.find(".code-footer-edit-btn").exists()).toBe(true);
   });
 
   it("emits toggleEdit when edit button is clicked", async () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },
     });
-    await wrapper.findComponent({ name: "DanxButton" }).find("button").trigger("click");
+    await wrapper.find(".code-footer-edit-btn").trigger("click");
     expect(wrapper.emitted("toggleEdit")).toHaveLength(1);
   });
 
@@ -89,7 +91,7 @@ describe("CodeViewerFooter", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true, isEditing: true },
     });
-    const btn = wrapper.findComponent({ name: "DanxButton" }).find("button");
+    const btn = wrapper.find(".code-footer-edit-btn");
     expect(btn.classes()).toContain("text-sky-500");
   });
 
@@ -97,7 +99,7 @@ describe("CodeViewerFooter", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true, isEditing: false },
     });
-    const btn = wrapper.findComponent({ name: "DanxButton" });
+    const btn = wrapper.find(".code-footer-edit-btn");
     expect(btn.classes()).not.toContain("text-sky-500");
   });
 
@@ -113,7 +115,7 @@ describe("CodeViewerFooter", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },
     });
-    const btn = wrapper.findComponent({ name: "DanxButton" }).find("button");
+    const btn = wrapper.find(".code-footer-edit-btn");
     expect(btn.classes()).toContain("code-footer-edit-btn");
     expect(btn.classes()).not.toContain("text-gray-500");
     expect(btn.classes()).not.toContain("hover:text-gray-700");
@@ -123,7 +125,7 @@ describe("CodeViewerFooter", () => {
     const wrapper = mount(CodeViewerFooter, {
       props: { ...defaultProps, canEdit: true },
     });
-    const btn = wrapper.findComponent({ name: "DanxButton" });
+    const btn = wrapper.find(".code-footer-edit-btn");
     expect(btn.find("svg").exists()).toBe(true);
   });
 
@@ -137,4 +139,49 @@ describe("CodeViewerFooter", () => {
     expect(wrapper.find(".custom-action").exists()).toBe(true);
     expect(wrapper.find(".custom-action").text()).toBe("Action");
   });
+
+  it("always shows the copy button, regardless of canEdit", () => {
+    const wrapper = mount(CodeViewerFooter, { props: defaultProps });
+    expect(wrapper.find(".code-footer-copy-btn").exists()).toBe(true);
+  });
+
+  it("copies content to the clipboard when the copy button is clicked", async () => {
+    const copySpy = vi.spyOn(clipboardUtils, "copyToClipboard").mockResolvedValue(true);
+    const wrapper = mount(CodeViewerFooter, { props: defaultProps });
+    await wrapper.find(".code-footer-copy-btn").trigger("click");
+    await flushPromises();
+    expect(copySpy).toHaveBeenCalledWith("some code content");
+  });
+
+  it("shows transient 'Copied!' feedback after a successful copy, then reverts", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(clipboardUtils, "copyToClipboard").mockResolvedValue(true);
+    const wrapper = mount(CodeViewerFooter, { props: defaultProps });
+
+    await wrapper.find(".code-footer-copy-btn").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find(".code-footer-copy-btn").classes()).toContain("text-sky-500");
+
+    vi.advanceTimersByTime(1500);
+    await flushPromises();
+
+    expect(wrapper.find(".code-footer-copy-btn").classes()).not.toContain("text-sky-500");
+    vi.useRealTimers();
+  });
+
+  it("does not show 'Copied!' feedback when the copy fails", async () => {
+    vi.spyOn(clipboardUtils, "copyToClipboard").mockResolvedValue(false);
+    const wrapper = mount(CodeViewerFooter, { props: defaultProps });
+
+    await wrapper.find(".code-footer-copy-btn").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find(".code-footer-copy-btn").classes()).not.toContain("text-sky-500");
+  });
 });
+
+async function flushPromises() {
+  await Promise.resolve();
+  await Promise.resolve();
+}
