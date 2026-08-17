@@ -151,9 +151,6 @@ const statusLabel = computed(() => {
   return "Connecting…";
 });
 
-/** The adapter opts into a stoppable turn by implementing cancelJob. */
-const canStop = computed(() => typeof props.apiAdapter.cancelJob === "function");
-
 function handleSend(text: string) {
   send(text);
   emit("send", text);
@@ -269,7 +266,6 @@ onMounted(async () => {
         :placeholder="placeholder"
         :disabled="status !== 'ready'"
         :busy="busy"
-        :can-stop="canStop"
         :max-length="maxLength"
         :show-hint="isEmpty"
         @send="handleSend"

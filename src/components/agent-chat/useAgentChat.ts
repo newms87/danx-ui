@@ -67,7 +67,11 @@ export interface UseAgentChatReturn {
   init: () => Promise<void>;
   /** Enqueue a message. Strictly serial. */
   send: (text: string) => void;
-  /** Abort the in-flight request (and the escalated job, if the adapter allows). */
+  /**
+   * Halt the pipeline: abort the in-flight request (and the escalated job,
+   * when the adapter supports it) without dispatching whatever is queued
+   * behind it. The queue survives — the next send() resumes it.
+   */
   stop: () => void;
   /** Re-send the last user message after a failure. */
   retry: () => void;
@@ -293,6 +297,12 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
       controller = null;
       pollingJobId = null;
     }
+    // Stop halts the PIPELINE, not just the one request. Draining here after an
+    // abort would immediately dispatch the next queued message, so pressing
+    // Stop would still send work. The queue is left standing (never discarded —
+    // it is the user's own text, still visible and removable in the strip); the
+    // next send() resumes it.
+    if (aborted) return;
     drain();
   }
 

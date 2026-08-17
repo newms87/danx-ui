@@ -26,7 +26,7 @@
 -->
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeUnmount, ref } from "vue";
 import { DanxButton } from "../button";
 import type { ChatFeedback } from "./types";
 
@@ -48,16 +48,26 @@ const emit = defineEmits<{
 
 const copied = ref(false);
 
+/** How long the "Copied" confirmation stays up. */
+const COPIED_RESET_MS = 1500;
+let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
 async function copy() {
   try {
     await navigator.clipboard?.writeText(props.text);
     copied.value = true;
-    setTimeout(() => (copied.value = false), 1500);
+    // Restart the window on every copy. Without this, a second copy inherits
+    // the first copy's remaining time and the confirmation blinks out early.
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => (copied.value = false), COPIED_RESET_MS);
   } catch {
     // Clipboard is permission-gated and unavailable over plain HTTP. Failing
     // silently is correct here — the user still has the text on screen.
   }
 }
+
+// Never let the reset fire into a component that is already gone.
+onBeforeUnmount(() => clearTimeout(resetTimer));
 </script>
 
 <template>

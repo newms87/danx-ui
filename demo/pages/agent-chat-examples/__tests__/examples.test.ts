@@ -181,7 +181,8 @@ describe("agent-chat demo examples behave", () => {
 
     expect(w.find('[data-testid="working-state"]').exists()).toBe(true);
     expect(w.find('[data-testid="steps"]').exists()).toBe(true);
-    // The adapter implements cancelJob, so Stop must be offered.
+    // A turn in flight is always stoppable; here the adapter also cancels
+    // the job upstream.
     expect(w.find('[data-testid="composer-stop"]').exists()).toBe(true);
 
     w.unmount();

@@ -209,7 +209,11 @@ export interface ChatAdapter {
     handlers: ChatStreamHandlers,
     signal: AbortSignal
   ): Promise<SendMessageResult>;
-  /** OPTIONAL — abort an in-flight escalated job. Enables the Stop affordance. */
+  /**
+   * OPTIONAL — cancel an escalated job UPSTREAM. Stop is offered regardless
+   * (every turn holds an AbortController); this only stops the backend from
+   * continuing to work on an answer nobody is waiting for.
+   */
   cancelJob?(jobId: string): Promise<void>;
 }
 

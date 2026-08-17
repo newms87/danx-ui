@@ -665,6 +665,67 @@ describe("useAgentChat stop / retry / feedback / clear", () => {
     expect(chat.messages.value.find((m) => m.role === "user")?.error).toBeUndefined();
   });
 
+  // Regression: stop() aborted the in-flight request, then the drain() tail ran
+  // anyway and immediately dispatched the next queued message — so pressing
+  // Stop still sent work. Stop halts the whole pipeline.
+  it("does not send a queued message behind the abort", async () => {
+    const sendMessage = vi.fn().mockImplementation(
+      (_id, _text, signal: AbortSignal) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(new Error("aborted")));
+        })
+    );
+    const chat = useAgentChat({
+      apiAdapter: makeAdapter({ sendMessage }),
+      contextType: "c",
+      contextId: "d",
+      ...NO_DELAY,
+    });
+    await chat.init();
+
+    chat.send("first");
+    chat.send("second");
+    await flushPromises();
+    chat.stop();
+    await flushPromises();
+
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    // Halted, not discarded — the queue strip still shows the user's own text.
+    expect(chat.queue.value).toEqual(["second"]);
+  });
+
+  it("resumes the halted queue on the next send", async () => {
+    const sendMessage = vi
+      .fn()
+      .mockImplementationOnce(
+        (_id: string, _text: string, signal: AbortSignal) =>
+          new Promise((_resolve, reject) => {
+            signal.addEventListener("abort", () => reject(new Error("aborted")));
+          })
+      )
+      .mockResolvedValue({ dispatched: false, reply: "ok" });
+    const chat = useAgentChat({
+      apiAdapter: makeAdapter({ sendMessage }),
+      contextType: "c",
+      contextId: "d",
+      ...NO_DELAY,
+    });
+    await chat.init();
+
+    chat.send("first");
+    chat.send("second");
+    await flushPromises();
+    chat.stop();
+    await flushPromises();
+
+    chat.send("third");
+    await flushPromises();
+
+    // send() is the resume affordance: the standing queue drains ahead of it.
+    expect(sendMessage.mock.calls.map((call) => call[1])).toEqual(["first", "second", "third"]);
+    expect(chat.queue.value).toEqual([]);
+  });
+
   it("cancels the upstream job when the adapter supports it", async () => {
     const cancelJob = vi.fn().mockResolvedValue(undefined);
     let resolveJob!: (v: unknown) => void;

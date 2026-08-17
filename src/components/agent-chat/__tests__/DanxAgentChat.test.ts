@@ -265,7 +265,7 @@ describe("DanxAgentChat header", () => {
 });
 
 describe("DanxAgentChat stop affordance", () => {
-  it("offers Stop only when the adapter can cancel, and aborts the job upstream", async () => {
+  it("aborts the escalated job upstream when the adapter can cancel", async () => {
     const apiAdapter = makeAdapter({
       sendMessage: vi.fn().mockResolvedValue({ dispatched: true, job_id: "job-1" }),
       // Never settles: the turn stays in flight for the duration of the test.
@@ -284,10 +284,18 @@ describe("DanxAgentChat stop affordance", () => {
     w.unmount();
   });
 
-  it("keeps Send visible while busy when the adapter cannot cancel", async () => {
-    let resolveFirst!: (v: unknown) => void;
+  // Regression: Stop used to be gated on the adapter implementing cancelJob,
+  // so the real danxbot proxy — which does not proxy cancel — offered no Stop
+  // at all. Every turn holds an AbortController, so every turn is stoppable
+  // locally; cancelJob only decides whether the UPSTREAM job is cancelled too.
+  it("offers Stop while busy even when the adapter cannot cancel upstream", async () => {
     const apiAdapter = makeAdapter({
-      sendMessage: vi.fn().mockImplementation(() => new Promise((r) => (resolveFirst = r))),
+      sendMessage: vi.fn().mockImplementation(
+        (_id: string, _text: string, signal: AbortSignal) =>
+          new Promise((_resolve, reject) => {
+            signal.addEventListener("abort", () => reject(new Error("aborted")));
+          })
+      ),
     });
     const w = mountChat(apiAdapter);
     await flushPromises();
@@ -295,8 +303,11 @@ describe("DanxAgentChat stop affordance", () => {
     await type(w, "hi");
     await flushPromises();
 
-    expect(w.find('[data-testid="composer-stop"]').exists()).toBe(false);
-    resolveFirst({ dispatched: false, reply: "ok" });
+    expect(w.find('[data-testid="composer-stop"]').exists()).toBe(true);
+    await w.find('[data-testid="composer-stop"]').trigger("click");
     await flushPromises();
+
+    expect(w.find('[data-testid="composer-stop"]').exists()).toBe(false);
+    w.unmount();
   });
 });

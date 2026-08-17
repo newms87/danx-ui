@@ -100,12 +100,6 @@ describe("ChatComposer send/stop swap", () => {
     await w.find('[data-testid="composer-stop"]').trigger("click");
     expect(w.emitted("stop")).toHaveLength(1);
   });
-
-  it("keeps showing Send while busy when the backend cannot cancel", () => {
-    const w = mount(ChatComposer, { props: { busy: true, canStop: false } });
-    expect(w.find('[data-testid="composer-stop"]').exists()).toBe(false);
-    expect(w.find('[data-testid="composer-send"]').exists()).toBe(true);
-  });
 });
 
 describe("ChatComposer affordances", () => {

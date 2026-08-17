@@ -20,7 +20,6 @@
  * | placeholder | string  | "Ask a question…" | Textarea placeholder              |
  * | disabled    | boolean | false             | Disables input and send           |
  * | busy        | boolean | false             | Show Stop instead of Send         |
- * | canStop     | boolean | true              | Whether Stop is offered when busy |
  * | maxLength   | number  | -                 | Character cap + counter           |
  * | showHint    | boolean | true              | Show the Enter/Shift+Enter hint   |
  *
@@ -42,7 +41,6 @@ const props = withDefaults(
     placeholder?: string;
     disabled?: boolean;
     busy?: boolean;
-    canStop?: boolean;
     maxLength?: number;
     showHint?: boolean;
   }>(),
@@ -50,7 +48,6 @@ const props = withDefaults(
     placeholder: "Ask a question…",
     disabled: false,
     busy: false,
-    canStop: true,
     showHint: true,
   }
 );
@@ -113,7 +110,7 @@ function onKeydown(event: KeyboardEvent) {
         @keydown="onKeydown"
       />
       <DanxButton
-        v-if="busy && canStop"
+        v-if="busy"
         size="sm"
         variant="muted"
         icon="stop"

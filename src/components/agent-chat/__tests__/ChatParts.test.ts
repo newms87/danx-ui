@@ -231,4 +231,38 @@ describe("ChatMessageActions copy feedback", () => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
   });
+
+  it("restarts the confirmation window on a second copy", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    const w = mount(ChatMessageActions, { props: { text: "hello" } });
+
+    await w.find('[data-testid="action-copy"]').trigger("click");
+    await vi.advanceTimersByTimeAsync(1400);
+    // Second copy, 100ms before the first window would have closed.
+    await w.find('[data-testid="action-copy"]').trigger("click");
+    await vi.advanceTimersByTimeAsync(200);
+
+    // The stale timer must not blink the confirmation out early.
+    expect(w.find('[data-testid="action-copy"]').attributes("aria-label")).toBe("Copied");
+
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it("does not reset a component that unmounted before the window closed", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
+    const w = mount(ChatMessageActions, { props: { text: "hello" } });
+
+    await w.find('[data-testid="action-copy"]').trigger("click");
+    w.unmount();
+
+    // A pending reset firing into a torn-down component is a leak, and Vue
+    // warns on it — this repo's zero-warning policy makes that a failure.
+    await expect(vi.advanceTimersByTimeAsync(2000)).resolves.not.toThrow();
+
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
 });

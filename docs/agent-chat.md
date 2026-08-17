@@ -129,7 +129,7 @@ interface ChatAdapter {
 - **`sendMessage`** — either a fast reply `{ dispatched: false, reply, packet? }`, or an escalation `{ dispatched: true, job_id }`.
 - **`getJob`** — poll an escalated job. See the status vocabulary below.
 - **`streamMessage`** *(optional)* — when present it is preferred over `sendMessage`; call `handlers.onToken` per chunk and resolve with the final result.
-- **`cancelJob`** *(optional)* — implementing it is what enables the Stop button. Without it there is no way to abort, so no Stop is offered.
+- **`cancelJob`** *(optional)* — cancels the escalated job **upstream**. Stop does not depend on it: every turn holds an `AbortController`, so every turn is stoppable locally. Implementing `cancelJob` is what stops the backend from continuing to burn work on an answer nobody is waiting for.
 
 ### Job status vocabulary
 
@@ -195,6 +195,8 @@ Treating `undefined` as invalid would hide legitimate results from any packet ty
 ## Behavior worth knowing
 
 **Serial sending.** Messages send strictly one at a time. Anything typed mid-flight waits in a visible queue strip and can be removed before it sends.
+
+**Stop halts the pipeline, not just the request.** Pressing Stop aborts the in-flight turn and stops there — it does not roll straight on to the next queued message, which would make the button a lie. The queue is left standing rather than discarded (it is text the user typed, still visible and still removable), and the next send resumes it.
 
 **Escalation survives remount.** An in-flight job id is stashed in `sessionStorage` keyed by thread, so navigating away and back resumes polling instead of losing the turn.
 
