@@ -13,6 +13,7 @@ import dropdownMenuDocs from "../../docs/dropdown-menu.md?raw";
 // Load SFC examples as raw strings for live-editable demos
 import basicDropdownMenuCode from "./dropdown-menu-examples/BasicDropdownMenu.vue?raw";
 import submenuDropdownMenuCode from "./dropdown-menu-examples/SubmenuDropdownMenu.vue?raw";
+import pickerCode from "./dropdown-menu-examples/PickerDropdownMenu.vue?raw";
 import iconsAndDisabledCode from "./dropdown-menu-examples/IconsAndDisabled.vue?raw";
 </script>
 
@@ -39,5 +40,11 @@ import iconsAndDisabledCode from "./dropdown-menu-examples/IconsAndDisabled.vue?
       description="Items support icons, and disabled items are visible but not clickable."
       :code="iconsAndDisabledCode"
     />
+    <DemoSection
+      title="Picker (current choice)"
+      description="Setting `active` on an item turns an action menu into a picker: the item in effect carries a check, and a submenu parent reflects a selected child. `shortcut` renders a key hint — bind the real key with useHotkeys so label and binding cannot drift."
+      :code="pickerCode"
+    />
+
   </DemoPage>
 </template>

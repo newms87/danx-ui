@@ -65,7 +65,44 @@ The slotted trigger (usually a `DanxButton`) opens the menu on click — no `v-m
 | `action` | `() => void?` | Callback on selection |
 | `disabled` | `boolean?` | Prevents interaction |
 | `separator` | `boolean?` | Renders as a visual divider |
+| `shortcut` | `string?` | Keyboard shortcut hint, right-aligned on the item |
+| `active` | `boolean?` | Leading check glyph + active style — for a menu that represents a current choice |
 | `children` | `DropdownMenuItem[]?` | Submenu items |
+
+### Action menu vs picker
+
+Most dropdowns are a list of *actions*: pick one, something happens. Setting `active` turns the same menu into a *picker* — a list of choices where one is currently in effect, marked with a check. A submenu parent shows as active when any of its children is.
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import { DanxButton, DanxDropdownMenu } from "danx-ui";
+import type { DropdownMenuItem } from "danx-ui";
+
+const model = ref("opus");
+
+const items = computed<DropdownMenuItem[]>(() =>
+  [
+    { id: "sonnet", label: "Sonnet" },
+    { id: "opus", label: "Opus" },
+    { id: "haiku", label: "Haiku" },
+  ].map((m, i) => ({
+    label: m.label,
+    shortcut: String(i + 1),
+    active: model.value === m.id,
+    action: () => (model.value = m.id),
+  }))
+);
+</script>
+
+<template>
+  <DanxDropdownMenu :items="items">
+    <DanxButton size="sm" variant="muted">{{ model }}</DanxButton>
+  </DanxDropdownMenu>
+</template>
+```
+
+`shortcut` is a **hint only** — it renders the text but binds nothing. Register the actual key with `useHotkeys` so the binding and the label cannot drift apart.
 
 ## Features
 

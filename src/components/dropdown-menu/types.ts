@@ -28,6 +28,16 @@ export interface DropdownMenuItem {
   /** Callback executed when the item is selected */
   action?: () => void;
 
+  /** Keyboard shortcut hint shown right-aligned on the item (e.g. "⌘K", "1") */
+  shortcut?: string;
+
+  /**
+   * Renders a leading check glyph and an active style — for a menu that
+   * represents a current choice (a picker) rather than a list of actions.
+   * A submenu parent reflects active state when any descendant is active.
+   */
+  active?: boolean;
+
   /** Whether the item is disabled (visible but not clickable) */
   disabled?: boolean;
 

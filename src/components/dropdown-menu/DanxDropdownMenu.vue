@@ -66,6 +66,8 @@ function toContextMenuItem(item: DropdownMenuItem, id: string): ContextMenuItem 
     id,
     label: item.label,
     icon: item.icon,
+    shortcut: item.shortcut,
+    active: item.active,
     disabled: item.disabled,
     divider: item.separator,
     children: hasChildren

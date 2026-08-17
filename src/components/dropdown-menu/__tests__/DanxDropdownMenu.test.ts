@@ -191,6 +191,49 @@ describe("DanxDropdownMenu", () => {
     expect(items()[0]!.attributes("tabindex")).toBe("0");
   });
 
+  // A dropdown is not always a list of actions — it is often a picker of a
+  // current choice (a model, a sort order, a theme). ContextMenuItem has
+  // carried `shortcut` and `active` all along; DropdownMenuItem dropped them
+  // on the way through, so a picker had to be hand-rolled.
+  it("renders a shortcut hint on an item", async () => {
+    await mountDropdown([{ label: "Opus 5", shortcut: "2" }], { open: true });
+
+    expect(wrapper.find(".danx-context-menu__shortcut").text()).toBe("2");
+  });
+
+  it("marks the chosen item active", async () => {
+    await mountDropdown(
+      [
+        { label: "Sonnet 5" },
+        { label: "Opus 5", active: true },
+      ],
+      { open: true }
+    );
+
+    const items = wrapper.findAll(".danx-context-menu__item");
+    expect(items[0]!.classes()).not.toContain("is-active");
+    expect(items[1]!.classes()).toContain("is-active");
+  });
+
+  it("carries a shortcut and active state into a submenu", async () => {
+    await mountDropdown(
+      [
+        {
+          label: "More models",
+          children: [{ label: "Haiku 4.5", shortcut: "4", active: true }],
+        },
+      ],
+      { open: true }
+    );
+
+    await wrapper.find(".danx-context-menu__item").trigger("click");
+    await nextTick();
+
+    const submenu = wrapper.find(".danx-context-menu__submenu");
+    expect(submenu.find(".danx-context-menu__shortcut").text()).toBe("4");
+    expect(submenu.find(".danx-context-menu__item").classes()).toContain("is-active");
+  });
+
   it(
     "documented caveat: reordering `items` while open can carry the active " +
       "item onto a different item at the same tree position, since ids are " +
