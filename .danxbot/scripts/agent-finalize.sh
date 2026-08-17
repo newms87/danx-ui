@@ -25,6 +25,15 @@
 #   65 — wrong branch: invoked from a worktree whose HEAD is not on `<agent>`.
 #        Distinct from 1 because the recovery is "investigate the worktree",
 #        NOT "git rebase --continue".
+#   66 — generation superseded (DX-1665 arm b): the worker's pre-push
+#        generation-check (`$DANXBOT_GENERATION_CHECK_URL`) reported this
+#        dispatch was superseded by a higher-generation re-dispatch. The push
+#        is ABORTED — a zombie/partitioned worker must not double-merge. NOT a
+#        recoverable error: the card is already owned by the newer dispatch;
+#        this dispatch should terminate without retrying. The check is
+#        fail-OPEN — an absent/empty URL, unreachable worker, non-200, or
+#        unparseable body all PROCEED to the push (the dashboard reject is the
+#        second gate), so 66 fires ONLY on a reachable, explicit superseded:true.
 #
 # Worktree-safety design (do NOT change without reading this paragraph):
 # Each agent owns ONE worktree at <repo>/.danxbot/worktrees/<agent>/ with
@@ -144,6 +153,107 @@ for b in "${bullets[@]}"; do
   msg_args+=(-m "- $b")
 done
 git commit "${msg_args[@]}"
+
+# 3a. DX-1995 — dashboard production build gate. DX-1973 merged a required
+#     field onto a backend type (`src/system-repair/types.ts`) without
+#     updating dashboard fixtures; every quality gate passed because vitest
+#     never type-checks, and nothing here ran the dashboard's own build
+#     (`vue-tsc --noEmit && vite build`) — so `main` merged silently
+#     undeployable. `dashboard-build-gate.ts` decides, from the squashed
+#     diff against `$base`, whether this card's changes are dashboard-
+#     reachable (a `dashboard/` edit, or a backend file the dashboard
+#     imports via `@backend`); a pure-backend diff with no dashboard-
+#     reachable import is skipped so unrelated cards don't pay the build
+#     cost. All filesystem/git ops below run against "$WT" explicitly —
+#     see the worktree-safety note above; the process cwd is the external
+#     clean-room dir, not the worktree. Resolved via the worktree's own
+#     `node_modules/.bin/tsx` (never `npx`) so a repo/fixture without the
+#     gate script or a local tsx install (e.g. this script's own unit-test
+#     fixtures, which are bare tmp git repos with no `src/` or
+#     `node_modules/`) skips the check instead of falling through to a slow
+#     or network-dependent `npx` resolution.
+wt_dir="${WT:-$(pwd)}"
+gate_script="$wt_dir/src/dispatch/dashboard-build-gate.ts"
+tsx_bin="$wt_dir/node_modules/.bin/tsx"
+if [[ -f "$gate_script" && -x "$tsx_bin" ]]; then
+  if (cd "$wt_dir" && "$tsx_bin" src/dispatch/dashboard-build-gate.ts "$base" HEAD); then
+    echo "agent-finalize: diff touches dashboard-reachable code — running dashboard build" >&2
+    if ! (cd "$wt_dir/dashboard" && npm run build); then
+      echo "agent-finalize: dashboard build failed — fix before finalizing (DX-1995)" >&2
+      exit 1
+    fi
+  fi
+else
+  # Loud, not silent: a real worktree missing its own gate script or a
+  # working `tsx` install is itself a broken-checkout signal worth a
+  # breadcrumb, not a quiet no-op — the whole point of this gate is to
+  # never let "nothing ran the build" pass unnoticed again (DX-1973).
+  echo "agent-finalize: dashboard build gate skipped (gate_script=$([[ -f "$gate_script" ]] && echo present || echo missing), tsx=$([[ -x "$tsx_bin" ]] && echo present || echo missing))" >&2
+fi
+
+# 3a2. DX-2014 — backend `tsc --noEmit` gate. DX-2005 added required
+#      `Dispatch` fields (`bootFloorTokens`/`firstTurn*`) without updating 3
+#      backend test fixtures; every quality gate stayed green because
+#      `vitest` never type-checks and (until this step) nothing in the
+#      finalize/gate pipeline ran the backend's own `tsc --noEmit` — the
+#      same silent-escape class the 3a dashboard build gate above closes for
+#      the dashboard build, now closed for the backend type line. Scoped to
+#      diffs that touch `src/` (a docs/dashboard-only diff has no backend
+#      surface to break); resolved via the worktree's own
+#      `node_modules/.bin/tsc` (never `npx`) so a fixture tree without a
+#      `src/` or `node_modules/` skips the check instead of falling through
+#      to a slow or network-dependent resolution.
+tsc_bin="$wt_dir/node_modules/.bin/tsc"
+if [[ -x "$tsc_bin" ]]; then
+  if git diff --name-only "$base" HEAD | grep -q '^src/'; then
+    echo "agent-finalize: diff touches backend src/ — running tsc --noEmit" >&2
+    if ! (cd "$wt_dir" && "$tsc_bin" --noEmit); then
+      echo "agent-finalize: backend tsc --noEmit failed — fix before finalizing (DX-2014)" >&2
+      exit 1
+    fi
+  fi
+else
+  echo "agent-finalize: backend typecheck gate skipped (tsc=$([[ -x "$tsc_bin" ]] && echo present || echo missing))" >&2
+fi
+
+# 3b. DX-1665 arm (b) — split-brain fence: consult the dispatch's generation
+#     BEFORE pushing. If this dispatch was superseded (a higher-generation
+#     re-dispatch exists for the card after a worker-death re-queue), a
+#     partitioned/zombie worker must NOT push blind — abort with exit 66.
+#     Fail-OPEN by design (every branch except a reachable {superseded:true}
+#     proceeds to the push), so a missing/empty URL, an unreachable worker, a
+#     non-200, or unparseable JSON never wedges a legitimate finalize — the
+#     dashboard-side reject (arm a) is the second gate. Every curl exit is
+#     captured (`|| true`) so `set -euo pipefail` (line 41) can't kill us on a
+#     transient.
+#       env absent OR empty  -> skip check, push (legacy + THIS dispatch's own
+#                               finalize; resolveInfraEnv ""-fills the key)
+#       reachable + true     -> abort, exit 66 (do NOT push)
+#       reachable + false    -> push
+#       unreachable/non-200/unparseable -> push (gate 2 covers a real zombie)
+if [[ -n "${DANXBOT_GENERATION_CHECK_URL:-}" ]]; then
+  # NO `-f`: the `http_code == 200` check below is the SINGLE source of truth for
+  # "the worker answered authoritatively". `-f` is redundant with that AND on some
+  # curl builds suppresses the body that `-w` appends on a non-2xx — which would
+  # turn a parseable non-200 into an empty body. Keeping `-sS` (quiet, but show
+  # connect errors on stderr) + `|| true` keeps every branch fail-open.
+  gen_body=""
+  gen_http=""
+  # DX-925: dispatch-internal route now — the presented bearer must be THIS
+  # dispatch's own DANX_AGENT_TOKEN. An absent token still fails open (no
+  # header -> 401 -> non-200 -> "push", the same as the pre-existing
+  # unreachable/non-200 branches below), never a hard block.
+  gen_body="$(curl -sS -m 10 -w $'\n%{http_code}' \
+    -H "Authorization: Bearer ${DANX_AGENT_TOKEN:-}" \
+    "$DANXBOT_GENERATION_CHECK_URL" 2>/dev/null || true)"
+  gen_http="${gen_body##*$'\n'}"
+  gen_json="${gen_body%$'\n'*}"
+  if [[ "$gen_http" == "200" && "$gen_json" == *'"superseded":true'* ]]; then
+    echo "GENERATION_SUPERSEDED: this dispatch was superseded by a higher-generation" \
+         "re-dispatch — aborting the HEAD:main push (no double-merge). Exit 66." >&2
+    exit 66
+  fi
+fi
 
 # 4. Push the squash commit to origin/main with a rebase-loop on race.
 #    `git push origin HEAD:main` fast-forwards origin/main to our

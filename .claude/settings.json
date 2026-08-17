@@ -1,12 +1,18 @@
 {
-  "extraKnownMarketplaces": {
-    "newms-plugins": {
-      "source": {
-        "source": "github",
-        "repo": "newms87/claude-plugins"
-      },
-      "autoUpdate": true
-    }
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint.sh",
+            "timeout": 30,
+            "async": true
+          }
+        ]
+      }
+    ]
   },
   "enabledPlugins": {
     "base@newms-plugins": true,
@@ -16,19 +22,13 @@
     "human-collaboration@newms-plugins": true,
     "danxbot@newms-plugins": true
   },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint.sh",
-            "async": true,
-            "timeout": 30
-          }
-        ]
-      }
-    ]
+  "extraKnownMarketplaces": {
+    "newms-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "newms87/claude-plugins"
+      },
+      "autoUpdate": true
+    }
   }
 }
