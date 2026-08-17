@@ -222,6 +222,29 @@ describe("DanxRating", () => {
       expect(wrapper.attributes("aria-valuenow")).toBe("1");
     });
 
+    // A star that has not been laid out reports a zero-width rect; dividing by
+    // it would yield Infinity/NaN, so the fraction saturates to a full star.
+    it("treats a zero-width star as a full-star hover", async () => {
+      const wrapper = mountAttached({ modelValue: 1, max: 5, ariaLabel: "L" });
+      const star = wrapper.findAll(".danx-rating__star")[3]!;
+      vi.spyOn(star.element as HTMLElement, "getBoundingClientRect").mockReturnValue({
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0,
+        right: 0,
+        bottom: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => "",
+      } as DOMRect);
+
+      await star.trigger("pointermove", { clientX: 0 });
+
+      const layers = wrapper.findAll(".danx-rating__star-layer--filled");
+      expect(layers[3]!.attributes("style")).toContain("0%");
+    });
+
     it("restores the committed value on pointerleave", async () => {
       const wrapper = mountAttached({ modelValue: 1, max: 5, ariaLabel: "L" });
       const { left } = stubStarRect(wrapper, 4, 20);

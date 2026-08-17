@@ -113,4 +113,24 @@ describe("useColorScheme", () => {
 
     globalThis.document = originalDocument;
   });
+
+  // Private-mode browsers and some embedded webviews expose `window` but no
+  // usable `localStorage`. Reading the persisted mode must degrade to the
+  // default rather than throw during setup.
+  it("falls back to 'auto' when localStorage is unavailable", () => {
+    const descriptor = Object.getOwnPropertyDescriptor(window, "localStorage");
+    Object.defineProperty(window, "localStorage", { value: undefined, configurable: true });
+
+    let result: ReturnType<typeof useColorScheme> | undefined;
+    try {
+      scope = effectScope();
+      scope.run(() => {
+        result = useColorScheme({ storageKey: "test-no-storage" });
+      });
+    } finally {
+      if (descriptor) Object.defineProperty(window, "localStorage", descriptor);
+    }
+
+    expect(result!.mode.value).toBe("auto");
+  });
 });

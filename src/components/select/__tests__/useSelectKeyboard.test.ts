@@ -64,6 +64,16 @@ describe("useSelectKeyboard - type-ahead", () => {
     expect(highlightedIndex.value).toBe(0); // California
   });
 
+  // Nothing to search means nothing to highlight — the keypress must not
+  // fall through into the wrap-around search and index an empty list.
+  it("leaves the highlight alone when there are no options to search", () => {
+    const { keyboard, highlightedIndex } = createHarness({ options: [] });
+
+    keyboard.handleKeydown(keydown("c"));
+
+    expect(highlightedIndex.value).toBe(-1);
+  });
+
   it("cycles through options starting with the same repeated letter", () => {
     const { keyboard, highlightedIndex } = createHarness();
 

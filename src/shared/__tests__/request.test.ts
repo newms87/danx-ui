@@ -406,6 +406,40 @@ describe("request", () => {
         vi.useRealTimers();
       });
 
+      // The loop only checks `aborted` before each request, so a signal that
+      // fires DURING the request is first seen by the inter-attempt sleep.
+      it("rejects with PollAbortError when the signal fires during the request", async () => {
+        vi.useFakeTimers();
+        const controller = new AbortController();
+        fetchMock.mockImplementation(async () => {
+          controller.abort("cancelled mid-request");
+          return makeResponse({ done: false });
+        });
+
+        const promise = request.poll("job", {}, 1000, () => false, {
+          signal: controller.signal,
+        });
+        const assertion = expect(promise).rejects.toThrow(PollAbortError);
+        await vi.runAllTimersAsync();
+        await assertion;
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+      });
+
+      it("keeps polling across the wait when the signal never fires", async () => {
+        vi.useFakeTimers();
+        let n = 0;
+        fetchMock.mockImplementation(async () => makeResponse({ done: ++n >= 2 }));
+        const controller = new AbortController();
+
+        const promise = request.poll("job", {}, 1000, (r) => !!(r as { done: boolean }).done, {
+          signal: controller.signal,
+        });
+        await vi.runAllTimersAsync();
+
+        await expect(promise).resolves.toEqual({ done: true });
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+      });
+
       it("rejects with PollMaxAttemptsError once the attempt cap is reached", async () => {
         vi.useFakeTimers();
         fetchMock.mockResolvedValue(makeResponse({ done: false }));

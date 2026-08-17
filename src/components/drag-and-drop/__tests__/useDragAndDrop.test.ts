@@ -297,5 +297,56 @@ describe("useDragAndDrop", () => {
       movedRow.dispatchEvent(new Event("transitionend"));
       expect(movedRow.style.transform).toBe("");
     });
+
+    // A row can be unmounted (its ref set to null) between the reorder and the
+    // post-nextTick measurement — the animation must skip it, not throw.
+    it("skips rows whose element ref was cleared before the animation ran", async () => {
+      const { registerItemRef, onHandleKeydown, items } = createDragAndDrop(["a", "b", "c"]);
+      registerItemRef(0, fakeRow(0));
+      registerItemRef(1, null);
+      registerItemRef(2, fakeRow(80));
+
+      onHandleKeydown(0, new KeyboardEvent("keydown", { key: " " }));
+      onHandleKeydown(0, new KeyboardEvent("keydown", { key: "ArrowDown" }));
+      await nextTick();
+      await nextTick();
+
+      expect(items.value).toEqual(["b", "a", "c"]);
+    });
+
+    // A row that mounts after the pre-move rects were captured has no "before"
+    // position, so there is no delta to animate it from.
+    it("skips rows that had no captured position before the move", async () => {
+      const { registerItemRef, onHandleKeydown, items } = createDragAndDrop(["a", "b", "c"]);
+      registerItemRef(0, fakeRow(0));
+      registerItemRef(1, fakeRow(40));
+      registerItemRef(2, fakeRow(80));
+
+      onHandleKeydown(0, new KeyboardEvent("keydown", { key: " " }));
+      onHandleKeydown(0, new KeyboardEvent("keydown", { key: "ArrowDown" }));
+      // Appears between the reorder and the post-nextTick measurement, so
+      // captureRects never saw it.
+      registerItemRef(3, fakeRow(120));
+      await nextTick();
+      await nextTick();
+
+      expect(items.value).toEqual(["b", "a", "c"]);
+    });
+
+    it("ignores cleared rows when resolving a pointer drop target", () => {
+      const { registerItemRef, startDrag, dropTargetIndex } = createDragAndDrop(["a", "b", "c"]);
+      registerItemRef(0, null);
+      registerItemRef(1, fakeRow(40));
+      registerItemRef(2, fakeRow(80));
+
+      const target = document.createElement("div");
+      startDrag(1, makePointerEvent("pointerdown", { clientY: 45, target }));
+      // Above index 1's midpoint, so the scan starts at the cleared index 0
+      // and must skip past it rather than measuring null.
+      target.dispatchEvent(makePointerEvent("pointermove", { clientY: 45, target }));
+
+      expect(dropTargetIndex.value).toBe(1);
+      target.dispatchEvent(makePointerEvent("pointerup", { target }));
+    });
   });
 });

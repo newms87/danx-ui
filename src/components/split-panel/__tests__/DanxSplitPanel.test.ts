@@ -278,5 +278,31 @@ describe("DanxSplitPanel", () => {
       expect(panels[0]!.attributes("style")).toContain("flex-basis: 30%");
       expect(panels[1]!.attributes("style")).toContain("flex-basis: 70%");
     });
+
+    // Keyboard resize goes through the handle's `resize` event, which is the
+    // only path that does not need a sized container — so unlike pointer drag
+    // it changes the widths for real.
+    it("ArrowRight on the handle widens the left panel", async () => {
+      const wrapper = mountSplitPanel();
+
+      await wrapper.find(".danx-split-panel-handle").trigger("keydown", { key: "ArrowRight" });
+
+      const panels = wrapper.findAll(".danx-split-panel__panel");
+      expect(panels[0]!.attributes("style")).not.toContain("flex-basis: 30%");
+      expect(panels[1]!.attributes("style")).not.toContain("flex-basis: 70%");
+    });
+
+    it("Home and End on the handle jump to the min and max split", async () => {
+      const wrapper = mountSplitPanel();
+      const handle = wrapper.find(".danx-split-panel-handle");
+
+      await handle.trigger("keydown", { key: "Home" });
+      const atMin = wrapper.findAll(".danx-split-panel__panel")[0]!.attributes("style");
+
+      await handle.trigger("keydown", { key: "End" });
+      const atMax = wrapper.findAll(".danx-split-panel__panel")[0]!.attributes("style");
+
+      expect(atMin).not.toBe(atMax);
+    });
   });
 });

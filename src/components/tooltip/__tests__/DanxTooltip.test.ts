@@ -385,6 +385,22 @@ describe("DanxTooltip", () => {
       targetEl.remove();
     });
 
+    // A targetId that matches nothing leaves the trigger unresolved. The
+    // aria-describedby mirror has no element to write to and must simply
+    // stand down rather than throw on every open/close.
+    it("mounts without a trigger when targetId matches no element", async () => {
+      wrapper = mount(DanxTooltip, {
+        props: { tooltip: "Orphan", targetId: "no-such-element" },
+        attachTo: document.body,
+      });
+      await vi.runAllTimersAsync();
+
+      await wrapper.setProps({ disabled: true });
+      await vi.runAllTimersAsync();
+
+      expect(document.body.querySelector(".danx-tooltip")).toBeNull();
+    });
+
     it("cleans up listeners on unmount", async () => {
       const targetEl = document.createElement("button");
       targetEl.id = "cleanup-target";

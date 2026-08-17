@@ -36,16 +36,10 @@ function stripComments(root: Node): void {
  * HTMLUnknownElements rather than dropping them.
  */
 function unwrapNamespacedElements(root: Element): void {
-  const all = Array.from(root.querySelectorAll("*"));
-  for (const element of all) {
-    if (element.tagName.includes(":")) {
-      const parent = element.parentNode;
-      if (!parent) continue;
-      while (element.firstChild) {
-        parent.insertBefore(element.firstChild, element);
-      }
-      parent.removeChild(element);
-    }
+  for (const element of Array.from(root.querySelectorAll("*"))) {
+    // replaceWith swaps the element for its own children in one step, and is a
+    // no-op on a node with no parent — so no parent guard is needed here.
+    if (element.tagName.includes(":")) element.replaceWith(...element.childNodes);
   }
 }
 

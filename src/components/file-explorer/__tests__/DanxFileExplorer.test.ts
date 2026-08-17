@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
+import { defineComponent, inject } from "vue";
 import DanxFileExplorer from "../DanxFileExplorer.vue";
-import type { FileNode } from "../types";
+import { FILE_EXPLORER_CONTEXT } from "../types";
+import type { FileExplorerContext, FileNode } from "../types";
 
 /**
  * Tests for DanxFileExplorer + FileExplorerNode (exercised together by mounting
@@ -411,5 +413,25 @@ describe("DanxFileExplorer name filtering", () => {
       .findAll(".danx-file-explorer-node__row")
       .find((r) => r.text().includes("README.md"))!;
     expect(selectedRow.classes()).toContain("is-selected");
+  });
+
+  // A filter can empty the visible rows in the same tick a keydown is
+  // delivered, leaving the handler holding a node that is no longer rendered.
+  // Moving focus off an index of -1 would land on the wrong row.
+  it("ignores a keypress for a node that is no longer in the visible rows", () => {
+    let captured: FileExplorerContext | undefined;
+    const Probe = defineComponent({
+      setup() {
+        captured = inject(FILE_EXPLORER_CONTEXT);
+        return () => null;
+      },
+    });
+
+    mountExplorer({ nodes: [] }, { slots: { empty: Probe } });
+
+    const stale: FileNode = { id: "gone", name: "gone.ts" };
+    expect(() =>
+      captured!.onKeydown(new KeyboardEvent("keydown", { key: "ArrowDown" }), stale)
+    ).not.toThrow();
   });
 });

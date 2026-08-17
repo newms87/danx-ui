@@ -40,6 +40,16 @@ function makeTouchEvent(touches: Array<{ clientX: number; clientY: number }>) {
   };
 }
 
+/**
+ * A TouchList-shaped list that reports a length but holds no entries — what a
+ * handler sees when a finger lifts between event dispatch and delivery.
+ */
+function sparseTouchEvent(length: number) {
+  const touches: Array<{ clientX: number; clientY: number }> = [];
+  touches.length = length;
+  return makeTouchEvent(touches);
+}
+
 type TouchHandler = (e: TouchEvent) => void;
 
 interface TouchHarnessResult extends HarnessResult {
@@ -528,9 +538,45 @@ describe("useZoomable", () => {
       );
       expect(h.zoom.value).toBe(100);
     });
+
+    // A TouchList can report a length whose entries are gone by the time the
+    // handler reads them (a finger lifted between dispatch and delivery).
+    it("ignores a pinch whose touch entries are missing", () => {
+      const h = makeTouchHarness({ zoom: 100 });
+
+      h.touchstart(sparseTouchEvent(2));
+      h.touchmove(
+        makeTouchEvent([
+          { clientX: 0, clientY: 0 },
+          { clientX: 200, clientY: 0 },
+        ])
+      );
+
+      // No start distance was captured, so there is no ratio to zoom by.
+      expect(h.zoom.value).toBe(100);
+    });
   });
 
   describe("touch: single-finger drag to pan", () => {
+    it("does not start a pan when the single touch entry is missing", () => {
+      const h = makeTouchHarness({ zoom: 150 });
+
+      h.touchstart(sparseTouchEvent(1));
+      h.touchmove(makeTouchEvent([{ clientX: 60, clientY: 70 }]));
+
+      expect(h.api.isDragging.value).toBe(false);
+      expect(h.pan.value).toEqual({ x: 0, y: 0 });
+    });
+
+    it("ignores a pan move whose touch entry is missing", () => {
+      const h = makeTouchHarness({ zoom: 150 });
+      h.touchstart(makeTouchEvent([{ clientX: 10, clientY: 20 }]));
+
+      h.touchmove(sparseTouchEvent(1));
+
+      expect(h.pan.value).toEqual({ x: 0, y: 0 });
+    });
+
     it("does not pan a single finger when zoom is at 100 (leaves swipe untouched)", () => {
       const h = makeTouchHarness({ zoom: 100 });
       h.touchstart(makeTouchEvent([{ clientX: 10, clientY: 20 }]));

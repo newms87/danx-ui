@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import DanxEditableDiv, { __resetPlaintextOnlySupportCache } from "../DanxEditableDiv.vue";
+import DanxEditableDiv, {
+  __resetPlaintextOnlySupportCache,
+  supportsPlaintextOnly,
+} from "../DanxEditableDiv.vue";
 
 function getSurface(wrapper: ReturnType<typeof mount>) {
   return wrapper.find(".danx-editable-div");
@@ -123,6 +126,23 @@ describe("DanxEditableDiv", () => {
 
     afterEach(() => {
       __resetPlaintextOnlySupportCache();
+    });
+
+    // Feature detection needs a real document to probe. Under SSR there is
+    // none, so it must report "unsupported" rather than touching `document`.
+    it("reports no support when there is no document to probe", () => {
+      __resetPlaintextOnlySupportCache();
+      const originalDocument = globalThis.document;
+      // @ts-expect-error - simulate an SSR environment with no document
+      delete globalThis.document;
+
+      try {
+        expect(supportsPlaintextOnly()).toBe(false);
+        // The answer is cached, so a second call must not re-probe either.
+        expect(supportsPlaintextOnly()).toBe(false);
+      } finally {
+        globalThis.document = originalDocument;
+      }
     });
 
     it("sets contenteditable=plaintext-only when feature detection reports support", () => {

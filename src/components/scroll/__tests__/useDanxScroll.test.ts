@@ -951,6 +951,166 @@ describe("useDanxScroll", () => {
     });
   });
 
+  describe("Viewport keyboard scrolling", () => {
+    /** A container that overflows on the requested axes only. */
+    async function scrollable({ vertical = false, horizontal = false } = {}) {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+      containerEl.value = createMockElement({
+        scrollTop: 500,
+        scrollLeft: 500,
+        scrollHeight: vertical ? 1000 : 300,
+        scrollWidth: horizontal ? 1000 : 300,
+        clientHeight: 300,
+        clientWidth: 300,
+      });
+      await nextTick();
+      return { el: containerEl.value, result };
+    }
+
+    it.each([
+      ["ArrowDown", "scrollTop", 540],
+      ["ArrowUp", "scrollTop", 460],
+      ["PageDown", "scrollTop", 800],
+      ["PageUp", "scrollTop", 200],
+      ["Home", "scrollTop", 0],
+      ["End", "scrollTop", 1000],
+    ] as const)("%s scrolls the viewport vertically", async (key, prop, expected) => {
+      const { el, result } = await scrollable({ vertical: true });
+      const event = createKeydownEvent(key);
+
+      result.onViewportKeydown(event);
+
+      expect(el[prop]).toBe(expected);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it.each([
+      ["ArrowRight", 540],
+      ["ArrowLeft", 460],
+      ["Home", 0],
+      ["End", 1000],
+    ] as const)(
+      "%s scrolls horizontally when only the horizontal axis overflows",
+      async (key, expected) => {
+        const { el, result } = await scrollable({ horizontal: true });
+
+        result.onViewportKeydown(createKeydownEvent(key));
+
+        expect(el.scrollLeft).toBe(expected);
+      }
+    );
+
+    // With nothing to scroll, the key must fall through to the browser rather
+    // than being swallowed by a preventDefault that does nothing.
+    it.each([
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "PageUp",
+      "PageDown",
+      "Home",
+      "End",
+    ])("%s is left to the browser when there is no overflow", async (key) => {
+      const { result } = await scrollable();
+      const event = createKeydownEvent(key);
+
+      result.onViewportKeydown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores an unrelated key", async () => {
+      const { result } = await scrollable({ vertical: true });
+      const event = createKeydownEvent("a");
+
+      result.onViewportKeydown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("does nothing without a container", () => {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+      const event = createKeydownEvent("ArrowDown");
+
+      result.onViewportKeydown(event);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Thumb keyboard scrolling", () => {
+    async function thumbTarget() {
+      const containerEl = ref<HTMLElement | null>(null);
+      const result = createComposable(containerEl);
+      containerEl.value = createMockElement({
+        scrollTop: 500,
+        scrollLeft: 500,
+        scrollHeight: 1000,
+        scrollWidth: 1000,
+      });
+      await nextTick();
+      return { el: containerEl.value, result };
+    }
+
+    it.each([
+      ["ArrowUp", 460],
+      ["ArrowDown", 540],
+      ["PageUp", 200],
+      ["PageDown", 800],
+      ["Home", 0],
+      ["End", 1000],
+    ] as const)("%s moves the vertical thumb", async (key, expected) => {
+      const { el, result } = await thumbTarget();
+
+      result.onVerticalThumbKeydown(createKeydownEvent(key));
+
+      expect(el.scrollTop).toBe(expected);
+    });
+
+    it.each([
+      ["ArrowLeft", 460],
+      ["ArrowRight", 540],
+      ["PageUp", 200],
+      ["PageDown", 800],
+      ["Home", 0],
+      ["End", 1000],
+    ] as const)("%s moves the horizontal thumb", async (key, expected) => {
+      const { el, result } = await thumbTarget();
+
+      result.onHorizontalThumbKeydown(createKeydownEvent(key));
+
+      expect(el.scrollLeft).toBe(expected);
+    });
+
+    it.each(["onVerticalThumbKeydown", "onHorizontalThumbKeydown"] as const)(
+      "%s ignores an unrelated key",
+      async (handler) => {
+        const { result } = await thumbTarget();
+        const event = createKeydownEvent("a");
+
+        result[handler](event);
+
+        expect(event.preventDefault).not.toHaveBeenCalled();
+      }
+    );
+
+    it.each(["onVerticalThumbKeydown", "onHorizontalThumbKeydown"] as const)(
+      "%s does nothing without a container",
+      (handler) => {
+        const containerEl = ref<HTMLElement | null>(null);
+        const result = createComposable(containerEl);
+        const event = createKeydownEvent("ArrowUp");
+
+        result[handler](event);
+
+        expect(event.preventDefault).not.toHaveBeenCalled();
+      }
+    );
+  });
+
   function createKeydownEvent(key: string): KeyboardEvent {
     const event = new KeyboardEvent("keydown", { key });
     Object.defineProperty(event, "preventDefault", { value: vi.fn() });
