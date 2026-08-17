@@ -68,3 +68,4 @@
 @import "./shared/transitions/collapse-transition.css" layer(components);
 @import "./components/accordion/accordion.css" layer(components);
 @import "./components/agent-chat/agent-chat.css" layer(components);
+@import "./components/usage-meter/usage-meter.css" layer(components);

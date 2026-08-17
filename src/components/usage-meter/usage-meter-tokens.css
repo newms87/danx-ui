@@ -1,0 +1,109 @@
+/**
+ * DanxUsageMeter Tokens
+ *
+ * Component tokens (Tier 3) that reference semantic tokens.
+ * Override these to customize usage meter appearance.
+ *
+ * Layout tokens:
+ * --dx-usage-meter-width              Meter width
+ * --dx-usage-meter-gap                Gap between header and track
+ * --dx-usage-meter-header-gap         Gap between label and readout
+ * --dx-usage-meter-font-family        Font family for header text
+ *
+ * Track tokens:
+ * --dx-usage-meter-track-bg           Track (unused capacity) background
+ * --dx-usage-meter-track-radius       Track corner radius (pill by default)
+ * --dx-usage-meter-remaining-bg       Free-space background inside the track
+ *
+ * Segment tokens:
+ * --dx-usage-meter-segment-bg         Default segment color (variant/color override it)
+ * --dx-usage-meter-segment-radius     Segment corner radius
+ * --dx-usage-meter-segment-divider    Width of the divider drawn between segments
+ * --dx-usage-meter-transition         Segment width transition
+ *
+ * Text tokens:
+ * --dx-usage-meter-label-color        Heading text color
+ * --dx-usage-meter-label-weight       Heading font weight
+ * --dx-usage-meter-readout-color      Readout text color
+ * --dx-usage-meter-readout-weight     Readout font weight
+ * --dx-usage-meter-over-color         Readout color when over capacity
+ *
+ * Size tokens (sm, md, lg):
+ * --dx-usage-meter-{size}-height      Track height
+ * --dx-usage-meter-{size}-font-size   Header font size
+ *
+ * Tooltip tokens:
+ * --dx-usage-meter-tooltip-gap        Gap between tooltip label and value
+ * --dx-usage-meter-tooltip-value-color Tooltip value text color
+ *
+ * Segment colors are applied via inline styles: an explicit `color` on the
+ * segment, otherwise the useVariant composable maps the variant tokens.
+ */
+
+:root {
+  /* ==========================================================================
+     Layout Tokens
+     ========================================================================== */
+
+  --dx-usage-meter-width: 100%;
+  --dx-usage-meter-gap: 0.375rem;
+  --dx-usage-meter-header-gap: 1rem;
+  --dx-usage-meter-font-family: var(--font-sans);
+
+  /* ==========================================================================
+     Track Tokens
+     ========================================================================== */
+
+  --dx-usage-meter-track-bg: var(--color-surface-sunken);
+  --dx-usage-meter-track-radius: 9999px;
+  --dx-usage-meter-remaining-bg: transparent;
+
+  /* ==========================================================================
+     Segment Tokens
+     ========================================================================== */
+
+  --dx-usage-meter-segment-bg: var(--color-interactive);
+  --dx-usage-meter-segment-radius: 0;
+  --dx-usage-meter-segment-divider: 2px;
+  --dx-usage-meter-transition: width 0.4s ease;
+
+  /* ==========================================================================
+     Text Tokens
+     ========================================================================== */
+
+  --dx-usage-meter-label-color: var(--color-text);
+  --dx-usage-meter-label-weight: var(--font-semibold);
+  --dx-usage-meter-readout-color: var(--color-text-muted);
+  --dx-usage-meter-readout-weight: var(--font-medium);
+  --dx-usage-meter-over-color: var(--color-danger);
+
+  /* ==========================================================================
+     Size Tokens - Small
+     ========================================================================== */
+
+  --dx-usage-meter-sm-height: 0.375rem;
+  --dx-usage-meter-sm-font-size: 0.6875rem;
+
+  /* ==========================================================================
+     Size Tokens - Medium (default)
+     ========================================================================== */
+
+  --dx-usage-meter-md-height: 0.75rem;
+  --dx-usage-meter-md-font-size: 0.8125rem;
+
+  /* ==========================================================================
+     Size Tokens - Large
+     ========================================================================== */
+
+  --dx-usage-meter-lg-height: 1.25rem;
+  --dx-usage-meter-lg-font-size: 0.9375rem;
+
+  /* ==========================================================================
+     Tooltip Tokens
+     ========================================================================== */
+
+  --dx-usage-meter-tooltip-gap: 0.125rem;
+  /* Inherits the tooltip panel's own text color so it stays legible on the
+     tooltip background in both themes. */
+  --dx-usage-meter-tooltip-value-color: inherit;
+}

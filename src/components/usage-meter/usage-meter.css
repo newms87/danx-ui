@@ -1,0 +1,154 @@
+/**
+ * DanxUsageMeter Styles
+ *
+ * Main entry point that imports tokens and defines layout, size modifiers,
+ * the over-capacity modifier, and the segment tooltip layout.
+ *
+ * Note: BEM modifiers (.danx-usage-meter--sm) are top-level blocks because
+ * Lightning CSS does not support &--suffix concatenation.
+ * Pseudo-classes and descendant selectors are still nested.
+ *
+ * Segments are separated by an inset shadow rather than a flex gap so their
+ * widths stay exactly proportional to their values — a gap would force the
+ * flex items to shrink and quietly distort the data.
+ */
+
+@import "./usage-meter-tokens.css";
+
+/* ==========================================================================
+   Base Meter
+   ========================================================================== */
+
+.danx-usage-meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-usage-meter-gap);
+  width: var(--dx-usage-meter-width);
+  font-family: var(--dx-usage-meter-font-family);
+}
+
+/* ==========================================================================
+   Header - Label + Readout
+   ========================================================================== */
+
+.danx-usage-meter__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--dx-usage-meter-header-gap);
+}
+
+.danx-usage-meter__label {
+  color: var(--dx-usage-meter-label-color);
+  font-weight: var(--dx-usage-meter-label-weight);
+  min-width: 0;
+}
+
+.danx-usage-meter__readout {
+  color: var(--dx-usage-meter-readout-color);
+  font-weight: var(--dx-usage-meter-readout-weight);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  margin-inline-start: auto;
+}
+
+/* ==========================================================================
+   Track - Holds the stacked segments and the unused remainder
+   ========================================================================== */
+
+.danx-usage-meter__track {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  width: 100%;
+  background: var(--dx-usage-meter-track-bg);
+  border-radius: var(--dx-usage-meter-track-radius);
+
+  .danx-usage-meter__segment {
+    flex: 0 0 auto;
+    min-width: 0;
+    background: var(--dx-usage-meter-segment-bg);
+    border-radius: var(--dx-usage-meter-segment-radius);
+    transition: var(--dx-usage-meter-transition);
+  }
+
+  /* Divider between adjacent segments, painted inside the segment so it
+     never changes the segment's computed width. */
+  .danx-usage-meter__segment + .danx-usage-meter__segment {
+    box-shadow: inset var(--dx-usage-meter-segment-divider) 0 0 var(--dx-usage-meter-track-bg);
+  }
+
+  .danx-usage-meter__remaining {
+    flex: 0 0 auto;
+    min-width: 0;
+    background: var(--dx-usage-meter-remaining-bg);
+    transition: var(--dx-usage-meter-transition);
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion: the width transition is decorative — the value is already
+   conveyed by the readout and by aria-valuenow/aria-valuetext.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .danx-usage-meter__segment,
+  .danx-usage-meter__remaining {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Size Modifiers
+   ========================================================================== */
+
+.danx-usage-meter--sm {
+  font-size: var(--dx-usage-meter-sm-font-size);
+
+  .danx-usage-meter__track {
+    height: var(--dx-usage-meter-sm-height);
+  }
+}
+
+.danx-usage-meter--md {
+  font-size: var(--dx-usage-meter-md-font-size);
+
+  .danx-usage-meter__track {
+    height: var(--dx-usage-meter-md-height);
+  }
+}
+
+.danx-usage-meter--lg {
+  font-size: var(--dx-usage-meter-lg-font-size);
+
+  .danx-usage-meter__track {
+    height: var(--dx-usage-meter-lg-height);
+  }
+}
+
+/* ==========================================================================
+   Over-capacity Modifier - segments exceed the total
+   ========================================================================== */
+
+.danx-usage-meter--over-capacity {
+  .danx-usage-meter__readout {
+    color: var(--dx-usage-meter-over-color);
+  }
+}
+
+/* ==========================================================================
+   Segment Tooltip - .danx-usage-meter__tooltip lands on the DanxTooltip panel
+   as a theming hook; the body owns its own layout so it never depends on the
+   tooltip's internal markup.
+   ========================================================================== */
+
+.danx-usage-meter__tooltip-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dx-usage-meter-tooltip-gap);
+
+  .danx-usage-meter__tooltip-value {
+    color: var(--dx-usage-meter-tooltip-value-color);
+    font-variant-numeric: tabular-nums;
+  }
+}

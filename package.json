@@ -332,6 +332,11 @@
       "import": "./dist/components/tree-view/index.js"
     },
     "./components/tree-view/styles": "./dist/components/tree-view/tree-view.css",
+    "./components/usage-meter": {
+      "types": "./dist/components/usage-meter/index.d.ts",
+      "import": "./dist/components/usage-meter/index.js"
+    },
+    "./components/usage-meter/styles": "./dist/components/usage-meter/usage-meter.css",
     "./components/zoomable": {
       "types": "./dist/components/zoomable/index.d.ts",
       "import": "./dist/components/zoomable/index.js"
