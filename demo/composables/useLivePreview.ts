@@ -282,6 +282,7 @@ import {
   createFailureAdapter,
   createHistoryAdapter,
   createRichAdapter,
+  createAttachmentAdapter,
 } from "../pages/agent-chat-examples/useChatDemo.js";
 
 /** Components available in compiled templates via the `components` option */
@@ -642,6 +643,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   createFailureAdapter,
   createHistoryAdapter,
   createRichAdapter,
+  createAttachmentAdapter,
 };
 
 const DEBOUNCE_MS = 250;

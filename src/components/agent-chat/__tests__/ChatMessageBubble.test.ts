@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import ChatMessageBubble from "../ChatMessageBubble.vue";
-import type { ChatMessage } from "../types";
+import type { ChatAttachment, ChatMessage } from "../types";
 
 const TS = "2026-08-12T18:00:00.000Z";
 
@@ -243,14 +243,67 @@ describe("ChatMessageBubble rich content", () => {
     expect(w.find('[data-testid="steps"]').text()).toContain("Queried calls table");
   });
 
+  /** A file in the library's own PreviewFile shape, which is what an attachment is. */
+  function attachment(overrides: Partial<ChatAttachment> = {}): ChatAttachment {
+    return {
+      id: "a1",
+      name: "report.csv",
+      size: 2048,
+      mime: "text/csv",
+      url: "https://example.com/report.csv",
+      ...overrides,
+    };
+  }
+
   it("renders attachments", () => {
     const w = mountBubble({
       id: "1",
       role: "user",
       text: "see this",
-      attachments: [{ id: "a1", name: "report.csv" }],
+      attachments: [attachment()],
     });
     expect(w.find(".danx-agent-chat-attachments").text()).toContain("report.csv");
+  });
+
+  // Attachments are the library's PreviewFile, so DanxFile renders them — an
+  // image gets a real thumbnail rather than a generic document chip.
+  it("renders an image attachment through the shared file renderer", () => {
+    const w = mountBubble({
+      id: "1",
+      role: "user",
+      attachments: [
+        attachment({ id: "img", name: "shot.png", mime: "image/png", url: "https://x/shot.png" }),
+      ],
+    });
+    expect(w.findComponent({ name: "DanxFile" }).exists()).toBe(true);
+    expect(w.find('[data-testid="attachment"] img').attributes("src")).toBe("https://x/shot.png");
+  });
+
+  // An attachment mid-upload and one that failed must both be visible in the
+  // thread. At the compact size the failure message itself sits in a hover
+  // popover, but the error state is on the thumbnail either way.
+  it("surfaces an attachment still uploading, and one that failed", () => {
+    const w = mountBubble({
+      id: "1",
+      role: "user",
+      attachments: [
+        attachment({ id: "up", name: "big.mp4", progress: 40 }),
+        attachment({ id: "bad", name: "nope.pdf", error: "Upload failed" }),
+      ],
+    });
+
+    expect(w.findAll('[data-testid="attachment"]')).toHaveLength(2);
+    expect(w.text()).toContain("40");
+    expect(w.find(".danx-file__error").exists()).toBe(true);
+  });
+
+  it("emits openAttachment when an attachment is clicked", async () => {
+    const file = attachment();
+    const w = mountBubble({ id: "1", role: "user", attachments: [file] });
+
+    await w.find('[data-testid="attachment"]').trigger("click");
+
+    expect(w.emitted("openAttachment")?.[0]).toEqual([file]);
   });
 
   it("renders citations", () => {

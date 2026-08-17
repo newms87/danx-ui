@@ -7,6 +7,7 @@
 
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
+import type { PreviewFile } from "../danx-file";
 
 /** Declared packet schema metadata, keyed by packet type. */
 export interface ChatPacketSchema {
@@ -73,14 +74,18 @@ export interface ChatCitation {
   source?: string;
 }
 
-/** A file attached to a message, rendered as a compact chip. */
-export interface ChatAttachment {
-  id: string;
-  name: string;
-  /** Size in bytes — rendered human-readable when present. */
-  size?: number;
-  url?: string;
-}
+/**
+ * A file attached to a message.
+ *
+ * This is the library's own `PreviewFile` — the same shape `DanxFile`,
+ * `DanxFileUpload` and `DanxFileViewer` speak — rather than a chat-specific
+ * one. A file therefore looks and behaves the same in a chat thread as it
+ * does anywhere else in an app: thumbnails for images, a play badge for
+ * video, a live progress bar while it uploads, and an error state if it
+ * fails. Anything an app already produces for an upload field can be
+ * attached to a message unchanged.
+ */
+export type ChatAttachment = PreviewFile;
 
 /** Consumer feedback recorded on an assistant message. */
 export type ChatFeedback = "up" | "down";
@@ -276,6 +281,12 @@ export interface DanxAgentChatEmits {
   packet: [packet: ChatPacket];
   /** Emitted when the consumer asks to apply a packet (the Apply action). */
   applyPacket: [packet: ChatPacket];
+  /**
+   * Emitted when an attachment on a message is clicked. The component does not
+   * open anything itself — where a file should open (a viewer, a new tab, an
+   * app route) is the app's decision, not the chat panel's.
+   */
+  openAttachment: [file: ChatAttachment];
   /** Emitted once the thread has resolved and history has loaded. */
   threadReady: [threadId: string];
   /** Emitted on any adapter failure. */

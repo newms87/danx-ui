@@ -81,6 +81,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   applyPacket: [packet: ChatPacket];
+  openAttachment: [file: ChatAttachment];
   retry: [];
   feedback: [payload: { message: ChatMessage; feedback: ChatFeedback }];
 }>();
@@ -138,6 +139,7 @@ const isEmpty = computed(() => visibleMessages.value.length === 0);
             :markdown="markdown"
             :actions="actions"
             @apply-packet="emit('applyPacket', $event)"
+            @open-attachment="emit('openAttachment', $event)"
             @retry="emit('retry')"
             @feedback="emit('feedback', $event)"
           >

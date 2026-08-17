@@ -17,6 +17,7 @@ import streamingReplyCode from "./agent-chat-examples/StreamingReply.vue?raw";
 import packetTypesCode from "./agent-chat-examples/PacketTypes.vue?raw";
 import escalatedJobCode from "./agent-chat-examples/EscalatedJob.vue?raw";
 import threadHistoryCode from "./agent-chat-examples/ThreadHistory.vue?raw";
+import attachmentsCode from "./agent-chat-examples/Attachments.vue?raw";
 import richContentCode from "./agent-chat-examples/RichContent.vue?raw";
 import failureStatesCode from "./agent-chat-examples/FailureStates.vue?raw";
 import themingCode from "./agent-chat-examples/Theming.vue?raw";
@@ -51,6 +52,12 @@ import minimalEmbedCode from "./agent-chat-examples/MinimalEmbed.vue?raw";
       title="Escalated (long-running) jobs"
       description="A complex ask dispatches a background job. The component polls it, streaming tool-call steps and live elapsed time into the working message, then reloads the thread when it completes. Stop cancels the job upstream."
       :code="escalatedJobCode"
+    />
+
+    <DemoSection
+      title="File attachments"
+      description="An attachment is the library's own PreviewFile — the same shape DanxFileUpload produces — so images get a real thumbnail, an upload in flight shows a live progress bar, and a failure shows an error state instead of a silently broken chip. Clicking one emits openAttachment; where it opens is the app's call."
+      :code="attachmentsCode"
     />
 
     <DemoSection

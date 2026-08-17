@@ -18,6 +18,7 @@ import richContent from "../RichContent.vue?raw";
 import failureStates from "../FailureStates.vue?raw";
 import theming from "../Theming.vue?raw";
 import minimalEmbed from "../MinimalEmbed.vue?raw";
+import attachments from "../Attachments.vue?raw";
 
 const EXAMPLES = [
   ["FullyFeatured", fullyFeatured],
@@ -30,6 +31,7 @@ const EXAMPLES = [
   ["FailureStates", failureStates],
   ["Theming", theming],
   ["MinimalEmbed", minimalEmbed],
+  ["Attachments", attachments],
 ] as const;
 
 /**
@@ -237,6 +239,28 @@ describe("agent-chat demo examples behave", () => {
     expect((w.find('[data-testid="composer-input"]').element as HTMLTextAreaElement).disabled).toBe(
       true
     );
+    w.unmount();
+  });
+
+  it("Attachments renders files, an upload in flight, and a failure", async () => {
+    const w = compileAndMount(attachments);
+    await tick();
+
+    // Four files across two turns: an image, a csv, one uploading, one failed.
+    expect(w.findAll('[data-testid="attachment"]')).toHaveLength(4);
+    expect(w.find(".danx-file__error").exists()).toBe(true);
+    expect(w.text()).toContain("62");
+    w.unmount();
+  });
+
+  it("Attachments reports the clicked file to the host", async () => {
+    const w = compileAndMount(attachments);
+    await tick();
+
+    await w.findAll('[data-testid="attachment"]')[0]!.trigger("click");
+    await tick(0);
+
+    expect(w.text()).toContain("call-volume.png");
     w.unmount();
   });
 

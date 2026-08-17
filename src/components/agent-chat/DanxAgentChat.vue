@@ -53,6 +53,7 @@
  * |--------------|-----------------------|------------------------------------------|
  * | packet       | ChatPacket            | A message carried a packet               |
  * | applyPacket  | ChatPacket            | User asked to apply a packet             |
+ * | openAttachment | ChatAttachment      | User clicked a file attached to a message |
  * | threadReady  | string                | Thread resolved and history loaded       |
  * | error        | unknown               | Any adapter failure                      |
  * | feedback     | { message, feedback } | User rated an assistant message          |
@@ -223,6 +224,7 @@ onMounted(async () => {
       :user-avatar="userAvatar"
       :assistant-avatar="assistantAvatar"
       @apply-packet="emit('applyPacket', $event)"
+      @open-attachment="emit('openAttachment', $event)"
       @retry="retry"
       @feedback="handleFeedback"
     >

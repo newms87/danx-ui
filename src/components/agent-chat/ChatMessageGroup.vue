@@ -80,6 +80,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   applyPacket: [packet: ChatPacket];
+  openAttachment: [file: ChatAttachment];
   retry: [];
   feedback: [payload: { message: ChatMessage; feedback: ChatFeedback }];
 }>();
@@ -142,6 +143,7 @@ const actionText = computed(() =>
         :packet-schemas="packetSchemas"
         :markdown="markdown"
         @apply-packet="emit('applyPacket', $event)"
+        @open-attachment="emit('openAttachment', $event)"
       >
         <template v-for="(_, name) in $slots" #[name]="slotProps">
           <slot :name="name" v-bind="slotProps ?? {}" />

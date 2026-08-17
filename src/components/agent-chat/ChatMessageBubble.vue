@@ -40,11 +40,18 @@ import { DanxAlert } from "../alert";
 import { DanxBadge } from "../badge";
 import { DanxButton } from "../button";
 import { DanxChip } from "../chip";
+import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
 import ChatStepList from "./ChatStepList.vue";
 import ChatThinkingIndicator from "./ChatThinkingIndicator.vue";
 import { renderMarkdown } from "../../shared/markdown";
-import type { ChatMessage, ChatPacket, ChatPacketSchema, ChatPacketSlotProps } from "./types";
+import type {
+  ChatAttachment,
+  ChatMessage,
+  ChatPacket,
+  ChatPacketSchema,
+  ChatPacketSlotProps,
+} from "./types";
 
 const props = withDefaults(
   defineProps<{
@@ -56,7 +63,10 @@ const props = withDefaults(
   { maxVisibleChars: 600, packetSchemas: () => ({}), markdown: true }
 );
 
-const emit = defineEmits<{ applyPacket: [packet: ChatPacket] }>();
+const emit = defineEmits<{
+  applyPacket: [packet: ChatPacket];
+  openAttachment: [file: ChatAttachment];
+}>();
 
 defineSlots<{ [key: string]: (props: ChatPacketSlotProps) => unknown }>();
 
@@ -173,15 +183,19 @@ const canApply = computed(() => !!packet.value && packet.value.valid !== false);
         </slot>
       </div>
 
-      <!-- Attachments -->
+      <!-- Attachments — rendered by the library's own file renderer, so a
+           thumbnail, upload progress and failure states all come for free. -->
       <div v-if="message.attachments?.length" class="danx-agent-chat-attachments">
-        <DanxChip
+        <DanxFile
           v-for="file in message.attachments"
           :key="file.id"
-          size="xs"
-          variant="muted"
-          icon="document"
-          :label="file.name"
+          :file="file"
+          size="sm"
+          show-filename
+          show-file-size
+          downloadable
+          data-testid="attachment"
+          @click="emit('openAttachment', file)"
         />
       </div>
 

@@ -83,6 +83,7 @@ The panel fills its container, so give it a bounded height.
 |-------|---------|-------------|
 | `packet` | `ChatPacket` | A message carried a structured result |
 | `applyPacket` | `ChatPacket` | The user pressed Apply on a packet |
+| `openAttachment` | `ChatAttachment` | The user clicked a file attached to a message |
 | `threadReady` | `string` | Thread resolved and history loaded |
 | `error` | `unknown` | Any adapter failure |
 | `feedback` | `{ message, feedback }` | The user rated an assistant message |
@@ -169,6 +170,42 @@ interface ChatMessage {
 ```
 
 Messages with `role: "system"` or `metadata.type === "system"` are bookkeeping and never render. The component filters them itself — do not assume a pre-filtered feed.
+
+## Attachments
+
+**A chat attachment is the library's own `PreviewFile`** — the same shape `DanxFile`, `DanxFileUpload` and `DanxFileViewer` speak. `ChatAttachment` is an alias for it, not a chat-specific type.
+
+```ts
+type ChatAttachment = PreviewFile;
+
+interface PreviewFile {
+  id: string;
+  name: string;
+  size: number;
+  mime: string;
+  url: string;
+  blobUrl?: string;      // local preview while uploading
+  progress?: number | null; // non-null and < 100 = still uploading
+  thumb?: { url: string };
+  error?: string;        // failed upload, takes priority over progress
+  // …see docs/danx-file.md for the rest
+}
+```
+
+Attachments render through `DanxFile`, so a file behaves in a chat thread exactly as it does anywhere else in an app: images get a real thumbnail, video gets a play badge, an upload in flight shows a live progress bar, and a failure shows an error state instead of a silently broken chip. Anything your app already produces for an upload field can be attached to a message unchanged — there is no conversion step and no second file format to maintain.
+
+```ts
+const message: ChatMessage = {
+  id: "m1",
+  role: "user",
+  text: "Here's the export — what stands out?",
+  attachments: [
+    { id: "f1", name: "calls.csv", size: 20481, mime: "text/csv", url: "/files/calls.csv" },
+  ],
+};
+```
+
+Clicking an attachment emits `openAttachment` with the file. The panel deliberately does not open anything itself — whether a file opens in `DanxFileViewer`, a new tab, or an app route is your decision, not the chat panel's.
 
 ## Packets and the tri-state `valid`
 

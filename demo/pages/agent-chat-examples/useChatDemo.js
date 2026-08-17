@@ -424,3 +424,63 @@ export function createRichAdapter() {
     },
   });
 }
+
+/**
+ * A thread carrying file attachments in the library's PreviewFile shape —
+ * an image with a thumbnail, a document, one still uploading, and one that
+ * failed. The same shape any DanxFileUpload field produces.
+ */
+export function createAttachmentAdapter() {
+  const swatch = (hex) =>
+    `data:image/svg+xml;utf8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" fill="${hex}"/></svg>`
+    )}`;
+
+  return createBaseAdapter({
+    history: [
+      {
+        id: "a1",
+        role: "user",
+        text: "Here are the exports from last week — anything odd?",
+        attachments: [
+          {
+            id: "f1",
+            name: "call-volume.png",
+            size: 184320,
+            mime: "image/png",
+            url: swatch("#2563eb"),
+            thumb: { url: swatch("#2563eb") },
+          },
+          { id: "f2", name: "carriers.csv", size: 20481, mime: "text/csv", url: "#" },
+        ],
+        timestamp: stamp(-600000),
+      },
+      {
+        id: "a2",
+        role: "assistant",
+        text: "Volume looks flat except Tuesday. The carrier file has 3 rows with no routing code.",
+        timestamp: stamp(-599000),
+      },
+      {
+        id: "a3",
+        role: "user",
+        text: "Uploading the raw dump too.",
+        attachments: [
+          { id: "f3", name: "raw-dump.zip", size: 88400000, mime: "application/zip", url: "", progress: 62 },
+          {
+            id: "f4",
+            name: "screenshot.png",
+            size: 40960,
+            mime: "image/png",
+            url: "",
+            error: "Upload failed — file exceeds 25 MB",
+          },
+        ],
+        timestamp: stamp(-60000),
+      },
+    ],
+    reply() {
+      return { dispatched: false, reply: "Got the files — reading them now." };
+    },
+  });
+}
