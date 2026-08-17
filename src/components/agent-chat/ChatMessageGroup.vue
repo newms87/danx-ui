@@ -47,6 +47,7 @@ import ChatMessageActions from "./ChatMessageActions.vue";
 import { fAbsoluteTime, fClockTime } from "../../shared/formatters/relativeTime";
 import type { ChatMessageGroup } from "./useChatGrouping";
 import type {
+  ChatAttachment,
   ChatFeedback,
   ChatMessage,
   ChatPacket,

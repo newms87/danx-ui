@@ -1,83 +1,105 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import ChatComposer from "../ChatComposer.vue";
 
-function textarea(w: ReturnType<typeof mount>) {
-  return w.find('[data-testid="composer-input"]');
+/**
+ * The composer hosts a MarkdownEditor, so the editable surface is a
+ * contenteditable div rather than a textarea. Typing means setting its text and
+ * firing `input` — the same way the markdown-editor's own tests drive it.
+ */
+function editor(w: ReturnType<typeof mount>) {
+  return w.find(".dx-markdown-editor-content");
+}
+
+async function type(w: ReturnType<typeof mount>, value: string) {
+  const el = editor(w);
+  // The editor converts its own innerHTML back to markdown on `input`, so a
+  // block wrapper is what a real keystroke would leave behind.
+  el.element.innerHTML = `<p>${value}</p>`;
+  await el.trigger("input");
+  // The editor syncs HTML back to markdown through a debounce, which is a
+  // macrotask — awaiting nextTick alone lands before the model updates.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await nextTick();
+}
+
+function contentOf(w: ReturnType<typeof mount>): string {
+  return editor(w).element.textContent ?? "";
 }
 
 describe("ChatComposer sending", () => {
   it("emits send with trimmed text and clears the field", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("  primary US numbers  ");
+    await type(w, "  primary US numbers  ");
     await w.find('[data-testid="composer-send"]').trigger("click");
     expect(w.emitted("send")?.[0]).toEqual(["primary US numbers"]);
-    expect((textarea(w).element as HTMLTextAreaElement).value).toBe("");
+    expect(contentOf(w)).toBe("");
   });
 
   it("sends on Enter", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("go");
-    await textarea(w).trigger("keydown", { key: "Enter" });
+    await type(w, "go");
+    await editor(w).trigger("keydown", { key: "Enter" });
     expect(w.emitted("send")?.[0]).toEqual(["go"]);
   });
 
   it("emits send exactly once per Enter press", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("go");
-    await textarea(w).trigger("keydown", { key: "Enter" });
+    await type(w, "go");
+    await editor(w).trigger("keydown", { key: "Enter" });
     expect(w.emitted("send")).toHaveLength(1);
   });
 
   it("prevents the default newline when Enter sends", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("go");
+    await type(w, "go");
     const event = new KeyboardEvent("keydown", { key: "Enter", cancelable: true, bubbles: true });
-    textarea(w).element.dispatchEvent(event);
+    editor(w).element.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
   });
 
   it("inserts a newline instead of sending on Shift+Enter", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("line one");
+    await type(w, "line one");
     const event = new KeyboardEvent("keydown", {
       key: "Enter",
       shiftKey: true,
       cancelable: true,
       bubbles: true,
     });
-    textarea(w).element.dispatchEvent(event);
+    editor(w).element.dispatchEvent(event);
     expect(w.emitted("send")).toBeUndefined();
     expect(event.defaultPrevented).toBe(false);
   });
 
   it("does not send while an IME composition is active", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("にほん");
+    await type(w, "にほん");
     const event = new KeyboardEvent("keydown", { key: "Enter", cancelable: true, bubbles: true });
     Object.defineProperty(event, "isComposing", { value: true });
-    textarea(w).element.dispatchEvent(event);
+    editor(w).element.dispatchEvent(event);
     expect(w.emitted("send")).toBeUndefined();
   });
 
   it("does not send whitespace-only text", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("   ");
-    await textarea(w).trigger("keydown", { key: "Enter" });
+    await type(w, "   ");
+    await editor(w).trigger("keydown", { key: "Enter" });
     expect(w.emitted("send")).toBeUndefined();
   });
 
   it("does not send while disabled", async () => {
     const w = mount(ChatComposer, { props: { disabled: true } });
-    await textarea(w).setValue("hi");
-    await textarea(w).trigger("keydown", { key: "Enter" });
+    await type(w, "hi");
+    await editor(w).trigger("keydown", { key: "Enter" });
     expect(w.emitted("send")).toBeUndefined();
   });
 
   it("ignores non-Enter keys", async () => {
     const w = mount(ChatComposer);
-    await textarea(w).setValue("hi");
-    await textarea(w).trigger("keydown", { key: "a" });
+    await type(w, "hi");
+    await editor(w).trigger("keydown", { key: "a" });
     expect(w.emitted("send")).toBeUndefined();
   });
 });
@@ -105,7 +127,7 @@ describe("ChatComposer send/stop swap", () => {
 describe("ChatComposer affordances", () => {
   it("renders the given placeholder", () => {
     const w = mount(ChatComposer, { props: { placeholder: "Type here…" } });
-    expect(textarea(w).attributes("placeholder")).toBe("Type here…");
+    expect(w.find(".dx-markdown-editor-content").attributes("data-placeholder")).toBe("Type here…");
   });
 
   it("shows the keyboard hint when enabled", () => {
@@ -120,23 +142,23 @@ describe("ChatComposer affordances", () => {
 
   it("hides the counter well below the limit", async () => {
     const w = mount(ChatComposer, { props: { maxLength: 100, showHint: false } });
-    await textarea(w).setValue("short");
+    await type(w, "short");
     expect(w.find('[data-testid="composer-count"]').exists()).toBe(false);
   });
 
   it("shows the counter as the limit approaches", async () => {
     const w = mount(ChatComposer, { props: { maxLength: 10, showHint: false } });
-    await textarea(w).setValue("123456789");
+    await type(w, "123456789");
     expect(w.find('[data-testid="composer-count"]').text()).toContain("9/10");
   });
 
   it("marks the counter over-limit and blocks sending past the cap", async () => {
     const w = mount(ChatComposer, { props: { maxLength: 5, showHint: false } });
-    await textarea(w).setValue("123456");
+    await type(w, "123456");
     expect(w.find('[data-testid="composer-count"]').classes()).toContain(
       "danx-agent-chat-composer__count--over"
     );
-    await textarea(w).trigger("keydown", { key: "Enter" });
+    await editor(w).trigger("keydown", { key: "Enter" });
     expect(w.emitted("send")).toBeUndefined();
   });
 });

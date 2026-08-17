@@ -35,16 +35,15 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { CodeViewer } from "../code-viewer";
 import { DanxAlert } from "../alert";
 import { DanxBadge } from "../badge";
 import { DanxButton } from "../button";
 import { DanxChip } from "../chip";
 import { DanxFile } from "../danx-file";
 import { DanxIcon } from "../icon";
+import { CodeViewer, MarkdownContent } from "../code-viewer";
 import ChatStepList from "./ChatStepList.vue";
 import ChatThinkingIndicator from "./ChatThinkingIndicator.vue";
-import { renderMarkdown } from "../../shared/markdown";
 import type {
   ChatAttachment,
   ChatMessage,
@@ -83,10 +82,14 @@ const displayedText = computed(() =>
  * Markdown is rendered for the assistant only. A user's own text is shown
  * verbatim — silently reinterpreting what someone typed (turning `_x_` into
  * italics, or eating a `#`) misrepresents their input.
- * `renderMarkdown` escapes HTML, so this is XSS-safe by construction.
+ *
+ * Rendering goes through the library's own `MarkdownContent`, which builds
+ * real Vue nodes rather than injecting an HTML string, and hands fenced code
+ * to `CodeViewer` for syntax highlighting, copy and language detection. There
+ * is no `v-html` anywhere on this path, so assistant output cannot inject
+ * markup by construction.
  */
 const useMarkdown = computed(() => props.markdown && !isUser.value && !props.message.streaming);
-const renderedHtml = computed(() => renderMarkdown(displayedText.value));
 
 const packet = computed(() => props.message.packet || null);
 /** Tri-state: only an explicit `false` marks a packet invalid. */
@@ -120,7 +123,11 @@ const canApply = computed(() => !!packet.value && packet.value.valid !== false);
 
     <template v-else>
       <!-- Body -->
-      <div v-if="useMarkdown && text" class="danx-agent-chat-markdown" v-html="renderedHtml" />
+      <MarkdownContent
+        v-if="useMarkdown && text"
+        :content="displayedText"
+        class="danx-agent-chat-markdown"
+      />
       <p v-else-if="text" class="danx-agent-chat-message__text whitespace-pre-wrap">
         {{ displayedText
         }}<span v-if="message.streaming" class="danx-agent-chat-caret" aria-hidden="true" />

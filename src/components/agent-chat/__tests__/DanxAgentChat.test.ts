@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
+import { nextTick } from "vue";
 import DanxAgentChat from "../DanxAgentChat.vue";
 import type { ChatAdapter } from "../types";
 
@@ -20,9 +21,18 @@ function mountChat(apiAdapter: ChatAdapter, { slots = {}, props = {} } = {}) {
   });
 }
 
+/**
+ * The composer hosts a MarkdownEditor, so typing means writing into its
+ * contenteditable and firing `input`. The editor syncs HTML back to markdown
+ * through a debounce — a macrotask — so nextTick alone lands too early.
+ */
 async function type(w: ReturnType<typeof mountChat>, text: string) {
-  await w.find('[data-testid="composer-input"]').setValue(text);
-  await w.find('[data-testid="composer-input"]').trigger("keydown", { key: "Enter" });
+  const el = w.find(".dx-markdown-editor-content");
+  el.element.innerHTML = `<p>${text}</p>`;
+  await el.trigger("input");
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await nextTick();
+  await el.trigger("keydown", { key: "Enter" });
 }
 
 describe("DanxAgentChat lifecycle", () => {
@@ -53,21 +63,19 @@ describe("DanxAgentChat lifecycle", () => {
     await flushPromises();
 
     expect(w.find('[data-testid="chat-unavailable"]').exists()).toBe(true);
-    expect((w.find('[data-testid="composer-input"]').element as HTMLTextAreaElement).disabled).toBe(
-      true
-    );
+    // A MarkdownEditor goes read-only rather than disabled: the surface stops
+    // being contenteditable.
+    expect(w.find(".dx-markdown-editor-content").attributes("contenteditable")).toBe("false");
     expect(w.emitted("error")).toBeTruthy();
   });
 
   it("disables the composer until the thread is ready", async () => {
     const w = mountChat(makeAdapter());
-    expect((w.find('[data-testid="composer-input"]').element as HTMLTextAreaElement).disabled).toBe(
-      true
-    );
+    // A MarkdownEditor goes read-only rather than disabled: the surface stops
+    // being contenteditable.
+    expect(w.find(".dx-markdown-editor-content").attributes("contenteditable")).toBe("false");
     await flushPromises();
-    expect((w.find('[data-testid="composer-input"]').element as HTMLTextAreaElement).disabled).toBe(
-      false
-    );
+    expect(w.find(".dx-markdown-editor-content").attributes("contenteditable")).toBe("true");
   });
 });
 

@@ -2,39 +2,49 @@
 /**
  * ChatComposer Component
  *
- * The message input: an auto-growing textarea, a send/stop button that swaps
- * in place, a keyboard hint, and an optional character counter. Internal to
- * the agent-chat tree.
+ * The message input: a full `MarkdownEditor` surface, a send/stop button that
+ * swaps in place, a keyboard hint, and an optional character counter.
+ * Internal to the agent-chat tree.
  *
- * Uses a NATIVE textarea rather than DanxTextarea so the keydown handler binds
- * directly to the element that receives the key — a component-level listener
- * lands on a wrapper via attribute fallthrough, which makes Enter handling
- * depend on the wrapper's DOM shape.
+ * The editor is the library's own `MarkdownEditor`, so composing a message has
+ * the same affordances as writing anywhere else in the app — fenced code with
+ * syntax highlighting, block quotes, tables, links and lists, plus the
+ * editor's context menu and hotkeys. A chat box people paste code into should
+ * render that code, not flatten it into one grey line.
  *
- * The send button becomes Stop during generation, in the same position, so the
- * layout never shifts and the abort is always one click away.
+ * Enter sends and Shift+Enter inserts a newline. That works because
+ * MarkdownEditor emits `keydown` to its host BEFORE running its own handler
+ * and skips that handler when the host has called `preventDefault` — so the
+ * editor's own Enter behaviour (list continuation, paragraph splitting) stays
+ * intact for the newline case and is suppressed for the sending case.
+ *
+ * `paste` is re-emitted unhandled. The composer takes no view on what a paste
+ * means; the panel above it decides whether a pasted image or an oversized
+ * text blob should become an attachment.
  *
  * ## Props
- * | Prop        | Type    | Default           | Description                       |
- * |-------------|---------|-------------------|-----------------------------------|
- * | placeholder | string  | "Ask a question…" | Textarea placeholder              |
- * | disabled    | boolean | false             | Disables input and send           |
- * | busy        | boolean | false             | Show Stop instead of Send         |
- * | maxLength   | number  | -                 | Character cap + counter           |
- * | showHint    | boolean | true              | Show the Enter/Shift+Enter hint   |
+ * | Prop        | Type    | Default           | Description                     |
+ * |-------------|---------|-------------------|---------------------------------|
+ * | placeholder | string  | "Ask a question…" | Editor placeholder              |
+ * | disabled    | boolean | false             | Makes the editor read-only      |
+ * | busy        | boolean | false             | Show Stop instead of Send       |
+ * | maxLength   | number  | -                 | Character cap + counter         |
+ * | showHint    | boolean | true              | Show the Enter/Shift+Enter hint |
  *
  * ## Events
- * | Event | Payload | Description                        |
- * |-------|---------|-------------------------------------|
- * | send  | string  | Fired with the trimmed message text |
- * | stop  | -       | User asked to abort generation      |
+ * | Event | Payload        | Description                             |
+ * |-------|----------------|------------------------------------------|
+ * | send  | string         | Fired with the trimmed message text      |
+ * | stop  | -              | User asked to abort generation           |
+ * | paste | ClipboardEvent | A paste landed in the editor, unhandled  |
  */
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue";
+import { computed, ref } from "vue";
 import { DanxButton } from "../button";
 import { DanxKbd } from "../kbd";
+import { MarkdownEditor } from "../markdown-editor";
 
 const props = withDefaults(
   defineProps<{
@@ -55,10 +65,10 @@ const props = withDefaults(
 const emit = defineEmits<{
   send: [text: string];
   stop: [];
+  paste: [event: ClipboardEvent];
 }>();
 
 const text = ref("");
-const input = ref<HTMLTextAreaElement | null>(null);
 
 const trimmed = computed(() => text.value.trim());
 const isOver = computed(() => props.maxLength !== undefined && text.value.length > props.maxLength);
@@ -77,13 +87,12 @@ function submit() {
   if (!canSend.value) return;
   emit("send", trimmed.value);
   text.value = "";
-  // Restore the single-row height after `field-sizing: content` grew it.
-  void nextTick(() => input.value?.focus());
 }
 
 /**
- * Enter sends, Shift+Enter inserts a newline. `preventDefault` is called only
- * on the sending path so the newline case keeps its native behavior.
+ * Enter sends, Shift+Enter inserts a newline. `preventDefault` is what tells
+ * MarkdownEditor to skip its own Enter handling, so it is called only on the
+ * sending path — the newline case falls through to the editor untouched.
  */
 function onKeydown(event: KeyboardEvent) {
   if (event.key !== "Enter" || event.shiftKey) return;
@@ -98,16 +107,17 @@ function onKeydown(event: KeyboardEvent) {
 <template>
   <div>
     <div class="danx-agent-chat-composer">
-      <textarea
-        ref="input"
+      <MarkdownEditor
         v-model="text"
         class="danx-agent-chat-composer__input"
-        rows="1"
         :placeholder="placeholder"
-        :disabled="disabled"
+        :readonly="disabled"
+        hide-footer
+        :debounce-ms="0"
         :aria-label="placeholder"
         data-testid="composer-input"
         @keydown="onKeydown"
+        @paste="emit('paste', $event)"
       />
       <DanxButton
         v-if="busy"

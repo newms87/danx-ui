@@ -18,8 +18,18 @@
  *   tokenRenderers?: TokenRenderer[] - Custom inline token renderers (default: [])
  *   debounceMs?: number - Debounce delay (ms) for v-model emit while editing (default: 300, 0 for immediate)
  *
+ * Hosts that embed the editor inside their own input surface (e.g. a chat composer)
+ * can observe and pre-empt keyboard and paste handling via the `keydown` / `paste`
+ * emits. Both fire BEFORE the editor's own handlers run: calling `preventDefault()`
+ * on the event inside the host listener suppresses the editor's built-in handling of
+ * that event entirely.
+ *
  * @emits
  *   update:modelValue - Emitted when editor content changes (via defineModel)
+ *   keydown - Fired with the KeyboardEvent before the editor handles the key.
+ *             Call event.preventDefault() to suppress the editor's own handling.
+ *   paste - Fired with the ClipboardEvent before the editor normalizes the paste.
+ *           Call event.preventDefault() to suppress the editor's own handling.
  *
  * @slots
  *   badge - Overlay content positioned at top-right of editor (e.g., share button)
@@ -36,6 +46,27 @@
  *   <MarkdownEditor v-model="content" class="theme-light" :hide-footer="true">
  *     <template #badge><ShareButton /></template>
  *   </MarkdownEditor>
+ *
+ * @example
+ *   // Host wiring: bare Enter submits, Shift+Enter still inserts a newline
+ *   <MarkdownEditor v-model="draft" @keydown="onEditorKeyDown" />
+ *
+ *   function onEditorKeyDown(event: KeyboardEvent) {
+ *     if (event.key !== "Enter" || event.shiftKey) return; // editor handles it
+ *     event.preventDefault(); // suppresses the editor's Enter handling
+ *     submit();
+ *   }
+ *
+ * @example
+ *   // Host wiring: intercept pasted images and attach them as files instead
+ *   <MarkdownEditor v-model="draft" @paste="onEditorPaste" />
+ *
+ *   function onEditorPaste(event: ClipboardEvent) {
+ *     const files = Array.from(event.clipboardData?.files ?? []);
+ *     if (!files.length) return; // editor normalizes the paste as usual
+ *     event.preventDefault(); // suppresses the editor's paste normalization
+ *     attachFiles(files);
+ *   }
  */
 import { computed, ref, watch } from "vue";
 import { useContextMenu } from "./useContextMenu";
@@ -68,6 +99,11 @@ const props = withDefaults(defineProps<MarkdownEditorProps>(), {
   tokenRenderers: () => [],
   debounceMs: 300,
 });
+
+const emit = defineEmits<{
+  keydown: [event: KeyboardEvent];
+  paste: [event: ClipboardEvent];
+}>();
 
 const modelValue = defineModel<string>({ default: "" });
 
@@ -112,6 +148,29 @@ const editor = useMarkdownEditor({
   tokenRenderers: props.tokenRenderers,
   readonly: props.readonly,
 });
+
+/**
+ * Forward keydown to the host BEFORE the editor handles it, so a host embedding
+ * this editor in its own input surface can pre-empt built-in key handling
+ * (e.g. make bare Enter submit while Shift+Enter still inserts a newline).
+ * A host that calls preventDefault() suppresses the editor's own handling.
+ */
+function onKeyDown(event: KeyboardEvent): void {
+  emit("keydown", event);
+  if (event.defaultPrevented) return;
+  editor.onKeyDown(event);
+}
+
+/**
+ * Forward paste to the host BEFORE the editor's HTML-normalizing paste logic
+ * runs, so a host can turn a pasted image or oversized text paste into a file
+ * attachment. A host that calls preventDefault() suppresses normalization.
+ */
+function onPaste(event: ClipboardEvent): void {
+  emit("paste", event);
+  if (event.defaultPrevented) return;
+  editor.onPaste(event);
+}
 
 // Initialize focus tracking
 useFocusTracking({ contentRef: contentElementRef });
@@ -160,8 +219,8 @@ watch(modelValue, (newValue) => {
           :readonly="readonly"
           :placeholder="placeholder"
           @input="editor.onInput"
-          @keydown="editor.onKeyDown"
-          @paste="editor.onPaste"
+          @keydown="onKeyDown"
+          @paste="onPaste"
           @blur="editor.onBlur"
           @container-mounted="(el: HTMLElement) => (contentElementRef = el)"
         />

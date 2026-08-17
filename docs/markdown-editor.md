@@ -39,6 +39,9 @@ Pasting into the editor is intercepted rather than left to the browser's default
 - **Rich paste (`Ctrl+V` / `Cmd+V`)** - HTML from the clipboard (e.g. copied from Word, Google Docs, or a web page) is normalized before insertion: conditional comments, MS Office XML namespaced elements (`<o:p>`, `<w:sdt>`, etc.), and `<meta>`/`<script>`/`<style>`/`<link>` tags are stripped, along with inline `style`/`class` attributes and `on*` event handlers. The cleaned markup is inserted at the caret and converted through the same markdown pipeline as any other edit.
 - **Plain-text paste (hold `Shift` while pasting)** - Bypasses HTML normalization entirely and inserts the clipboard's plain text verbatim. Use this when the source formatting should not carry over at all.
 - **No HTML on the clipboard** - Falls back automatically to inserting the plain text.
+- **Host interception** - A component embedding the editor can claim the paste before any
+  of the above runs via the `paste` event (see [Hosting the Editor in Another Input
+  Surface](#hosting-the-editor-in-another-input-surface)).
 
 > Pasted images are not yet supported and are dropped; this is a documented follow-up (see `htmlToMarkdown` has no `<img>` handling).
 
@@ -57,6 +60,76 @@ Pasting into the editor is intercepted rather than left to the browser's default
 | Event | Payload | Description |
 |-------|---------|-------------|
 | `update:modelValue` | `string` | v-model update when content changes |
+| `keydown` | `KeyboardEvent` | Fired before the editor handles the key. Call `preventDefault()` to suppress the editor's own handling. |
+| `paste` | `ClipboardEvent` | Fired before the editor normalizes the paste. Call `preventDefault()` to suppress the editor's own handling. |
+
+## Hosting the Editor in Another Input Surface
+
+`keydown` and `paste` exist so a host component (a chat composer, a comment box, an inline
+form field) can embed the editor and pre-empt its built-in behavior.
+
+**The host's listener runs first.** Both events are emitted *before* the editor's own
+handler runs, so calling `event.preventDefault()` inside the host listener suppresses the
+editor's handling of that event entirely. Doing nothing leaves the editor's default
+behavior exactly as it is — the events are purely observational unless you prevent them.
+
+### Enter to Submit, Shift+Enter for a Newline
+
+```vue
+<template>
+  <MarkdownEditor v-model="draft" @keydown="onEditorKeyDown" />
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { MarkdownEditor } from 'danx-ui';
+
+const draft = ref('');
+
+function onEditorKeyDown(event: KeyboardEvent) {
+  // Shift+Enter (and every other key) falls through to the editor untouched
+  if (event.key !== 'Enter' || event.shiftKey) return;
+
+  // Suppresses the editor's Enter handling (list continuation, table rows, code fences)
+  event.preventDefault();
+  submit(draft.value);
+}
+</script>
+```
+
+Without `preventDefault()`, the editor's Enter handling would still run after the host
+listener — continuing a list, adding a table row, or opening a code fence.
+
+### Intercepting a Paste
+
+```vue
+<template>
+  <MarkdownEditor v-model="draft" @paste="onEditorPaste" />
+</template>
+
+<script setup lang="ts">
+function onEditorPaste(event: ClipboardEvent) {
+  const files = Array.from(event.clipboardData?.files ?? []);
+  const text = event.clipboardData?.getData('text/plain') ?? '';
+
+  // Turn pasted images (or an oversized text paste) into an attachment instead
+  if (!files.length && text.length < 10_000) return; // editor pastes as usual
+
+  event.preventDefault(); // suppresses the editor's HTML normalization
+  attachAsFile(files, text);
+}
+</script>
+```
+
+### Notes
+
+- Because `keydown` and `paste` are declared component emits, a host's `@keydown` /
+  `@paste` no longer falls through as a native DOM listener on the editor's root element.
+  This is what makes the host run *before* the editor instead of after it via bubbling.
+- Both events fire only for the rich contenteditable surface. In raw markdown mode (the
+  footer's raw toggle) the editor renders a plain `<pre>` and neither event is emitted.
+- `preventDefault()` is the suppression signal. `stopPropagation()` does not suppress the
+  editor, since the host listener already runs inside the editor's own handler.
 
 ## Slots
 

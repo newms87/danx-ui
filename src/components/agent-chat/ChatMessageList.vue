@@ -47,6 +47,7 @@ import { useChatGrouping } from "./useChatGrouping";
 import { useChatAutoScroll } from "./useChatAutoScroll";
 import { fDayLabel } from "../../shared/formatters/relativeTime";
 import type {
+  ChatAttachment,
   ChatFeedback,
   ChatMessage,
   ChatPacket,

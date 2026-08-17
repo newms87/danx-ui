@@ -342,6 +342,155 @@ describe("MarkdownEditor", () => {
     });
   });
 
+  /**
+   * Host interception: MarkdownEditor re-emits keydown/paste BEFORE running its
+   * own handlers so an embedding component (e.g. a chat composer) can pre-empt
+   * them with preventDefault().
+   *
+   * Every suppression assertion is paired with a positive control that runs the
+   * IDENTICAL setup without a host listener — otherwise "nothing happened" would
+   * pass vacuously if the selection/clipboard setup silently failed.
+   */
+  describe("host keydown/paste interception", () => {
+    const originalExecCommand = document.execCommand;
+
+    beforeEach(() => {
+      // happy-dom does not implement execCommand; the editor's paste path uses it
+      document.execCommand = vi.fn(() => true);
+    });
+
+    afterEach(() => {
+      document.execCommand = originalExecCommand;
+    });
+
+    /** Mount with a list in the content area and the caret at the end of the item. */
+    function mountWithListCaret(props: Record<string, unknown> = {}) {
+      mountEditor(props);
+      const content = wrapper.find(".dx-markdown-editor-content").element as HTMLElement;
+      content.innerHTML = "<ul><li>item</li></ul>";
+
+      const textNode = content.querySelector("li")!.firstChild!;
+      const range = document.createRange();
+      range.setStart(textNode, 4);
+      range.collapse(true);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      return content;
+    }
+
+    function pressEnter(content: HTMLElement, shiftKey = false) {
+      content.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", shiftKey, bubbles: true, cancelable: true })
+      );
+    }
+
+    function createPasteEvent(plainText: string, html: string): ClipboardEvent {
+      const event = new Event("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: { getData: (type: string) => (type === "text/html" ? html : plainText) },
+      });
+      return event as ClipboardEvent;
+    }
+
+    it("emits keydown with the KeyboardEvent", async () => {
+      mountEditor();
+      await wrapper.find(".dx-markdown-editor-content").trigger("keydown", { key: "a" });
+
+      const emitted = wrapper.emitted("keydown");
+      expect(emitted).toHaveLength(1);
+      expect((emitted![0]![0] as KeyboardEvent).key).toBe("a");
+    });
+
+    it("emits paste with the ClipboardEvent", () => {
+      mountEditor();
+      const content = wrapper.find(".dx-markdown-editor-content").element as HTMLElement;
+      content.dispatchEvent(createPasteEvent("hello", ""));
+
+      const emitted = wrapper.emitted("paste");
+      expect(emitted).toHaveLength(1);
+      expect((emitted![0]![0] as ClipboardEvent).type).toBe("paste");
+    });
+
+    it("handles Enter itself when no host is listening (positive control)", () => {
+      const content = mountWithListCaret();
+
+      pressEnter(content);
+
+      // The editor's list-continuation handler split the item into a second one
+      expect(content.querySelectorAll("li")).toHaveLength(2);
+    });
+
+    it("does not run its Enter handling when the host calls preventDefault", () => {
+      const onKeydown = vi.fn((event: KeyboardEvent) => {
+        if (event.key === "Enter" && !event.shiftKey) event.preventDefault();
+      });
+      const content = mountWithListCaret({ onKeydown });
+
+      pressEnter(content);
+
+      expect(onKeydown).toHaveBeenCalledTimes(1);
+      // Identical setup to the positive control, but the list was left untouched
+      expect(content.querySelectorAll("li")).toHaveLength(1);
+    });
+
+    it("still handles Enter when the host listens without calling preventDefault", () => {
+      const onKeydown = vi.fn();
+      const content = mountWithListCaret({ onKeydown });
+
+      pressEnter(content);
+
+      expect(onKeydown).toHaveBeenCalledTimes(1);
+      expect(content.querySelectorAll("li")).toHaveLength(2);
+    });
+
+    it("lets Shift+Enter through to the editor while bare Enter is suppressed", () => {
+      const onKeydown = vi.fn((event: KeyboardEvent) => {
+        if (event.key === "Enter" && !event.shiftKey) event.preventDefault();
+      });
+      const content = mountWithListCaret({ onKeydown });
+
+      pressEnter(content, true);
+
+      // Shift+Enter is not claimed by the host, so the event reaches the editor
+      // untouched and keeps its native newline behaviour (no list split).
+      expect(onKeydown).toHaveBeenCalledTimes(1);
+      expect(onKeydown.mock.calls[0]![0]!.defaultPrevented).toBe(false);
+    });
+
+    it("normalizes the paste itself when no host is listening (positive control)", () => {
+      mountEditor();
+      const content = wrapper.find(".dx-markdown-editor-content").element as HTMLElement;
+
+      content.dispatchEvent(createPasteEvent("hello", "<p>hello</p>"));
+
+      expect(document.execCommand).toHaveBeenCalledWith("insertHTML", false, "<p>hello</p>");
+    });
+
+    it("does not normalize the paste when the host calls preventDefault", () => {
+      const onPaste = vi.fn((event: ClipboardEvent) => event.preventDefault());
+      mountEditor({ onPaste });
+      const content = wrapper.find(".dx-markdown-editor-content").element as HTMLElement;
+
+      content.dispatchEvent(createPasteEvent("hello", "<p>hello</p>"));
+
+      expect(onPaste).toHaveBeenCalledTimes(1);
+      expect(document.execCommand).not.toHaveBeenCalled();
+    });
+
+    it("still normalizes the paste when the host listens without calling preventDefault", () => {
+      const onPaste = vi.fn();
+      mountEditor({ onPaste });
+      const content = wrapper.find(".dx-markdown-editor-content").element as HTMLElement;
+
+      content.dispatchEvent(createPasteEvent("hello", "<p>hello</p>"));
+
+      expect(onPaste).toHaveBeenCalledTimes(1);
+      expect(document.execCommand).toHaveBeenCalledWith("insertHTML", false, "<p>hello</p>");
+    });
+  });
+
   describe("char count", () => {
     it("displays char count in footer", async () => {
       mountEditor({ modelValue: "Hello" });

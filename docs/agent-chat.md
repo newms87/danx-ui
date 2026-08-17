@@ -243,7 +243,13 @@ Treating `undefined` as invalid would hide legitimate results from any packet ty
 
 **Accessibility.** The transcript is a `role="log"` region (no doubled `aria-live`), each turn is an `<article>` with an author/time label, message actions stay in the DOM so they're keyboard reachable, and all motion is disabled under `prefers-reduced-motion`.
 
-**Markdown safety.** Assistant text renders through the library's zero-dependency renderer, which escapes HTML rather than trusting it. Your own text is never re-interpreted as markdown.
+**The composer is a real markdown editor.** The input is the library's own `MarkdownEditor`, so writing a message has the same affordances as writing anywhere else in the app: fenced code with syntax highlighting, block quotes, tables, lists, links, the editor's context menu and its hotkeys. A chat box people paste code into should render that code, not flatten it into one grey line.
+
+Enter sends; Shift+Enter inserts a newline. That works because `MarkdownEditor` emits `keydown` to its host *before* running its own handler and skips that handler when the host calls `preventDefault` — so the editor's own Enter behaviour (list continuation, paragraph splitting) stays intact for the newline case and is suppressed for the sending case.
+
+**Assistant replies render through `MarkdownContent`.** Fenced code becomes a real `CodeViewer` — highlighted, copyable, language-labelled — and tables, block quotes, task lists and footnotes render as proper elements. `MarkdownContent` builds Vue nodes rather than injecting an HTML string, so there is no `v-html` anywhere on this path and assistant output cannot inject markup by construction.
+
+Your own text is never re-interpreted as markdown. Silently turning `_x_` into italics, or eating a leading `#`, misrepresents what someone typed.
 
 ## Styling
 
