@@ -445,6 +445,24 @@ describe("DanxContextMenu", () => {
       expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(true);
     });
 
+    it("does not throw when the hover-delay timeout fires after the menu panel has already closed", async () => {
+      await mountMenu([
+        createItem({
+          children: [createItem({ id: "child-1", label: "Sub Item" })],
+        }),
+      ]);
+
+      const itemWrapper = wrapper.find(".danx-context-menu__item-wrapper");
+      await itemWrapper.trigger("mouseenter");
+
+      // Menu closes (DanxPopover's v-if tears down menuRef's element) before
+      // the 100ms hover-delay timeout fires.
+      await wrapper.setProps({ open: false });
+      await nextTick();
+
+      expect(() => vi.advanceTimersByTime(100)).not.toThrow();
+    });
+
     it("hides submenu on item without children hover", async () => {
       await mountMenu([
         createItem({

@@ -118,6 +118,7 @@ import {
   useFileExplorer,
   isFolderNode,
 } from "../../src/components/file-explorer";
+import { DanxAgentChat, useAgentChat } from "../../src/components/agent-chat";
 import {
   DanxTreeView,
   TreeViewNode,
@@ -341,6 +342,7 @@ const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxEditableDiv,
   DanxZoomable,
   DanxZoomControls,
+  DanxAgentChat,
 };
 
 /**
@@ -619,6 +621,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   // Object store auto-refresh
   autoRefreshObject,
   stopAutoRefreshObject,
+  // Agent Chat
+  DanxAgentChat,
+  useAgentChat,
 };
 
 const DEBOUNCE_MS = 250;

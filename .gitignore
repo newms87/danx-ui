@@ -45,3 +45,12 @@ node_modules
 # Bound by .danxbot/config/compose.yml → /home/danxbot/.claude/projects; never
 # tracked. Mirrors gpt-manager + platform, which already ignore this.
 /claude-projects/
+
+# Danxbot board cache (runtime state, regenerated per dispatch).
+/.danxbot/boards/
+
+# Local pnpm package store — never tracked, like node_modules.
+/.pnpm-store/
+
+# Settings backups left by tooling (e.g. plugin installs).
+.claude/settings.json.prebackup.*

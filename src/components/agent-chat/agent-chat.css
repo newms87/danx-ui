@@ -1,0 +1,123 @@
+/**
+ * DanxAgentChat Styles
+ *
+ * Main entry point that imports tokens and defines the sidebar layout, the
+ * scrolling message list, and each message bubble's anatomy.
+ *
+ * Note: BEM modifiers (.danx-agent-chat-bubble--user) are top-level blocks
+ * because Lightning CSS does not support &--suffix concatenation.
+ */
+
+@import "./agent-chat-tokens.css";
+
+/* ==========================================================================
+   Sidebar Layout
+   ========================================================================== */
+
+.danx-agent-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: var(--dx-agent-chat-gap);
+
+  .danx-agent-chat__title {
+    font-size: var(--dx-agent-chat-title-size);
+    font-weight: var(--dx-agent-chat-title-weight);
+    color: var(--dx-agent-chat-title-color);
+  }
+
+  .danx-agent-chat__list {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .danx-agent-chat__queue-label {
+    font-size: 0.7rem;
+    color: var(--dx-agent-chat-queue-label-color);
+  }
+
+  .danx-agent-chat__hint {
+    font-size: 0.7rem;
+    color: var(--dx-agent-chat-hint-color);
+    margin-top: 0.25rem;
+  }
+}
+
+/* ==========================================================================
+   Message List
+   ========================================================================== */
+
+.danx-agent-chat-list {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  .danx-agent-chat-list__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dx-agent-chat-list-gap);
+    padding: var(--dx-agent-chat-list-padding);
+  }
+}
+
+/* ==========================================================================
+   Message Bubble
+   ========================================================================== */
+
+.danx-agent-chat-bubble {
+  border-radius: var(--dx-agent-chat-bubble-radius);
+  padding: var(--dx-agent-chat-bubble-padding-y) var(--dx-agent-chat-bubble-padding-x);
+  border: 1px solid var(--dx-agent-chat-bubble-border);
+  background: var(--dx-agent-chat-bubble-bg);
+
+  .danx-agent-chat-bubble__toggle {
+    font-size: 0.75rem;
+    text-decoration: underline;
+    color: var(--dx-agent-chat-bubble-toggle-color);
+    margin-top: 0.25rem;
+  }
+
+  .danx-agent-chat-bubble__packet-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--dx-agent-chat-bubble-packet-label-color);
+    margin-bottom: 0.25rem;
+  }
+
+  .danx-agent-chat-bubble__working {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dx-agent-chat-bubble-working-color);
+    font-style: italic;
+  }
+
+  .danx-agent-chat-bubble__spinner {
+    width: 1lh;
+    height: 1lh;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: danx-agent-chat-spin 0.6s linear infinite;
+  }
+
+  .danx-agent-chat-bubble__time {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--dx-agent-chat-bubble-time-color);
+    margin-top: 0.25rem;
+  }
+}
+
+.danx-agent-chat-bubble--user {
+  border-color: var(--dx-agent-chat-bubble-border-user);
+}
+
+@keyframes danx-agent-chat-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

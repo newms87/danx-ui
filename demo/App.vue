@@ -93,6 +93,7 @@ watch(theme, (newTheme) => {
             <ul>
               <li>
                 <RouterLink to="/accordion" class="demo-sidebar__link">Accordion</RouterLink>
+                <RouterLink to="/agent-chat" class="demo-sidebar__link">Agent Chat</RouterLink>
               </li>
               <li>
                 <RouterLink to="/alert" class="demo-sidebar__link">Alert</RouterLink>

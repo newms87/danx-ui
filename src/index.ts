@@ -87,6 +87,7 @@ export { DanxTreeView, TreeViewNode } from "./components/tree-view";
 export { DanxTable } from "./components/table";
 export { DanxPagination } from "./components/pagination";
 export { DanxDragHandle } from "./components/drag-and-drop";
+export { DanxAgentChat } from "./components/agent-chat";
 
 // Composables
 export {
@@ -122,6 +123,7 @@ export {
 export { useDanxFileViewer, useVirtualCarousel } from "./components/danx-file-viewer";
 export { useFileExplorer, isFolderNode } from "./components/file-explorer";
 export { useTreeView, isBranchNode } from "./components/tree-view";
+export { useAgentChat } from "./components/agent-chat";
 export { useTouchSwipe } from "./shared/composables/useTouchSwipe";
 export {
   useHotkeys,
@@ -433,6 +435,22 @@ export type {
   EditableDivTag,
   EditableDivValidator,
 } from "./components/editable-div";
+export type {
+  ChatAdapter,
+  ChatMessage,
+  ChatPacket,
+  ChatPacketSchema,
+  ChatStatus,
+  DanxAgentChatEmits,
+  DanxAgentChatProps,
+  DanxAgentChatSlots,
+  GetThreadResult,
+  JobStatus,
+  ResolveThreadResult,
+  SendMessageResult,
+  UseAgentChatOptions,
+  UseAgentChatReturn,
+} from "./components/agent-chat";
 
 // Auto-color
 export { useAutoColor, hashStringToIndex, AUTO_COLOR_PALETTE } from "./shared/autoColor";

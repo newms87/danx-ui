@@ -63,6 +63,11 @@
       "import": "./dist/components/accordion/index.js"
     },
     "./components/accordion/styles": "./dist/components/accordion/accordion.css",
+    "./components/agent-chat": {
+      "types": "./dist/components/agent-chat/index.d.ts",
+      "import": "./dist/components/agent-chat/index.js"
+    },
+    "./components/agent-chat/styles": "./dist/components/agent-chat/agent-chat.css",
     "./components/alert": {
       "types": "./dist/components/alert/index.d.ts",
       "import": "./dist/components/alert/index.js"

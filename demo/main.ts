@@ -59,6 +59,7 @@ import DanxFileUploadPage from "./pages/DanxFileUploadPage.vue";
 import EditableDivPage from "./pages/EditableDivPage.vue";
 import ReactiveStorePage from "./pages/ReactiveStorePage.vue";
 import HotkeysPage from "./pages/HotkeysPage.vue";
+import AgentChatPage from "./pages/AgentChatPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
 import TypographyPage from "./pages/design-system/TypographyPage.vue";
 import SpacingPage from "./pages/design-system/SpacingPage.vue";
@@ -134,6 +135,7 @@ const router = createRouter({
     { path: "/editable-div", name: "editable-div", component: EditableDivPage },
     { path: "/reactive-store", name: "reactive-store", component: ReactiveStorePage },
     { path: "/hotkeys", name: "hotkeys", component: HotkeysPage },
+    { path: "/agent-chat", name: "agent-chat", component: AgentChatPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },
     { path: "/design/typography", name: "design-typography", component: TypographyPage },
     { path: "/design/spacing", name: "design-spacing", component: SpacingPage },

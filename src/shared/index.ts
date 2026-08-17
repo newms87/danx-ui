@@ -12,6 +12,9 @@ export * from "./markdown";
 // dateTimeTimezone.ts) — dropped from this barrel so "./shared" stays peer-free;
 // consumers get all formatters (including datetime) via "danx-ui/formatters".
 export type * from "./formatters/types";
+// Peer-free (native Intl) time helpers — safe in this barrel, unlike the
+// luxon-backed formatters above. See formatters/relativeTime.ts.
+export * from "./formatters/relativeTime";
 export * from "./dataFormat";
 export * from "./arrayUtils";
 export * from "./nestedJson";
