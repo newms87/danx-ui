@@ -4,7 +4,9 @@
  *
  * Landing page with getting started information.
  */
-import { DanxScroll } from "../../src";
+// DanxScroll is deliberately absent from the main barrel (DXUI-35) — it reaches
+// @vueuse/core, an optional peer. Import it from the subpath, like consumers do.
+import { DanxScroll } from "../../src/components/scroll";
 </script>
 
 <template>

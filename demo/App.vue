@@ -7,7 +7,9 @@
  */
 import { ref, onMounted, watch } from "vue";
 import { RouterLink, RouterView } from "vue-router";
-import { DanxScroll } from "../src";
+// DXUI-35 keeps DanxScroll out of the main barrel (it reaches @vueuse/core, an
+// optional peer), so the demo must import it from the subpath like consumers do.
+import { DanxScroll } from "../src/components/scroll";
 import { DanxToastContainer } from "../src/components/toast";
 import { version } from "../package.json";
 
