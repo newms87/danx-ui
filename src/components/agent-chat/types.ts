@@ -9,6 +9,7 @@ import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
 import type { PreviewFile } from "../danx-file";
 import type { FileUploadHandler } from "../danx-file-upload";
+import type { UsageMeterSegment } from "../usage-meter";
 
 /** Declared packet schema metadata, keyed by packet type. */
 export interface ChatPacketSchema {
@@ -87,6 +88,55 @@ export interface ChatCitation {
  * attached to a message unchanged.
  */
 export type ChatAttachment = PreviewFile;
+
+/**
+ * Context-window usage, rendered as a segmented meter in the session bar.
+ *
+ * `segments` are the library's own `UsageMeterSegment` — this is a
+ * `DanxUsageMeter` fed by the app, not a chat-specific bar. Supply it only
+ * when your backend actually reports usage; omit it and the meter never
+ * renders.
+ */
+export interface ChatContextUsage {
+  /** Capacity denominator, e.g. the model's context window in tokens. */
+  total: number;
+  /** Consumption broken down by category (system, tools, history, …). */
+  segments: UsageMeterSegment[];
+  /** Heading above the meter. @default "Context window" */
+  label?: string;
+}
+
+/** One quota row — a plan limit, a rate limit, a billing period. */
+export interface ChatUsageLimit {
+  id: string;
+  /** Row heading, e.g. "5-hour limit" or "Weekly · all models". */
+  label: string;
+  /** Consumed share of the limit, 0-100. */
+  percent: number;
+  /** ISO timestamp the limit resets at, rendered as a relative time. */
+  resetsAt?: string;
+}
+
+/** Live session counters shown as a compact separated line. */
+export interface ChatSessionStats {
+  /** Wall-clock duration of the session so far. */
+  elapsedMs?: number;
+  /** Tokens consumed so far. */
+  tokens?: number;
+  /** Background tasks still running. */
+  runningTasks?: number;
+}
+
+/** One selectable model in the composer's picker. */
+export interface ChatModel {
+  id: string;
+  label: string;
+  /** Key hint shown on the row. A hint only — bind the real key yourself. */
+  shortcut?: string;
+  /** Groups models under a submenu, e.g. "More models". */
+  group?: string;
+  disabled?: boolean;
+}
 
 /** Consumer feedback recorded on an assistant message. */
 export type ChatFeedback = "up" | "down";
@@ -304,6 +354,17 @@ export interface DanxAgentChatProps {
    * a `.txt` attachment instead. @default 4000
    */
   largePasteThreshold?: number;
+  /**
+   * Context-window usage. Renders a segmented meter in the session bar.
+   * Omitted entirely when not supplied — the panel invents no numbers.
+   */
+  contextUsage?: ChatContextUsage;
+  /** Live session counters ("1m 34s · 1.6k tokens · 1 running task"). */
+  sessionStats?: ChatSessionStats;
+  /** Plan/rate limit rows shown under the context meter. */
+  usageLimits?: ChatUsageLimit[];
+  /** Models offered in the composer's picker. No list, no picker. */
+  models?: ChatModel[];
 }
 
 export interface DanxAgentChatEmits {
@@ -327,6 +388,8 @@ export interface DanxAgentChatEmits {
   send: [text: string];
   /** Emitted when the user clears the conversation. */
   clear: [];
+  /** Emitted when the user picks a different model (also updates `v-model:model`). */
+  "update:model": [modelId: string];
 }
 
 /**

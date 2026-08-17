@@ -19,6 +19,7 @@ import failureStates from "../FailureStates.vue?raw";
 import theming from "../Theming.vue?raw";
 import minimalEmbed from "../MinimalEmbed.vue?raw";
 import attachments from "../Attachments.vue?raw";
+import sessionBar from "../SessionBar.vue?raw";
 
 const EXAMPLES = [
   ["FullyFeatured", fullyFeatured],
@@ -32,6 +33,7 @@ const EXAMPLES = [
   ["Theming", theming],
   ["MinimalEmbed", minimalEmbed],
   ["Attachments", attachments],
+  ["SessionBar", sessionBar],
 ] as const;
 
 /**
@@ -272,6 +274,18 @@ describe("agent-chat demo examples behave", () => {
     await tick(0);
 
     expect(w.text()).toContain("call-volume.png");
+    w.unmount();
+  });
+
+  it("SessionBar shows counters, context percentage and the model picker", async () => {
+    const w = compileAndMount(sessionBar);
+    await tick();
+
+    const summary = w.find('[data-testid="session-summary"]');
+    expect(summary.text()).toContain("1m 34s");
+    expect(summary.text()).toContain("1.6k tokens");
+    expect(summary.text()).toContain("36% context");
+    expect(w.find('[data-testid="model-picker"]').text()).toBe("Opus 5");
     w.unmount();
   });
 

@@ -18,6 +18,7 @@ import packetTypesCode from "./agent-chat-examples/PacketTypes.vue?raw";
 import escalatedJobCode from "./agent-chat-examples/EscalatedJob.vue?raw";
 import threadHistoryCode from "./agent-chat-examples/ThreadHistory.vue?raw";
 import attachmentsCode from "./agent-chat-examples/Attachments.vue?raw";
+import sessionBarCode from "./agent-chat-examples/SessionBar.vue?raw";
 import richContentCode from "./agent-chat-examples/RichContent.vue?raw";
 import failureStatesCode from "./agent-chat-examples/FailureStates.vue?raw";
 import themingCode from "./agent-chat-examples/Theming.vue?raw";
@@ -58,6 +59,12 @@ import minimalEmbedCode from "./agent-chat-examples/MinimalEmbed.vue?raw";
       title="File attachments"
       description="An attachment is the library's own PreviewFile — the same shape DanxFileUpload produces — so images get a real thumbnail, an upload in flight shows a live progress bar, and a failure shows an error state instead of a silently broken chip. Clicking one emits openAttachment; where it opens is the app's call."
       :code="attachmentsCode"
+    />
+
+    <DemoSection
+      title="Context usage and model picking"
+      description="Everything in the strip above the composer is opt-in and prop-fed: session counters, a segmented context-window meter behind a popover, plan and rate limit rows with reset times, and a model picker with key hints. Supply none of it and the bar renders nothing — the panel invents no numbers."
+      :code="sessionBarCode"
     />
 
     <DemoSection

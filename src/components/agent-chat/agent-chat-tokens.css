@@ -83,3 +83,13 @@
   --dx-agent-chat-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --dx-agent-chat-enter-duration: 180ms;
 }
+
+/* Session bar */
+.danx-agent-chat {
+  --dx-agent-chat-session-font-size: var(--dx-agent-chat-meta-size);
+  --dx-agent-chat-session-color: var(--color-text-muted);
+  --dx-agent-chat-session-muted-color: var(--color-text-subtle);
+  --dx-agent-chat-session-hover-color: var(--color-text);
+  --dx-agent-chat-session-model-hover-bg: var(--color-surface-sunken);
+  --dx-agent-chat-session-model-radius: 0.375rem;
+}

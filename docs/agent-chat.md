@@ -269,6 +269,53 @@ Treating `undefined` as invalid would hide legitimate results from any packet ty
 
 `repaired: true` marks a packet the backend corrected after an initially-invalid attempt. It renders as a badge so a silently-fixed result is never mistaken for a first-try one.
 
+## Session bar: context usage and model picking
+
+Everything in the strip above the composer is **opt-in and prop-fed**. The panel invents no numbers — supply a prop and its part appears; supply none and the bar renders nothing at all.
+
+```vue
+<DanxAgentChat
+  :api-adapter="adapter"
+  :session-stats="{ elapsedMs: 94_000, tokens: 1600, runningTasks: 1 }"
+  :context-usage="{
+    total: 1_000_000,
+    segments: [
+      { id: 'system', label: 'System prompt', value: 40_000, variant: 'muted' },
+      { id: 'tools', label: 'Tool definitions', value: 15_400, variant: 'warning' },
+      { id: 'history', label: 'Conversation', value: 300_000, variant: 'info' },
+    ],
+  }"
+  :usage-limits="[
+    { id: '5h', label: '5-hour limit', percent: 9, resetsAt: resetIso },
+    { id: 'week', label: 'Weekly · all models', percent: 20, resetsAt: weekIso },
+  ]"
+  :models="[
+    { id: 'fable', label: 'Fable 5', shortcut: '1' },
+    { id: 'opus', label: 'Opus 5', shortcut: '2' },
+    { id: 'haiku', label: 'Haiku 4.5', group: 'More models' },
+  ]"
+  v-model:model="modelId"
+  context-type="query_card"
+  context-id="42"
+/>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `sessionStats` | `ChatSessionStats` | `{ elapsedMs, tokens, runningTasks }` — renders "1m 34s · 1.6k tokens · 1 running task" |
+| `contextUsage` | `ChatContextUsage` | `{ total, segments, label? }` — a segmented context-window meter |
+| `usageLimits` | `ChatUsageLimit[]` | `{ id, label, percent, resetsAt? }` rows under the meter |
+| `models` | `ChatModel[]` | `{ id, label, shortcut?, group?, disabled? }` |
+| `v-model:model` | `string` | The model in effect |
+
+The summary line shows the counters and the context percentage; clicking it opens the meter and the quota rows. `resetsAt` renders as a relative time.
+
+`contextUsage.segments` are the library's own `UsageMeterSegment` — this is a `DanxUsageMeter`, not a chat-specific bar, so the same segments render identically anywhere else you use one.
+
+**`shortcut` is a hint, not a binding.** It renders the key on the row and binds nothing. Register the real key with `useHotkeys` so the label and the binding cannot drift apart.
+
+Picking a model updates `v-model:model` and emits `update:model`. The component does not tell the adapter which model to use — thread that through your own `apiAdapter` closure, since only your backend knows what a model id means.
+
 ## Behavior worth knowing
 
 **Serial sending.** Messages send strictly one at a time. Anything typed mid-flight waits in a visible queue strip and can be removed before it sends.

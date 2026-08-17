@@ -658,3 +658,72 @@
     animation: none;
   }
 }
+
+/* Session bar — live counters, context meter popover, and model picker */
+.danx-agent-chat-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.125rem 0.375rem;
+  font-size: var(--dx-agent-chat-session-font-size);
+  color: var(--dx-agent-chat-session-color);
+
+  .danx-agent-chat-session__summary {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      color: var(--dx-agent-chat-session-hover-color);
+    }
+  }
+
+  .danx-agent-chat-session__model {
+    background: none;
+    border: 0;
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--dx-agent-chat-session-model-radius);
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--dx-agent-chat-session-model-hover-bg);
+      color: var(--dx-agent-chat-session-hover-color);
+    }
+  }
+}
+
+.danx-agent-chat-session__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 17rem;
+  padding: 0.25rem;
+}
+
+.danx-agent-chat-session__limits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.danx-agent-chat-session__limit-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: var(--dx-agent-chat-session-font-size);
+  color: var(--dx-agent-chat-session-color);
+}
+
+.danx-agent-chat-session__limit-reset {
+  color: var(--dx-agent-chat-session-muted-color);
+}

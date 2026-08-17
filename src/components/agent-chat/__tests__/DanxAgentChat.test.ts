@@ -299,6 +299,35 @@ describe("DanxAgentChat attachments", () => {
   });
 });
 
+describe("DanxAgentChat session bar", () => {
+  const MODELS = [
+    { id: "fable", label: "Fable 5", shortcut: "1" },
+    { id: "opus", label: "Opus 5", shortcut: "2" },
+  ];
+
+  it("renders nothing above the composer when no telemetry is supplied", async () => {
+    const w = mountChat(makeAdapter());
+    await flushPromises();
+    expect(w.find('[data-testid="session-bar"]').exists()).toBe(false);
+  });
+
+  it("updates the model model when a model is picked", async () => {
+    const w = mountChat(makeAdapter(), { props: { models: MODELS, model: "opus" } });
+    await flushPromises();
+
+    w.findComponent({ name: "ChatSessionBar" }).vm.$emit("selectModel", "fable");
+    await flushPromises();
+
+    expect(w.emitted("update:model")?.[0]).toEqual(["fable"]);
+  });
+
+  it("shows supplied session counters", async () => {
+    const w = mountChat(makeAdapter(), { props: { sessionStats: { tokens: 1600 } } });
+    await flushPromises();
+    expect(w.find('[data-testid="session-bar"]').text()).toContain("1.6k tokens");
+  });
+});
+
 describe("DanxAgentChat empty state", () => {
   it("shows suggestions and sends the chosen one", async () => {
     const apiAdapter = makeAdapter();

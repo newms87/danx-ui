@@ -95,6 +95,7 @@ import { DanxTooltip } from "../tooltip";
 import ChatMessageList from "./ChatMessageList.vue";
 import ChatComposer from "./ChatComposer.vue";
 import ChatEmptyState from "./ChatEmptyState.vue";
+import ChatSessionBar from "./ChatSessionBar.vue";
 import { DanxFile } from "../danx-file";
 import { useChatAttachments } from "./useChatAttachments";
 import QueuedMessageChip from "./QueuedMessageChip.vue";
@@ -124,6 +125,9 @@ const props = withDefaults(defineProps<DanxAgentChatProps>(), {
 });
 
 const emit = defineEmits<DanxAgentChatEmits>();
+
+/** The model currently in effect. Only meaningful when `models` is supplied. */
+const model = defineModel<string>("model");
 
 defineSlots<DanxAgentChatSlots>();
 
@@ -285,6 +289,15 @@ onMounted(async () => {
           @remove="dequeue(i)"
         />
       </TransitionGroup>
+
+      <ChatSessionBar
+        :stats="sessionStats"
+        :context-usage="contextUsage"
+        :limits="usageLimits"
+        :models="models"
+        :model-id="model"
+        @select-model="model = $event"
+      />
 
       <!-- Files staged for the next message, uploading in place -->
       <div
