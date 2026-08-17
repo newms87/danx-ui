@@ -6,6 +6,7 @@
 
 export type * from "./types";
 export * from "./composables/useVariant";
+export * from "./composables/usePasteFiles";
 export * from "./syntax-highlighting";
 export * from "./markdown";
 // DXUI-35: formatters/index.ts eagerly imports luxon (datetime.ts/dateTimeParsers.ts/
