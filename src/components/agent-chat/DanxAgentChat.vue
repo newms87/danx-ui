@@ -95,6 +95,8 @@ import { DanxTooltip } from "../tooltip";
 import ChatMessageList from "./ChatMessageList.vue";
 import ChatComposer from "./ChatComposer.vue";
 import ChatEmptyState from "./ChatEmptyState.vue";
+import { DanxFile } from "../danx-file";
+import { useChatAttachments } from "./useChatAttachments";
 import QueuedMessageChip from "./QueuedMessageChip.vue";
 import { useAgentChat } from "./useAgentChat";
 import type {
@@ -136,6 +138,17 @@ const chat = useAgentChat({
 
 const { messages, queue, status, error, busy, isEmpty, init, send, stop, retry, dequeue } = chat;
 
+/**
+ * Files staged for the next message. Switched off entirely when no upload
+ * handler is configured — see the `fileUploadHandler` prop.
+ */
+const attachments = useChatAttachments({
+  uploadHandler: props.fileUploadHandler,
+  accept: props.acceptFiles,
+  maxFileSize: props.maxFileSize,
+  largePasteThreshold: props.largePasteThreshold,
+});
+
 const isUnavailable = computed(() => status.value === "unavailable");
 
 const statusDotClass = computed(() => {
@@ -153,8 +166,17 @@ const statusLabel = computed(() => {
 });
 
 function handleSend(text: string) {
-  send(text);
+  const files = attachments.take();
+  send(text, files);
   emit("send", text);
+}
+
+/**
+ * A paste only becomes an attachment when it actually produced files —
+ * anything else falls through so the editor's own paste handling still runs.
+ */
+function handlePaste(event: ClipboardEvent) {
+  attachments.handlePaste(event);
 }
 
 function handleClear() {
@@ -257,12 +279,30 @@ onMounted(async () => {
       >
         <span key="label">Queued:</span>
         <QueuedMessageChip
-          v-for="(text, i) in queue"
-          :key="`${i}-${text}`"
-          :text="text"
+          v-for="(queued, i) in queue"
+          :key="`${i}-${queued.text}`"
+          :text="queued.text"
           @remove="dequeue(i)"
         />
       </TransitionGroup>
+
+      <!-- Files staged for the next message, uploading in place -->
+      <div
+        v-if="attachments.pending.value.length"
+        class="danx-agent-chat-attachments danx-agent-chat-attachments--pending"
+        data-testid="pending-attachments"
+      >
+        <DanxFile
+          v-for="file in attachments.pending.value"
+          :key="file.id"
+          :file="file"
+          size="sm"
+          show-filename
+          show-file-size
+          removable
+          @remove="attachments.remove(file.id)"
+        />
+      </div>
 
       <ChatComposer
         :placeholder="placeholder"
@@ -272,6 +312,7 @@ onMounted(async () => {
         :show-hint="isEmpty"
         @send="handleSend"
         @stop="stop"
+        @paste="handlePaste"
       />
     </footer>
   </aside>

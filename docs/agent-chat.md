@@ -205,6 +205,46 @@ const message: ChatMessage = {
 };
 ```
 
+### Attaching files to a message
+
+Paste an image or a file into the composer and it is staged for the next message, uploading in place. Paste a text blob larger than `largePasteThreshold` and it becomes a `.txt` attachment instead of a wall of message text — the same move the Claude Code box makes, and for the same reason: past a certain length a paste stops being something you said and starts being something you handed over.
+
+```vue
+<DanxAgentChat
+  :api-adapter="adapter"
+  :file-upload-handler="myUploadHandler"
+  accept-files="image/*,.pdf,.csv"
+  :max-file-size="25 * 1024 * 1024"
+  :large-paste-threshold="4000"
+  context-type="query_card"
+  context-id="42"
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `fileUploadHandler` | `FileUploadHandler` | app-wide handler | Uploads a staged file |
+| `acceptFiles` | `string` | — | MIME filter, `accept`-attribute semantics |
+| `maxFileSize` | `number` | — | Largest attachment accepted, in bytes |
+| `largePasteThreshold` | `number` | `4000` | Characters above which a paste becomes a file |
+
+**No handler means no attachments.** `fileUploadHandler` falls back to the app-wide handler registered with `setFileUploadHandler`; with neither, attachments are switched off entirely and a pasted image falls through to the editor. Accepting a file with nowhere to put it would strand it on a message that can never carry it.
+
+Uploads run through the same `useFileUpload` orchestration `DanxFileUpload` uses, so progress, per-file errors and retry behave identically to an upload field. Staged files show above the composer and can be removed before sending.
+
+When a turn carries files, the adapter's `sendMessage` receives them as a fourth argument, already uploaded and carrying real URLs:
+
+```ts
+sendMessage(threadId, text, signal, attachments) {
+  return post(`/api/agent-chat/threads/${threadId}/messages`, {
+    text,
+    file_ids: attachments?.map((f) => f.id),
+  });
+}
+```
+
+A turn with no files calls `sendMessage` with the same three arguments it always has, so existing adapters need no change. A turn carrying only files and no text still sends — a screenshot with no words on it is a real message.
+
 Clicking an attachment emits `openAttachment` with the file. The panel deliberately does not open anything itself — whether a file opens in `DanxFileViewer`, a new tab, or an app route is your decision, not the chat panel's.
 
 ## Packets and the tri-state `valid`

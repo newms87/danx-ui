@@ -144,7 +144,7 @@ describe("useAgentChat serial send", () => {
     await flushPromises();
 
     expect(chat.sending.value).toBe(true);
-    expect(chat.queue.value).toEqual(["b"]);
+    expect(chat.queue.value.map((q) => q.text)).toEqual(["b"]);
     expect(apiAdapter.sendMessage).toHaveBeenCalledTimes(1);
 
     resolveFirst({ dispatched: false, reply: "first done" });
@@ -172,7 +172,7 @@ describe("useAgentChat serial send", () => {
     chat.send("first");
     chat.send("second");
     await flushPromises();
-    expect(chat.queue.value).toEqual(["second"]);
+    expect(chat.queue.value.map((q) => q.text)).toEqual(["second"]);
 
     chat.dequeue(0);
     expect(chat.queue.value).toEqual([]);
@@ -180,6 +180,66 @@ describe("useAgentChat serial send", () => {
     resolveFirst({ dispatched: false, reply: "done" });
     await flushPromises();
     expect(apiAdapter.sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("passes staged attachments to the adapter as a fourth argument", async () => {
+    const apiAdapter = makeAdapter({
+      sendMessage: vi.fn().mockResolvedValue({ dispatched: false, reply: "got them" }),
+    });
+    const chat = useAgentChat({ apiAdapter, contextType: "c", contextId: "d", ...NO_DELAY });
+    await chat.init();
+
+    const files = [
+      { id: "f1", name: "a.png", size: 10, mime: "image/png", url: "https://x/a.png" },
+    ];
+    chat.send("look at this", files);
+    await flushPromises();
+
+    expect(apiAdapter.sendMessage).toHaveBeenCalledWith(
+      "SAQ-1",
+      "look at this",
+      expect.anything(),
+      files
+    );
+    expect(chat.messages.value.find((m) => m.role === "user")?.attachments).toEqual(files);
+  });
+
+  // A screenshot with no words on it is still a turn worth sending.
+  it("sends a turn that carries only files and no text", async () => {
+    const apiAdapter = makeAdapter({
+      sendMessage: vi.fn().mockResolvedValue({ dispatched: false, reply: "ok" }),
+    });
+    const chat = useAgentChat({ apiAdapter, contextType: "c", contextId: "d", ...NO_DELAY });
+    await chat.init();
+
+    chat.send("", [{ id: "f1", name: "a.png", size: 10, mime: "image/png", url: "https://x" }]);
+    await flushPromises();
+
+    expect(apiAdapter.sendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries a failed turn with its attachments intact", async () => {
+    const files = [{ id: "f1", name: "a.png", size: 10, mime: "image/png", url: "https://x" }];
+    const apiAdapter = makeAdapter({
+      sendMessage: vi
+        .fn()
+        .mockRejectedValueOnce(new Error("upstream_error"))
+        .mockResolvedValueOnce({ dispatched: false, reply: "ok" }),
+    });
+    const chat = useAgentChat({ apiAdapter, contextType: "c", contextId: "d", ...NO_DELAY });
+    await chat.init();
+
+    chat.send("see this", files);
+    await flushPromises();
+    chat.retry();
+    await flushPromises();
+
+    expect(apiAdapter.sendMessage).toHaveBeenLastCalledWith(
+      "SAQ-1",
+      "see this",
+      expect.anything(),
+      files
+    );
   });
 
   it("ignores empty and whitespace-only sends", async () => {
@@ -552,7 +612,7 @@ describe("useAgentChat escalation polling", () => {
     chat.send("second");
     await flushPromises();
 
-    expect(chat.queue.value).toEqual(["second"]);
+    expect(chat.queue.value.map((q) => q.text)).toEqual(["second"]);
     expect(apiAdapter.sendMessage).toHaveBeenCalledTimes(1);
 
     resolveJob({ status: "completed" });
@@ -691,7 +751,7 @@ describe("useAgentChat stop / retry / feedback / clear", () => {
 
     expect(sendMessage).toHaveBeenCalledTimes(1);
     // Halted, not discarded — the queue strip still shows the user's own text.
-    expect(chat.queue.value).toEqual(["second"]);
+    expect(chat.queue.value.map((q) => q.text)).toEqual(["second"]);
   });
 
   it("resumes the halted queue on the next send", async () => {

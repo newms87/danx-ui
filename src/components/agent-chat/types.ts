@@ -8,6 +8,7 @@
 import type { Component } from "vue";
 import type { IconName } from "../icon/icons";
 import type { PreviewFile } from "../danx-file";
+import type { FileUploadHandler } from "../danx-file-upload";
 
 /** Declared packet schema metadata, keyed by packet type. */
 export interface ChatPacketSchema {
@@ -199,8 +200,20 @@ export interface ChatAdapter {
   resolveThread(ctx: { contextType: string; contextId: string }): Promise<ResolveThreadResult>;
   /** Load the full message history for a resolved thread. */
   getThread(threadId: string): Promise<GetThreadResult>;
-  /** Send a user message on a resolved thread. */
-  sendMessage(threadId: string, text: string, signal?: AbortSignal): Promise<SendMessageResult>;
+  /**
+   * Send a user message on a resolved thread.
+   *
+   * `attachments` are files the user staged with the message, already uploaded
+   * by the app's own `FileUploadHandler` — so each carries a real `url` and
+   * the adapter only has to reference them. It is omitted entirely when the
+   * turn carries no files.
+   */
+  sendMessage(
+    threadId: string,
+    text: string,
+    signal?: AbortSignal,
+    attachments?: ChatAttachment[]
+  ): Promise<SendMessageResult>;
   /** Poll the status of an escalated (dispatched) job. */
   getJob(jobId: string): Promise<ChatJobStatus>;
   /**
@@ -274,6 +287,23 @@ export interface DanxAgentChatProps {
   maxLength?: number;
   /** Enable copy/retry/feedback actions on messages. @default true */
   messageActions?: boolean;
+  /**
+   * Upload handler for files attached to a message. Falls back to the app-wide
+   * handler registered with `setFileUploadHandler`. With NEITHER, attachments
+   * are switched off entirely — no attach button, and a pasted image falls
+   * through to the editor. Offering to accept a file with nowhere to put it
+   * would strand it on a message that can never carry it.
+   */
+  fileUploadHandler?: FileUploadHandler;
+  /** MIME filter for attachments, `accept`-attribute semantics (e.g. "image/*,.pdf"). */
+  acceptFiles?: string;
+  /** Largest attachment accepted, in bytes. */
+  maxFileSize?: number;
+  /**
+   * Characters above which a pasted blob stops being message text and becomes
+   * a `.txt` attachment instead. @default 4000
+   */
+  largePasteThreshold?: number;
 }
 
 export interface DanxAgentChatEmits {

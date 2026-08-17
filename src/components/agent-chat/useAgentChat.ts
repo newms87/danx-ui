@@ -1,6 +1,7 @@
 import { computed, ref, type ComputedRef, type Ref } from "vue";
 import type {
   ChatAdapter,
+  ChatAttachment,
   ChatFeedback,
   ChatJobStatus,
   ChatMessage,
@@ -35,6 +36,12 @@ function errorMessage(err: unknown): string {
 
 export type ChatStatus = "idle" | "resolving" | "ready" | "unavailable" | "error";
 
+/** One turn waiting its place in the serial send queue. */
+export interface QueuedMessage {
+  text: string;
+  attachments: ChatAttachment[];
+}
+
 export interface UseAgentChatOptions {
   /** App-supplied backend adapter — no default; every app's backend differs. */
   apiAdapter: ChatAdapter;
@@ -53,8 +60,8 @@ export interface UseAgentChatOptions {
 
 export interface UseAgentChatReturn {
   messages: Ref<ChatMessage[]>;
-  /** Texts waiting BEHIND the in-flight send (serial strip). */
-  queue: Ref<string[]>;
+  /** Turns waiting BEHIND the in-flight send (serial strip). */
+  queue: Ref<QueuedMessage[]>;
   sending: Ref<boolean>;
   status: Ref<ChatStatus>;
   error: Ref<string | null>;
@@ -65,8 +72,8 @@ export interface UseAgentChatReturn {
   isEmpty: ComputedRef<boolean>;
   /** Resolve the thread, load history, and resume any in-flight escalation. */
   init: () => Promise<void>;
-  /** Enqueue a message. Strictly serial. */
-  send: (text: string) => void;
+  /** Enqueue a message, optionally carrying uploaded files. Strictly serial. */
+  send: (text: string, attachments?: ChatAttachment[]) => void;
   /**
    * Halt the pipeline: abort the in-flight request (and the escalated job,
    * when the adapter supports it) without dispatching whatever is queued
@@ -106,7 +113,7 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
   } = options;
 
   const messages = ref<ChatMessage[]>([]);
-  const queue = ref<string[]>([]);
+  const queue = ref<QueuedMessage[]>([]);
   const sending = ref(false);
   const status = ref<ChatStatus>("idle");
   const error = ref<string | null>(null);
@@ -234,10 +241,12 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
   }
 
   /** Enqueue a message. Strictly serial — see drain(). */
-  function send(text: string) {
-    if (typeof text !== "string" || !text.trim()) return;
+  function send(text: string, attachments: ChatAttachment[] = []) {
+    // A turn carrying files is worth sending even with no words on it.
+    const trimmed = typeof text === "string" ? text.trim() : "";
+    if (!trimmed && !attachments.length) return;
     if (status.value === "unavailable") return;
-    queue.value.push(text.trim());
+    queue.value.push({ text: trimmed, attachments });
     drain();
   }
 
@@ -249,11 +258,11 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
   function retry() {
     for (let i = messages.value.length - 1; i >= 0; i--) {
       const message = messages.value[i]!;
-      if (message.role === "user" && message.text) {
+      if (message.role === "user" && (message.text || message.attachments?.length)) {
         // Drop the failed turn (and anything after it) so the retry reads as
         // one attempt, not a growing pile of identical failures.
         messages.value = messages.value.slice(0, i);
-        send(message.text);
+        send(message.text ?? "", message.attachments ?? []);
         return;
       }
     }
@@ -306,7 +315,7 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
     drain();
   }
 
-  async function runSend(text: string) {
+  async function runSend({ text, attachments }: QueuedMessage) {
     const optimistic: ChatMessage = {
       id: localId(),
       role: "user",
@@ -314,6 +323,7 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
       pending: true,
       timestamp: stamp(),
     };
+    if (attachments.length) optimistic.attachments = attachments;
     const optimisticRef = pushMessage(optimistic);
 
     const signal = controller!.signal;
@@ -321,7 +331,12 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
     try {
       resp = apiAdapter.streamMessage
         ? await runStream(text, signal)
-        : await apiAdapter.sendMessage(threadId.value as string, text, signal);
+        : // A turn with no files calls the adapter with the SAME three arguments
+          // it always has — an explicit trailing `undefined` is still an
+          // argument, and existing adapters should not see the shape change.
+          attachments.length
+          ? await apiAdapter.sendMessage(threadId.value as string, text, signal, attachments)
+          : await apiAdapter.sendMessage(threadId.value as string, text, signal);
     } catch (err) {
       optimisticRef.pending = false;
       if (aborted) return; // user-initiated stop is not a failure
