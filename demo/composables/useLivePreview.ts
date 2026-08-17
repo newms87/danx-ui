@@ -273,6 +273,16 @@ import {
 } from "../../src/shared/useStructuredDataPreference";
 import starIcon from "danx-icon/src/fontawesome/solid/star.svg?raw";
 import { useLogDemo, levelColor } from "../pages/scroll-examples/useLogDemo.js";
+import {
+  createBasicAdapter,
+  createMarkdownAdapter,
+  createPacketAdapter,
+  createEscalationAdapter,
+  createStreamingAdapter,
+  createFailureAdapter,
+  createHistoryAdapter,
+  createRichAdapter,
+} from "../pages/agent-chat-examples/useChatDemo.js";
 
 /** Components available in compiled templates via the `components` option */
 const REGISTERED_COMPONENTS: Record<string, Component> = {
@@ -624,6 +634,14 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   // Agent Chat
   DanxAgentChat,
   useAgentChat,
+  createBasicAdapter,
+  createMarkdownAdapter,
+  createPacketAdapter,
+  createEscalationAdapter,
+  createStreamingAdapter,
+  createFailureAdapter,
+  createHistoryAdapter,
+  createRichAdapter,
 };
 
 const DEBOUNCE_MS = 250;

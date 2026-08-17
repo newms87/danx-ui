@@ -4,48 +4,82 @@
  * Component tokens (Tier 3) that reference semantic tokens.
  * Override these to customize agent-chat appearance.
  *
- * CSS Tokens:
- * --dx-agent-chat-gap                    Gap between header/list/queue/footer
- * --dx-agent-chat-title-size             Header title font size
- * --dx-agent-chat-title-weight           Header title font weight
- * --dx-agent-chat-title-color            Header title color
- * --dx-agent-chat-queue-label-color      "Queued:" label color
- * --dx-agent-chat-hint-color             Sending hint text color
+ * Layout
+ * --dx-agent-chat-bg                     Panel background
+ * --dx-agent-chat-header-height          Header row height
+ * --dx-agent-chat-header-border          Header bottom hairline
+ * --dx-agent-chat-title-size/-weight/-color
+ * --dx-agent-chat-list-padding-x/-y      Transcript padding
  *
- * --dx-agent-chat-list-gap               Gap between message bubbles
- * --dx-agent-chat-list-padding           Padding around the message list
+ * Rhythm — the 8/20 ratio between these two IS the grouping effect.
+ * --dx-agent-chat-gap-intra              Gap between messages in one run
+ * --dx-agent-chat-gap-inter              Gap between sender runs
  *
- * --dx-agent-chat-bubble-bg              Bubble background color
- * --dx-agent-chat-bubble-border          Bubble border color
- * --dx-agent-chat-bubble-border-user     Bubble border color (user role)
- * --dx-agent-chat-bubble-radius          Bubble corner radius
- * --dx-agent-chat-bubble-padding-y       Bubble vertical padding
- * --dx-agent-chat-bubble-padding-x       Bubble horizontal padding
- * --dx-agent-chat-bubble-toggle-color    "Show more/less" toggle text color
- * --dx-agent-chat-bubble-packet-label-color  Packet heading color
- * --dx-agent-chat-bubble-working-color   "Working on it…" text color
- * --dx-agent-chat-bubble-time-color      Relative-time label color
+ * Roles — user gets a FILL, assistant gets NONE. Differentiation must survive
+ * grayscale, so it is never carried by color alone.
+ * --dx-agent-chat-user-bg/-text          User bubble fill + text
+ * --dx-agent-chat-user-radius            User bubble corner radius
+ * --dx-agent-chat-user-max-width         User bubble max width
+ * --dx-agent-chat-bubble-padding-y/-x    User bubble padding
+ * --dx-agent-chat-assistant-text         Assistant body text color
+ *
+ * Meta / chrome
+ * --dx-agent-chat-meta-color/-size       Author + timestamp row
+ * --dx-agent-chat-avatar-size            Avatar edge length
+ * --dx-agent-chat-body-size/-leading     Message body type
+ * --dx-agent-chat-divider-color          Day divider hairline
+ * --dx-agent-chat-step-bg/-border        Tool/reasoning step rows
+ * --dx-agent-chat-caret-color            Streaming caret
+ * --dx-agent-chat-composer-bg/-border/-radius/-focus-border
+ * --dx-agent-chat-pill-bg/-text/-shadow  Jump-to-latest pill
+ *
+ * Motion
+ * --dx-agent-chat-ease                   Shared easing curve
+ * --dx-agent-chat-enter-duration         Message entry duration
  */
 
 :root {
-  --dx-agent-chat-gap: var(--space-sm);
-  --dx-agent-chat-title-size: var(--text-base);
+  --dx-agent-chat-bg: transparent;
+
+  --dx-agent-chat-header-height: 2.75rem;
+  --dx-agent-chat-header-border: var(--color-border);
+  --dx-agent-chat-title-size: 0.8125rem;
   --dx-agent-chat-title-weight: var(--font-semibold);
   --dx-agent-chat-title-color: var(--color-text);
-  --dx-agent-chat-queue-label-color: var(--color-text-muted);
-  --dx-agent-chat-hint-color: var(--color-text-muted);
 
-  --dx-agent-chat-list-gap: var(--space-sm);
-  --dx-agent-chat-list-padding: var(--space-xs);
+  --dx-agent-chat-list-padding-x: 1rem;
+  --dx-agent-chat-list-padding-y: 0.75rem;
+  --dx-agent-chat-gap-intra: 0.5rem;
+  --dx-agent-chat-gap-inter: 1.25rem;
 
-  --dx-agent-chat-bubble-bg: var(--color-surface);
-  --dx-agent-chat-bubble-border: var(--color-border);
-  --dx-agent-chat-bubble-border-user: var(--color-info);
-  --dx-agent-chat-bubble-radius: var(--radius-card);
-  --dx-agent-chat-bubble-padding-y: 0.625rem;
+  --dx-agent-chat-user-bg: var(--color-surface-sunken);
+  --dx-agent-chat-user-text: var(--color-text);
+  --dx-agent-chat-user-radius: 0.75rem;
+  --dx-agent-chat-user-max-width: 85%;
+  --dx-agent-chat-bubble-padding-y: 0.5rem;
   --dx-agent-chat-bubble-padding-x: 0.75rem;
-  --dx-agent-chat-bubble-toggle-color: var(--color-text-muted);
-  --dx-agent-chat-bubble-packet-label-color: var(--color-text-muted);
-  --dx-agent-chat-bubble-working-color: var(--color-text-muted);
-  --dx-agent-chat-bubble-time-color: var(--color-text-muted);
+  --dx-agent-chat-assistant-text: var(--color-text);
+
+  --dx-agent-chat-meta-color: var(--color-text-muted);
+  --dx-agent-chat-meta-size: 0.6875rem;
+  --dx-agent-chat-avatar-size: 1.375rem;
+  --dx-agent-chat-body-size: 0.875rem;
+  --dx-agent-chat-body-leading: 1.6;
+
+  --dx-agent-chat-divider-color: var(--color-border-subtle);
+  --dx-agent-chat-step-bg: var(--color-surface-sunken);
+  --dx-agent-chat-step-border: var(--color-border-subtle);
+  --dx-agent-chat-caret-color: var(--color-interactive);
+
+  --dx-agent-chat-composer-bg: var(--color-surface);
+  --dx-agent-chat-composer-border: var(--color-border);
+  --dx-agent-chat-composer-focus-border: var(--color-interactive);
+  --dx-agent-chat-composer-radius: 0.75rem;
+
+  --dx-agent-chat-pill-bg: var(--color-surface-elevated);
+  --dx-agent-chat-pill-text: var(--color-text);
+  --dx-agent-chat-pill-shadow: var(--shadow-elevated);
+
+  --dx-agent-chat-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dx-agent-chat-enter-duration: 180ms;
 }

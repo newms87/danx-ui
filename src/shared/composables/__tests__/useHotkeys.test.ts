@@ -89,9 +89,9 @@ describe("matchesHotkey", () => {
   });
 
   it("normalizes arrow key names", () => {
-    expect(
-      matchesHotkey(new KeyboardEvent("keydown", { key: "ArrowUp" }), parseHotkey("up"))
-    ).toBe(true);
+    expect(matchesHotkey(new KeyboardEvent("keydown", { key: "ArrowUp" }), parseHotkey("up"))).toBe(
+      true
+    );
   });
 
   it("matches shifted symbol keys directly", () => {
@@ -132,15 +132,11 @@ describe("matchesHotkey", () => {
   });
 
   it("rejects non-matching plain keys", () => {
-    expect(matchesHotkey(new KeyboardEvent("keydown", { key: "a" }), parseHotkey("s"))).toBe(
-      false
-    );
+    expect(matchesHotkey(new KeyboardEvent("keydown", { key: "a" }), parseHotkey("s"))).toBe(false);
   });
 
   it("rejects a shifted-symbol combo when shift is not held", () => {
-    expect(
-      matchesHotkey(new KeyboardEvent("keydown", { key: "." }), parseHotkey(">"))
-    ).toBe(false);
+    expect(matchesHotkey(new KeyboardEvent("keydown", { key: "." }), parseHotkey(">"))).toBe(false);
   });
 });
 

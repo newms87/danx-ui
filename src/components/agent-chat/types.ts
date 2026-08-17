@@ -1,29 +1,91 @@
 /**
  * DanxAgentChat Type Definitions
  *
- * The app-supplied ChatAdapter contract, message/packet shapes, and
+ * The app-supplied ChatAdapter contract, message/packet/step shapes, and
  * component props/emits/slots for the agent-chat sidebar.
  */
 
-/** Declared packet schema metadata, keyed by packet type (e.g. { sql_query: { label: "SQL" } }). */
+import type { Component } from "vue";
+import type { IconName } from "../icon/icons";
+
+/** Declared packet schema metadata, keyed by packet type. */
 export interface ChatPacketSchema {
-  /** Friendlier heading shown above the packet payload. Falls back to the raw type when omitted. */
+  /** Friendlier heading shown above the packet payload. Falls back to the raw type. */
   label?: string;
+  /** Icon shown beside the packet heading. */
+  icon?: Component | IconName | string;
+  /** Label for the packet's primary action button (e.g. "Apply to editor"). */
+  applyLabel?: string;
 }
 
-/** A typed structured result attached to an assistant message. */
+/**
+ * A typed structured result attached to an assistant message.
+ *
+ * `valid` is deliberately TRI-STATE:
+ * - `true`  — the backend validated the payload and it passed
+ * - `false` — validation ran and failed; `error` explains why, and the payload
+ *             must NOT be applied
+ * - `undefined` — no validation was performed (e.g. a packet type the backend
+ *             does not validate, or one restored from history). Render it, but
+ *             let the consumer decide whether to trust it.
+ */
 export interface ChatPacket {
   /** Discriminates which `#packet-{type}` slot (or schema entry) applies. */
   type: string;
-  /** The structured payload — rendered via the consumer's slot or a JSON CodeViewer fallback. */
+  /** The structured payload — rendered via the consumer's slot or a JSON fallback. */
   payload: unknown;
-  /** Whether the payload passed the app's own validation. Treated as valid when omitted. */
+  /** Tri-state validity — see the interface docs. */
   valid?: boolean;
-  /** Validation failure message, shown when valid is false. */
+  /** Validation failure message, present when `valid` is false. */
   error?: string;
+  /**
+   * True when the backend ran a repair pass to produce this packet (it asked
+   * the model to correct an initially-invalid payload). Surfaced as a badge so
+   * a silently-corrected result is never mistaken for a first-try one.
+   */
+  repaired?: boolean;
 }
 
-/** One message in the thread — a completed turn, an in-flight escalation placeholder, or an optimistic send. */
+/**
+ * One step an agent took while producing a message — a tool call, a search, a
+ * reasoning block. Rendered as flat collapsible rows, never as nested cards.
+ */
+export interface ChatStep {
+  id: string;
+  /** Short verb + target, e.g. "Queried calls table". */
+  label: string;
+  /** What kind of step this was — drives the icon. */
+  kind?: "tool" | "search" | "read" | "write" | "reasoning";
+  /** Expanded detail (raw input/output, reasoning text). */
+  detail?: string;
+  /** Wall-clock duration in ms, shown as a muted suffix. */
+  durationMs?: number;
+  /** Step outcome. `running` renders a spinner. */
+  status?: "running" | "ok" | "error";
+}
+
+/** A source the assistant cited, rendered below the message. */
+export interface ChatCitation {
+  id: string;
+  title: string;
+  url?: string;
+  /** Short source label (domain, table name, file path). */
+  source?: string;
+}
+
+/** A file attached to a message, rendered as a compact chip. */
+export interface ChatAttachment {
+  id: string;
+  name: string;
+  /** Size in bytes — rendered human-readable when present. */
+  size?: number;
+  url?: string;
+}
+
+/** Consumer feedback recorded on an assistant message. */
+export type ChatFeedback = "up" | "down";
+
+/** One message in the thread. */
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant" | "system";
@@ -31,19 +93,38 @@ export interface ChatMessage {
   packet?: ChatPacket | null;
   /** True while an escalated (dispatched) request is still being polled. */
   working?: boolean;
+  /** True while text is arriving incrementally — renders a live caret. */
+  streaming?: boolean;
   /** The polled job id — present only on a working/escalated message. */
   jobId?: string;
-  /** True while an optimistic user message hasn't been confirmed by the server yet. */
+  /** Live job telemetry, surfaced beside the working indicator. */
+  job?: ChatJobStatus;
+  /** True while an optimistic user message hasn't been confirmed yet. */
   pending?: boolean;
   /** Visible per-message failure (send failed, job failed, poll timed out). */
   error?: string;
-  /** ISO timestamp — set locally for optimistic messages, or loaded from the server. */
+  /** True when the failure is retryable — renders a Retry action. */
+  retryable?: boolean;
+  /** ISO timestamp. */
   timestamp?: string;
-  /** Arbitrary server metadata. `metadata.type === "system"` messages are filtered from the rendered thread. */
+  /** Display name of the author, for multi-user threads. */
+  author?: string;
+  /** Agent steps (tool calls / reasoning) taken to produce this message. */
+  steps?: ChatStep[];
+  /** Sources cited by this message. */
+  citations?: ChatCitation[];
+  /** Files attached to this message. */
+  attachments?: ChatAttachment[];
+  /** Consumer feedback already recorded on this message. */
+  feedback?: ChatFeedback;
+  /**
+   * Arbitrary server metadata. Messages with `metadata.type === "system"` are
+   * bookkeeping entries and are filtered out of the rendered thread.
+   */
   metadata?: { type?: string; [key: string]: unknown };
 }
 
-/** Result of ChatAdapter.resolveThread — thread_id is null when no thread could be established. */
+/** Result of ChatAdapter.resolveThread — `thread_id` is null when none could be established. */
 export interface ResolveThreadResult {
   thread_id: string | null;
 }
@@ -53,29 +134,60 @@ export interface GetThreadResult {
   messages: ChatMessage[];
 }
 
-/** Result of ChatAdapter.sendMessage — either a fast synchronous reply or a dispatched escalation. */
+/** Result of ChatAdapter.sendMessage — a fast reply or a dispatched escalation. */
 export interface SendMessageResult {
-  /** True when the request was escalated to a background job (see ChatAdapter.getJob). */
+  /** True when the request was escalated to a background job. */
   dispatched?: boolean;
-  /** Present when dispatched is true — the job id to poll. */
+  /** Present when dispatched — the job id to poll. */
   job_id?: string;
-  /** The assistant's synchronous reply text, present when dispatched is false/absent. */
+  /** The assistant's synchronous reply text. */
   reply?: string | null;
   /** A typed structured result attached to the reply. */
   packet?: ChatPacket;
+  /** Steps the agent took, when the backend reports them. */
+  steps?: ChatStep[];
+  /** Sources cited by the reply. */
+  citations?: ChatCitation[];
 }
 
-/** Result of ChatAdapter.getJob. `status` is matched by exact string — see useAgentChat's status vocabulary. */
-export interface JobStatus {
+/**
+ * Result of ChatAdapter.getJob.
+ *
+ * `status` is matched against the danxbot job vocabulary — see
+ * IN_PROGRESS_STATUSES / SUCCESS_STATUSES in useAgentChat.ts. Every other
+ * field is optional telemetry surfaced in the working indicator.
+ */
+export interface ChatJobStatus {
   status: string;
+  /** Human summary written by the agent on completion. */
+  summary?: string;
+  /** Elapsed wall-clock seconds, shown live beside "Working on it…". */
+  elapsed_seconds?: number;
+  started_at?: string;
+  completed_at?: string;
+  /** Steps the agent has taken so far — streamed into the working message. */
+  steps?: ChatStep[];
+}
+
+/** Handlers a streaming adapter calls as tokens arrive. */
+export interface ChatStreamHandlers {
+  /** Called with each text chunk. Chunks are appended, not replaced. */
+  onToken: (chunk: string) => void;
+  /** Called when the agent reports a step (tool call, search). */
+  onStep?: (step: ChatStep) => void;
 }
 
 /**
  * App-provided backend contract for DanxAgentChat.
  *
- * DanxAgentChat ships NO default implementation — every app's backend proxy
- * is shaped differently (auth, routing, host). Implement these four methods
- * against your own API and pass the object as the `apiAdapter` prop.
+ * DanxAgentChat ships NO default implementation — every app's backend proxy is
+ * shaped differently (auth, routing, host). Implement these methods against
+ * your own API and pass the object as the `apiAdapter` prop.
+ *
+ * ERROR CONTRACT: reject with an `Error` whose `.message` is the backend's
+ * stable error code (e.g. `"chat_unavailable"`). The component matches codes by
+ * exact equality and never sniffs substrings, so a renamed code fails a test
+ * rather than silently degrading a state.
  */
 export interface ChatAdapter {
   /** Resolve (or create) the thread backing this (contextType, contextId) pair. */
@@ -83,49 +195,110 @@ export interface ChatAdapter {
   /** Load the full message history for a resolved thread. */
   getThread(threadId: string): Promise<GetThreadResult>;
   /** Send a user message on a resolved thread. */
-  sendMessage(threadId: string, text: string): Promise<SendMessageResult>;
+  sendMessage(threadId: string, text: string, signal?: AbortSignal): Promise<SendMessageResult>;
   /** Poll the status of an escalated (dispatched) job. */
-  getJob(jobId: string): Promise<JobStatus>;
+  getJob(jobId: string): Promise<ChatJobStatus>;
+  /**
+   * OPTIONAL — stream a reply token-by-token instead of returning it whole.
+   * When present, DanxAgentChat prefers this over `sendMessage`. Resolve with
+   * the same result shape once the stream completes.
+   */
+  streamMessage?(
+    threadId: string,
+    text: string,
+    handlers: ChatStreamHandlers,
+    signal: AbortSignal
+  ): Promise<SendMessageResult>;
+  /** OPTIONAL — abort an in-flight escalated job. Enables the Stop affordance. */
+  cancelJob?(jobId: string): Promise<void>;
+}
+
+/** A one-tap prompt offered in the empty state. */
+export interface ChatSuggestion {
+  /** Text sent when the chip is clicked. Falls back to `label`. */
+  text?: string;
+  label: string;
+  icon?: Component | IconName | string;
 }
 
 export interface DanxAgentChatProps {
-  /** Logical context the chat thread belongs to (e.g. "phone-query"). Paired with contextId to resolve a thread. */
+  /** Logical context the thread belongs to (e.g. "query_card"). */
   contextType: string;
-  /** The specific context instance id (e.g. a saved query id) — the thread key. */
+  /** The specific context instance id — the thread key. */
   contextId: string;
-  /**
-   * Declared packet schemas the consumer understands, keyed by packet type
-   * (e.g. { sql_query: { label: "SQL" } }). Used only for a friendlier packet
-   * heading — unknown types still render via the CodeViewer fallback.
-   */
-  packetSchemas?: Record<string, ChatPacketSchema>;
   /**
    * App-supplied backend adapter. REQUIRED — DanxAgentChat ships no default
    * implementation since every app's backend proxy is shaped differently.
    */
   apiAdapter: ChatAdapter;
+  /** Declared packet schemas, keyed by packet type. */
+  packetSchemas?: Record<string, ChatPacketSchema>;
+  /** Panel heading. @default "Assistant" */
+  title?: string;
+  /** Name shown on assistant messages. @default "Assistant" */
+  assistantName?: string;
+  /** Avatar image URL for assistant messages. */
+  assistantAvatar?: string;
+  /** Name shown on your own messages. @default "You" */
+  userName?: string;
+  /** Avatar image URL for your own messages. */
+  userAvatar?: string;
+  /** Show avatars beside messages. @default true */
+  showAvatars?: boolean;
+  /** Show the panel header. @default true */
+  showHeader?: boolean;
   /** Composer placeholder text. @default "Ask a question…" */
   placeholder?: string;
-  /** Character threshold past which a message body collapses behind a "Show more" toggle. @default 600 */
+  /** Character threshold past which a message collapses behind "Show more". @default 600 */
   maxVisibleChars?: number;
-  /**
-   * A message to send automatically the moment the thread resolves — lets a
-   * consumer that just created the backing thread hand off the user's
-   * already-typed first message instead of re-rendering an empty composer.
-   */
+  /** Render message text as markdown. @default true */
+  markdown?: boolean;
+  /** Headline shown in the empty state. @default "How can I help?" */
+  emptyTitle?: string;
+  /** Supporting line shown in the empty state. */
+  emptyDescription?: string;
+  /** One-tap prompts offered in the empty state. */
+  suggestions?: (ChatSuggestion | string)[];
+  /** A message sent automatically once the thread resolves. */
   initialMessage?: string | null;
+  /** Maximum characters accepted by the composer. */
+  maxLength?: number;
+  /** Enable copy/retry/feedback actions on messages. @default true */
+  messageActions?: boolean;
 }
 
 export interface DanxAgentChatEmits {
-  /** Emitted whenever a message (fast reply or escalation result) carries a packet. */
+  /** Emitted whenever a message carries a packet. */
   packet: [packet: ChatPacket];
+  /** Emitted when the consumer asks to apply a packet (the Apply action). */
+  applyPacket: [packet: ChatPacket];
   /** Emitted once the thread has resolved and history has loaded. */
   threadReady: [threadId: string];
-  /** Emitted on any adapter failure — thread resolution, history load, or a mid-session send. */
+  /** Emitted on any adapter failure. */
   error: [error: unknown];
+  /** Emitted when the user rates an assistant message. */
+  feedback: [payload: { message: ChatMessage; feedback: ChatFeedback }];
+  /** Emitted when a message is sent (after it is queued). */
+  send: [text: string];
+  /** Emitted when the user clears the conversation. */
+  clear: [];
+}
+
+/**
+ * Payload passed to agent-chat slots.
+ *
+ * `packet` is optional because the same slot map also carries the propless
+ * `empty` / `header-actions` slots — a `packet-{type}` slot always receives it.
+ */
+export interface ChatPacketSlotProps {
+  packet?: ChatPacket;
 }
 
 export interface DanxAgentChatSlots {
-  /** Consumer-provided packet renderer, keyed by slot name `packet-{type}`, falling back to a JSON CodeViewer. */
-  [key: string]: (props: { packet: ChatPacket }) => unknown;
+  /**
+   * Consumer-provided packet renderer, keyed by slot name `packet-{type}`.
+   * The index signature also admits the fixed `empty` / `header-actions`
+   * slots, which simply ignore the payload.
+   */
+  [key: string]: (props: ChatPacketSlotProps) => unknown;
 }
