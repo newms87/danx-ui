@@ -285,7 +285,7 @@ import {
 } from "../pages/agent-chat-examples/useChatDemo.js";
 
 /** Components available in compiled templates via the `components` option */
-const REGISTERED_COMPONENTS: Record<string, Component> = {
+export const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxAccordion,
   CollapseTransition,
   DanxAlert,
