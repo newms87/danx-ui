@@ -25,6 +25,7 @@ import KbdPage from "./pages/KbdPage.vue";
 import PopoverPage from "./pages/PopoverPage.vue";
 import PopconfirmPage from "./pages/PopconfirmPage.vue";
 import MarkdownEditorPage from "./pages/MarkdownEditorPage.vue";
+import MarkdownContentPage from "./pages/MarkdownContentPage.vue";
 import FormattersPage from "./pages/FormattersPage.vue";
 import ButtonGroupPage from "./pages/ButtonGroupPage.vue";
 import TabsPage from "./pages/TabsPage.vue";
@@ -37,6 +38,7 @@ import SplitPanelPage from "./pages/SplitPanelPage.vue";
 import DragAndDropPage from "./pages/DragAndDropPage.vue";
 import FileExplorerPage from "./pages/FileExplorerPage.vue";
 import TreeViewPage from "./pages/TreeViewPage.vue";
+import UsageMeterPage from "./pages/UsageMeterPage.vue";
 import TablePage from "./pages/TablePage.vue";
 import PaginationPage from "./pages/PaginationPage.vue";
 import DanxFilePage from "./pages/DanxFilePage.vue";
@@ -60,6 +62,7 @@ import DanxFileUploadPage from "./pages/DanxFileUploadPage.vue";
 import EditableDivPage from "./pages/EditableDivPage.vue";
 import ReactiveStorePage from "./pages/ReactiveStorePage.vue";
 import HotkeysPage from "./pages/HotkeysPage.vue";
+import PasteFilesPage from "./pages/PasteFilesPage.vue";
 import AgentChatPage from "./pages/AgentChatPage.vue";
 import ColorsPage from "./pages/design-system/ColorsPage.vue";
 import TypographyPage from "./pages/design-system/TypographyPage.vue";
@@ -102,6 +105,7 @@ const router = createRouter({
     { path: "/popover", name: "popover", component: PopoverPage },
     { path: "/popconfirm", name: "popconfirm", component: PopconfirmPage },
     { path: "/markdown-editor", name: "markdown-editor", component: MarkdownEditorPage },
+    { path: "/markdown-content", name: "markdown-content", component: MarkdownContentPage },
     { path: "/formatters", name: "formatters", component: FormattersPage },
     { path: "/button-group", name: "button-group", component: ButtonGroupPage },
     { path: "/tabs", name: "tabs", component: TabsPage },
@@ -114,6 +118,7 @@ const router = createRouter({
     { path: "/drag-and-drop", name: "drag-and-drop", component: DragAndDropPage },
     { path: "/file-explorer", name: "file-explorer", component: FileExplorerPage },
     { path: "/tree-view", name: "tree-view", component: TreeViewPage },
+    { path: "/usage-meter", name: "usage-meter", component: UsageMeterPage },
     { path: "/table", name: "table", component: TablePage },
     { path: "/pagination", name: "pagination", component: PaginationPage },
     { path: "/danx-file", name: "danx-file", component: DanxFilePage },
@@ -137,6 +142,7 @@ const router = createRouter({
     { path: "/editable-div", name: "editable-div", component: EditableDivPage },
     { path: "/reactive-store", name: "reactive-store", component: ReactiveStorePage },
     { path: "/hotkeys", name: "hotkeys", component: HotkeysPage },
+    { path: "/paste-files", name: "paste-files", component: PasteFilesPage },
     { path: "/agent-chat", name: "agent-chat", component: AgentChatPage },
     { path: "/design/colors", name: "design-colors", component: ColorsPage },
     { path: "/design/typography", name: "design-typography", component: TypographyPage },

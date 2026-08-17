@@ -8,6 +8,7 @@
 
 export { default as CodeViewer } from "./CodeViewer.vue";
 export { default as DanxCodeDiff } from "./DanxCodeDiff.vue";
+export { default as MarkdownContent } from "./MarkdownContent.vue";
 
 export { computeLineDiff, computeSplitDiff } from "./diffUtils";
 

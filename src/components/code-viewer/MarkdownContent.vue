@@ -2,39 +2,91 @@
 /**
  * MarkdownContent Component
  *
- * Renders parsed markdown as structured HTML using Vue template rendering.
- * Supports headings, code blocks (via CodeViewer), blockquotes, lists (ordered,
- * unordered, task lists), tables, definition lists, horizontal rules, footnotes,
- * and inline formatting (bold, italic, links, images, code spans).
+ * A read-only markdown renderer. Tokenizes a markdown string with danx-ui's
+ * zero-dependency shared markdown parser and renders the result as real DOM via
+ * Vue templates — not a single `v-html` blob. Fenced and auto-detected code
+ * blocks become nested CodeViewer instances, so embedded code gets full syntax
+ * highlighting, copy support, and JSON/YAML format switching for free.
  *
- * Uses the shared markdown tokenizer/parser from danx-ui's shared utilities.
- * Code blocks are rendered as nested CodeViewer instances. Newlines within
- * paragraphs are converted to <br /> tags for soft line breaks.
+ * This is the lightest of the three markdown-capable components. It has no
+ * contenteditable surface, no toolbar, no context menu, and no popovers — reach
+ * for it when you are displaying markdown (chat messages, agent output, release
+ * notes, docs panes) rather than authoring it. Use MarkdownEditor when the user
+ * must be able to type, and CodeViewer with `format="markdown"` when you want
+ * the framed code-viewer chrome (label, footer, copy button, collapse) around
+ * the rendered markdown.
  *
- * Auto-detected (unfenced) JSON and YAML blocks respect the user's persisted
- * format preference from localStorage. When the user switches format on an
- * auto-detected block, the choice is saved and applied to all future
- * auto-detected blocks. Fenced code blocks always use their declared language.
+ * ## Features
+ * - Headings (`#` … `######`, plus setext `===` / `---` underlines)
+ * - Paragraphs with soft line breaks (newlines become `<br />`)
+ * - Fenced code blocks (```lang) rendered as nested CodeViewer instances
+ * - Auto-detected (unfenced) JSON / YAML blocks, also via CodeViewer
+ * - Blockquotes, rendered recursively so nested markdown inside them works
+ * - Unordered, ordered (with `start` offset), and arbitrarily nested lists
+ * - Task lists (`- [ ]` / `- [x]`) as disabled checkboxes
+ * - Tables with per-column left/center/right alignment
+ * - Definition lists (`Term` followed by `: Definition`)
+ * - Horizontal rules (`---`, `***`, `___`)
+ * - Footnotes (`[^id]` references collected into a footnotes section with backrefs)
+ * - Inline: bold, italic, bold+italic, inline code, links, reference links,
+ *   autolinks, images, strikethrough, highlight, superscript, subscript, escapes
+ * - Persisted JSON/YAML format preference for auto-detected blocks
+ * - No markdown library, and no @vueuse/core or luxon in its import graph
+ *   (it shares CodeViewer's `yaml` dependency for structured-data blocks)
  *
- * @props
- *   content: string - Raw markdown string to render (default: "")
- *   defaultCodeFormat?: "json" | "yaml" - Default format for embedded code blocks
+ * ## Props
+ * | Prop              | Type               | Default | Description                                      |
+ * |-------------------|--------------------|---------|--------------------------------------------------|
+ * | content           | string             | ""      | Raw markdown string to render                     |
+ * | defaultCodeFormat | "json" \| "yaml"   | -       | Default format for embedded structured-data blocks |
  *
- * @emits
- *   (none)
+ * ## Events
+ * None. The component is entirely read-only.
  *
- * @slots
- *   (none) - All content is rendered from the markdown source
+ * ## Slots
+ * None. All output is derived from the `content` prop.
  *
- * @tokens
- *   Inherits CodeViewer tokens for nested code blocks. No component-specific tokens.
+ * ## Format Preference
+ * Fenced blocks always render in their declared language. Auto-detected
+ * (unfenced) JSON/YAML blocks instead honour the user's persisted preference
+ * from localStorage (`dx-structured-data-format`, see
+ * shared/useStructuredDataPreference.ts). Switching format on an auto-detected
+ * block writes the preference, so every auto-detected block in the app follows
+ * suit on the next render.
  *
- * @example
- *   Basic markdown rendering:
- *     <MarkdownContent content="# Hello\n\nSome **bold** text." />
+ * ## CSS Tokens
+ * No component-specific tokens — everything is inherited:
+ * - Nested code blocks use the full `--dx-code-viewer-*` set (code-viewer-tokens.css)
+ * - The rendered markdown elements (headings, code spans, blockquotes, links,
+ *   rules, marks, tables) use the `--dx-mde-content-*` set defined in
+ *   markdown-editor-tokens.css and applied by the shared `.dx-markdown-content`
+ *   theme block in markdown-editor.css
  *
- *   With default code format for embedded blocks:
- *     <MarkdownContent :content="mdString" default-code-format="yaml" />
+ * Both sets are plain custom properties, so overriding them on any ancestor
+ * element restyles the rendered markdown.
+ *
+ * ## Usage Examples
+ *
+ * Basic rendering:
+ *   <MarkdownContent :content="message" />
+ *
+ * Prefer YAML for embedded structured-data blocks:
+ *   <MarkdownContent :content="mdString" default-code-format="yaml" />
+ *
+ * Rendering a list of chat messages cheaply:
+ *   <div v-for="m in messages" :key="m.id">
+ *     <MarkdownContent :content="m.body" />
+ *   </div>
+ *
+ * Restyling embedded code blocks via inherited tokens:
+ *   <MarkdownContent class="docs-body" :content="doc" />
+ *   <style>
+ *     .docs-body { --dx-code-viewer-font-size: 0.8125rem; }
+ *   </style>
+ *
+ * ## Security
+ * Markdown text is HTML-escaped before parsing, but link and image URL schemes
+ * are not currently validated. Sanitize untrusted markdown before passing it in.
  */
 -->
 

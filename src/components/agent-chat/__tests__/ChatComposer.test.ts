@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import ChatComposer from "../ChatComposer.vue";
@@ -101,6 +101,25 @@ describe("ChatComposer sending", () => {
     await type(w, "hi");
     await editor(w).trigger("keydown", { key: "a" });
     expect(w.emitted("send")).toBeUndefined();
+  });
+});
+
+describe("ChatComposer paste", () => {
+  // The composer takes no view on what a paste means — it hands the event up
+  // and lets the panel decide whether it becomes an attachment.
+  it("re-emits a paste to its host untouched", async () => {
+    const w = mount(ChatComposer);
+    // Emitted from the editor rather than dispatched on the DOM: happy-dom
+    // gives a constructed ClipboardEvent no clipboardData, which the editor's
+    // own handler cannot read. What matters here is that the composer passes
+    // the event straight up without consuming it.
+    const event = { preventDefault: vi.fn() } as unknown as ClipboardEvent;
+
+    w.findComponent({ name: "MarkdownEditor" }).vm.$emit("paste", event);
+    await nextTick();
+
+    expect(w.emitted("paste")?.[0]).toEqual([event]);
+    expect(event.preventDefault).not.toHaveBeenCalled();
   });
 });
 

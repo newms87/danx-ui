@@ -202,13 +202,7 @@ describe("DanxDropdownMenu", () => {
   });
 
   it("marks the chosen item active", async () => {
-    await mountDropdown(
-      [
-        { label: "Sonnet 5" },
-        { label: "Opus 5", active: true },
-      ],
-      { open: true }
-    );
+    await mountDropdown([{ label: "Sonnet 5" }, { label: "Opus 5", active: true }], { open: true });
 
     const items = wrapper.findAll(".danx-context-menu__item");
     expect(items[0]!.classes()).not.toContain("is-active");

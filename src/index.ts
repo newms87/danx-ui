@@ -32,7 +32,7 @@ export { DanxSpinner } from "./components/spinner";
 export { DanxIcon } from "./components/icon";
 export { DanxKbd, detectOs, resolveKeyLabel } from "./components/kbd";
 export type { DanxKbdOs, DanxKbdProps } from "./components/kbd";
-export { CodeViewer, DanxCodeDiff } from "./components/code-viewer";
+export { CodeViewer, DanxCodeDiff, MarkdownContent } from "./components/code-viewer";
 export { DanxContextMenu } from "./components/context-menu";
 export { DanxDropdownMenu } from "./components/dropdown-menu";
 export { DanxDialog, DialogBreadcrumbs } from "./components/dialog";
@@ -88,8 +88,10 @@ export { DanxTable } from "./components/table";
 export { DanxPagination } from "./components/pagination";
 export { DanxDragHandle } from "./components/drag-and-drop";
 export { DanxAgentChat } from "./components/agent-chat";
+export { DanxUsageMeter } from "./components/usage-meter";
 
 // Composables
+export { formatUsageValue, useUsageMeter } from "./components/usage-meter";
 export {
   useCodeFormat,
   useCodeViewerCollapse,
@@ -132,6 +134,19 @@ export {
   matchesModifiers,
 } from "./shared/composables/useHotkeys";
 export type { HotkeyOptions, ParsedHotkey } from "./shared/composables/useHotkeys";
+export {
+  usePasteFiles,
+  DEFAULT_LARGE_PASTE_THRESHOLD,
+  LARGE_PASTE_MIME,
+} from "./shared/composables/usePasteFiles";
+export type {
+  PasteFilesOptions,
+  PasteResult,
+  PasteResultKind,
+  PasteRejection,
+  PasteRejectionReason,
+  UsePasteFilesReturn,
+} from "./shared/composables/usePasteFiles";
 // DXUI-35: useScrollInfinite/useDanxScroll/useScrollWindow pull in @vueuse/core (optional
 // peer) — kept out of the main barrel; import from "danx-ui/components/scroll".
 // DXUI-153: useBreakpoints/useMediaQuery also pull in @vueuse/core — kept out of the
@@ -314,6 +329,16 @@ export type {
   ProgressBarTextAlign,
   ProgressBarTextPosition,
 } from "./components/progress-bar";
+export type {
+  DanxUsageMeterProps,
+  DanxUsageMeterSlots,
+  UsageMeterSegment,
+  UsageMeterSegmentGeometry,
+  UsageMeterSize,
+  UsageMeterSummary,
+  UseUsageMeterOptions,
+  UseUsageMeterReturn,
+} from "./components/usage-meter";
 export type {
   PreviewFile,
   ImageFit,

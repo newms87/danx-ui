@@ -196,6 +196,109 @@ describe("DanxAgentChat conversation", () => {
   });
 });
 
+describe("DanxAgentChat attachments", () => {
+  const uploadHandler = () =>
+    vi.fn(async (file: File) => ({
+      id: `server-${file.name}`,
+      name: file.name,
+      size: file.size,
+      mime: file.type,
+      url: `https://cdn.example.com/${file.name}`,
+    }));
+
+  /** happy-dom cannot populate a real DataTransfer, so the clipboard is stubbed. */
+  function pasteWith(files: File[], text = "") {
+    return {
+      preventDefault: vi.fn(),
+      clipboardData: {
+        items: files.map((f) => ({ kind: "file", type: f.type, getAsFile: () => f })),
+        files,
+        getData: () => text,
+      },
+    } as unknown as ClipboardEvent;
+  }
+
+  async function pasteIntoComposer(w: ReturnType<typeof mountChat>, event: ClipboardEvent) {
+    w.findComponent({ name: "ChatComposer" }).vm.$emit("paste", event);
+    await flushPromises();
+  }
+
+  it("stages a pasted image above the composer", async () => {
+    const w = mountChat(makeAdapter(), { props: { fileUploadHandler: uploadHandler() } });
+    await flushPromises();
+
+    await pasteIntoComposer(w, pasteWith([new File(["x"], "shot.png", { type: "image/png" })]));
+
+    expect(w.find('[data-testid="pending-attachments"]').text()).toContain("shot.png");
+  });
+
+  it("removes a staged file before it is sent", async () => {
+    const w = mountChat(makeAdapter(), { props: { fileUploadHandler: uploadHandler() } });
+    await flushPromises();
+    await pasteIntoComposer(w, pasteWith([new File(["x"], "shot.png", { type: "image/png" })]));
+
+    // DanxFile's remove is a two-step confirmation: first click arms it.
+    const remove = w.find('[data-testid="pending-attachments"] .danx-file__action-btn--remove');
+    await remove.trigger("click");
+    await remove.trigger("click");
+    await flushPromises();
+
+    expect(w.find('[data-testid="pending-attachments"]').exists()).toBe(false);
+  });
+
+  // No handler anywhere means no attachment affordance at all — a pasted image
+  // must fall through to the editor rather than vanish into a dead tray.
+  it("ignores a pasted image when no upload handler is configured", async () => {
+    const w = mountChat(makeAdapter());
+    await flushPromises();
+
+    const event = pasteWith([new File(["x"], "shot.png", { type: "image/png" })]);
+    await pasteIntoComposer(w, event);
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(w.find('[data-testid="pending-attachments"]').exists()).toBe(false);
+  });
+
+  it("sends the staged files with the message and clears the tray", async () => {
+    const apiAdapter = makeAdapter();
+    const w = mountChat(apiAdapter, { props: { fileUploadHandler: uploadHandler() } });
+    await flushPromises();
+    await pasteIntoComposer(w, pasteWith([new File(["x"], "shot.png", { type: "image/png" })]));
+
+    await type(w, "what is this");
+    await flushPromises();
+
+    expect(apiAdapter.sendMessage).toHaveBeenCalledWith(
+      "SAQ-1",
+      "what is this",
+      expect.anything(),
+      expect.arrayContaining([expect.objectContaining({ name: "shot.png" })])
+    );
+    expect(w.find('[data-testid="pending-attachments"]').exists()).toBe(false);
+  });
+
+  it("re-emits openAttachment from a message in the thread", async () => {
+    const file = {
+      id: "f1",
+      name: "report.csv",
+      size: 10,
+      mime: "text/csv",
+      url: "https://x/report.csv",
+    };
+    const apiAdapter = makeAdapter({
+      getThread: vi
+        .fn()
+        .mockResolvedValue({ messages: [{ id: "m1", role: "user", attachments: [file] }] }),
+    });
+    const w = mountChat(apiAdapter);
+    await flushPromises();
+
+    await w.find('[data-testid="attachment"]').trigger("click");
+
+    expect(w.emitted("openAttachment")?.[0]).toEqual([file]);
+  });
+});
+
 describe("DanxAgentChat empty state", () => {
   it("shows suggestions and sends the chosen one", async () => {
     const apiAdapter = makeAdapter();

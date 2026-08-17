@@ -359,10 +359,97 @@ describe("MarkdownContent", () => {
     });
   });
 
+  describe("inline formatting", () => {
+    it("renders bold text", () => {
+      const wrapper = mountMarkdown("This is **bold** text");
+      expect(wrapper.find("p").html()).toContain("<strong>bold</strong>");
+    });
+
+    it("renders italic text", () => {
+      const wrapper = mountMarkdown("This is *italic* text");
+      expect(wrapper.find("p").html()).toContain("<em>italic</em>");
+    });
+
+    it("renders bold and italic together", () => {
+      const wrapper = mountMarkdown("This is ***both*** styles");
+      const html = wrapper.find("p").html();
+      expect(html).toContain("<strong>");
+      expect(html).toContain("<em>");
+    });
+
+    it("renders inline code spans", () => {
+      const wrapper = mountMarkdown("Call `useMarkdown()` first");
+      const code = wrapper.find("p code");
+      expect(code.exists()).toBe(true);
+      expect(code.text()).toBe("useMarkdown()");
+    });
+
+    it("renders links with href", () => {
+      const wrapper = mountMarkdown("See [the docs](https://example.com/docs)");
+      const link = wrapper.find("p a");
+      expect(link.exists()).toBe(true);
+      expect(link.attributes("href")).toBe("https://example.com/docs");
+      expect(link.text()).toBe("the docs");
+    });
+
+    it("renders images with src and alt", () => {
+      const wrapper = mountMarkdown("![A logo](https://example.com/logo.png)");
+      const img = wrapper.find("img");
+      expect(img.exists()).toBe(true);
+      expect(img.attributes("src")).toBe("https://example.com/logo.png");
+      expect(img.attributes("alt")).toBe("A logo");
+    });
+
+    it("renders inline formatting inside list items", () => {
+      const wrapper = mountMarkdown("- An **important** item");
+      expect(wrapper.find("li").html()).toContain("<strong>important</strong>");
+    });
+
+    it("renders inline formatting inside table cells", () => {
+      const md = "| Name | Note |\n|---|---|\n| `code` | **bold** |";
+      const wrapper = mountMarkdown(md);
+      const cells = wrapper.findAll("td");
+      expect(cells[0]!.html()).toContain("<code>");
+      expect(cells[1]!.html()).toContain("<strong>");
+    });
+  });
+
+  describe("plain prose", () => {
+    it("renders unmarked prose as a single paragraph", () => {
+      const wrapper = mountMarkdown("Just a sentence with no markup at all.");
+      const paragraphs = wrapper.findAll("p");
+      expect(paragraphs).toHaveLength(1);
+      expect(paragraphs[0]!.text()).toBe("Just a sentence with no markup at all.");
+    });
+
+    it("renders multiple prose paragraphs separated by blank lines", () => {
+      const wrapper = mountMarkdown("First paragraph.\n\nSecond paragraph.");
+      const paragraphs = wrapper.findAll("p");
+      expect(paragraphs).toHaveLength(2);
+      expect(paragraphs[0]!.text()).toBe("First paragraph.");
+      expect(paragraphs[1]!.text()).toBe("Second paragraph.");
+    });
+
+    it("renders no markup elements for plain prose", () => {
+      const wrapper = mountMarkdown("Nothing special here.");
+      expect(wrapper.find("strong").exists()).toBe(false);
+      expect(wrapper.find("em").exists()).toBe(false);
+      expect(wrapper.find("code").exists()).toBe(false);
+      expect(wrapper.find("ul").exists()).toBe(false);
+    });
+  });
+
   describe("defaults", () => {
     it("defaults content to empty string", () => {
       const wrapper = mount(MarkdownContent, { props: { content: "" } });
       expect(wrapper.find(".dx-markdown-content").exists()).toBe(true);
+    });
+  });
+
+  describe("public export", () => {
+    it("is exported from the code-viewer module barrel", async () => {
+      const mod = await import("../index");
+      expect(mod.MarkdownContent).toBeDefined();
     });
   });
 });

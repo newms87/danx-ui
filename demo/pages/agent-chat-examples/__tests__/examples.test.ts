@@ -64,9 +64,22 @@ async function tick(ms = 2000) {
   await flushPromises();
 }
 
+/**
+ * The composer hosts a MarkdownEditor, so typing means writing into its
+ * contenteditable and firing `input`. The editor syncs HTML back to markdown
+ * through a debounce, which the fake clock has to be advanced past.
+ */
+async function typeInComposer(w: ReturnType<typeof compileAndMount>, text: string) {
+  const el = w.find(".dx-markdown-editor-content");
+  el.element.innerHTML = `<p>${text}</p>`;
+  await el.trigger("input");
+  await tick(0);
+  return el;
+}
+
 async function send(w: ReturnType<typeof compileAndMount>, text: string) {
-  await w.find('[data-testid="composer-input"]').setValue(text);
-  await w.find('[data-testid="composer-input"]').trigger("keydown", { key: "Enter" });
+  const el = await typeInComposer(w, text);
+  await el.trigger("keydown", { key: "Enter" });
   await tick();
 }
 
@@ -161,8 +174,8 @@ describe("agent-chat demo examples behave", () => {
     const w = compileAndMount(streamingReply);
     await tick();
 
-    await w.find('[data-testid="composer-input"]').setValue("tell me");
-    await w.find('[data-testid="composer-input"]').trigger("keydown", { key: "Enter" });
+    const el = await typeInComposer(w, "tell me");
+    await el.trigger("keydown", { key: "Enter" });
     await tick(600);
 
     const assistant = w.findAll(".danx-agent-chat-message--assistant");
@@ -177,8 +190,8 @@ describe("agent-chat demo examples behave", () => {
     const w = compileAndMount(escalatedJob);
     await tick();
 
-    await w.find('[data-testid="composer-input"]').setValue("analyze");
-    await w.find('[data-testid="composer-input"]').trigger("keydown", { key: "Enter" });
+    const el = await typeInComposer(w, "analyze");
+    await el.trigger("keydown", { key: "Enter" });
     await tick(2500);
 
     expect(w.find('[data-testid="working-state"]').exists()).toBe(true);
@@ -194,8 +207,8 @@ describe("agent-chat demo examples behave", () => {
     const w = compileAndMount(escalatedJob);
     await tick();
 
-    await w.find('[data-testid="composer-input"]').setValue("analyze");
-    await w.find('[data-testid="composer-input"]').trigger("keydown", { key: "Enter" });
+    const el = await typeInComposer(w, "analyze");
+    await el.trigger("keydown", { key: "Enter" });
     await tick(30000);
 
     expect(w.find('[data-testid="packet"]').exists()).toBe(true);
@@ -236,9 +249,7 @@ describe("agent-chat demo examples behave", () => {
     await tick();
 
     expect(w.find('[data-testid="chat-unavailable"]').exists()).toBe(true);
-    expect((w.find('[data-testid="composer-input"]').element as HTMLTextAreaElement).disabled).toBe(
-      true
-    );
+    expect(w.find(".dx-markdown-editor-content").attributes("contenteditable")).toBe("false");
     w.unmount();
   });
 

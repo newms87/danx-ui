@@ -198,6 +198,11 @@ watch(theme, (newTheme) => {
                 >
               </li>
               <li>
+                <RouterLink to="/markdown-content" class="demo-sidebar__link"
+                  >Markdown Content</RouterLink
+                >
+              </li>
+              <li>
                 <RouterLink to="/tabs" class="demo-sidebar__link">Tabs</RouterLink>
               </li>
               <li>
@@ -208,6 +213,9 @@ watch(theme, (newTheme) => {
               </li>
               <li>
                 <RouterLink to="/progress-bar" class="demo-sidebar__link">Progress Bar</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/usage-meter" class="demo-sidebar__link">Usage Meter</RouterLink>
               </li>
               <li>
                 <RouterLink to="/split-panel" class="demo-sidebar__link">Split Panel</RouterLink>
@@ -294,6 +302,9 @@ watch(theme, (newTheme) => {
               </li>
               <li>
                 <RouterLink to="/hotkeys" class="demo-sidebar__link">Hotkeys</RouterLink>
+              </li>
+              <li>
+                <RouterLink to="/paste-files" class="demo-sidebar__link">Paste Files</RouterLink>
               </li>
             </ul>
           </li>

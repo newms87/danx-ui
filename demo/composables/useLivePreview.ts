@@ -87,6 +87,7 @@ import {
 import {
   CodeViewer,
   DanxCodeDiff,
+  MarkdownContent,
   computeLineDiff,
   computeSplitDiff,
   useCodeFormat,
@@ -110,6 +111,7 @@ import { DanxTabs } from "../../src/components/tabs";
 import { DanxToast, DanxToastContainer, useToast, useToastTimer } from "../../src/components/toast";
 import { DanxTooltip } from "../../src/components/tooltip";
 import { DanxProgressBar } from "../../src/components/progress-bar";
+import { DanxUsageMeter, formatUsageValue, useUsageMeter } from "../../src/components/usage-meter";
 import { DanxSplitPanel, SplitPanelHandle, useSplitPanel } from "../../src/components/split-panel";
 import { DanxDragHandle, useDragAndDrop } from "../../src/components/drag-and-drop";
 import {
@@ -180,6 +182,11 @@ import {
   matchesHotkey,
   matchesModifiers,
 } from "../../src/shared/composables/useHotkeys";
+import {
+  usePasteFiles,
+  DEFAULT_LARGE_PASTE_THRESHOLD,
+  LARGE_PASTE_MIME,
+} from "../../src/shared/composables/usePasteFiles";
 import {
   resolveFileUrl,
   resolveThumbUrl,
@@ -305,6 +312,7 @@ export const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxIcon,
   CodeViewer,
   DanxCodeDiff,
+  MarkdownContent,
   DanxContextMenu,
   DanxDropdownMenu,
   DanxDialog,
@@ -324,6 +332,7 @@ export const REGISTERED_COMPONENTS: Record<string, Component> = {
   DanxFile,
   DanxFileViewer,
   DanxProgressBar,
+  DanxUsageMeter,
   DanxSplitPanel,
   SplitPanelHandle,
   DanxDragHandle,
@@ -390,6 +399,7 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   DanxIcon,
   CodeViewer,
   DanxCodeDiff,
+  MarkdownContent,
   computeLineDiff,
   computeSplitDiff,
   DanxContextMenu,
@@ -477,6 +487,10 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   isStructuredDataFormat,
   // DanxProgressBar
   DanxProgressBar,
+  // DanxUsageMeter
+  DanxUsageMeter,
+  useUsageMeter,
+  formatUsageValue,
   // DanxFile + DanxFileViewer
   DanxFile,
   DanxFileViewer,
@@ -504,6 +518,9 @@ const AVAILABLE_VALUES: Record<string, unknown> = {
   parseHotkey,
   matchesHotkey,
   matchesModifiers,
+  usePasteFiles,
+  DEFAULT_LARGE_PASTE_THRESHOLD,
+  LARGE_PASTE_MIME,
   // Zoomable
   DanxZoomable,
   DanxZoomControls,
