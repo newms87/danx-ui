@@ -100,6 +100,12 @@ const menuRef = ref<HTMLElement | null>(null);
 const activeSubmenuId = ref<string | null>(null);
 let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
 
+function clearHoverTimeout(): void {
+  if (!hoverTimeout) return;
+  clearTimeout(hoverTimeout);
+  hoverTimeout = null;
+}
+
 /**
  * Roving-tabindex model: exactly one item across the whole widget (root list
  * OR the open submenu) is a Tab-stop at a time — the item id in `activeItemId`.
@@ -264,7 +270,13 @@ watch(activeSubmenuId, (id) => {
  * v-model with an explicit @update:model-value listener.
  */
 watch(isOpen, (val) => {
-  if (!val) emit("close");
+  if (val) return;
+  // Closing unmounts the panel, so a hover timer armed moments earlier would
+  // fire into a menu that no longer has anything to open a submenu against.
+  clearHoverTimeout();
+  activeSubmenuId.value = null;
+  focusedSubmenuParentId.value = null;
+  emit("close");
 });
 
 /**
@@ -278,8 +290,9 @@ const ESTIMATED_MENU_WIDTH = 320;
 const submenuOpenLeft = ref(false);
 
 function getMenuPanel(): Element {
-  // menuRef is bound synchronously during render, before the watch below can
-  // ever invoke this — it is never null when called.
+  // Every path that opens a submenu runs against a rendered menu, and closing
+  // disarms the pending hover timer (see the isOpen watch), so menuRef is
+  // always bound by the time the watch below measures.
   return menuRef.value!.closest(".danx-popover") ?? menuRef.value!;
 }
 
@@ -309,11 +322,7 @@ function isItemActive(item: ContextMenuItem): boolean {
 
 function handleItemHover(item: ContextMenuItem): void {
   setActiveItem(item.id);
-
-  if (hoverTimeout) {
-    clearTimeout(hoverTimeout);
-    hoverTimeout = null;
-  }
+  clearHoverTimeout();
 
   if (item.children?.length) {
     hoverTimeout = setTimeout(() => {
@@ -325,10 +334,7 @@ function handleItemHover(item: ContextMenuItem): void {
 }
 
 function handleItemLeave(): void {
-  if (hoverTimeout) {
-    clearTimeout(hoverTimeout);
-    hoverTimeout = null;
-  }
+  clearHoverTimeout();
 
   hoverTimeout = setTimeout(() => {
     activeSubmenuId.value = null;
@@ -336,10 +342,7 @@ function handleItemLeave(): void {
 }
 
 function handleSubmenuEnter(): void {
-  if (hoverTimeout) {
-    clearTimeout(hoverTimeout);
-    hoverTimeout = null;
-  }
+  clearHoverTimeout();
 }
 
 function handleSubmenuLeave(): void {
@@ -365,11 +368,7 @@ function onItemClick(item: ContextMenuItem): void {
   emit("close");
 }
 
-onUnmounted(() => {
-  if (hoverTimeout) {
-    clearTimeout(hoverTimeout);
-  }
-});
+onUnmounted(clearHoverTimeout);
 </script>
 
 <template>

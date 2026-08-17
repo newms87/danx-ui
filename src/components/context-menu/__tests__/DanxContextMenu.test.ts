@@ -325,6 +325,20 @@ describe("DanxContextMenu", () => {
       expect(submenu.classes()).not.toContain("open-left");
     });
 
+    // Regression: hovering a submenu parent arms a 100ms open timer. Closing
+    // the menu inside that window unmounts the panel but left the timer armed,
+    // so it fired into a menu with nothing left to measure and threw.
+    it("does not open a submenu after the menu closes inside the hover delay", async () => {
+      await mountMenu([createItem({ children: [createItem({ id: "child-1", label: "Child" })] })]);
+
+      await wrapper.find(".danx-context-menu__item-wrapper").trigger("mouseenter");
+      await wrapper.setProps({ open: false });
+      await nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(wrapper.find(".danx-context-menu__submenu").exists()).toBe(false);
+    });
+
     it("falls back to the menu list element when no ancestor popover panel is found", async () => {
       await mountMenu([createItem({ children: [createItem({ id: "child-1", label: "Child" })] })], {
         x: 900,
