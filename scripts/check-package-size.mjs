@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 // DXUI-39: fails loud if the published npm tarball regresses — carries a
-// dist/node_modules/ directory, ships .map files, or exceeds the size budget
-// calibrated against the current danx-icon-only (no-yaml) baseline.
+// dist/node_modules/ directory, ships .map files, or exceeds the size budget.
+// The budgets themselves live in package-size-budget.mjs, shared with
+// npmPackOutput.test.ts so the two enforcement points cannot drift apart.
 import { execFileSync } from "child_process";
-
-const MAX_UNPACKED_BYTES = 1.8 * 1024 * 1024; // ~1.2MB observed baseline + headroom
-const MAX_FILE_COUNT = 1150; // ~1130 observed baseline (DXUI-170) + headroom
+import { MAX_FILE_COUNT, MAX_UNPACKED_BYTES } from "./package-size-budget.mjs";
 
 const output = execFileSync("npm", ["pack", "--dry-run", "--json"], {
   encoding: "utf-8",

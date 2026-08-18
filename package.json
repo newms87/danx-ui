@@ -346,6 +346,7 @@
   "files": [
     "dist",
     "!dist/**/*.map",
+    "!dist/**/__tests__",
     "!dist/node_modules",
     "README.md",
     "LICENSE"
