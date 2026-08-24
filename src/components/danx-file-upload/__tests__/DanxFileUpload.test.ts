@@ -15,8 +15,16 @@ const DanxFieldWrapperStub = markRaw(
 
 const DanxFileStub = markRaw(
   defineComponent({
-    props: ["file", "size", "showFilename", "showFileSize", "removable", "disabled"],
-    emits: ["remove", "retry"],
+    props: [
+      "file",
+      "size",
+      "showFilename",
+      "showFileSize",
+      "removable",
+      "downloadable",
+      "disabled",
+    ],
+    emits: ["remove", "retry", "download"],
     template: `<div class="danx-file-stub" :data-file-id="file.id">{{ file.name }}</div>`,
   })
 );
@@ -377,6 +385,36 @@ describe("DanxFileUpload", () => {
       await nextTick();
 
       expect(wrapper.find(".danx-dialog-stub").exists()).toBe(false);
+    });
+
+    it("passes downloadable prop to each file thumbnail", async () => {
+      // Regression: downloadable was only forwarded to DanxFileViewer, so a file could not be
+      // downloaded without first opening the full-screen viewer.
+      const files = [makeFile("1"), makeFile("2")];
+      const wrapper = createWrapper({ downloadable: true }, files);
+
+      const thumbs = wrapper.findAllComponents(DanxFileStub);
+      expect(thumbs).toHaveLength(2);
+      thumbs.forEach((thumb) => expect(thumb.props("downloadable")).toBe(true));
+    });
+
+    it("does not mark thumbnails downloadable by default", async () => {
+      const wrapper = createWrapper({}, [makeFile("1")]);
+
+      expect(wrapper.findComponent(DanxFileStub).props("downloadable")).toBe(false);
+    });
+
+    it("forwards download event from a file thumbnail", async () => {
+      const files = [makeFile("1")];
+      const wrapper = createWrapper({ downloadable: true }, files);
+
+      const downloadEvent = { file: files[0], url: files[0]!.url! };
+      wrapper.findComponent(DanxFileStub).vm.$emit("download", downloadEvent);
+      await nextTick();
+
+      const emitted = wrapper.emitted("download");
+      expect(emitted).toBeTruthy();
+      expect(emitted![0]![0]).toEqual(downloadEvent);
     });
 
     it("passes downloadable prop to DanxFileViewer", async () => {

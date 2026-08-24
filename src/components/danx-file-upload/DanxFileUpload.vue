@@ -34,11 +34,15 @@
  *   showFileSize?: boolean - Show file size below thumbnails
  *   uploadFn?: FileUploadHandler - Per-instance upload handler override
  *   viewable?: boolean - Enable click-to-view in full-screen viewer (default: true)
- *   downloadable?: boolean - Show download button in viewer (default: false)
+ *   downloadable?: boolean - Show download button on each file thumbnail AND in the
+ *     full-screen viewer (default: false). Forwarded to both DanxFile and DanxFileViewer
+ *     so a file can be saved without opening the viewer first.
  *
  * @emits
  *   remove(file) - File removed from the model
- *   download(event) - Forwarded from DanxFileViewer when download is clicked
+ *   download(event) - Download clicked, from a file thumbnail or the viewer. Preventable:
+ *     call event.preventDefault() to suppress the built-in download and supply your own
+ *     (e.g. to save the original upload rather than an optimized derivative).
  *
  * @slots
  *   empty - Custom empty state content for the add button area
@@ -193,10 +197,12 @@ function onLoadChildren(file: PreviewFile) {
           :show-filename="showFilename"
           :show-file-size="showFileSize"
           removable
+          :downloadable="downloadable"
           :disabled="!!disabled"
           :class="{ 'cursor-pointer': viewable && !isUploading(file) }"
           @remove="onRemoveFile"
           @retry="onRetryFile"
+          @download="emit('download', $event)"
           @click="onFileClick(file)"
         />
 
